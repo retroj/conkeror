@@ -363,7 +363,7 @@ function setVisibility (doc, link_state, img_state)
     }
     // Changing the visibility may have changed the layout. So update
     // the floater positions
-    if (img_state)
+    if (img_state || link_state)
 	update_nl_pos (doc);
 }
 
