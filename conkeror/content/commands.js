@@ -53,7 +53,6 @@ var commands = [
     ["end-of-line",     		end_of_line,    		[]],
     ["execute-extended-command",        meta_x, 			[]],
     ["find-url", 			find_url, 			[]],
-    ["flip", 			split_flip, 			[]],
     ["focus-window", 			focus_window, 			[]],
     ["go-back", 			goBack, 			[]],
     ["go-forward", 			goForward, 			[]],
@@ -61,7 +60,6 @@ var commands = [
     ["isearch-forward", 		isearch_forward, 		[]],
     ["keyboard-quit", 			stopLoading, 			[]],
     ["kill-browser", 			kill_browser, 			[]],
-    ["my-paste",			my_paste, 			[]],
     ["next-frame", 		        nextFrame,      		[]],
     ["numberedlinks-1", 		selectNumberedLink_1, 		[]],
     ["numberedlinks-2", 		selectNumberedLink_2, 		[]],
@@ -76,12 +74,19 @@ var commands = [
     ["open-url", 			open_url, 			[]],
     ["quit", 				quit, 				[]],
     ["revert-browser", 			reload, 			[]],
-    ["split-window-horizontal",		split_window_horizontally, 	[]],
+    ["switch-to-browser-other-window",	switch_browser_other_window, 	[]],
     ["stop-loading", 			stopLoading, 			[]],
-    ["switch-browser-other-frame", 	new_frame, 			[]],
+    ["switch-to-browser-other-frame", 	new_frame, 			[]],
     ["switch-to-browser", 		switch_to_buffer,		[]],
     ["view-source", 			view_source, 			[]],
-    ["yank", 				yankToClipboard,        	[]]];
+    ["view-source", 			view_source, 			[]],
+    ["split-flip",                      split_flip,                     []],
+    ["delete-other-windows",            delete_other_windows,           []],
+    ["delete-window",                   delete_window,                  []],
+    ["other-window",                    other_window,                   []],
+    ["view-source", 			view_source, 			[]],
+    ["split-window", 			split_window, 			[]],
+    ["yank-to-clipboard",		yankToClipboard,        	[]]];
 
 
 function exec_command(cmd)
@@ -272,15 +277,19 @@ function find_url()
 }
 
 
-function goto_buffer(buf)
+function get_buffer_from_name(buf)
 {
     var bs = getBrowser().getBrowserNames();
     for (var i=0; i<bs.length; i++) {
 	if (bs[i] == buf) {
-	    getBrowser().setCurrentBrowser(getBrowser().getBrowserAtIndex(i));
-	    return;
+	    return getBrowser().getBrowserAtIndex(i);
 	}
     }
+}
+
+function goto_buffer(buf)
+{
+    getBrowser().setCurrentBrowser(get_buffer_from_name(buf));
 }
 
 function switch_to_buffer()
@@ -380,19 +389,53 @@ function inject_css()
     doc.createLinkNode;
 }
 
-function split_window_horizontally()
+//// Split windows
+
+function switch_browser_other_window()
 {
-    getBrowser().hSplit();
+    var defBrowser = "FIXME";
+    var bufs = getBrowser().getBrowserNames();
+    var matches = zip2(bufs,bufs);
+    miniBufferComplete("Switch to buffer in other window: (default " + defBrowser + ") ", "buffer", matches, function(b) {getBrowser().split(get_buffer_from_name(b));getBrowser().focusOther();});
 }
+
+function split_window()
+{
+    try {
+    var c = getBrowser().mBrowserContainer;
+    var b = getBrowser().mCurrentBrowser;
+    var ob;
+    if (c.length <= 1) {
+	return;
+    }
+    if (b == c.lastChild.firstChild)
+	ob = c.firstChild.firstChild;
+    else
+	ob = b.parentNode.nextSibling.firstChild;
+    getBrowser().split(ob);
+    } catch(e) {alert(e);}
+}
+
 
 function split_flip()
 {
     getBrowser().flip();
 }
 
-function my_paste()
+function delete_other_windows()
 {
-    goDoCommand("cmd_paste");
+    getBrowser().removeSplit();
+}
+
+function delete_window()
+{
+    getBrowser().focusOther();
+    getBrowser().removeSplit();
+}
+
+function other_window()
+{
+    getBrowser().focusOther();
 }
 
 function bookmark_bmenu_list()

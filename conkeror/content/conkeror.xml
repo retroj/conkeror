@@ -8,7 +8,7 @@
 <binding id="conkframe">
       <content>
           <xul:box flex="1" orient="horizontal">
-            <xul:vbox flex="1">
+            <xul:vbox flex="100">
 	      <xul:browser flex="1" type="content-primary"/>
 	        <xul:statusbar class="mode-line">
 		  <xul:statusbarpanel class="mode-line" label="" flex="1"/>
@@ -110,6 +110,41 @@
           ]]>
 </body>
       </method>
+      <method name="focusBrowser">
+        <parameter name="aBrowser"/>
+	<body>
+	<![CDATA[
+	  try {
+            function setFocus(element) {
+              Components.lookupMethod(element, "focus").call(element);
+            }
+
+	    if (this.mCurrentBrowser) {
+              this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedWindow;
+              this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
+              this.mCurrentBrowser.setAttribute("type", "content");
+            }
+	    //aBrowser.setAttribute("ordinal", this.mCurrentBrowser.getAttribute("ordinal"));
+	    this.mCurrentBrowser = aBrowser;
+            aBrowser.setAttribute("type", "content-primary");
+
+            document.commandDispatcher.suppressFocusScroll = true;
+            if (aBrowser.focusedElement) {
+              try {
+                setFocus(aBrowser.focusedElement);
+              } catch (e) {
+                setFocus(aBrowser.focusedWindow);
+              }
+            }
+            else if (aBrowser.focusedWindow)
+              setFocus(aBrowser.focusedWindow);
+            else // new tab, focus our new content area
+              setTimeout(setFocus, 0, window.content);
+            document.commandDispatcher.suppressFocusScroll = false;
+	  } catch(e) {alert(e);}
+	]]>
+	</body>
+      </method>
       <method name="setCurrentBrowser">
         <parameter name="aBrowser"/>
         <body>
@@ -120,60 +155,16 @@
 	    if (this.mCurrentBrowser == newBrowser) {
 	      return;
 	    }
-
-
+	    // Hide the current browser, show the new one
             if (this.mCurrentBrowser) {
-              this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedWindow;
-              this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
-              this.mCurrentBrowser.setAttribute("type", "content");
-	      try {
 	      this.mCurrentBrowser.parentNode.setAttribute("collapsed", "true");
-	      } catch(e) {alert("parent " + e);}
-            }
-
-            newBrowser.setAttribute("type", "content-primary");
+	    }
 	    newBrowser.parentNode.setAttribute("collapsed", "false");
-	    this.mCurrentBrowser = newBrowser;
-
-            function setFocus(element) {
-              Components.lookupMethod(element, "focus").call(element);
-            }
-
-	    this.updateModeLine();
-
-            document.commandDispatcher.suppressFocusScroll = true;
-            if (newBrowser.focusedElement) {
-              try {
-                setFocus(newBrowser.focusedElement);
-              } catch (e) {
-                setFocus(newBrowser.focusedWindow);
-              }
-            }
-            else if (newBrowser.focusedWindow)
-              setFocus(newBrowser.focusedWindow);
-            else // new tab, focus our new content area
-              setTimeout(setFocus, 0, window.content);
-
-	      } catch (e) { window.alert(e); }
-            document.commandDispatcher.suppressFocusScroll = false;
+	    // give the new browser focus
+	    this.focusBrowser(newBrowser);
+	    } catch(e) {alert(e);}
           ]]>	    	
         </body>
-      </method>
-      <method name="updateModeLine">
-        <body>
-	<![CDATA[
-	try {
-	    // Update the modeline
-	    if (this.mProgressListener) {
-              var loc = this.mCurrentBrowser.currentURI;
-	      if (!loc)
-                loc = ({ spec: "" });
-	      this.mProgressListener.onLocationChange(this.mCurrentBrowser.webProgress,
-	                                              null, loc);
-            }
-} catch(e){alert(e);}
-	]]>
-	</body>
       </method>
       <method name="killBrowser">
         <parameter name="aBrowser"/>
@@ -192,8 +183,8 @@
 
 	    // pick the next browser to be the new current browser
 	    var newBrowser;
-	    if (aBrowser == this.mBrowserContainer.lastChild)
-	      newBrowser = this.mBrowserContainer.lastChild.previousSibling;
+	    if (aBrowser == this.mBrowserContainer.lastChild.firstChild)
+	      newBrowser = this.mBrowserContainer.lastChild.previousSibling.firstChild;
 	    else
               newBrowser = aBrowser.parentNode.nextSibling.firstChild;
 
@@ -241,49 +232,51 @@
 	]]>
 	</body>
       </method>
-      <method name="hSplit">
+      <method name="split">
+      <parameter name="otherBrowser"/>
       <body>
       <![CDATA[
       try {
-        var h = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
-        var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "spacer");
-	s.setAttribute("width", "2");
-	h.setAttribute("flex", "1");
-	var b = this.mCurrentBrowser;
-	var b2;
-        if (this.mCurrentBrowser.parentNode == this.mBrowserContainer.lastChild)
-	  b2  = this.mBrowserContainer.firstChild.firstChild;
-	else
-          b2 = this.mCurrentBrowser.parentNode.nextSibling.firstChild;
-	var b_parent = b.parentNode;
-	var b2_parent = b2.parentNode;
-        var new_b = b_parent.cloneNode(true);
-        var new_b2 = b2_parent.cloneNode(true);
- 	this.mBrowserContainer.removeChild(b.parentNode);
-	this.mBrowserContainer.removeChild(b2.parentNode);
-
-	h.appendChild(new_b);
-	h.appendChild(s);
-	h.appendChild(new_b2);
-<!-- 	b.parentNode.removeChild(b); -->
-	
-<!-- 	b_parent.removeChild(b); -->
-<!-- 	b2_parent.removeChild(b2); -->
-<!-- 	b_parent.appendChild(new_b); -->
-<!-- 	b2_parent.appendChild(new_b2); -->
-
-	new_b2.parentNode.setAttribute("collapsed", "false");
-
-<!-- 	this.mBrowserContainer.setAttribute("orient", "vertical"); -->
-
-	this.mBrowserContainer.appendChild(h);
-
-<!-- 	this.mBrowserContainer.appendChild(b2.parentNode); -->
-<!-- 	this.mBrowserContainer.appendChild(b.parentNode); -->
-
-<!-- 	setTimeout(b2.reload, 0); -->
-<!-- 	b.reload(); -->
-
+        if (otherBrowser == this.mCurrentBrowser) {
+	  return;
+        }
+        // Make sure there isn't already a split
+        for (var i=0; i<this.mBrowsers.length; i++) {
+	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
+	      && this.mBrowsers[i] != this.mCurrentBrowser) {
+	      return;
+          }
+        }
+	otherBrowser.parentNode.setAttribute("collapsed", "false");
+      } catch(e) {alert(e);}
+      ]]>
+      </body>
+      </method>
+      <method name="removeSplit">
+      <body>
+      <![CDATA[
+      try {
+        for (var i=0; i<this.mBrowsers.length; i++) {
+	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
+	      && this.mBrowsers[i] != this.mCurrentBrowser) {
+	      this.mBrowsers[i].parentNode.setAttribute("collapsed", "true");
+	  }
+        }
+      } catch(e) {alert(e);}
+      ]]>
+      </body>
+      </method>
+      <method name="focusOther">
+      <body>
+      <![CDATA[
+      try {
+        for (var i=0; i<this.mBrowsers.length; i++) {
+	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
+	      && this.mBrowsers[i] != this.mCurrentBrowser) {
+	      this.focusBrowser(this.mBrowsers[i]);
+	      return;
+	  }
+        }
       } catch(e) {alert(e);}
       ]]>
       </body>
@@ -306,9 +299,10 @@
       try {
         var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "browser"); 
 	b.setAttribute("type", "content");
-	b.setAttribute("flex", "1");        
+	b.setAttribute("flex", "1");
 	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
-	v.setAttribute("flex", "1");
+	v.setAttribute("flex", "100");
+<!-- 	v.setAttribute("style", "min-width:50%"); -->
 	var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "statusbar"); 
 	s.setAttribute("class", "mode-line");
 	var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "statusbarpanel"); 
@@ -346,7 +340,7 @@
                 readonly="true"/>
 
       <property name="browsers"
-                onget="return document.getElementsByTagName('browser');"
+                onget="return this.mBrowserContainer.getElementsByTagName('browser');"
                 readonly="true"/>
 
       <constructor>

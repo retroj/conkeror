@@ -94,7 +94,7 @@ function focusFindBarBW()
 
 function closeFindBar()
 {
-    closeInput(true);
+    closeInput(true, false);
 }
 
 
@@ -402,10 +402,10 @@ function onFindKeyPress(event)
 	resumeFindState(lastFindState());
     } else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE
 	       || (event.ctrlKey && (event.charCode == 103))) { // C-g
+	closeFindBar();
 	gWin.scrollTo(gFindState[0]["screenx"], gFindState[0]["screeny"]);
 	clearSelection();
 	clearHighlight();
-	closeFindBar();
     } else if (event.charCode && !event.ctrlKey && !event.altKey) {
 	var str;
 	str = lastFindState()["search-str"];
@@ -414,9 +414,9 @@ function onFindKeyPress(event)
 	resumeFindState(lastFindState());
     } else {
 	// Anything else closes i-search
+	closeFindBar();
 	gLastSearch = lastFindState()["search-str"];
 	clearHighlight();
-	closeFindBar();
     }
 
     // We control what goes into the input box

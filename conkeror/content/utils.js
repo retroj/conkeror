@@ -74,7 +74,7 @@ function initHistory(id)
 
 function handle_history(event, field)
 {
-    if (event.charCode == 110 && event.ctrlKey) {
+    if (event.charCode == 110 && event.altKey) {
 	if (gHistoryArray != null) {
 	    gHistoryPoint++;
 	    if (gHistoryPoint < gHistoryArray.length) {
@@ -84,7 +84,7 @@ function handle_history(event, field)
 	    }
 	}
 	return true;
-    } else if (event.charCode == 112 && event.ctrlKey) {
+    } else if (event.charCode == 112 && event.altKey) {
 	if (gHistoryArray != null) {
 	    gHistoryPoint--;
 	    if (gHistoryPoint >= 0) {
@@ -133,24 +133,27 @@ function miniBufferKeyPress(event)
     if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	try{
 	    var val = field.value;
-	    closeInput(true);
+	    closeInput(true, true);
 	    addHistory(val);
-	    if (gReadFromMinibufferCallBack)
-		gReadFromMinibufferCallBack(val);
+	    var callback = gReadFromMinibufferCallBack;
 	    gReadFromMinibufferCallBack = null;
+	    if (callback)
+		callback(val);
 	} catch (e) {window.alert(e);}
 	//    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
 	// paste current url
     } else if (handle_history(event, field)) {
 	event.preventDefault();
 	event.preventBubble();	
-    } else if (event.keyCode == KeyEvent.DOM_VK_TAB 
-	       || event.keyCode == KeyEvent.DOM_VK_RETURN
-	       || event.keyCode == KeyEvent.DOM_VK_TAB 
+    } else if (event.keyCode == KeyEvent.DOM_VK_RETURN
 	       || event.keyCode == KeyEvent.DOM_VK_ESCAPE
 	       || (event.ctrlKey && (event.charCode == 103))) {
 	gReadFromMinibufferCallBack = null;
-	closeInput(true);
+	closeInput(true, true);
+	event.preventDefault();
+	event.preventBubble();
+    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
+	// gobble the tab
 	event.preventDefault();
 	event.preventBubble();
     }
@@ -190,46 +193,47 @@ function findCompleteMatch(matches, val)
 function miniBufferCompleteKeyPress(event)
 {
     try {
-    var field = document.getElementById("input-field");
-    if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-	try{
-	    var val = field.value;
-	    var match = findCompleteMatch(gMiniBufferCompletions, val);
-	    closeInput(true);
-	    addHistory(val);
-	    if (gReadFromMinibufferCallBack && match)
-		gReadFromMinibufferCallBack(match);
+	var field = document.getElementById("input-field");
+	if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
+	    try{
+		var val = field.value;
+		var match = findCompleteMatch(gMiniBufferCompletions, val);
+		closeInput(true, true);
+		addHistory(val);
+		var callback = gReadFromMinibufferCallBack;
+		gReadFromMinibufferCallBack = null;
+		if (callback && match)
+		    callback(match);
+	    } catch (e) {window.alert(e);}
+	} else if (handle_history(event, field)) {
+	    event.preventDefault();
+	    event.preventBubble();
+	} else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
+	    var str = field.value;
+	    var match = 0;
+	    if (gCurrentCompletion != null) {
+		match = gCurrentCompletion + 1;
+		str = gCurrentCompletionStr;
+	    }
+	    var idx = miniBufferCompleteStr(str, gMiniBufferCompletions, match);
+	    if (idx != null) {
+		gCurrentCompletionStr = str;
+		gCurrentCompletion = idx;
+		field.value = gMiniBufferCompletions[idx][0];
+	    }
+	    event.preventDefault();
+	    event.preventBubble();
+	} else if (event.keyCode == KeyEvent.DOM_VK_RETURN
+		   || event.keyCode == KeyEvent.DOM_VK_ESCAPE
+		   || (event.ctrlKey && (event.charCode == 103))) {
 	    gReadFromMinibufferCallBack = null;
-	} catch (e) {window.alert(e);}
-    } else if (handle_history(event, field)) {
-	event.preventDefault();
-	event.preventBubble();
-    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
-	var str = field.value;
-	var match = 0;
-	if (gCurrentCompletion != null) {
-	    match = gCurrentCompletion + 1;
-	    str = gCurrentCompletionStr;
+	    closeInput(true, true);
+	    event.preventDefault();
+	    event.preventBubble();
+	} else if (event.charCode) {
+	    // They typed a letter or did something, so reset the completion cycle
+	    gCurrentCompletion = null;
 	}
-	var idx = miniBufferCompleteStr(str, gMiniBufferCompletions, match);
-	if (idx != null) {
-	    gCurrentCompletionStr = str;
-	    gCurrentCompletion = idx;
-	    field.value = gMiniBufferCompletions[idx][0];
-	}
-	event.preventDefault();
-	event.preventBubble();
-    } else if (event.keyCode == KeyEvent.DOM_VK_RETURN
-	       || event.keyCode == KeyEvent.DOM_VK_ESCAPE
-	       || (event.ctrlKey && (event.charCode == 103))) {
-	gReadFromMinibufferCallBack = null;
-	closeInput(true);
-	event.preventDefault();
-	event.preventBubble();
-    } else if (event.charCode) {
-	// They typed a letter or did something, so reset the completion cycle
-	gCurrentCompletion = null;
-    }
     } catch(e) {alert(e);}
 }
 
@@ -261,15 +265,21 @@ function setFocus(element) {
     Components.lookupMethod(element, "focus").call(element);
 }
 
-function closeInput(clearInput)
+function closeInput(clearInput, restoreFocus)
 {
     try {
 	var field = document.getElementById("input-field");
 	var prompt = document.getElementById("input-prompt");
 	var output = document.getElementById("minibuffer-output");
-	if (gFocusedElement) {
+	if (gFocusedElement && restoreFocus) {
 	    try {
+		// Focusing the element will scroll the window to the focused
+		// element, but we want to restore focus without moving the
+		// window. So scroll back after we've focused.
+		var screenx = gFocusedWindow.scrollX;
+		var screeny = gFocusedWindow.scrollY;
 		setFocus(gFocusedElement);
+		gFocusedWindow.scrollTo(screenx,screeny);
 	    } catch (e) {
 		setFocus(gFocusedWindow);
 	    }
@@ -442,12 +452,6 @@ function readKeyPress(event)
 	var done = true;
 
 	clearMessage();
-
-	gKeySeq.push(formatKey(event.charCode, getMods(event)));
-
-	if (gKeyTimeout) {
-	    message(gKeySeq.join(" "));
-	}
 
 	// This is hacky. Check a seperate key map first, if some sort of
 	// form input is focused.

@@ -6,6 +6,7 @@ const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 var 	ctrlc_kmap    = [];
 var 	ctrlx_kmap    = [];
 var 	bookmark_kmap = [];
+var 	four_kmap     = [];
 var 	five_kmap     = [];
 var 	top_kmap      = [];
 var 	input_kmap    = [];
@@ -14,13 +15,18 @@ var 	select_kmap   = [];
 
 function initKmaps()
 {
+    define_key(four_kmap, make_key("b", null, 0), null, "switch-to-browser-other-window");
+
     define_key(ctrlx_kmap, make_key("b", null, 0), null, "switch-to-browser"); 
     define_key(ctrlx_kmap, make_key("k", null, 0), null, "kill-browser"); 
     define_key(ctrlx_kmap, make_key("f", null, MOD_CTRL), null, "find-url"); 
     define_key(ctrlx_kmap, make_key("c", null, MOD_CTRL), null, "quit"); 
-
+    define_key(ctrlx_kmap, make_key("1", null, 0), null, "delete-other-windows"); 
+    define_key(ctrlx_kmap, make_key("0", null, 0), null, "delete-window"); 
+    define_key(ctrlx_kmap, make_key("2", null, 0), null, "split-window"); 
+    define_key(ctrlx_kmap, make_key("o", null, 0), null, "other-window"); 
     
-    define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "new-frame"); 
+    define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "switch-to-browser-other-frame"); 
     define_key(five_kmap, make_key("0", null, 0), null, "delete-frame");
 
     
@@ -28,6 +34,7 @@ function initKmaps()
     define_key(bookmark_kmap, make_key("b", null, 0), null, "goto-bookmark"); 
     define_key(bookmark_kmap, make_key("l", null,0), null, "bookmark-bmenu-list"); 
 
+    define_key(ctrlx_kmap, make_key("4", null, 0), four_kmap, null); 
     define_key(ctrlx_kmap, make_key("5", null, 0), five_kmap, null); 
     define_key(ctrlx_kmap, make_key("r", null, 0), bookmark_kmap, null); 
 
@@ -35,7 +42,7 @@ function initKmaps()
     define_key(top_kmap, make_key("c", null,MOD_CTRL), ctrlc_kmap, null); 
 
     define_key(top_kmap, make_key("u", null, 0), null, "copy-link-location");
-    define_key(top_kmap, make_key(" ", null, MOD_ALT), null, "yank");
+    define_key(top_kmap, make_key(" ", null, MOD_ALT), null, "yank-to-clipboard");
     define_key(top_kmap, make_key("l", null, MOD_CTRL), null, "open-url");
     define_key(top_kmap, make_key("l", null, MOD_ALT), null, "numberedlinks-toggle");
     define_key(top_kmap, make_key("g", null,0), null, "open-url"); 

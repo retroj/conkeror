@@ -31,7 +31,7 @@ function onUrlKeyPress(event)
 
 function closeUrlBar()
 {
-    closeInput(true);
+    closeInput(true, true);
 }
 
 // function focusUrlBar()

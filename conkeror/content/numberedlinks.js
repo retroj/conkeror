@@ -21,7 +21,7 @@ function selectNumberedLink(num)
 
 function closeNumberedLinkBar()
 {
-    closeInput(false);
+    closeInput(false, true);
 }
 
 function onNumberedLinkKeyPress(evt)
@@ -33,6 +33,7 @@ function onNumberedLinkKeyPress(evt)
 	var findfield = document.getElementById("input-field");
 	var link = findfield.value;
 	var nodes = getPageLinkNodes();
+	closeNumberedLinkBar();
 	for (var i=0; i<nodes.length; i++) {
 	    if (link == i+1) {
 		if (nodes[i].tagName == "A")
@@ -55,12 +56,14 @@ function onNumberedLinkKeyPress(evt)
 		break;
 	    }
 	}
-	closeNumberedLinkBar();
     }
-    else if (evt.keyCode == KeyEvent.DOM_VK_TAB 
-	     || evt.keyCode == KeyEvent.DOM_VK_ESCAPE
+    else if (evt.keyCode == KeyEvent.DOM_VK_ESCAPE
 	     || (evt.ctrlKey && evt.charCode == 103)) {
 	closeNumberedLinkBar();
+	evt.preventDefault();
+	evt.preventBubble();
+    } else if (evt.keyCode == KeyEvent.DOM_VK_TAB) {
+	// Ignore tabs
 	evt.preventDefault();
 	evt.preventBubble();
     }
