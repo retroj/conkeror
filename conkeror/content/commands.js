@@ -700,7 +700,10 @@ add_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
 add_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
 add_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
 add_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
-
+add_webjump("delicious", " http://del.icio.us/rcyeske");
+add_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + delicious_username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
+add_webjump("sdelicious", " http://del.icio.us/search/?search=%s")
+[20:27]add_webjump("sadelicious", " http://del.icio.us/search/all?search=%s")
 
 function webjump_build_url(template, subs)
 {
