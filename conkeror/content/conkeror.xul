@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://conkeror/content/conkeror.css" type="text/css"?>
+
+<window
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    onload="Startup()"
+    title = "Conkeror"
+    id = "main-window"
+    windowtype="navigator:browser"
+    width = "640"
+    height = "480">
+
+<script type="application/x-javascript" src="conkeror.js"/>
+<script type="application/x-javascript" src="commands.js"/>
+<script type="application/x-javascript" src="utils.js"/>
+<script type="application/x-javascript" src="numberedlinks.js"/>
+<script type="application/x-javascript" src="url.js"/>
+<script type="application/x-javascript" src="find.js"/>
+
+<commandset id="mainCommandSet">
+    <command id="cmd_focusUrlBar" oncommand="focusUrlBar();"/>
+    <command id="cmd_focusFindBar" oncommand="focusFindBar();"/>
+    <command id="cmd_focusFindBarBW" oncommand="focusFindBarBW();"/>
+    <command id="cmd_back"        oncommand="goBack();"/>
+    <command id="cmd_forward"     oncommand="goForward();"/>
+    <command id="cmd_reload"     oncommand="reload();"/>
+    <command id="cmd_numframes"     oncommand="listFrames();"/>
+    <command id="cmd_scrollLeftComplete"     oncommand="scrollHorizComplete(-1);"/>
+    <command id="cmd_scrollRightComplete"     oncommand="scrollHorizComplete(1);"/>
+    <command id="cmd_newWindow"     oncommand="newWindow();"/>    
+</commandset>
+
+  <keyset id="mainKeyset">
+    <key id="focusUrlBar"    key="a" modifiers="accel" command="cmd_scrollLeftComplete"/>
+    <key id="focusFindBar"    key="e" modifiers="accel" command="cmd_scrollRightComplete"/>
+
+    <key id="focusUrlBar"    key="l" modifiers="accel" command="cmd_focusUrlBar"/>
+    <key id="focusUrlBar"    key="g" command="cmd_focusUrlBar"/>
+
+    <key id="viewsrc" key="i" oncommand="view_source();"/>
+    <key id="neww" key="n" modifiers="shift" oncommand="newWindow();"/>
+
+    <key id="focusFindBar"    key="s" modifiers="accel" command="cmd_focusFindBar"/>
+    <key id="focusFindBar"    key="r" modifiers="accel" command="cmd_focusFindBarBW"/>
+    <key id="browserback"    key="b" modifiers="shift" command="cmd_back"/>
+    <key id="browserforward" key="f" modifiers="shift" command="cmd_forward"/>
+    <key id="reload" key="R" modifiers="" command="cmd_reload"/> 
+    <key id="listframse"   key="f" command="cmd_numframes"/>
+    <key id="key_togglelinks" key="l" oncommand="toggleNumberedLinks();" modifiers="alt"/>
+    <key id="key_gotolink1"   key="1" oncommand="selectNumberedLink(1);" modifiers=""/>
+    <key id="key_gotolink2"   key="2" oncommand="selectNumberedLink(2);" modifiers=""/>
+    <key id="key_gotolink3"   key="3" oncommand="selectNumberedLink(3);" modifiers=""/>
+    <key id="key_gotolink4"   key="4" oncommand="selectNumberedLink(4);" modifiers=""/>
+    <key id="key_gotolink5"   key="5" oncommand="selectNumberedLink(5);" modifiers=""/>
+    <key id="key_gotolink6"   key="6" oncommand="selectNumberedLink(6);" modifiers=""/>
+    <key id="key_gotolink7"   key="7" oncommand="selectNumberedLink(7);" modifiers=""/>
+    <key id="key_gotolink8"   key="8" oncommand="selectNumberedLink(8);" modifiers=""/>
+    <key id="key_gotolink9"   key="9" oncommand="selectNumberedLink(9);" modifiers=""/>
+  </keyset>
+
+<vbox id="appcontent" flex="1">
+	<tabbrowser id="content" disablehistory="true" flex="1" homepage="http://google.ca"/>
+</vbox>
+
+<toolbox id="url-toolbox" hidden="true">
+    <hbox id="url-hbox">
+      <label value="URL"/>
+      <textbox id="url-field" onkeypress="onUrlKeyPress(event);" flex="1"/>
+    </hbox>
+</toolbox>
+
+<toolbox id="find-toolbox" hidden="true">
+    <hbox id="find-hbox">
+      <label id="find-label" value="I-search:"/>
+      <textbox id="find-field" onkeypress="onFindKeyPress(event);" flex="1"/>
+    </hbox>
+</toolbox>
+
+
+<toolbox id="numberedlink-toolbar" hidden="true">
+    <hbox id="numberedlink-field-container">
+    <label value="Goto Numbered Link"/>
+      <textbox id="numberedlink-field" 
+              onkeypress="onNumberedLinkKeyPress(event);" flex="1"/>
+    </hbox>
+</toolbox>
+
+<statusbar id="status-bar">
+  <statusbarpanel id="statusbar-display" label="" flex="1"/>
+</statusbar>
+
+</window>
+
+<!--    <key id="scrolldown" key="n" modifiers="accel" command="cmd_scrolldown"/>
+    <key id="scrollup" key="p" modifiers="accel" command="cmd_scrollup"/>
+    <key id="pdown" key="v" modifiers="accel" command="cmd_pagedown"/>
+    <key id="pup2" key="v" modifiers="alt" command="cmd_pageup"/>
+    <key id="pup" keycode="VK_BACK" modifiers="accel" command="cmd_pageup"/>
+    <key id="right" key="f" modifiers="accel" command="cmd_scrollright"/>
+    <key id="left" key="b" modifiers="accel" command="cmd_scrollleft"/> -->
+<!--    <key id="bol" key="a" modifiers="accel" command="cmd_bol"/>
+    <key id="eol" key="e" modifiers="accel" command="cmd_eol"/>
+    <key id="bob" key="&lt;" modifiers="alt" command="cmd_bob"/>
+    <key id="eob" key="&gt;" modifiers="alt" command="cmd_eob"/> -->
+
+<!--    <command id="cmd_scrollup"     oncommand="scrollByLine(-1);"/>
+    <command id="cmd_scrolldown"     oncommand="scrollByLine(1);"/>
+    <command id="cmd_pageup"     oncommand="scrollByPage(-1);"/>
+    <command id="cmd_pagedown"     oncommand="scrollByPage(1);"/>
+    <command id="cmd_scrollright"     oncommand="scrollByColumn(1);"/>
+    <command id="cmd_scrollleft"     oncommand="scrollByColumn(-1);"/> -->
+<!--    <command id="cmd_bol"     oncommand="beginningOfLine();"/>
+    <command id="cmd_eol"     oncommand="endOfLine();"/>
+    <command id="cmd_bob"     oncommand="beginningOfBuffer();"/>
+    <command id="cmd_eob"     oncommand="endOfBuffer();"/> -->

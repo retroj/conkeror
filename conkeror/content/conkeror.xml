@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<bindings id="conkeror-bindings"
+   xmlns="http://www.mozilla.org/xbl"
+   xmlns:html="http://www.w3.org/1999/xhtml"
+   xmlns:xbl="http://www.mozilla.org/xbl"
+   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <binding id="binding1" extends="html:input">
+    <handlers>
+        <handler event="keypress" key="y" modifiers="control" command="cmd_paste"/>
+        <handler event="keypress" keycode="VK_LEFT"  command="cmd_paste"/>
+    </handlers>
+  </binding>
+</bindings>
