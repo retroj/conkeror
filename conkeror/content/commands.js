@@ -131,3 +131,22 @@ function find_url()
 {
     readFromMiniBuffer("Url:", function(url) { getBrowser().newBrowser(url); });
 }
+
+
+function goto_buffer(buf)
+{
+    var bs = getBrowser().getBrowserNames();
+    for (var i=0; i<bs.length; i++) {
+	if (bs[i] == buf) {
+	    getBrowser().setCurrentBrowser(getBrowser().getBrowserAtIndex(i));
+	    return;
+	}
+    }
+}
+
+function switch_to_buffer()
+{
+    miniBufferComplete("Switch to buffer:", getBrowser().getBrowserNames(),
+		       goto_buffer);
+
+}

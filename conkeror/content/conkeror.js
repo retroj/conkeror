@@ -8,7 +8,7 @@ var ctrlx_kmap = [];
 var five_kmap = [];
 function initKmaps()
 {
-//     addKeyBinding(ctrlx_kmap, 98, false, false, null, selectBuffer); // C-x b
+     addKeyBinding(ctrlx_kmap, 98, false, false, null, switch_to_buffer); // C-x b
 
     // TODO: this should ask which buffer
     addKeyBinding(ctrlx_kmap, 107, false, false, null, 

@@ -60,6 +60,14 @@ function readInput(prompt, open, keypress)
 // The callback setup to be called when readFromMiniBuffer is done
 var gReadFromMinibufferCallBack = null;
 
+// The completions for the user to choose
+var gMiniBufferCompletions = [];
+
+// The current completion
+var gCurrentCompletion = null;
+
+var gCurrentCompletionStr = null;
+
 function miniBufferKeyPress(event)
 {
     var field = document.getElementById("input-field");
@@ -85,12 +93,81 @@ function miniBufferKeyPress(event)
     }
 }
 
+// Cheap completion
+function miniBufferCompleteStr(str, matches, lastMatch)
+{
+    if (lastMatch >= matches.length)
+	lastMatch = 0;
+
+    for (var i=lastMatch; i<matches.length; i++)
+	{
+	    if (str.length == 0 || str == matches[i].substr(0, str.length)) {
+		return i;
+	    }
+	}
+    // No match? Loop around and try the rest
+    for (var i=0; i<lastMatch; i++)
+	{
+	    if (str.length == 0 || str == matches[i].substr(0, str.length))
+		return i;
+	}
+    return null;
+}
+
+function miniBufferCompleteKeyPress(event)
+{
+    try {
+    var field = document.getElementById("input-field");
+    if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
+	try{
+	    var val = field.value;
+	    closeInput(true);
+	    if (gReadFromMinibufferCallBack)
+		gReadFromMinibufferCallBack(val);
+	    gReadFromMinibufferCallBack = null;
+	} catch (e) {window.alert(e);}
+    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
+	var str = field.value;
+	var match = 0;
+	if (gCurrentCompletion != null) {
+	    match = gCurrentCompletion + 1;
+	    str = gCurrentCompletionStr;
+	}
+	var idx = miniBufferCompleteStr(str, gMiniBufferCompletions, match);
+	if (idx != null) {
+	    gCurrentCompletionStr = str;
+	    gCurrentCompletion = idx;
+	    field.value = gMiniBufferCompletions[idx];
+	}
+	event.preventDefault();
+	event.preventBubble();
+    } else if (event.keyCode == KeyEvent.DOM_VK_RETURN
+	       || event.keyCode == KeyEvent.DOM_VK_ESCAPE
+	       || (event.ctrlKey && (event.charCode == 103))) {
+	gReadFromMinibufferCallBack = null;
+	closeInput(true);
+	event.preventDefault();
+	event.preventBubble();
+    } else if (event.charCode) {
+	// They typed a letter or did something, so reset the completion cycle
+	gCurrentCompletion = null;
+    }
+    } catch(e) {alert(e);}
+}
+
 // Read a string from the minibuffer and call callBack with the string
 // as an argument.
 function readFromMiniBuffer(prompt, callBack)
 {
     gReadFromMinibufferCallBack = callBack;
     readInput(prompt, null, "miniBufferKeyPress(event);");
+}
+
+function miniBufferComplete(prompt, completions, callBack)
+{
+    gReadFromMinibufferCallBack = callBack;
+    gMiniBufferCompletions = completions;
+    readInput(prompt, null, "miniBufferCompleteKeyPress(event);");    
 }
 
 function closeInput(clearInput)
