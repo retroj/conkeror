@@ -269,7 +269,11 @@ function view_source()
 
 function new_frame()
 {
-    readFromMiniBuffer("Find URL in other frame:", null, "url", function(url) { window.open("chrome://conkeror/content", get_url_or_webjump(url), "chrome,dialog=no"); });
+    var templs =[];
+    for (var x in gWebJumpLocations)
+	templs.push([x,x]);
+
+    miniBufferComplete("Find URL in other frame:", "url", templs, true, function(url) { window.open("chrome://conkeror/content", get_url_or_webjump(url), "chrome,dialog=no"); });
 }
 
 function delete_frame()
@@ -279,15 +283,21 @@ function delete_frame()
 
 function open_url()
 {
-    try {
-    readFromMiniBuffer("URL:", null, "url", function(url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
-    } catch(e) {alert(e);};
+    var templs =[];
+    for (var x in gWebJumpLocations)
+	templs.push([x,x]);
+
+    miniBufferComplete("URL:", "url", templs, true, function(match,url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
 }
 
 // Open a new browser with url
 function find_url()
 {
-    readFromMiniBuffer("Find URL: ", null, "url", function(url) { getBrowser().newBrowser(get_url_or_webjump(url)); });
+    var templs =[];
+    for (var x in gWebJumpLocations)
+	templs.push([x,x]);
+
+    miniBufferComplete("Find URL: ", "url", templs, true, function(match,url) { getBrowser().newBrowser(get_url_or_webjump(url)); });
 }
 
 

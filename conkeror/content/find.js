@@ -70,6 +70,10 @@ function focusFindBar()
     gWin = document.commandDispatcher.focusedWindow;
     gSelCtrl = getFocusedSelCtrl();
 
+    gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
+    gSelCtrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+
+
     } catch(e) {alert(e);}
 
 //     var bar = document.getElementById("find-toolbox");
@@ -94,6 +98,7 @@ function focusFindBarBW()
 
 function closeFindBar()
 {
+    gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
     closeInput(true, false);
 }
 
@@ -349,6 +354,21 @@ function clearHighlight()
     }
 }
 
+function focusLink()
+{
+    var sel = gSelCtrl.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    var node = sel.focusNode;
+    
+    do {
+	if (node.localName == "A") {
+	    if (node.hasAttributes && node.attributes.getNamedItem("href")) {
+		Components.lookupMethod(node, "focus").call(node);
+		return;
+	    }
+	}
+    } while ((node = node.parentNode));
+}
+
 function find(str, dir, pt)
 {
     var matchRange;
@@ -417,6 +437,7 @@ function onFindKeyPress(event)
 	closeFindBar();
 	gLastSearch = lastFindState()["search-str"];
 	clearHighlight();
+	focusLink();
     }
 
     // We control what goes into the input box
