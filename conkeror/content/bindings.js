@@ -217,9 +217,9 @@ function initKmaps()
     define_key(top_kmap, make_key("i",0),"view-source");
     define_key(top_kmap, make_key("s",MOD_CTRL),"isearch-forward");
     define_key(top_kmap, make_key("r",MOD_CTRL),"isearch-backward");
-    define_key(top_kmap, make_key("B",MOD_SHIFT),"go-back");
-    define_key(top_kmap, make_key("F",MOD_SHIFT),"go-forward");
-    define_key(top_kmap, make_key("R",MOD_SHIFT),"revert-buffer");
+    define_key(top_kmap, make_key("B",0),"go-back");
+    define_key(top_kmap, make_key("F",0),"go-forward");
+    define_key(top_kmap, make_key("R",0),"revert-buffer");
     define_key(top_kmap, make_key("f",0),"next-frame");
     define_key(top_kmap, make_key("1",0),"numberedlinks-1");
     define_key(top_kmap, make_key("2",0),"numberedlinks-2");
@@ -234,13 +234,13 @@ function initKmaps()
     define_key(top_kmap, make_key("p",MOD_ALT),"buffer-previous");
     define_key(top_kmap, make_key("n",MOD_ALT),"buffer-next");
     define_key(top_kmap, make_key("c",0),"copy-current-url");
-    define_key(top_kmap, make_key("C",MOD_SHIFT),"copy-link-location");
+    define_key(top_kmap, make_key("C",0),"copy-link-location");
     define_key(top_kmap, make_key("x",MOD_ALT),"execute-extended-command");
     define_key(top_kmap, make_key("g",MOD_CTRL),"keyboard-quit");
     define_key(top_kmap, make_key("a",MOD_CTRL),"beginning-of-line");
     define_key(top_kmap, make_key("e",MOD_CTRL),"end-of-line");
     define_key(top_kmap, make_key( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
-    define_key(top_kmap, make_key( "+", MOD_SHIFT),"text-enlarge");
+    define_key(top_kmap, make_key( "+", 0),"text-enlarge");
     define_key(top_kmap, make_key( "-", 0),"text-reduce");
 
     // movement keys

@@ -491,9 +491,12 @@ function getKeyAction(kmap, event)
 
 function getMods(event)
 {
+    // The shift key into account when building the charCode, so it
+    // can be said that the shift key has already be processed. So
+    // don't include it in the mods if charCode exists in the event.
     return event.ctrlKey ? MOD_CTRL:0 |
 	event.altKey ? MOD_ALT:0 |
-	event.shiftKey ? MOD_SHIFT: 0;
+	(event.shiftKey && !event.charCode) ? MOD_SHIFT: 0;
 }
 
 function copyEvent(event)
