@@ -683,6 +683,8 @@ function add_webjump(key, loc)
 }
 
 // Some built in web jumps
+var delicious_username = "";
+
 add_webjump("google",     "http://www.google.com/search?q=%s");
 add_webjump("wikipedia",  "http://en.wikipedia.org/wiki/Special:Search?search=%s");
 add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
