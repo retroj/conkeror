@@ -447,12 +447,16 @@ function topLevelReadKey(key, kmap)
     addKeyPressHelpTimeout();
 }
 
-function formatKey(key, mods)
+function formatMods(mods)
 {
     return (mods&MOD_ALT ? "A-":"") 
 	+ (mods&MOD_CTRL ? "C-":"") 
-	+ (mods&MOD_SHIFT ? "S-":"")
-	+ String.fromCharCode(key);
+	+ (mods&MOD_SHIFT ? "S-":"");
+}
+
+function formatKey(key, mods)
+{
+    return formatMods(mods) + String.fromCharCode(key);
 }
 
 function keyMatch(key, event)

@@ -19,7 +19,7 @@
   <script type="application/x-javascript" src="url.js"/>
   <script type="application/x-javascript" src="find.js"/>
   <script type="application/x-javascript" src="conkeror.js"/>
-  <script type="application/x-javascript" src="conkerorrc.js"/>
+  <script type="application/x-javascript" src="bindings.js"/>
 
   <commandset id="mainCommandSet">
   </commandset>

@@ -64,6 +64,7 @@ var commands = [
     ["copy-current-url", 		copyCurrentUrl,  		[]],
     ["copy-link-location", 		copyLinkLocation, 		[]],
     ["delete-frame", 			delete_frame, 			[]],
+    ["describe-bindings",               describe_bindings,		[]],
     ["end-of-line",     		end_of_line,    		[]],
     ["execute-extended-command",        meta_x, 			[]],
     ["find-url", 			find_url, 			[]],
@@ -117,32 +118,6 @@ function exec_command(cmd)
 function add_command(name, fn, args)
 {
     commands.push([name,fn,args]);
-}
-
-const MOD_CTRL = 0x1;
-const MOD_ALT = 0x2;
-const MOD_SHIFT = 0x4;
-
-function make_key(charCode, keyCode, mods)
-{
-    var key = {};
-    if (charCode)
-	key.charCode = charCode.charCodeAt(0);
-    else
-	key.keyCode = keyCode;
-    key.modifiers = mods;
-    return key;
-}
-
-// Sorta dirty, bind key to either the keymap or command in the keymap, kmap
-function define_key(kmap, key, keymap, cmd)
-{
-    var obj = {key: key};
-    if (cmd)
-	obj.command = cmd;
-    else 
-	obj.keymap = keymap;
-    kmap.push(obj);
 }
 
 function focus_window()
@@ -598,4 +573,12 @@ function get_url_or_webjump(input)
     } else {
 	return input;
     }
+}
+
+function describe_bindings()
+{
+    getWebNavigation().loadURI("about:blank", 
+			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+    // Oh man. this is SO gross.
+    setTimeout(genAllBindings, 0);
 }
