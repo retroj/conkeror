@@ -44,6 +44,12 @@ function Startup()
       .getService(Components.interfaces.nsIObserverService);
   observerService.addObserver(nl_document_observer, "page-end-load", false);
 
+  // because of the absolute position of the numbers, we need to
+  // adjust when the window is resized.
+  try {
+  window.document.addEventListener("resize", nl_resize, true);
+  } catch(e) {alert(e);}
+
   // Give it a chance to set itself up before loading the URL
   setTimeout(getWebNavigation().loadURI, 0, 
 	     uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);

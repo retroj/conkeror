@@ -157,13 +157,13 @@ function onNumberedLinkBlur() {
 
 }
 
-function hintify (doc, node, id, type)
+function createNL (doc, node, id, type)
 {
     try{
 	var span = doc.createElement("span");
 	var pt = abs_point (node);
 	// Abort if we can't get an absolute positoin for it.
-// 	alert ("(" + id + ")" + "hintify: " + node + " " + pt.x + " " + pt.y);
+// 	alert ("(" + id + ")" + "createNL: " + node + " " + pt.x + " " + pt.y);
 
 	if (pt == null)
 	    return;
@@ -190,8 +190,6 @@ function hintify (doc, node, id, type)
 	span.style.borderWidth = "1px";
 	span.style.borderColor = "gray";
 	span.style.borderStyle = "solid";
-// 	span.style.paddingLeft = "1px";
-// 	span.style.paddingRight = "1px";
 	span.style.MozBorderRadius = "0.5em";
 	span.style.MozOpacity = "0.8";
 	span.style.zIndex = "999"; // always on top
@@ -202,7 +200,7 @@ function hintify (doc, node, id, type)
 	    span.style.backgroundColor = "lightgray";
 
 	doc.body.appendChild (span);
-    } catch (e) {alert("hintify: " + e);}
+    } catch (e) {alert("createNL: " + e);}
     //     alert (node.offsetTop + " " + node.offsetLeft);
 }
 
@@ -214,16 +212,16 @@ function createNum(node, n)
     if (node.hasAttributes()) {
 	if (node.tagName == "A"
 	    || node.tagName == "AREA") {
-	    hintify (doc, node, n, "link");
+	    createNL (doc, node, n, "link");
 	} else if (node.tagName == "IMG") {
-	    hintify (doc, node, n, "image");
+	    createNL (doc, node, n, "image");
 	} else if (node.tagName == "INPUT" 
 		   && (node.type == "submit" 
 		       || node.type == "button"
 		       || node.tpe == "radio")) {
-	    hintify (doc, node, n, "button");
+	    createNL (doc, node, n, "button");
 	} else {
-	    hintify (doc, node, n, "widget");
+	    createNL (doc, node, n, "widget");
 	}
     }
     } catch(e) {window.alert("createNum: " + e);}
@@ -255,10 +253,8 @@ function doLinkNodes(doc, linknum)
     for (var i=0; i<t_nodes.length; i++) {
 	createNum(t_nodes[i], linknum);
 	linknum++;
-// 	links.push(t_nodes[i]);
     }
     for (var i=0; i<s_nodes.length; i++) {
-// 	links.push(s_nodes[i]);
 	createNum(s_nodes[i], linknum);
 	linknum++;
     }
@@ -269,19 +265,16 @@ function doLinkNodes(doc, linknum)
     }
     for (var i=0; i<a_nodes.length; i++) {
 	if (!a_nodes[i].hasAttribute('href')) continue;
-// 	links.push(a_nodes[i]);
 	createNum(a_nodes[i], linknum);
 	linknum++;
     }
     for (var i=0; i<ar_nodes.length; i++) {
 	if (!ar_nodes[i].hasAttribute('href')) continue;
-// 	links.push(ar_nodes[i]);
 	createNum(ar_nodes[i], linknum);
 	linknum++;
     }
     for (var i=0; i<img_nodes.length; i++) {
 	if (!img_nodes[i].hasAttribute('src')) continue;
-// 	links.push(img_nodes[i]);
 	createNum(img_nodes[i], linknum);
 	linknum++;
     }
@@ -329,9 +322,6 @@ function toggleNumberedLinks()
 {
     var buf_state = getBrowser().numberedLinks;
     getBrowser().numberedLinks = !buf_state;    
-//     message("Toggling numbered links...");
-//     setNumberedLinksState (!buf_state);
-//     message("Toggling numbered links...Done.");
     setNumberedLinksVisibility (!buf_state, getBrowser().numberedImages);
 }
 
@@ -339,9 +329,6 @@ function toggleNumberedImages()
 {
     var buf_state = getBrowser().numberedImages;
     getBrowser().numberedImages = !buf_state;    
-//     message("Toggling numbered links...");
-//     setNumberedLinksState (!buf_state);
-//     message("Toggling numbered links...Done.");
     setNumberedLinksVisibility (getBrowser().numberedLinks, !buf_state);
 }
 
@@ -357,3 +344,25 @@ const nl_document_observer = {
 	setNumberedLinksVisibility (link_state, img_state);
     }
 };
+
+function update_nl_pos (doc)
+{
+    var nodes = doc.getElementsByTagName("SPAN");
+    for (var i=0; i<nodes.length; i++) {
+	var node = doc.getElementById(nodes[i].getAttribute("__nodeid"));
+	var pt = abs_point (node);
+	if (pt == null)
+	    return;
+	nodes[i].style.left =  pt.x + "px";
+	nodes[i].style.top = pt.y + "px";
+    }
+}
+
+function nl_resize ()
+{
+    var frames = window._content.frames;
+    update_nl_pos (window._content.document);
+    for (var i=0; i<frames.length; i++) {
+	update_nl_pos (frames[i].document);
+    }   
+}
