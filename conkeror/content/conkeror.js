@@ -16,7 +16,6 @@ function Startup()
   init_universal_arg();
   initBookmarkService();
 
-
   if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
     uriToLoad = window.arguments[0];
 
@@ -24,6 +23,11 @@ function Startup()
   window.XULBrowserWindow = new nsBrowserStatusHandler();
   getBrowser().setProgressListener(window.XULBrowserWindow, 
 				   Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+
+  // Set up our end document hook for numbered links
+  var observerService = Components.classes["@mozilla.org/observer-service;1"]
+      .getService(Components.interfaces.nsIObserverService);
+  observerService.addObserver(nl_document_observer, "page-end-load", false);
 
   // Give it a chance to set itself up before loading the URL
   setTimeout(getWebNavigation().loadURI, 0, 
@@ -241,16 +245,20 @@ nsBrowserStatusHandler.prototype =
 
   startDocumentLoad : function(aRequest)
   {
+      const nsIChannel = Components.interfaces.nsIChannel;
+      var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
+      var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                            .getService(Components.interfaces.nsIObserverService);
+      observerService.notifyObservers(_content, "page-start-load", urlStr);
   },
 
   endDocumentLoad : function(aRequest, aStatus)
   {
-      // XXX: with frames this doesn't work
-//       _content.content.document.__conkeror__NumbersOn = false;
-      var buf_state = getBrowser().numberedLinks;
-      // Only show numbered links if the feature is enabled
-      if (buf_state)
-        setNumberedLinksState(true);
+      const nsIChannel = Components.interfaces.nsIChannel;
+      var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
+      var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                            .getService(Components.interfaces.nsIObserverService);
+      observerService.notifyObservers(_content, "page-end-load", urlStr);
   }
 
 }

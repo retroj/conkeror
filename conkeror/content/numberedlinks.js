@@ -177,3 +177,15 @@ function toggleNumberedLinks()
     setNumberedLinksState (!buf_state);
     message("Toggling numbered links...Done.");
 }
+
+const nl_document_observer = {
+    observe: function(subject, topic, url)
+    {
+	// FIXME: we should use subject aka _content. This could bust if
+	// the buffer that needs nl != current buffer.
+	var buf_state = getBrowser().numberedLinks;
+	// Only show numbered links if the feature is enabled
+	if (buf_state)
+        setNumberedLinksState(true);
+    }
+};
