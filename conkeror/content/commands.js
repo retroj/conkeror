@@ -5,12 +5,14 @@
 
 function goBack()
 {
-    getWebNavigation().goBack();
+    if (getWebNavigation().canGoBack())
+	getWebNavigation().goBack();
 }
 
 function goForward()
 {
-    getWebNavigation().goForward();
+    if (getWebNavigation().canGoForward())
+	getWebNavigation().goForward();
 }
 
 function stopLoading()
@@ -25,7 +27,7 @@ function reload ()
 
 // frame navigation
 
-function listFrames()
+function nextFrame()
 {
     try {
     var frames = window._content.frames;
@@ -92,13 +94,26 @@ function scrollHorizComplete(n)
 function view_source()
 {
     try {
-    var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
-    var viewSrcUrl = "view-source:" + getWebNavigation().currentURI.spec;;
-    getWebNavigation().loadURI(viewSrcUrl, loadFlags, null, null, null);
+	var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
+	var viewSrcUrl = "view-source:" + getWebNavigation().currentURI.spec;;
+	getWebNavigation().loadURI(viewSrcUrl, loadFlags, null, null, null);
     } catch(e) {alert(e);}
 }
 
-function newWindow()
+function new_window()
 {
-    window.open("chrome://conkeror/content");
+    window.open("chrome://conkeror/content", "_blank", "chrome,dialog=no");
+}
+
+function open_url()
+{
+    try {
+    readFromMiniBuffer("Url:", function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    } catch(e) {alert(e);};
+}
+
+// Open a new browser with url
+function find_url()
+{
+    readFromMiniBuffer("Url:", function(url) { getBrowser().newBrowser(url); });
 }

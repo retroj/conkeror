@@ -57,6 +57,42 @@ function readInput(prompt, open, keypress)
     field.focus();
 }
 
+// The callback setup to be called when readFromMiniBuffer is done
+var gReadFromMinibufferCallBack = null;
+
+function miniBufferKeyPress(event)
+{
+    var field = document.getElementById("input-field");
+    if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
+	try{
+	    var val = field.value;
+	    closeInput(true);
+	    if (gReadFromMinibufferCallBack)
+		gReadFromMinibufferCallBack(val);
+	    gReadFromMinibufferCallBack = null;
+	} catch (e) {window.alert(e);}
+	//    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
+	// paste current url
+    } else if (event.keyCode == KeyEvent.DOM_VK_TAB 
+	       || event.keyCode == KeyEvent.DOM_VK_RETURN
+	       || event.keyCode == KeyEvent.DOM_VK_TAB 
+	       || event.keyCode == KeyEvent.DOM_VK_ESCAPE
+	       || (event.ctrlKey && (event.charCode == 103))) {
+	gReadFromMinibufferCallBack = null;
+	closeInput(true);
+	event.preventDefault();
+	event.preventBubble();
+    }
+}
+
+// Read a string from the minibuffer and call callBack with the string
+// as an argument.
+function readFromMiniBuffer(prompt, callBack)
+{
+    gReadFromMinibufferCallBack = callBack;
+    readInput(prompt, null, "miniBufferKeyPress(event);");
+}
+
 function closeInput(clearInput)
 {
     try {
@@ -130,4 +166,107 @@ function pasteX11CutBuffer()
 	return;
     
     
+}
+
+// Show the message in the minibuffer
+function message(str) {
+    var minibuf = document.getElementById("minibuffer-output");
+    minibuf.value = str;    
+}
+
+function clearMessage() {
+    message("");
+}
+
+// gKeySeq is a list of keys the user has pressed to execute a
+// command. If the user waits this list will be printed at the bottom
+// of the screen, just like Emacs.
+var gKeySeq = [];
+
+// If the user waits for an amount of time then conkeror will display
+// the key sequence they've typed thus far and ever key
+// thereafter. This keeps track of whether the timeout has occurred.
+var gKeyTimeout = false;
+
+// This is plain gross.
+var gCurrentKmap = null;
+
+function addKeyPressHelpTimeout() {
+    setTimeout(function () {if (gKeySeq.length>0) {message(gKeySeq.join(" ")); gKeyTimeout = true; }}, 2500);
+}
+
+function addKeyBinding(kmap, key, control, alt, keymap, command)
+{
+    var obj = {key: key, control: control, alt: alt};
+    if (command)
+	obj.command = command;
+    else 
+	obj.keymap = keymap;
+    kmap.push(obj);
+}
+
+// This is a bit of a gross hack. but hey, who's watching? Kmap is a
+// list of objects { key: <key>, control: <bool>, alt: <bool>, command: <function> }
+function topLevelReadKey(key, kmap)
+{
+    var keybox = document.getElementById("readkey");
+
+    gKeySeq = [key];
+    gCurrentKmap = kmap;
+    keybox.focus();
+    addKeyPressHelpTimeout();
+}
+
+function readKeyPress(event)
+{
+    try {
+	// kmap contains the keys and commands we're looking for.
+	var keybox = document.getElementById("readkey");
+	var kmap = gCurrentKmap;
+	var done = true;
+	var command = null;
+
+	gKeySeq.push((event.ctrlKey?"C-":"") + String.fromCharCode(event.charCode));
+	if (gKeyTimeout) {
+	    message(gKeySeq.join(" "));
+	}
+	for (var i=0; i<kmap.length; i++) {
+	    if (event.charCode == kmap[i].key 
+		&& event.ctrlKey == kmap[i].control
+		&& event.altKey == kmap[i].alt) {
+		if (kmap[i].keymap) {
+		    gCurrentKmap = kmap[i].keymap;
+		    if (!gKeyTimeout)
+			addKeyPressHelpTimeout();
+		    // We're going for another round
+		    done = false;
+		    break;
+		} else {
+		    command = kmap[i].command;
+		    break;
+		}
+	    }
+	}
+
+	// gobble the key
+	event.preventDefault();
+	event.preventBubble();
+
+	if (done) {
+	    // Revert focus
+	    gKeySeq = [];
+	    _content.focus();
+	}
+
+	// execute the command we found or tell the user it's undefined
+	if (command) {
+	    command();
+	} else if (done) {
+	    // C-g always aborts unless it's bound
+	    if (event.ctrlKey && event.charCode == 103)
+		message("Quit");
+	    else
+		message(gKeySeq.join(" ") + " undefined");
+	}
+    } catch(e){alert(e);}
 }

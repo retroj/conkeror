@@ -50,26 +50,21 @@
       </method>
 
       <method name="newBrowser">
+        <parameter name="aUrl"/>
         <body>
 	  <![CDATA[
 	  try {
+	    if (!aUrl)
+	      aUrl = "chrome://conkeror/content/help.html";
             var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
                                              "browser"); 
 
-	    this.mBrowserContainer.appendChild(b);
-
             b.setAttribute("type", "content");
-            b.setAttribute("message", "true");
-            b.setAttribute("contextmenu", this.getAttribute("contentcontextmenu"));
-            b.setAttribute("tooltip", this.getAttribute("contenttooltip"));
-            b.setAttribute("autocompletepopup", this.getAttribute("autocompletepopup"));
             b.setAttribute("flex", "1");
-
+	    this.mBrowserContainer.appendChild(b);
 	    this.setBrowserProgressListener(b);
-	    
-            b.loadURIWithFlags("http://www.google.ca", nsIWebNavigation.LOAD_FLAGS_NONE,
-	                       null, null, null);
-
+            b.loadURIWithFlags(aUrl,
+	                       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
             this.setCurrentBrowser(b);
 } catch(e) {window.alert(e);}
           ]]>
@@ -194,6 +189,13 @@
           ]]>
 	</body>
       </method>
+      <method name="killCurrentBrowser">
+        <body>
+	<![CDATA[
+	  this.killBrowser(this.mCurrentBrowser);
+	]]>
+	</body>
+      </method>
       <method name="setProgressListener">
         <parameter name="aListener"/>
 	<parameter name="aMask"/>
@@ -243,29 +245,6 @@
         ]]>
       </constructor>
       </implementation>
-      <handlers>
-        <handler event="keypress" key="f" modifiers="alt">
-          <![CDATA[
-            this.newBrowser(); 
-          ]]>
-	</handler>
-        <handler event="keypress" key="n" modifiers="alt">
-          <![CDATA[
-            this.nextBrowser(); 
-          ]]>
-	</handler>
-        <handler event="keypress" key="p" modifiers="alt">
-          <![CDATA[
-            this.prevBrowser(); 
-          ]]>
-	</handler>
-        <handler event="keypress" key="k" modifiers="alt">
-          <![CDATA[
-            this.killBrowser(mCurrentBrowser); 
-          ]]>
-        </handler>
-      </handlers>
-
 </binding>
 
 </bindings>

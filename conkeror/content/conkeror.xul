@@ -12,25 +12,25 @@
     width = "640"
     height = "480">
 
-<script type="application/x-javascript" src="conkeror.js"/>
-<script type="application/x-javascript" src="commands.js"/>
 <script type="application/x-javascript" src="utils.js"/>
+<script type="application/x-javascript" src="commands.js"/>
 <script type="application/x-javascript" src="numberedlinks.js"/>
 <script type="application/x-javascript" src="url.js"/>
 <script type="application/x-javascript" src="find.js"/>
+<script type="application/x-javascript" src="conkeror.js"/>
 
 <commandset id="mainCommandSet">
-    <command id="cmd_focusUrlBar" oncommand="readInput('URL', null, 'onUrlKeyPress(event);');"/>
+    <command id="cmd_open_url" oncommand="open_url();"/>
     <command id="cmd_focusFindBar" oncommand="readInput('', focusFindBar, 'onFindKeyPress(event);');"/>
     <command id="cmd_focusFindBarBW" oncommand="readInput('', focusFindBarBW, 'onFindKeyPress(event);');"/>
     <command id="cmd_back"        oncommand="goBack();"/>
     <command id="cmd_forward"     oncommand="goForward();"/>
     <command id="cmd_reload"     oncommand="reload();"/>
     <command id="cmd_stop"     oncommand="stopLoading();"/>    
-    <command id="cmd_numframes"     oncommand="listFrames();"/>
+    <command id="cmd_nextFrame"     oncommand="nextFrame();"/>
     <command id="cmd_scrollLeftComplete"     oncommand="scrollHorizComplete(-1);"/>
     <command id="cmd_scrollRightComplete"     oncommand="scrollHorizComplete(1);"/>
-    <command id="cmd_newWindow"     oncommand="newWindow();"/>    
+    <command id="cmd_newWindow"     oncommand="new_window();"/>    
     <command id="cmd_yank"     oncommand="pasteX11CutBuffer();"/>    
 
 </commandset>
@@ -39,18 +39,18 @@
     <key id="focusUrlBar"    key="a" modifiers="accel" command="cmd_scrollLeftComplete"/>
     <key id="focusFindBar"    key="e" modifiers="accel" command="cmd_scrollRightComplete"/>
 
-    <key id="focusUrlBar"    key="l" modifiers="accel" command="cmd_focusUrlBar"/>
-    <key id="focusUrlBar"    key="g" command="cmd_focusUrlBar"/>
+    <key id="focusUrlBar"    key="l" modifiers="accel" command="cmd_open_url"/>
+    <key id="focusUrlBar"    key="g" command="cmd_open_url"/>
 
     <key id="viewsrc" key="i" oncommand="view_source();"/>
-    <key id="neww" key="n" modifiers="shift" oncommand="newWindow();"/>
+    <key id="neww" key="n" modifiers="shift" command="cmd_newWindow"/>
 
     <key id="focusFindBar"    key="s" modifiers="accel" command="cmd_focusFindBar"/>
     <key id="focusFindBar"    key="r" modifiers="accel" command="cmd_focusFindBarBW"/>
     <key id="browserback"    key="b" modifiers="shift" command="cmd_back"/>
     <key id="browserforward" key="f" modifiers="shift" command="cmd_forward"/>
     <key id="reload" key="R" modifiers="" command="cmd_reload"/> 
-    <key id="listframse"   key="f" command="cmd_numframes"/>
+    <key id="nextframse"   key="f" command="cmd_nextFrame"/>
     <key id="stop"   key="g" modifiers="control" command="cmd_stop"/>
     <key id="key_togglelinks" key="l" oncommand="toggleNumberedLinks();" modifiers="alt"/>
     <key id="key_gotolink1"   key="1" oncommand="selectNumberedLink(1);" modifiers=""/>
@@ -62,6 +62,12 @@
     <key id="key_gotolink7"   key="7" oncommand="selectNumberedLink(7);" modifiers=""/>
     <key id="key_gotolink8"   key="8" oncommand="selectNumberedLink(8);" modifiers=""/>
     <key id="key_gotolink9"   key="9" oncommand="selectNumberedLink(9);" modifiers=""/>
+
+    <key id="blah"   key="P" oncommand="getBrowser().prevBrowser();" modifiers="alt"/>
+    <key id="blah"   key="N" oncommand="getBrowser().nextBrowser();" modifiers="alt"/>
+
+    <key id="ctrlx"   key="x" oncommand="topLevelReadKey('C-x',ctrlx_kmap);" modifiers="control"/>
+    <key id="ctrlc"   key="c" oncommand="topLevelReadKey('C-c',ctrlc_kmap);" modifiers="control"/>
   </keyset>
 
 <vbox id="appcontent" flex="1">
@@ -83,6 +89,7 @@
       <textbox class="minibuffer" id="input-field" hidden="true" flex="1"/>
     </hbox>
 </toolbox>
-
+<!-- This is where focus gets sent to for embedded key bindings. -->
+<input id="readkey" height="0" width="0" onkeypress="readKeyPress(event);"/>
 </window>
 
