@@ -204,6 +204,22 @@ This opens link number 12 in a new window.
 back one and open the result in a new buffer? I am working on adding a
 second universal argument that would allow you to do both.
 
+<h2>toggle-eod-space</h2>
+
+<p><code>toggle-eod-space</code> is a slightly ugly hack that should
+help you read articles more smoothly. Imagine you're reading an
+article. You start reading the beginning. Your eyes get to the bottom
+of the screen, so you press Space to page down. You continue until
+near the end of the article. You press Space to read the last part and
+your browser only scrolls down part of a page, leaving where you left
+off somwhere in the middle of the screen and not at the top where you
+expected it. You spend the next couple seconds searching for where you
+left off. <code>toggle-eod-space</code> adds 1 page of blank space to
+the end of the web page, so your last page down is a full one. Note,
+<code>toggle-eod-space</code> turns the feature on (or off) but the
+space won't be added to (or removed from) the current page. It affects
+the subsequently loaded pages.
+
 <h2>Conkeror Resources</h2>
 <p>
 <UL>
