@@ -236,7 +236,9 @@ function exec_command(cmd)
     for (var i=0; i<gCommands.length; i++) {
 	if (gCommands[i][0] == cmd) {
 	    var args = interactive(gCommands[i][2]);
-	    return gCommands[i][1](args);
+	    var ret = gCommands[i][1](args);
+	    updateModeline(getWebNavigation().currentURI);
+	    return ret;
 	}
     }
     message("No such command '" + cmd + "'");
