@@ -440,6 +440,15 @@ function goDoCommand(command)
   }
 }
 
+function zip2(array1, array2)
+{
+    len = array1.length < array2.length ? array2.length:array1.length;
+    acc = [];
+    for(var i=0; i<len; i++)
+	acc.push([array1[i],array2[i]]);
+    return acc;
+}
+
 function bookmark_bmenu_list()
 {
     getWebNavigation().loadURI("chrome://conkeror/content/bookmarks.html",
