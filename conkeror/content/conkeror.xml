@@ -384,6 +384,7 @@
 	b.setAttribute("flex", "1");
 	b.setAttribute("pile", parseInt(this.getPileTop())+1);
 	b.__numberedLinks_state = true;
+	b.__numberedImages_state = false;
 	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
 	v.setAttribute("flex", "100");
 <!-- 	v.setAttribute("style", "min-width:50%"); -->
@@ -435,6 +436,9 @@
       <property name="numberedLinks"
                 onget="return this.mCurrentBrowser.__numberedLinks_state;"
 		onset="this.mCurrentBrowser.__numberedLinks_state = val; return val;"/>
+      <property name="numberedImages"
+                onget="return this.mCurrentBrowser.__numberedImages_state;"
+		onset="this.mCurrentBrowser.__numberedImages_state = val; return val;"/>
 
       <constructor>
         <![CDATA[

@@ -294,29 +294,11 @@ function highlightFind(str, color, wrapped, dir, pt)
 		if (retRange) {
 		    var sc = retRange.startContainer;
 		    var ec = retRange.endContainer;
+		    var scp = sc.parentNode;
+		    var ecp = ec.parentNode;
+		    var sy1 = abs_point(scp).y;
+		    var ey2 = abs_point(ecp).y + ecp.offsetHeight;
 
-// 		    var oldy = gWin.scrollY;
-// 		    var oldx = gWin.scrollX;
-// 		    setSelection(retRange.cloneRange());
-// 		    var y = gWin.scrollY;
-// 		    keepSearching = dir && y < oldy;
-// 		    if (keepSearching)
-// 			gWin.scrollTo(oldx, oldy);
-		    
-
-		    if (!sc || !ec) alert(sc + " " + ec);
-		    var acc = getAccessibility(sc);
-		    var sx = new Object();
-		    var sy = new Object();
-		    var sw = new Object();
-		    var sh = new Object();
-		    acc.getBounds(sx,sy,sw,sh);
-		    acc = getAccessibility(ec);
-		    var ex = new Object();
-		    var ey = new Object();
-		    var ew = new Object();
-		    var eh = new Object();
-		    acc.getBounds(ex,ey,ew,eh);
 		    startPt = retRange.startContainer.ownerDocument.createRange();
 		    if (!dir) {
 			startPt.setStart(retRange.startContainer, retRange.startOffset);
@@ -328,8 +310,10 @@ function highlightFind(str, color, wrapped, dir, pt)
 		    // We want to find a match that is completely
 		    // visible, otherwise the view will scroll just a
 		    // bit to fit the selection in completely.
-		    keepSearching = (dir && sy.value < 0)
-			|| (!dir && sy.value + sh.value >= gWin.innerHeight);
+// 		    alert ("sy1: " + sy1 + " scry: " + gWin.scrollY);
+// 		    alert ("ey2: " + ey2 + " bot: " + (gWin.scrollY + gWin.innerHeight));
+		    keepSearching = (dir && sy1 < gWin.scrollY)
+			|| (!dir && ey2 >= gWin.scrollY + gWin.innerHeight);
 		}
 	    } while (retRange && keepSearching);
 	} else {

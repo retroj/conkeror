@@ -176,6 +176,7 @@ function initKmaps()
     define_key(help_kmap, make_key("b",0),"describe-bindings");
     define_key(help_kmap, make_key("i",0),"help-page");
     define_key(help_kmap, make_key("t",0),"help-with-tutorial");
+    define_key(help_kmap, make_key("s",0),"view-source");
 
     define_key(four_kmap, make_key("b",0),"switch-to-buffer-other-window");
 
@@ -212,9 +213,9 @@ function initKmaps()
     define_key(top_kmap, make_key(" ",MOD_ALT),"yank-to-clipboard");
     define_key(top_kmap, make_key("l",MOD_CTRL),"redraw");
     define_key(top_kmap, make_key("g",0),"open-url");
-    define_key(top_kmap, make_key("l",MOD_ALT),"numberedlinks-toggle");
+    define_key(top_kmap, make_key("l",MOD_ALT),"toggle-numbered-links");
+    define_key(top_kmap, make_key("l",MOD_CTRL | MOD_ALT),"toggle-numbered-images");
     define_key(top_kmap, make_key("l",0),"go-back");
-    define_key(top_kmap, make_key("i",0),"view-source");
     define_key(top_kmap, make_key("s",MOD_CTRL),"isearch-forward");
     define_key(top_kmap, make_key("r",MOD_CTRL),"isearch-backward");
     define_key(top_kmap, make_key("B",0),"go-back");
@@ -230,7 +231,8 @@ function initKmaps()
     define_key(top_kmap, make_key("7",0),"numberedlinks-7");
     define_key(top_kmap, make_key("8",0),"numberedlinks-8");
     define_key(top_kmap, make_key("9",0),"numberedlinks-9");
-    define_key(top_kmap, make_key("n",0),"goto-numberedlink");
+    define_key(top_kmap, make_key("n",0),"goto-numbered-link");
+    define_key(top_kmap, make_key("i",0),"goto-numbered-image");
     define_key(top_kmap, make_key("p",MOD_ALT),"buffer-previous");
     define_key(top_kmap, make_key("n",MOD_ALT),"buffer-next");
     define_key(top_kmap, make_key("c",0),"copy-current-url");
@@ -413,7 +415,7 @@ function add_escape_bindings()
 
     // Top
     define_key(top_esc_kmap, make_key(" ",0),"yank-to-clipboard");
-    define_key(top_esc_kmap, make_key("l",0),"numberedlinks-toggle");
+    define_key(top_esc_kmap, make_key("l",0),"toggle-numbered-links");
     define_key(top_esc_kmap, make_key("p",0),"buffer-previous");
     define_key(top_esc_kmap, make_key("n",0),"buffer-next");
     define_key(top_esc_kmap, make_key("x",0),"execute-extended-command");

@@ -2,6 +2,50 @@
 
 var gBrowser = null;
 
+function copy_img_location (node)
+{
+    var loc;
+    if (node && node.getAttribute("src")) {
+	loc = node.getAttribute("src");
+	loc = makeURLAbsolute(node.baseURI, loc);
+    }
+    writeToClipboard(loc);
+    message("Copied '" + loc + "'");
+}
+
+
+function abs_point (node)
+{
+    var orig = node;
+    var pt = {};
+    try {
+    pt.x = node.offsetLeft;
+    pt.y = node.offsetTop;
+    // find imagemap's coordinates
+    if (node.tagName == "AREA") {
+	var coords = node.getAttribute("coords").split(",");
+	pt.x += Number(coords[0]);
+	pt.y += Number(coords[1]);
+    }
+
+    node = node.offsetParent;
+    // Sometimes this fails, so just return what we got.
+
+	while (node.tagName != "BODY") {
+	    pt.x += node.offsetLeft;
+	    pt.y += node.offsetTop;
+	    node = node.offsetParent;
+	}
+    } catch(e) {
+// 	node = orig;
+// 	while (node.tagName != "BODY") {
+// 	    alert("okay: " + node + " " + node.tagName + " " + pt.x + " " + pt.y);
+// 	    node = node.offsetParent;
+// 	}
+    }
+    return pt;
+}
+
 function getAccessibility(node)
 {
     // This is wrapped in a try-catch block because firefox fails when

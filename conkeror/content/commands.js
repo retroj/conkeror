@@ -89,8 +89,10 @@ function init_commands()
     add_command("numberedlinks-7", selectNumberedLink_7, [["p"]]);
     add_command("numberedlinks-8", selectNumberedLink_8, [["p"]]);
     add_command("numberedlinks-9", selectNumberedLink_9, [["p"]]);
-    add_command("goto-numberedlink", goto_numberedlink, [["p"]]);
-    add_command("numberedlinks-toggle", toggleNumberedLinks, []);
+    add_command("goto-numbered-link", goto_numbered_link, [["p"]]);
+    add_command("goto-numbered-image", goto_numbered_image, [["p"]]);
+    add_command("toggle-numbered-links", toggle_numbered_links, []);
+    add_command("toggle-numbered-images", toggle_numbered_images, []);
     add_command("open-url", open_url, [["p"]]);
     add_command("find-alternate-url", find_alt_url, [["p"]]);
     add_command("quit", quit, []);
@@ -817,7 +819,7 @@ function exchange_point_and_mark()
 // This is cheap.
 function get_link_location()
 {
-    var e = document.commandDispatcher.focusedElement;   
+    var e = document.commandDispatcher.focusedElement;
     if (e && e.getAttribute("href")) {
 	var loc = e.getAttribute("href");
 	return makeURLAbsolute(e.baseURI, loc);
