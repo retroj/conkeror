@@ -1,4 +1,4 @@
-VERSION=0.10
+VERSION=0.11
 FILES="conkeror conkeror/content conkeror/content/utils.js conkeror/content/bm.js conkeror/content/url.js conkeror/content/numberedlinks.js conkeror/content/find.js conkeror/content/contents.rdf conkeror/content/conkeror.xul conkeror/content/conkeror.xml conkeror/content/conkeror.js conkeror/content/conkeror.css conkeror/content/commands.js conkeror/content/help.html conkeror/content/bookmarks.html"
 
 echo Building XPI...
