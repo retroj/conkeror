@@ -29,10 +29,11 @@ function initKmaps()
     
     define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "find-url-other-frame"); 
     define_key(five_kmap, make_key("0", null, 0), null, "delete-frame");
+    define_key(five_kmap, make_key("2", null, 0), null, "make-frame-command");
 
     
     define_key(bookmark_kmap, make_key("m", null,0), null, "bookmark-current-url"); 
-    define_key(bookmark_kmap, make_key("b", null, 0), null, "goto-bookmark"); 
+    define_key(bookmark_kmap, make_key("b", null, 0), null, "bookmark-jump"); 
     define_key(bookmark_kmap, make_key("l", null,0), null, "bookmark-bmenu-list"); 
 
     define_key(ctrlx_kmap, make_key("4", null, 0), four_kmap, null); 

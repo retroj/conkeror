@@ -11,7 +11,7 @@
             <xul:vbox flex="100">
 	      <xul:browser flex="1" type="content-primary"/>
 	      <xul:hbox class="mode-line">
-	      <xul:label value=""/>
+	      <xul:label value="" crop="right" flex="1"/>
               </xul:hbox>
 	    </xul:vbox>
 	  </xul:box>
@@ -306,9 +306,9 @@
 	var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
 	s.setAttribute("class", "mode-line");
 	var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label"); 
-	sp.setAttribute("class", "mode-line");
 	sp.setAttribute("value", "");
-<!-- 	sp.setAttribute("flex", "1"); -->
+	sp.setAttribute("flex", "1");
+	sp.setAttribute("crop", "right");
 	s.appendChild(sp);
 	v.appendChild(b);
 	v.appendChild(s);

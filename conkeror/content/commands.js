@@ -74,6 +74,7 @@ var commands = [
     ["isearch-forward", 		isearch_forward, 		[]],
     ["keyboard-quit", 			stopLoading, 			[]],
     ["kill-buffer", 			kill_browser, 			[]],
+    ["make-frame-command", 		makeFrame,      		[]],
     ["next-frame", 		        nextFrame,      		[]],
     ["numberedlinks-1", 		selectNumberedLink_1, 		[]],
     ["numberedlinks-2", 		selectNumberedLink_2, 		[]],
@@ -275,6 +276,12 @@ function new_frame()
 
     miniBufferComplete("Find URL in other frame:", "url", templs, true, function(url) { window.open("chrome://conkeror/content", get_url_or_webjump(url), "chrome,dialog=no"); });
 }
+
+function makeFrame()
+{
+    window.open("chrome://conkeror/content", "Conkeror", "chrome,dialog=no,arguments=['about:blank']");
+}
+
 
 function delete_frame()
 {

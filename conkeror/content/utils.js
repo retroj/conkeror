@@ -339,7 +339,7 @@ function updateModeline(url)
 {
     var docshell = document.getElementById("content").webNavigation;
     var modeline = getBrowser().modeLine;
-    modeline.value = "--:--  " + url.spec;
+    modeline.value = "--:%%  " + url.spec;
 }
 
 
