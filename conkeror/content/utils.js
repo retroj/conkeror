@@ -456,7 +456,8 @@ function formatMods(mods)
 
 function formatKey(key, mods)
 {
-    return formatMods(mods) + String.fromCharCode(key);
+    var s = key == 32 ? "SPC":String.fromCharCode(key);
+    return formatMods(mods) + s;
 }
 
 function keyMatch(key, event)
@@ -601,4 +602,3 @@ function add_bookmark(url, title, charset)
 {
     BMSVC.addBookmarkImmediately(url, title, kBMSVCIID.BOOKMARK_DEFAULT_TYPE, charset);
 }
-

@@ -68,7 +68,7 @@ var commands = [
     ["end-of-line",     		end_of_line,    		[]],
     ["execute-extended-command",        meta_x, 			[]],
     ["find-url", 			find_url, 			[]],
-    ["focus-window", 			focus_window, 			[]],
+    ["unfocus", 			unfocus, 			[]],
     ["go-back", 			goBack, 			[]],
     ["go-forward", 			goForward, 			[]],
     ["isearch-backward", 		isearch_backward, 		[]],
@@ -102,6 +102,8 @@ var commands = [
     ["other-window",                    other_window,                   []],
     ["view-source", 			view_source, 			[]],
     ["split-window", 			split_window, 			[]],
+    ["set-mark-command",                set_mark_command,		[]],
+    ["exchange-point-and-mark",         exchange_point_and_mark,	[]],
     ["web-jump", 			web_jump, 			[]],
     ["yank-to-clipboard",		yankToClipboard,        	[]]];
 
@@ -120,11 +122,15 @@ function add_command(name, fn, args)
     commands.push([name,fn,args]);
 }
 
-function focus_window()
+function unfocus()
 {
-    alert("foo");
-    _content.focus();
-    document.commandDispatcher.focusedElement = null;
+    var input = document.getElementById("input-field");
+    var w = document.commandDispatcher.focusedWindow;
+    // Hey, waddya know. It's another sick hack.
+    if (w) {
+	input.focus();
+	w.focus();
+    }
 }
 
 function quit()
@@ -498,8 +504,8 @@ function cmd_scrollLeft() {goDoCommand("cmd_scrollLeft"); }
 function cmd_scrollRight() {goDoCommand("cmd_scrollRight"); }
 function cmd_scrollBeginLine() {goDoCommand("cmd_scrollBeginLine"); }
 function cmd_scrollEndLine() {goDoCommand("cmd_scrollEndLine"); }
-function cmd_scrollTop() {goDoCommand("cmd_scrollTop"); }
-function cmd_scrollBottom() {goDoCommand("cmd_scrollBottom"); }
+function cmd_scrollTop() { set_mark_command(); goDoCommand("cmd_scrollTop"); }
+function cmd_scrollBottom() { set_mark_command(); goDoCommand("cmd_scrollBottom"); }
 function cmd_undo() {goDoCommand("cmd_undo"); }
 function cmd_paste() {goDoCommand("cmd_paste"); }
 function cmd_movePageUp() {goDoCommand("cmd_movePageUp"); }
@@ -581,4 +587,30 @@ function describe_bindings()
 			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
     // Oh man. this is SO gross.
     setTimeout(genAllBindings, 0);
+}
+
+/// Hacky mark stuff
+/// IDEA: Maybe this should be done with a selection?
+
+function set_mark_command()
+{
+    var w = document.commandDispatcher.focusedWindow;
+    if (!w)
+	return;
+    w.__conkeror__markX = w.scrollX;
+    w.__conkeror__markY = w.scrollY;
+    message("Mark set");
+}
+
+function exchange_point_and_mark()
+{
+    try {
+    var w = document.commandDispatcher.focusedWindow;
+    if (!w)
+	return;
+    var x = w.__conkeror__markX || 0;
+    var y = w.__conkeror__markY || 0;
+    set_mark_command();
+    w.scrollTo(x, y);
+    } catch(e) {alert(e);}
 }

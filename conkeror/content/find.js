@@ -69,6 +69,8 @@ function focusFindBar()
     try {
     gWin = document.commandDispatcher.focusedWindow;
     gSelCtrl = getFocusedSelCtrl();
+    if (gSelCtrl == null)
+	gSelCtrl = getBrowser().docShell.
 
     gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
     gSelCtrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
@@ -158,7 +160,12 @@ function getFocusedSelCtrl()
 	    return display.QueryInterface(Components.interfaces.nsISelectionController);
 	}
   }
-  return null;
+
+  // One last try
+  return getBrowser().docShell
+      .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+      .getInterface(Components.interfaces.nsISelectionDisplay)
+      .QueryInterface(nsISelectionController);
 }
 
 // Select the range and scroll it into view
@@ -408,6 +415,7 @@ function onFindKeyPress(event)
 	}
     } else if (event.charCode == 114 && event.ctrlKey) { // C-r
 	if (gFindState.length == 1) {
+	    findField.value = gLastSearch;
 	    find(gLastSearch, false, lastFindState()["point"]);
 	} else {
 	    find(lastFindState()["search-str"], false, lastFindState()["range"]);
@@ -415,6 +423,7 @@ function onFindKeyPress(event)
 	resumeFindState(lastFindState());
     } else if (event.charCode == 115 && event.ctrlKey) { // C-s
 	if (gFindState.length == 1) {
+	    findField.value = gLastSearch;
 	    find(gLastSearch, true, lastFindState()["point"]);
 	} else {
 	    find(lastFindState()["search-str"], true, lastFindState()["range"]);

@@ -176,6 +176,7 @@ function initKmaps()
     define_key(ctrlx_kmap, make_key("2", null, 0), null, "split-window"); 
     define_key(ctrlx_kmap, make_key("o", null, 0), null, "other-window"); 
     define_key(ctrlx_kmap, make_key("v", null,MOD_CTRL), null, "open-url"); 
+    define_key(ctrlx_kmap, make_key("x", null,MOD_CTRL), null, "exchange-point-and-mark"); 
     
     define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "find-url-other-frame"); 
     define_key(five_kmap, make_key("0", null, 0), null, "delete-frame");
@@ -224,11 +225,12 @@ function initKmaps()
     define_key(top_kmap, make_key("g", null, MOD_CTRL), null, "keyboard-quit");
     define_key(top_kmap, make_key("a", null, MOD_CTRL), null, "beginning-of-line");
     define_key(top_kmap, make_key("e", null, MOD_CTRL), null, "end-of-line");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_ESCAPE, 0), null, "focus-window");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_ESCAPE, 0), null, "unfocus");
 
     // movement keys
     define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_BACK_SPACE, 0), null, "cmd_scrollPageUp");
     define_key(top_kmap, make_key(" ", null, 0), null, "cmd_scrollPageDown");
+    define_key(top_kmap, make_key(" ", null, MOD_CTRL), null, "set-mark-command");
     define_key(top_kmap, make_key("v", null,MOD_ALT), null, "cmd_scrollPageUp");
     define_key(top_kmap, make_key("v", null,MOD_CTRL), null, "cmd_scrollPageDown");
     define_key(top_kmap, make_key("p", null,MOD_CTRL), null, "cmd_scrollLineUp");
