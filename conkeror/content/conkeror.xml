@@ -75,11 +75,7 @@
 	      var b = this.makeBrowser();
 	    this.mBrowserContainer.appendChild(b);
 	    this.setBrowserProgressListener(b.firstChild);
-	    // if this fails bad stuff happens
-	    try {
-            b.firstChild.loadURIWithFlags(aUrl,
-	                       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-            } catch(e) {}
+	    setTimeout(function (b, url) {b.loadURIWithFlags(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);}, 0, b.firstChild, aUrl);
             this.setCurrentBrowser(b.firstChild);
 } catch(e) {window.alert(e);}
           ]]>
