@@ -8,7 +8,7 @@
   </RDF:Seq>
 
   <RDF:Description about="urn:mozilla:package:conkeror"
-    chrome:displayName="Conkeror 0.1"
+    chrome:displayName="Conkeror 0.17"
     chrome:author="sabetts"
     chrome:name="conkeror">
   </RDF:Description>
