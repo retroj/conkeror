@@ -261,6 +261,8 @@ function miniBufferCompleteKeyPress(event)
 		idx = 0;
 		// Build our completion list
 		gCurrentCompletions = miniBufferCompleteStr(str, gMiniBufferCompletions);
+		if (gCurrentCompletions.length == 0)
+		    idx = null;
 	    }
 	    if (idx != null) {
 		gCurrentCompletion = idx;
