@@ -45,10 +45,10 @@ function onNumberedLinkKeyPress(evt)
 		    } else {
 			if (nodes[i].tagName == "INPUT" 
 			    && (nodes[i].type == "submit" || nodes[i].type == "button")) {
-			if (evt.altKey)
-			    nodes[i].focus();
-			else
-			    nodes[i].click();
+			    if (evt.altKey) {
+				nodes[i].focus();
+			    } else
+				nodes[i].click();
 		    } else 
 			nodes[i].focus();
 		    }

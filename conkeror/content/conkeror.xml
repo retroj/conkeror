@@ -7,9 +7,14 @@
 
 <binding id="conkframe">
       <content>
+          <xul:box flex="1" orient="horizontal">
             <xul:vbox flex="1">
-                      <xul:browser flex="1" type="content-primary"/>
+	      <xul:browser flex="1" type="content-primary"/>
+	        <xul:statusbar class="mode-line">
+		  <xul:statusbarpanel class="mode-line" label="" flex="1"/>
+		</xul:statusbar>
 	    </xul:vbox>
+	  </xul:box>
       </content>
       <implementation type="application/x-javascript" implements="nsIDOMXULSelectControlElement, nsIAccessibleProvider">
             <property name="accessible">
@@ -20,6 +25,9 @@
               ]]>
             </getter>
             </property>
+            <field name="mCurrentWindow">
+	          null
+	    </field>
             <field name="mCurrentBrowser">
 	          null
 	    </field>
@@ -34,7 +42,7 @@
             </field>
 
       <property name="mBrowsers"
-                onget="return this.mBrowserContainer.childNodes"
+                onget="return this.mBrowserContainer.getElementsByTagName('browser');"
                 readonly="true"/>
 
       <method name="setBrowserProgressListener">
@@ -64,19 +72,15 @@
 	  try {
 	    if (!aUrl)
 	      aUrl = "chrome://conkeror/content/help.html";
-            var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                             "browser"); 
-
-            b.setAttribute("type", "content");
-            b.setAttribute("flex", "1");
+	      var b = this.makeBrowser();
 	    this.mBrowserContainer.appendChild(b);
-	    this.setBrowserProgressListener(b);
+	    this.setBrowserProgressListener(b.firstChild);
 	    // if this fails bad stuff happens
 	    try {
-            b.loadURIWithFlags(aUrl,
+            b.firstChild.loadURIWithFlags(aUrl,
 	                       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
             } catch(e) {}
-            this.setCurrentBrowser(b);
+            this.setCurrentBrowser(b.firstChild);
 } catch(e) {window.alert(e);}
           ]]>
 	</body>
@@ -87,10 +91,10 @@
 	  try {
 	    if (this.mCurrentBrowser == null || this.mBrowsers.length <= 1)
 	      return;
-	    if (this.mCurrentBrowser == this.mBrowserContainer.lastChild)
-	      this.setCurrentBrowser(this.mBrowserContainer.firstChild);
+	    if (this.mCurrentBrowser.parentNode == this.mBrowserContainer.lastChild)
+	      this.setCurrentBrowser(this.mBrowserContainer.firstChild.firstChild);
 	    else
-	      this.setCurrentBrowser(this.mCurrentBrowser.nextSibling);
+	      this.setCurrentBrowser(this.mCurrentBrowser.parentNode.nextSibling.firstChild);
 } catch(e) {window.alert(e);}
           ]]>
 </body>
@@ -102,10 +106,10 @@
 	    if (this.mCurrentBrowser == null || this.mBrowsers.length <= 1)
 	      return;
 
-	    if (this.mCurrentBrowser == this.mBrowserContainer.firstChild)
-	      this.setCurrentBrowser(this.mBrowserContainer.lastChild);
+	    if (this.mCurrentBrowser.parentNode == this.mBrowserContainer.firstChild)
+	      this.setCurrentBrowser(this.mBrowserContainer.lastChild.firstChild);
 	    else
-	      this.setCurrentBrowser(this.mCurrentBrowser.previousSibling);
+	      this.setCurrentBrowser(this.mCurrentBrowser.parentNode.previousSibling.firstChild);
 	  } catch(e) {alert(e); }
           ]]>
 </body>
@@ -126,11 +130,13 @@
               this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedWindow;
               this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
               this.mCurrentBrowser.setAttribute("type", "content");
-	      this.mCurrentBrowser.setAttribute("collapsed", "true");
+	      try {
+	      this.mCurrentBrowser.parentNode.setAttribute("collapsed", "true");
+	      } catch(e) {alert("parent " + e);}
             }
 
             newBrowser.setAttribute("type", "content-primary");
-	    newBrowser.setAttribute("collapsed", "false");
+	    newBrowser.parentNode.setAttribute("collapsed", "false");
 	    this.mCurrentBrowser = newBrowser;
 
             function setFocus(element) {
@@ -193,9 +199,9 @@
 	    if (aBrowser == this.mBrowserContainer.lastChild)
 	      newBrowser = this.mBrowserContainer.lastChild.previousSibling;
 	    else
-              newBrowser = aBrowser.nextSibling;
+              newBrowser = aBrowser.parentNode.nextSibling.firstChild;
 
-	    this.mBrowserContainer.removeChild(aBrowser);
+	    this.mBrowserContainer.removeChild(aBrowser.parentNode);
 	    //aBrowser.destroy();
 	    this.setCurrentBrowser(newBrowser);
 	    } catch(e) {window.alert(e);}
@@ -239,7 +245,91 @@
 	]]>
 	</body>
       </method>
+      <method name="hSplit">
+      <body>
+      <![CDATA[
+      try {
+        var h = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
+        var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "spacer");
+	s.setAttribute("width", "2");
+	h.setAttribute("flex", "1");
+	var b = this.mCurrentBrowser;
+	var b2;
+        if (this.mCurrentBrowser.parentNode == this.mBrowserContainer.lastChild)
+	  b2  = this.mBrowserContainer.firstChild.firstChild;
+	else
+          b2 = this.mCurrentBrowser.parentNode.nextSibling.firstChild;
+	var b_parent = b.parentNode;
+	var b2_parent = b2.parentNode;
+        var new_b = b_parent.cloneNode(true);
+        var new_b2 = b2_parent.cloneNode(true);
+ 	this.mBrowserContainer.removeChild(b.parentNode);
+	this.mBrowserContainer.removeChild(b2.parentNode);
 
+	h.appendChild(new_b);
+	h.appendChild(s);
+	h.appendChild(new_b2);
+<!-- 	b.parentNode.removeChild(b); -->
+	
+<!-- 	b_parent.removeChild(b); -->
+<!-- 	b2_parent.removeChild(b2); -->
+<!-- 	b_parent.appendChild(new_b); -->
+<!-- 	b2_parent.appendChild(new_b2); -->
+
+	new_b2.parentNode.setAttribute("collapsed", "false");
+
+<!-- 	this.mBrowserContainer.setAttribute("orient", "vertical"); -->
+
+	this.mBrowserContainer.appendChild(h);
+
+<!-- 	this.mBrowserContainer.appendChild(b2.parentNode); -->
+<!-- 	this.mBrowserContainer.appendChild(b.parentNode); -->
+
+<!-- 	setTimeout(b2.reload, 0); -->
+<!-- 	b.reload(); -->
+
+      } catch(e) {alert(e);}
+      ]]>
+      </body>
+      </method>
+      <method name="flip">
+      <body>
+	<![CDATA[
+	try {
+	if (this.mBrowserContainer.getAttribute("orient") == "horizontal")
+	  this.mBrowserContainer.setAttribute("orient", "vertical");
+	else
+	  this.mBrowserContainer.setAttribute("orient", "horizontal");
+	} catch(e) {alert(e);}
+      ]]>
+      </body>
+      </method>
+      <method name="makeBrowser">
+      <body>
+      <![CDATA[
+      try {
+        var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "browser"); 
+	b.setAttribute("type", "content");
+	b.setAttribute("flex", "1");        
+	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
+	v.setAttribute("flex", "1");
+	var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "statusbar"); 
+	s.setAttribute("class", "mode-line");
+	var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "statusbarpanel"); 
+	sp.setAttribute("class", "mode-line");
+	sp.setAttribute("label", "");
+	sp.setAttribute("flex", "1");
+	s.appendChild(sp);
+	v.appendChild(b);
+	v.appendChild(s);
+	return v;
+      } catch(e) {alert(e);}
+      ]]>
+      </body>
+      </method>
+      <property name="modeLine"
+                onget="return this.mCurrentBrowser.nextSibling.firstChild"
+		readonly="true"/>
       <property name="docShell"
                 onget="return this.mCurrentBrowser.docShell"
                 readonly="true"/>
@@ -273,5 +363,22 @@
       </constructor>
       </implementation>
 </binding>
+
+<!-- <binding id="conkwindow"> -->
+<!--   <content> -->
+<!--     <xul:vbox> -->
+<!--       <children/> -->
+<!--     </xul:vbox> -->
+<!--   </content> -->
+<!--   <implementation type="application/x-javascript" implements=""> -->
+<!--   <constructor> -->
+<!--     <![CDATA[ -->
+<!--       try { -->
+
+<!--       } catch(e) {alert(e);} -->
+<!--     ]]> -->
+<!--   </constructor> -->
+<!--   </implementation> -->
+<!-- </binding> -->
 
 </bindings>

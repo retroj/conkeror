@@ -35,6 +35,10 @@ function readInput(prompt, open, keypress)
     var label = document.getElementById("input-prompt");
     var field = document.getElementById("input-field");
     var output = document.getElementById("minibuffer-output");
+
+    gFocusedWindow = document.commandDispatcher.focusedWindow;
+    gFocusedElement = document.commandDispatcher.focusedElement;
+
     label.value = prompt;
     field.setAttribute("onkeypress", keypress);
 
@@ -59,8 +63,8 @@ function getHistory(id)
 
 function initHistory(id)
 {
-    if (history != null) {
-	gHistoryArray = getHistory(history);
+    if (id != null) {
+	gHistoryArray = getHistory(id);
 	gHistoryPoint = gHistoryArray.length;
     } else {
 	gHistoryPoint = null;
@@ -101,6 +105,10 @@ function addHistory(str)
 	gHistoryArray.splice(0, 1);
     gHistoryArray.push(str);
 }
+
+// The focus before we read from the minibuffer
+var gFocusedElement = null;
+var gFocusedWindow = null;
 
 // The callback setup to be called when readFromMiniBuffer is done
 var gReadFromMinibufferCallBack = null;
@@ -249,18 +257,29 @@ function miniBufferComplete(prompt, history, completions, callBack)
     readInput(prompt, null, "miniBufferCompleteKeyPress(event);");    
 }
 
+function setFocus(element) {
+    Components.lookupMethod(element, "focus").call(element);
+}
+
 function closeInput(clearInput)
 {
     try {
 	var field = document.getElementById("input-field");
 	var prompt = document.getElementById("input-prompt");
 	var output = document.getElementById("minibuffer-output");
-	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-	    .getService(Components.interfaces.nsIWindowWatcher);
-	if (window == ww.activeWindow && document.commandDispatcher.focusedElement &&
-	    document.commandDispatcher.focusedElement.parentNode.parentNode == field) {
+	if (gFocusedElement) {
+	    try {
+		setFocus(gFocusedElement);
+	    } catch (e) {
+		setFocus(gFocusedWindow);
+	    }
+	} else if (gFocusedWindow) {
+	    setFocus(gFocusedWindow);
+	} else {
+	    // Last resort
 	    _content.focus();
 	}
+
 	if (clearInput)
 	    output.value = "";
 	output.hidden = false;
@@ -273,7 +292,7 @@ function closeInput(clearInput)
 function updateModeline(url)
 {
     var docshell = document.getElementById("content").webNavigation;
-    var modeline = document.getElementById("mode-line");
+    var modeline = getBrowser().modeLine;
     modeline.label = url.spec;
 }
 
@@ -332,12 +351,14 @@ function pasteX11CutBuffer()
 }
 
 // Show the message in the minibuffer
-function message(str) {
+function message(str)
+{
     var minibuf = document.getElementById("minibuffer-output");
     minibuf.value = str;    
 }
 
-function clearMessage() {
+function clearMessage() 
+{
     message("");
 }
 
@@ -388,87 +409,112 @@ function formatKey(key, mods)
 	+ String.fromCharCode(key);
 }
 
+function keyMatch(key, event)
+{
+    return ((key.key.charCode && event.charCode == key.key.charCode)
+	    || (key.key.keyCode && event.keyCode == key.key.keyCode))
+	   && getMods(event) == key.key.modifiers;
+}
+
+function getKeyAction(kmap, event)
+{
+    for (var i=0; i<kmap.length; i++) {
+	if (keyMatch(kmap[i], event)) {
+	    return kmap[i];
+	}
+    }
+    return null;
+}
+
+function getMods(event)
+{
+    return event.ctrlKey ? MOD_CTRL:0 |
+	event.altKey ? MOD_ALT:0 |
+	event.shiftKey ? MOD_SHIFT: 0;
+}
+
 function readKeyPress(event)
 {
     try {
 	// kmap contains the keys and commands we're looking for.
-// 	var keybox = document.getElementById("readkey");
 	var kmap = gCurrentKmap;
-	var found = false;
+	var key = null;
 	var done = true;
-	var command = null;
-	var mods = event.ctrlKey ? MOD_CTRL:0 |
-	    event.altKey ? MOD_ALT:0 |
-	    event.shiftKey ? MOD_SHIFT: 0;
 
 	clearMessage();
 
-	// Don't capture the key if some sort of form input is focused
+	gKeySeq.push(formatKey(event.charCode, getMods(event)));
+
+	if (gKeyTimeout) {
+	    message(gKeySeq.join(" "));
+	}
+
+	// This is hacky. Check a seperate key map first, if some sort of
+	// form input is focused.
 	if (kmap == top_kmap) {
 	    var elt = document.commandDispatcher.focusedElement;
 	    if (elt) {
 		var type = elt.getAttribute("type");
-		if ((elt.tagName == "INPUT" && (type == null
+		if (elt.tagName == "INPUT" && (type == null
 						|| type == "text"
 						|| type == "password"
-						|| type == "file"))
-		    || elt.tagName == "TEXTAREA"
-		    || elt.tagName == "SELECT")
-		    // Abort processing this key
-		    return;
+						|| type == "file")) {
+		    // Use the input keymap.
+
+		    // A bit of a hack, if there's a char code and no
+		    // modifiers are set, then just let it get processed
+		    if (event.charCode && !event.altKey && !event.ctrlKey)
+			return;
+		    key = getKeyAction(input_kmap, event);
+		} else if (elt.tagName == "TEXTAREA") {
+		    // Use the textarea keymap
+		    if (charCode && !event.altKey && !event.ctrlKey)
+			return;
+		    key = getKeyAction(textarea_kmap, event);
+		}
 	    }
 	}
 
-	gKeySeq.push(formatKey(event.charCode, mods));
-	if (gKeyTimeout) {
-	    message(gKeySeq.join(" "));
-	}
-	for (var i=0; i<kmap.length; i++) {
-	    if (((kmap[i].key.charCode && event.charCode == kmap[i].key.charCode)
-		 || (kmap[i].key.keyCode && event.keyCode == kmap[i].key.keyCode))
-		&& mods == kmap[i].key.modifiers) {
-		found = true;
-		if (kmap[i].keymap) {
-		    gCurrentKmap = kmap[i].keymap;
-		    if (!gKeyTimeout)
-			addKeyPressHelpTimeout();
-		    // We're going for another round
-		    done = false;
-		    break;
-		} else {
-		    command = kmap[i].command;
-		    break;
-		}
-	    }
+	// Check for a key match
+	if (key == null) {
+	    key = getKeyAction(kmap, event);
 	}
 
 	// If it's the top level map and we didn't match the key, let
 	// it fall through so something else can try handling
 	// it. Otherwise, we wanna grab it because we're in the middle
 	// of a key sequence.
-	if (found || kmap != top_kmap) {
+	if (key || kmap != top_kmap) {
 	    // gobble the key
 	    event.preventDefault();
 	    event.preventBubble();
 	}
 
-	if (done) {
-	    // Revert focus
-	    gKeySeq = [];
-	    gCurrentKmap = top_kmap;
-// 	    _content.focus();
-	}
-
-	// execute the command we found or tell the user it's undefined
-	if (command) {
-	    exec_command(command);
-	} else if (done) {
+	// Finally, process the key
+	if (key) {
+	    if (key.keymap) {
+		gCurrentKmap = key.keymap;
+		if (!gKeyTimeout)
+		    addKeyPressHelpTimeout();
+		// We're going for another round
+		done = false;
+	    } else {
+		exec_command(key.command);
+	    }
+	} else {
 	    // C-g always aborts unless it's bound
 	    if (event.ctrlKey && event.charCode == 103)
 		message("Quit");
 // 	    else
-// 		message(gKeySeq.join(" ") + " undefined");
+// 		message(gKeySeq.join(" ") + " is undefined");
 	}
+
+	// Clean up if we're done
+	if (done) {
+	    gKeySeq = [];
+	    gCurrentKmap = top_kmap;
+	}
+
     } catch(e){alert(e);}
 }
 
@@ -480,10 +526,7 @@ function goDoCommand(command)
         if (controller && controller.isCommandEnabled(command))
             controller.doCommand(command);
     }
-    catch (e)
-    {
-	alert(e);
-    }
+    catch (e) { }
 }
 
 function zip2(array1, array2)
@@ -494,13 +537,6 @@ function zip2(array1, array2)
 	acc.push([array1[i],array2[i]]);
     return acc;
 }
-
-function bookmark_bmenu_list()
-{
-    getWebNavigation().loadURI("chrome://conkeror/content/bookmarks.html",
-			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-}
-
 
 var BMDS;
 var BMSVC;

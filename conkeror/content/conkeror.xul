@@ -28,9 +28,6 @@
   <vbox id="appcontent" flex="1">
 <!--	<tabbrowser id="content" disablehistory="true" flex="1" homepage="http://google.ca"/> -->
   <conkframe id="content" flex="1" onkeypress="readKeyPress(event);"/>
-  <statusbar class="mode-line" id="mode-line-bar">
-    <statusbarpanel class="mode-line" id="mode-line" label="" flex="1"/>
-  </statusbar>
   </vbox>
 
 <!-- <statusbar class="message-window" id="message-bar">

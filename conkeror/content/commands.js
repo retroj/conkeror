@@ -4,43 +4,85 @@
 // aren't part of a module go here.
 
 var commands = [
-    ["bookmark-bmenu-list", 		bookmark_bmenu_list, 	[]],
-    ["bookmark-current-url", 		bookmark_current_url, 	[]],
-    ["bookmark-jump", 			goto_bookmark, 		[]],
-    ["browser-next", 			browser_next, 		[]],
-    ["browser-previous", 		browser_prev, 		[]],
-    ["copy-current-url", 		copyCurrentUrl,  	[]],
-    ["copy-link-location", 		copyCurrentUrl, 	[]],
-    ["delete-frame", 			delete_frame, 		[]],
-    ["focus-window", 			focus_window, 		[]],
-    ["execute-extended-command",        meta_x, 		[]],
-    ["find-url", 			find_url, 		[]],
-    ["go-forward", 			goForward, 		[]],
-    ["go-back", 			goBack, 		[]],
-    ["isearch-backward", 		isearch_backward, 	[]],
-    ["isearch-forward", 		isearch_forward, 	[]],
-    ["kill-browser", 			kill_browser, 		[]],
-    ["numberedlinks-1", 		selectNumberedLink_1, 	[]],
-    ["numberedlinks-2", 		selectNumberedLink_2, 	[]],
-    ["numberedlinks-3", 		selectNumberedLink_3, 	[]],
-    ["numberedlinks-4", 		selectNumberedLink_4, 	[]],
-    ["numberedlinks-5", 		selectNumberedLink_5, 	[]],
-    ["numberedlinks-6", 		selectNumberedLink_6, 	[]],
-    ["numberedlinks-7", 		selectNumberedLink_7, 	[]],
-    ["numberedlinks-8", 		selectNumberedLink_8, 	[]],
-    ["numberedlinks-9", 		selectNumberedLink_9, 	[]],
-    ["numberedlinks-toggle", 		toggleNumberedLinks, 	[]],
-    ["quit", 				quit, 			[]],
-    ["revert-browser", 			reload, 		[]],
-    ["beginning-of-line", 		beginning_of_line,	[]],
-    ["end-of-line",     		end_of_line,    	[]],
-    ["stop-loading", 			stopLoading, 		[]],
-    ["switch-browser-other-frame", 	new_frame, 		[]],
-    ["switch-to-browser", 		switch_to_buffer,	[]],
-    ["next-frame", 		        nextFrame,      	[]],
-    ["view-source", 			view_source, 		[]],
-    ["keyboard-quit", 			stopLoading, 		[]],
-    ["yank", 				yankToClipboard,        []]];
+    ["beginning-of-line", 		beginning_of_line,		[]],
+    ["bookmark-bmenu-list", 		bookmark_bmenu_list, 		[]],
+    ["bookmark-current-url", 		bookmark_current_url, 		[]],
+    ["bookmark-jump", 			goto_bookmark, 			[]],
+    ["browser-next", 			browser_next, 			[]],
+    ["browser-previous", 		browser_prev, 			[]],
+    ["cmd_beginLine", 			cmd_beginLine, 			[]],
+    ["cmd_charNext", 			cmd_charNext, 			[]],
+    ["cmd_charPrevious", 		cmd_charPrevious, 		[]],
+    ["cmd_copy", 			cmd_copy, 			[]],
+    ["cmd_copyOrDelete", 		cmd_copyOrDelete, 		[]],
+    ["cmd_cut", 			cmd_cut, 			[]],
+    ["cmd_cutOrDelete", 		cmd_cutOrDelete, 		[]],
+    ["cmd_deleteCharBackward", 		cmd_deleteCharBackward, 	[]],
+    ["cmd_deleteCharForward", 		cmd_deleteCharForward, 		[]],
+    ["cmd_deleteToBeginningOfLine", 	cmd_deleteToBeginningOfLine, 	[]],
+    ["cmd_deleteToEndOfLine", 		cmd_deleteToEndOfLine, 		[]],
+    ["cmd_deleteWordBackward", 		cmd_deleteWordBackward, 	[]],
+    ["cmd_endLine", 			cmd_endLine, 			[]],
+    ["cmd_lineNext", 			cmd_lineNext, 			[]],
+    ["cmd_linePrevious", 		cmd_linePrevious, 		[]],
+    ["cmd_moveBottom", 			cmd_moveBottom, 		[]],
+    ["cmd_movePageDown", 		cmd_movePageDown, 		[]],
+    ["cmd_movePageUp", 			cmd_movePageUp, 		[]],
+    ["cmd_moveTop", 			cmd_moveTop, 			[]],
+    ["cmd_paste", 			cmd_paste, 			[]],
+    ["cmd_redo", 			cmd_redo, 			[]],
+    ["cmd_selectAll", 			cmd_selectAll, 			[]],
+    ["cmd_selectBeginLine", 		cmd_selectBeginLine, 		[]],
+    ["cmd_selectBottom", 		cmd_selectBottom, 		[]],
+    ["cmd_selectCharNext", 		cmd_selectCharNext, 		[]],
+    ["cmd_selectCharPrevious", 		cmd_selectCharPrevious, 	[]],
+    ["cmd_selectEndLine", 		cmd_selectEndLine, 		[]],
+    ["cmd_selectLineNext", 		cmd_selectLineNext, 		[]],
+    ["cmd_selectLinePrevious", 		cmd_selectLinePrevious, 	[]],
+    ["cmd_selectPageDown", 		cmd_selectPageDown, 		[]],
+    ["cmd_selectPageUp", 		cmd_selectPageUp, 		[]],
+    ["cmd_selectTop", 			cmd_selectTop, 			[]],
+    ["cmd_selectWordNext", 		cmd_selectWordNext, 		[]],
+    ["cmd_selectWordPrevious", 		cmd_selectWordPrevious, 	[]],
+    ["cmd_undo", 			cmd_undo, 			[]],
+    ["cmd_wordNext", 			cmd_wordNext, 			[]],
+    ["cmd_wordPrevious", 		cmd_wordPrevious, 		[]],
+    ["copy-current-url", 		copyCurrentUrl,  		[]],
+    ["copy-link-location", 		copyCurrentUrl, 		[]],
+    ["delete-frame", 			delete_frame, 			[]],
+    ["end-of-line",     		end_of_line,    		[]],
+    ["execute-extended-command",        meta_x, 			[]],
+    ["find-url", 			find_url, 			[]],
+    ["flip", 			split_flip, 			[]],
+    ["focus-window", 			focus_window, 			[]],
+    ["go-back", 			goBack, 			[]],
+    ["go-forward", 			goForward, 			[]],
+    ["isearch-backward", 		isearch_backward, 		[]],
+    ["isearch-forward", 		isearch_forward, 		[]],
+    ["keyboard-quit", 			stopLoading, 			[]],
+    ["kill-browser", 			kill_browser, 			[]],
+    ["my-paste",			my_paste, 			[]],
+    ["next-frame", 		        nextFrame,      		[]],
+    ["numberedlinks-1", 		selectNumberedLink_1, 		[]],
+    ["numberedlinks-2", 		selectNumberedLink_2, 		[]],
+    ["numberedlinks-3", 		selectNumberedLink_3, 		[]],
+    ["numberedlinks-4", 		selectNumberedLink_4, 		[]],
+    ["numberedlinks-5", 		selectNumberedLink_5, 		[]],
+    ["numberedlinks-6", 		selectNumberedLink_6, 		[]],
+    ["numberedlinks-7", 		selectNumberedLink_7, 		[]],
+    ["numberedlinks-8", 		selectNumberedLink_8, 		[]],
+    ["numberedlinks-9", 		selectNumberedLink_9, 		[]],
+    ["numberedlinks-toggle", 		toggleNumberedLinks, 		[]],
+    ["open-url", 			open_url, 			[]],
+    ["quit", 				quit, 				[]],
+    ["revert-browser", 			reload, 			[]],
+    ["split-window-horizontal",		split_window_horizontally, 	[]],
+    ["stop-loading", 			stopLoading, 			[]],
+    ["switch-browser-other-frame", 	new_frame, 			[]],
+    ["switch-to-browser", 		switch_to_buffer,		[]],
+    ["view-source", 			view_source, 			[]],
+    ["yank", 				yankToClipboard,        	[]]];
+
 
 function exec_command(cmd)
 {
@@ -65,7 +107,7 @@ function make_key(charCode, keyCode, mods)
 {
     var key = {};
     if (charCode)
-	key.charCode = charCode;
+	key.charCode = charCode.charCodeAt(0);
     else
 	key.keyCode = keyCode;
     key.modifiers = mods;
@@ -85,7 +127,9 @@ function define_key(kmap, key, keymap, cmd)
 
 function focus_window()
 {
+    alert("foo");
     _content.focus();
+    document.commandDispatcher.focusedElement = null;
 }
 
 function quit()
@@ -329,3 +373,71 @@ function meta_x()
 {
     miniBufferComplete("M-x", "commands", commands, function(fn) {fn();});
 }
+
+function inject_css()
+{
+    var doc = _content.content.document;
+    doc.createLinkNode;
+}
+
+function split_window_horizontally()
+{
+    getBrowser().hSplit();
+}
+
+function split_flip()
+{
+    getBrowser().flip();
+}
+
+function my_paste()
+{
+    goDoCommand("cmd_paste");
+}
+
+function bookmark_bmenu_list()
+{
+    getWebNavigation().loadURI("chrome://conkeror/content/bookmarks.html",
+			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+}
+
+
+/// built in commands
+function cmd_beginLine() { goDoCommand("cmd_beginLine"); }
+function cmd_charNext() { goDoCommand("cmd_charNext"); }
+function cmd_charPrevious() { goDoCommand("cmd_charPrevious"); }
+function cmd_copy() { goDoCommand("cmd_copy"); }
+function cmd_copyOrDelete() { goDoCommand("cmd_copyOrDelete"); }
+function cmd_cut() { goDoCommand("cmd_cut"); }
+function cmd_cutOrDelete() { goDoCommand("cmd_cutOrDelete"); }
+function cmd_deleteCharBackward() { goDoCommand("cmd_deleteCharBackward"); }
+function cmd_deleteCharForward() { goDoCommand("cmd_deleteCharForward"); }
+function cmd_deleteToBeginningOfLine() { goDoCommand("cmd_deleteToBeginningOfLine"); }
+function cmd_deleteToEndOfLine() { goDoCommand("cmd_deleteToEndOfLine"); }
+function cmd_deleteWordBackward() { goDoCommand("cmd_deleteWordBackward"); }
+function cmd_endLine() { goDoCommand("cmd_endLine"); }
+function cmd_lineNext() { goDoCommand("cmd_lineNext"); }
+function cmd_linePrevious() { goDoCommand("cmd_linePrevious"); }
+function cmd_moveBottom() { goDoCommand("cmd_moveBottom"); }
+function cmd_movePageDown() { goDoCommand("cmd_movePageDown"); }
+function cmd_movePageUp() { goDoCommand("cmd_movePageUp"); }
+function cmd_moveTop() { goDoCommand("cmd_moveTop"); }
+function cmd_paste() { goDoCommand("cmd_paste"); }
+function cmd_redo() { goDoCommand("cmd_redo"); }
+function cmd_selectAll() { goDoCommand("cmd_selectAll"); }
+function cmd_selectBeginLine() { goDoCommand("cmd_selectBeginLine"); }
+function cmd_selectBottom() { goDoCommand("cmd_selectBottom"); }
+function cmd_selectCharNext() { goDoCommand("cmd_selectCharNext"); }
+function cmd_selectCharPrevious() { goDoCommand("cmd_selectCharPrevious"); }
+function cmd_selectEndLine() { goDoCommand("cmd_selectEndLine"); }
+function cmd_selectLineNext() { goDoCommand("cmd_selectLineNext"); }
+function cmd_selectLinePrevious() { goDoCommand("cmd_selectLinePrevious"); }
+function cmd_selectPageDown() { goDoCommand("cmd_selectPageDown"); }
+function cmd_selectPageUp() { goDoCommand("cmd_selectPageUp"); }
+function cmd_selectTop() { goDoCommand("cmd_selectTop"); }
+function cmd_selectWordNext() { goDoCommand("cmd_selectWordNext"); }
+function cmd_selectWordPrevious() { goDoCommand("cmd_selectWordPrevious"); }
+function cmd_undo() { goDoCommand("cmd_undo"); }
+function cmd_wordNext() { goDoCommand("cmd_wordNext"); }
+function cmd_wordPrevious() { goDoCommand("cmd_wordPrevious"); }
+
