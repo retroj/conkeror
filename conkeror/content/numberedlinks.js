@@ -157,19 +157,20 @@ function onNumberedLinkBlur() {
 
 }
 
-function createNL (doc, node, id, type)
+var NL_FLOATER = 1;
+var NL_BEFORE = 2;
+var NL_INSIDE = 3;
+var NL_IMGFLOATER = 4;
+
+function createNL (doc, node, id, type, where, post, img)
 {
     try{
 	var span = doc.createElement("span");
-	var pt = abs_point (node);
+
 	// Abort if we can't get an absolute positoin for it.
 // 	alert ("(" + id + ")" + "createNL: " + node + " " + pt.x + " " + pt.y);
-
-	if (pt == null)
-	    return;
 	var nodeid;
-	if (node.hasAttributes()
-	    && node.hasAttribute("id"))
+	if (node.hasAttribute("id"))
 	    nodeid = node.getAttribute("id");
 	else {
 	    nodeid = "__CONK_" + id;
@@ -179,11 +180,14 @@ function createNL (doc, node, id, type)
 	span.setAttribute("__conkid", id);
 	span.setAttribute("__nodeid", nodeid);
 	span.setAttribute("__conktype", type);
-	span.style.left =  pt.x + "px";
-	span.style.top = pt.y + "px";
-	span.style.position = "absolute";
+// 	var pt = abs_point (node);
+// 	span.style.left =  pt.x + "px";
+// 	span.style.top = pt.y + "px";
+// 	span.style.position = "absolute";
+	span.style.padding = "0 0 0 0";
 	span.style.color = "black";
-	span.style.fontWeight = "bold";
+	span.style.backgroundColor = type == "image" ? "pink" : "lightgray";
+	span.style.fontWeight = "normal";
 	span.style.fontFamily = "sans-serif";
 	span.style.fontSize = "small";
 	span.style.textAlign = "center";
@@ -191,37 +195,54 @@ function createNL (doc, node, id, type)
 	span.style.borderColor = "gray";
 	span.style.borderStyle = "solid";
 	span.style.MozBorderRadius = "0.5em";
-	span.style.MozOpacity = "0.8";
-	span.style.zIndex = "999"; // always on top
-	span.style.visibility = "hidden";
-	if (type == "image")
-	    span.style.backgroundColor = "pink";
-	else
-	    span.style.backgroundColor = "lightgray";
-
-	doc.body.appendChild (span);
+// 	span.style.visibility = "hidden";
+	if (where == NL_FLOATER || where == NL_IMGFLOATER) {
+	    post.push(function ()
+	                {
+			    var pt = abs_point(where == NL_IMGFLOATER ? img : node);
+			    span.style.left =  pt.x + "px";
+			    span.style.top = pt.y + "px";
+			});
+	    span.style.left = "0px";
+	    span.style.top = "0px";
+	    span.style.position = "absolute";
+	    span.style.MozOpacity = "0.8";
+	    span.style.zIndex = "999"; // always on top
+	    doc.body.appendChild (span);
+	} else if (where == NL_BEFORE) {
+	    node.parentNode.insertBefore (span, node);
+	} else {
+	    node.insertBefore (span, node.firstChild);
+	}
     } catch (e) {alert("createNL: " + e);}
     //     alert (node.offsetTop + " " + node.offsetLeft);
 }
 
-function createNum(node, n)
+function createNum(node, n, floaters)
 {
     try{
     var doc = node.ownerDocument;
 
     if (node.hasAttributes()) {
-	if (node.tagName == "A"
-	    || node.tagName == "AREA") {
-	    createNL (doc, node, n, "link");
+	if (node.tagName == "A") {
+	    // links with images in them get a floating number
+	    var img = node.getElementsByTagName("IMG");
+// 	    var txt = node.getElementsByTagName("TEXT");
+	    if (img.length > 0)
+		createNL (doc, node, n, "link", NL_IMGFLOATER, floaters, img[0]);
+	    else
+		createNL (doc, node, n, "link", NL_INSIDE, floaters);
+	} else if (node.tagName == "AREA") {
+	    createNL (doc, node, n, "link", NL_FLOATER, floaters);
 	} else if (node.tagName == "IMG") {
-	    createNL (doc, node, n, "image");
-	} else if (node.tagName == "INPUT" 
+	    createNL (doc, node, n, "image", NL_FLOATER, floaters);
+	} else if (node.tagName == "INPUT"
 		   && (node.type == "submit" 
 		       || node.type == "button"
-		       || node.tpe == "radio")) {
-	    createNL (doc, node, n, "button");
+		       || node.type == "radio")) {
+	    createNL (doc, node, n, "button", node.type != "radio"?NL_FLOATER:NL_BEFORE, floaters);
 	} else {
-	    createNL (doc, node, n, "widget");
+	    createNL (doc, node, n, "widget", NL_BEFORE, floaters);
 	}
     }
     } catch(e) {window.alert("createNum: " + e);}
@@ -242,7 +263,10 @@ function inlink (node)
 // For a single document, grab all the nodes
 function doLinkNodes(doc, linknum)
 {
+    try {
 //     var a_nodes = doc.links;
+    var st = new Date();
+    var post = [];
     var a_nodes = doc.getElementsByTagName('a');
     var ar_nodes = doc.getElementsByTagName('area');
     var img_nodes = doc.getElementsByTagName('img');
@@ -251,39 +275,71 @@ function doLinkNodes(doc, linknum)
     var t_nodes = doc.getElementsByTagName('textarea');
 
     for (var i=0; i<t_nodes.length; i++) {
-	createNum(t_nodes[i], linknum);
+	createNum(t_nodes[i], linknum, post);
 	linknum++;
     }
     for (var i=0; i<s_nodes.length; i++) {
-	createNum(s_nodes[i], linknum);
+	createNum(s_nodes[i], linknum, post);
 	linknum++;
     }
     for (var i=0; i<i_nodes.length; i++) {
 	if (i_nodes[i].type == "hidden") continue;
-	createNum(i_nodes[i], linknum);
+	createNum(i_nodes[i], linknum, post);
 	linknum++;
     }
     for (var i=0; i<a_nodes.length; i++) {
 	if (!a_nodes[i].hasAttribute('href')) continue;
-	createNum(a_nodes[i], linknum);
+	createNum(a_nodes[i], linknum, post);
 	linknum++;
     }
     for (var i=0; i<ar_nodes.length; i++) {
 	if (!ar_nodes[i].hasAttribute('href')) continue;
-	createNum(ar_nodes[i], linknum);
+	createNum(ar_nodes[i], linknum, post);
 	linknum++;
     }
     for (var i=0; i<img_nodes.length; i++) {
 	if (!img_nodes[i].hasAttribute('src')) continue;
-	createNum(img_nodes[i], linknum);
+	createNum(img_nodes[i], linknum, post);
 	linknum++;
     }
+
+    // floaters have to be calculated afterwards because of
+    // the reflowing of non-floaters
+    for (var i=0; i<post.length; i++) {
+	post[i]();
+    }
+
+    end = new Date();
+//     alert("elapse: " + (end.getTime() - st.getTime()));
+    } catch (e) {alert(e);}
 
     return linknum;
 }
 
+function removeExisting(doc)
+{
+    var nodes = doc.getElementsByTagName("SPAN");
+    for (var i=0; i<nodes.length; i++) {
+	if (!nodes[i].hasAttribute("__nodeid")) continue;
+	nodes[i].parent.removeChild(nodes[i]);
+    }
+}
+
+function removeExistingNLs()
+{
+    var frames = window._content.frames;
+    removeExisting(window._content.document);
+    for (var i=0; i<frames.length; i++) {
+	removeExisting(frames[i].document);
+    }
+}
+
 function createNumberedLinks()
 {
+    // Remove any existing spans. This is in response to double
+    // numberedlinks that I can't seem to get rid of.
+    removeExistingNLs();
+    // Now add ours
     var linknum = 1;
     // The main content may have link nodes as well as it's frames.
     var frames = window._content.frames;
@@ -293,18 +349,22 @@ function createNumberedLinks()
     }
 }
 
-function setVisibility (doc,link_state, img_state)
+function setVisibility (doc, link_state, img_state)
 {
     var nodes = doc.getElementsByTagName('SPAN');
     for (var i=0; i<nodes.length; i++) {
 	if (nodes[i].hasAttribute("__conkid")) {
 	    if (nodes[i].getAttribute("__conktype") == "image")
-		nodes[i].style.visibility = img_state ? "visible":"hidden";
+		nodes[i].style.display = img_state ? "inline":"none";
 	    else
-		nodes[i].style.visibility = link_state ? "visible":"hidden";
+		nodes[i].style.display = link_state ? "inline":"none";
 	}
 	// 	alert(nodes[i].hidden);
     }
+    // Changing the visibility may have changed the layout. So update
+    // the floater positions
+    if (img_state)
+	update_nl_pos (doc);
 }
 
 function setNumberedLinksVisibility(link_state, img_state)
@@ -349,12 +409,23 @@ function update_nl_pos (doc)
 {
     var nodes = doc.getElementsByTagName("SPAN");
     for (var i=0; i<nodes.length; i++) {
+	if (!nodes[i].hasAttribute("__nodeid")) continue;
 	var node = doc.getElementById(nodes[i].getAttribute("__nodeid"));
-	var pt = abs_point (node);
-	if (pt == null)
-	    return;
-	nodes[i].style.left =  pt.x + "px";
-	nodes[i].style.top = pt.y + "px";
+	if (nodes[i].style.position == "absolute"
+	    && nodes[i].style.display != "none") {
+	    var pt;
+	    // image links are handled slightly differently
+	    if (node.tagName == "A") {
+		var img = node.getElementsByTagName("IMG");
+		if (img.length > 0)
+		   pt = abs_point (img[0]);
+		else
+		    pt = abs_point (node);
+	    } else 
+		pt = abs_point (node);
+	    nodes[i].style.left =  pt.x + "px";
+	    nodes[i].style.top = pt.y + "px";
+	}
     }
 }
 
