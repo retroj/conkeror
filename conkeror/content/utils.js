@@ -226,8 +226,8 @@ function miniBufferCompleteKeyPress(event)
 		addHistory(val);
 		var callback = gReadFromMinibufferCallBack;
 		gReadFromMinibufferCallBack = null;
-		if (callback && match)
-		    callback(match);
+		if (callback)
+		    callback(match, val);
 	    } catch (e) {window.alert(e);}
 	} else if (handle_history(event, field)) {
 	    event.preventDefault();
@@ -590,3 +590,4 @@ function add_bookmark(url, title, charset)
 {
     BMSVC.addBookmarkImmediately(url, title, kBMSVCIID.BOOKMARK_DEFAULT_TYPE, charset);
 }
+

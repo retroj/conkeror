@@ -100,6 +100,7 @@ var commands = [
     ["other-window",                    other_window,                   []],
     ["view-source", 			view_source, 			[]],
     ["split-window", 			split_window, 			[]],
+    ["web-jump", 			web_jump, 			[]],
     ["yank-to-clipboard",		yankToClipboard,        	[]]];
 
 function exec_command(cmd)
@@ -511,3 +512,33 @@ function cmd_undo() {goDoCommand("cmd_undo"); }
 function cmd_paste() {goDoCommand("cmd_paste"); }
 function cmd_movePageUp() {goDoCommand("cmd_movePageUp"); }
 function cmd_movePageDown() {goDoCommand("cmd_movePageDown"); }
+
+//// web jump stuff
+
+var gWebJumpLocations = [];
+gWebJumpLocations["search"] = "http://www.google.com/search?q=%s";
+gWebJumpLocations["wikipedia"] = "http://en.wikipedia.org/wiki/Special:Search?search=%s";
+gWebJumpLocations["slang"] = "http://www.urbandictionary.com/define.php?term=%s";
+gWebJumpLocations["dictionary"] = "http://dictionary.reference.com/search?q=%s";
+
+function webjump_build_url(template, subs)
+{
+    var b = template.indexOf('%s');
+    var a = b + 2;
+    return template.substr(0,b) + subs + template.substring(a);
+}
+
+function doWebJump(match, value)
+{
+    var start = value.indexOf(' ');
+    var url = webjump_build_url(gWebJumpLocations[value.substr(0,start)], value.substring(start + 1));
+    getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+}
+
+function web_jump()
+{
+    var templs =[];
+    for (var x in gWebJumpLocations)
+	templs.push([x,x]);
+    miniBufferComplete("Web Jump:", "webjump", templs, doWebJump);
+}
