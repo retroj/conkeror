@@ -31,6 +31,20 @@ var commands = [
     ["cmd_moveTop", 			cmd_moveTop, 			[]],
     ["cmd_paste", 			cmd_paste, 			[]],
     ["cmd_redo", 			cmd_redo, 			[]],
+    ["cmd_scrollPageUp", 		cmd_scrollPageUp, 		[]],
+    ["cmd_scrollPageDown", 		cmd_scrollPageDown, 		[]],
+    ["cmd_scrollLineUp", 		cmd_scrollLineUp, 		[]],
+    ["cmd_scrollLineDown", 		cmd_scrollLineDown, 		[]],
+    ["cmd_scrollLeft", 			cmd_scrollLeft, 		[]],
+    ["cmd_scrollRight", 		cmd_scrollRight, 		[]],
+    ["cmd_scrollBeginLine", 		cmd_scrollBeginLine, 		[]],
+    ["cmd_scrollEndLine", 		cmd_scrollEndLine, 		[]],
+    ["cmd_scrollTop", 			cmd_scrollTop, 			[]],
+    ["cmd_scrollBottom", 		cmd_scrollBottom, 		[]],
+    ["cmd_undo", 			cmd_undo, 			[]],
+    ["cmd_paste", 			cmd_paste, 			[]],
+    ["cmd_movePageUp", 			cmd_movePageUp, 		[]],
+    ["cmd_movePageDown", 		cmd_movePageDown, 		[]],
     ["cmd_selectAll", 			cmd_selectAll, 			[]],
     ["cmd_selectBeginLine", 		cmd_selectBeginLine, 		[]],
     ["cmd_selectBottom", 		cmd_selectBottom, 		[]],
@@ -48,7 +62,7 @@ var commands = [
     ["cmd_wordNext", 			cmd_wordNext, 			[]],
     ["cmd_wordPrevious", 		cmd_wordPrevious, 		[]],
     ["copy-current-url", 		copyCurrentUrl,  		[]],
-    ["copy-link-location", 		copyCurrentUrl, 		[]],
+    ["copy-link-location", 		copyLinkLocation, 		[]],
     ["delete-frame", 			delete_frame, 			[]],
     ["end-of-line",     		end_of_line,    		[]],
     ["execute-extended-command",        meta_x, 			[]],
@@ -87,7 +101,6 @@ var commands = [
     ["view-source", 			view_source, 			[]],
     ["split-window", 			split_window, 			[]],
     ["yank-to-clipboard",		yankToClipboard,        	[]]];
-
 
 function exec_command(cmd)
 {
@@ -484,3 +497,17 @@ function cmd_undo() { goDoCommand("cmd_undo"); }
 function cmd_wordNext() { goDoCommand("cmd_wordNext"); }
 function cmd_wordPrevious() { goDoCommand("cmd_wordPrevious"); }
 
+function cmd_scrollPageUp() {goDoCommand("cmd_scrollPageUp"); }
+function cmd_scrollPageDown() {goDoCommand("cmd_scrollPageDown"); }
+function cmd_scrollLineUp() {goDoCommand("cmd_scrollLineUp"); }
+function cmd_scrollLineDown() {goDoCommand("cmd_scrollLineDown"); }
+function cmd_scrollLeft() {goDoCommand("cmd_scrollLeft"); }
+function cmd_scrollRight() {goDoCommand("cmd_scrollRight"); }
+function cmd_scrollBeginLine() {goDoCommand("cmd_scrollBeginLine"); }
+function cmd_scrollEndLine() {goDoCommand("cmd_scrollEndLine"); }
+function cmd_scrollTop() {goDoCommand("cmd_scrollTop"); }
+function cmd_scrollBottom() {goDoCommand("cmd_scrollBottom"); }
+function cmd_undo() {goDoCommand("cmd_undo"); }
+function cmd_paste() {goDoCommand("cmd_paste"); }
+function cmd_movePageUp() {goDoCommand("cmd_movePageUp"); }
+function cmd_movePageDown() {goDoCommand("cmd_movePageDown"); }

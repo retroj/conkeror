@@ -72,6 +72,47 @@ function initKmaps()
     define_key(top_kmap, make_key("e", null, MOD_CTRL), null, "end-of-line");
     define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_ESCAPE, 0), null, "focus-window");
 
+    // movement keys
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_BACK, 0), null, "cmd_scrollPageUp");
+    define_key(top_kmap, make_key(" ", null, 0), null, "cmd_scrollPageDown");
+    define_key(top_kmap, make_key("v", null,MOD_ALT), null, "cmd_scrollPageUp");
+    define_key(top_kmap, make_key("v", null,MOD_CTRL), null, "cmd_scrollPageDown");
+    define_key(top_kmap, make_key("p", null,MOD_CTRL), null, "cmd_scrollLineUp");
+    define_key(top_kmap, make_key("n", null,MOD_CTRL), null, "cmd_scrollLineDown");
+    define_key(top_kmap, make_key("b", null,MOD_CTRL), null, "cmd_scrollLeft");
+    define_key(top_kmap, make_key("f", null,MOD_CTRL), null, "cmd_scrollRight");
+    define_key(top_kmap, make_key("a", null,MOD_CTRL), null, "cmd_scrollBeginLine");
+    define_key(top_kmap, make_key("e", null,MOD_CTRL), null, "cmd_scrollEndLine");
+    define_key(top_kmap, make_key("<", null, MOD_ALT), null, "cmd_scrollTop");
+    define_key(top_kmap, make_key(">", null, MOD_ALT), null, "cmd_scrollBottom");
+    define_key(top_kmap, make_key("_", null, MOD_CTRL), null, "cmd_undo");
+    define_key(top_kmap, make_key("y", null, MOD_CTRL), null, "cmd_paste");
+
+    define_key(top_kmap, make_key("v", null, MOD_ALT), null, "cmd_movePageUp");
+    define_key(top_kmap, make_key("v", null, MOD_CTRL), null, "cmd_movePageDown");
+    define_key(top_kmap, make_key("b", null, MOD_ALT), null, "cmd_wordPrevious");
+    define_key(top_kmap, make_key("f", null, MOD_ALT), null, "cmd_wordNext");
+
+    define_key(top_kmap, make_key("w", null, 0), null, "cmd_copy");
+
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_PAGE_UP, MOD_SHIFT), null, "cmd_selectPageUp");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_PAGE_DOWN, MOD_SHIFT), null, "cmd_selectPageDown");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_DELETE, MOD_SHIFT), null, "cmd_cut");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_DELETE, MOD_CTRL), null, "cmd_copy");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_INSERT, MOD_CTRL), null, "cmd_copy");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_HOME, MOD_SHIFT|MOD_CTRL), null, "cmd_selectTop");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_END, MOD_SHIFT|MOD_CTRL), null, "cmd_selectBottom");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_LEFT, MOD_CTRL|MOD_SHIFT), null, "cmd_selectWordPrevious");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_RIGHT, MOD_CTRL|MOD_SHIFT), null, "cmd_selectWordNext");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_LEFT, MOD_SHIFT), null, "cmd_selectCharPrevious");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_RIGHT, MOD_SHIFT), null, "cmd_selectCharNext");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_HOME, MOD_SHIFT), null, "cmd_selectBeginLine");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_END, MOD_SHIFT), null, "cmd_selectEndLine");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_UP, MOD_SHIFT), null, "cmd_selectLinePrevious");
+    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_DOWN, MOD_SHIFT), null, "cmd_selectLineNext");
+
+    define_key(top_kmap, make_key("a", null, MOD_ALT), null, "cmd_selectAll");
+
     // Input area keys
     define_key(input_kmap, make_key("a", null, MOD_CTRL), null, "cmd_beginLine");
     define_key(input_kmap, make_key("e", null, MOD_CTRL), null, "cmd_endLine");

@@ -50,6 +50,26 @@ function readInput(prompt, open, keypress)
     field.focus();
 }
 
+function handle_basic_input(event)
+{
+    try {
+    // Find the command
+    var key = getKeyAction(input_kmap, event);
+
+
+
+    // For now, don't handle embedded keymaps. Just commands 
+    if (key) {
+	if (key.command) {
+	    exec_command(key.command);
+	    return true;
+	}
+    }
+
+    return false;
+    } catch(e) {alert(e);}
+}
+
 // Keeps track of history
 var gHistory = [];
 
@@ -156,6 +176,10 @@ function miniBufferKeyPress(event)
 	// gobble the tab
 	event.preventDefault();
 	event.preventBubble();
+    } else if (handle_basic_input(event)) {
+	// gobble the tab
+	event.preventDefault();
+	event.preventBubble();
     }
     } catch(e) {alert(e);}
 }
@@ -230,10 +254,15 @@ function miniBufferCompleteKeyPress(event)
 	    closeInput(true, true);
 	    event.preventDefault();
 	    event.preventBubble();
-	} else if (event.charCode) {
-	    // They typed a letter or did something, so reset the completion cycle
+	} else if (event.charCode && !event.ctrlKey && !event.altKey) {
+	    // They typed a letter, so reset the completion cycle
 	    gCurrentCompletion = null;
-	}
+	} else if (handle_basic_input(event)) {
+	    // they did something so reset the completion cycle
+	    gCurrentCompletion = null;
+	    event.preventDefault();
+	    event.preventBubble();
+	}	    
     } catch(e) {alert(e);}
 }
 
@@ -472,7 +501,7 @@ function readKeyPress(event)
 		    key = getKeyAction(input_kmap, event);
 		} else if (elt.tagName == "TEXTAREA") {
 		    // Use the textarea keymap
-		    if (charCode && !event.altKey && !event.ctrlKey)
+		    if (event.charCode && !event.altKey && !event.ctrlKey)
 			return;
 		    key = getKeyAction(textarea_kmap, event);
 		}
