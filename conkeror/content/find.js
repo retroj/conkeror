@@ -56,7 +56,7 @@ function resumeFindState(state)
     gWin.scrollTo(state["screenx"], state["screeny"]);
 
     label.value = (state["wrapped"] ? "Wrapped ":"") 
-	+ (state["range"] ? "":"Failing ") + "I-Search:";
+	+ (state["range"] ? "":"Failing ") + "I-Search" + (state["direction"]? "": " backward") + ":";
 }
 
 function lastFindState()
@@ -88,6 +88,7 @@ function focusFindBarBW()
 {
     focusFindBar();
     lastFindState()["direction"] = false;
+    resumeFindState(lastFindState());
 }
 
 

@@ -8,15 +8,21 @@ function Startup()
   var uriToLoad = "http://www.google.ca";
 //   var uriToLoad = "file:///home/sabetts/src/conkeror/testframes.html";
 
+//   var b = document.getElementById("blahblu");
+//   b.setCurrentBrowser(0);
+
   if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
     uriToLoad = window.arguments[0];
+
+  // Setup our status handler
+  window.XULBrowserWindow = new nsBrowserStatusHandler();
+  getBrowser().setProgressListener(window.XULBrowserWindow, 
+				   Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
   try {
       getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
   } catch(e) { window.alert(e) }
 
-  // Setup our status handler
-  window.XULBrowserWindow = new nsBrowserStatusHandler();
 
   try {
     // Create the browser instance component.
@@ -37,8 +43,6 @@ function Startup()
 
   appCore.setWebShellWindow(window);
 
-  getBrowser().addProgressListener(window.XULBrowserWindow, 
-			       Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
 
 //   initServices();
@@ -163,7 +167,7 @@ nsBrowserStatusHandler.prototype =
 	      if (aRequest) {
 		  if (aWebProgress.DOMWindow == content) {
 		      this.endDocumentLoad(aRequest, aStatus);
-		      updateModeline();
+		      updateModeline(getWebNavigation().currentURI);
 		  }
 	      }
 	  }
@@ -190,7 +194,7 @@ nsBrowserStatusHandler.prototype =
 
   onLocationChange : function(aWebProgress, aRequest, aLocation)
   {
-//       window.alert("onLocationChange");
+      updateModeline(aLocation);
   },
 
   onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage)

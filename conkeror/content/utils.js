@@ -31,7 +31,8 @@ function getBrowser()
 function getWebNavigation ()
 {
   try {
-    return getBrowser().webNavigation;
+//       alert(getBrowser().curbrow.firstChild.webNavigation);
+      return getBrowser().webNavigation;
   } catch (e) {
       window.alert(e);
     return null;
@@ -77,11 +78,11 @@ function closeInput(clearInput)
     } catch(e) { window.alert(e); }
 }
 
-function updateModeline()
+function updateModeline(url)
 {
     var docshell = document.getElementById("content").webNavigation;
     var modeline = document.getElementById("mode-line");
-    modeline.label = docshell.currentURI.spec;
+    modeline.label = url.spec;
 }
 
 

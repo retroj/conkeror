@@ -65,7 +65,8 @@
   </keyset>
 
 <vbox id="appcontent" flex="1">
-	<tabbrowser id="content" disablehistory="true" flex="1" homepage="http://google.ca"/>
+<!--	<tabbrowser id="content" disablehistory="true" flex="1" homepage="http://google.ca"/> -->
+<conkframe id="content" flex="1"/>
 <statusbar class="mode-line" id="mode-line-bar">
   <statusbarpanel class="mode-line" id="mode-line" label="" flex="1"/>
 </statusbar>
