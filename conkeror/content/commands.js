@@ -13,7 +13,7 @@ function init_commands()
     add_command("beginning-of-line", beginning_of_line, []);
     add_command("bookmark-bmenu-list", bookmark_bmenu_list, []);
     add_command("bookmark-current-url", bookmark_current_url, []);
-    add_command("bookmark-jump", goto_bookmark, [["P"]]);
+    add_command("bookmark-jump", goto_bookmark, [["p"]]);
     add_command("buffer-next", browser_next, []);
     add_command("buffer-previous", browser_prev, []);
     add_command("cmd_beginLine", cmd_beginLine, []);

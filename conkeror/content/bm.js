@@ -110,13 +110,19 @@ function genBookmarks()
 {
     try {
 	var bms = get_bm_strings();
-// 	var bms = [["hey", "ya"], ["oh", "no"]];
-	document.write("<table>");
-	for (var i=0; i<bms.length; i++) {
-	    document.write("<TR>");
-	    document.write("<TD><a href=\"" + bms[i][1] + "\">" + bms[i][0] + "</TD>");
-	    document.write("</TR>");
+	document.write("<h1>Bookmarks</h1>")
+
+	if (bms.length) {
+	    document.write("<table>");
+	    for (var i=0; i<bms.length; i++) {
+		document.write("<TR>");
+		document.write("<TD><a href=\"" + bms[i][1] + "\">" + bms[i][0] + "</TD>");
+		document.write("</TR>");
+	    }
+	    document.write("</table>");
+	} else {
+	    document.write("<p>No bookmarks.</p>");
 	}
-	document.write("</table>");
+
     } catch(e) {alert(e);}
 }
