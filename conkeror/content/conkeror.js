@@ -71,6 +71,10 @@ function Startup()
       }
   } catch (e) {window.alert(e);}
 
+  // Web jumps have to be initialized after the rcfile is loaded for
+  // the delicious webjumps
+  init_webjumps();
+
   // Give the browser focus.
   setTimeout(delayedStartup,0);
 }

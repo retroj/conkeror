@@ -153,6 +153,9 @@ function setNumberedLinksState(linksOn)
     var doc = _content.content.document;
     if (!doc) return;
 
+    // We need it to be true or false.
+    if (doc.__numberedlinks_linkState == null)
+	doc.__numberedlinks_linkState = false;
     // Keep track of the numbered state
     if (linksOn == doc.__numberedlinks_linkState)
 	return;

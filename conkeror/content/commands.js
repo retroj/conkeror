@@ -682,30 +682,34 @@ function add_webjump(key, loc)
     gWebJumpLocations[key] = loc;
 }
 
-// Some built in web jumps
 var delicious_username = "";
 
-add_webjump("google",     "http://www.google.com/search?q=%s");
-add_webjump("wikipedia",  "http://en.wikipedia.org/wiki/Special:Search?search=%s");
-add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
-add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
-add_webjump("xulplanet",  "http://xulplanet.com/cgi-bin/search/search.cgi?terms=%s");
-add_webjump("image",      "http://images.google.com/images?q=%s");
-add_webjump("bugzilla",   "https://bugzilla.mozilla.org/show_bug.cgi?id=%s");
-add_webjump("clhs",       "http://www.xach.com/clhs?q=%s");
-add_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
-add_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
-add_webjump("ratpoisonwiki", "http://ratpoison.elektrubadur.se/?search=%s");
-add_webjump("stumpwmwiki", "http://stumpwm.elektrubadur.se/?search=%s");
-add_webjump("savannah", "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
-add_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
-add_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
-add_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
-add_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
-add_webjump("delicious", " http://del.icio.us/rcyeske");
-add_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + delicious_username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
-add_webjump("sdelicious", " http://del.icio.us/search/?search=%s");
-add_webjump("sadelicious", " http://del.icio.us/search/all?search=%s");
+// Some built in web jumps
+function init_webjumps()
+{
+    add_webjump("google",     "http://www.google.com/search?q=%s");
+    add_webjump("wikipedia",  "http://en.wikipedia.org/wiki/Special:Search?search=%s");
+    add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
+    add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
+    add_webjump("xulplanet",  "http://xulplanet.com/cgi-bin/search/search.cgi?terms=%s");
+    add_webjump("image",      "http://images.google.com/images?q=%s");
+    add_webjump("bugzilla",   "https://bugzilla.mozilla.org/show_bug.cgi?id=%s");
+    add_webjump("clhs",       "http://www.xach.com/clhs?q=%s");
+    add_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
+    add_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
+    add_webjump("ratpoisonwiki", "http://ratpoison.elektrubadur.se/?search=%s");
+    add_webjump("stumpwmwiki", "http://stumpwm.elektrubadur.se/?search=%s");
+    add_webjump("savannah", "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
+    add_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
+    add_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
+    add_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
+    add_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
+    add_webjump("delicious", " http://del.icio.us/" + delicious_username);
+    add_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + delicious_username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
+    add_webjump("sdelicious", " http://del.icio.us/search/?search=%s");
+    add_webjump("sadelicious", " http://del.icio.us/search/all?search=%s");
+    add_webjump("sheldonbrown",     "http://www.google.com/search?q=site:sheldonbrown.com %s");
+}
 
 function webjump_build_url(template, subs)
 {
