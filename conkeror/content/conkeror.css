@@ -1,2 +1,29 @@
 @import url("chrome://communicator/skin/");
 
+statusbarpanel.mode-line {
+
+}
+
+statusbar.mode-line {
+  letter-spacing: monospace;
+}
+
+label.minibuffer {
+
+}
+
+input {
+  color: black;
+  background-color: grey40;
+}
+
+textbox.minibuffer {
+
+  margin: 0 0 0 0;
+  border: 0;
+}
+
+toolbox.minibuffer {
+  color: gray90;
+  border: 0;
+}

@@ -37,3 +37,43 @@ function getWebNavigation ()
     return null;
   }    
 }
+
+// A function to setup reading input in the minibuffer
+function readInput(prompt, open, keypress)
+{
+//     var messageWindow = document.getElementById("message-bar");
+    var label = document.getElementById("input-prompt");
+    var field = document.getElementById("input-field");
+    label.value = prompt;
+    field.setAttribute("onkeypress", keypress);
+
+    if (open) open();
+
+//     label.hidden = true;
+    field.hidden = false;
+    field.focus();
+}
+
+function closeInput()
+{
+    try {
+	var field = document.getElementById("input-field");
+	var prompt = document.getElementById("input-prompt");
+	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+	    .getService(Components.interfaces.nsIWindowWatcher);
+	if (window == ww.activeWindow && document.commandDispatcher.focusedElement &&
+	    document.commandDispatcher.focusedElement.parentNode.parentNode == field) {
+	    _content.focus();
+	}
+	field.hidden = true;
+	field.value = "";
+	prompt.value = "";
+    } catch(e) { window.alert(e); }
+}
+
+function updateModeline()
+{
+    var docshell = document.getElementById("content").webNavigation;
+    var modeline = document.getElementById("mode-line");
+    modeline.label = docshell.currentURI.spec;
+}

@@ -86,7 +86,7 @@ nsBrowserStatusHandler.prototype =
 
   init : function()
   {
-    this.statusTextField = document.getElementById("statusbar-display");
+    this.statusTextField = document.getElementById("input-prompt");
     //    this.urlBar          = document.getElementById("urlbar");
   },
 
@@ -124,7 +124,7 @@ nsBrowserStatusHandler.prototype =
 
     try{
      if (this.statusText != text) {
-      this.statusTextField.label = text;
+      this.statusTextField.value = text;
       this.statusText = text;
      }
     } catch (e) {window.alert(e);}
@@ -160,10 +160,30 @@ nsBrowserStatusHandler.prototype =
 
       } else if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
 	  if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
-	      this.status = "";
-	      this.setDefaultStatus ("Done.");
-	      this.endDocumentLoad(aRequest, aStatus);
+	      if (aRequest) {
+		  if (aWebProgress.DOMWindow == content) {
+		      this.endDocumentLoad(aRequest, aStatus);
+		      updateModeline();
+		  }
+	      }
 	  }
+	  var msg = "";
+	  if (aRequest) {
+              const kErrorBindingAborted = 0x804B0002;
+              const kErrorNetTimeout = 0x804B000E;
+              switch (aStatus) {
+	      case kErrorBindingAborted:
+                  msg = "Quit";
+                  break;
+	      case kErrorNetTimeout:
+                  msg = "Timed Out.";
+                  break;
+              }
+	  }
+          if (msg == "") {
+            msg = "Done.";
+          }
+	  this.updateStatusField(msg);
       }
       } catch(e) {window.alert(e);}
   },

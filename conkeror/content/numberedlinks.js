@@ -2,49 +2,25 @@
 
 //// numbered links
 
-function openNumberedLinkBar() {
-    var bar = document.getElementById("numberedlink-toolbar");
-    if (bar.hidden) {
-	bar.hidden = false;
-    }
-    try {
-	var findfield = document.getElementById("numberedlink-field");
-	findfield.focus();
-    } catch(e) {
-	window.alert(e);
-    }
-}
-
-function closeNumberedLinkBar() {
-    try {
-	var findField = document.getElementById("numberedlink-field");
-	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-	    .getService(Components.interfaces.nsIWindowWatcher);
-	if (window == ww.activeWindow && document.commandDispatcher.focusedElement &&
-	    document.commandDispatcher.focusedElement.parentNode.parentNode == findField) {
-	    _content.focus();
-	}
-    } catch(e) {
-	window.alert(e);
-    }
-    var bar = document.getElementById("numberedlink-toolbar");
-    if (!bar.hidden) {
-	bar.hidden = true;
-    }
-}
-
-function selectNumberedLink(num) {
-    openNumberedLinkBar();
-    var field = document.getElementById('numberedlink-field');
+function selectNumberedLink(num)
+{
+    readInput("Goto Numbered Link:", null, "onNumberedLinkKeyPress(event);");
+    var field = document.getElementById('input-field');
     field.value = num;
 }
 
-function onNumberedLinkKeyPress(evt) {
+function closeNumberedLinkBar()
+{
+    closeInput();
+}
+
+function onNumberedLinkKeyPress(evt)
+{
     var doc = window.content.document;
     if (!doc) return;
 
     if (evt.keyCode == KeyEvent.DOM_VK_RETURN) {
-	var findfield = document.getElementById("numberedlink-field");
+	var findfield = document.getElementById("input-field");
 	var link = findfield.value;
 	var nodes = getPageLinkNodes();
 	for (var i=0; i<nodes.length; i++) {

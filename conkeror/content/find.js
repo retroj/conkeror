@@ -45,8 +45,8 @@ function addFindState(screenX, screenY, searchStr, wrapped, point, range, select
 
 function resumeFindState(state)
 {
-    var findField = document.getElementById("find-field");
-    var label = document.getElementById("find-label");
+    var findField = document.getElementById("input-field");
+    var label = document.getElementById("input-prompt");
 
     findField.value = state["search-str"];
     if (state["selection"])
@@ -72,10 +72,10 @@ function focusFindBar()
 
     } catch(e) {alert(e);}
 
-    var bar = document.getElementById("find-toolbox");
-    var field = document.getElementById("find-field");
-    bar.hidden = false;
-    field.focus();
+//     var bar = document.getElementById("find-toolbox");
+//     var field = document.getElementById("find-field");
+//     bar.hidden = false;
+//     field.focus();
 
     // initialize our state list
     var state = createInitialFindState();
@@ -93,25 +93,7 @@ function focusFindBarBW()
 
 function closeFindBar()
 {
-    try {
-	var urlField = document.getElementById("find-field");
-
-	// Save incase the user wants it (C-s while searching)
-// 	gLastSearch = lastFindState()["search-str"];
-
-	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-	    .getService(Components.interfaces.nsIWindowWatcher);
-	if (window == ww.activeWindow && document.commandDispatcher.focusedElement &&
-	    document.commandDispatcher.focusedElement.parentNode.parentNode == urlField) {
-	    gWin.focus();
-	}
-    } catch(e) {
-	window.alert(e);
-    }
-    var bar = document.getElementById("find-toolbox");
-    if (!bar.hidden) {
-	bar.hidden = true;
-    }
+    closeInput();
 }
 
 
@@ -396,7 +378,7 @@ function onFindKeyPress(event)
     var updateFind = false;
 
     try {
-    var findField = document.getElementById("find-field");
+    var findField = document.getElementById("input-field");
 
     if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE) {
 	if (gFindState.length > 1) {

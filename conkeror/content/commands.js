@@ -13,9 +13,14 @@ function goForward()
     getWebNavigation().goForward();
 }
 
+function stopLoading()
+{
+    getWebNavigation().stop(nsIWebNavigation.STOP_NETWORK);
+}
+
 function reload ()
 {
-    return getBrowser().webNavigation.reload(nsIWebNavigation.LOAD_FLAGS_NONEs);
+    return getBrowser().webNavigation.reload(nsIWebNavigation.LOAD_FLAGS_NONE);
 }
 
 // frame navigation
