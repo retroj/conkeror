@@ -5,7 +5,7 @@ const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 function Startup()
 {
 //   gBrowser = document.getElementById("content");
-  var uriToLoad = "http://www.google.ca";
+  var uriToLoad = "chrome://conkeror/content/help.html";
 //   var uriToLoad = "file:///home/sabetts/src/conkeror/testframes.html";
 
 //   var b = document.getElementById("blahblu");
