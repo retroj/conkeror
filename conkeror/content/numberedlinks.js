@@ -39,27 +39,26 @@ function onNumberedLinkKeyPress(evt)
     if (evt.keyCode == KeyEvent.DOM_VK_RETURN) {
 	var findfield = document.getElementById("input-field");
 	var link = findfield.value;
-	var nodes = getPageLinkNodes();
+	var nodes = doc.getElementsByTagName('SPAN');
 	closeNumberedLinkBar();
 	for (var i=0; i<nodes.length; i++) {
-	    if (link == i+1) {
-		if (nodes[i].tagName == "A")
+	    if (link == nodes[i].id) {
+		var type = nodes[i].getAttribute("conktype");
+		if (type == "link") {
 		    if (evt.altKey) {
-			nodes[i].focus();
+			nodes[i].parentNode.focus();
 		    } else if (evt.ctrlKey) {
-			getBrowser().newBrowser(nodes[i].href);
+			getBrowser().newBrowser(nodes[i].parentNode.href);
 		    } else {
-			open_url_in(gNumberedLinksPrefix, nodes[i].href);
-		    } else {
-			if (nodes[i].tagName == "INPUT" 
-			    && (nodes[i].type == "submit" || nodes[i].type == "button")) {
-			    if (evt.altKey) {
-				nodes[i].focus();
-			    } else
-				nodes[i].click();
-		    } else 
-			nodes[i].focus();
+			open_url_in(gNumberedLinksPrefix, nodes[i].parentNode.href);
 		    }
+		} else if (type == "button") {
+		    if (evt.altKey) {
+			nodes[i].parentNode.focus();
+		    } else
+			nodes[i].parentNode.click();
+		} else 
+		    nodes[i].parentNode.focus();
 		break;
 	    }
 	}
@@ -80,24 +79,58 @@ function onNumberedLinkBlur() {
 
 }
 
-function toggleNum(node, n, TurnOn)
+function abs_point (node, pt)
+{
+    pt.x = 0;
+    pt.y = 0;
+    while (node.tagName != "BODY") {
+	pt.x += node.offsetLeft;
+	pt.y += node.offsetTop;
+	node = node.offsetParent;
+    }
+}
+
+function hintify (doc, node, id, type)
+{
+    var span = doc.createElement("span");
+    var pt = {x:0, y:0};
+
+    abs_point (node, pt);
+
+    span.appendChild (doc.createTextNode(id));
+    span.setAttribute("id", id);
+    span.setAttribute("conktype", type);
+    span.setAttribute ("style", "");
+    span.style.left =  pt.x + "px";
+    span.style.top = pt.y + "px";
+    span.style.backgroundColor = "pink";
+    span.style.fontWeight = "normal";
+    span.style.fontFamily = "sans-serif";
+    span.style.fontSize = "small";
+    span.style.borderWidth = "1px";
+    span.style.borderColor = "blue";
+    span.style.borderStyle = "solid";
+    span.style.MozOpacity = "0.7";
+    span.style.position = "absolute";
+//     doc.body.appendChild (span);
+    node.appendChild(span);
+//     alert (node.offsetTop + " " + node.offsetLeft);
+}
+
+function createNum(node, n)
 {
     try{
     var doc = window.content.document;
-    var numText = doc.createTextNode('[' + n + ']');
+
+//     hintify (doc, node, n);
 
     if (node.tagName == "A") {
-	if (TurnOn) {
-	    node.insertBefore(numText, node.firstChild);
-	} else {
-	    node.removeChild(node.firstChild);
-	}
+	hintify (doc, node, n, "link");
+    } else if (node.tagName == "INPUT" 
+	       && (node.type == "submit" || node.type == "button")) {
+	hintify (doc, node, n, "button");
     } else {
-	if (TurnOn) {
-	    node.parentNode.insertBefore(numText, node);
-	} else {
-	    node.parentNode.removeChild(node.previousSibling);
-	}
+	hintify (doc, node, n, "widget");
     }
     } catch(e) {window.alert(e);}
 }
@@ -147,38 +180,51 @@ function getLinkNodes(doc)
     return links;
 }
 
-function setNumberedLinksState(linksOn)
+function createNumberedLinks()
 {
     try {
     var doc = _content.content.document;
     if (!doc) return;
 
     // We need it to be true or false.
-    if (doc.__numberedlinks_linkState == null)
-	doc.__numberedlinks_linkState = false;
-    // Keep track of the numbered state
-    if (linksOn == doc.__numberedlinks_linkState)
-	return;
-    doc.__numberedlinks_linkState = linksOn;
+//     if (doc.__numberedlinks_linkState == null)
+// 	doc.__numberedlinks_linkState = true;
+//     // Keep track of the numbered state
+//     if (linksOn == doc.__numberedlinks_linkState)
+// 	return;
+//     doc.__numberedlinks_linkState = linksOn;
 
     // accumulate our nodes
     var nodes = getPageLinkNodes();
 
     // Finally, give them numbers
     for (var i=0; i<nodes.length; i++) {
-	toggleNum(nodes[i],i+1, linksOn);
+// 	hintify (window.content.document, nodes[i], i+1);
+	createNum(nodes[i],i+1);
     }
 
     } catch (e) {alert("setNumberedLinksState: " + e);}
+}
+
+function setNumberedLinksVisibility(doc, state)
+{
+    try {
+    var nodes = doc.getElementsByTagName('SPAN');
+    for (var i=0; i<nodes.length; i++) {
+	nodes[i].style.visibility = state ? "visible":"hidden";
+// 	alert(nodes[i].hidden);
+    }
+    } catch (e) {alert(e);}
 }
 
 function toggleNumberedLinks() 
 {
     var buf_state = getBrowser().numberedLinks;
     getBrowser().numberedLinks = !buf_state;    
-    message("Toggling numbered links...");
-    setNumberedLinksState (!buf_state);
-    message("Toggling numbered links...Done.");
+//     message("Toggling numbered links...");
+//     setNumberedLinksState (!buf_state);
+//     message("Toggling numbered links...Done.");
+    setNumberedLinksVisibility (window.content.document, !buf_state);
 }
 
 const nl_document_observer = {
@@ -187,8 +233,9 @@ const nl_document_observer = {
 	// FIXME: we should use subject aka _content. This could bust if
 	// the buffer that needs nl != current buffer.
 	var buf_state = getBrowser().numberedLinks;
+        createNumberedLinks();
 	// Only show numbered links if the feature is enabled
-	if (buf_state)
-        setNumberedLinksState(true);
+	setNumberedLinksVisibility (window.content.document, buf_state)
+
     }
 };
