@@ -205,7 +205,7 @@ var nl_floater_opacity = "0.8";
 function createNL (doc, node, id, type, where, post, img)
 {
     try{
-	var span = doc.createElement("span");
+	var span = doc.createElementNS("http://www.w3.org/1999/xhtml","span");
 
 	// Abort if we can't get an absolute positoin for it.
 // 	alert ("(" + id + ")" + "createNL: " + node + " " + pt.x + " " + pt.y);
@@ -238,6 +238,8 @@ function createNL (doc, node, id, type, where, post, img)
 	span.style.MozBorderRadius = "0.5em";
 // 	span.style.visibility = "hidden";
 	if (where == NL_FLOATER || where == NL_IMGFLOATER) {
+
+
 	    post.push(function ()
 	                {
 			    var pt = abs_point(where == NL_IMGFLOATER ? img : node);
@@ -259,10 +261,10 @@ function createNL (doc, node, id, type, where, post, img)
     //     alert (node.offsetTop + " " + node.offsetLeft);
 }
 
-function createNum(node, n, floaters)
+function createNum(node, n, floaters, doc)
 {
     try{
-    var doc = node.ownerDocument;
+	//var doc = node.ownerDocument;
 
     if (node.hasAttributes()) {
 	if (node.tagName == "A") {
@@ -316,31 +318,31 @@ function doLinkNodes(doc, linknum)
     var t_nodes = doc.getElementsByTagName('textarea');
 
     for (var i=0; i<t_nodes.length; i++) {
-	createNum(t_nodes[i], linknum, post);
+	createNum(t_nodes[i], linknum, post, doc);
 	linknum++;
     }
     for (var i=0; i<s_nodes.length; i++) {
-	createNum(s_nodes[i], linknum, post);
+	createNum(s_nodes[i], linknum, post, doc);
 	linknum++;
     }
     for (var i=0; i<i_nodes.length; i++) {
 	if (i_nodes[i].type == "hidden") continue;
-	createNum(i_nodes[i], linknum, post);
+	createNum(i_nodes[i], linknum, post, doc);
 	linknum++;
     }
     for (var i=0; i<a_nodes.length; i++) {
 	if (!a_nodes[i].hasAttribute('href')) continue;
-	createNum(a_nodes[i], linknum, post);
+	createNum(a_nodes[i], linknum, post, doc);
 	linknum++;
     }
     for (var i=0; i<ar_nodes.length; i++) {
 	if (!ar_nodes[i].hasAttribute('href')) continue;
-	createNum(ar_nodes[i], linknum, post);
+	createNum(ar_nodes[i], linknum, post, doc);
 	linknum++;
     }
     for (var i=0; i<img_nodes.length; i++) {
 	if (!img_nodes[i].hasAttribute('src')) continue;
-	createNum(img_nodes[i], linknum, post);
+	createNum(img_nodes[i], linknum, post, doc);
 	linknum++;
     }
 
