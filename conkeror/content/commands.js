@@ -109,6 +109,7 @@ function init_commands()
     add_command("web-jump", web_jump, [["p"]]);
     add_command("source", source_file, []);
     add_command("help-page", help_page, []);
+    add_command("help-with-tutorial", tutorial_page, []);
     add_command("redraw", redraw, []);
     add_command("save-link", save_link, []);
     add_command("yank-to-clipboard", yankToClipboard, []);
@@ -853,6 +854,13 @@ function help_page()
     getWebNavigation().loadURI("chrome://conkeror/content/help.html", 
 			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
 }
+
+function tutorial_page()
+{
+    getWebNavigation().loadURI("chrome://conkeror/content/tutorial.html", 
+			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+}
+
 
 function redraw()
 {
