@@ -2,18 +2,25 @@
 
 //// numbered links
 
-function selectNumberedLink_1() { selectNumberedLink(1); }
-function selectNumberedLink_2() { selectNumberedLink(2); }
-function selectNumberedLink_3() { selectNumberedLink(3); }
-function selectNumberedLink_4() { selectNumberedLink(4); }
-function selectNumberedLink_5() { selectNumberedLink(5); }
-function selectNumberedLink_6() { selectNumberedLink(6); }
-function selectNumberedLink_7() { selectNumberedLink(7); }
-function selectNumberedLink_8() { selectNumberedLink(8); }
-function selectNumberedLink_9() { selectNumberedLink(9); }
+// This decides whether the link is opened in the current buffer, a
+// new one, or a new frame.
+var gNumberedLinksPrefix = null;
 
-function selectNumberedLink(num)
+function selectNumberedLink_1(args) { selectNumberedLink(1, args); }
+function selectNumberedLink_2(args) { selectNumberedLink(2, args); }
+function selectNumberedLink_3(args) { selectNumberedLink(3, args); }
+function selectNumberedLink_4(args) { selectNumberedLink(4, args); }
+function selectNumberedLink_5(args) { selectNumberedLink(5, args); }
+function selectNumberedLink_6(args) { selectNumberedLink(6, args); }
+function selectNumberedLink_7(args) { selectNumberedLink(7, args); }
+function selectNumberedLink_8(args) { selectNumberedLink(8, args); }
+function selectNumberedLink_9(args) { selectNumberedLink(9, args); }
+
+function goto_numberedlink(args) { selectNumberedLink("", args); }
+
+function selectNumberedLink(num, args)
 {
+    gNumberedLinksPrefix = args[0];
     readInput("Goto Numbered Link:", null, "onNumberedLinkKeyPress(event);");
     var field = document.getElementById('input-field');
     field.value = num;
@@ -42,9 +49,7 @@ function onNumberedLinkKeyPress(evt)
 		    } else if (evt.ctrlKey) {
 			getBrowser().newBrowser(nodes[i].href);
 		    } else {
-			getWebNavigation().loadURI(nodes[i].href, 
-						   nsIWebNavigation.LOAD_FLAGS_NONE, 
-						   null, null, null);
+			open_url_in(gNumberedLinksPrefix, nodes[i].href);
 		    } else {
 			if (nodes[i].tagName == "INPUT" 
 			    && (nodes[i].type == "submit" || nodes[i].type == "button")) {

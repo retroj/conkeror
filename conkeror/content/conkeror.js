@@ -11,8 +11,11 @@ function Startup()
 //   var b = document.getElementById("blahblu");
 //   b.setCurrentBrowser(0);
 
+  init_commands();
   initKmaps();
+  init_universal_arg();
   initBookmarkService();
+
 
   if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
     uriToLoad = window.arguments[0];
@@ -64,6 +67,7 @@ function Startup()
   var rcfile = gPrefService.getCharPref("conkeror.rcfile");
   if (rcfile)
       load_rc_file(rcfile);
+
 
 //   gFind = Components.classes["@mozilla.org/typeaheadfind;1"].createInstance(Components.interfaces.nsITypeAheadFind);                                
 //   gFind.init(gBrowser.docShell);

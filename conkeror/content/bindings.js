@@ -135,9 +135,19 @@ var 	input_kmap    = [];
 var 	textarea_kmap = [];
 var 	select_kmap   = [];
 
+// This keymap is used by the universal argument code
+var overlay_kmap = null;
+
 const MOD_CTRL = 0x1;
 const MOD_ALT = 0x2;
 const MOD_SHIFT = 0x4;
+
+function make_match_any_key()
+{
+    var key = {};
+    key.matchAny = true;
+    return key;
+}
 
 function make_key(keyCode, mods)
 {
@@ -178,6 +188,7 @@ function initKmaps()
     define_key(ctrlx_kmap, make_key("o",0),"other-window"); 
     define_key(ctrlx_kmap, make_key("v",MOD_CTRL),"find-alternate-url"); 
     define_key(ctrlx_kmap, make_key("x",MOD_CTRL),"exchange-point-and-mark"); 
+    define_key(ctrlx_kmap, make_key("h",0),"cmd_selectAll");
     
     define_key(five_kmap, make_key("f",MOD_CTRL),"find-url-other-frame"); 
     define_key(five_kmap, make_key("0",0),"delete-frame");
@@ -199,10 +210,9 @@ function initKmaps()
     define_key(top_kmap, make_key("u",0),"copy-link-location");
     define_key(top_kmap, make_key(" ",MOD_ALT),"yank-to-clipboard");
     define_key(top_kmap, make_key("l",MOD_CTRL),"redraw");
-    define_key(top_kmap, make_key("g",0),"revert-buffer");
+    define_key(top_kmap, make_key("g",0),"open-url");
     define_key(top_kmap, make_key("l",MOD_ALT),"numberedlinks-toggle");
     define_key(top_kmap, make_key("l",0),"go-back");
-    define_key(top_kmap, make_key("v",0),"open-url"); 
     define_key(top_kmap, make_key("i",0),"view-source");
     define_key(top_kmap, make_key("s",MOD_CTRL),"isearch-forward");
     define_key(top_kmap, make_key("r",MOD_CTRL),"isearch-backward");
@@ -219,6 +229,7 @@ function initKmaps()
     define_key(top_kmap, make_key("7",0),"numberedlinks-7");
     define_key(top_kmap, make_key("8",0),"numberedlinks-8");
     define_key(top_kmap, make_key("9",0),"numberedlinks-9");
+    define_key(top_kmap, make_key("n",0),"goto-numberedlink");
     define_key(top_kmap, make_key("p",MOD_ALT),"buffer-previous");
     define_key(top_kmap, make_key("n",MOD_ALT),"buffer-next");
     define_key(top_kmap, make_key("c",0),"copy-current-url");
@@ -268,8 +279,6 @@ function initKmaps()
     define_key(top_kmap, make_key(KeyEvent.DOM_VK_UP, MOD_SHIFT),"cmd_selectLinePrevious");
     define_key(top_kmap, make_key(KeyEvent.DOM_VK_DOWN, MOD_SHIFT),"cmd_selectLineNext");
 
-    define_key(top_kmap, make_key("a",MOD_ALT),"cmd_selectAll");
-
     // Input area keys
     define_key(input_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
     define_key(input_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
@@ -283,7 +292,6 @@ function initKmaps()
     define_key(input_kmap, make_key("f",MOD_ALT),"cmd_wordNext");
     define_key(input_kmap, make_key("y",MOD_CTRL),"cmd_paste");
     define_key(input_kmap, make_key("w",MOD_ALT),"cmd_copy");
-    define_key(input_kmap, make_key("u",MOD_CTRL),"cmd_deleteToBeginningOfLine");
     define_key(input_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
 
     // 101 keys
@@ -312,7 +320,6 @@ function initKmaps()
     define_key(textarea_kmap, make_key("f",MOD_ALT),"cmd_WordNext");
     define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
     define_key(textarea_kmap, make_key("w",MOD_ALT),"cmd_copy");
-    define_key(textarea_kmap, make_key("u",MOD_CTRL),"cmd_deleteToBeginningOfLine");
     define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
     define_key (textarea_kmap, make_key("n",MOD_CTRL),"cmd_lineNext");
     define_key (textarea_kmap, make_key("p",MOD_CTRL),"cmd_linePrevious");

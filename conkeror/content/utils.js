@@ -4,7 +4,7 @@ var gBrowser = null;
 
 function getAccessibility(node)
 {
-    var acc_ret = Components.classes["@mozilla.org/accessibleRetrieval;1"]
+    var acc_ret = Components.classes["@mozilla.org/accessibilityService;1"]
 	.createInstance(Components.interfaces.nsIAccessibleRetrieval);
     return acc_ret.getAccessibleFor(node);
 }
@@ -132,6 +132,7 @@ var gFocusedWindow = null;
 
 // The callback setup to be called when readFromMiniBuffer is done
 var gReadFromMinibufferCallBack = null;
+var gReadFromMinibufferAbortCallBack = null;
 
 // The completions for the user to choose
 var gMiniBufferCompletions = [];
@@ -159,6 +160,7 @@ function miniBufferKeyPress(event)
 	    addHistory(val);
 	    var callback = gReadFromMinibufferCallBack;
 	    gReadFromMinibufferCallBack = null;
+	    gReadFromMinibufferAbortCallBack = null;
 	    if (callback)
 		callback(val);
 	} catch (e) {window.alert(e);}
@@ -167,9 +169,11 @@ function miniBufferKeyPress(event)
     } else if (handle_history(event, field)) {
 	event.preventDefault();
 	event.preventBubble();	
-    } else if (event.keyCode == KeyEvent.DOM_VK_RETURN
-	       || event.keyCode == KeyEvent.DOM_VK_ESCAPE
+    } else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE
 	       || (event.ctrlKey && (event.charCode == 103))) {
+	if (gReadFromMinibufferAbortCallBack)
+	    gReadFromMinibufferAbortCallBack();
+	gReadFromMinibufferAbortCallBack = null;
 	gReadFromMinibufferCallBack = null;
 	closeInput(true, true);
 	event.preventDefault();
@@ -228,6 +232,7 @@ function miniBufferCompleteKeyPress(event)
 		addHistory(val);
 		var callback = gReadFromMinibufferCallBack;
 		gReadFromMinibufferCallBack = null;
+		gReadFromMinibufferAbortCallBack = null;
 		if (callback) {
 		    if (gAllowNonMatches)
 			callback(match, val);
@@ -253,9 +258,12 @@ function miniBufferCompleteKeyPress(event)
 	    }
 	    event.preventDefault();
 	    event.preventBubble();
-	} else if (event.keyCode == KeyEvent.DOM_VK_RETURN
-		   || event.keyCode == KeyEvent.DOM_VK_ESCAPE
+	} else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE
 		   || (event.ctrlKey && (event.charCode == 103))) {
+	    // Call the abort callback
+	    if (gReadFromMinibufferAbortCallBack)
+		gReadFromMinibufferAbortCallBack();
+	    gReadFromMinibufferCallAbortBack = null;
 	    gReadFromMinibufferCallBack = null;
 	    closeInput(true, true);
 	    event.preventDefault();
@@ -280,16 +288,18 @@ function setInputValue(str)
 
 // Read a string from the minibuffer and call callBack with the string
 // as an argument.
-function readFromMiniBuffer(prompt, initVal, history, callBack)
+function readFromMiniBuffer(prompt, initVal, history, callBack, abortCallback)
 {
     gReadFromMinibufferCallBack = callBack;
+    gReadFromMinibufferCallAbortBack = abortCallback;
     initHistory(history);
     readInput(prompt, function () { setInputValue(initVal); }, "miniBufferKeyPress(event);");
 }
 
-function miniBufferComplete(prompt, initVal, history, completions, nonMatches, callBack)
+function miniBufferComplete(prompt, initVal, history, completions, nonMatches, callBack, abortCallback)
 {
     gReadFromMinibufferCallBack = callBack;
+    gReadFromMinibufferCallAbortBack = abortCallback;
     gMiniBufferCompletions = completions;
     gCurrentCompletion = null;
     gAllowNonMatches = nonMatches;
@@ -412,6 +422,9 @@ var gKeyTimeout = false;
 // This is plain gross.
 var gCurrentKmap = null;
 
+// The event for the last command
+var gCommandLastEvent = null;
+
 function addKeyPressHelpTimeout() {
     setTimeout(function () {if (gKeySeq.length>0) {message(gKeySeq.join(" ")); gKeyTimeout = true; }}, 2500);
 }
@@ -441,9 +454,13 @@ function formatKey(key, mods)
 
 function keyMatch(key, event)
 {
-    return ((key.key.charCode && event.charCode == key.key.charCode)
-	    || (key.key.keyCode && event.keyCode == key.key.keyCode))
-	   && getMods(event) == key.key.modifiers;
+    // A key with the matchAny prop always matches
+    if (key.key.matchAny)
+	return true;
+    else
+	return ((key.key.charCode && event.charCode == key.key.charCode)
+		|| (key.key.keyCode && event.keyCode == key.key.keyCode))
+	    && getMods(event) == key.key.modifiers;
 }
 
 function getKeyAction(kmap, event)
@@ -463,6 +480,18 @@ function getMods(event)
 	event.shiftKey ? MOD_SHIFT: 0;
 }
 
+function copyEvent(event)
+{
+    var ev = {};
+    ev.keyCode = event.keyCode;
+    ev.charCode = event.charCode;
+    ev.ctrlKey = event.ctrlKey;
+    ev.altKey = event.altKey;
+    ev.shiftKey = event.shiftKey;
+    ev.fake = true;
+    return ev;
+}
+
 function readKeyPress(event)
 {
     try {
@@ -473,9 +502,18 @@ function readKeyPress(event)
 
 	clearMessage();
 
-	// This is hacky. Check a seperate key map first, if some sort of
-	// form input is focused.
-	if (kmap == top_kmap) {
+// 	gKeySeq.push(formatKey(event.charCode, getMods(event)));
+// 	message(gKeySeq.join(" "));
+
+	// Make a fake event
+	gCommandLastEvent = copyEvent(event);
+
+	// First check if there's an overlay kmap
+	if (overlay_kmap != null) {
+	    key = getKeyAction(overlay_kmap, event);
+	} else if (kmap == top_kmap) {
+	    // This is hacky. Check a seperate key map first, if some sort of
+	    // form input is focused.
 	    var elt = document.commandDispatcher.focusedElement;
 	    if (elt) {
 		var type = elt.getAttribute("type");
@@ -509,9 +547,11 @@ function readKeyPress(event)
 	// it. Otherwise, we wanna grab it because we're in the middle
 	// of a key sequence.
 	if (key || kmap != top_kmap) {
-	    // gobble the key
-	    event.preventDefault();
-	    event.preventBubble();
+	    // gobble the key if it's not a fake event
+	    if (!event.fake) {
+		event.preventDefault();
+		event.preventBubble();
+	    }
 	}
 
 	// Finally, process the key
@@ -528,7 +568,7 @@ function readKeyPress(event)
 	} else {
 	    // C-g always aborts unless it's bound
 	    if (event.ctrlKey && event.charCode == 103)
-		message("Quit");
+		abort();
 // 	    else
 // 		message(gKeySeq.join(" ") + " is undefined");
 	}
@@ -722,4 +762,62 @@ function makeURLAbsolute (base, url)
     var baseURI  = ioService.newURI(base, null, null);
         
     return ioService.newURI(baseURI.resolve(url), null, null).spec;
+}
+
+function abort()
+{
+    // Reset the prefix arg
+    gPrefixArg = null;
+    message("Quit");
+}
+
+// We don't care about helper apps or extensions or anything. Just put
+// the bits where we're told.
+
+function makeURL(aURL)
+{
+  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                .getService(Components.interfaces.nsIIOService);
+  return ioService.newURI(aURL, null, null);
+}
+
+function makeFileURL(aFile)
+{
+  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                .getService(Components.interfaces.nsIIOService);
+  return ioService.newFileURI(aFile);
+}
+
+function makeWebBrowserPersist()
+{
+  const persistContractID = "@mozilla.org/embedding/browser/nsWebBrowserPersist;1";
+  const persistIID = Components.interfaces.nsIWebBrowserPersist;
+  return Components.classes[persistContractID].createInstance(persistIID);
+}
+
+function download_uri(uri, dest)
+{
+    try {
+    var persist = makeWebBrowserPersist();
+
+    // Calculate persist flags.
+    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
+    const flags = nsIWBP.PERSIST_FLAGS_NO_CONVERSION 
+	          | nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES
+	          | nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
+    persist.persistFlags = flags;
+
+    // Create download and initiate it (below)
+    var file = Components.classes["@mozilla.org/file/local;1"]
+	                 .createInstance(Components.interfaces.nsILocalFile);
+    file.initWithPath(dest);
+    
+    var source = makeURL(uri);
+    var target = makeFileURL(file);
+
+    var dl = Components.classes["@mozilla.org/download;1"]
+	               .createInstance(Components.interfaces.nsIDownload);
+    dl.init(source, target, null, null, null, persist);
+    persist.saveURI(source, null, null, null, null, file);
+    } catch(e) {alert(e);}
 }

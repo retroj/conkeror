@@ -3,123 +3,205 @@
 // Functions that are called by commands in conkeror.xul and that
 // aren't part of a module go here.
 
-var gCommands = [
-    ["beginning-of-line", 		beginning_of_line,		[]],
-    ["bookmark-bmenu-list", 		bookmark_bmenu_list, 		[]],
-    ["bookmark-current-url", 		bookmark_current_url, 		[]],
-    ["bookmark-jump", 			goto_bookmark, 			[]],
-    ["buffer-next", 			browser_next, 			[]],
-    ["buffer-previous", 		browser_prev, 			[]],
-    ["cmd_beginLine", 			cmd_beginLine, 			[]],
-    ["cmd_charNext", 			cmd_charNext, 			[]],
-    ["cmd_charPrevious", 		cmd_charPrevious, 		[]],
-    ["cmd_copy", 			cmd_copy, 			[]],
-    ["cmd_copyOrDelete", 		cmd_copyOrDelete, 		[]],
-    ["cmd_cut", 			cmd_cut, 			[]],
-    ["cmd_cutOrDelete", 		cmd_cutOrDelete, 		[]],
-    ["cmd_deleteCharBackward", 		cmd_deleteCharBackward, 	[]],
-    ["cmd_deleteCharForward", 		cmd_deleteCharForward, 		[]],
-    ["cmd_deleteToBeginningOfLine", 	cmd_deleteToBeginningOfLine, 	[]],
-    ["cmd_deleteToEndOfLine", 		cmd_deleteToEndOfLine, 		[]],
-    ["cmd_deleteWordBackward", 		cmd_deleteWordBackward, 	[]],
-    ["cmd_endLine", 			cmd_endLine, 			[]],
-    ["cmd_lineNext", 			cmd_lineNext, 			[]],
-    ["cmd_linePrevious", 		cmd_linePrevious, 		[]],
-    ["cmd_moveBottom", 			cmd_moveBottom, 		[]],
-    ["cmd_movePageDown", 		cmd_movePageDown, 		[]],
-    ["cmd_movePageUp", 			cmd_movePageUp, 		[]],
-    ["cmd_moveTop", 			cmd_moveTop, 			[]],
-    ["cmd_paste", 			cmd_paste, 			[]],
-    ["cmd_redo", 			cmd_redo, 			[]],
-    ["cmd_scrollPageUp", 		cmd_scrollPageUp, 		[]],
-    ["cmd_scrollPageDown", 		cmd_scrollPageDown, 		[]],
-    ["cmd_scrollLineUp", 		cmd_scrollLineUp, 		[]],
-    ["cmd_scrollLineDown", 		cmd_scrollLineDown, 		[]],
-    ["cmd_scrollLeft", 			cmd_scrollLeft, 		[]],
-    ["cmd_scrollRight", 		cmd_scrollRight, 		[]],
-    ["cmd_scrollBeginLine", 		cmd_scrollBeginLine, 		[]],
-    ["cmd_scrollEndLine", 		cmd_scrollEndLine, 		[]],
-    ["cmd_scrollTop", 			cmd_scrollTop, 			[]],
-    ["cmd_scrollBottom", 		cmd_scrollBottom, 		[]],
-    ["cmd_undo", 			cmd_undo, 			[]],
-    ["cmd_objectProperties",		cmd_objectProperties,		[]],
-    ["cmd_paste", 			cmd_paste, 			[]],
-    ["cmd_movePageUp", 			cmd_movePageUp, 		[]],
-    ["cmd_movePageDown", 		cmd_movePageDown, 		[]],
-    ["cmd_selectAll", 			cmd_selectAll, 			[]],
-    ["cmd_selectBeginLine", 		cmd_selectBeginLine, 		[]],
-    ["cmd_selectBottom", 		cmd_selectBottom, 		[]],
-    ["cmd_selectCharNext", 		cmd_selectCharNext, 		[]],
-    ["cmd_selectCharPrevious", 		cmd_selectCharPrevious, 	[]],
-    ["cmd_selectEndLine", 		cmd_selectEndLine, 		[]],
-    ["cmd_selectLineNext", 		cmd_selectLineNext, 		[]],
-    ["cmd_selectLinePrevious", 		cmd_selectLinePrevious, 	[]],
-    ["cmd_selectPageDown", 		cmd_selectPageDown, 		[]],
-    ["cmd_selectPageUp", 		cmd_selectPageUp, 		[]],
-    ["cmd_selectTop", 			cmd_selectTop, 			[]],
-    ["cmd_selectWordNext", 		cmd_selectWordNext, 		[]],
-    ["cmd_selectWordPrevious", 		cmd_selectWordPrevious, 	[]],
-    ["cmd_undo", 			cmd_undo, 			[]],
-    ["cmd_wordNext", 			cmd_wordNext, 			[]],
-    ["cmd_wordPrevious", 		cmd_wordPrevious, 		[]],
-    ["copy-current-url", 		copyCurrentUrl,  		[]],
-    ["copy-link-location", 		copy_link_location, 		[]],
-    ["delete-frame", 			delete_frame, 			[]],
-    ["describe-bindings",               describe_bindings,		[]],
-    ["end-of-line",     		end_of_line,    		[]],
-    ["execute-extended-command",        meta_x, 			[]],
-    ["find-url", 			find_url, 			[]],
-    ["unfocus", 			unfocus, 			[]],
-    ["go-back", 			goBack, 			[]],
-    ["go-forward", 			goForward, 			[]],
-    ["isearch-backward", 		isearch_backward, 		[]],
-    ["isearch-forward", 		isearch_forward, 		[]],
-    ["keyboard-quit", 			stopLoading, 			[]],
-    ["kill-buffer", 			kill_browser, 			[]],
-    ["make-frame-command", 		makeFrame,      		[]],
-    ["next-frame", 		        nextFrame,      		[]],
-    ["numberedlinks-1", 		selectNumberedLink_1, 		[]],
-    ["numberedlinks-2", 		selectNumberedLink_2, 		[]],
-    ["numberedlinks-3", 		selectNumberedLink_3, 		[]],
-    ["numberedlinks-4", 		selectNumberedLink_4, 		[]],
-    ["numberedlinks-5", 		selectNumberedLink_5, 		[]],
-    ["numberedlinks-6", 		selectNumberedLink_6, 		[]],
-    ["numberedlinks-7", 		selectNumberedLink_7, 		[]],
-    ["numberedlinks-8", 		selectNumberedLink_8, 		[]],
-    ["numberedlinks-9", 		selectNumberedLink_9, 		[]],
-    ["numberedlinks-toggle", 		toggleNumberedLinks, 		[]],
-    ["open-url", 			open_url, 			[]],
-    ["find-alternate-url",              find_alt_url, 			[]],
-    ["quit", 				quit, 				[]],
-    ["revert-buffer", 			reload, 			[]],
-    ["switch-to-buffer-other-window",	switch_browser_other_window, 	[]],
-    ["stop-loading", 			stopLoading, 			[]],
-    ["find-url-other-frame", 	        new_frame, 			[]],
-    ["switch-to-buffer", 		switch_to_buffer,		[]],
-    ["view-source", 			view_source, 			[]],
-    ["split-flip",                      split_flip,                     []],
-    ["delete-other-windows",            delete_other_windows,           []],
-    ["delete-window",                   delete_window,                  []],
-    ["other-window",                    other_window,                   []],
-    ["split-window", 			split_window, 			[]],
-    ["set-mark-command",                set_mark_command,		[]],
-    ["exchange-point-and-mark",         exchange_point_and_mark,	[]],
-    ["web-jump", 			web_jump, 			[]],
-    ["save-link", 			save_link, 			[]],
-    ["source",                          source_file, 			[]],
-    ["help-page",                       help_page, 			[]],
-    ["start-eval-server",               start_server,                   []],
-    ["redraw",                          redraw,                         []],
-    ["yank-to-clipboard",		yankToClipboard,        	[]]];
+var gCommands = [];
+
+function init_commands()
+{
+    try {
+    add_command("beginning-of-line", beginning_of_line, []);
+    add_command("bookmark-bmenu-list", bookmark_bmenu_list, []);
+    add_command("bookmark-current-url", bookmark_current_url, []);
+    add_command("bookmark-jump", goto_bookmark, [["P"]]);
+    add_command("buffer-next", browser_next, []);
+    add_command("buffer-previous", browser_prev, []);
+    add_command("cmd_beginLine", cmd_beginLine, []);
+    add_command("cmd_charNext", cmd_charNext, [["p"]]);
+    add_command("cmd_charPrevious", cmd_charPrevious, [["p"]]);
+    add_command("cmd_copy", cmd_copy, []);
+    add_command("cmd_copyOrDelete", cmd_copyOrDelete, []);
+    add_command("cmd_cut", cmd_cut, []);
+    add_command("cmd_cutOrDelete", cmd_cutOrDelete, []);
+    add_command("cmd_deleteCharBackward", cmd_deleteCharBackward, [["p"]]);
+    add_command("cmd_deleteCharForward", cmd_deleteCharForward, [["p"]]);
+    add_command("cmd_deleteToBeginningOfLine", cmd_deleteToBeginningOfLine, []);
+    add_command("cmd_deleteToEndOfLine", cmd_deleteToEndOfLine, []);
+    add_command("cmd_deleteWordBackward", cmd_deleteWordBackward, [["p"]]);
+    add_command("cmd_endLine", cmd_endLine, []);
+    add_command("cmd_lineNext", cmd_lineNext, [["p"]]);
+    add_command("cmd_linePrevious", cmd_linePrevious, [["p"]]);
+    add_command("cmd_moveBottom", cmd_moveBottom, []);
+    add_command("cmd_movePageDown", cmd_movePageDown, [["p"]]);
+    add_command("cmd_movePageUp", cmd_movePageUp, [["p"]]);
+    add_command("cmd_moveTop", cmd_moveTop, []);
+    add_command("cmd_paste", cmd_paste, [["p"]]);
+    add_command("cmd_redo", cmd_redo, [["p"]]);
+    add_command("cmd_scrollPageUp", cmd_scrollPageUp, [["p"]]);
+    add_command("cmd_scrollPageDown", cmd_scrollPageDown, [["p"]]);
+    add_command("cmd_scrollLineUp", cmd_scrollLineUp, [["p"]]);
+    add_command("cmd_scrollLineDown", cmd_scrollLineDown, [["p"]]);
+    add_command("cmd_scrollLeft", cmd_scrollLeft, [["p"]]);
+    add_command("cmd_scrollRight", cmd_scrollRight, [["p"]]);
+    add_command("cmd_scrollBeginLine", cmd_scrollBeginLine, []);
+    add_command("cmd_scrollEndLine", cmd_scrollEndLine, []);
+    add_command("cmd_scrollTop", cmd_scrollTop, []);
+    add_command("cmd_scrollBottom", cmd_scrollBottom, []);
+    add_command("cmd_undo", cmd_undo, [["p"]]);
+    add_command("cmd_selectAll", cmd_selectAll, []);
+    add_command("cmd_selectBeginLine", cmd_selectBeginLine, [["p"]]);
+    add_command("cmd_selectBottom", cmd_selectBottom, []);
+    add_command("cmd_selectCharNext", cmd_selectCharNext, [["p"]]);
+    add_command("cmd_selectCharPrevious", cmd_selectCharPrevious, [["p"]]);
+    add_command("cmd_selectEndLine", cmd_selectEndLine, [["p"]]);
+    add_command("cmd_selectLineNext", cmd_selectLineNext, [["p"]]);
+    add_command("cmd_selectLinePrevious", cmd_selectLinePrevious, [["p"]]);
+    add_command("cmd_selectPageDown", cmd_selectPageDown, [["p"]]);
+    add_command("cmd_selectPageUp", cmd_selectPageUp, [["p"]]);
+    add_command("cmd_selectTop", cmd_selectTop, []);
+    add_command("cmd_selectWordNext", cmd_selectWordNext, [["p"]]);
+    add_command("cmd_selectWordPrevious", cmd_selectWordPrevious, [["p"]]);
+    add_command("cmd_wordNext", cmd_wordNext, [["p"]]);
+    add_command("cmd_wordPrevious", cmd_wordPrevious, [["p"]]);
+    add_command("copy-current-url", copyCurrentUrl, []);
+    add_command("copy-link-location", copy_link_location, []);
+    add_command("delete-frame", delete_frame, []);
+    add_command("describe-bindings", describe_bindings, []);
+    add_command("end-of-line", end_of_line, []);
+    add_command("execute-extended-command", meta_x, [["P"]]);
+    add_command("find-url", find_url, []);
+    add_command("unfocus", unfocus, []);
+    add_command("go-back", goBack, [["p"]]);
+    add_command("go-forward", goForward, [["p"]]);
+    add_command("isearch-backward", isearch_backward, []);
+    add_command("isearch-forward", isearch_forward, []);
+    add_command("keyboard-quit", stopLoading, []);
+    add_command("kill-buffer", kill_browser, []);
+    add_command("make-frame-command", makeFrame, []);
+    add_command("next-frame", nextFrame, []);
+    add_command("numberedlinks-1", selectNumberedLink_1, [["p"]]);
+    add_command("numberedlinks-2", selectNumberedLink_2, [["p"]]);
+    add_command("numberedlinks-3", selectNumberedLink_3, [["p"]]);
+    add_command("numberedlinks-4", selectNumberedLink_4, [["p"]]);
+    add_command("numberedlinks-5", selectNumberedLink_5, [["p"]]);
+    add_command("numberedlinks-6", selectNumberedLink_6, [["p"]]);
+    add_command("numberedlinks-7", selectNumberedLink_7, [["p"]]);
+    add_command("numberedlinks-8", selectNumberedLink_8, [["p"]]);
+    add_command("numberedlinks-9", selectNumberedLink_9, [["p"]]);
+    add_command("goto-numberedlink", goto_numberedlink, [["p"]]);
+    add_command("numberedlinks-toggle", toggleNumberedLinks, []);
+    add_command("open-url", open_url, [["p"]]);
+    add_command("find-alternate-url", find_alt_url, [["p"]]);
+    add_command("quit", quit, []);
+    add_command("revert-buffer", reload, []);
+    add_command("switch-to-buffer-other-window", switch_browser_other_window, []);
+    add_command("stop-loading", stopLoading, []);
+    add_command("find-url-other-frame", new_frame, []);
+    add_command("switch-to-buffer", switch_to_buffer, []);
+    add_command("view-source", view_source, []);
+    add_command("split-flip", split_flip, []);
+    add_command("delete-other-windows", delete_other_windows, []);
+    add_command("delete-window", delete_window, []);
+    add_command("other-window", other_window, []);
+    add_command("split-window", split_window, []);
+    add_command("set-mark-command", set_mark_command, []);
+    add_command("exchange-point-and-mark", exchange_point_and_mark, []);
+    add_command("web-jump", web_jump, [["p"]]);
+    add_command("source", source_file, []);
+    add_command("help-page", help_page, []);
+    add_command("redraw", redraw, []);
+    add_command("save-link", save_link, []);
+    add_command("yank-to-clipboard", yankToClipboard, []);
+    } catch(e) {alert(e);}
+}
+
+
+function interactive(args)
+{
+    // The prefix arg is reset here
+    var prefix = gPrefixArg;
+    gPrefixArg = null;
+
+    var output = [];
+    for (var i=0; i<args.length; i++) {
+	if (args[i][0] == "a") {
+	    // -- Function name: symbol with a function definition.
+	} else if (args[i][0] == "b") {
+	    // -- Name of existing buffer.
+	} else if (args[i][0] == "B") {
+	    // -- Name of buffer, possibly nonexistent.
+	} else if (args[i][0] == "c") {
+	    // -- Character (no input method is used).
+	} else if (args[i][0] == "C") {
+	    // -- Command name: symbol with interactive function definition.
+	} else if (args[i][0] == "d") {
+	    // -- Value of point as number.  Does not do I/O.
+	} else if (args[i][0] == "D") {
+	    // -- Directory name.
+	} else if (args[i][0] == "e") {
+	    // -- Parametrized event (i.e., one that's a list) that
+	    // -- invoked this command.  If used more than once, the
+	    // -- Nth `e' returns the Nth parameterized event.  This
+	    // -- skips events that are integers or symbols.
+	} else if (args[i][0] == "f") {
+	    // -- Existing file name.
+	} else if (args[i][0] == "F") {
+	    // -- Possibly nonexistent file name.
+	} else if (args[i][0] == "i") {
+	    // -- Ignored, i.e. always nil.  Does not do I/O.
+	    output.push(null);
+	} else if (args[i][0] == "k") {
+	    // -- Key sequence (downcase the last event if needed to get a definition).
+	} else if (args[i][0] == "K") {
+	    // -- Key sequence to be redefined (do not downcase the last event).
+	} else if (args[i][0] == "m") {
+	    // -- Value of mark as number.  Does not do I/O.
+	} else if (args[i][0] == "M") {
+	    // -- Any string.  Inherits the current input method.
+	} else if (args[i][0] == "n") {
+	    // -- Number read using minibuffer.
+	} else if (args[i][0] == "N") {
+	    // -- Raw prefix arg, or if none, do like code `n'.
+	} else if (args[i][0] == "p") {
+	    // -- Prefix arg converted to number.  Does not do I/O.
+	    output.push(univ_arg_to_number(prefix));
+	} else if (args[i][0] == "P") {
+	    // -- Prefix arg in raw form.  Does not do I/O.
+	    output.push(prefix);
+	} else if (args[i][0] == "r") {
+	    // -- Region: point and mark as 2 numeric args, smallest first.  Does no I/O.
+	} else if (args[i][0] == "s") {
+	    // -- Any string.  Does not inherit the current input method.
+	} else if (args[i][0] == "S") {
+	    // -- Any symbol.
+	} else if (args[i][0] == "v") {
+	    // -- Variable name: symbol that is user-variable-p.
+	} else if (args[i][0] == "x") {
+	    // -- Lisp expression read but not evaluated.
+	} else if (args[i][0] == "X") {
+	    // -- Lisp expression read and evaluated.
+	} else if (args[i][0] == "z") {
+	    // -- Coding system.
+	} else if (args[i][0] == "Z") {
+	    // -- Coding system, nil if no prefix arg.
+	} else {
+	    alert("Failed");
+	}
+    }
+
+    return output;
+}
 
 function exec_command(cmd)
 {
+    try {
     for (var i=0; i<gCommands.length; i++) {
 	if (gCommands[i][0] == cmd) {
-	    return gCommands[i][1]();
+	    var args = interactive(gCommands[i][2]);
+	    return gCommands[i][1](args);
 	}
     }
     message("No such command '" + cmd + "'");
+
+    } catch(e) {alert(e);}
 }
 
 function add_command(name, fn, args)
@@ -147,16 +229,24 @@ function quit()
     appShell.quit(Components.interfaces.nsIAppShellService.eAttemptQuit);
 }
 
-function goBack()
+function goBack(args)
 {
-    if (getWebNavigation().canGoBack)
-	getWebNavigation().goBack();
+    if (getWebNavigation().canGoBack) {
+	var hist = getWebNavigation().sessionHistory;
+	var idx = hist.index - args[0];
+	if (idx < 0) idx = 0;
+	getWebNavigation().gotoIndex(idx);
+    }
 }
 
-function goForward()
+function goForward(args)
 {
-    if (getWebNavigation().canGoForward)
-	getWebNavigation().goForward();
+    if (getWebNavigation().canGoForward) {
+	var hist = getWebNavigation().sessionHistory;
+	var idx = hist.index + args[0];
+	if (idx >= hist.count) idx = hist.count-1;
+	getWebNavigation().gotoIndex(idx);
+    }
 }
 
 function stopLoading()
@@ -256,11 +346,7 @@ function view_source()
 
 function new_frame()
 {
-    var templs =[];
-    for (var x in gWebJumpLocations)
-	templs.push([x,x]);
-
-    miniBufferComplete("Find URL in other frame:", null, "url", templs, true, function(match, url) { window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", get_url_or_webjump(url)); });
+    open_url([16]);
 }
 
 function makeFrame()
@@ -274,29 +360,55 @@ function delete_frame()
     window.close();
 }
 
-function find_alt_url()
+
+function open_url_in_prompt(prefix, str)
 {
-    open_url(true);
+    if (str == null)
+	str = "Find URL";
+    if (prefix == 1) {
+	return str + ":";
+    } else if (prefix <= 4) {
+	return str + " in new buffer:";
+    } else {
+	return str + " in new frame:";
+    }
 }
 
-function open_url(fillInput)
+function open_url_in(prefix, url)
 {
+    if (prefix == 1) {
+	// Open in current buffer
+	getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+    } else if (prefix <= 4) {
+	// Open in new buffer
+	getBrowser().newBrowser(url);
+    } else {
+	// Open in new frame
+	window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", url);
+    }
+}
+
+function find_alt_url(args)
+{
+    open_url(args, true);
+}
+
+function open_url(args, fillInput)
+{
+    var prefix = args[0];
     var templs =[];
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
-    var input = fillInput ? getWebNavigation().currentURI.spec:null;
+    var input = fillInput ? getWebNavigation().currentURI.spec : null;
 
-    miniBufferComplete("Find Alternate URL:", input, "url", templs, true, function(match,url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    miniBufferComplete(open_url_in_prompt(prefix), input, "url", templs, true, 
+		       function(match,url) {open_url_in(prefix, get_url_or_webjump(url));});
 }
 
 // Open a new browser with url
 function find_url()
 {
-    var templs =[];
-    for (var x in gWebJumpLocations)
-	templs.push([x,x]);
-
-    miniBufferComplete("Find URL: ", null, "url", templs, true, function(match,url) { getBrowser().newBrowser(get_url_or_webjump(url)); });
+    open_url([4]);
 }
 
 
@@ -357,10 +469,11 @@ function yankToClipboard()
     message("Pulled '" + str + "'");
 }
 
-function goto_bookmark()
+function goto_bookmark(args)
 {
-    miniBufferComplete("Goto bookmark:", null, "bookmark", get_bm_strings(), false,
-		       function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    var prefix = args[0];
+    miniBufferComplete(open_url_in_prompt(prefix,"Go to bookmark"), null, "bookmark", 
+		       get_bm_strings(), false, function(url) { open_url_in(prefix,url); });
 }
 
 function bookmark_current_url()
@@ -402,9 +515,24 @@ function browser_prev()
     getBrowser().prevBrowser();
 }
 
-function meta_x()
+function meta_x(args)
 {
-    miniBufferComplete("M-x", null, "commands", gCommands, false, function(fn) {fn();});
+    // setup the prefix arg which will be reset in exec_command
+    gPrefixArg = args[0];
+    var prompt = "";
+    if (gPrefixArg == null)
+	prompt = "";
+    else if (typeof gPrefixArg == "object")
+	prompt = gPrefixArg[0] == 4 ? "C-u " : gPrefixArg[0] + " ";
+    else
+	prompt = gPrefixArg + " ";
+
+    var matches = [];
+    for (i in gCommands)
+	matches.push([gCommands[i][0],gCommands[i][0]]);
+
+    miniBufferComplete(prompt + "M-x", null, "commands", matches, false, 
+		       function(c) {exec_command(c)}, abort);
 }
 
 function inject_css()
@@ -486,59 +614,61 @@ function bookmark_bmenu_list()
 
 
 /// built in commands
+function doCommandNTimes(n,cmd)
+{
+    for(i=0;i<n;i++)
+	goDoCommand(cmd);
+}
+
 function cmd_beginLine() { goDoCommand("cmd_beginLine"); }
-function cmd_charNext() { goDoCommand("cmd_charNext"); }
-function cmd_charPrevious() { goDoCommand("cmd_charPrevious"); }
+function cmd_charNext(args) { doCommandNTimes(args[0],"cmd_charNext"); }
+function cmd_charPrevious(args) { doCommandNTimes(args[0],"cmd_charPrevious"); }
 function cmd_copy() { goDoCommand("cmd_copy"); }
 function cmd_copyOrDelete() { goDoCommand("cmd_copyOrDelete"); }
 function cmd_cut() { goDoCommand("cmd_cut"); }
 function cmd_cutOrDelete() { goDoCommand("cmd_cutOrDelete"); }
-function cmd_deleteCharBackward() { goDoCommand("cmd_deleteCharBackward"); }
-function cmd_deleteCharForward() { goDoCommand("cmd_deleteCharForward"); }
+function cmd_deleteCharBackward(args) { doCommandNTimes(args[0],"cmd_deleteCharBackward"); }
+function cmd_deleteCharForward(args) { doCommandNTimes(args[0],"cmd_deleteCharForward"); }
 function cmd_deleteToBeginningOfLine() { goDoCommand("cmd_deleteToBeginningOfLine"); }
 function cmd_deleteToEndOfLine() { goDoCommand("cmd_deleteToEndOfLine"); }
-function cmd_deleteWordBackward() { goDoCommand("cmd_deleteWordBackward"); }
+function cmd_deleteWordBackward(args) { doCommandNTimes(args[0],"cmd_deleteWordBackward"); }
 function cmd_endLine() { goDoCommand("cmd_endLine"); }
-function cmd_lineNext() { goDoCommand("cmd_lineNext"); }
-function cmd_linePrevious() { goDoCommand("cmd_linePrevious"); }
+function cmd_lineNext(args) { doCommandNTimes(args[0],"cmd_lineNext"); }
+function cmd_linePrevious(args) { doCommandNTimes(args[0],"cmd_linePrevious"); }
 function cmd_moveBottom() { goDoCommand("cmd_moveBottom"); }
-function cmd_movePageDown() { goDoCommand("cmd_movePageDown"); }
-function cmd_movePageUp() { goDoCommand("cmd_movePageUp"); }
+function cmd_movePageDown(args) { doCommandNTimes(args[0],"cmd_movePageDown"); }
+function cmd_movePageUp(args) { doCommandNTimes(args[0],"cmd_movePageUp"); }
 function cmd_moveTop() { goDoCommand("cmd_moveTop"); }
 function cmd_paste() { goDoCommand("cmd_paste"); }
-function cmd_redo() { goDoCommand("cmd_redo"); }
+function cmd_redo(args) { doCommandNTimes(args[0],"cmd_redo"); }
 function cmd_selectAll() { goDoCommand("cmd_selectAll"); }
 function cmd_selectBeginLine() { goDoCommand("cmd_selectBeginLine"); }
 function cmd_selectBottom() { goDoCommand("cmd_selectBottom"); }
-function cmd_selectCharNext() { goDoCommand("cmd_selectCharNext"); }
-function cmd_selectCharPrevious() { goDoCommand("cmd_selectCharPrevious"); }
+function cmd_selectCharNext(args) { doCommandNTimes(args[0],"cmd_selectCharNext"); }
+function cmd_selectCharPrevious(args) { doCommandNTimes(args[0],"cmd_selectCharPrevious"); }
 function cmd_selectEndLine() { goDoCommand("cmd_selectEndLine"); }
-function cmd_selectLineNext() { goDoCommand("cmd_selectLineNext"); }
-function cmd_selectLinePrevious() { goDoCommand("cmd_selectLinePrevious"); }
-function cmd_selectPageDown() { goDoCommand("cmd_selectPageDown"); }
-function cmd_selectPageUp() { goDoCommand("cmd_selectPageUp"); }
+function cmd_selectLineNext(args) { doCommandNTimes(args[0],"cmd_selectLineNext"); }
+function cmd_selectLinePrevious(args) { doCommandNTimes(args[0],"cmd_selectLinePrevious"); }
+function cmd_selectPageDown(args) { doCommandNTimes(args[0],"cmd_selectPageDown"); }
+function cmd_selectPageUp(args) { doCommandNTimes(args[0],"cmd_selectPageUp"); }
 function cmd_selectTop() { goDoCommand("cmd_selectTop"); }
-function cmd_selectWordNext() { goDoCommand("cmd_selectWordNext"); }
-function cmd_selectWordPrevious() { goDoCommand("cmd_selectWordPrevious"); }
-function cmd_undo() { goDoCommand("cmd_undo"); }
-function cmd_wordNext() { goDoCommand("cmd_wordNext"); }
-function cmd_wordPrevious() { goDoCommand("cmd_wordPrevious"); }
+function cmd_selectWordNext(args) { doCommandNTimes(args[0],"cmd_selectWordNext"); }
+function cmd_selectWordPrevious(args) { doCommandNTimes(args[0],"cmd_selectWordPrevious"); }
+function cmd_undo(args) { doCommandNTimes(args[0],"cmd_undo"); }
+function cmd_wordNext(args) { doCommandNTimes(args[0],"cmd_wordNext"); }
+function cmd_wordPrevious(args) { doCommandNTimes(args[0],"cmd_wordPrevious"); }
 
-function cmd_scrollPageUp() {goDoCommand("cmd_scrollPageUp"); }
-function cmd_scrollPageDown() {goDoCommand("cmd_scrollPageDown"); }
-function cmd_scrollLineUp() {goDoCommand("cmd_scrollLineUp"); }
-function cmd_scrollLineDown() {goDoCommand("cmd_scrollLineDown"); }
-function cmd_scrollLeft() {goDoCommand("cmd_scrollLeft"); }
-function cmd_scrollRight() {goDoCommand("cmd_scrollRight"); }
+function cmd_scrollPageUp(args) {doCommandNTimes(args[0],"cmd_scrollPageUp"); }
+function cmd_scrollPageDown(args) {doCommandNTimes(args[0],"cmd_scrollPageDown"); }
+function cmd_scrollLineUp(args) {doCommandNTimes(args[0],"cmd_scrollLineUp"); }
+function cmd_scrollLineDown(args) {doCommandNTimes(args[0],"cmd_scrollLineDown"); }
+function cmd_scrollLeft(args) {doCommandNTimes(args[0],"cmd_scrollLeft"); }
+function cmd_scrollRight(args) {doCommandNTimes(args[0],"cmd_scrollRight"); }
 function cmd_scrollBeginLine() {goDoCommand("cmd_scrollBeginLine"); }
 function cmd_scrollEndLine() {goDoCommand("cmd_scrollEndLine"); }
 function cmd_scrollTop() { set_mark_command(); goDoCommand("cmd_scrollTop"); }
 function cmd_scrollBottom() { set_mark_command(); goDoCommand("cmd_scrollBottom"); }
-function cmd_undo() {goDoCommand("cmd_undo"); }
-function cmd_paste() {goDoCommand("cmd_paste"); }
-function cmd_movePageUp() {goDoCommand("cmd_movePageUp"); }
-function cmd_movePageDown() {goDoCommand("cmd_movePageDown"); }
-function cmd_objectProperties() {goDoCommand("cmd_properties"); }
+function cmd_paste(args) {doCommandNTimes(args[0],"cmd_paste"); }
 
 //// web jump stuff
 
@@ -591,18 +721,20 @@ function getWebJump(value)
     } catch(e) {alert(e);}
 }
 
-function doWebJump(match, value)
+function doWebJump(prefix, match, value)
 {
     var url = getWebJump(value);
-    getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+    open_url_in(prefix,url);
 }
 
-function web_jump()
+function web_jump(args)
 {
+    prefix = args[0];
     var templs =[];
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
-    miniBufferComplete("Web Jump:", null, "webjump", templs, true, doWebJump);
+    miniBufferComplete(open_url_in_prompt(prefix, "Web Jump"), null, "webjump", templs, 
+		       true, function(m,v) {doWebJump(prefix,m,v);});
 }
 
 function get_url_or_webjump(input)
@@ -677,10 +809,16 @@ function copy_link_location()
 
 function save_link()
 {
+    try {
     var loc = get_link_location();
-    alert(loc);
-    alert(get_link_text());
-    saveURL(loc, get_link_text(), null, true);
+    // A cheapish hack. chop off the path so only the file remains.
+    var fname = loc.replace(/^.*\//, "");
+
+    readFromMiniBuffer("Save File As:", fname, "save",
+		       function (dest) {
+	                 download_uri(loc, dest);
+                       });
+    } catch(e) {alert(e);}
 }
 
 function source_file()
@@ -709,3 +847,90 @@ function redraw()
 {
     message("FIXME: unimplemented");
 }
+
+// universal argument code
+
+var gPrefixArg = null;
+
+var universal_kmap = [];
+
+function init_universal_arg()
+{
+    add_command("universal-argument", universal_argument,[]);
+    add_command("universal-argument-more", universal_argument_more,[["P"]]);
+    add_command("universal-digit", universal_digit,[["P"]]);
+    add_command("universal-argument-other-key", universal_argument_other_key,[["P"]]);
+
+    define_key(top_kmap, make_key("u", MOD_CTRL), "universal-argument");
+
+    define_key(universal_kmap, make_key("u", MOD_CTRL), "universal-argument-more");
+    define_key(universal_kmap, make_key("1", 0), "universal-digit");
+    define_key(universal_kmap, make_key("2", 0), "universal-digit");
+    define_key(universal_kmap, make_key("3", 0), "universal-digit");
+    define_key(universal_kmap, make_key("4", 0), "universal-digit");
+    define_key(universal_kmap, make_key("5", 0), "universal-digit");
+    define_key(universal_kmap, make_key("6", 0), "universal-digit");
+    define_key(universal_kmap, make_key("7", 0), "universal-digit");
+    define_key(universal_kmap, make_key("8", 0), "universal-digit");
+    define_key(universal_kmap, make_key("9", 0), "universal-digit");
+    define_key(universal_kmap, make_key("0", 0), "universal-digit");
+    // This must be at the end so it's matched last.
+    define_key(universal_kmap, make_match_any_key(), "universal-argument-other-key");
+}
+
+function universal_digit(args)
+{
+    var prefix = args[0];
+    var ch = gCommandLastEvent.charCode;
+    var digit = ch - 48;
+    // Array means they typed only C-u's. Otherwise, add another digit
+    // to our accumulating prefix arg.
+    if (typeof prefix == "object") {
+	gPrefixArg = digit;
+    } else {
+	gPrefixArg = prefix * 10 + digit;
+    }
+}
+
+function universal_argument()
+{
+    gPrefixArg = [4];
+    overlay_kmap = universal_kmap;
+}
+
+function universal_argument_more(args)
+{
+    var prefix = args[0];
+    if (typeof prefix == "object")
+	gPrefixArg = [prefix[0] * 4];
+    else {
+	// terminate the prefix arg
+	gPrefixArg = prefix;
+	overlay_kmap = null;
+    }
+}
+
+function universal_argument_other_key(args)
+{
+    // Set up the prefix arg
+    var prefix = args[0];
+    gPrefixArg = prefix;
+    // clear our overlay map...
+    overlay_kmap = null;
+    // ...and process the key again.
+    setTimeout(readKeyPress, 0, gCommandLastEvent);
+}
+
+function univ_arg_to_number(prefix)
+{
+    try {
+    if (prefix == null)
+	return 1;
+    if (typeof prefix == "object") 
+	return prefix[0];
+    else if (typeof prefix == "number")
+	return prefix;
+
+    } catch(e) {alert("univ: " + e);}
+}
+
