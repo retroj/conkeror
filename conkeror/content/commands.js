@@ -691,6 +691,8 @@ var delicious_username = "";
 function init_webjumps()
 {
     add_webjump("google",     "http://www.google.com/search?q=%s");
+    add_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
+    add_webjump("clusty",     "http://www.clusty.com/search?query=%s");
     add_webjump("wikipedia",  "http://en.wikipedia.org/wiki/Special:Search?search=%s");
     add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
@@ -1029,6 +1031,8 @@ function text_reset()
 {
     try {
  	getBrowser().markupDocumentViewer.textZoom = 1.0;
+	// We need to update the floaters
+	nl_resize();
     } catch(e) { alert(e); }
 }
 
@@ -1036,6 +1040,8 @@ function text_reduce(args)
 {
     try {
  	getBrowser().markupDocumentViewer.textZoom -= 0.25 * args[0];
+	// We need to update the floaters
+	nl_resize();
     } catch(e) { alert(e); }
 }
 
@@ -1043,6 +1049,8 @@ function text_enlarge(args)
 {
     try {
  	getBrowser().markupDocumentViewer.textZoom += 0.25 * args[0];
+	// We need to update the floaters
+	nl_resize();
     } catch(e) { alert(e); }
 }
 
