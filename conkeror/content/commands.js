@@ -109,9 +109,14 @@ function view_source()
     } catch(e) {alert(e);}
 }
 
-function new_window()
+function new_frame()
 {
-    window.open("chrome://conkeror/content", "_blank", "chrome,dialog=no");
+    readFromMiniBuffer("Find URL in other frame:", function(url) { window.open("chrome://conkeror/content", url, "chrome,dialog=no"); });
+}
+
+function delete_frame()
+{
+    window.close();
 }
 
 function open_url()

@@ -5,7 +5,7 @@ const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 // some predefined key maps
 var ctrlc_kmap = [];
 var ctrlx_kmap = [];
-
+var five_kmap = [];
 function initKmaps()
 {
 //     addKeyBinding(ctrlx_kmap, 98, false, false, null, selectBuffer); // C-x b
@@ -17,6 +17,11 @@ function initKmaps()
     addKeyBinding(ctrlx_kmap, 102, true, false, null, find_url); // C-x C-f    
 
     addKeyBinding(ctrlx_kmap, 99, true, false, null, quit); // C-x C-c    
+
+    addKeyBinding(five_kmap, 102, true, false, null, new_frame);
+    addKeyBinding(five_kmap, 48, false, false, null, delete_frame);
+
+    addKeyBinding(ctrlx_kmap, 53, false, false, five_kmap, null); // C-x 5 kmap
 }
 
 function Startup()
