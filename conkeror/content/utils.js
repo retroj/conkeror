@@ -629,10 +629,11 @@ function readKeyPress(event)
 	    var elt = document.commandDispatcher.focusedElement;
 	    if (elt) {
 		var type = elt.getAttribute("type");
-		if (elt.tagName == "INPUT" && (type == null
-						|| type == "text"
-						|| type == "password"
-						|| type == "file")) {
+		if (elt.tagName == "html:input"
+		    || elt.tagName == "INPUT" && (type == null
+						  || type == "text"
+						  || type == "password"
+						  || type == "file")) {
 		    // Use the input keymap.
 
 		    // A bit of a hack, if there's a char code and no
