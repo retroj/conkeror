@@ -2,29 +2,100 @@
 
 const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 
+//     <key id="linkloc"    key="u" modifiers="" oncommand="copyLinkLocation();"/>
+//     <key id="yank"    key=" " modifiers="alt" command="cmd_yankToClipboard"/>
+
+//     <key id="focusUrlBar"    key="a" modifiers="accel" command="cmd_scrollLeftComplete"/>
+//     <key id="focusFindBar"    key="e" modifiers="accel" command="cmd_scrollRightComplete"/>
+
+//     <key id="focusUrlBar"    key="l" modifiers="accel" command="cmd_open_url"/>
+//     <key id="focusUrlBar"    key="g" command="cmd_open_url"/>
+
+//     <key id="viewsrc" key="i" oncommand="view_source();"/>
+//     <key id="neww" key="n" modifiers="shift" command="cmd_newWindow"/>
+
+//     <key id="focusFindBar"    key="s" modifiers="accel" command="cmd_focusFindBar"/>
+//     <key id="focusFindBar"    key="r" modifiers="accel" command="cmd_focusFindBarBW"/>
+//     <key id="browserback"    key="b" modifiers="shift" command="cmd_back"/>
+//     <key id="browserforward" key="f" modifiers="shift" command="cmd_forward"/>
+//     <key id="reload" key="R" modifiers="" command="cmd_reload"/> 
+//     <key id="nextframse"   key="f" command="cmd_nextFrame"/>
+//     <key id="stop"   key="g" modifiers="control" command="cmd_stop"/>
+//     <key id="key_togglelinks" key="l" oncommand="toggleNumberedLinks();" modifiers="alt"/>
+//     <key id="key_gotolink1"   key="1" oncommand="selectNumberedLink(1);" modifiers=""/>
+//     <key id="key_gotolink2"   key="2" oncommand="selectNumberedLink(2);" modifiers=""/>
+//     <key id="key_gotolink3"   key="3" oncommand="selectNumberedLink(3);" modifiers=""/>
+//     <key id="key_gotolink4"   key="4" oncommand="selectNumberedLink(4);" modifiers=""/>
+//     <key id="key_gotolink5"   key="5" oncommand="selectNumberedLink(5);" modifiers=""/>
+//     <key id="key_gotolink6"   key="6" oncommand="selectNumberedLink(6);" modifiers=""/>
+//     <key id="key_gotolink7"   key="7" oncommand="selectNumberedLink(7);" modifiers=""/>
+//     <key id="key_gotolink8"   key="8" oncommand="selectNumberedLink(8);" modifiers=""/>
+//     <key id="key_gotolink9"   key="9" oncommand="selectNumberedLink(9);" modifiers=""/>
+
+//     <key id="blah"   key="P" oncommand="getBrowser().prevBrowser();" modifiers="alt"/>
+//     <key id="blah"   key="N" oncommand="getBrowser().nextBrowser();" modifiers="alt"/>
+
+//     <key id="blah"   key="c" oncommand="copyCurrentUrl();" modifiers=""/>
+
+//     <key id="ctrlx"   key="x" oncommand="topLevelReadKey('C-x',ctrlx_kmap);" modifiers="control"/>
+//     <key id="ctrlc"   key="c" oncommand="topLevelReadKey('C-c',ctrlc_kmap);" modifiers="control"/>
+
 // some predefined key maps
 var ctrlc_kmap = [];
 var ctrlx_kmap = [];
 var bookmark_kmap = [];
 var five_kmap = [];
+var top_kmap = [];
 function initKmaps()
 {
-    addKeyBinding(ctrlx_kmap, 98, false, false, null, switch_to_buffer); // C-x b
-    addKeyBinding(ctrlx_kmap, 107, false, false, null, kill_browser); // C-x k
-    addKeyBinding(ctrlx_kmap, 102, true, false, null, find_url); // C-x C-f    
-    addKeyBinding(ctrlx_kmap, 99, true, false, null, quit); // C-x C-c    
+    define_key(ctrlx_kmap, make_key(98, null, 0), null, "switch-to-browser"); // C-x b
+    define_key(ctrlx_kmap, make_key(107, null, 0), null, "kill-browser"); // C-x k
+    define_key(ctrlx_kmap, make_key(102, null, MOD_CTRL), null, "find-url"); // C-x C-f    
+    define_key(ctrlx_kmap, make_key(99, null, MOD_CTRL), null, "quit"); // C-x C-c    
 
     // C-x 5 ??
-    addKeyBinding(five_kmap, 102, true, false, null, new_frame); // C-x 5 C-f
-    addKeyBinding(five_kmap, 48, false, false, null, delete_frame);// C-x 5 0
+    define_key(five_kmap, make_key(102, null, MOD_CTRL), null, "new-frame"); // C-x 5 C-f
+    define_key(five_kmap, make_key(48, null, 0), null, "delete-frame");// C-x 5 0
 
     // C-x r ??
-    addKeyBinding(bookmark_kmap, 109, false, false, null, bookmark_current_url); // C-x r m
-    addKeyBinding(bookmark_kmap, 98, false, false, null, goto_bookmark); // C-x r b
-    addKeyBinding(bookmark_kmap, 108, false, false, null, bookmark_bmenu_list); // C-x r l
+    define_key(bookmark_kmap, make_key(109, null,0), null, "bookmark-current-url"); // C-x r m
+    define_key(bookmark_kmap, make_key(98, null, 0), null, "goto-bookmark"); // C-x r b
+    define_key(bookmark_kmap, make_key(108, null,0), null, "bookmark-bmenu-list"); // C-x r l
 
-    addKeyBinding(ctrlx_kmap, 53, false, false, five_kmap, null); // C-x 5 kmap
-    addKeyBinding(ctrlx_kmap, 114, false, false, bookmark_kmap, null); // C-x r kmap
+    define_key(ctrlx_kmap, make_key(53, null, 0), five_kmap, null); // C-x 5 kmap
+    define_key(ctrlx_kmap, make_key(114, null, 0), bookmark_kmap, null); // C-x r kmap
+
+    define_key(top_kmap, make_key(120, null,MOD_CTRL), ctrlx_kmap, null);// C-x
+    define_key(top_kmap, make_key(99, null,MOD_CTRL), ctrlc_kmap, null); // C-c
+
+    define_key(top_kmap, make_key(117, null, 0), null, "copy-link-location");
+    define_key(top_kmap, make_key(32, null, MOD_ALT), null, "yank");
+    define_key(top_kmap, make_key(108, null, MOD_CTRL), null, "find-url");
+    define_key(top_kmap, make_key(108, null, MOD_ALT), null, "numberedlinks-toggle");
+    define_key(top_kmap, make_key(103, null,0), null, "find-url"); // g
+    define_key(top_kmap, make_key(105, null, 0), null, "view-source");
+    define_key(top_kmap, make_key(115, null, MOD_CTRL), null, "isearch-forward");
+    define_key(top_kmap, make_key(114, null, MOD_CTRL), null, "isearch-backward");
+    define_key(top_kmap, make_key(98, null, MOD_SHIFT), null, "go-back");
+    define_key(top_kmap, make_key(102, null, MOD_SHIFT), null, "go-forward");
+    define_key(top_kmap, make_key(114, null, MOD_SHIFT), null, "revert-browser");
+    define_key(top_kmap, make_key(102, null, 0), null, "next-frame");
+    define_key(top_kmap, make_key(103, null, MOD_CTRL), null, "stop-loading");
+    define_key(top_kmap, make_key(49, null, 0), null, "numberedlinks-1");
+    define_key(top_kmap, make_key(50, null, 0), null, "numberedlinks-2");
+    define_key(top_kmap, make_key(51, null, 0), null, "numberedlinks-3");
+    define_key(top_kmap, make_key(52, null, 0), null, "numberedlinks-4");
+    define_key(top_kmap, make_key(53, null, 0), null, "numberedlinks-5");
+    define_key(top_kmap, make_key(54, null, 0), null, "numberedlinks-6");
+    define_key(top_kmap, make_key(55, null, 0), null, "numberedlinks-7");
+    define_key(top_kmap, make_key(56, null, 0), null, "numberedlinks-8");
+    define_key(top_kmap, make_key(57, null, 0), null, "numberedlinks-9");
+    define_key(top_kmap, make_key(112, null, MOD_SHIFT), null, "browser-previous");
+    define_key(top_kmap, make_key(110, null, MOD_SHIFT), null, "browser-next");
+    define_key(top_kmap, make_key(99, null, 0), null, "copy-current-url");
+    define_key(top_kmap, make_key(120, null, MOD_ALT), null, "execute-extended-command");
+
+    gCurrentKmap = top_kmap;
 }
 
 function Startup()

@@ -225,13 +225,19 @@ function miniBufferCompleteKeyPress(event)
     } catch(e) {alert(e);}
 }
 
+function setInputValue(str)
+{
+    var field = document.getElementById("input-field"); 
+    field.value = str;
+}
+
 // Read a string from the minibuffer and call callBack with the string
 // as an argument.
-function readFromMiniBuffer(prompt, history, callBack)
+function readFromMiniBuffer(prompt, initVal, history, callBack)
 {
     gReadFromMinibufferCallBack = callBack;
     initHistory(history);
-    readInput(prompt, null, "miniBufferKeyPress(event);");
+    readInput(prompt, function () { setInputValue(initVal); }, "miniBufferKeyPress(event);");
 }
 
 function miniBufferComplete(prompt, history, completions, callBack)
@@ -352,45 +358,60 @@ function addKeyPressHelpTimeout() {
     setTimeout(function () {if (gKeySeq.length>0) {message(gKeySeq.join(" ")); gKeyTimeout = true; }}, 2500);
 }
 
-function addKeyBinding(kmap, key, control, alt, keymap, command)
-{
-    var obj = {key: key, control: control, alt: alt};
-    if (command)
-	obj.command = command;
-    else 
-	obj.keymap = keymap;
-    kmap.push(obj);
-}
+// function addKeyBinding(kmap, key, control, alt, keymap, command)
+// {
+//     var obj = {key: key, control: control, alt: alt};
+//     if (command)
+// 	obj.command = command;
+//     else 
+// 	obj.keymap = keymap;
+//     kmap.push(obj);
+// }
 
 // This is a bit of a gross hack. but hey, who's watching? Kmap is a
 // list of objects { key: <key>, control: <bool>, alt: <bool>, command: <function> }
 function topLevelReadKey(key, kmap)
 {
-    var keybox = document.getElementById("readkey");
+//     var keybox = document.getElementById("readkey");
 
     gKeySeq = [key];
     gCurrentKmap = kmap;
-    keybox.focus();
+//     keybox.focus();
     addKeyPressHelpTimeout();
+}
+
+function formatKey(key, mods)
+{
+    return (mods&MOD_ALT ? "A-":"") 
+	+ (mods&MOD_CTRL ? "C-":"") 
+	+ (mods&MOD_SHIFT ? "S-":"")
+	+ String.fromCharCode(key);
 }
 
 function readKeyPress(event)
 {
     try {
 	// kmap contains the keys and commands we're looking for.
-	var keybox = document.getElementById("readkey");
+// 	var keybox = document.getElementById("readkey");
 	var kmap = gCurrentKmap;
+	var found = false;
 	var done = true;
 	var command = null;
+	var mods = event.ctrlKey ? MOD_CTRL:0 |
+	    event.altKey ? MOD_ALT:0 |
+	    event.shiftKey ? MOD_SHIFT: 0;
 
-	gKeySeq.push((event.ctrlKey?"C-":"") + String.fromCharCode(event.charCode));
+	clearMessage();
+
+	gKeySeq.push(formatKey(event.charCode, mods));
 	if (gKeyTimeout) {
 	    message(gKeySeq.join(" "));
 	}
 	for (var i=0; i<kmap.length; i++) {
-	    if (event.charCode == kmap[i].key 
-		&& event.ctrlKey == kmap[i].control
-		&& event.altKey == kmap[i].alt) {
+	    if (((kmap[i].key.charCode && event.charCode == kmap[i].key.charCode)
+		 || (kmap[i].key.keyCode && event.keyCode == kmap[i].key.keyCode))
+		&& mods == kmap[i].key.modifiers) {
+		found = true;
 		if (kmap[i].keymap) {
 		    gCurrentKmap = kmap[i].keymap;
 		    if (!gKeyTimeout)
@@ -405,39 +426,48 @@ function readKeyPress(event)
 	    }
 	}
 
-	// gobble the key
-	event.preventDefault();
-	event.preventBubble();
+	// If it's the top level map and we didn't match the key, let
+	// it fall through so something else can try handling
+	// it. Otherwise, we wanna grab it because we're in the middle
+	// of a key sequence.
+	if (found || kmap != top_kmap) {
+	    // gobble the key
+	    event.preventDefault();
+	    event.preventBubble();
+	}
 
 	if (done) {
 	    // Revert focus
 	    gKeySeq = [];
-	    _content.focus();
+	    gCurrentKmap = top_kmap;
+// 	    _content.focus();
 	}
 
 	// execute the command we found or tell the user it's undefined
 	if (command) {
-	    command();
+	    exec_command(command);
 	} else if (done) {
 	    // C-g always aborts unless it's bound
 	    if (event.ctrlKey && event.charCode == 103)
 		message("Quit");
-	    else
-		message(gKeySeq.join(" ") + " undefined");
+// 	    else
+// 		message(gKeySeq.join(" ") + " undefined");
 	}
     } catch(e){alert(e);}
 }
 
 function goDoCommand(command)
 {
-  try {
-      var controller = document.commandDispatcher.getControllerForCommand(command);
-      if ( controller && controller.isCommandEnabled(command))
-	  controller.doCommand(command);
-  }
-  catch (e) {
-      alert(e);
-  }
+    try {
+        var dispatcher = top.document.commandDispatcher;
+        var controller = dispatcher.getControllerForCommand(command);
+        if (controller && controller.isCommandEnabled(command))
+            controller.doCommand(command);
+    }
+    catch (e)
+    {
+	alert(e);
+    }
 }
 
 function zip2(array1, array2)

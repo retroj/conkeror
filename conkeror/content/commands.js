@@ -3,6 +3,82 @@
 // Functions that are called by commands in conkeror.xul and that
 // aren't part of a module go here.
 
+var commands = [
+    ["bookmark-bmenu-list", 		bookmark_bmenu_list, 			[]],
+    ["bookmark-current-url", 		bookmark_current_url, 			[]],
+    ["bookmark-jump", 			goto_bookmark, 				[]],
+    ["browser-next", 			browser_next, 				[]],
+    ["browser-previous", 		browser_prev, 				[]],
+    ["copy-current-url", 		copyCurrentUrl,  			[]],
+    ["copy-link-location", 		copyCurrentUrl, 			[]],
+    ["delete-frame", 			delete_frame, 				[]],
+    ["execute-extended-command",        meta_x, 				[]],
+    ["find-url", 			find_url, 				[]],
+    ["go-back", 			goForward, 				[]],
+    ["go-forward", 			goBack, 				[]],
+    ["isearch-barkward", 		isearch_backward, 			[]],
+    ["isearch-forward", 		isearch_forward, 			[]],
+    ["kill-browser", 			kill_browser, 				[]],
+    ["numberedlinks-1", 		function(){selectNumberedLink(1);}, 	[]],
+    ["numberedlinks-2", 		function(){selectNumberedLink(2);}, 	[]],
+    ["numberedlinks-3", 		function(){selectNumberedLink(3);}, 	[]],
+    ["numberedlinks-4", 		function(){selectNumberedLink(4);}, 	[]],
+    ["numberedlinks-5", 		function(){selectNumberedLink(5);}, 	[]],
+    ["numberedlinks-6", 		function(){selectNumberedLink(6);}, 	[]],
+    ["numberedlinks-7", 		function(){selectNumberedLink(7);}, 	[]],
+    ["numberedlinks-8", 		function(){selectNumberedLink(8);}, 	[]],
+    ["numberedlinks-9", 		function(){selectNumberedLink(9);}, 	[]],
+    ["numberedlinks-toggle", 		toggleNumberedLinks, 			[]],
+    ["quit", 				quit, 					[]],
+    ["revert-browser", 			reload, 				[]],
+    ["stop-loading", 			stopLoading, 				[]],
+    ["switch-browser-other-frame", 	new_frame, 				[]],
+    ["switch-to-browser", 		switch_to_buffer,			[]],
+    ["view-source", 			view_source, 				[]],
+    ["yank", 				yankToClipboard,                        []]];
+
+function exec_command(cmd)
+{
+    for (var i=0; i<commands.length; i++) {
+	if (commands[i][0] == cmd) {
+	    return commands[i][1]();
+	}
+    }
+    message("No such command '" + cmd + "'");
+}
+
+function add_command(name, fn, args)
+{
+    commands.push([name,fn,args]);
+}
+
+const MOD_CTRL = 0x1;
+const MOD_ALT = 0x2;
+const MOD_SHIFT = 0x4;
+
+function make_key(charCode, keyCode, mods)
+{
+    var key = {};
+    if (charCode)
+	key.charCode = charCode;
+    else
+	key.keyCode = keyCode;
+    key.modifiers = mods;
+    return key;
+}
+
+// Sorta dirty, bind key to either the keymap or command in the keymap, kmap
+function define_key(kmap, key, keymap, cmd)
+{
+    var obj = {key: key};
+    if (cmd)
+	obj.command = cmd;
+    else 
+	obj.keymap = keymap;
+    kmap.push(obj);
+}
+
+
 function quit()
 {
     // globalOverlay.js has all this silly error checking and useless
@@ -111,7 +187,7 @@ function view_source()
 
 function new_frame()
 {
-    readFromMiniBuffer("Find URL in other frame:", "url", function(url) { window.open("chrome://conkeror/content", url, "chrome,dialog=no"); });
+    readFromMiniBuffer("Find URL in other frame:", null, "url", function(url) { window.open("chrome://conkeror/content", url, "chrome,dialog=no"); });
 }
 
 function delete_frame()
@@ -122,14 +198,14 @@ function delete_frame()
 function open_url()
 {
     try {
-    readFromMiniBuffer("URL:", "url", function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    readFromMiniBuffer("URL:", null, "url", function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
     } catch(e) {alert(e);};
 }
 
 // Open a new browser with url
 function find_url()
 {
-    readFromMiniBuffer("Find URL: ", "url", function(url) { getBrowser().newBrowser(url); });
+    readFromMiniBuffer("Find URL: ", null, "url", function(url) { getBrowser().newBrowser(url); });
 }
 
 
@@ -187,30 +263,50 @@ function goto_bookmark()
 
 function bookmark_current_url()
 {
-    try{
-	bookmark_doc(getBrowser());
-	message ("Bookmarked " + getWebNavigation().currentURI.spec
-		 + " - " + getBrowser().mCurrentBrowser.contentTitle);
-    } catch(e) {alert(e);}
+    readFromMiniBuffer("Add bookmark", getBrowser().mCurrentBrowser.contentTitle, "add-bookmark",
+		       function (title) 
+                         {
+			     bookmark_doc(getBrowser(), title);
+			     message ("Bookmarked " + getWebNavigation().currentURI.spec
+				      + " - " + title);
+			 });
 }
 
-function bookmark_doc(browser)
+function bookmark_doc(browser, aTitle)
 {
-    var url = browser.webNavigation.currentURI.spec;;
+    var url = browser.webNavigation.currentURI.spec;
     var title, docCharset = "text/unicode";
-    title = getBrowser().mCurrentBrowser.contentTitle || url;
+    title = aTitle || getBrowser().mCurrentBrowser.contentTitle || url;
     add_bookmark(url, title, docCharset);
 }
 
 // This function doesn't work.
 function copyLinkLocation()
 {
-    try {
-	const shell = Components.classes["@mozilla.org/webshell;1"]
-	    .getService(Components.interfaces.nsIClipboardCommands);
-	if (shell.canCopyLinkLocation()) {
-	    shell.copyLinkLocation();
-	    message("Copied link location");
-	}
-    } catch(e) {alert(e);}
+    goDoCommand('cmd_copyLink');
+}
+
+function isearch_forward()
+{
+    readInput('', focusFindBar, 'onFindKeyPress(event);');
+}
+
+function isearch_backward()
+{
+    readInput('', focusFindBarBW, 'onFindKeyPress(event);');
+}
+
+function browser_next()
+{
+    getBrowser().prevBrowser();
+}
+
+function browser_prev()
+{
+    getBrowser().prevBrowser();
+}
+
+function meta_x()
+{
+    miniBufferComplete("M-x", "commands", commands, function(fn) {fn();});
 }

@@ -2,6 +2,16 @@
 
 //// numbered links
 
+function selectNumberedLink_1() { selectNumberedLink(1); }
+function selectNumberedLink_2() { selectNumberedLink(2); }
+function selectNumberedLink_3() { selectNumberedLink(3); }
+function selectNumberedLink_4() { selectNumberedLink(4); }
+function selectNumberedLink_5() { selectNumberedLink(5); }
+function selectNumberedLink_6() { selectNumberedLink(6); }
+function selectNumberedLink_7() { selectNumberedLink(7); }
+function selectNumberedLink_8() { selectNumberedLink(8); }
+function selectNumberedLink_9() { selectNumberedLink(9); }
+
 function selectNumberedLink(num)
 {
     readInput("Goto Numbered Link:", null, "onNumberedLinkKeyPress(event);");
