@@ -10,15 +10,26 @@ var gTurnOffLinksAfter = false;
 // Set this to true to display only images
 var gOnlyImages = false;
 
-function selectNumberedLink_1(args) { selectNumberedLink(1, args); }
-function selectNumberedLink_2(args) { selectNumberedLink(2, args); }
-function selectNumberedLink_3(args) { selectNumberedLink(3, args); }
-function selectNumberedLink_4(args) { selectNumberedLink(4, args); }
-function selectNumberedLink_5(args) { selectNumberedLink(5, args); }
-function selectNumberedLink_6(args) { selectNumberedLink(6, args); }
-function selectNumberedLink_7(args) { selectNumberedLink(7, args); }
-function selectNumberedLink_8(args) { selectNumberedLink(8, args); }
-function selectNumberedLink_9(args) { selectNumberedLink(9, args); }
+function selectNumberedLink_1(args) { selectNthLink(1, args); }
+function selectNumberedLink_2(args) { selectNthLink(2, args); }
+function selectNumberedLink_3(args) { selectNthLink(3, args); }
+function selectNumberedLink_4(args) { selectNthLink(4, args); }
+function selectNumberedLink_5(args) { selectNthLink(5, args); }
+function selectNumberedLink_6(args) { selectNthLink(6, args); }
+function selectNumberedLink_7(args) { selectNthLink(7, args); }
+function selectNumberedLink_8(args) { selectNthLink(8, args); }
+function selectNumberedLink_9(args) { selectNthLink(9, args); }
+
+function selectNthLink (num, args)
+{
+    var buf_state = getBrowser().numberedLinks;
+    if (!buf_state) {
+	gTurnOffLinksAfter = true;
+	toggleNumberedLinks();
+    }
+
+    selectNumberedLink(num, args);
+}
 
 function toggle_numbered_links (args)
 {
@@ -92,7 +103,7 @@ function onNumberedLinkKeyPress(evt)
 		var type = nodes[i].getAttribute("__conktype");
 		if (node) {
 		    if (type == "link") {
-			if (evt.altKey) {
+			if (metaPressed(evt)) {
 			    node.focus();
 			} else if (evt.ctrlKey) {
 			    getBrowser().newBrowser(node.href);
@@ -102,7 +113,7 @@ function onNumberedLinkKeyPress(evt)
 		    } else if (type == "image") {
 			copy_img_location(node);
 		    } else if (type == "button") {
-			if (evt.altKey) {
+			if (metaPressed(evt)) {
 			    node.focus();
 			} else
 			    node.click();

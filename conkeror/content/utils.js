@@ -148,9 +148,14 @@ function initHistory(id)
     }    
 }
 
+function metaPressed (event)
+{
+    return event.altKey || event.metaKey;
+}
+
 function handle_history(event, field)
 {
-    if (event.charCode == 110 && event.altKey) {
+    if (event.charCode == 110 && metaPressed(event)) {
 	if (gHistoryArray != null) {
 	    gHistoryPoint++;
 	    if (gHistoryPoint < gHistoryArray.length) {
@@ -160,7 +165,7 @@ function handle_history(event, field)
 	    }
 	}
 	return true;
-    } else if (event.charCode == 112 && event.altKey) {
+    } else if (event.charCode == 112 && metaPressed(event)) {
 	if (gHistoryArray != null) {
 	    gHistoryPoint--;
 	    if (gHistoryPoint >= 0) {
@@ -332,7 +337,7 @@ function miniBufferCompleteKeyPress(event)
 	    closeInput(true, true);
 	    event.preventDefault();
 	    event.preventBubble();
-	} else if (event.charCode && !event.ctrlKey && !event.altKey) {
+	} else if (event.charCode && !event.ctrlKey && !metaPressed(event)) {
 	    // They typed a letter, so reset the completion cycle
 	    gCurrentCompletion = null;
 	} else if (handle_basic_input(event)) {
@@ -506,7 +511,7 @@ function addKeyPressHelpTimeout() {
 
 function formatMods(mods)
 {
-    return (mods&MOD_ALT ? "A-":"") 
+    return (mods&MOD_META ? "A-":"") 
 	+ (mods&MOD_CTRL ? "C-":"") 
 	+ (mods&MOD_SHIFT ? "S-":"");
 }
@@ -544,7 +549,7 @@ function getMods(event)
     // can be said that the shift key has already be processed. So
     // don't include it in the mods if charCode exists in the event.
     return event.ctrlKey ? MOD_CTRL:0 |
-	event.altKey ? MOD_ALT:0 |
+	metaPressed(event) ? MOD_META:0 |
 	(event.shiftKey && !event.charCode) ? MOD_SHIFT: 0;
 }
 
@@ -554,6 +559,7 @@ function copyEvent(event)
     ev.keyCode = event.keyCode;
     ev.charCode = event.charCode;
     ev.ctrlKey = event.ctrlKey;
+    ev.metaKey = event.metaKey;
     ev.altKey = event.altKey;
     ev.shiftKey = event.shiftKey;
     ev.fake = true;
@@ -593,12 +599,12 @@ function readKeyPress(event)
 
 		    // A bit of a hack, if there's a char code and no
 		    // modifiers are set, then just let it get processed
-		    if (event.charCode && !event.altKey && !event.ctrlKey)
+		    if (event.charCode && !metaPressed(event) && !event.ctrlKey)
 			return;
 		    key = getKeyAction(input_kmap, event);
 		} else if (elt.tagName == "TEXTAREA") {
 		    // Use the textarea keymap
-		    if (event.charCode && !event.altKey && !event.ctrlKey)
+		    if (event.charCode && !metaPressed(event) && !event.ctrlKey)
 			return;
 		    key = getKeyAction(textarea_kmap, event);
 		}

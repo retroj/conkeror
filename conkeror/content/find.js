@@ -429,7 +429,7 @@ function onFindKeyPress(event)
 	gWin.scrollTo(gFindState[0]["screenx"], gFindState[0]["screeny"]);
 	clearSelection();
 	clearHighlight();
-    } else if (event.charCode && !event.ctrlKey && !event.altKey) {
+    } else if (event.charCode && !event.ctrlKey && !metaPressed(event)) {
 	var str;
 	str = lastFindState()["search-str"];
 	str += String.fromCharCode(event.charCode);
