@@ -11,7 +11,7 @@ function selectNumberedLink(num)
 
 function closeNumberedLinkBar()
 {
-    closeInput();
+    closeInput(false);
 }
 
 function onNumberedLinkKeyPress(evt)

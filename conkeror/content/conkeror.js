@@ -5,8 +5,8 @@ const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 function Startup()
 {
 //   gBrowser = document.getElementById("content");
-//   var uriToLoad = "http://www.google.ca";
-  var uriToLoad = "file:///home/sabetts/src/conkeror/testframes.html";
+  var uriToLoad = "http://www.google.ca";
+//   var uriToLoad = "file:///home/sabetts/src/conkeror/testframes.html";
 
   if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
     uriToLoad = window.arguments[0];

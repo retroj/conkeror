@@ -93,7 +93,7 @@ function focusFindBarBW()
 
 function closeFindBar()
 {
-    closeInput();
+    closeInput(true);
 }
 
 

@@ -54,7 +54,7 @@ function readInput(prompt, open, keypress)
     field.focus();
 }
 
-function closeInput()
+function closeInput(clearInput)
 {
     try {
 	var field = document.getElementById("input-field");
@@ -67,7 +67,8 @@ function closeInput()
 	}
 	field.hidden = true;
 	field.value = "";
-	prompt.value = "";
+	if (clearInput)
+	    prompt.value = "";
     } catch(e) { window.alert(e); }
 }
 
