@@ -4,11 +4,13 @@ var gBrowser = null;
 
 function getAccessibility(node)
 {
+    // This is wrapped in a try-catch block because firefox fails when
+    // retrieving a link's accessible.
     var acc_ret = Components.classes["@mozilla.org/accessibilityService;1"]
-	.createInstance(Components.interfaces.nsIAccessibleRetrieval);
-    return acc_ret.getAccessibleFor(node);
+	.createInstance(Components.interfaces.nsIAccessibilityService);
+    var foo = acc_ret.getAccessibleFor(node);
+    return foo;
 }
-
 
 function getBrowser()
 {
@@ -22,6 +24,16 @@ function getWebNavigation ()
   try {
 //       alert(getBrowser().curbrow.firstChild.webNavigation);
       return getBrowser().webNavigation;
+  } catch (e) {
+      window.alert(e);
+    return null;
+  }    
+}
+
+function getMarkupDocumentViewer ()
+{
+  try {
+      return getBrowser().markupDocumentViewer;
   } catch (e) {
       window.alert(e);
     return null;
@@ -140,7 +152,7 @@ var gMiniBufferCompletions = [];
 // The current completion
 var gCurrentCompletion = null;
 
-var gCurrentCompletionStr = null;
+var gCurrentCompletions = null;
 
 var gAllowNonMatches = false;
 
@@ -191,24 +203,17 @@ function miniBufferKeyPress(event)
 }
 
 // Cheap completion
-function miniBufferCompleteStr(str, matches, lastMatch)
+function miniBufferCompleteStr(str, matches)
 {
-    if (lastMatch >= matches.length)
-	lastMatch = 0;
-
-    for (var i=lastMatch; i<matches.length; i++)
+    var ret = [];
+    for (var i=0; i<matches.length; i++)
 	{
 	    if (str.length == 0 || str == matches[i][0].substr(0, str.length)) {
-		return i;
+		ret.push(matches[i]);
 	    }
 	}
-    // No match? Loop around and try the rest
-    for (var i=0; i<lastMatch; i++)
-	{
-	    if (str.length == 0 || str == matches[i][0].substr(0, str.length))
-		return i;
-	}
-    return null;
+
+    return ret;
 }
 
 function findCompleteMatch(matches, val)
@@ -245,16 +250,25 @@ function miniBufferCompleteKeyPress(event)
 	    event.preventBubble();
 	} else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
 	    var str = field.value;
-	    var match = 0;
+	    var idx;
 	    if (gCurrentCompletion != null) {
-		match = gCurrentCompletion + 1;
-		str = gCurrentCompletionStr;
+		idx = gCurrentCompletion + (event.shiftKey ? -1:1);
+		if (idx >= gCurrentCompletions.length)
+		    idx = 0;
+		else if (idx < 0)
+		    idx = gCurrentCompletions.length - 1;
+	    } else {
+		idx = 0;
+		// Build our completion list
+		gCurrentCompletions = miniBufferCompleteStr(str, gMiniBufferCompletions);
 	    }
-	    var idx = miniBufferCompleteStr(str, gMiniBufferCompletions, match);
 	    if (idx != null) {
-		gCurrentCompletionStr = str;
 		gCurrentCompletion = idx;
-		field.value = gMiniBufferCompletions[idx][0];
+		field.value = gCurrentCompletions[idx][0];
+		// When we allow non-matches it generally means the
+		// completion takes an argument. So add a space.
+		if (gAllowNonMatches)
+		    field.value += " ";
 	    }
 	    event.preventDefault();
 	    event.preventBubble();

@@ -15,6 +15,9 @@ var gFastFind = null;
 // A list of find states
 var gFindState = [];
 
+// Whether we're searching for links or text
+var gLinksOnly = null;
+
 function createInitialFindState()
 {
     var state = new Array();
@@ -291,6 +294,16 @@ function highlightFind(str, color, wrapped, dir, pt)
 		if (retRange) {
 		    var sc = retRange.startContainer;
 		    var ec = retRange.endContainer;
+
+// 		    var oldy = gWin.scrollY;
+// 		    var oldx = gWin.scrollX;
+// 		    setSelection(retRange.cloneRange());
+// 		    var y = gWin.scrollY;
+// 		    keepSearching = dir && y < oldy;
+// 		    if (keepSearching)
+// 			gWin.scrollTo(oldx, oldy);
+		    
+
 		    if (!sc || !ec) alert(sc + " " + ec);
 		    var acc = getAccessibility(sc);
 		    var sx = new Object();
@@ -316,7 +329,7 @@ function highlightFind(str, color, wrapped, dir, pt)
 		    // visible, otherwise the view will scroll just a
 		    // bit to fit the selection in completely.
 		    keepSearching = (dir && sy.value < 0)
-				     || (!dir && sy.value + sh.value >= gWin.innerHeight);
+			|| (!dir && sy.value + sh.value >= gWin.innerHeight);
 		}
 	    } while (retRange && keepSearching);
 	} else {

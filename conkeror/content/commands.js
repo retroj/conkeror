@@ -8,6 +8,8 @@ var gCommands = [];
 function init_commands()
 {
     try {
+    add_command("eval-expression", eval_expression, [["p"]]);
+    add_command("link-menu", link_menu, [["p"]]);
     add_command("beginning-of-line", beginning_of_line, []);
     add_command("bookmark-bmenu-list", bookmark_bmenu_list, []);
     add_command("bookmark-current-url", bookmark_current_url, []);
@@ -111,6 +113,10 @@ function init_commands()
     add_command("save-link", save_link, []);
     add_command("yank-to-clipboard", yankToClipboard, []);
     add_command("go-up", go_up, [["p"]]);
+    add_command("list-buffers", list_buffers, []);
+    add_command("text-reset", text_reset, []);
+    add_command("text-enlarge", text_enlarge, [["p"]]);
+    add_command("text-reduce", text_reduce, [["p"]]);
     } catch(e) {alert(e);}
 }
 
@@ -689,7 +695,11 @@ function webjump_build_url(template, subs)
 {
     var b = template.indexOf('%s');
     var a = b + 2;
-    return template.substr(0,b) + subs + template.substring(a);
+    // Just return the same string if it doesn't contain a %s
+    if (b == -1)
+	return template;
+    else
+	return template.substr(0,b) + subs + template.substring(a);
 }
 
 function get_partial_match(hash, part)
@@ -940,4 +950,73 @@ function go_up(args)
     var loc = getWebNavigation().currentURI.spec;
     var up = loc.replace(/(.*\/)[^\/]+\/?$/, "$1");
     open_url_in(args[0], up);
+}
+
+function list_all_buffers()
+{
+    var doc = _content.content.document;
+    var browsers = getBrowser().mBrowsers;
+    for (var i=0;i<browsers.length; i++) {
+	doc.write(browsers[i].webNavigation.currentURI.spec + "<HR>");
+    }
+}
+
+function list_buffers()
+{
+    getWebNavigation().loadURI("about:blank", 
+			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+    // There should be a better way, but I don't know what it is.
+    setTimeout(list_all_buffers,0);
+}
+
+function link_menu(args)
+{
+    var prefix = args[0];
+    // Find the frame that's focused
+    var w = document.commandDispatcher.focusedWindow;
+    var strs = [];
+
+    var links = _content.content.document.getElementsByTagName('a');
+    for (var i=0;i<links.length; i++) {
+	if (!links[i].hasAttribute("href")) continue;
+	var name;
+	// This reall should be cleaner
+	if (getBrowser().numberedLinks) {
+	    name = links[i].firstChild.nextSibling.nodeValue;
+	} else {
+	    name = links[i].firstChild.nodeValue;
+	}
+	// Don't add links with no name
+	if (name && name.length)
+	    strs.push([name, links[i].getAttribute("href")]);
+    }
+
+    miniBufferComplete(open_url_in_prompt(prefix,"Menu"), null, "link-menu", strs, 
+		       false, function(v) {open_url_in(prefix,v);});
+}
+
+function text_reset() 
+{
+    try {
+ 	getBrowser().markupDocumentViewer.textZoom = 1.0;
+    } catch(e) { alert(e); }
+}
+
+function text_reduce(args) 
+{
+    try {
+ 	getBrowser().markupDocumentViewer.textZoom -= 0.25 * args[0];
+    } catch(e) { alert(e); }
+}
+
+function text_enlarge(args) 
+{
+    try {
+ 	getBrowser().markupDocumentViewer.textZoom += 0.25 * args[0];
+    } catch(e) { alert(e); }
+}
+
+function eval_expression()
+{
+    readFromMiniBuffer("Eval:", null, "eval-expression", eval);
 }

@@ -15,37 +15,21 @@
   <script type="application/x-javascript" src="utils.js"/>
   <script type="application/x-javascript" src="bm.js"/>
   <script type="application/x-javascript" src="numberedlinks.js"/>
-<!--   <script type="application/x-javascript" src="emacsslave.js"/> -->
   <script type="application/x-javascript" src="commands.js"/>
   <script type="application/x-javascript" src="url.js"/>
   <script type="application/x-javascript" src="find.js"/>
   <script type="application/x-javascript" src="conkeror.js"/>
   <script type="application/x-javascript" src="bindings.js"/>
-<!--   <script type="application/x-javascript" src="chrome://browser/content/contentAreaUtils.js"/> -->
 
-  <commandset id="mainCommandSet">
-  </commandset>
-  <keyset id="mainKeyset">
-  </keyset>
 
-  <vbox id="appcontent" flex="1">
-<!--	<tabbrowser id="content" disablehistory="true" flex="1" homepage="http://google.ca"/> -->
+  <vbox flex="1">
   <conkframe id="content" flex="1" onkeypress="readKeyPress(event);"/>
-  </vbox>
-
-<!-- <statusbar class="message-window" id="message-bar">
-  <statusbarpanel class="message-window" id="message-window" label="" flex="1"/>
-</statusbar> -->
-
-      <hbox id="minibuffer-hbox" align="center">
-<!--         <textbox width="1"/> -->
-<!--         <label class="minibuffer" id="minibuffer-output" value=""/> -->
-        <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
-        <label class="minibuffer" id="input-prompt" hidden="true" crop="left" value=""/>
-        <textbox class="plain" id="input-field" hidden="true" flex="1"/>
-      </hbox>
-<!-- This is where focus gets sent to for embedded key bindings. -->
-<!-- <input id="readkey" height="0" width="0" onkeypress="readKeyPress(event);"/> -->
+  <hbox id="minibuffer-hbox" >
+    <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
+    <label class="minibuffer" id="input-prompt" crop="left" value="" hidden="true"/>
+    <textbox class="plain" id="input-field"  flex="1" hidden="true"/>
+  </hbox>
+</vbox>
 </window>
   
   

@@ -104,23 +104,11 @@ frame are lost, at this point)</TD></TR>
 customization then you need to create your rc file. The rc file is
 just a javascript file that will get evaluated on startup. Conkeror
 checks the "conkeror.rcfile" preference and if it exists, loads it and
-evaluates it. Follow these steps to tell Conkeror where your rcfile is:
+evaluates it. You can browse to "about:config" to set the
+conkeror.rcfile pref. It currently does not behave very well when
+opened in Conkeror.
+</p>
 
-<OL>
-<LI>Create a new file called <code>conkeror.js</code> in
-<code>/path/to/mozilla/greprefs/</code>
-<LI>Put this in the file:
-<pre>
-pref("conkeror.rcfile", "/path/to/rcfile");
-</pre>
-Here's what I use on my GNU/Linux box:
-<pre>
-pref("conkeror.rcfile", "/home/sabetts/.conkerorrc");
-</pre></LI>
-<LI>Now fill your rc file with all your favorite hacks. Sorry, no lisp yet.</LI>
-<LI>Restart Conkeror and enjoy.</LI>
-</OL>
-</P>
 <P>Here are three common customizations:</P>
 <UL>
 <LI>To add a new web jump:

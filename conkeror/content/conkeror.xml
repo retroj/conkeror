@@ -186,7 +186,6 @@
 	    // give the new browser focus
 
 	    var ord = this.mCurrentBrowser.parentNode.getAttribute("ordinal");
-	    message(ord);
 	    newBrowser.parentNode.setAttribute("ordinal", ord);
 
 	    this.focusBrowser(newBrowser);
@@ -417,6 +416,10 @@
                 readonly="true"
                 onget="return this.mCurrentBrowser.webProgress"/>
 
+      <property name="markupDocumentViewer"
+                onget="return this.mCurrentBrowser.markupDocumentViewer;"
+                readonly="true"/>
+
       <property name="contentDocument"
                 onget="return this.mCurrentBrowser.contentDocument;"
                 readonly="true"/>
@@ -428,12 +431,17 @@
                 onget="return this.mBrowserContainer.getElementsByTagName('browser');"
                 readonly="true"/>
 
+      <property name="numberedLinks"
+                onget="return this.mCurrentBrowser.__numberedLinks_state;"
+		onset="this.mCurrentBrowser.__numberedLinks_state = val; return val;"/>
+
       <constructor>
         <![CDATA[
+	  this.mCurrentBrowser = this.getBrowserAtIndex(0);
+	  this.numberedLinks = true;
 	  this.mProgressFilter = Components.classes["@mozilla.org/appshell/component/browser-status-filter;1"]
                                            .createInstance(Components.interfaces.nsIWebProgress);
-            this.mCurrentBrowser = this.getBrowserAtIndex(0);
-	    this.setBrowserProgressListener(this.mCurrentBrowser);
+          this.setBrowserProgressListener(this.mCurrentBrowser);
         ]]>
       </constructor>
       </implementation>

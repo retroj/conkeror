@@ -25,10 +25,9 @@ function Startup()
   getBrowser().setProgressListener(window.XULBrowserWindow, 
 				   Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
-  try {
-      getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-  } catch(e) { window.alert(e) }
-
+  // Give it a chance to set itself up before loading the URL
+  setTimeout(getWebNavigation().loadURI, 0, 
+	     uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
 
   try {
     // Create the browser instance component.
@@ -46,14 +45,7 @@ function Startup()
 //                         .createInstance(Components.interfaces.nsIAppShellService);
 //   appshell.registerTopLevelWindow(window);
 
-
   appCore.setWebShellWindow(window);
-
-
-
-//   initServices();
-//   initBMService();
-//   gBrowser.addEventListener("load", function(evt) { setTimeout(loadEventHandlers, 0, evt); }, true);
 
 //   try {
 //       getBrowser().addEventListener("PluginNotFound", missingPlugin, false);
@@ -64,19 +56,42 @@ function Startup()
                            .getService(Components.interfaces.nsIPrefBranch);
   gPrefService.setBoolPref("accessibility.typeaheadfind", false);
 
-  var rcfile = gPrefService.getCharPref("conkeror.rcfile");
-  if (rcfile)
-      load_rc_file(rcfile);
-
-
-//   gFind = Components.classes["@mozilla.org/typeaheadfind;1"].createInstance(Components.interfaces.nsITypeAheadFind);                                
-//   gFind.init(gBrowser.docShell);
-//   gFind.setAutoStart(window,false);
+  // Load the RC file.
+  try {
+      if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
+	  gPrefService.setCharPref("conkeror.rcfile", "");
+      } else {
+	  var rcfile = gPrefService.getCharPref("conkeror.rcfile");
+	  if (rcfile.length)
+	      load_rc_file(rcfile);
+      }
+  } catch (e) {window.alert(e);}
 
   // Give the browser focus.
-  _content.focus();
+  setTimeout(delayedStartup,0);
 }
 
+function delayedStartup()
+{
+    element = _content;
+
+    // This is a redo of the fix for jag bug 91884
+    var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
+	.getService(Components.interfaces.nsIWindowWatcher);
+    if (window == ww.activeWindow) {
+	element.focus();
+    } else {
+	// set the element in command dispatcher so focus will restore properly
+	// when the window does become active
+	if (element instanceof Components.interfaces.nsIDOMWindow) {
+	    document.commandDispatcher.focusedWindow = element;
+	    document.commandDispatcher.focusedElement = null;
+	} else if (element instanceof Components.interfaces.nsIDOMElement) {
+	    document.commandDispatcher.focusedWindow = element.ownerDocument.defaultView;
+	    document.commandDispatcher.focusedElement = element;
+	}
+    }
+}
 
 function nsBrowserStatusHandler()
 {
@@ -232,7 +247,10 @@ nsBrowserStatusHandler.prototype =
   {
       // XXX: with frames this doesn't work
 //       _content.content.document.__conkeror__NumbersOn = false;
-      setNumberedLinksState(true);
+      var buf_state = getBrowser().numberedLinks;
+      // Only show numbered links if the feature is enabled
+      if (buf_state)
+        setNumberedLinksState(true);
   }
 
 }

@@ -124,16 +124,16 @@ keyTable[KeyEvent.DOM_VK_QUOTE] = "quote";
 keyTable[KeyEvent.DOM_VK_META] = "meta";
 
 // some predefined key maps
-var 	ctrlc_kmap    = [];
-var 	ctrlx_kmap    = [];
-var 	bookmark_kmap = [];
-var 	four_kmap     = [];
-var 	five_kmap     = [];
-var 	help_kmap     = [];
-var 	top_kmap      = [];
-var 	input_kmap    = [];
-var 	textarea_kmap = [];
-var 	select_kmap   = [];
+var 	ctrlc_kmap    	  = [];
+var 	ctrlx_kmap    	  = [];
+var 	bookmark_kmap 	  = [];
+var 	four_kmap     	  = [];
+var 	five_kmap     	  = [];
+var 	help_kmap     	  = [];
+var 	top_kmap      	  = [];
+var 	input_kmap    	  = [];
+var 	textarea_kmap 	  = [];
+var 	select_kmap   	  = [];
 
 // This keymap is used by the universal argument code
 var overlay_kmap = null;
@@ -239,6 +239,8 @@ function initKmaps()
     define_key(top_kmap, make_key("a",MOD_CTRL),"beginning-of-line");
     define_key(top_kmap, make_key("e",MOD_CTRL),"end-of-line");
     define_key(top_kmap, make_key( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
+    define_key(top_kmap, make_key( "+", MOD_SHIFT),"text-enlarge");
+    define_key(top_kmap, make_key( "-", 0),"text-reduce");
 
     // movement keys
     define_key(top_kmap, make_key( KeyEvent.DOM_VK_BACK_SPACE, 0),"cmd_scrollPageUp");
@@ -257,10 +259,10 @@ function initKmaps()
     define_key(top_kmap, make_key("_",MOD_CTRL),"cmd_undo");
     define_key(top_kmap, make_key("y",MOD_CTRL),"cmd_paste");
 
-    define_key(top_kmap, make_key("v",MOD_ALT),"cmd_movePageUp");
-    define_key(top_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
     define_key(top_kmap, make_key("b",MOD_ALT),"cmd_wordPrevious");
     define_key(top_kmap, make_key("f",MOD_ALT),"cmd_wordNext");
+
+    define_key(top_kmap, make_key(":",MOD_ALT),"eval-expression");
 
     define_key(top_kmap, make_key("w",0),"cmd_copy");
 
@@ -279,6 +281,8 @@ function initKmaps()
     define_key(top_kmap, make_key(KeyEvent.DOM_VK_END, MOD_SHIFT),"cmd_selectEndLine");
     define_key(top_kmap, make_key(KeyEvent.DOM_VK_UP, MOD_SHIFT),"cmd_selectLinePrevious");
     define_key(top_kmap, make_key(KeyEvent.DOM_VK_DOWN, MOD_SHIFT),"cmd_selectLineNext");
+
+    define_key(top_kmap, make_key("m", 0),"link-menu");
 
     // Input area keys
     define_key(input_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
@@ -305,7 +309,6 @@ function initKmaps()
 
     // Nasty keys
     define_key(input_kmap, make_key("r",MOD_CTRL),"cmd_redo");
-    define_key(input_kmap, make_key("a",MOD_ALT),"cmd_selectAll");
 
     // textarea keys
     define_key(textarea_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
@@ -322,12 +325,12 @@ function initKmaps()
     define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
     define_key(textarea_kmap, make_key("w",MOD_ALT),"cmd_copy");
     define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
-    define_key (textarea_kmap, make_key("n",MOD_CTRL),"cmd_lineNext");
-    define_key (textarea_kmap, make_key("p",MOD_CTRL),"cmd_linePrevious");
-    define_key (textarea_kmap, make_key("<",MOD_ALT),"cmd_moveTop");
-    define_key (textarea_kmap, make_key(">",MOD_ALT),"cmd_moveBottom");
-    define_key (textarea_kmap, make_key("v",MOD_ALT),"cmd_movePageUp");
-    define_key (textarea_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
+    define_key(textarea_kmap, make_key("n",MOD_CTRL),"cmd_lineNext");
+    define_key(textarea_kmap, make_key("p",MOD_CTRL),"cmd_linePrevious");
+    define_key(textarea_kmap, make_key("<",MOD_ALT),"cmd_moveTop");
+    define_key(textarea_kmap, make_key(">",MOD_ALT),"cmd_moveBottom");
+    define_key(textarea_kmap, make_key("v",MOD_ALT),"cmd_movePageUp");
+    define_key(textarea_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
 
 
     // 101 keys
@@ -343,7 +346,6 @@ function initKmaps()
 
     // Nasty keys
     define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
-    define_key(textarea_kmap, make_key("a",MOD_ALT),"cmd_selectAll");
 
     gCurrentKmap = top_kmap;
 }
@@ -393,4 +395,46 @@ function genBindings(kmap, name)
 	genBindingsHelper(doc, kmap, []);
 	doc.write("</table></p>");
     } catch(e) {alert(e);}
+}
+
+//// ESCAPE bindings
+
+var     top_esc_kmap   	  = [];
+var 	textarea_esc_kmap = [];
+var 	input_esc_kmap    = [];
+
+function add_escape_bindings()
+{
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_ESCAPE, 0), top_esc_kmap);
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_ESCAPE, 0), input_esc_kmap);
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_ESCAPE, 0), textarea_esc_kmap);
+
+    // Top
+    define_key(top_esc_kmap, make_key(" ",0),"yank-to-clipboard");
+    define_key(top_esc_kmap, make_key("l",0),"numberedlinks-toggle");
+    define_key(top_esc_kmap, make_key("p",0),"buffer-previous");
+    define_key(top_esc_kmap, make_key("n",0),"buffer-next");
+    define_key(top_esc_kmap, make_key("x",0),"execute-extended-command");
+    define_key(top_esc_kmap, make_key("v",0),"cmd_scrollPageUp");
+    define_key(top_esc_kmap, make_key("<",0),"cmd_scrollTop");
+    define_key(top_esc_kmap, make_key(">",0),"cmd_scrollBottom");
+    define_key(top_esc_kmap, make_key("v",0),"cmd_movePageUp");
+    define_key(top_esc_kmap, make_key("b",0),"cmd_wordPrevious");
+    define_key(top_esc_kmap, make_key("f",0),"cmd_wordNext");
+
+    // Input
+    define_key(input_esc_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "cmd_deleteWordBackward");
+    define_key(input_esc_kmap, make_key("d",0),"cmd_deleteWordForward");
+    define_key(input_esc_kmap, make_key("b",0),"cmd_wordPrevious");
+    define_key(input_esc_kmap, make_key("f",0),"cmd_wordNext");
+    define_key(input_esc_kmap, make_key("w",0),"cmd_copy");
+
+    // Textarea
+    define_key(textarea_esc_kmap, make_key("d",0),"cmd_deleteWordForward");
+    define_key(textarea_esc_kmap, make_key("b",0),"cmd_WordPrevious");
+    define_key(textarea_esc_kmap, make_key("f",0),"cmd_WordNext");
+    define_key(textarea_esc_kmap, make_key("w",0),"cmd_copy");
+    define_key(textarea_esc_kmap, make_key("<",0),"cmd_moveTop");
+    define_key(textarea_esc_kmap, make_key(">",0),"cmd_moveBottom");
+    define_key(textarea_esc_kmap, make_key("v",0),"cmd_movePageUp");
 }

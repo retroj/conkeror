@@ -171,6 +171,9 @@ function setNumberedLinksState(linksOn)
 
 function toggleNumberedLinks() 
 {
-    var doc = _content.content.document;
-    setNumberedLinksState (!doc.__numberedlinks_linkState);
+    var buf_state = getBrowser().numberedLinks;
+    getBrowser().numberedLinks = !buf_state;    
+    message("Toggling numbered links...");
+    setNumberedLinksState (!buf_state);
+    message("Toggling numbered links...Done.");
 }
