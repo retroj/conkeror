@@ -15,7 +15,7 @@ same.</p>
 <h2>Some common key bindings</h2>
 <p>I'm using the emacs style key notation. C means control, A means
 alt. As an example, holding down control and alt and then pressing the
-t key would be written C-A-t.</p>
+t key would be written C-M-t.</p>
 
 <h3>Browsing</h3>
 <table border=1>
@@ -25,7 +25,7 @@ t key would be written C-A-t.</p>
 <TR><TD>r</TD><TD>Reload</TD></TR>
 <TR><TD>C-g</TD><TD>Stop</TD></TR>
 <TR><TD>c</TD><TD>Copy current URL to the clipboard</TD></TR>
-<TR><TD>A-SPC</TD><TD>Copy the X11 cut buffer to mozilla's
+<TR><TD>M-SPC</TD><TD>Copy the X11 cut buffer to mozilla's
 clipboard. This is a cheap hack because I can't figure out how to
 override the mozilla past function.</TD></TR>
 <TR><TD>C-x r b</TD><TD>jump to bookmark</TD></TR>
@@ -45,9 +45,9 @@ override the mozilla past function.</TD></TR>
 <TR><TD>C-n</TD><TD>Forward a line</TD></TR>
 <TR><TD>C-p</TD><TD>backward a line</TD></TR>
 <TR><TD>C-v</TD><TD>Page down</TD></TR>
-<TR><TD>A-v</TD><TD>Page up</TD></TR>
-<TR><TD>A-&lt;</TD><TD>Beginning of document</TD></TR>
-<TR><TD>A-&gt;</TD><TD>End of document</TD></TR>
+<TR><TD>M-v</TD><TD>Page up</TD></TR>
+<TR><TD>M-&lt;</TD><TD>Beginning of document</TD></TR>
+<TR><TD>M-&gt;</TD><TD>End of document</TD></TR>
 <TR><TD>C-s</TD><TD>Open i-search forward</TD></TR>
 <TR><TD>C-r</TD><TD>Open i-search backward</TD></TR>
 <TR><TD>f</TD><TD>cycle through the document's frames. The background
@@ -64,10 +64,24 @@ will flash red to indicate the focused frame.</TD></TR>
 </table>
 
 <h3>Numbered Links</h3>
-<p>You will notice each href link and form input has a number beside
-it. if you type the number and press enter, the href will be followed,
-form button clicked, or form field focused. If you press A-enter, the
-link will be focused.
+<p>You will notice each href link and form input has a number (gray
+background) floating on top of it. if you type the number and press
+enter, the href will be followed, form button clicked, or form field
+focused. If you press M-enter, the link will be focused.</p>
+
+<p>Often the floating numbers get in the way of the content, so they can
+be toggled with M-l. When invisible, either typing a number or
+pressing the 'n' key will show them for the duration of the
+command.
+</p>
+
+<h3>Numbered Images</h3>
+<p>To copy the location of an image, press 'i'. For each image, a
+number (pink background) will appear at its corner. Type the number
+and the image location will be copied to the clipboard. </p>
+
+<p>Note the image numbers disappear after the command is finished. To
+toggle the image numbers, press C-M-l.
 </p>
 
 <h3>Web Jump</h3>
@@ -91,8 +105,8 @@ bookmarks. Here are the built in web jumps:
 <table border=1>
 <TR><TD>C-u g</TD><TD>Open an URL in a new buffer</TD></TR>
 <TR><TD>C-x b</TD><TD>Select a buffer based on it's name.</TD></TR>
-<TR><TD>A-p</TD><TD>previous buffer</TD></TR>
-<TR><TD>A-n</TD><TD>Next bufer</TD></TR>
+<TR><TD>M-p</TD><TD>previous buffer</TD></TR>
+<TR><TD>M-n</TD><TD>Next bufer</TD></TR>
 <TR><TD>C-x k</TD><TD>kill buffer</TD></TR>
 <TR><TD>C-x 5 C-f, C-u C-u g</TD><TD>Open an URL in a new frame</TD></TR>
 <TR><TD>C-x 5 0</TD><TD>Close the current frame (all buffers in the
@@ -167,9 +181,9 @@ code for examples of how it works.
 
 <LI>To add a new key binding:
 <pre>
-define_key(ctrlx_kmap, make_key("c", MOD_ALT), "command-name");
+define_key(ctrlx_kmap, make_key("c", MOD_META), "command-name");
 </pre>
-This binds C-x A-c to execute "command-name". Take a look at
+This binds C-x M-c to execute "command-name". Take a look at
 bindings.js for the builtin keymaps and key bindings.
 </LI>
 </UL>

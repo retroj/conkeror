@@ -21,6 +21,12 @@ function Startup()
 
   // Setup our status handler
   window.XULBrowserWindow = new nsBrowserStatusHandler();
+  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+        .getInterface(Components.interfaces.nsIWebNavigation)
+        .QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
+        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+        .getInterface(Components.interfaces.nsIXULWindow)
+        .XULBrowserWindow = window.XULBrowserWindow;
   getBrowser().setProgressListener(window.XULBrowserWindow, 
 				   Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
