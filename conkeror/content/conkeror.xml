@@ -7,11 +7,11 @@
 
 <binding id="conkframe">
       <content>
-          <xul:box flex="1" orient="horizontal">
+          <xul:box flex="1" orient="vertical">
             <xul:vbox flex="100">
-	      <xul:browser flex="1" type="content-primary"/>
+	      <xul:browser flex="1" type="content-primary" pile="0"/>
 	      <xul:hbox class="mode-line">
-	      <xul:label value="" crop="right" flex="1"/>
+	      <xul:label class="mode-line-label" value="" crop="right" flex="1"/>
               </xul:hbox>
 	    </xul:vbox>
 	  </xul:box>
@@ -45,6 +45,19 @@
                 onget="return this.mBrowserContainer.getElementsByTagName('browser');"
                 readonly="true"/>
 
+      <method name="isSplit">
+      <body>
+        <![CDATA[
+        for (var i=0; i<this.mBrowsers.length; i++) {
+	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
+	      && this.mBrowsers[i] != this.mCurrentBrowser) {
+	      return true;
+          }
+        }
+	return false;
+	]]>
+      </body>
+      </method>
       <method name="setBrowserProgressListener">
         <parameter name="aBrowser"/>
         <body>
@@ -110,6 +123,16 @@
           ]]>
 </body>
       </method>
+      <method name="lastBrowser">
+      <body>
+	<![CDATA[
+	if (this.mBrowsers.length == 1) 
+	  return this.mBrowsers[0];
+	else
+	  return this.getBrowserForPileID(this.getPileTop()-1);
+	]]>
+      </body>      
+      </method>
       <method name="focusBrowser">
         <parameter name="aBrowser"/>
 	<body>
@@ -119,12 +142,12 @@
               Components.lookupMethod(element, "focus").call(element);
             }
 
-	    if (this.mCurrentBrowser) {
-              this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedWindow;
-              this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
-              this.mCurrentBrowser.setAttribute("type", "content");
-            }
-	    //aBrowser.setAttribute("ordinal", this.mCurrentBrowser.getAttribute("ordinal"));
+	    this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedWindow;
+	    this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
+	    this.mCurrentBrowser.setAttribute("type", "content");
+
+	    // Update the pile
+	    this.bringToTop(aBrowser, this.mCurrentBrowser);
 	    this.mCurrentBrowser = aBrowser;
             aBrowser.setAttribute("type", "content-primary");
 
@@ -161,6 +184,11 @@
 	    }
 	    newBrowser.parentNode.setAttribute("collapsed", "false");
 	    // give the new browser focus
+
+	    var ord = this.mCurrentBrowser.parentNode.getAttribute("ordinal");
+	    message(ord);
+	    newBrowser.parentNode.setAttribute("ordinal", ord);
+
 	    this.focusBrowser(newBrowser);
 	    } catch(e) {alert(e);}
           ]]>	    	
@@ -187,10 +215,12 @@
 	      newBrowser = this.mBrowserContainer.lastChild.previousSibling.firstChild;
 	    else
               newBrowser = aBrowser.parentNode.nextSibling.firstChild;
-
+            
 	    this.mBrowserContainer.removeChild(aBrowser.parentNode);
 	    //aBrowser.destroy();
 	    this.setCurrentBrowser(newBrowser);
+	    // Because we deleted a browser, lower the current browser's pile ID
+	    this.mCurrentBrowser.setAttribute('pile', this.mCurrentBrowser.getAttribute('pile')-1);
 	    } catch(e) {window.alert(e);}
           ]]>
 	</body>
@@ -241,12 +271,10 @@
 	  return;
         }
         // Make sure there isn't already a split
-        for (var i=0; i<this.mBrowsers.length; i++) {
-	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
-	      && this.mBrowsers[i] != this.mCurrentBrowser) {
-	      return;
-          }
-        }
+	if (this.isSplit())
+	  return;
+	this.mCurrentBrowser.parentNode.setAttribute("ordinal", "0");
+	otherBrowser.parentNode.setAttribute("ordinal", "1");
 	otherBrowser.parentNode.setAttribute("collapsed", "false");
       } catch(e) {alert(e);}
       ]]>
@@ -293,6 +321,61 @@
       ]]>
       </body>
       </method>
+      <method name="pushPileDown">
+      <parameter name="a"/>
+      <parameter name="b"/>
+      <body>
+        <![CDATA[
+	  for(i=0; i<this.mBrowsers.length; i++) {
+	    var p = this.mBrowsers[i].getAttribute('pile');
+	    if (p > a && p <= b)
+	      this.mBrowsers[i].setAttribute('pile', p-1);
+	    }    
+	  }
+	]]>
+	</body>
+      </method>
+      <method name="bringToTop">
+      <parameter name="b"/>
+      <parameter name="oldb"/>
+      <body>
+        <![CDATA[
+	  bp = b.getAttribute('pile');
+	  oldbp = oldb.getAttribute('pile');
+	  // is b already higher in the pile than oldb?
+	  if (bp > oldbp)
+	    return;
+	  this.pushPileDown(bp, oldbp);
+	  b.setAttribute('pile', oldbp);
+	]]>
+      </body>
+      </method>
+      <method name="getPileTop">
+        <body>
+	  <![CDATA[
+	  var max = this.mBrowsers[0].getAttribute('pile');
+	  for(i=1; i<this.mBrowsers.length; i++) {
+	    var p = this.mBrowsers[i].getAttribute('pile');
+	    max = p>max ? p:max;
+	  }
+	  return max;
+	}
+      ]]>
+      </body>
+      </method>
+      <method name="getBrowserForPileID">
+        <parameter name="id"/>
+        <body>
+	  <![CDATA[
+	  for(i=0; i<this.mBrowsers.length; i++) {
+	    if (id == this.mBrowsers[i].getAttribute("pile"))
+	      return this.mBrowsers[i];
+	  }
+	  return null;
+	}
+      ]]>
+      </body>
+      </method>
       <method name="makeBrowser">
       <body>
       <![CDATA[
@@ -300,6 +383,7 @@
         var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "browser"); 
 	b.setAttribute("type", "content");
 	b.setAttribute("flex", "1");
+	b.setAttribute("pile", parseInt(this.getPileTop())+1);
 	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
 	v.setAttribute("flex", "100");
 <!-- 	v.setAttribute("style", "min-width:50%"); -->
@@ -308,6 +392,7 @@
 	var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label"); 
 	sp.setAttribute("value", "");
 	sp.setAttribute("flex", "1");
+	sp.setAttribute("class", "mode-line-label");
 	sp.setAttribute("crop", "right");
 	s.appendChild(sp);
 	v.appendChild(b);

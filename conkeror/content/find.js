@@ -69,13 +69,8 @@ function focusFindBar()
     try {
     gWin = document.commandDispatcher.focusedWindow;
     gSelCtrl = getFocusedSelCtrl();
-    if (gSelCtrl == null)
-	gSelCtrl = getBrowser().docShell.
-
     gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
     gSelCtrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-
-
     } catch(e) {alert(e);}
 
 //     var bar = document.getElementById("find-toolbox");

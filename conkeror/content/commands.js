@@ -89,6 +89,7 @@ var gCommands = [
     ["numberedlinks-9", 		selectNumberedLink_9, 		[]],
     ["numberedlinks-toggle", 		toggleNumberedLinks, 		[]],
     ["open-url", 			open_url, 			[]],
+    ["find-alternate-url",              find_alt_url, 			[]],
     ["quit", 				quit, 				[]],
     ["revert-buffer", 			reload, 			[]],
     ["switch-to-buffer-other-window",	switch_browser_other_window, 	[]],
@@ -107,6 +108,8 @@ var gCommands = [
     ["save-link", 			save_link, 			[]],
     ["source",                          source_file, 			[]],
     ["help-page",                       help_page, 			[]],
+    ["start-eval-server",               start_server,                   []],
+    ["redraw",                          redraw,                         []],
     ["yank-to-clipboard",		yankToClipboard,        	[]]];
 
 function exec_command(cmd)
@@ -257,7 +260,7 @@ function new_frame()
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
 
-    miniBufferComplete("Find URL in other frame:", "url", templs, true, function(match, url) { window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", get_url_or_webjump(url)); });
+    miniBufferComplete("Find URL in other frame:", null, "url", templs, true, function(match, url) { window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", get_url_or_webjump(url)); });
 }
 
 function makeFrame()
@@ -271,13 +274,19 @@ function delete_frame()
     window.close();
 }
 
-function open_url()
+function find_alt_url()
+{
+    open_url(true);
+}
+
+function open_url(fillInput)
 {
     var templs =[];
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
+    var input = fillInput ? getWebNavigation().currentURI.spec:null;
 
-    miniBufferComplete("Find Alternate URL:", "url", templs, true, function(match,url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    miniBufferComplete("Find Alternate URL:", input, "url", templs, true, function(match,url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
 }
 
 // Open a new browser with url
@@ -287,7 +296,7 @@ function find_url()
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
 
-    miniBufferComplete("Find URL: ", "url", templs, true, function(match,url) { getBrowser().newBrowser(get_url_or_webjump(url)); });
+    miniBufferComplete("Find URL: ", null, "url", templs, true, function(match,url) { getBrowser().newBrowser(get_url_or_webjump(url)); });
 }
 
 
@@ -301,25 +310,32 @@ function get_buffer_from_name(buf)
     }
 }
 
-function goto_buffer(buf)
+function goto_buffer(match,buf)
 {
-    getBrowser().setCurrentBrowser(get_buffer_from_name(buf));
+    if (buf == "")
+	getBrowser().setCurrentBrowser(getBrowser().lastBrowser());
+    else
+	getBrowser().setCurrentBrowser(match);
 }
 
 function switch_to_buffer()
 {
-//     var defBrowser = getBrowser().lastBrowser();
-    var defBrowser = "FIXME";
     var bufs = getBrowser().getBrowserNames();
-    var matches = zip2(bufs,bufs);
-    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", "buffer", matches, false,
+    var defBrowser = getBrowser().lastBrowser().webNavigation.currentURI.spec;
+    var matches = zip2(bufs,getBrowser().mBrowsers);
+    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", null, "buffer", matches, true,
 		       goto_buffer);
 
 }
 
 function kill_browser()
 {
-    getBrowser().killCurrentBrowser();
+    var defBrowser = getBrowser().webNavigation.currentURI.spec;
+    var bufs = getBrowser().getBrowserNames();
+    var matches = zip2(bufs,getBrowser().mBrowsers);
+    miniBufferComplete("Kill buffer: (default " + defBrowser + ") ", null, "buffer", matches, true,
+		       function(m,b) {if (b=="") {getBrowser().killCurrentBrowser();} else {getBrowser().killBrowser(m);}});
+
 }
 
 function copyCurrentUrl()
@@ -343,7 +359,7 @@ function yankToClipboard()
 
 function goto_bookmark()
 {
-    miniBufferComplete("Goto bookmark:", "bookmark", get_bm_strings(), false,
+    miniBufferComplete("Goto bookmark:", null, "bookmark", get_bm_strings(), false,
 		       function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
 }
 
@@ -388,7 +404,7 @@ function browser_prev()
 
 function meta_x()
 {
-    miniBufferComplete("M-x", "commands", gCommands, false, function(fn) {fn();});
+    miniBufferComplete("M-x", null, "commands", gCommands, false, function(fn) {fn();});
 }
 
 function inject_css()
@@ -401,10 +417,26 @@ function inject_css()
 
 function switch_browser_other_window()
 {
-    var defBrowser = "FIXME";
     var bufs = getBrowser().getBrowserNames();
-    var matches = zip2(bufs,bufs);
-    miniBufferComplete("Switch to buffer in other window: (default " + defBrowser + ") ", "buffer", matches, false, function(b) {getBrowser().split(get_buffer_from_name(b));getBrowser().focusOther();});
+    var defBrowser = getBrowser().lastBrowser().webNavigation.currentURI.spec;
+    var matches = zip2(bufs,getBrowser().mBrowsers);
+    miniBufferComplete("Switch to buffer in other window: (default " + defBrowser + ") ", null, "buffer", matches, true, function(m,b) 
+              {
+		  if (getBrowser().isSplit()) {
+		      var last = getBrowser().lastBrowser();
+		      getBrowser().focusOther();
+		      if (b == "")
+			  getBrowser().setCurrentBrowser(last);
+		      else
+			  getBrowser().setCurrentBrowser(m);
+		  } else {
+		      if (b=="")
+			  getBrowser().split(getBrowser().lastBrowser());
+		      else
+			  getBrowser().split(b);
+		      getBrowser().focusOther();
+		  }
+	      });
 }
 
 function split_window()
@@ -570,7 +602,7 @@ function web_jump()
     var templs =[];
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
-    miniBufferComplete("Web Jump:", "webjump", templs, true, doWebJump);
+    miniBufferComplete("Web Jump:", null, "webjump", templs, true, doWebJump);
 }
 
 function get_url_or_webjump(input)
@@ -624,7 +656,15 @@ function get_link_location()
     var e = document.commandDispatcher.focusedElement;   
     if (e && e.getAttribute("href")) {
 	var loc = e.getAttribute("href");
-	return loc;
+	return makeURLAbsolute(e.baseURI, loc);
+    }
+}
+
+function get_link_text()
+{
+    var e = document.commandDispatcher.focusedElement;   
+    if (e && e.getAttribute("href")) {
+	return e.getAttribute("href");
     }
 }
 
@@ -638,7 +678,9 @@ function copy_link_location()
 function save_link()
 {
     var loc = get_link_location();
-    saveURL(loc, null, "SaveLinkTitle", true);
+    alert(loc);
+    alert(get_link_text());
+    saveURL(loc, get_link_text(), null, true);
 }
 
 function source_file()
@@ -661,4 +703,9 @@ function help_page()
 {
     getWebNavigation().loadURI("chrome://conkeror/content/help.html", 
 			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+}
+
+function redraw()
+{
+    message("FIXME: unimplemented");
 }

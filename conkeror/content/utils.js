@@ -287,14 +287,14 @@ function readFromMiniBuffer(prompt, initVal, history, callBack)
     readInput(prompt, function () { setInputValue(initVal); }, "miniBufferKeyPress(event);");
 }
 
-function miniBufferComplete(prompt, history, completions, nonMatches, callBack)
+function miniBufferComplete(prompt, initVal, history, completions, nonMatches, callBack)
 {
     gReadFromMinibufferCallBack = callBack;
     gMiniBufferCompletions = completions;
     gCurrentCompletion = null;
     gAllowNonMatches = nonMatches;
     initHistory(history);
-    readInput(prompt, null, "miniBufferCompleteKeyPress(event);");    
+    readInput(prompt, function () { setInputValue(initVal); }, "miniBufferCompleteKeyPress(event);");    
 }
 
 function setFocus(element) {
@@ -712,4 +712,14 @@ LocalFile.prototype.flush =
 function fo_close()
 {
     return this.outputStream.flush();
+}
+
+function makeURLAbsolute (base, url)
+{
+    // Construct nsIURL.
+    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+	.getService(Components.interfaces.nsIIOService);
+    var baseURI  = ioService.newURI(base, null, null);
+        
+    return ioService.newURI(baseURI.resolve(url), null, null).spec;
 }

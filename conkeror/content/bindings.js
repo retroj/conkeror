@@ -176,7 +176,7 @@ function initKmaps()
     define_key(ctrlx_kmap, make_key("0",0),"delete-window"); 
     define_key(ctrlx_kmap, make_key("2",0),"split-window"); 
     define_key(ctrlx_kmap, make_key("o",0),"other-window"); 
-    define_key(ctrlx_kmap, make_key("v",MOD_CTRL),"open-url"); 
+    define_key(ctrlx_kmap, make_key("v",MOD_CTRL),"find-alternate-url"); 
     define_key(ctrlx_kmap, make_key("x",MOD_CTRL),"exchange-point-and-mark"); 
     
     define_key(five_kmap, make_key("f",MOD_CTRL),"find-url-other-frame"); 
@@ -198,10 +198,11 @@ function initKmaps()
 
     define_key(top_kmap, make_key("u",0),"copy-link-location");
     define_key(top_kmap, make_key(" ",MOD_ALT),"yank-to-clipboard");
-    define_key(top_kmap, make_key("l",MOD_CTRL),"open-url");
+    define_key(top_kmap, make_key("l",MOD_CTRL),"redraw");
+    define_key(top_kmap, make_key("g",0),"revert-buffer");
     define_key(top_kmap, make_key("l",MOD_ALT),"numberedlinks-toggle");
     define_key(top_kmap, make_key("l",0),"go-back");
-    define_key(top_kmap, make_key("g",0),"open-url"); 
+    define_key(top_kmap, make_key("v",0),"open-url"); 
     define_key(top_kmap, make_key("i",0),"view-source");
     define_key(top_kmap, make_key("s",MOD_CTRL),"isearch-forward");
     define_key(top_kmap, make_key("r",MOD_CTRL),"isearch-backward");
@@ -209,7 +210,6 @@ function initKmaps()
     define_key(top_kmap, make_key("F",MOD_SHIFT),"go-forward");
     define_key(top_kmap, make_key("R",MOD_SHIFT),"revert-buffer");
     define_key(top_kmap, make_key("f",0),"next-frame");
-    define_key(top_kmap, make_key("g",MOD_CTRL),"stop-loading");
     define_key(top_kmap, make_key("1",0),"numberedlinks-1");
     define_key(top_kmap, make_key("2",0),"numberedlinks-2");
     define_key(top_kmap, make_key("3",0),"numberedlinks-3");
@@ -278,9 +278,9 @@ function initKmaps()
     define_key(input_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
     define_key(input_kmap, make_key("d",MOD_ALT),"cmd_deleteWordForward");
     define_key(input_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
-    define_key(input_kmap, make_key("b",MOD_ALT),"cmd_WordPrevious");
+    define_key(input_kmap, make_key("b",MOD_ALT),"cmd_wordPrevious");
     define_key(input_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
-    define_key(input_kmap, make_key("f",MOD_ALT),"cmd_WordNext");
+    define_key(input_kmap, make_key("f",MOD_ALT),"cmd_wordNext");
     define_key(input_kmap, make_key("y",MOD_CTRL),"cmd_paste");
     define_key(input_kmap, make_key("w",MOD_ALT),"cmd_copy");
     define_key(input_kmap, make_key("u",MOD_CTRL),"cmd_deleteToBeginningOfLine");

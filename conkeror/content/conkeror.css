@@ -9,6 +9,10 @@
  background-color: rgb(200,200,200);
 }
 
+label.mode-line-label {
+	color: black;
+}
+
 window {
  background-color: white;	
 }

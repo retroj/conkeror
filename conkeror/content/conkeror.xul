@@ -15,11 +15,13 @@
   <script type="application/x-javascript" src="utils.js"/>
   <script type="application/x-javascript" src="bm.js"/>
   <script type="application/x-javascript" src="numberedlinks.js"/>
+  <script type="application/x-javascript" src="emacsslave.js"/>
   <script type="application/x-javascript" src="commands.js"/>
   <script type="application/x-javascript" src="url.js"/>
   <script type="application/x-javascript" src="find.js"/>
   <script type="application/x-javascript" src="conkeror.js"/>
   <script type="application/x-javascript" src="bindings.js"/>
+
   <script type="application/x-javascript" src="chrome://communicator/content/contentAreaUtils.js"/>
 
   <commandset id="mainCommandSet">
@@ -39,8 +41,8 @@
       <hbox id="minibuffer-hbox" align="center">
 <!--         <textbox width="1"/> -->
 <!--         <label class="minibuffer" id="minibuffer-output" value=""/> -->
-        <label class="minibuffer" id="minibuffer-output" flex="1" value=""/>
-        <label class="minibuffer" id="input-prompt" hidden="true" value=""/>
+        <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
+        <label class="minibuffer" id="input-prompt" hidden="true" crop="left" value=""/>
         <textbox class="plain" id="input-field" hidden="true" flex="1"/>
       </hbox>
 <!-- This is where focus gets sent to for embedded key bindings. -->
