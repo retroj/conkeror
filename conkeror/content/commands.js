@@ -110,6 +110,7 @@ function init_commands()
     add_command("redraw", redraw, []);
     add_command("save-link", save_link, []);
     add_command("yank-to-clipboard", yankToClipboard, []);
+    add_command("go-up", go_up, [["p"]]);
     } catch(e) {alert(e);}
 }
 
@@ -934,3 +935,9 @@ function univ_arg_to_number(prefix)
     } catch(e) {alert("univ: " + e);}
 }
 
+function go_up(args)
+{
+    var loc = getWebNavigation().currentURI.spec;
+    var up = loc.replace(/(.*\/)[^\/]+\/?$/, "$1");
+    open_url_in(args[0], up);
+}

@@ -207,7 +207,7 @@ function initKmaps()
     define_key(top_kmap, make_key("x",MOD_CTRL), ctrlx_kmap);
     define_key(top_kmap, make_key("c",MOD_CTRL), ctrlc_kmap); 
 
-    define_key(top_kmap, make_key("u",0),"copy-link-location");
+    define_key(top_kmap, make_key("u",0),"go-up");
     define_key(top_kmap, make_key(" ",MOD_ALT),"yank-to-clipboard");
     define_key(top_kmap, make_key("l",MOD_CTRL),"redraw");
     define_key(top_kmap, make_key("g",0),"open-url");
@@ -233,6 +233,7 @@ function initKmaps()
     define_key(top_kmap, make_key("p",MOD_ALT),"buffer-previous");
     define_key(top_kmap, make_key("n",MOD_ALT),"buffer-next");
     define_key(top_kmap, make_key("c",0),"copy-current-url");
+    define_key(top_kmap, make_key("C",MOD_SHIFT),"copy-link-location");
     define_key(top_kmap, make_key("x",MOD_ALT),"execute-extended-command");
     define_key(top_kmap, make_key("g",MOD_CTRL),"keyboard-quit");
     define_key(top_kmap, make_key("a",MOD_CTRL),"beginning-of-line");
