@@ -273,4 +273,3 @@ function missingPlugin(evt)
     window.alert("tough luck. yer missing a plugin");
     evt.preventDefault();
 }
-
