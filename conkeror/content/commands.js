@@ -90,7 +90,7 @@ var commands = [
     ["revert-browser", 			reload, 			[]],
     ["switch-to-browser-other-window",	switch_browser_other_window, 	[]],
     ["stop-loading", 			stopLoading, 			[]],
-    ["switch-to-browser-other-frame", 	new_frame, 			[]],
+    ["find-url-other-frame", 	        new_frame, 			[]],
     ["switch-to-browser", 		switch_to_buffer,		[]],
     ["view-source", 			view_source, 			[]],
     ["view-source", 			view_source, 			[]],
@@ -269,7 +269,7 @@ function view_source()
 
 function new_frame()
 {
-    readFromMiniBuffer("Find URL in other frame:", null, "url", function(url) { window.open("chrome://conkeror/content", url, "chrome,dialog=no"); });
+    readFromMiniBuffer("Find URL in other frame:", null, "url", function(url) { window.open("chrome://conkeror/content", get_url_or_webjump(url), "chrome,dialog=no"); });
 }
 
 function delete_frame()
@@ -280,14 +280,14 @@ function delete_frame()
 function open_url()
 {
     try {
-    readFromMiniBuffer("URL:", null, "url", function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    readFromMiniBuffer("URL:", null, "url", function(url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
     } catch(e) {alert(e);};
 }
 
 // Open a new browser with url
 function find_url()
 {
-    readFromMiniBuffer("Find URL: ", null, "url", function(url) { getBrowser().newBrowser(url); });
+    readFromMiniBuffer("Find URL: ", null, "url", function(url) { getBrowser().newBrowser(get_url_or_webjump(url)); });
 }
 
 
@@ -312,7 +312,7 @@ function switch_to_buffer()
     var defBrowser = "FIXME";
     var bufs = getBrowser().getBrowserNames();
     var matches = zip2(bufs,bufs);
-    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", "buffer", matches,
+    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", "buffer", matches, false,
 		       goto_buffer);
 
 }
@@ -343,7 +343,7 @@ function yankToClipboard()
 
 function goto_bookmark()
 {
-    miniBufferComplete("Goto bookmark:", "bookmark", get_bm_strings(), 
+    miniBufferComplete("Goto bookmark:", "bookmark", get_bm_strings(), false,
 		       function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
 }
 
@@ -394,7 +394,7 @@ function browser_prev()
 
 function meta_x()
 {
-    miniBufferComplete("M-x", "commands", commands, function(fn) {fn();});
+    miniBufferComplete("M-x", "commands", commands, false, function(fn) {fn();});
 }
 
 function inject_css()
@@ -410,7 +410,7 @@ function switch_browser_other_window()
     var defBrowser = "FIXME";
     var bufs = getBrowser().getBrowserNames();
     var matches = zip2(bufs,bufs);
-    miniBufferComplete("Switch to buffer in other window: (default " + defBrowser + ") ", "buffer", matches, function(b) {getBrowser().split(get_buffer_from_name(b));getBrowser().focusOther();});
+    miniBufferComplete("Switch to buffer in other window: (default " + defBrowser + ") ", "buffer", matches, false, function(b) {getBrowser().split(get_buffer_from_name(b));getBrowser().focusOther();});
 }
 
 function split_window()
@@ -516,7 +516,7 @@ function cmd_movePageDown() {goDoCommand("cmd_movePageDown"); }
 //// web jump stuff
 
 var gWebJumpLocations = [];
-gWebJumpLocations["search"] = "http://www.google.com/search?q=%s";
+gWebJumpLocations["google"] = "http://www.google.com/search?q=%s";
 gWebJumpLocations["wikipedia"] = "http://en.wikipedia.org/wiki/Special:Search?search=%s";
 gWebJumpLocations["slang"] = "http://www.urbandictionary.com/define.php?term=%s";
 gWebJumpLocations["dictionary"] = "http://dictionary.reference.com/search?q=%s";
@@ -528,10 +528,39 @@ function webjump_build_url(template, subs)
     return template.substr(0,b) + subs + template.substring(a);
 }
 
+function get_partial_match(hash, part)
+{
+    var matches = [];
+    for (x in hash) {
+	if (part == x.substr(0, part.length))
+	    matches.push(x);
+    }
+    if (matches.length == 1)
+	return matches[0];
+    else
+	return null;
+}
+
+function getWebJump(value)
+{
+    try {
+    var start = value.indexOf(' ');
+    var jump = gWebJumpLocations[value.substr(0,start)];
+    // Try to find a web jump match
+    if (!jump) {
+	var match = get_partial_match(gWebJumpLocations, value.substr(0,start));
+	if (match)
+	    jump = gWebJumpLocations[match];
+	else
+	    return null;
+    }
+    return webjump_build_url(jump, value.substring(start + 1));
+    } catch(e) {alert(e);}
+}
+
 function doWebJump(match, value)
 {
-    var start = value.indexOf(' ');
-    var url = webjump_build_url(gWebJumpLocations[value.substr(0,start)], value.substring(start + 1));
+    var url = getWebJump(value);
     getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
 }
 
@@ -540,5 +569,16 @@ function web_jump()
     var templs =[];
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
-    miniBufferComplete("Web Jump:", "webjump", templs, doWebJump);
+    miniBufferComplete("Web Jump:", "webjump", templs, true, doWebJump);
+}
+
+function get_url_or_webjump(input)
+{
+    if (input.indexOf(' ') != -1) {
+	var url = getWebJump(input);
+	// return url || getWebJump("google " + input);
+	return url;
+    } else {
+	return input;
+    }
 }

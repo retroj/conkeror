@@ -141,6 +141,8 @@ var gCurrentCompletion = null;
 
 var gCurrentCompletionStr = null;
 
+var gAllowNonMatches = false;
+
 // The current idx into the history
 var gHistoryPoint = null;
 // The arry we're using for history
@@ -226,8 +228,12 @@ function miniBufferCompleteKeyPress(event)
 		addHistory(val);
 		var callback = gReadFromMinibufferCallBack;
 		gReadFromMinibufferCallBack = null;
-		if (callback)
-		    callback(match, val);
+		if (callback) {
+		    if (gAllowNonMatches)
+			callback(match, val);
+		    else if (match)
+			callback(match);
+		}
 	    } catch (e) {window.alert(e);}
 	} else if (handle_history(event, field)) {
 	    event.preventDefault();
@@ -281,11 +287,12 @@ function readFromMiniBuffer(prompt, initVal, history, callBack)
     readInput(prompt, function () { setInputValue(initVal); }, "miniBufferKeyPress(event);");
 }
 
-function miniBufferComplete(prompt, history, completions, callBack)
+function miniBufferComplete(prompt, history, completions, nonMatches, callBack)
 {
     gReadFromMinibufferCallBack = callBack;
     gMiniBufferCompletions = completions;
     gCurrentCompletion = null;
+    gAllowNonMatches = nonMatches;
     initHistory(history);
     readInput(prompt, null, "miniBufferCompleteKeyPress(event);");    
 }

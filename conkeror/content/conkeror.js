@@ -26,7 +26,7 @@ function initKmaps()
     define_key(ctrlx_kmap, make_key("2", null, 0), null, "split-window"); 
     define_key(ctrlx_kmap, make_key("o", null, 0), null, "other-window"); 
     
-    define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "switch-to-browser-other-frame"); 
+    define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "find-url-other-frame"); 
     define_key(five_kmap, make_key("0", null, 0), null, "delete-frame");
 
     
