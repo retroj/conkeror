@@ -430,12 +430,9 @@ function get_buffer_from_name(buf)
     }
 }
 
-function goto_buffer(match,buf)
+function go_to_buffer(match)
 {
-    if (buf == "")
-	getBrowser().setCurrentBrowser(getBrowser().lastBrowser());
-    else
-	getBrowser().setCurrentBrowser(match);
+    getBrowser().setCurrentBrowser(match);
 }
 
 function switch_to_buffer()
@@ -443,8 +440,7 @@ function switch_to_buffer()
     var bufs = getBrowser().getBrowserNames();
     var defBrowser = getBrowser().lastBrowser().webNavigation.currentURI.spec;
     var matches = zip2(bufs,getBrowser().mBrowsers);
-    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", null, "buffer", matches, true,
-		       goto_buffer);
+    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", null, "buffer", matches, false, go_to_buffer, null, defBrowser);
 
 }
 

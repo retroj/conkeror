@@ -154,6 +154,8 @@ var gCurrentCompletion = null;
 
 var gCurrentCompletions = null;
 
+var gDefault = null;
+
 var gAllowNonMatches = false;
 
 // The current idx into the history
@@ -232,6 +234,8 @@ function miniBufferCompleteKeyPress(event)
 	if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	    try{
 		var val = field.value;
+		if (val.length == 0 && gDefaultMatch != null)
+		    val = gDefaultMatch;
 		var match = findCompleteMatch(gMiniBufferCompletions, val);
 		closeInput(true, true);
 		addHistory(val);
@@ -312,12 +316,13 @@ function readFromMiniBuffer(prompt, initVal, history, callBack, abortCallback)
     readInput(prompt, function () { setInputValue(initVal); }, "miniBufferKeyPress(event);");
 }
 
-function miniBufferComplete(prompt, initVal, history, completions, nonMatches, callBack, abortCallback)
+function miniBufferComplete(prompt, initVal, history, completions, nonMatches, callBack, abortCallback, def)
 {
     gReadFromMinibufferCallBack = callBack;
     gReadFromMinibufferCallAbortBack = abortCallback;
     gMiniBufferCompletions = completions;
     gCurrentCompletion = null;
+    gDefaultMatch = def;
     gAllowNonMatches = nonMatches;
     initHistory(history);
     readInput(prompt, function () { setInputValue(initVal); }, "miniBufferCompleteKeyPress(event);");    
