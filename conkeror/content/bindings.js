@@ -139,11 +139,11 @@ const MOD_CTRL = 0x1;
 const MOD_ALT = 0x2;
 const MOD_SHIFT = 0x4;
 
-function make_key(charCode, keyCode, mods)
+function make_key(keyCode, mods)
 {
     var key = {};
-    if (charCode)
-	key.charCode = charCode.charCodeAt(0);
+    if (typeof keyCode == "string")
+	key.charCode = keyCode.charCodeAt(0);
     else
 	key.keyCode = keyCode;
     key.modifiers = mods;
@@ -151,202 +151,190 @@ function make_key(charCode, keyCode, mods)
 }
 
 // Sorta dirty, bind key to either the keymap or command in the keymap, kmap
-function define_key(kmap, key, keymap, cmd)
+function define_key(kmap, key, cmd)
 {
     var obj = {key: key};
-    if (cmd)
+    if (typeof cmd == "string")
 	obj.command = cmd;
     else 
-	obj.keymap = keymap;
+	obj.keymap = cmd;
     kmap.push(obj);
 }
 
 function initKmaps()
 {
-    define_key(help_kmap, make_key("b", null, 0), null, "describe-bindings");
+    define_key(help_kmap, make_key("b",0),"describe-bindings");
 
-    define_key(four_kmap, make_key("b", null, 0), null, "switch-to-buffer-other-window");
+    define_key(four_kmap, make_key("b",0),"switch-to-buffer-other-window");
 
-    define_key(ctrlx_kmap, make_key("b", null, 0), null, "switch-to-buffer"); 
-    define_key(ctrlx_kmap, make_key("k", null, 0), null, "kill-buffer"); 
-    define_key(ctrlx_kmap, make_key("f", null, MOD_CTRL), null, "find-url"); 
-    define_key(ctrlx_kmap, make_key("c", null, MOD_CTRL), null, "quit"); 
-    define_key(ctrlx_kmap, make_key("1", null, 0), null, "delete-other-windows"); 
-    define_key(ctrlx_kmap, make_key("0", null, 0), null, "delete-window"); 
-    define_key(ctrlx_kmap, make_key("2", null, 0), null, "split-window"); 
-    define_key(ctrlx_kmap, make_key("o", null, 0), null, "other-window"); 
-    define_key(ctrlx_kmap, make_key("v", null,MOD_CTRL), null, "open-url"); 
-    define_key(ctrlx_kmap, make_key("x", null,MOD_CTRL), null, "exchange-point-and-mark"); 
+    define_key(ctrlx_kmap, make_key("b",0),"switch-to-buffer"); 
+    define_key(ctrlx_kmap, make_key("k",0),"kill-buffer"); 
+    define_key(ctrlx_kmap, make_key("f",MOD_CTRL),"find-url"); 
+    define_key(ctrlx_kmap, make_key("c",MOD_CTRL),"quit"); 
+    define_key(ctrlx_kmap, make_key("1",0),"delete-other-windows"); 
+    define_key(ctrlx_kmap, make_key("0",0),"delete-window"); 
+    define_key(ctrlx_kmap, make_key("2",0),"split-window"); 
+    define_key(ctrlx_kmap, make_key("o",0),"other-window"); 
+    define_key(ctrlx_kmap, make_key("v",MOD_CTRL),"open-url"); 
+    define_key(ctrlx_kmap, make_key("x",MOD_CTRL),"exchange-point-and-mark"); 
     
-    define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "find-url-other-frame"); 
-    define_key(five_kmap, make_key("0", null, 0), null, "delete-frame");
-    define_key(five_kmap, make_key("2", null, 0), null, "make-frame-command");
+    define_key(five_kmap, make_key("f",MOD_CTRL),"find-url-other-frame"); 
+    define_key(five_kmap, make_key("0",0),"delete-frame");
+    define_key(five_kmap, make_key("2",0),"make-frame-command");
 
     
-    define_key(bookmark_kmap, make_key("m", null,0), null, "bookmark-current-url"); 
-    define_key(bookmark_kmap, make_key("b", null, 0), null, "bookmark-jump"); 
-    define_key(bookmark_kmap, make_key("l", null,0), null, "bookmark-bmenu-list"); 
+    define_key(bookmark_kmap, make_key("m",0),"bookmark-current-url"); 
+    define_key(bookmark_kmap, make_key("b",0),"bookmark-jump"); 
+    define_key(bookmark_kmap, make_key("l",0),"bookmark-bmenu-list"); 
 
-    define_key(ctrlx_kmap, make_key("4", null, 0), four_kmap, null); 
-    define_key(ctrlx_kmap, make_key("5", null, 0), five_kmap, null); 
-    define_key(ctrlx_kmap, make_key("r", null, 0), bookmark_kmap, null); 
+    define_key(ctrlx_kmap, make_key("4",0), four_kmap); 
+    define_key(ctrlx_kmap, make_key("5",0), five_kmap); 
+    define_key(ctrlx_kmap, make_key("r",0), bookmark_kmap); 
 
-    define_key(top_kmap, make_key("h", null,MOD_CTRL), help_kmap, null);
-    define_key(top_kmap, make_key("x", null,MOD_CTRL), ctrlx_kmap, null);
-    define_key(top_kmap, make_key("c", null,MOD_CTRL), ctrlc_kmap, null); 
+    define_key(top_kmap, make_key("h",MOD_CTRL), help_kmap);
+    define_key(top_kmap, make_key("x",MOD_CTRL), ctrlx_kmap);
+    define_key(top_kmap, make_key("c",MOD_CTRL), ctrlc_kmap); 
 
-    define_key(top_kmap, make_key("u", null, 0), null, "copy-link-location");
-    define_key(top_kmap, make_key(" ", null, MOD_ALT), null, "yank-to-clipboard");
-    define_key(top_kmap, make_key("l", null, MOD_CTRL), null, "open-url");
-    define_key(top_kmap, make_key("l", null, MOD_ALT), null, "numberedlinks-toggle");
-    define_key(top_kmap, make_key("l", null, 0), null, "go-back");
-    define_key(top_kmap, make_key("g", null,0), null, "open-url"); 
-    define_key(top_kmap, make_key("i", null, 0), null, "view-source");
-    define_key(top_kmap, make_key("s", null, MOD_CTRL), null, "isearch-forward");
-    define_key(top_kmap, make_key("r", null, MOD_CTRL), null, "isearch-backward");
-    define_key(top_kmap, make_key("B", null, MOD_SHIFT), null, "go-back");
-    define_key(top_kmap, make_key("F", null, MOD_SHIFT), null, "go-forward");
-    define_key(top_kmap, make_key("R", null, MOD_SHIFT), null, "revert-buffer");
-    define_key(top_kmap, make_key("f", null, 0), null, "next-frame");
-    define_key(top_kmap, make_key("g", null, MOD_CTRL), null, "stop-loading");
-    define_key(top_kmap, make_key("1", null, 0), null, "numberedlinks-1");
-    define_key(top_kmap, make_key("2", null, 0), null, "numberedlinks-2");
-    define_key(top_kmap, make_key("3", null, 0), null, "numberedlinks-3");
-    define_key(top_kmap, make_key("4", null, 0), null, "numberedlinks-4");
-    define_key(top_kmap, make_key("5", null, 0), null, "numberedlinks-5");
-    define_key(top_kmap, make_key("6", null, 0), null, "numberedlinks-6");
-    define_key(top_kmap, make_key("7", null, 0), null, "numberedlinks-7");
-    define_key(top_kmap, make_key("8", null, 0), null, "numberedlinks-8");
-    define_key(top_kmap, make_key("9", null, 0), null, "numberedlinks-9");
-    define_key(top_kmap, make_key("p", null, MOD_ALT), null, "buffer-previous");
-    define_key(top_kmap, make_key("n", null, MOD_ALT), null, "buffer-next");
-    define_key(top_kmap, make_key("c", null, 0), null, "copy-current-url");
-    define_key(top_kmap, make_key("x", null, MOD_ALT), null, "execute-extended-command");
-    define_key(top_kmap, make_key("g", null, MOD_CTRL), null, "keyboard-quit");
-    define_key(top_kmap, make_key("a", null, MOD_CTRL), null, "beginning-of-line");
-    define_key(top_kmap, make_key("e", null, MOD_CTRL), null, "end-of-line");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_ESCAPE, 0), null, "unfocus");
+    define_key(top_kmap, make_key("u",0),"copy-link-location");
+    define_key(top_kmap, make_key(" ",MOD_ALT),"yank-to-clipboard");
+    define_key(top_kmap, make_key("l",MOD_CTRL),"open-url");
+    define_key(top_kmap, make_key("l",MOD_ALT),"numberedlinks-toggle");
+    define_key(top_kmap, make_key("l",0),"go-back");
+    define_key(top_kmap, make_key("g",0),"open-url"); 
+    define_key(top_kmap, make_key("i",0),"view-source");
+    define_key(top_kmap, make_key("s",MOD_CTRL),"isearch-forward");
+    define_key(top_kmap, make_key("r",MOD_CTRL),"isearch-backward");
+    define_key(top_kmap, make_key("B",MOD_SHIFT),"go-back");
+    define_key(top_kmap, make_key("F",MOD_SHIFT),"go-forward");
+    define_key(top_kmap, make_key("R",MOD_SHIFT),"revert-buffer");
+    define_key(top_kmap, make_key("f",0),"next-frame");
+    define_key(top_kmap, make_key("g",MOD_CTRL),"stop-loading");
+    define_key(top_kmap, make_key("1",0),"numberedlinks-1");
+    define_key(top_kmap, make_key("2",0),"numberedlinks-2");
+    define_key(top_kmap, make_key("3",0),"numberedlinks-3");
+    define_key(top_kmap, make_key("4",0),"numberedlinks-4");
+    define_key(top_kmap, make_key("5",0),"numberedlinks-5");
+    define_key(top_kmap, make_key("6",0),"numberedlinks-6");
+    define_key(top_kmap, make_key("7",0),"numberedlinks-7");
+    define_key(top_kmap, make_key("8",0),"numberedlinks-8");
+    define_key(top_kmap, make_key("9",0),"numberedlinks-9");
+    define_key(top_kmap, make_key("p",MOD_ALT),"buffer-previous");
+    define_key(top_kmap, make_key("n",MOD_ALT),"buffer-next");
+    define_key(top_kmap, make_key("c",0),"copy-current-url");
+    define_key(top_kmap, make_key("x",MOD_ALT),"execute-extended-command");
+    define_key(top_kmap, make_key("g",MOD_CTRL),"keyboard-quit");
+    define_key(top_kmap, make_key("a",MOD_CTRL),"beginning-of-line");
+    define_key(top_kmap, make_key("e",MOD_CTRL),"end-of-line");
+    define_key(top_kmap, make_key( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
 
     // movement keys
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_BACK_SPACE, 0), null, "cmd_scrollPageUp");
-    define_key(top_kmap, make_key(" ", null, 0), null, "cmd_scrollPageDown");
-    define_key(top_kmap, make_key(" ", null, MOD_CTRL), null, "set-mark-command");
-    define_key(top_kmap, make_key("v", null,MOD_ALT), null, "cmd_scrollPageUp");
-    define_key(top_kmap, make_key("v", null,MOD_CTRL), null, "cmd_scrollPageDown");
-    define_key(top_kmap, make_key("p", null,MOD_CTRL), null, "cmd_scrollLineUp");
-    define_key(top_kmap, make_key("n", null,MOD_CTRL), null, "cmd_scrollLineDown");
-    define_key(top_kmap, make_key("b", null,MOD_CTRL), null, "cmd_scrollLeft");
-    define_key(top_kmap, make_key("f", null,MOD_CTRL), null, "cmd_scrollRight");
-    define_key(top_kmap, make_key("a", null,MOD_CTRL), null, "cmd_scrollBeginLine");
-    define_key(top_kmap, make_key("e", null,MOD_CTRL), null, "cmd_scrollEndLine");
-    define_key(top_kmap, make_key("<", null, MOD_ALT), null, "cmd_scrollTop");
-    define_key(top_kmap, make_key(">", null, MOD_ALT), null, "cmd_scrollBottom");
-    define_key(top_kmap, make_key("_", null, MOD_CTRL), null, "cmd_undo");
-    define_key(top_kmap, make_key("y", null, MOD_CTRL), null, "cmd_paste");
+    define_key(top_kmap, make_key( KeyEvent.DOM_VK_BACK_SPACE, 0),"cmd_scrollPageUp");
+    define_key(top_kmap, make_key(" ",0),"cmd_scrollPageDown");
+    define_key(top_kmap, make_key(" ",MOD_CTRL),"set-mark-command");
+    define_key(top_kmap, make_key("v",MOD_ALT),"cmd_scrollPageUp");
+    define_key(top_kmap, make_key("v",MOD_CTRL),"cmd_scrollPageDown");
+    define_key(top_kmap, make_key("p",MOD_CTRL),"cmd_scrollLineUp");
+    define_key(top_kmap, make_key("n",MOD_CTRL),"cmd_scrollLineDown");
+    define_key(top_kmap, make_key("b",MOD_CTRL),"cmd_scrollLeft");
+    define_key(top_kmap, make_key("f",MOD_CTRL),"cmd_scrollRight");
+    define_key(top_kmap, make_key("a",MOD_CTRL),"cmd_scrollBeginLine");
+    define_key(top_kmap, make_key("e",MOD_CTRL),"cmd_scrollEndLine");
+    define_key(top_kmap, make_key("<",MOD_ALT),"cmd_scrollTop");
+    define_key(top_kmap, make_key(">",MOD_ALT),"cmd_scrollBottom");
+    define_key(top_kmap, make_key("_",MOD_CTRL),"cmd_undo");
+    define_key(top_kmap, make_key("y",MOD_CTRL),"cmd_paste");
 
-    define_key(top_kmap, make_key("v", null, MOD_ALT), null, "cmd_movePageUp");
-    define_key(top_kmap, make_key("v", null, MOD_CTRL), null, "cmd_movePageDown");
-    define_key(top_kmap, make_key("b", null, MOD_ALT), null, "cmd_wordPrevious");
-    define_key(top_kmap, make_key("f", null, MOD_ALT), null, "cmd_wordNext");
+    define_key(top_kmap, make_key("v",MOD_ALT),"cmd_movePageUp");
+    define_key(top_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
+    define_key(top_kmap, make_key("b",MOD_ALT),"cmd_wordPrevious");
+    define_key(top_kmap, make_key("f",MOD_ALT),"cmd_wordNext");
 
-    define_key(top_kmap, make_key("w", null, 0), null, "cmd_copy");
+    define_key(top_kmap, make_key("w",0),"cmd_copy");
 
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_PAGE_UP, MOD_SHIFT), null, "cmd_selectPageUp");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_PAGE_DOWN, MOD_SHIFT), null, "cmd_selectPageDown");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_DELETE, MOD_SHIFT), null, "cmd_cut");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_DELETE, MOD_CTRL), null, "cmd_copy");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_INSERT, MOD_CTRL), null, "cmd_copy");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_HOME, MOD_SHIFT|MOD_CTRL), null, "cmd_selectTop");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_END, MOD_SHIFT|MOD_CTRL), null, "cmd_selectBottom");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_LEFT, MOD_CTRL|MOD_SHIFT), null, "cmd_selectWordPrevious");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_RIGHT, MOD_CTRL|MOD_SHIFT), null, "cmd_selectWordNext");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_LEFT, MOD_SHIFT), null, "cmd_selectCharPrevious");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_RIGHT, MOD_SHIFT), null, "cmd_selectCharNext");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_HOME, MOD_SHIFT), null, "cmd_selectBeginLine");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_END, MOD_SHIFT), null, "cmd_selectEndLine");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_UP, MOD_SHIFT), null, "cmd_selectLinePrevious");
-    define_key(top_kmap, make_key(null, KeyEvent.DOM_VK_DOWN, MOD_SHIFT), null, "cmd_selectLineNext");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_PAGE_UP, MOD_SHIFT),"cmd_selectPageUp");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_PAGE_DOWN, MOD_SHIFT),"cmd_selectPageDown");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_DELETE, MOD_SHIFT),"cmd_cut");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_DELETE, MOD_CTRL),"cmd_copy");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_INSERT, MOD_CTRL),"cmd_copy");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_HOME, MOD_SHIFT|MOD_CTRL),"cmd_selectTop");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_END, MOD_SHIFT|MOD_CTRL),"cmd_selectBottom");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_LEFT, MOD_CTRL|MOD_SHIFT),"cmd_selectWordPrevious");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_RIGHT, MOD_CTRL|MOD_SHIFT),"cmd_selectWordNext");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_LEFT, MOD_SHIFT),"cmd_selectCharPrevious");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_RIGHT, MOD_SHIFT),"cmd_selectCharNext");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_HOME, MOD_SHIFT),"cmd_selectBeginLine");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_END, MOD_SHIFT),"cmd_selectEndLine");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_UP, MOD_SHIFT),"cmd_selectLinePrevious");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_DOWN, MOD_SHIFT),"cmd_selectLineNext");
 
-    define_key(top_kmap, make_key("a", null, MOD_ALT), null, "cmd_selectAll");
+    define_key(top_kmap, make_key("a",MOD_ALT),"cmd_selectAll");
 
     // Input area keys
-    define_key(input_kmap, make_key("a", null, MOD_CTRL), null, "cmd_beginLine");
-    define_key(input_kmap, make_key("e", null, MOD_CTRL), null, "cmd_endLine");
-    define_key(input_kmap, make_key(null, KeyEvent.DOM_VK_BACK_SPACE, 0), 
-	       null, "cmd_deleteCharBackward");
-    define_key(input_kmap, make_key(null, KeyEvent.DOM_VK_BACK_SPACE, MOD_ALT), 
-	       null, "cmd_deleteWordBackward");
-    define_key(input_kmap, make_key("d", null, MOD_CTRL), null, "cmd_deleteCharForward");
-    define_key(input_kmap, make_key("d", null, MOD_ALT), null, "cmd_deleteWordForward");
-    define_key(input_kmap, make_key("b", null, MOD_CTRL), null, "cmd_charPrevious");
-    define_key(input_kmap, make_key("b", null, MOD_ALT), null, "cmd_WordPrevious");
-    define_key(input_kmap, make_key("f", null, MOD_CTRL), null, "cmd_charNext");
-    define_key(input_kmap, make_key("f", null, MOD_ALT), null, "cmd_WordNext");
-    define_key(input_kmap, make_key("y", null, MOD_CTRL), null, "cmd_paste");
-    define_key(input_kmap, make_key("w", null, MOD_ALT), null, "cmd_copy");
-    define_key(input_kmap, make_key("u", null, MOD_CTRL), null, "cmd_deleteToBeginningOfLine");
-    define_key(input_kmap, make_key("k", null, MOD_CTRL), null, "cmd_deleteToEndOfLine");
+    define_key(input_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
+    define_key(input_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "cmd_deleteCharBackward");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, MOD_ALT), "cmd_deleteWordBackward");
+    define_key(input_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
+    define_key(input_kmap, make_key("d",MOD_ALT),"cmd_deleteWordForward");
+    define_key(input_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
+    define_key(input_kmap, make_key("b",MOD_ALT),"cmd_WordPrevious");
+    define_key(input_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
+    define_key(input_kmap, make_key("f",MOD_ALT),"cmd_WordNext");
+    define_key(input_kmap, make_key("y",MOD_CTRL),"cmd_paste");
+    define_key(input_kmap, make_key("w",MOD_ALT),"cmd_copy");
+    define_key(input_kmap, make_key("u",MOD_CTRL),"cmd_deleteToBeginningOfLine");
+    define_key(input_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
 
     // 101 keys
-    define_key(input_kmap, make_key(null, KeyEvent.DOM_VK_HOME,MOD_SHIFT), 
-	       null, "cmd_selectBeginLine");
-    define_key(input_kmap, make_key(null, KeyEvent.DOM_VK_END,MOD_SHIFT), null, "cmd_selectEndLine");
-    define_key(input_kmap, make_key(null, KeyEvent.DOM_VK_BACK,MOD_CTRL), 
-	       null, "cmd_deleteWordBackward");
-    define_key(input_kmap, make_key(null, KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT), 
-	       null, "cmd_selectWordPrevious");
-    define_key(input_kmap, make_key(null, KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT),
-	       null, "cmd_selectWordNext");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_END,MOD_SHIFT),"cmd_selectEndLine");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT),
+	       "cmd_selectWordPrevious");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), "cmd_selectWordNext");
 
     // Nasty keys
-    define_key(input_kmap, make_key("r", null, MOD_CTRL), null, "cmd_redo");
-    define_key(input_kmap, make_key("a", null, MOD_ALT), null, "cmd_selectAll");
+    define_key(input_kmap, make_key("r",MOD_CTRL),"cmd_redo");
+    define_key(input_kmap, make_key("a",MOD_ALT),"cmd_selectAll");
 
     // textarea keys
-    define_key(textarea_kmap, make_key("a", null, MOD_CTRL), null, "cmd_beginLine");
-    define_key(textarea_kmap, make_key("e", null, MOD_CTRL), null, "cmd_endLine");
-    define_key(textarea_kmap, make_key(null, KeyEvent.DOM_VK_BACK_SPACE, 0), 
-	       null, "cmd_deleteCharBackward");
-    define_key(textarea_kmap, make_key(null, KeyEvent.DOM_VK_BACK_SPACE, MOD_ALT), 
-	       null, "cmd_deleteWordBackward");
-    define_key(textarea_kmap, make_key("d", null, MOD_CTRL), null, "cmd_deleteCharForward");
-    define_key(textarea_kmap, make_key("d", null, MOD_ALT), null, "cmd_deleteWordForward");
-    define_key(textarea_kmap, make_key("b", null, MOD_CTRL), null, "cmd_charPrevious");
-    define_key(textarea_kmap, make_key("b", null, MOD_ALT), null, "cmd_WordPrevious");
-    define_key(textarea_kmap, make_key("f", null, MOD_CTRL), null, "cmd_charNext");
-    define_key(textarea_kmap, make_key("f", null, MOD_ALT), null, "cmd_WordNext");
-    define_key(textarea_kmap, make_key("y", null, MOD_CTRL), null, "cmd_paste");
-    define_key(textarea_kmap, make_key("w", null, MOD_ALT), null, "cmd_copy");
-    define_key(textarea_kmap, make_key("u", null, MOD_CTRL), null, "cmd_deleteToBeginningOfLine");
-    define_key(textarea_kmap, make_key("k", null, MOD_CTRL), null, "cmd_deleteToEndOfLine");
-    define_key (textarea_kmap, make_key("n",null,MOD_CTRL), null, "cmd_lineNext");
-    define_key (textarea_kmap, make_key("p",null,MOD_CTRL), null, "cmd_linePrevious");
-    define_key (textarea_kmap, make_key("<",null,MOD_ALT), null, "cmd_moveTop");
-    define_key (textarea_kmap, make_key(">",null,MOD_ALT), null, "cmd_moveBottom");
-    define_key (textarea_kmap, make_key("v",null,MOD_ALT), null, "cmd_movePageUp");
-    define_key (textarea_kmap, make_key("v",null,MOD_CTRL), null, "cmd_movePageDown");
+    define_key(textarea_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
+    define_key(textarea_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "cmd_deleteCharBackward");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, MOD_ALT), 
+	       "cmd_deleteWordBackward");
+    define_key(textarea_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
+    define_key(textarea_kmap, make_key("d",MOD_ALT),"cmd_deleteWordForward");
+    define_key(textarea_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
+    define_key(textarea_kmap, make_key("b",MOD_ALT),"cmd_WordPrevious");
+    define_key(textarea_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
+    define_key(textarea_kmap, make_key("f",MOD_ALT),"cmd_WordNext");
+    define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
+    define_key(textarea_kmap, make_key("w",MOD_ALT),"cmd_copy");
+    define_key(textarea_kmap, make_key("u",MOD_CTRL),"cmd_deleteToBeginningOfLine");
+    define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
+    define_key (textarea_kmap, make_key("n",MOD_CTRL),"cmd_lineNext");
+    define_key (textarea_kmap, make_key("p",MOD_CTRL),"cmd_linePrevious");
+    define_key (textarea_kmap, make_key("<",MOD_ALT),"cmd_moveTop");
+    define_key (textarea_kmap, make_key(">",MOD_ALT),"cmd_moveBottom");
+    define_key (textarea_kmap, make_key("v",MOD_ALT),"cmd_movePageUp");
+    define_key (textarea_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
 
 
     // 101 keys
-    define_key(textarea_kmap, make_key(null, KeyEvent.DOM_VK_HOME,MOD_SHIFT), 
-	       null, "cmd_selectBeginLine");
-    define_key(textarea_kmap, make_key(null, KeyEvent.DOM_VK_END,MOD_SHIFT), 
-	       null, "cmd_selectEndLine");
-    define_key(textarea_kmap, make_key(null, KeyEvent.DOM_VK_BACK,MOD_CTRL), 
-	       null, "cmd_deleteWordBackward");
-    define_key(textarea_kmap, make_key(null, KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT), 
-	       null, "cmd_selectWordPrevious");
-    define_key(textarea_kmap, make_key(null, KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT),
-	       null, "cmd_selectWordNext");
-    define_key (textarea_kmap, make_key(null, KeyEvent.DOM_VK_PAGE_UP,MOD_SHIFT),
-		null, "cmd_selectPageUp");
-    define_key (textarea_kmap, make_key(null, KeyEvent.DOM_VK_PAGE_DOWN,MOD_SHIFT),
-		null, "cmd_selectPageDown");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_END,MOD_SHIFT), "cmd_selectEndLine");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT), 
+	       "cmd_selectWordPrevious");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), 
+	       "cmd_selectWordNext");
+    define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_UP,MOD_SHIFT), "cmd_selectPageUp");
+    define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_DOWN,MOD_SHIFT), "cmd_selectPageDown");
 
     // Nasty keys
-    define_key(textarea_kmap, make_key("r", null, MOD_CTRL), null, "cmd_redo");
-    define_key(textarea_kmap, make_key("a", null, MOD_ALT), null, "cmd_selectAll");
-
+    define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
+    define_key(textarea_kmap, make_key("a",MOD_ALT),"cmd_selectAll");
 
     gCurrentKmap = top_kmap;
 }

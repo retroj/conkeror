@@ -165,7 +165,7 @@ function getFocusedSelCtrl()
   return getBrowser().docShell
       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsISelectionDisplay)
-      .QueryInterface(nsISelectionController);
+      .QueryInterface(Components.interfaces.nsISelectionController);
 }
 
 // Select the range and scroll it into view

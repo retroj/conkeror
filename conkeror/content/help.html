@@ -10,11 +10,9 @@
 <p>Conkeror is being built to emulate <a
 href="http://www.gnu.org/software/emacs">Emacs</a> as much as
 possible. You'll notice many of the key bindings are the
-same. Currently there are no nested keybindings so I've just hung
-commands off really nasty, nonstandard keys. That will be changing
-"soon."</p>
+same.</p>
 
-<h2>List of key bindings</h2>
+<h2>Some common key bindings</h2>
 <p>I'm using the emacs style key notation. C means control, A means
 alt. As an example, holding down control and alt and then pressing the
 t key would be written C-A-t.</p>
@@ -22,7 +20,7 @@ t key would be written C-A-t.</p>
 <h3>Browsing</h3>
 <table border=1>
 <TR><TD>C-l, g</TD><TD>open new URL</TD></TR>
-<TR><TD>B</TD><TD>Go Back</TD></TR>
+<TR><TD>B, l</TD><TD>Go Back</TD></TR>
 <TR><TD>F</TD><TD>Go Forward</TD></TR>
 <TR><TD>r</TD><TD>Reload</TD></TR>
 <TR><TD>C-g</TD><TD>Stop</TD></TR>
@@ -33,6 +31,7 @@ override the mozilla past function.</TD></TR>
 <TR><TD>C-x r b</TD><TD>jump to bookmark</TD></TR>
 <TR><TD>C-x r l</TD><TD>list all bookmarks</TD></TR>
 <TR><TD>C-x r m</TD><TD>bookmark current URL</TD></TR>
+<TR><TD>C-h b</TD><TD>List all key bindings</TD></TR>
 </table>
 
 <h3>Movement</h3>
@@ -99,6 +98,51 @@ frame are lost, at this point)</TD></TR>
 <TR><TD>C-x C-c</TD><TD>Quit conkeror</TD></TR>
 </table>
 </p>
+
+<h2>Conkeror RC File</h2>
+<p> If you want to add a key binding, a new command, or some other
+customization then you need to create your rc file. The rc file is
+just a javascript file that will get evaluated on startup. Conkeror
+checks the "conkeror.rcfile" preference and if it exists, loads it and
+evaluates it. Follow these steps to tell Conkeror where your rcfile is:
+
+<OL>
+<LI>Create a new file called <code>conkeror.js</code> in
+<code>/path/to/mozilla/greprefs/</code>
+<LI>Put this in the file:
+<pre>
+pref("conkeror.rcfile", "/path/to/rcfile");
+</pre>
+Here's what I use on my GNU/Linux box:
+<pre>
+pref("conkeror.rcfile", "/home/sabetts/.conkerorrc");
+</pre></LI>
+<LI>Now fill your rc file with all your favorite hacks. Sorry, no lisp yet.</LI>
+<LI>Restart Conkeror and enjoy.</LI>
+</OL>
+</P>
+<P>Here are three common customizations:</P>
+<UL>
+<LI>To add a new web jump:
+<pre>
+add_webjump("keyword", "url");
+</pre></LI>
+<LI>To add a new command:
+<pre>
+add_command("command-name", function_name, []);
+</pre>
+The 3rd argument currently does nothing.
+</LI>
+
+<LI>To add a new key binding:
+<pre>
+define_key(ctrlx_kmap, make_key("c", MOD_ALT), "command-name");
+</pre>
+This binds C-x A-c to execute "command-name". Take a look at
+bindings.js for the builtin keymaps and key bindings.
+</LI>
+</UL>
+
 
 <h2>Conkeror Resources</h2>
 <p>

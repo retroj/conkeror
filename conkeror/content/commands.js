@@ -3,7 +3,7 @@
 // Functions that are called by commands in conkeror.xul and that
 // aren't part of a module go here.
 
-var commands = [
+var gCommands = [
     ["beginning-of-line", 		beginning_of_line,		[]],
     ["bookmark-bmenu-list", 		bookmark_bmenu_list, 		[]],
     ["bookmark-current-url", 		bookmark_current_url, 		[]],
@@ -42,6 +42,7 @@ var commands = [
     ["cmd_scrollTop", 			cmd_scrollTop, 			[]],
     ["cmd_scrollBottom", 		cmd_scrollBottom, 		[]],
     ["cmd_undo", 			cmd_undo, 			[]],
+    ["cmd_objectProperties",		cmd_objectProperties,		[]],
     ["cmd_paste", 			cmd_paste, 			[]],
     ["cmd_movePageUp", 			cmd_movePageUp, 		[]],
     ["cmd_movePageDown", 		cmd_movePageDown, 		[]],
@@ -62,7 +63,7 @@ var commands = [
     ["cmd_wordNext", 			cmd_wordNext, 			[]],
     ["cmd_wordPrevious", 		cmd_wordPrevious, 		[]],
     ["copy-current-url", 		copyCurrentUrl,  		[]],
-    ["copy-link-location", 		copyLinkLocation, 		[]],
+    ["copy-link-location", 		copy_link_location, 		[]],
     ["delete-frame", 			delete_frame, 			[]],
     ["describe-bindings",               describe_bindings,		[]],
     ["end-of-line",     		end_of_line,    		[]],
@@ -95,23 +96,23 @@ var commands = [
     ["find-url-other-frame", 	        new_frame, 			[]],
     ["switch-to-buffer", 		switch_to_buffer,		[]],
     ["view-source", 			view_source, 			[]],
-    ["view-source", 			view_source, 			[]],
     ["split-flip",                      split_flip,                     []],
     ["delete-other-windows",            delete_other_windows,           []],
     ["delete-window",                   delete_window,                  []],
     ["other-window",                    other_window,                   []],
-    ["view-source", 			view_source, 			[]],
     ["split-window", 			split_window, 			[]],
     ["set-mark-command",                set_mark_command,		[]],
     ["exchange-point-and-mark",         exchange_point_and_mark,	[]],
     ["web-jump", 			web_jump, 			[]],
+    ["save-link", 			save_link, 			[]],
+    ["source",                          source_file, 			[]],
     ["yank-to-clipboard",		yankToClipboard,        	[]]];
 
 function exec_command(cmd)
 {
-    for (var i=0; i<commands.length; i++) {
-	if (commands[i][0] == cmd) {
-	    return commands[i][1]();
+    for (var i=0; i<gCommands.length; i++) {
+	if (gCommands[i][0] == cmd) {
+	    return gCommands[i][1]();
 	}
     }
     message("No such command '" + cmd + "'");
@@ -119,7 +120,7 @@ function exec_command(cmd)
 
 function add_command(name, fn, args)
 {
-    commands.push([name,fn,args]);
+    gCommands.push([name,fn,args]);
 }
 
 function unfocus()
@@ -255,12 +256,12 @@ function new_frame()
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
 
-    miniBufferComplete("Find URL in other frame:", "url", templs, true, function(url) { window.open("chrome://conkeror/content", get_url_or_webjump(url), "chrome,dialog=no"); });
+    miniBufferComplete("Find URL in other frame:", "url", templs, true, function(match, url) { window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", get_url_or_webjump(url)); });
 }
 
 function makeFrame()
 {
-    window.open("chrome://conkeror/content", "Conkeror", "chrome,dialog=no,arguments=['about:blank']");
+    window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", "about:blank");
 }
 
 
@@ -347,7 +348,7 @@ function goto_bookmark()
 
 function bookmark_current_url()
 {
-    readFromMiniBuffer("Add bookmark", getBrowser().mCurrentBrowser.contentTitle, "add-bookmark",
+    readFromMiniBuffer("Add bookmark:", getBrowser().mCurrentBrowser.contentTitle, "add-bookmark",
 		       function (title) 
                          {
 			     bookmark_doc(getBrowser(), title);
@@ -362,12 +363,6 @@ function bookmark_doc(browser, aTitle)
     var title, docCharset = "text/unicode";
     title = aTitle || getBrowser().mCurrentBrowser.contentTitle || url;
     add_bookmark(url, title, docCharset);
-}
-
-// This function doesn't work.
-function copyLinkLocation()
-{
-    goDoCommand('cmd_copyLink');
 }
 
 function isearch_forward()
@@ -392,7 +387,7 @@ function browser_prev()
 
 function meta_x()
 {
-    miniBufferComplete("M-x", "commands", commands, false, function(fn) {fn();});
+    miniBufferComplete("M-x", "commands", gCommands, false, function(fn) {fn();});
 }
 
 function inject_css()
@@ -510,14 +505,21 @@ function cmd_undo() {goDoCommand("cmd_undo"); }
 function cmd_paste() {goDoCommand("cmd_paste"); }
 function cmd_movePageUp() {goDoCommand("cmd_movePageUp"); }
 function cmd_movePageDown() {goDoCommand("cmd_movePageDown"); }
+function cmd_objectProperties() {goDoCommand("cmd_properties"); }
 
 //// web jump stuff
 
 var gWebJumpLocations = [];
-gWebJumpLocations["google"] = "http://www.google.com/search?q=%s";
-gWebJumpLocations["wikipedia"] = "http://en.wikipedia.org/wiki/Special:Search?search=%s";
-gWebJumpLocations["slang"] = "http://www.urbandictionary.com/define.php?term=%s";
-gWebJumpLocations["dictionary"] = "http://dictionary.reference.com/search?q=%s";
+function add_webjump(key, loc)
+{
+    gWebJumpLocations[key] = loc;
+}
+
+// Some built in web jumps
+add_webjump("google", "http://www.google.com/search?q=%s");
+add_webjump("wikipedia", "http://en.wikipedia.org/wiki/Special:Search?search=%s");
+add_webjump("slang", "http://www.urbandictionary.com/define.php?term=%s");
+add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
 
 function webjump_build_url(template, subs)
 {
@@ -612,5 +614,44 @@ function exchange_point_and_mark()
     var y = w.__conkeror__markY || 0;
     set_mark_command();
     w.scrollTo(x, y);
+    } catch(e) {alert(e);}
+}
+
+// This is cheap.
+function get_link_location()
+{
+    var e = document.commandDispatcher.focusedElement;   
+    if (e && e.getAttribute("href")) {
+	var loc = e.getAttribute("href");
+	return loc;
+    }
+}
+
+function copy_link_location()
+{
+    var loc = get_link_location();
+    writeToClipboard(loc);
+    message("Copied '" + loc + "'");
+}
+
+function save_link()
+{
+    var loc = get_link_location();
+    saveURL(loc, null, "SaveLinkTitle", true);
+}
+
+function source_file()
+{
+    readFromMiniBuffer("Source File:", null, "source", load_rc_file);
+}
+
+function load_rc_file(file)
+{
+    var fd = fopen(file, "<");
+    var s = fd.read();
+    fd.close();
+
+    try {
+    eval(s);
     } catch(e) {alert(e);}
 }

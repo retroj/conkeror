@@ -61,6 +61,10 @@ function Startup()
                            .getService(Components.interfaces.nsIPrefBranch);
   gPrefService.setBoolPref("accessibility.typeaheadfind", false);
 
+  var rcfile = gPrefService.getCharPref("conkeror.rcfile");
+  if (rcfile)
+      load_rc_file(rcfile);
+
 //   gFind = Components.classes["@mozilla.org/typeaheadfind;1"].createInstance(Components.interfaces.nsITypeAheadFind);                                
 //   gFind.init(gBrowser.docShell);
 //   gFind.setAutoStart(window,false);
