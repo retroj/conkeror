@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0"?> <!-- -*- mode: sgml -*- -->
 
 <?xml-stylesheet href="chrome://conkeror/content/conkeror.css" type="text/css"?>
 
@@ -31,6 +31,7 @@
     <command id="cmd_scrollLeftComplete"     oncommand="scrollHorizComplete(-1);"/>
     <command id="cmd_scrollRightComplete"     oncommand="scrollHorizComplete(1);"/>
     <command id="cmd_newWindow"     oncommand="newWindow();"/>    
+    <command id="cmd_yank"     oncommand="pasteX11CutBuffer();"/>    
 
 </commandset>
 
@@ -76,7 +77,8 @@
 
 <toolbox id="minibuffer">
     <hbox id="minibuffer-hbox">
-      <label class="minibuffer" id="input-prompt" value=""/>
+      <label class="minibuffer" id="minibuffer-output" value=""/>
+      <label class="minibuffer" id="input-prompt" hidden="true" value=""/>
       <textbox class="minibuffer" id="input-field" hidden="true" flex="1"/>
     </hbox>
 </toolbox>

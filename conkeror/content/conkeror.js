@@ -46,7 +46,7 @@ function Startup()
 //   gBrowser.addEventListener("load", function(evt) { setTimeout(loadEventHandlers, 0, evt); }, true);
 
 //   try {
-//   gBrowser.addEventListener("PluginNotFound", missingPlugin, false);
+//       getBrowser().addEventListener("PluginNotFound", missingPlugin, false);
 //   } catch (e) { alert(e); }
 
   // Turn off typeahead. We'll use our own that's way better.
@@ -86,7 +86,7 @@ nsBrowserStatusHandler.prototype =
 
   init : function()
   {
-    this.statusTextField = document.getElementById("input-prompt");
+    this.statusTextField = document.getElementById("minibuffer-output");
     //    this.urlBar          = document.getElementById("urlbar");
   },
 
@@ -224,37 +224,3 @@ function missingPlugin(evt)
     evt.preventDefault();
 }
 
-function readFromClipboard()
-{
-  var url;
-
-  try {
-    // Get clipboard.
-    var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
-                              .getService(Components.interfaces.nsIClipboard);
-
-    // Create tranferable that will transfer the text.
-    var trans = Components.classes["@mozilla.org/widget/transferable;1"]
-                          .createInstance(Components.interfaces.nsITransferable);
-
-    trans.addDataFlavor("text/unicode");
-
-    // If available, use selection clipboard, otherwise global one
-    if (clipboard.supportsSelectionClipboard())
-      clipboard.getData(trans, clipboard.kSelectionClipboard);
-    else
-      clipboard.getData(trans, clipboard.kGlobalClipboard);
-
-    var data = {};
-    var dataLen = {};
-    trans.getTransferData("text/unicode", data, dataLen);
-
-    if (data) {
-      data = data.value.QueryInterface(Components.interfaces.nsISupportsString);
-      url = data.data.substring(0, dataLen.value / 2);
-    }
-  } catch (ex) {
-  }
-
-  return url;
-}

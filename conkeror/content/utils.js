@@ -44,12 +44,14 @@ function readInput(prompt, open, keypress)
 //     var messageWindow = document.getElementById("message-bar");
     var label = document.getElementById("input-prompt");
     var field = document.getElementById("input-field");
+    var output = document.getElementById("minibuffer-output");
     label.value = prompt;
     field.setAttribute("onkeypress", keypress);
 
     if (open) open();
 
-//     label.hidden = true;
+    output.hidden = true;
+    label.hidden = false;
     field.hidden = false;
     field.focus();
 }
@@ -59,16 +61,19 @@ function closeInput(clearInput)
     try {
 	var field = document.getElementById("input-field");
 	var prompt = document.getElementById("input-prompt");
+	var output = document.getElementById("minibuffer-output");
 	var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
 	    .getService(Components.interfaces.nsIWindowWatcher);
 	if (window == ww.activeWindow && document.commandDispatcher.focusedElement &&
 	    document.commandDispatcher.focusedElement.parentNode.parentNode == field) {
 	    _content.focus();
 	}
+	if (clearInput)
+	    output.value = "";
+	output.hidden = false;
+	prompt.hidden = true;
 	field.hidden = true;
 	field.value = "";
-	if (clearInput)
-	    prompt.value = "";
     } catch(e) { window.alert(e); }
 }
 
@@ -77,4 +82,51 @@ function updateModeline()
     var docshell = document.getElementById("content").webNavigation;
     var modeline = document.getElementById("mode-line");
     modeline.label = docshell.currentURI.spec;
+}
+
+
+// clipboard
+
+function readFromClipboard()
+{
+  var url;
+
+  try {
+    // Get clipboard.
+    var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
+                              .getService(Components.interfaces.nsIClipboard);
+
+    // Create tranferable that will transfer the text.
+    var trans = Components.classes["@mozilla.org/widget/transferable;1"]
+                          .createInstance(Components.interfaces.nsITransferable);
+
+    trans.addDataFlavor("text/unicode");
+
+    // If available, use selection clipboard, otherwise global one
+    if (clipboard.supportsSelectionClipboard())
+      clipboard.getData(trans, clipboard.kSelectionClipboard);
+    else
+      clipboard.getData(trans, clipboard.kGlobalClipboard);
+
+    var data = {};
+    var dataLen = {};
+    trans.getTransferData("text/unicode", data, dataLen);
+
+    if (data) {
+      data = data.value.QueryInterface(Components.interfaces.nsISupportsString);
+      url = data.data.substring(0, dataLen.value / 2);
+    }
+  } catch (ex) {
+  }
+
+  return url;
+}
+
+function pasteX11CutBuffer()
+{
+    var s = readFromClipboard();
+    if (!s)
+	return;
+    
+    
 }

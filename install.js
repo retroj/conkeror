@@ -1,8 +1,8 @@
 // customizable behavior
 var shortName = "conkeror";
-var longName = "Conkeror 0.4";
+var longName = "Conkeror 0.5";
 var installMessage = "You will need to restart you browser to use Conkeror.";
-var gVersion = "0.4";
+var gVersion = "0.5";
 var srDest = 3;
 
 // this function verifies disk space in kilobytes
