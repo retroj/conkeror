@@ -15,16 +15,17 @@ var 	select_kmap   = [];
 
 function initKmaps()
 {
-    define_key(four_kmap, make_key("b", null, 0), null, "switch-to-browser-other-window");
+    define_key(four_kmap, make_key("b", null, 0), null, "switch-to-buffer-other-window");
 
-    define_key(ctrlx_kmap, make_key("b", null, 0), null, "switch-to-browser"); 
-    define_key(ctrlx_kmap, make_key("k", null, 0), null, "kill-browser"); 
+    define_key(ctrlx_kmap, make_key("b", null, 0), null, "switch-to-buffer"); 
+    define_key(ctrlx_kmap, make_key("k", null, 0), null, "kill-buffer"); 
     define_key(ctrlx_kmap, make_key("f", null, MOD_CTRL), null, "find-url"); 
     define_key(ctrlx_kmap, make_key("c", null, MOD_CTRL), null, "quit"); 
     define_key(ctrlx_kmap, make_key("1", null, 0), null, "delete-other-windows"); 
     define_key(ctrlx_kmap, make_key("0", null, 0), null, "delete-window"); 
     define_key(ctrlx_kmap, make_key("2", null, 0), null, "split-window"); 
     define_key(ctrlx_kmap, make_key("o", null, 0), null, "other-window"); 
+    define_key(ctrlx_kmap, make_key("v", null,MOD_CTRL), null, "open-url"); 
     
     define_key(five_kmap, make_key("f", null, MOD_CTRL), null, "find-url-other-frame"); 
     define_key(five_kmap, make_key("0", null, 0), null, "delete-frame");
@@ -51,7 +52,7 @@ function initKmaps()
     define_key(top_kmap, make_key("r", null, MOD_CTRL), null, "isearch-backward");
     define_key(top_kmap, make_key("B", null, MOD_SHIFT), null, "go-back");
     define_key(top_kmap, make_key("F", null, MOD_SHIFT), null, "go-forward");
-    define_key(top_kmap, make_key("R", null, MOD_SHIFT), null, "revert-browser");
+    define_key(top_kmap, make_key("R", null, MOD_SHIFT), null, "revert-buffer");
     define_key(top_kmap, make_key("f", null, 0), null, "next-frame");
     define_key(top_kmap, make_key("g", null, MOD_CTRL), null, "stop-loading");
     define_key(top_kmap, make_key("1", null, 0), null, "numberedlinks-1");
@@ -63,8 +64,8 @@ function initKmaps()
     define_key(top_kmap, make_key("7", null, 0), null, "numberedlinks-7");
     define_key(top_kmap, make_key("8", null, 0), null, "numberedlinks-8");
     define_key(top_kmap, make_key("9", null, 0), null, "numberedlinks-9");
-    define_key(top_kmap, make_key("p", null, MOD_ALT), null, "browser-previous");
-    define_key(top_kmap, make_key("n", null, MOD_ALT), null, "browser-next");
+    define_key(top_kmap, make_key("p", null, MOD_ALT), null, "buffer-previous");
+    define_key(top_kmap, make_key("n", null, MOD_ALT), null, "buffer-next");
     define_key(top_kmap, make_key("c", null, 0), null, "copy-current-url");
     define_key(top_kmap, make_key("x", null, MOD_ALT), null, "execute-extended-command");
     define_key(top_kmap, make_key("g", null, MOD_CTRL), null, "keyboard-quit");

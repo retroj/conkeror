@@ -35,13 +35,13 @@
   <statusbarpanel class="message-window" id="message-window" label="" flex="1"/>
 </statusbar> -->
 
-  <toolbox id="minibuffer">
-      <hbox id="minibuffer-hbox">
-        <label class="minibuffer" id="minibuffer-output" value=""/>
+      <hbox id="minibuffer-hbox" align="center">
+<!--         <textbox width="1"/> -->
+<!--         <label class="minibuffer" id="minibuffer-output" value=""/> -->
+        <label class="minibuffer" id="minibuffer-output" flex="1" value=""/>
         <label class="minibuffer" id="input-prompt" hidden="true" value=""/>
-        <textbox class="minibuffer" id="input-field" hidden="true" flex="1"/>
+        <textbox class="plain" id="input-field" hidden="true" flex="1"/>
       </hbox>
-  </toolbox>
 <!-- This is where focus gets sent to for embedded key bindings. -->
 <!-- <input id="readkey" height="0" width="0" onkeypress="readKeyPress(event);"/> -->
 </window>

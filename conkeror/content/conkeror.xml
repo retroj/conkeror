@@ -10,9 +10,9 @@
           <xul:box flex="1" orient="horizontal">
             <xul:vbox flex="100">
 	      <xul:browser flex="1" type="content-primary"/>
-	        <xul:statusbar class="mode-line">
-		  <xul:statusbarpanel class="mode-line" label="" flex="1"/>
-		</xul:statusbar>
+	      <xul:hbox class="mode-line">
+	      <xul:label value=""/>
+              </xul:hbox>
 	    </xul:vbox>
 	  </xul:box>
       </content>
@@ -303,12 +303,12 @@
 	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
 	v.setAttribute("flex", "100");
 <!-- 	v.setAttribute("style", "min-width:50%"); -->
-	var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "statusbar"); 
+	var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
 	s.setAttribute("class", "mode-line");
-	var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "statusbarpanel"); 
+	var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label"); 
 	sp.setAttribute("class", "mode-line");
-	sp.setAttribute("label", "");
-	sp.setAttribute("flex", "1");
+	sp.setAttribute("value", "");
+<!-- 	sp.setAttribute("flex", "1"); -->
 	s.appendChild(sp);
 	v.appendChild(b);
 	v.appendChild(s);
@@ -353,22 +353,4 @@
       </constructor>
       </implementation>
 </binding>
-
-<!-- <binding id="conkwindow"> -->
-<!--   <content> -->
-<!--     <xul:vbox> -->
-<!--       <children/> -->
-<!--     </xul:vbox> -->
-<!--   </content> -->
-<!--   <implementation type="application/x-javascript" implements=""> -->
-<!--   <constructor> -->
-<!--     <![CDATA[ -->
-<!--       try { -->
-
-<!--       } catch(e) {alert(e);} -->
-<!--     ]]> -->
-<!--   </constructor> -->
-<!--   </implementation> -->
-<!-- </binding> -->
-
 </bindings>

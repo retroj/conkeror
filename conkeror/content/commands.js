@@ -8,8 +8,8 @@ var commands = [
     ["bookmark-bmenu-list", 		bookmark_bmenu_list, 		[]],
     ["bookmark-current-url", 		bookmark_current_url, 		[]],
     ["bookmark-jump", 			goto_bookmark, 			[]],
-    ["browser-next", 			browser_next, 			[]],
-    ["browser-previous", 		browser_prev, 			[]],
+    ["buffer-next", 			browser_next, 			[]],
+    ["buffer-previous", 		browser_prev, 			[]],
     ["cmd_beginLine", 			cmd_beginLine, 			[]],
     ["cmd_charNext", 			cmd_charNext, 			[]],
     ["cmd_charPrevious", 		cmd_charPrevious, 		[]],
@@ -73,7 +73,7 @@ var commands = [
     ["isearch-backward", 		isearch_backward, 		[]],
     ["isearch-forward", 		isearch_forward, 		[]],
     ["keyboard-quit", 			stopLoading, 			[]],
-    ["kill-browser", 			kill_browser, 			[]],
+    ["kill-buffer", 			kill_browser, 			[]],
     ["next-frame", 		        nextFrame,      		[]],
     ["numberedlinks-1", 		selectNumberedLink_1, 		[]],
     ["numberedlinks-2", 		selectNumberedLink_2, 		[]],
@@ -87,11 +87,11 @@ var commands = [
     ["numberedlinks-toggle", 		toggleNumberedLinks, 		[]],
     ["open-url", 			open_url, 			[]],
     ["quit", 				quit, 				[]],
-    ["revert-browser", 			reload, 			[]],
-    ["switch-to-browser-other-window",	switch_browser_other_window, 	[]],
+    ["revert-buffer", 			reload, 			[]],
+    ["switch-to-buffer-other-window",	switch_browser_other_window, 	[]],
     ["stop-loading", 			stopLoading, 			[]],
     ["find-url-other-frame", 	        new_frame, 			[]],
-    ["switch-to-browser", 		switch_to_buffer,		[]],
+    ["switch-to-buffer", 		switch_to_buffer,		[]],
     ["view-source", 			view_source, 			[]],
     ["view-source", 			view_source, 			[]],
     ["split-flip",                      split_flip,                     []],
@@ -287,7 +287,7 @@ function open_url()
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
 
-    miniBufferComplete("URL:", "url", templs, true, function(match,url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    miniBufferComplete("Find Alternate URL:", "url", templs, true, function(match,url) { getWebNavigation().loadURI(get_url_or_webjump(url), nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
 }
 
 // Open a new browser with url
