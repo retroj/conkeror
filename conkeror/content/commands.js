@@ -106,6 +106,7 @@ var gCommands = [
     ["web-jump", 			web_jump, 			[]],
     ["save-link", 			save_link, 			[]],
     ["source",                          source_file, 			[]],
+    ["help-page",                       help_page, 			[]],
     ["yank-to-clipboard",		yankToClipboard,        	[]]];
 
 function exec_command(cmd)
@@ -654,4 +655,10 @@ function load_rc_file(file)
     try {
     eval(s);
     } catch(e) {alert(e);}
+}
+
+function help_page()
+{
+    getWebNavigation().loadURI("chrome://conkeror/content/help.html", 
+			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
 }

@@ -164,6 +164,7 @@ function define_key(kmap, key, cmd)
 function initKmaps()
 {
     define_key(help_kmap, make_key("b",0),"describe-bindings");
+    define_key(help_kmap, make_key("i",0),"help-page");
 
     define_key(four_kmap, make_key("b",0),"switch-to-buffer-other-window");
 
