@@ -384,7 +384,7 @@ function isearch_backward()
 
 function browser_next()
 {
-    getBrowser().prevBrowser();
+    getBrowser().nextBrowser();
 }
 
 function browser_prev()
