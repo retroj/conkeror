@@ -39,6 +39,8 @@ function onNumberedLinkKeyPress(evt)
 		if (nodes[i].tagName == "A")
 		    if (evt.altKey) {
 			nodes[i].focus();
+		    } else if (evt.ctrlKey) {
+			getBrowser().newBrowser(nodes[i].href);
 		    } else {
 			getWebNavigation().loadURI(nodes[i].href, 
 						   nsIWebNavigation.LOAD_FLAGS_NONE, 
