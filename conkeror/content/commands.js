@@ -3,15 +3,24 @@
 // Functions that are called by commands in conkeror.xul and that
 // aren't part of a module go here.
 
+function quit()
+{
+    // globalOverlay.js has all this silly error checking and useless
+    // junk. Here, we just get the job done.
+    var appShell = Components.classes['@mozilla.org/appshell/appShellService;1'].getService();
+    appShell = appShell.QueryInterface( Components.interfaces.nsIAppShellService );
+    appShell.quit(Components.interfaces.nsIAppShellService.eAttemptQuit);
+}
+
 function goBack()
 {
-    if (getWebNavigation().canGoBack())
+    if (getWebNavigation().canGoBack)
 	getWebNavigation().goBack();
 }
 
 function goForward()
 {
-    if (getWebNavigation().canGoForward())
+    if (getWebNavigation().canGoForward)
 	getWebNavigation().goForward();
 }
 

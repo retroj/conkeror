@@ -16,8 +16,7 @@ function initKmaps()
 
     addKeyBinding(ctrlx_kmap, 102, true, false, null, find_url); // C-x C-f    
 
-//     addKeyBinding(ctrlx_kmap, 99, true, false, null, 
-// 		  function () {getBrowser().killCurrentBrowser();}); // C-x C-c    
+    addKeyBinding(ctrlx_kmap, 99, true, false, null, quit); // C-x C-c    
 }
 
 function Startup()

@@ -270,3 +270,15 @@ function readKeyPress(event)
 	}
     } catch(e){alert(e);}
 }
+
+function goDoCommand(command)
+{
+  try {
+      var controller = document.commandDispatcher.getControllerForCommand(command);
+      if ( controller && controller.isCommandEnabled(command))
+	  controller.doCommand(command);
+  }
+  catch (e) {
+      alert(e);
+  }
+}
