@@ -129,9 +129,7 @@ function open_url()
 // Open a new browser with url
 function find_url()
 {
-//     var defBrowser = getBrowser().lastBrowser();
-    var defBrowser = "FIXME";
-    readFromMiniBuffer("Find URL: (default " + defBrowser + ")", "url", function(url) { getBrowser().newBrowser(url); });
+    readFromMiniBuffer("Find URL: ", "url", function(url) { getBrowser().newBrowser(url); });
 }
 
 
@@ -148,9 +146,11 @@ function goto_buffer(buf)
 
 function switch_to_buffer()
 {
+//     var defBrowser = getBrowser().lastBrowser();
+    var defBrowser = "FIXME";
     var bufs = getBrowser().getBrowserNames();
     var matches = zip2(bufs,bufs);
-    miniBufferComplete("Switch to buffer:", "buffer", matches,
+    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", "buffer", matches,
 		       goto_buffer);
 
 }
@@ -200,4 +200,17 @@ function bookmark_doc(browser)
     var title, docCharset = "text/unicode";
     title = getBrowser().mCurrentBrowser.contentTitle || url;
     add_bookmark(url, title, docCharset);
+}
+
+// This function doesn't work.
+function copyLinkLocation()
+{
+    try {
+	const shell = Components.classes["@mozilla.org/webshell;1"]
+	    .getService(Components.interfaces.nsIClipboardCommands);
+	if (shell.canCopyLinkLocation()) {
+	    shell.copyLinkLocation();
+	    message("Copied link location");
+	}
+    } catch(e) {alert(e);}
 }

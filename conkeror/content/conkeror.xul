@@ -13,6 +13,7 @@
     height = "480">
 
 <script type="application/x-javascript" src="utils.js"/>
+<script type="application/x-javascript" src="bm.js"/>
 <script type="application/x-javascript" src="commands.js"/>
 <script type="application/x-javascript" src="numberedlinks.js"/>
 <script type="application/x-javascript" src="url.js"/>
@@ -36,6 +37,7 @@
 </commandset>
 
   <keyset id="mainKeyset">
+    <key id="linkloc"    key="u" modifiers="" oncommand="copyLinkLocation();"/>
     <key id="yank"    key=" " modifiers="alt" command="cmd_yankToClipboard"/>
     <key id="bm"    key="g" modifiers="shift" oncommand="goto_bookmark();"/>
     <key id="bm"    key="a" modifiers="shift" oncommand="bookmark_current_url();"/>

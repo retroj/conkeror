@@ -5,23 +5,26 @@ const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 // some predefined key maps
 var ctrlc_kmap = [];
 var ctrlx_kmap = [];
+var bookmark_kmap = [];
 var five_kmap = [];
 function initKmaps()
 {
-     addKeyBinding(ctrlx_kmap, 98, false, false, null, switch_to_buffer); // C-x b
-
-    // TODO: this should ask which buffer
-    addKeyBinding(ctrlx_kmap, 107, false, false, null, 
-		  kill_browser); // C-x k
-
+    addKeyBinding(ctrlx_kmap, 98, false, false, null, switch_to_buffer); // C-x b
+    addKeyBinding(ctrlx_kmap, 107, false, false, null, kill_browser); // C-x k
     addKeyBinding(ctrlx_kmap, 102, true, false, null, find_url); // C-x C-f    
-
     addKeyBinding(ctrlx_kmap, 99, true, false, null, quit); // C-x C-c    
 
-    addKeyBinding(five_kmap, 102, true, false, null, new_frame);
-    addKeyBinding(five_kmap, 48, false, false, null, delete_frame);
+    // C-x 5 ??
+    addKeyBinding(five_kmap, 102, true, false, null, new_frame); // C-x 5 C-f
+    addKeyBinding(five_kmap, 48, false, false, null, delete_frame);// C-x 5 0
+
+    // C-x r ??
+    addKeyBinding(bookmark_kmap, 109, false, false, null, bookmark_current_url); // C-x r m
+    addKeyBinding(bookmark_kmap, 98, false, false, null, goto_bookmark); // C-x r b
+    addKeyBinding(bookmark_kmap, 108, false, false, null, bookmark_bmenu_list); // C-x r l
 
     addKeyBinding(ctrlx_kmap, 53, false, false, five_kmap, null); // C-x 5 kmap
+    addKeyBinding(ctrlx_kmap, 114, false, false, bookmark_kmap, null); // C-x r kmap
 }
 
 function Startup()

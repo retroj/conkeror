@@ -71,8 +71,11 @@
             b.setAttribute("flex", "1");
 	    this.mBrowserContainer.appendChild(b);
 	    this.setBrowserProgressListener(b);
+	    // if this fails bad stuff happens
+	    try {
             b.loadURIWithFlags(aUrl,
 	                       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+            } catch(e) {}
             this.setCurrentBrowser(b);
 } catch(e) {window.alert(e);}
           ]]>
