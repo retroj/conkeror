@@ -1,5 +1,6 @@
 // -*- java -*-
 
+const nsCI               = Components.interfaces;
 const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 
 function Startup()
@@ -27,6 +28,14 @@ function Startup()
         .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
         .getInterface(Components.interfaces.nsIXULWindow)
         .XULBrowserWindow = window.XULBrowserWindow;
+  getBrowser().docShell
+          .QueryInterface(nsCI.nsIDocShellTreeItem)
+          .rootTreeItem
+          .QueryInterface(nsCI.nsIInterfaceRequestor)
+          .getInterface(nsCI.nsIDOMWindow)
+          .QueryInterface(nsCI.nsIInterfaceRequestor)
+          .getInterface(nsCI.nsIDOMWindowUtils)
+          .browserDOMWindow = new nsBrowserAccess();
   getBrowser().setProgressListener(window.XULBrowserWindow, 
 				   Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
@@ -278,4 +287,86 @@ function missingPlugin(evt)
 {
     window.alert("tough luck. yer missing a plugin");
     evt.preventDefault();
+}
+
+/// Browser access
+
+function nsBrowserAccess()
+{
+}
+
+nsBrowserAccess.prototype =
+{
+  QueryInterface : function(aIID)
+  {
+    if (aIID.equals(nsCI.nsIBrowserDOMWindow) ||
+        aIID.equals(nsCI.nsISupports))
+      return this;
+    throw Components.results.NS_NOINTERFACE;
+  },
+
+  openURI : function(aURI, aOpener, aWhere, aContext)
+  {
+    var newWindow = null;
+    var referrer = null;
+//     if (aWhere == nsCI.nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW) {
+//       switch (aContext) {
+//         case nsCI.nsIBrowserDOMWindow.OPEN_EXTERNAL :
+//           aWhere = gPrefService.getIntPref("browser.link.open_external");
+//           break;
+//         default : // OPEN_NEW or an illegal value
+//           aWhere = gPrefService.getIntPref("browser.link.open_newwindow");
+//       }
+//     }
+//     var url = aURI ? aURI.spec : "about:blank";
+//     switch(aWhere) {
+//       case nsCI.nsIBrowserDOMWindow.OPEN_NEWWINDOW :
+//         newWindow = openDialog(getBrowserURL(), "_blank", "all,dialog=no", url);
+//         break;
+//       case nsCI.nsIBrowserDOMWindow.OPEN_NEWTAB :
+//         var newTab = gBrowser.addTab("about:blank");
+//         if (!gPrefService.getBoolPref("browser.tabs.loadDivertedInBackground"))
+//           gBrowser.selectedTab = newTab;
+//         newWindow = gBrowser.getBrowserForTab(newTab).docShell
+//                             .QueryInterface(nsCI.nsIInterfaceRequestor)
+//                             .getInterface(nsCI.nsIDOMWindow);
+//         try {
+//           if (aOpener) {
+//             referrer = Components.classes["@mozilla.org/network/standard-url;1"]
+//                                  .createInstance(nsCI.nsIURI);
+//             referrer.spec = Components.lookupMethod(aOpener,"location")
+//                                       .call(aOpener);
+// 	    alert ("referrer: " + referrer);
+//           }
+//           newWindow.QueryInterface(nsCI.nsIInterfaceRequestor)
+//                    .getInterface(nsCI.nsIWebNavigation)
+//                    .loadURI(url, nsCI.nsIWebNavigation.LOAD_FLAGS_NONE,
+//                             referrer, null, null);
+//         } catch(e) {
+//         }
+//         break;
+//       default : // OPEN_CURRENTWINDOW or an illegal value
+        try {
+          if (aOpener) {
+            newWindow = Components.lookupMethod(aOpener,"top")
+                                  .call(aOpener);
+            referrer = Components.classes["@mozilla.org/network/standard-url;1"]
+                                 .createInstance(nsCI.nsIURI);
+            referrer.spec = Components.lookupMethod(aOpener,"location")
+                                      .call(aOpener);
+            newWindow.QueryInterface(nsCI.nsIInterfaceRequestor)
+                     .getInterface(nsIWebNavigation)
+                     .loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, referrer,
+                              null, null);
+//           } else {
+//             newWindow = gBrowser.selectedBrowser.docShell
+//                                 .QueryInterface(nsCI.nsIInterfaceRequestor)
+//                                 .getInterface(nsCI.nsIDOMWindow);
+//             loadURI(url, null);
+          }
+        } catch(e) {
+        }
+//     }
+    return newWindow;
+  }
 }

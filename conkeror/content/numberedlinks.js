@@ -86,18 +86,12 @@ function closeNumberedLinkBar()
 	
 }
 
-function onNumberedLinkKeyPress(evt)
+function matchLink (evt, doc, link)
 {
-    var doc = window.content.document;
-    if (!doc) return;
-
-    if (evt.keyCode == KeyEvent.DOM_VK_RETURN) {
-	var findfield = document.getElementById("input-field");
-	var link = findfield.value;
+    try {
 	var nodes = doc.getElementsByTagName('SPAN');
-	closeNumberedLinkBar();
 	for (var i=0; i<nodes.length; i++) {
-// 	    if (nodes[i].style.visibility == "hidden") continue;
+	    // 	    if (nodes[i].style.visibility == "hidden") continue;
 	    if (link == nodes[i].getAttribute("__conkid")) {
 		var node = doc.getElementById(nodes[i].getAttribute("__nodeid"));
 		var type = nodes[i].getAttribute("__conktype");
@@ -123,7 +117,26 @@ function onNumberedLinkKeyPress(evt)
 		}
 		evt.preventDefault();
 		evt.preventBubble();
-		break;
+		return true;
+	    }
+	}
+    } catch(e) {alert(e);}
+    return false;
+}
+
+function onNumberedLinkKeyPress(evt)
+{
+    try {
+    if (evt.keyCode == KeyEvent.DOM_VK_RETURN) {
+	var findfield = document.getElementById("input-field");
+	var link = findfield.value;
+	var frames = window._content.frames;
+	closeNumberedLinkBar();
+	// See if the number is a link.
+	if (!matchLink (evt, window._content.document, link)) {
+	    for (var i=0;i<frames.length;i++) {
+		if (matchLink (evt, frames[i].document, link))
+		    break;
 	    }
 	}
     }
@@ -137,6 +150,7 @@ function onNumberedLinkKeyPress(evt)
 	evt.preventDefault();
 	evt.preventBubble();
     }
+    } catch(e) {alert(e);}
 }
 
 function onNumberedLinkBlur() {
@@ -165,14 +179,9 @@ function hintify (doc, node, id, type)
 	span.setAttribute("__conkid", id);
 	span.setAttribute("__nodeid", nodeid);
 	span.setAttribute("__conktype", type);
-	span.setAttribute ("style", "");
 	span.style.left =  pt.x + "px";
 	span.style.top = pt.y + "px";
 	span.style.position = "absolute";
-	if (type == "image")
-	    span.style.backgroundColor = "pink";
-	else
-	    span.style.backgroundColor = "lightgray";
 	span.style.color = "black";
 	span.style.fontWeight = "bold";
 	span.style.fontFamily = "sans-serif";
@@ -187,6 +196,10 @@ function hintify (doc, node, id, type)
 	span.style.MozOpacity = "0.8";
 	span.style.zIndex = "999"; // always on top
 	span.style.visibility = "hidden";
+	if (type == "image")
+	    span.style.backgroundColor = "pink";
+	else
+	    span.style.backgroundColor = "lightgray";
 
 	doc.body.appendChild (span);
     } catch (e) {alert("hintify: " + e);}
@@ -216,23 +229,6 @@ function createNum(node, n)
     } catch(e) {window.alert("createNum: " + e);}
 }
 
-// Handle frames if they're present
-function getPageLinkNodes()
-{
-    var frames = window._content.frames;
-
-    // The main content may have link nodes as well as it's frames.
-    var nodes = getLinkNodes(_content.content.document);
-    var tmp;
-    for (var i=0; i<frames.length; i++) {
-	tmp = getLinkNodes(frames[i].document);
-	// is javascript this crappy?
-	for (var j=0; j<tmp.length; j++)
-	    nodes.push(tmp[j]);
-    }
-    return nodes;
-}
-
 function inlink (node)
 {
     try {
@@ -246,7 +242,7 @@ function inlink (node)
 }
 
 // For a single document, grab all the nodes
-function getLinkNodes(doc)
+function doLinkNodes(doc, linknum)
 {
 //     var a_nodes = doc.links;
     var a_nodes = doc.getElementsByTagName('a');
@@ -256,63 +252,56 @@ function getLinkNodes(doc)
     var s_nodes = doc.getElementsByTagName('select');
     var t_nodes = doc.getElementsByTagName('textarea');
 
-    var links = [];
-
-
     for (var i=0; i<t_nodes.length; i++) {
-	links.push(t_nodes[i]);
+	createNum(t_nodes[i], linknum);
+	linknum++;
+// 	links.push(t_nodes[i]);
     }
     for (var i=0; i<s_nodes.length; i++) {
-	links.push(s_nodes[i]);
+// 	links.push(s_nodes[i]);
+	createNum(s_nodes[i], linknum);
+	linknum++;
     }
     for (var i=0; i<i_nodes.length; i++) {
 	if (i_nodes[i].type == "hidden") continue;
-	links.push(i_nodes[i]);
+	createNum(i_nodes[i], linknum);
+	linknum++;
     }
     for (var i=0; i<a_nodes.length; i++) {
 	if (!a_nodes[i].hasAttribute('href')) continue;
-	links.push(a_nodes[i]);
+// 	links.push(a_nodes[i]);
+	createNum(a_nodes[i], linknum);
+	linknum++;
     }
     for (var i=0; i<ar_nodes.length; i++) {
 	if (!ar_nodes[i].hasAttribute('href')) continue;
-	links.push(ar_nodes[i]);
+// 	links.push(ar_nodes[i]);
+	createNum(ar_nodes[i], linknum);
+	linknum++;
     }
     for (var i=0; i<img_nodes.length; i++) {
 	if (!img_nodes[i].hasAttribute('src')) continue;
-	links.push(img_nodes[i]);
+// 	links.push(img_nodes[i]);
+	createNum(img_nodes[i], linknum);
+	linknum++;
     }
 
-    return links;
+    return linknum;
 }
 
 function createNumberedLinks()
 {
-    try {
-    var doc = _content.content.document;
-    if (!doc) return;
-
-    // We need it to be true or false.
-//     if (doc.__numberedlinks_linkState == null)
-// 	doc.__numberedlinks_linkState = true;
-//     // Keep track of the numbered state
-//     if (linksOn == doc.__numberedlinks_linkState)
-// 	return;
-//     doc.__numberedlinks_linkState = linksOn;
-
-    // accumulate our nodes
-    var nodes = getPageLinkNodes();
-
-    // Finally, give them numbers
-    for (var i=0; i<nodes.length; i++) {
-	createNum(nodes[i],i+1);
+    var linknum = 1;
+    // The main content may have link nodes as well as it's frames.
+    var frames = window._content.frames;
+    linknum = doLinkNodes(window._content.document, linknum);
+    for (var i=0; i<frames.length; i++) {
+	linknum = doLinkNodes(frames[i].document, linknum);
     }
-
-    } catch (e) {alert("setNumberedLinksState: " + e);}
 }
 
-function setNumberedLinksVisibility(doc, link_state, img_state)
+function setVisibility (doc,link_state, img_state)
 {
-    try {
     var nodes = doc.getElementsByTagName('SPAN');
     for (var i=0; i<nodes.length; i++) {
 	if (nodes[i].hasAttribute("__conkid")) {
@@ -321,7 +310,17 @@ function setNumberedLinksVisibility(doc, link_state, img_state)
 	    else
 		nodes[i].style.visibility = link_state ? "visible":"hidden";
 	}
-// 	alert(nodes[i].hidden);
+	// 	alert(nodes[i].hidden);
+    }
+}
+
+function setNumberedLinksVisibility(link_state, img_state)
+{
+    try {
+    var frames = window._content.frames;
+    setVisibility(window._content.document, link_state, img_state);
+    for (var i=0; i<frames.length; i++) {
+	setVisibility(frames[i].document, link_state, img_state);
     }
     } catch (e) {alert("setNumberedLinksVisibility: " + e);}
 }
@@ -333,7 +332,7 @@ function toggleNumberedLinks()
 //     message("Toggling numbered links...");
 //     setNumberedLinksState (!buf_state);
 //     message("Toggling numbered links...Done.");
-    setNumberedLinksVisibility (window.content.document, !buf_state, getBrowser().numberedImages);
+    setNumberedLinksVisibility (!buf_state, getBrowser().numberedImages);
 }
 
 function toggleNumberedImages()
@@ -343,7 +342,7 @@ function toggleNumberedImages()
 //     message("Toggling numbered links...");
 //     setNumberedLinksState (!buf_state);
 //     message("Toggling numbered links...Done.");
-    setNumberedLinksVisibility (window.content.document, getBrowser().numberedLinks, !buf_state);
+    setNumberedLinksVisibility (getBrowser().numberedLinks, !buf_state);
 }
 
 const nl_document_observer = {
@@ -355,6 +354,6 @@ const nl_document_observer = {
 	var img_state = getBrowser().numberedImages;
         createNumberedLinks();
 	// Only show numbered links if the feature is enabled
-	setNumberedLinksVisibility (window.content.document, link_state, img_state)
+	setNumberedLinksVisibility (link_state, img_state);
     }
 };
