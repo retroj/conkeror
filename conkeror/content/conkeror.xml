@@ -383,6 +383,7 @@
 	b.setAttribute("type", "content");
 	b.setAttribute("flex", "1");
 	b.setAttribute("pile", parseInt(this.getPileTop())+1);
+	b.__numberedLinks_state = true;
 	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
 	v.setAttribute("flex", "100");
 <!-- 	v.setAttribute("style", "min-width:50%"); -->

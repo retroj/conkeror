@@ -104,10 +104,33 @@ frame are lost, at this point)</TD></TR>
 customization then you need to create your rc file. The rc file is
 just a javascript file that will get evaluated on startup. Conkeror
 checks the "conkeror.rcfile" preference and if it exists, loads it and
-evaluates it. You can browse to "about:config" to set the
-conkeror.rcfile pref. It currently does not behave very well when
-opened in Conkeror.
+evaluates it. Use the following form to set your rc file. You'll have
+to restart conkeror to load the rc file.
 </p>
+
+<FORM>
+<script>
+  function set_pref()
+  {
+  gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
+                           .getService(Components.interfaces.nsIPrefBranch);
+    
+    gPrefService.setCharPref("conkeror.rcfile", document.getElementById("pref").value);
+  }
+  var pref;
+  gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
+                           .getService(Components.interfaces.nsIPrefBranch);
+  if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
+    pref = "";
+  } else {
+    pref = gPrefService.getCharPref("conkeror.rcfile");
+  }
+
+document.write("<INPUT id=\"pref\" value=\"" + pref + "\">");
+document.write("<INPUT type=\"button\" value=\"Set RC File\" onclick=\"set_pref();\">");
+
+</script>
+</FORM>
 
 <P>Here are three common customizations:</P>
 <UL>
