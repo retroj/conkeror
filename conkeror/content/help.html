@@ -26,6 +26,12 @@ t key would be written C-A-t.</p>
 <TR><TD>F</TD><TD>Go Forward</TD></TR>
 <TR><TD>r</TD><TD>Reload</TD></TR>
 <TR><TD>C-g</TD><TD>Stop</TD></TR>
+<TR><TD>c</TD><TD>Copy current URL to the clipboard</TD></TR>
+<TR><TD>A-SPC</TD><TD>Copy the X11 cut buffer to mozilla's
+clipboard. This is a cheap hack because I can't figure out how to
+override the mozilla past function.</TD></TR>
+<TR><TD>G</TD><TD>Go to bookmark</TD></TR>
+<TR><TD>A</TD><TD>bookmark current URL</TD></TR>
 </table>
 
 <h3>Movement</h3>
@@ -65,9 +71,13 @@ link will be focused.
 <h3>Browser Management</h3>
 <table border=1>
 <TR><TD>C-x C-f</TD><TD>Open an URL in a new browser</TD></TR>
+<TR><TD>C-x b</TD><TD>Select a browser based on it's name.</TD></TR>
 <TR><TD>A-p</TD><TD>previous browser</TD></TR>
 <TR><TD>A-n</TD><TD>Next browser</TD></TR>
 <TR><TD>C-x k</TD><TD>kill browser</TD></TR>
+<TR><TD>C-x 5 C-f</TD><TD>Open an URL in a new frame</TD></TR>
+<TR><TD>C-x 5 0</TD><TD>Close the current frame (all browsers in the
+frame are lost, at this point)</TD></TR>
 </table>
 </p>
 

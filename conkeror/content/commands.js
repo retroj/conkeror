@@ -104,14 +104,14 @@ function view_source()
 {
     try {
 	var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
-	var viewSrcUrl = "view-source:" + getWebNavigation().currentURI.spec;;
+	var viewSrcUrl = "view-source:" + getWebNavigation().currentURI.spec;
 	getWebNavigation().loadURI(viewSrcUrl, loadFlags, null, null, null);
     } catch(e) {alert(e);}
 }
 
 function new_frame()
 {
-    readFromMiniBuffer("Find URL in other frame:", function(url) { window.open("chrome://conkeror/content", url, "chrome,dialog=no"); });
+    readFromMiniBuffer("Find URL in other frame:", "url", function(url) { window.open("chrome://conkeror/content", url, "chrome,dialog=no"); });
 }
 
 function delete_frame()
@@ -122,14 +122,16 @@ function delete_frame()
 function open_url()
 {
     try {
-    readFromMiniBuffer("Url:", function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+    readFromMiniBuffer("URL:", "url", function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
     } catch(e) {alert(e);};
 }
 
 // Open a new browser with url
 function find_url()
 {
-    readFromMiniBuffer("Url:", function(url) { getBrowser().newBrowser(url); });
+//     var defBrowser = getBrowser().lastBrowser();
+    var defBrowser = "FIXME";
+    readFromMiniBuffer("Find URL: (default " + defBrowser + ")", "url", function(url) { getBrowser().newBrowser(url); });
 }
 
 
@@ -146,7 +148,56 @@ function goto_buffer(buf)
 
 function switch_to_buffer()
 {
-    miniBufferComplete("Switch to buffer:", getBrowser().getBrowserNames(),
+    var bufs = getBrowser().getBrowserNames();
+    var matches = zip2(bufs,bufs);
+    miniBufferComplete("Switch to buffer:", "buffer", matches,
 		       goto_buffer);
 
+}
+
+function kill_browser()
+{
+    getBrowser().killCurrentBrowser();
+}
+
+function copyCurrentUrl()
+{
+    writeToClipboard(getWebNavigation().currentURI.spec);
+    message("Copied current URL");
+}
+
+// Copy the contents of the X11 clipboard to ours. This is a cheap
+// hack because it seems impossible to just always yank from the X11
+// clipboard. So you have to manually pull it.
+function yankToClipboard()
+{
+    var str = readFromClipboard();
+    var clipid = Components.interfaces.nsIClipboard;
+    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+	.getService(Components.interfaces.nsIClipboardHelper);
+    gClipboardHelper.copyString(str);
+    message("Pulled '" + str + "'");
+}
+
+function goto_bookmark()
+{
+    miniBufferComplete("Goto bookmark:", "bookmark", get_bm_strings(), 
+		       function(url) { getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null); });
+}
+
+function bookmark_current_url()
+{
+    try{
+	bookmark_doc(getBrowser());
+	message ("Bookmarked " + getWebNavigation().currentURI.spec
+		 + " - " + getBrowser().mCurrentBrowser.contentTitle);
+    } catch(e) {alert(e);}
+}
+
+function bookmark_doc(browser)
+{
+    var url = browser.webNavigation.currentURI.spec;;
+    var title, docCharset = "text/unicode";
+    title = getBrowser().mCurrentBrowser.contentTitle || url;
+    add_bookmark(url, title, docCharset);
 }

@@ -11,7 +11,15 @@
                       <xul:browser flex="1" type="content-primary"/>
 	    </xul:vbox>
       </content>
-      <implementation>
+      <implementation type="application/x-javascript" implements="nsIDOMXULSelectControlElement, nsIAccessibleProvider">
+            <property name="accessible">
+              <getter>
+              <![CDATA[
+                var accService = Components.classes["@mozilla.org/accessibilityService;1"].getService(Components.interfaces.nsIAccessibilityService);
+                return accService.createXULGroupboxAccessible(this);
+              ]]>
+            </getter>
+            </property>
             <field name="mCurrentBrowser">
 	          null
 	    </field>
@@ -87,6 +95,7 @@
       <method name="prevBrowser">
       <body>
 	  <![CDATA[
+	  try {
 	    if (this.mCurrentBrowser == null || this.mBrowsers.length <= 1)
 	      return;
 
@@ -94,6 +103,7 @@
 	      this.setCurrentBrowser(this.mBrowserContainer.lastChild);
 	    else
 	      this.setCurrentBrowser(this.mCurrentBrowser.previousSibling);
+	  } catch(e) {alert(e); }
           ]]>
 </body>
       </method>

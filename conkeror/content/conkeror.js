@@ -12,7 +12,7 @@ function initKmaps()
 
     // TODO: this should ask which buffer
     addKeyBinding(ctrlx_kmap, 107, false, false, null, 
-		  function () {getBrowser().killCurrentBrowser();}); // C-x k
+		  kill_browser); // C-x k
 
     addKeyBinding(ctrlx_kmap, 102, true, false, null, find_url); // C-x C-f    
 
@@ -34,6 +34,7 @@ function Startup()
 //   b.setCurrentBrowser(0);
 
   initKmaps();
+  initBookmarkService();
 
   if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
     uriToLoad = window.arguments[0];

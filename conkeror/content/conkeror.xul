@@ -31,11 +31,15 @@
     <command id="cmd_scrollLeftComplete"     oncommand="scrollHorizComplete(-1);"/>
     <command id="cmd_scrollRightComplete"     oncommand="scrollHorizComplete(1);"/>
     <command id="cmd_newWindow"     oncommand="new_window();"/>    
-    <command id="cmd_yank"     oncommand="pasteX11CutBuffer();"/>    
+    <command id="cmd_yankToClipboard"     oncommand="yankToClipboard();"/>    
 
 </commandset>
 
   <keyset id="mainKeyset">
+    <key id="yank"    key=" " modifiers="alt" command="cmd_yankToClipboard"/>
+    <key id="bm"    key="g" modifiers="shift" oncommand="goto_bookmark();"/>
+    <key id="bm"    key="a" modifiers="shift" oncommand="bookmark_current_url();"/>
+
     <key id="focusUrlBar"    key="a" modifiers="accel" command="cmd_scrollLeftComplete"/>
     <key id="focusFindBar"    key="e" modifiers="accel" command="cmd_scrollRightComplete"/>
 
@@ -65,6 +69,8 @@
 
     <key id="blah"   key="P" oncommand="getBrowser().prevBrowser();" modifiers="alt"/>
     <key id="blah"   key="N" oncommand="getBrowser().nextBrowser();" modifiers="alt"/>
+
+    <key id="blah"   key="c" oncommand="copyCurrentUrl();" modifiers=""/>
 
     <key id="ctrlx"   key="x" oncommand="topLevelReadKey('C-x',ctrlx_kmap);" modifiers="control"/>
     <key id="ctrlc"   key="c" oncommand="topLevelReadKey('C-c',ctrlc_kmap);" modifiers="control"/>

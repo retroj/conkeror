@@ -4,20 +4,9 @@ var gBrowser = null;
 
 function getAccessibility(node)
 {
-    var acc_serv = Components.classes["@mozilla.org/accessibilityService;1"]
-	.createInstance(Components.interfaces.nsIAccessibilityService);
-    
-    var o = new Object();
-    var i = acc_serv.getAccessibleFor(node, o);
-//     alert(i);
-    return i;
-//     var x = new Object();
-//     var y = new Object();
-//     var w = new Object();;
-//     var h = new Object();;
-
-//     acc.getBounds(x,y,w,h);
-//     alert(x.value + " " + y.value + " " + w.value + " " + h.value);
+    var acc_ret = Components.classes["@mozilla.org/accessibleRetrieval;1"]
+	.createInstance(Components.interfaces.nsIAccessibleRetrieval);
+    return acc_ret.getAccessibleFor(node);
 }
 
 
@@ -57,6 +46,62 @@ function readInput(prompt, open, keypress)
     field.focus();
 }
 
+// Keeps track of history
+var gHistory = [];
+
+function getHistory(id)
+{
+    if (gHistory[id] == null)
+	gHistory[id] = [];
+
+    return gHistory[id];
+}
+
+function initHistory(id)
+{
+    if (history != null) {
+	gHistoryArray = getHistory(history);
+	gHistoryPoint = gHistoryArray.length;
+    } else {
+	gHistoryPoint = null;
+	gHistoryArray = null;
+    }    
+}
+
+function handle_history(event, field)
+{
+    if (event.charCode == 110 && event.ctrlKey) {
+	if (gHistoryArray != null) {
+	    gHistoryPoint++;
+	    if (gHistoryPoint < gHistoryArray.length) {
+		field.value = gHistoryArray[gHistoryPoint];
+	    } else {
+		gHistoryPoint = gHistoryArray.length - 1;
+	    }
+	}
+	return true;
+    } else if (event.charCode == 112 && event.ctrlKey) {
+	if (gHistoryArray != null) {
+	    gHistoryPoint--;
+	    if (gHistoryPoint >= 0) {
+		field.value = gHistoryArray[gHistoryPoint];
+	    } else {
+		gHistoryPoint = 0;
+	    }
+	}
+	return true;
+    }
+    return false;
+}
+
+function addHistory(str)
+{
+    // FIXME: make 100 customizable
+    if (gHistoryArray.length >= 100)
+	gHistoryArray.splice(0, 1);
+    gHistoryArray.push(str);
+}
+
 // The callback setup to be called when readFromMiniBuffer is done
 var gReadFromMinibufferCallBack = null;
 
@@ -68,19 +113,29 @@ var gCurrentCompletion = null;
 
 var gCurrentCompletionStr = null;
 
+// The current idx into the history
+var gHistoryPoint = null;
+// The arry we're using for history
+var gHistoryArray = null;
+
 function miniBufferKeyPress(event)
 {
+    try {
     var field = document.getElementById("input-field");
     if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	try{
 	    var val = field.value;
 	    closeInput(true);
+	    addHistory(val);
 	    if (gReadFromMinibufferCallBack)
 		gReadFromMinibufferCallBack(val);
 	    gReadFromMinibufferCallBack = null;
 	} catch (e) {window.alert(e);}
 	//    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
 	// paste current url
+    } else if (handle_history(event, field)) {
+	event.preventDefault();
+	event.preventBubble();	
     } else if (event.keyCode == KeyEvent.DOM_VK_TAB 
 	       || event.keyCode == KeyEvent.DOM_VK_RETURN
 	       || event.keyCode == KeyEvent.DOM_VK_TAB 
@@ -91,6 +146,7 @@ function miniBufferKeyPress(event)
 	event.preventDefault();
 	event.preventBubble();
     }
+    } catch(e) {alert(e);}
 }
 
 // Cheap completion
@@ -101,16 +157,25 @@ function miniBufferCompleteStr(str, matches, lastMatch)
 
     for (var i=lastMatch; i<matches.length; i++)
 	{
-	    if (str.length == 0 || str == matches[i].substr(0, str.length)) {
+	    if (str.length == 0 || str == matches[i][0].substr(0, str.length)) {
 		return i;
 	    }
 	}
     // No match? Loop around and try the rest
     for (var i=0; i<lastMatch; i++)
 	{
-	    if (str.length == 0 || str == matches[i].substr(0, str.length))
+	    if (str.length == 0 || str == matches[i][0].substr(0, str.length))
 		return i;
 	}
+    return null;
+}
+
+function findCompleteMatch(matches, val)
+{
+    for (var i=0; i<matches.length; i++) {
+	if (matches[i][0] == val)
+	    return matches[i][1];
+    }
     return null;
 }
 
@@ -121,11 +186,16 @@ function miniBufferCompleteKeyPress(event)
     if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	try{
 	    var val = field.value;
+	    var match = findCompleteMatch(gMiniBufferCompletions, val);
 	    closeInput(true);
-	    if (gReadFromMinibufferCallBack)
-		gReadFromMinibufferCallBack(val);
+	    addHistory(val);
+	    if (gReadFromMinibufferCallBack && match)
+		gReadFromMinibufferCallBack(match);
 	    gReadFromMinibufferCallBack = null;
 	} catch (e) {window.alert(e);}
+    } else if (handle_history(event, field)) {
+	event.preventDefault();
+	event.preventBubble();
     } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
 	var str = field.value;
 	var match = 0;
@@ -137,7 +207,7 @@ function miniBufferCompleteKeyPress(event)
 	if (idx != null) {
 	    gCurrentCompletionStr = str;
 	    gCurrentCompletion = idx;
-	    field.value = gMiniBufferCompletions[idx];
+	    field.value = gMiniBufferCompletions[idx][0];
 	}
 	event.preventDefault();
 	event.preventBubble();
@@ -157,16 +227,19 @@ function miniBufferCompleteKeyPress(event)
 
 // Read a string from the minibuffer and call callBack with the string
 // as an argument.
-function readFromMiniBuffer(prompt, callBack)
+function readFromMiniBuffer(prompt, history, callBack)
 {
     gReadFromMinibufferCallBack = callBack;
+    initHistory(history);
     readInput(prompt, null, "miniBufferKeyPress(event);");
 }
 
-function miniBufferComplete(prompt, completions, callBack)
+function miniBufferComplete(prompt, history, completions, callBack)
 {
     gReadFromMinibufferCallBack = callBack;
     gMiniBufferCompletions = completions;
+    gCurrentCompletion = null;
+    initHistory(history);
     readInput(prompt, null, "miniBufferCompleteKeyPress(event);");    
 }
 
@@ -215,7 +288,6 @@ function readFromClipboard()
                           .createInstance(Components.interfaces.nsITransferable);
 
     trans.addDataFlavor("text/unicode");
-
     // If available, use selection clipboard, otherwise global one
     if (clipboard.supportsSelectionClipboard())
       clipboard.getData(trans, clipboard.kSelectionClipboard);
@@ -234,6 +306,14 @@ function readFromClipboard()
   }
 
   return url;
+}
+
+// Put the string on the clipboard
+function writeToClipboard(str)
+{
+    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+	.getService(Components.interfaces.nsIClipboardHelper);
+    gClipboardHelper.copyString(str);
 }
 
 function pasteX11CutBuffer()
@@ -358,4 +438,141 @@ function goDoCommand(command)
   catch (e) {
       alert(e);
   }
+}
+
+////////////////// bookmark junk
+
+function Folder( node, ancestors ) {
+    this.node = node;
+    // ancestors include name of folder
+    this.ancestors = ancestors;
+}
+
+function zip2(array1, array2)
+{
+    len = array1.length < array2.length ? array2.length:array1.length;
+    acc = [];
+    for(var i=0; i<len; i++)
+	acc.push([array1[i],array2[i]]);
+    return acc;
+}
+
+// This was taken from BookmarksHome. The code is disgusting. When I
+// figure out what the hell it does I'll make it understandable.
+function get_bm_strings()
+{
+    try {
+	var ret_strings = [];
+    // RDF variables
+    var NC_NS = "http://home.netscape.com/NC-rdf#";
+
+    var kRDFContractID = "@mozilla.org/rdf/rdf-service;1";
+    var kRDFSVCIID = Components.interfaces.nsIRDFService;
+    var kRDFRSCIID = Components.interfaces.nsIRDFResource;
+    var kRDFLITIID = Components.interfaces.nsIRDFLiteral;
+    var RDF = Components.classes[kRDFContractID].getService( kRDFSVCIID );
+
+    var kRDFCContractID = "@mozilla.org/rdf/container;1";
+    var kRDFCIID = Components.interfaces.nsIRDFContainer;
+    var RDFC = Components.classes[kRDFCContractID].createInstance( kRDFCIID );
+    var kRDFCUContractID = "@mozilla.org/rdf/container-utils;1";
+    var kRDFCUIID = Components.interfaces.nsIRDFContainerUtils;
+    var RDFCU = Components.classes[kRDFCUContractID].getService(kRDFCUIID);
+
+    var kBMSVCIID = Components.interfaces.nsIBookmarksService;
+    var BMDS  = RDF.GetDataSource("rdf:bookmarks");
+    var root = RDF.GetResource( "NC:BookmarksRoot" );
+    var BMSVC = BMDS.QueryInterface( kBMSVCIID );
+    BMSVC.readBookmarks();
+    var NameArc = RDF.GetResource( NC_NS+"Name" );
+    var URLArc =  RDF.GetResource( NC_NS+"URL" );
+    var DescriptionArc = RDF.GetResource( NC_NS+"Description" );
+
+    // initialize preferences
+//     bMHPrefs.init();
+
+    // bookmarks collection variables
+    var curNameNode = BMDS.GetTarget( root, NameArc, true );
+    // necessary typecast
+    if( curNameNode instanceof kRDFLITIID );
+    var curFolder = new Folder( root, [curNameNode.Value] );
+    var folderStack = new Array( curFolder );
+//     var inOrExcludedFolders = bMHPrefs.getPref( "inOrExcludedFolders" ).split( "|" );
+    var enumerator, tempFolders, curNode, curUrlNode;
+    var curDescriptionNode, desc, curNodeAncestors;
+
+    // html variables
+    //     var doc = new Doc();
+    //     var searchDiv = new SearchDiv();
+    //     var columns = bMHPrefs.getPref( "nrOfColumns" ); 
+    //     var mainTable = new MainTable( columns ); 
+    //     var columnTDs = new Array( columns );
+    //     for( i = 0; i < columnTDs.length; i++ ) {
+    // 	columnTDs[i] = new ColumnTD();
+    //     }
+    //     var folderDiv;
+
+    var isExcluded, i;
+    // make page
+    while( folderStack.length > 0 ) {
+	curFolder = folderStack.pop();
+// 	folderDiv = new FolderDiv( curFolder.ancestors );
+	RDFC.Init( BMDS, curFolder.node );
+	enumerator = RDFC.GetElements();
+	tempFolders = new Array();
+	while( enumerator.hasMoreElements() ) {
+	    curNode = enumerator.getNext();
+	    curNameNode = BMDS.GetTarget( curNode, NameArc, true );
+	    curUrlNode = BMDS.GetTarget( curNode, URLArc, true );
+	    if( curNameNode instanceof kRDFLITIID ) { 
+		if( curUrlNode instanceof kRDFLITIID ) { 
+		    // curNameNode is bookmark
+		    curDescriptionNode = BMDS.GetTarget( curNode, DescriptionArc, true );
+		    desc = ( curDescriptionNode instanceof kRDFLITIID 
+			     ? curDescriptionNode.Value : "" );
+		    // 		    folderDiv.add( curNameNode.Value, curUrlNode.Value, desc );
+// 		    alert("BOOKMARK: " + curNameNode.Value + " " + curUrlNode.Value + " " + desc);
+		    ret_strings.push([curNameNode.Value, curUrlNode.Value]);
+		}
+		else if( RDFCU.IsSeq( BMDS, curNode )) {
+		    // curNameNode is folder
+		    curNodeAncestors = curFolder.ancestors.concat( [curNameNode.Value] );
+		    tempFolders.push( new Folder( curNode, curNodeAncestors ));
+		}
+	    }
+	}
+	// 	folderDiv.close();
+// 	isExcluded = false;
+// 	isExcluded = bMHPrefs.isExcludedFolder( curFolder.ancestors.toString(),
+// 						bMHPrefs.getPref( "excludeIndex" ), inOrExcludedFolders );
+	// check if folder contains bookmarks and is not excluded
+	// 	if( folderDiv.depth > folderDiv.startDepth && ! isExcluded ) {
+	// 	    i = bookmarksHome.smallestColumn( columnTDs );
+	// 	    columnTDs[i].add( folderDiv );
+    }
+    // reverse to match order in bookmarks tree
+//     folderStack = folderStack.concat( tempFolders.reverse() );
+    } catch (e) {alert(e);}
+
+    return ret_strings;
+}
+
+var BMDS;
+var BMSVC;
+var RDF;
+var kBMSVCIID;
+
+function initBookmarkService()
+{
+    var kRDFSVCIID     = Components.interfaces.nsIRDFService;
+    var kRDFContractID = "@mozilla.org/rdf/rdf-service;1";
+    RDF                = Components.classes[kRDFContractID].getService(kRDFSVCIID);
+    kBMSVCIID      = Components.interfaces.nsIBookmarksService;
+    BMDS  	       = RDF.GetDataSource("rdf:bookmarks");
+    BMSVC 	       = BMDS.QueryInterface(kBMSVCIID);
+}
+
+function add_bookmark(url, title, charset)
+{
+    BMSVC.addBookmarkImmediately(url, title, kBMSVCIID.BOOKMARK_DEFAULT_TYPE, charset);
 }
