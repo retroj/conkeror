@@ -101,6 +101,26 @@ frame are lost, at this point)</TD></TR>
 </table>
 </p>
 
+<h2>Conkeror As the Default Chrome</h2>
+
+<p>Windows opened by web pages (popup, etc) will open as a Mozilla
+Navigator window, not Conkeror. This is generally a Bad Thing. Press
+the button to use Conkeror, instead.
+
+<FORM>
+<script>
+  var gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
+                           .getService(Components.interfaces.nsIPrefBranch);
+
+  function set_chrome()
+  {
+    gPrefService.setCharPref("browser.chromeURL", "chrome://conkeror/content");
+    window.alert("Set Chrome to chrome://conkeror/content");
+  }
+document.write("<INPUT type=\"button\" value=\"Set Chrome\" onclick=\"set_chrome();\">");
+</script>
+</FORM></p>
+
 <h2>Conkeror RC File</h2>
 <p> If you want to add a key binding, a new command, or some other
 customization then you need to create your rc file. The rc file is
@@ -114,14 +134,10 @@ to restart conkeror to load the rc file.
 <script>
   function set_pref()
   {
-  gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
-                           .getService(Components.interfaces.nsIPrefBranch);
-    
     gPrefService.setCharPref("conkeror.rcfile", document.getElementById("pref").value);
+    window.alert("RC File Set.");
   }
   var pref;
-  gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
-                           .getService(Components.interfaces.nsIPrefBranch);
   if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
     pref = "";
   } else {

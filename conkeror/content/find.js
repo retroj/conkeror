@@ -373,6 +373,8 @@ function focusLink()
 {
     var sel = gSelCtrl.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
     var node = sel.focusNode;
+    if (node == null)
+	return;
     
     do {
 	if (node.localName == "A") {
