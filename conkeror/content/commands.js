@@ -4,38 +4,43 @@
 // aren't part of a module go here.
 
 var commands = [
-    ["bookmark-bmenu-list", 		bookmark_bmenu_list, 			[]],
-    ["bookmark-current-url", 		bookmark_current_url, 			[]],
-    ["bookmark-jump", 			goto_bookmark, 				[]],
-    ["browser-next", 			browser_next, 				[]],
-    ["browser-previous", 		browser_prev, 				[]],
-    ["copy-current-url", 		copyCurrentUrl,  			[]],
-    ["copy-link-location", 		copyCurrentUrl, 			[]],
-    ["delete-frame", 			delete_frame, 				[]],
-    ["execute-extended-command",        meta_x, 				[]],
-    ["find-url", 			find_url, 				[]],
-    ["go-back", 			goForward, 				[]],
-    ["go-forward", 			goBack, 				[]],
-    ["isearch-barkward", 		isearch_backward, 			[]],
-    ["isearch-forward", 		isearch_forward, 			[]],
-    ["kill-browser", 			kill_browser, 				[]],
-    ["numberedlinks-1", 		function(){selectNumberedLink(1);}, 	[]],
-    ["numberedlinks-2", 		function(){selectNumberedLink(2);}, 	[]],
-    ["numberedlinks-3", 		function(){selectNumberedLink(3);}, 	[]],
-    ["numberedlinks-4", 		function(){selectNumberedLink(4);}, 	[]],
-    ["numberedlinks-5", 		function(){selectNumberedLink(5);}, 	[]],
-    ["numberedlinks-6", 		function(){selectNumberedLink(6);}, 	[]],
-    ["numberedlinks-7", 		function(){selectNumberedLink(7);}, 	[]],
-    ["numberedlinks-8", 		function(){selectNumberedLink(8);}, 	[]],
-    ["numberedlinks-9", 		function(){selectNumberedLink(9);}, 	[]],
-    ["numberedlinks-toggle", 		toggleNumberedLinks, 			[]],
-    ["quit", 				quit, 					[]],
-    ["revert-browser", 			reload, 				[]],
-    ["stop-loading", 			stopLoading, 				[]],
-    ["switch-browser-other-frame", 	new_frame, 				[]],
-    ["switch-to-browser", 		switch_to_buffer,			[]],
-    ["view-source", 			view_source, 				[]],
-    ["yank", 				yankToClipboard,                        []]];
+    ["bookmark-bmenu-list", 		bookmark_bmenu_list, 	[]],
+    ["bookmark-current-url", 		bookmark_current_url, 	[]],
+    ["bookmark-jump", 			goto_bookmark, 		[]],
+    ["browser-next", 			browser_next, 		[]],
+    ["browser-previous", 		browser_prev, 		[]],
+    ["copy-current-url", 		copyCurrentUrl,  	[]],
+    ["copy-link-location", 		copyCurrentUrl, 	[]],
+    ["delete-frame", 			delete_frame, 		[]],
+    ["focus-window", 			focus_window, 		[]],
+    ["execute-extended-command",        meta_x, 		[]],
+    ["find-url", 			find_url, 		[]],
+    ["go-forward", 			goForward, 		[]],
+    ["go-back", 			goBack, 		[]],
+    ["isearch-backward", 		isearch_backward, 	[]],
+    ["isearch-forward", 		isearch_forward, 	[]],
+    ["kill-browser", 			kill_browser, 		[]],
+    ["numberedlinks-1", 		selectNumberedLink_1, 	[]],
+    ["numberedlinks-2", 		selectNumberedLink_2, 	[]],
+    ["numberedlinks-3", 		selectNumberedLink_3, 	[]],
+    ["numberedlinks-4", 		selectNumberedLink_4, 	[]],
+    ["numberedlinks-5", 		selectNumberedLink_5, 	[]],
+    ["numberedlinks-6", 		selectNumberedLink_6, 	[]],
+    ["numberedlinks-7", 		selectNumberedLink_7, 	[]],
+    ["numberedlinks-8", 		selectNumberedLink_8, 	[]],
+    ["numberedlinks-9", 		selectNumberedLink_9, 	[]],
+    ["numberedlinks-toggle", 		toggleNumberedLinks, 	[]],
+    ["quit", 				quit, 			[]],
+    ["revert-browser", 			reload, 		[]],
+    ["beginning-of-line", 		beginning_of_line,	[]],
+    ["end-of-line",     		end_of_line,    	[]],
+    ["stop-loading", 			stopLoading, 		[]],
+    ["switch-browser-other-frame", 	new_frame, 		[]],
+    ["switch-to-browser", 		switch_to_buffer,	[]],
+    ["next-frame", 		        nextFrame,      	[]],
+    ["view-source", 			view_source, 		[]],
+    ["keyboard-quit", 			stopLoading, 		[]],
+    ["yank", 				yankToClipboard,        []]];
 
 function exec_command(cmd)
 {
@@ -78,6 +83,10 @@ function define_key(kmap, key, keymap, cmd)
     kmap.push(obj);
 }
 
+function focus_window()
+{
+    _content.focus();
+}
 
 function quit()
 {
@@ -169,6 +178,16 @@ function nextFrame()
 // // 	alert(frames[0].attributes[i]);
 // //     }
 // //     frames[1].window.focus();
+
+function beginning_of_line()
+{
+    scrollHorizComplete(-1);
+}
+
+function end_of_line()
+{
+    scrollHorizComplete(1);
+}
 
 function scrollHorizComplete(n)
 {

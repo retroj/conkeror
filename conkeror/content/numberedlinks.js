@@ -137,32 +137,30 @@ function getLinkNodes(doc)
     return links;
 }
 
-function toggleNumberedLinks() {
+function setNumberedLinksState(linksOn)
+{
     try {
     var doc = _content.content.document;
     if (!doc) return;
-    var state = false;
 
     // Keep track of the numbered state
-    var frames = window._content.frames;
-    if (frames.length == 0) {
-	doc.__conkeror__NumbersOn = !doc.__conkeror__NumbersOn;
-	state = doc.__conkeror__NumbersOn;
-    } else {
-	for (var i=0; i<frames.length; i++) {
-	    frames[i].document.__conkeror__NumbersOn = !frames[i].document.__conkeror__NumbersOn;
-	    // XXX: this doesn't work.
-	    state |= frames[i].document.__conkeror__NumbersOn;
-	}
-    }
+    if (linksOn == doc.__numberedlinks_linkState)
+	return;
+    doc.__numberedlinks_linkState = linksOn;
 
     // accumulate our nodes
     var nodes = getPageLinkNodes();
 
     // Finally, give them numbers
     for (var i=0; i<nodes.length; i++) {
-	toggleNum(nodes[i],i+1, state);
+	toggleNum(nodes[i],i+1, linksOn);
     }
 
-    } catch (e) {alert("toggleNumberedLinks: " + e);}
+    } catch (e) {alert("setNumberedLinksState: " + e);}
+}
+
+function toggleNumberedLinks() 
+{
+    var doc = _content.content.document;
+    setNumberedLinksState (!doc.__numberedlinks_linkState);
 }

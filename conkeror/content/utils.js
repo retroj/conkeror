@@ -403,6 +403,22 @@ function readKeyPress(event)
 
 	clearMessage();
 
+	// Don't capture the key if some sort of form input is focused
+	if (kmap == top_kmap) {
+	    var elt = document.commandDispatcher.focusedElement;
+	    if (elt) {
+		var type = elt.getAttribute("type");
+		if ((elt.tagName == "INPUT" && (type == null
+						|| type == "text"
+						|| type == "password"
+						|| type == "file"))
+		    || elt.tagName == "TEXTAREA"
+		    || elt.tagName == "SELECT")
+		    // Abort processing this key
+		    return;
+	    }
+	}
+
 	gKeySeq.push(formatKey(event.charCode, mods));
 	if (gKeyTimeout) {
 	    message(gKeySeq.join(" "));

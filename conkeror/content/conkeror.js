@@ -76,9 +76,9 @@ function initKmaps()
     define_key(top_kmap, make_key(105, null, 0), null, "view-source");
     define_key(top_kmap, make_key(115, null, MOD_CTRL), null, "isearch-forward");
     define_key(top_kmap, make_key(114, null, MOD_CTRL), null, "isearch-backward");
-    define_key(top_kmap, make_key(98, null, MOD_SHIFT), null, "go-back");
-    define_key(top_kmap, make_key(102, null, MOD_SHIFT), null, "go-forward");
-    define_key(top_kmap, make_key(114, null, MOD_SHIFT), null, "revert-browser");
+    define_key(top_kmap, make_key(66, null, MOD_SHIFT), null, "go-back");
+    define_key(top_kmap, make_key(70, null, MOD_SHIFT), null, "go-forward");
+    define_key(top_kmap, make_key(82, null, MOD_SHIFT), null, "revert-browser");
     define_key(top_kmap, make_key(102, null, 0), null, "next-frame");
     define_key(top_kmap, make_key(103, null, MOD_CTRL), null, "stop-loading");
     define_key(top_kmap, make_key(49, null, 0), null, "numberedlinks-1");
@@ -90,10 +90,13 @@ function initKmaps()
     define_key(top_kmap, make_key(55, null, 0), null, "numberedlinks-7");
     define_key(top_kmap, make_key(56, null, 0), null, "numberedlinks-8");
     define_key(top_kmap, make_key(57, null, 0), null, "numberedlinks-9");
-    define_key(top_kmap, make_key(112, null, MOD_SHIFT), null, "browser-previous");
-    define_key(top_kmap, make_key(110, null, MOD_SHIFT), null, "browser-next");
+    define_key(top_kmap, make_key(112, null, MOD_ALT), null, "browser-previous");
+    define_key(top_kmap, make_key(110, null, MOD_ALT), null, "browser-next");
     define_key(top_kmap, make_key(99, null, 0), null, "copy-current-url");
     define_key(top_kmap, make_key(120, null, MOD_ALT), null, "execute-extended-command");
+    define_key(top_kmap, make_key(103, null, MOD_CTRL), null, "keyboard-quit");
+    define_key(top_kmap, make_key(97, null, MOD_CTRL), null, "beginning-of-line");
+    define_key(top_kmap, make_key(101, null, MOD_CTRL), null, "end-of-line");
 
     gCurrentKmap = top_kmap;
 }
@@ -317,7 +320,7 @@ nsBrowserStatusHandler.prototype =
   {
       // XXX: with frames this doesn't work
 //       _content.content.document.__conkeror__NumbersOn = false;
-      toggleNumberedLinks();
+      setNumberedLinksState(true);
   }
 
 }
