@@ -110,8 +110,18 @@ function Startup()
                            .getService(Components.interfaces.nsIPrefBranch);
   gPrefService.setBoolPref("accessibility.typeaheadfind", false);
 
-  // Load the RC file.
   try {
+      // Load the appropriate keymaps
+      if (!gPrefService.prefHasUserValue("conkeror.useViBindings")) {
+	  initKmaps();
+      }
+      else {
+	  if (gPrefService.getBoolPref("conkeror.useViBindings"))
+	      initViKmaps();
+	  else
+	      initKmaps();
+      }
+      // Load the RC file.
       if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
 	  gPrefService.setCharPref("conkeror.rcfile", "");
       } else {

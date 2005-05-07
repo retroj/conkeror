@@ -200,6 +200,195 @@ function define_key(kmap, key, cmd)
     kmap.push(obj);
 }
 
+// VI Keys for the heathens
+function initViKmaps()
+{
+    // submaps
+    define_key(top_kmap, make_key("h",MOD_CTRL), help_kmap);
+    define_key(top_kmap, make_key("w",MOD_CTRL), ctrlw_kmap);
+    define_key(top_kmap, make_key("w",0),        ctrlw_kmap); 
+
+	// same as emacs, since vi doesnt really have this
+    define_key(help_kmap, make_key("b",0),"describe-bindings");
+    define_key(help_kmap, make_key("i",0),"help-page");
+    define_key(help_kmap, make_key("t",0),"help-with-tutorial");
+    define_key(help_kmap, make_key("s",0),"view-source");
+
+	// window/buffer managment
+    // define_key(top_kmap, make_key("q",0),"quit"); // like less
+    define_key(top_kmap, make_key("q",MOD_CTRL),"quit"); 
+    define_key(top_kmap, make_key("b",0),"switch-to-buffer"); 
+    define_key(top_kmap, make_key("d",0),"kill-buffer");  // Delete buffer
+    define_key(ctrlw_kmap, make_key("w",0),"other-window"); // goes to other window in a split
+    define_key(ctrlw_kmap, make_key("d",0),"delete-windows");  // removes a split
+    define_key(ctrlw_kmap, make_key("D",0),"delete-other-windows");  // removes a split
+    define_key(ctrlw_kmap, make_key("f",0),"split-flip");  // changes horizontal/vertical alignment of the splits
+    define_key(ctrlw_kmap, make_key("o",0),"find-url-other-frame"); 
+    define_key(ctrlw_kmap, make_key("s",0),"split-window"); // splits a window in 2 halfes if there are 2 buffers in it
+    define_key(ctrlw_kmap, make_key("O",0),"switch-to-buffer-other-window");
+	define_key(ctrlw_kmap, make_key("Q",0),"delete-frame");
+    define_key(ctrlw_kmap, make_key("n",0),"make-frame-command");
+
+    
+	// bookmark managment, vi doesnt have bookmarks, use our own keys instead
+    define_key(top_kmap, make_key("a",0),"bookmark-current-url"); //Add bookmark
+    define_key(top_kmap, make_key("x",0),"bookmark-jump");  // eXectue boomark
+    define_key(top_kmap, make_key("X",0),"bookmark-bmenu-list"); 
+	// normal file marks, keys like in vi
+    define_key(top_kmap, make_key("m",0),"set-mark-command"); 
+    define_key(top_kmap, make_key("'",0),"exchange-point-and-mark"); 
+
+
+	// browser commands
+    define_key(top_kmap, make_key("o",0),"open-url");
+    define_key(top_kmap, make_key("O",0),"find-url"); // same as above but in new buffer
+	// opens a query which is not empty but prefilled with the current url which can be edited
+    define_key(top_kmap, make_key("O", MOD_CTRL),"find-alternate-url"); 
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE,0),"go-up");
+    define_key(top_kmap, make_key("h",0),"go-back");
+    define_key(top_kmap, make_key("l",0),"go-forward");
+    define_key(top_kmap, make_key("l",MOD_CTRL),"redraw");
+    define_key(top_kmap, make_key("a",MOD_CTRL),"cmd_selectAll"); // not really vi like, but ggVG is even worse for select all
+    define_key(top_kmap, make_key(",",MOD_CTRL),"toggle-numbered-links");
+    define_key(top_kmap, make_key(".",MOD_CTRL),"toggle-numbered-images");
+    define_key(top_kmap, make_key("/",0),"isearch-forward");
+    define_key(top_kmap, make_key("?",0),"isearch-backward");
+    define_key(top_kmap, make_key("r",0),"revert-buffer");
+    define_key(top_kmap, make_key("f",0),"next-frame");
+    define_key(top_kmap, make_key("1",0),"numberedlinks-1");
+    define_key(top_kmap, make_key("2",0),"numberedlinks-2");
+    define_key(top_kmap, make_key("3",0),"numberedlinks-3");
+    define_key(top_kmap, make_key("4",0),"numberedlinks-4");
+    define_key(top_kmap, make_key("5",0),"numberedlinks-5");
+    define_key(top_kmap, make_key("6",0),"numberedlinks-6");
+    define_key(top_kmap, make_key("7",0),"numberedlinks-7");
+    define_key(top_kmap, make_key("8",0),"numberedlinks-8");
+    define_key(top_kmap, make_key("9",0),"numberedlinks-9");
+    define_key(top_kmap, make_key(",",0),"goto-numbered-link");
+    define_key(top_kmap, make_key(".",0),"goto-numbered-image");
+    define_key(top_kmap, make_key("u",0),"buffer-previous");
+    define_key(top_kmap, make_key("i",0),"buffer-next");
+    define_key(top_kmap, make_key("p",MOD_CTRL),"buffer-previous");
+    define_key(top_kmap, make_key("n",MOD_CTRL),"buffer-next");
+    define_key(top_kmap, make_key("y",0),"copy-current-url");
+    define_key(top_kmap, make_key("Y",0),"copy-link-location");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_ESCAPE,0),"stop-loading");
+    define_key(top_kmap, make_key("g",MOD_CTRL),"unfocus"); //escape from a textfield
+    define_key(top_kmap, make_key( "=", 0),"text-reset");
+    define_key(top_kmap, make_key( "+", 0),"text-enlarge");
+    define_key(top_kmap, make_key( "-", 0),"text-reduce");
+
+	// shows the query on the bottom with all conkeror commands
+    define_key(top_kmap, make_key(":",0),"execute-extended-command");
+    define_key(top_kmap, make_key(":",MOD_META),"eval-expression");
+
+    // movement keys
+    //define_key(top_kmap, make_key(" ",MOD_SHIFT),"cmd_scrollPageUp");
+    define_key(top_kmap, make_key(" ",0),"cmd_scrollPageDown");
+    define_key(top_kmap, make_key("b",MOD_CTRL),"cmd_scrollPageUp");
+    define_key(top_kmap, make_key("f",MOD_CTRL),"cmd_scrollPageDown");
+    define_key(top_kmap, make_key("k",0),"cmd_scrollLineUp");
+    define_key(top_kmap, make_key("j",0),"cmd_scrollLineDown");
+    define_key(top_kmap, make_key("H",0),"cmd_scrollLeft");
+    define_key(top_kmap, make_key("L",0),"cmd_scrollRight");
+    define_key(top_kmap, make_key("0",0),"cmd_scrollBeginLine");
+    define_key(top_kmap, make_key("^",0),"cmd_scrollBeginLine");
+    define_key(top_kmap, make_key("$",0),"cmd_scrollEndLine");
+    define_key(top_kmap, make_key("g",0),"cmd_scrollTop");
+    define_key(top_kmap, make_key("G",0),"cmd_scrollBottom");
+
+
+	// useful in caret mode
+    define_key(top_kmap, make_key("a",MOD_CTRL),"beginning-of-line");
+    define_key(top_kmap, make_key("e",MOD_CTRL),"end-of-line");
+    define_key(top_kmap, make_key("b",MOD_META),"cmd_wordPrevious");
+    define_key(top_kmap, make_key("f",MOD_META),"cmd_wordNext");
+
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_PAGE_UP, MOD_SHIFT),"cmd_selectPageUp");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_PAGE_DOWN, MOD_SHIFT),"cmd_selectPageDown");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_DELETE, MOD_SHIFT),"cmd_cut");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_DELETE, MOD_CTRL),"cmd_copy");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_INSERT, MOD_CTRL),"cmd_copy");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_HOME, MOD_SHIFT|MOD_CTRL),"cmd_selectTop");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_END, MOD_SHIFT|MOD_CTRL),"cmd_selectBottom");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_LEFT, MOD_CTRL|MOD_SHIFT),"cmd_selectWordPrevious");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_RIGHT, MOD_CTRL|MOD_SHIFT),"cmd_selectWordNext");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_LEFT, MOD_SHIFT),"cmd_selectCharPrevious");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_RIGHT, MOD_SHIFT),"cmd_selectCharNext");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_HOME, MOD_SHIFT),"cmd_selectBeginLine");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_END, MOD_SHIFT),"cmd_selectEndLine");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_UP, MOD_SHIFT),"cmd_selectLinePrevious");
+    define_key(top_kmap, make_key(KeyEvent.DOM_VK_DOWN, MOD_SHIFT),"cmd_selectLineNext");
+
+	// shows a query with a list of all links on the current website, currently quite broken
+    define_key(top_kmap, make_key("m", MOD_CTRL),"link-menu");
+
+    // Input area keys - the same as for emacs
+    define_key(input_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
+    define_key(input_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "cmd_deleteCharBackward");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, MOD_META), "cmd_deleteWordBackward");
+    define_key(input_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
+    define_key(input_kmap, make_key("d",MOD_META),"cmd_deleteWordForward");
+    define_key(input_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
+    define_key(input_kmap, make_key("b",MOD_META),"cmd_wordPrevious");
+    define_key(input_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
+    define_key(input_kmap, make_key("f",MOD_META),"cmd_wordNext");
+    define_key(input_kmap, make_key("y",MOD_CTRL),"cmd_paste");
+    define_key(input_kmap, make_key("w",MOD_META),"cmd_copy");
+    define_key(input_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
+
+    // 101 keys
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_END,MOD_SHIFT),"cmd_selectEndLine");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT),
+	       "cmd_selectWordPrevious");
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), "cmd_selectWordNext");
+
+    // Nasty keys
+    define_key(input_kmap, make_key("r",MOD_CTRL),"cmd_redo");
+
+    // textarea keys - the same as for emacs
+    define_key(textarea_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
+    define_key(textarea_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "cmd_deleteCharBackward");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, MOD_META), 
+	       "cmd_deleteWordBackward");
+    define_key(textarea_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
+    define_key(textarea_kmap, make_key("d",MOD_META),"cmd_deleteWordForward");
+    define_key(textarea_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
+    define_key(textarea_kmap, make_key("b",MOD_META),"cmd_WordPrevious");
+    define_key(textarea_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
+    define_key(textarea_kmap, make_key("f",MOD_META),"cmd_WordNext");
+    define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
+    define_key(textarea_kmap, make_key("w",MOD_META),"cmd_copy");
+    define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
+    define_key(textarea_kmap, make_key("n",MOD_CTRL),"cmd_lineNext");
+    define_key(textarea_kmap, make_key("p",MOD_CTRL),"cmd_linePrevious");
+    define_key(textarea_kmap, make_key("<",MOD_META),"cmd_moveTop");
+    define_key(textarea_kmap, make_key(">",MOD_META),"cmd_moveBottom");
+    define_key(textarea_kmap, make_key("v",MOD_META),"cmd_movePageUp");
+    define_key(textarea_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
+
+
+    // 101 keys
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_END,MOD_SHIFT), "cmd_selectEndLine");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT), 
+	       "cmd_selectWordPrevious");
+    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), 
+	       "cmd_selectWordNext");
+    define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_UP,MOD_SHIFT), "cmd_selectPageUp");
+    define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_DOWN,MOD_SHIFT), "cmd_selectPageDown");
+
+    // Nasty keys
+    define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
+
+    gCurrentKmap = top_kmap;
+}
+
 function initKmaps()
 {
     define_key(help_kmap, make_key("b",0),"describe-bindings");

@@ -282,8 +282,9 @@ function createNum(node, n, floaters, doc)
 	} else if (node.tagName == "INPUT"
 		   && (node.type == "submit" 
 		       || node.type == "button"
+		       || node.type == "checkbox"
 		       || node.type == "radio")) {
-	    createNL (doc, node, n, "button", node.type != "radio"?NL_FLOATER:NL_BEFORE, floaters);
+	    createNL (doc, node, n, "button", (node.type != "radio" && node.type != "checkbox")?NL_FLOATER:NL_BEFORE, floaters);
 	} else {
 	    createNL (doc, node, n, "widget", NL_BEFORE, floaters);
 	}
