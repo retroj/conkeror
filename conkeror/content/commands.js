@@ -37,6 +37,8 @@ var gCommands = [];
 function init_commands()
 {
     try {
+    add_command("use-vi-keys", use_vi_keys, []);
+    add_command("use-emacs-keys", use_emacs_keys, []);
     add_command("toggle-eod-space", toggle_eod_space, []);
     add_command("eval-expression", eval_expression, [["p"]]);
     add_command("link-menu", link_menu, [["p"]]);
@@ -937,8 +939,6 @@ function init_universal_arg()
     add_command("universal-digit", universal_digit,[["P"]]);
     add_command("universal-argument-other-key", universal_argument_other_key,[["P"]]);
 
-    define_key(top_kmap, make_key("u", MOD_CTRL), "universal-argument");
-
     define_key(universal_kmap, make_key("u", MOD_CTRL), "universal-argument-more");
     define_key(universal_kmap, make_key("1", 0), "universal-digit");
     define_key(universal_kmap, make_key("2", 0), "universal-digit");
@@ -1129,4 +1129,18 @@ function toggle_eod_space()
 	observerService.addObserver(scrolly_document_observer, "page-end-load", false);
 	scrolly_document_observer.enabled = true;
     }
+}
+
+// Enable Vi keybindings
+function use_vi_keys()
+{
+    clearKmaps();
+    initViKmaps();
+}
+
+// Enable Emacs keybindings
+function use_emacs_keys()
+{
+    clearKmaps();
+    initKmaps();
 }

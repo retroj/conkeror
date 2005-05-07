@@ -8,7 +8,7 @@ echo Building XPI...
 zip conkeror.jar $FILES
 cp conkeror.jar chrome
 # put it in our firefox install
-mv conkeror.jar /home/sabetts/.mozilla/firefox/tqb1daz9.default/extensions/{a79fe89b-6662-4ff4-8e88-09950ad4dfde}/chrome
+mv conkeror.jar /home/sabetts/.mozilla/firefox/kjbz2dfn.default/extensions/{a79fe89b-6662-4ff4-8e88-09950ad4dfde}/chrome
 # Build an xpi
 if [ x$1 = xxpi ]; then
     # Building XPI...

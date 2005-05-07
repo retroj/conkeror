@@ -154,6 +154,7 @@ keyTable[KeyEvent.DOM_VK_META] = "meta";
 
 // some predefined key maps
 var 	ctrlc_kmap    	  = [];
+var 	ctrlw_kmap    	  = [];
 var 	ctrlx_kmap    	  = [];
 var 	bookmark_kmap 	  = [];
 var 	four_kmap     	  = [];
@@ -198,6 +199,21 @@ function define_key(kmap, key, cmd)
     else 
 	obj.keymap = cmd;
     kmap.push(obj);
+}
+
+function clearKmaps()
+{
+    ctrlc_kmap    	  = [];
+    ctrlw_kmap    	  = [];
+    ctrlx_kmap    	  = [];
+    bookmark_kmap 	  = [];
+    four_kmap     	  = [];
+    five_kmap     	  = [];
+    help_kmap     	  = [];
+    top_kmap      	  = [];
+    input_kmap    	  = [];
+    textarea_kmap 	  = [];
+    select_kmap   	  = [];
 }
 
 // VI Keys for the heathens
@@ -267,6 +283,7 @@ function initViKmaps()
     define_key(top_kmap, make_key(",",0),"goto-numbered-link");
     define_key(top_kmap, make_key(".",0),"goto-numbered-image");
     define_key(top_kmap, make_key("u",0),"buffer-previous");
+    define_key(top_kmap, make_key("u", MOD_CTRL), "universal-argument");
     define_key(top_kmap, make_key("i",0),"buffer-next");
     define_key(top_kmap, make_key("p",MOD_CTRL),"buffer-previous");
     define_key(top_kmap, make_key("n",MOD_CTRL),"buffer-next");
@@ -428,6 +445,7 @@ function initKmaps()
     define_key(top_kmap, make_key("c",MOD_CTRL), ctrlc_kmap); 
 
     define_key(top_kmap, make_key("u",0),"go-up");
+    define_key(top_kmap, make_key("u", MOD_CTRL), "universal-argument");
     define_key(top_kmap, make_key(" ",MOD_META),"yank-to-clipboard");
     define_key(top_kmap, make_key("l",MOD_CTRL),"redraw");
     define_key(top_kmap, make_key("g",0),"open-url");
