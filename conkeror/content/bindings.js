@@ -229,7 +229,6 @@ function initViKmaps()
     define_key(help_kmap, make_key("b",0),"describe-bindings");
     define_key(help_kmap, make_key("i",0),"help-page");
     define_key(help_kmap, make_key("t",0),"help-with-tutorial");
-    define_key(help_kmap, make_key("s",0),"view-source");
 
 	// window/buffer managment
     // define_key(top_kmap, make_key("q",0),"quit"); // like less
@@ -269,6 +268,7 @@ function initViKmaps()
     define_key(top_kmap, make_key(",",MOD_CTRL),"toggle-numbered-links");
     define_key(top_kmap, make_key(".",MOD_CTRL),"toggle-numbered-images");
     define_key(top_kmap, make_key("/",0),"isearch-forward");
+    define_key(top_kmap, make_key("\\",0),"view-source");
     define_key(top_kmap, make_key("?",0),"isearch-backward");
     define_key(top_kmap, make_key("r",0),"revert-buffer");
     define_key(top_kmap, make_key("f",0),"next-frame");
@@ -412,7 +412,7 @@ function initKmaps()
     define_key(help_kmap, make_key("b",0),"describe-bindings");
     define_key(help_kmap, make_key("i",0),"help-page");
     define_key(help_kmap, make_key("t",0),"help-with-tutorial");
-    define_key(help_kmap, make_key("s",0),"view-source");
+    define_key(top_kmap, make_key("\\",0),"view-source");
 
     define_key(four_kmap, make_key("b",0),"switch-to-buffer-other-window");
 

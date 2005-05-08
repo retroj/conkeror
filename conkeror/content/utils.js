@@ -444,8 +444,9 @@ function closeInput(clearInput, restoreFocus)
     } catch(e) { window.alert(e); }
 }
 
-function updateModeline(url)
+function updateModeline()
 {
+    var url = getWebNavigation().currentURI;
     var docshell = document.getElementById("content").webNavigation;
     var modeline = getBrowser().modeLine;
     var time = new Date();
@@ -455,9 +456,12 @@ function updateModeline(url)
     var x = win.scrollMaxX == 0 ? 100 : Math.round(win.scrollX / win.scrollMaxX * 100);
     var y = win.scrollMaxY == 0 ? 100 : Math.round(win.scrollY / win.scrollMaxY * 100);
     modeline.value = url.spec;
-    modeline.value += " -- " + (hours<10 ? "0" + hours:hours)
+    modeline.value += "    " + (hours<10 ? "0" + hours:hours)
 	+ ":" + (mins<10 ?"0" +mins:mins);
-    modeline.value += " -- (" + x + "," + y + ")";
+    modeline.value += "    (" + x + "," + y + ")";
+
+    // update the modeline clock
+    setTimeout(updateModeline, 6000);
 }
 
 

@@ -239,7 +239,7 @@ function exec_command(cmd)
 	if (gCommands[i][0] == cmd) {
 	    var args = interactive(gCommands[i][2]);
 	    var ret = gCommands[i][1](args);
-	    updateModeline(getWebNavigation().currentURI);
+	    updateModeline();
 	    return ret;
 	}
     }
