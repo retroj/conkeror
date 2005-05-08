@@ -216,7 +216,8 @@ function clearKmaps()
     select_kmap   	  = [];
 }
 
-// VI Keys for the heathens
+// VI Keys for the heathens. Thanks to maxauthority on #conkeror for
+// the patch.
 function initViKmaps()
 {
     // submaps
