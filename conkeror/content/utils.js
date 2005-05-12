@@ -459,9 +459,6 @@ function updateModeline()
     modeline.value += "    " + (hours<10 ? "0" + hours:hours)
 	+ ":" + (mins<10 ?"0" +mins:mins);
     modeline.value += "    (" + x + "," + y + ")";
-
-    // update the modeline clock
-    setTimeout(updateModeline, 6000);
 }
 
 

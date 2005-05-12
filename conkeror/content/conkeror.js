@@ -149,6 +149,9 @@ function delayedStartup()
 	    document.commandDispatcher.focusedElement = element;
 	}
     }
+
+    // Add a timer to update the modeline once a minute
+    setInterval (updateModeline, 60000);
 }
 
 function nsBrowserStatusHandler()

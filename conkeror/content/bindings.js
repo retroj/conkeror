@@ -504,7 +504,7 @@ function initKmaps()
 
     define_key(top_kmap, make_key(":",MOD_META),"eval-expression");
 
-    define_key(top_kmap, make_key("w",0),"cmd_copy");
+    define_key(top_kmap, make_key("w",MOD_META),"cmd_copy");
     define_key(top_kmap, make_key("w",MOD_CTRL),"cmd_cut");
 
     define_key(top_kmap, make_key(KeyEvent.DOM_VK_PAGE_UP, MOD_SHIFT),"cmd_selectPageUp");
