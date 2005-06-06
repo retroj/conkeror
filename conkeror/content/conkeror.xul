@@ -8,7 +8,7 @@
     onload="Startup()"
     contenttitlesetting="true"
     title = "Conkeror"
-    titlemodifier="Conkeror"
+    titlemodifier=" Conkeror"
     id = "main-window"
     windowtype="navigator:browser"
     width = "640"
@@ -36,5 +36,3 @@
   </hbox>
 </vbox>
 </window>
-  
-  
