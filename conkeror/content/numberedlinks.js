@@ -115,6 +115,14 @@ function closeNumberedLinkBar()
 	
 }
 
+function get_href (node)
+{
+    if (node.hasAttribute("href")) {
+	var wrapper = new XPCNativeWrapper(node, "href", "getAttribute()");
+	return wrapper.href;
+    }
+}
+
 function matchLink (evt, doc, link)
 {
     try {
@@ -124,22 +132,39 @@ function matchLink (evt, doc, link)
 	    if (link == nodes[i].getAttribute("__conkid")) {
 		var node = doc.getElementById(nodes[i].getAttribute("__nodeid"));
 		var type = nodes[i].getAttribute("__conktype");
+		var href = get_href (node);
 		if (node) {
 		    if (type == "link") {
 			if (metaPressed(evt)) {
 			    node.focus();
 			} else if (evt.ctrlKey) {
-			    getBrowser().newBrowser(node.href);
+			    getBrowser().newBrowser(href);
 			} else {
-			    open_url_in(gNumberedLinksPrefix, node.href);
+			    var evt = doc.createEvent('MouseEvents');
+			    var x = 0;
+			    var y = 0;
+			    if (gNumberedLinksPrefix == 1) {
+				if (node.localName.toLowerCase() == "area") {
+				    var coords = linksArray[hintId].getAttribute("coords").split(",");
+				    x = Number(coords[0]);
+				    y = Number(coords[1]);
+				}
+				evt.initMouseEvent('click', true, true, doc.defaultView, 1, x, y, 0, 0, null, null, null, null, 0, null);
+				node.dispatchEvent(evt);
+			    } else {
+				open_url_in(gNumberedLinksPrefix, node.href);
+			    }
 			}
 		    } else if (type == "image") {
 			copy_img_location(node);
 		    } else if (type == "button") {
 			if (metaPressed(evt)) {
 			    node.focus();
-			} else
-			    node.click();
+			} else {
+			    var evt = doc.createEvent('MouseEvents');
+			    evt.initMouseEvent('click', true, true, doc.defaultView, 1, 0, 0, 0, 0, null, null, null, null, 0, null);
+			    node.dispatchEvent(evt);
+			}
 		    } else {
 			node.focus();
 		    }

@@ -633,6 +633,7 @@ function readKeyPress(event)
 		if (elt.tagName == "html:input"
 		    || elt.tagName == "INPUT" && (type == null
 						  || type == "text"
+						  || type == "textfield"
 						  || type == "password"
 						  || type == "file")) {
 		    // Use the input keymap.

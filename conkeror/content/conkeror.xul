@@ -16,6 +16,7 @@
 
 
   <script type="application/x-javascript" src="chrome://browser/content/bookmarks/bookmarks.js"/>
+  <script type="application/x-javascript" src="chrome://global/content/XPCNativeWrapper.js"/>
 
   <script type="application/x-javascript" src="utils.js"/>
   <script type="application/x-javascript" src="bm.js"/>
