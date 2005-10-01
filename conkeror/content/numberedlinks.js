@@ -145,7 +145,7 @@ function matchLink (evt, doc, link)
 			    var y = 0;
 			    if (gNumberedLinksPrefix == 1) {
 				if (node.localName.toLowerCase() == "area") {
-				    var coords = linksArray[hintId].getAttribute("coords").split(",");
+				    var coords = node.getAttribute("coords").split(",");
 				    x = Number(coords[0]);
 				    y = Number(coords[1]);
 				}
