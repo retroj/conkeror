@@ -444,6 +444,15 @@ function closeInput(clearInput, restoreFocus)
     } catch(e) { window.alert(e); }
 }
 
+// Enable/disable modeline
+var gModeLineMode = true;
+
+function showModeline()
+{
+    var modeline = getBrowser().modeLine;
+    modeline.hidden = !gModeLineMode;
+}
+
 function updateModeline()
 {
     var url = getWebNavigation().currentURI;
@@ -459,6 +468,7 @@ function updateModeline()
     modeline.value += "    " + (hours<10 ? "0" + hours:hours)
 	+ ":" + (mins<10 ?"0" +mins:mins);
     modeline.value += "    (" + x + "," + y + ")";
+    showModeline();
 }
 
 
@@ -629,13 +639,15 @@ function readKeyPress(event)
 	    // form input is focused.
 	    var elt = document.commandDispatcher.focusedElement;
 	    if (elt) {
+		var tag = elt.tagName.toLowerCase();
 		var type = elt.getAttribute("type");
-		if (elt.tagName == "html:input"
-		    || elt.tagName == "INPUT" && (type == null
-						  || type == "text"
-						  || type == "textfield"
-						  || type == "password"
-						  || type == "file")) {
+		if (type != null) {type = type.toLowerCase();}
+		if (tag == "html:input"
+		    || tag == "input" && (type == null
+					  || type == "text"
+					  || type == "textfield"
+					  || type == "password"
+					  || type == "file")) {
 		    // Use the input keymap.
 
 		    // A bit of a hack, if there's a char code and no

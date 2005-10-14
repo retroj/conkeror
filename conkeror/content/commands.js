@@ -152,6 +152,7 @@ function init_commands()
     add_command("text-reset", text_reset, []);
     add_command("text-enlarge", text_enlarge, [["p"]]);
     add_command("text-reduce", text_reduce, [["p"]]);
+    add_command("mode-line-mode", mode_line_mode, [["P"]]);
     } catch(e) {alert(e);}
 }
 
@@ -1143,4 +1144,17 @@ function use_emacs_keys()
 {
     clearKmaps();
     initKmaps();
+}
+
+function mode_line_mode(arg)
+{
+    var win = document.commandDispatcher.focusedWindow;
+    if (typeof arg == "number")
+	gModeLineMode = (arg > 0)? true: false;
+    else if (typeof arg == "object")
+	gModeLineMode = !gModeLineMode;
+
+    if (win) {
+        updateModeline();
+    }
 }
