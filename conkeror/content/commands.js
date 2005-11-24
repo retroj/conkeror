@@ -153,6 +153,7 @@ function init_commands()
     add_command("text-enlarge", text_enlarge, [["p"]]);
     add_command("text-reduce", text_reduce, [["p"]]);
     add_command("mode-line-mode", mode_line_mode, [["P"]]);
+    add_command("customize", customize, []);
     } catch(e) {alert(e);}
 }
 
@@ -1157,4 +1158,12 @@ function mode_line_mode(arg)
     if (win) {
         updateModeline();
     }
+}
+
+// Open the familiar preferences window.
+// contributed by Steve Youngs
+function customize (arg)
+{
+    openDialog("chrome://browser/content/pref/pref.xul", "PrefWindow",
+	       "chrome,titlebar,resizable,modal", "catFeaturesbutton");
 }
