@@ -190,14 +190,31 @@ function make_key(keyCode, mods)
     return key;
 }
 
-// Sorta dirty, bind key to either the keymap or command in the keymap, kmap
+// bind key to either the keymap or command in the keymap, kmap
+// Contributed by Nikolai Weibull
 function define_key(kmap, key, cmd)
 {
+    for (var i = 0; i < kmap.length; i++) {
+        if (((kmap[i].key.charCode && key.charCode &&
+              kmap[i].key.charCode == key.charCode) ||
+             (kmap[i].key.keyCode && key.keyCode &&
+              kmap[i].key.keyCode == key.keyCode)) &&
+            kmap[i].key.modifiers == key.modifiers) {
+            if (typeof cmd == "string") {
+                kmap[i].command = cmd;
+                kmap[i].keymap = null;
+            } else {
+                kmap[i].command = null;
+                kmap[i].keymap = cmd;
+            }
+            return;
+        }
+    }
     var obj = {key: key};
     if (typeof cmd == "string")
-	obj.command = cmd;
+            obj.command = cmd;
     else 
-	obj.keymap = cmd;
+            obj.keymap = cmd;
     kmap.push(obj);
 }
 
