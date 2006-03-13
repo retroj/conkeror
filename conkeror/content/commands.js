@@ -154,6 +154,8 @@ function init_commands()
     add_command("text-reduce", text_reduce, [["p"]]);
     add_command("mode-line-mode", mode_line_mode, [["P"]]);
     add_command("customize", customize, []);
+    add_command("adblock-add-pattern", adblock_add_pattern, []);
+    add_command("adblock-list-patterns", adblock_list_patterns, []);
     } catch(e) {alert(e);}
 }
 
@@ -1166,4 +1168,25 @@ function customize (arg)
 {
     openDialog("chrome://browser/content/pref/pref.xul", "PrefWindow",
 	       "chrome,titlebar,resizable,modal", "catFeaturesbutton");
+}
+
+function adblock_add_pattern (arg)
+{
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
+    var branch = prefs.getBranch("conkeror.");
+
+    readFromMiniBuffer("Add Adblock Filter: ", null, "adblock", 
+		       function (str) {
+			   var block = branch.prefHasUserValue("adblock") ? branch.getCharPref("adblock") : "";
+			   branch.setCharPref("adblock", block + " " + str);
+		       });
+}
+
+function adblock_list_patterns (arg)
+{
+    var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
+    var branch = prefs.getBranch("conkeror.");
+    var block = branch.prefHasUserValue("adblock") ? branch.getCharPref("adblock") : "";
+
+    message (block);
 }

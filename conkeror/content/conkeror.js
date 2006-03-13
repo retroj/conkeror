@@ -32,6 +32,9 @@ the terms of any one of the MPL, the GPL or the LGPL.
 const nsCI               = Components.interfaces;
 const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 
+var console         = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+function log(msg) { console.logStringMessage(msg); }
+
 function Startup()
 {
 //   gBrowser = document.getElementById("content");

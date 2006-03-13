@@ -304,6 +304,8 @@ function createNum(node, n, floaters, doc)
 	    createNL (doc, node, n, "link", NL_FLOATER, floaters);
 	} else if (node.tagName == "IMG") {
 	    createNL (doc, node, n, "image", NL_FLOATER, floaters);
+	} else if (node.tagName == "EMBED") {
+	    createNL (doc, node, n, "image", NL_FLOATER, floaters);
 	} else if (node.tagName == "INPUT"
 		   && (node.type == "submit" 
 		       || node.type == "button"
@@ -339,6 +341,7 @@ function doLinkNodes(doc, linknum)
     var a_nodes = doc.getElementsByTagName('a');
     var ar_nodes = doc.getElementsByTagName('area');
     var img_nodes = doc.getElementsByTagName('img');
+    var embed_nodes = doc.getElementsByTagName('embed');
     var i_nodes = doc.getElementsByTagName('input');
     var s_nodes = doc.getElementsByTagName('select');
     var t_nodes = doc.getElementsByTagName('textarea');
@@ -369,6 +372,11 @@ function doLinkNodes(doc, linknum)
     for (var i=0; i<img_nodes.length; i++) {
 	if (!img_nodes[i].hasAttribute('src')) continue;
 	createNum(img_nodes[i], linknum, post, doc);
+	linknum++;
+    }
+    for (var i=0; i<embed_nodes.length; i++) {
+	if (!embed_nodes[i].hasAttribute('src')) continue;
+	createNum(embed_nodes[i], linknum, post, doc);
 	linknum++;
     }
 
