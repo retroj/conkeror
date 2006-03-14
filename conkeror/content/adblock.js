@@ -77,7 +77,8 @@ function adblockReload ()
     if (list && list != "") {
 	list = list.split (" ");
 	for (i=0; i<list.length; i++) {
-	    addPattern (list[i]);
+	    if (i.length > 0)
+		addPattern (list[i]);
 	}
     }
 }
