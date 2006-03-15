@@ -493,8 +493,6 @@ function initKmaps()
     define_key(top_kmap, make_key("C",0),"copy-link-location");
     define_key(top_kmap, make_key("x",MOD_META),"execute-extended-command");
     define_key(top_kmap, make_key("g",MOD_CTRL),"keyboard-quit");
-    define_key(top_kmap, make_key("a",MOD_CTRL),"beginning-of-line");
-    define_key(top_kmap, make_key("e",MOD_CTRL),"end-of-line");
     define_key(top_kmap, make_key( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
     define_key(top_kmap, make_key( "+", 0),"text-enlarge");
     define_key(top_kmap, make_key( "-", 0),"text-reduce");
@@ -509,8 +507,8 @@ function initKmaps()
     define_key(top_kmap, make_key("n",MOD_CTRL),"cmd_scrollLineDown");
     define_key(top_kmap, make_key("b",MOD_CTRL),"cmd_scrollLeft");
     define_key(top_kmap, make_key("f",MOD_CTRL),"cmd_scrollRight");
-    define_key(top_kmap, make_key("a",MOD_CTRL),"cmd_scrollBeginLine");
-    define_key(top_kmap, make_key("e",MOD_CTRL),"cmd_scrollEndLine");
+    define_key(top_kmap, make_key("a",MOD_CTRL),"beginning-of-line");
+    define_key(top_kmap, make_key("e",MOD_CTRL),"end-of-line");
     define_key(top_kmap, make_key("<",MOD_META),"cmd_scrollTop");
     define_key(top_kmap, make_key(">",MOD_META),"cmd_scrollBottom");
     define_key(top_kmap, make_key("_",MOD_CTRL),"cmd_undo");
