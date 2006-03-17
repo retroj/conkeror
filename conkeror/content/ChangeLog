@@ -1,0 +1,9 @@
+2006-03-17  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* utils.js (http): delay focusing the input box by setting a 0s
+	timeout.
+
+	* conkeror.js (Startup): do not set the docshell.
+
+	* commands.js: use app-startup to quit conkeror.
+

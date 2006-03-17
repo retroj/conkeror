@@ -121,6 +121,10 @@ function readInput(prompt, open, keypress)
     var field = document.getElementById("input-field");
     var output = document.getElementById("minibuffer-output");
 
+    output.hidden = true;
+    label.hidden = false;
+    field.hidden = false;
+
     gFocusedWindow = document.commandDispatcher.focusedWindow;
     gFocusedElement = document.commandDispatcher.focusedElement;
 
@@ -129,10 +133,9 @@ function readInput(prompt, open, keypress)
 
     if (open) open();
 
-    output.hidden = true;
-    label.hidden = false;
-    field.hidden = false;
-    field.focus();
+    // If this isn't given a timeout it doesn't focus in ff1.5. I
+    // don't know why.
+    setTimeout (function (){field.focus();}, 0);
 }
 
 function handle_basic_input(event)

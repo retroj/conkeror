@@ -270,11 +270,10 @@ function unfocus()
 
 function quit()
 {
-    // globalOverlay.js has all this silly error checking and useless
-    // junk. Here, we just get the job done.
-    var appShell = Components.classes['@mozilla.org/appshell/appShellService;1'].getService();
-    appShell = appShell.QueryInterface( Components.interfaces.nsIAppShellService );
-    appShell.quit(Components.interfaces.nsIAppShellService.eAttemptQuit);
+    // Using app-startup to quit? Not very intuitive.
+    var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
+	.getService(Components.interfaces.nsIAppStartup);
+    appStartup.quit(appStartup.eAttemptQuit);
 }
 
 function goBack(args)

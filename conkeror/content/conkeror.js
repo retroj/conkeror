@@ -60,14 +60,6 @@ function Startup()
         .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
         .getInterface(Components.interfaces.nsIXULWindow)
         .XULBrowserWindow = window.XULBrowserWindow;
-  getBrowser().docShell
-          .QueryInterface(nsCI.nsIDocShellTreeItem)
-          .rootTreeItem
-          .QueryInterface(nsCI.nsIInterfaceRequestor)
-          .getInterface(nsCI.nsIDOMWindow)
-          .QueryInterface(nsCI.nsIInterfaceRequestor)
-          .getInterface(nsCI.nsIDOMWindowUtils)
-          .browserDOMWindow = new nsBrowserAccess();
   getBrowser().setProgressListener(window.XULBrowserWindow, 
 				   Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
