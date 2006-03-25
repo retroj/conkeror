@@ -1,5 +1,11 @@
 2006-03-25  Shawn Betts  <sabetts@vcn.bc.ca>
 
+	* Release 0.23
+	
+2006-03-25  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* utils.js (readinput): fix the field focus bug.
+	
 	* commands.js (init_commands): new command print-buffer
 	(print_buffer): new function
 	(add_command): replace existing commands.

@@ -267,12 +267,13 @@ function add_command(name, fn, args)
 function unfocus()
 {
     var input = document.getElementById("input-field");
-    var w = document.commandDispatcher.focusedWindow;
-    // Hey, waddya know. It's another sick hack.
-    if (w) {
-	input.focus();
-	w.focus();
-    }
+//     var w = document.commandDispatcher.focusedWindow;
+//     // Hey, waddya know. It's another sick hack.
+//     if (w) {
+// 	input.focus();
+// 	w.focus();
+//     }
+    window.focus();
 }
 
 function quit()

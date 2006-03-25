@@ -123,7 +123,7 @@ function readInput(prompt, open, keypress)
 
     output.hidden = true;
     label.hidden = false;
-    field.hidden = false;
+    field.setAttribute("flex", 1);
 
     gFocusedWindow = document.commandDispatcher.focusedWindow;
     gFocusedElement = document.commandDispatcher.focusedElement;
@@ -135,7 +135,13 @@ function readInput(prompt, open, keypress)
 
     // If this isn't given a timeout it doesn't focus in ff1.5. I
     // don't know why.
-    setTimeout (function (){field.focus();}, 0);
+//     setTimeout (function (){field.focus();}, 0);
+
+    window.focus();
+    field.focus();
+//     document.commandDispatcher.focusedWindow = window;
+//     document.commandDispatcher.focusedElement = field;
+
 }
 
 function handle_basic_input(event)
@@ -432,17 +438,19 @@ function closeInput(clearInput, restoreFocus)
 		setFocus(gFocusedWindow);
 	    }
 	} else if (gFocusedWindow) {
-	    setFocus(gFocusedWindow);
+	    content.focus();
+// 	    setFocus(gFocusedWindow);
 	} else {
 	    // Last resort
-	    _content.focus();
+	    content.focus();
 	}
 
 	if (clearInput)
 	    output.value = "";
 	output.hidden = false;
 	prompt.hidden = true;
-	field.hidden = true;
+	field.removeAttribute("flex");
+	//field.hidden = true;
 	field.value = "";
     } catch(e) { window.alert(e); }
 }

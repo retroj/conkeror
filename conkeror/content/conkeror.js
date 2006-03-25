@@ -37,6 +37,7 @@ function log(msg) { console.logStringMessage(msg); }
 
 function Startup()
 {
+    try {
 //   gBrowser = document.getElementById("content");
   var uriToLoad = "chrome://conkeror/content/help.html";
 //   var uriToLoad = "file:///home/sabetts/src/conkeror/testframes.html";
@@ -49,39 +50,10 @@ function Startup()
   init_universal_arg();
   initBookmarkService();
 
-  if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
-    uriToLoad = window.arguments[0];
-
-  // Setup our status handler
-  window.XULBrowserWindow = new nsBrowserStatusHandler();
-  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIWebNavigation)
-        .QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
-        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-        .getInterface(Components.interfaces.nsIXULWindow)
-        .XULBrowserWindow = window.XULBrowserWindow;
-  getBrowser().setProgressListener(window.XULBrowserWindow, 
-				   Components.interfaces.nsIWebProgress.NOTIFY_ALL);
-
-  // Set up our end document hook for numbered links
-  var observerService = Components.classes["@mozilla.org/observer-service;1"]
-      .getService(Components.interfaces.nsIObserverService);
-  observerService.addObserver(nl_document_observer, "page-end-load", false);
-
-  // because of the absolute position of the numbers, we need to
-  // adjust when the window is resized.
-  try {
-  window.document.addEventListener("resize", nl_resize, true);
-  } catch(e) {alert(e);}
-
-  // Give it a chance to set itself up before loading the URL
-  setTimeout(getWebNavigation().loadURI, 0, 
-	     uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-
   try {
     // Create the browser instance component.
     appCore = Components.classes["@mozilla.org/appshell/component/browser/instance;1"]
-                        .createInstance(Components.interfaces.nsIBrowserInstance);
+			.createInstance(Components.interfaces.nsIBrowserInstance);
     if (!appCore)
       throw "couldn't create a browser instance";
   } catch (e) {
@@ -90,43 +62,94 @@ function Startup()
     return;
   }
 
+
+  // Setup our status handler
+  window.XULBrowserWindow = new nsBrowserStatusHandler();
+  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+	.getInterface(Components.interfaces.nsIWebNavigation)
+	.QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
+	.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+	.getInterface(Components.interfaces.nsIXULWindow)
+	.XULBrowserWindow = window.XULBrowserWindow;
+  window.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
+      new nsBrowserAccess();
+
+//   window.browserContentListener =
+//       new nsBrowserContentListener(window, getBrowser());
+
 //   var appshell = Components.classes["@mozilla.org/appshell/appShellService;1"]
 //                         .createInstance(Components.interfaces.nsIAppShellService);
 //   appshell.registerTopLevelWindow(window);
 
+  // set default character set if provided
+  if ("arguments" in window && window.arguments.length > 1 && window.arguments[1]) {
+    if (window.arguments[1].indexOf("charset=") != -1) {
+      var arrayArgComponents = window.arguments[1].split("=");
+      if (arrayArgComponents) {
+	//we should "inherit" the charset menu setting in a new window
+	getMarkupDocumentViewer().defaultCharacterSet = arrayArgComponents[1];
+      }
+    }
+  }
+
   appCore.setWebShellWindow(window);
 
-//   try {
-//       getBrowser().addEventListener("PluginNotFound", missingPlugin, false);
-//   } catch (e) { alert(e); }
+  getBrowser().setProgressListener(window.XULBrowserWindow, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
-  // Turn off typeahead. We'll use our own that's way better.
-  gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
-                           .getService(Components.interfaces.nsIPrefBranch);
-  gPrefService.setBoolPref("accessibility.typeaheadfind", false);
 
-  try {
-      // Load the RC file.
-      if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
-	  gPrefService.setCharPref("conkeror.rcfile", "");
-      } else {
-	  var rcfile = gPrefService.getCharPref("conkeror.rcfile");
-	  if (rcfile.length)
-	      load_rc_file(rcfile);
-      }
-  } catch (e) {window.alert(e);}
+  if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
+    uriToLoad = window.arguments[0];
 
-  // Web jumps have to be initialized after the rcfile is loaded for
-  // the delicious webjumps
-  init_webjumps();
+  getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, window.arguments[2], null, null);
 
-  // Give the browser focus.
+//   // Give it a chance to set itself up before loading the URL
+//   setTimeout(getWebNavigation().loadURI, 0,
+//     uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
   setTimeout(delayedStartup,0);
+    } catch (e) { log ("haag" + e); }
 }
 
 function delayedStartup()
 {
+    window.addEventListener("keypress", readKeyPress, false);
+
     element = _content;
+
+    // Set up our end document hook for numbered links
+    var observerService = Components.classes["@mozilla.org/observer-service;1"]
+	.getService(Components.interfaces.nsIObserverService);
+    observerService.addObserver(nl_document_observer, "page-end-load", false);
+
+    // because of the absolute position of the numbers, we need to
+    // adjust when the window is resized.
+    try {
+	window.document.addEventListener("resize", nl_resize, true);
+    } catch(e) {alert(e);}
+
+
+    //   try {
+    //       getBrowser().addEventListener("PluginNotFound", missingPlugin, false);
+    //   } catch (e) { alert(e); }
+
+    // Turn off typeahead. We'll use our own that's way better.
+    gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
+	.getService(Components.interfaces.nsIPrefBranch);
+    gPrefService.setBoolPref("accessibility.typeaheadfind", false);
+
+    try {
+	// Load the RC file.
+	if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
+	    gPrefService.setCharPref("conkeror.rcfile", "");
+	} else {
+	    var rcfile = gPrefService.getCharPref("conkeror.rcfile");
+	    if (rcfile.length)
+		load_rc_file(rcfile);
+	}
+    } catch (e) {window.alert(e);}
+
+    // Web jumps have to be initialized after the rcfile is loaded for
+    // the delicious webjumps
+    init_webjumps();
 
     // This is a redo of the fix for jag bug 91884
     var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
@@ -154,7 +177,7 @@ function nsBrowserStatusHandler()
   this.init();
 }
 
-nsBrowserStatusHandler.prototype = 
+nsBrowserStatusHandler.prototype =
 {
   // Stored Status, Link and Loading values
   status : "",
@@ -165,9 +188,9 @@ nsBrowserStatusHandler.prototype =
   QueryInterface : function(aIID)
   {
     if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
-        aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-        aIID.equals(Components.interfaces.nsIXULBrowserWindow) ||
-        aIID.equals(Components.interfaces.nsISupports))
+	aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
+	aIID.equals(Components.interfaces.nsIXULBrowserWindow) ||
+	aIID.equals(Components.interfaces.nsISupports))
       return this;
     throw Components.results.NS_NOINTERFACE;
   },
@@ -218,14 +241,14 @@ nsBrowserStatusHandler.prototype =
     } catch (e) {window.alert(e);}
   },
 
-  onLinkIconAvailable : function(aBrowser, aHref) 
+  onLinkIconAvailable : function(aBrowser, aHref)
   {
       // Weee, do we care about this?
   },
 
   onProgressChange : function (aWebProgress, aRequest,
-                               aCurSelfProgress, aMaxSelfProgress,
-                               aCurTotalProgress, aMaxTotalProgress)
+			       aCurSelfProgress, aMaxSelfProgress,
+			       aCurTotalProgress, aMaxTotalProgress)
   {
 //       window.alert("onprogressChange");
       // We don't care about this right now
@@ -234,13 +257,13 @@ nsBrowserStatusHandler.prototype =
   },
 
   onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus)
-  {  
+  {
       try {
       const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
       const nsIChannel = Components.interfaces.nsIChannel;
       if (aStateFlags & nsIWebProgressListener.STATE_START) {
-        if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK &&
-            aRequest && aWebProgress.DOMWindow == content)
+	if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK &&
+	    aRequest && aWebProgress.DOMWindow == content)
 	    {
 		// starting document load
 		this.startDocumentLoad(aRequest);
@@ -257,23 +280,23 @@ nsBrowserStatusHandler.prototype =
 	  }
 	  var msg = "";
 	  if (aRequest) {
-              const kErrorBindingAborted = 0x804B0002;
-              const kErrorNetTimeout = 0x804B000E;
-              const kErrorNotFound = 2152398878;
-              switch (aStatus) {
+	      const kErrorBindingAborted = 0x804B0002;
+	      const kErrorNetTimeout = 0x804B000E;
+	      const kErrorNotFound = 2152398878;
+	      switch (aStatus) {
 	      case kErrorBindingAborted:
-                  msg = "Quit";
-                  break;
+		  msg = "Quit";
+		  break;
 	      case kErrorNetTimeout:
-                  msg = "Timed Out.";
-                  break;
+		  msg = "Timed Out.";
+		  break;
 	      case kErrorNotFound:
 		  msg = "Not Found.";
-              }
+	      }
 	  }
-          if (msg == "") {
-            msg = "Done.";
-          }
+	  if (msg == "") {
+	    msg = "Done.";
+	  }
 	  this.updateStatusField(msg);
       }
       } catch(e) {window.alert(e);}
@@ -300,7 +323,7 @@ nsBrowserStatusHandler.prototype =
       const nsIChannel = Components.interfaces.nsIChannel;
       var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
       var observerService = Components.classes["@mozilla.org/observer-service;1"]
-                            .getService(Components.interfaces.nsIObserverService);
+			    .getService(Components.interfaces.nsIObserverService);
       observerService.notifyObservers(_content, "page-start-load", urlStr);
   },
 
@@ -309,7 +332,7 @@ nsBrowserStatusHandler.prototype =
       const nsIChannel = Components.interfaces.nsIChannel;
       var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
       var observerService = Components.classes["@mozilla.org/observer-service;1"]
-                            .getService(Components.interfaces.nsIObserverService);
+			    .getService(Components.interfaces.nsIObserverService);
       observerService.notifyObservers(_content, "page-end-load", urlStr);
   }
 
@@ -333,7 +356,7 @@ nsBrowserAccess.prototype =
   QueryInterface : function(aIID)
   {
     if (aIID.equals(nsCI.nsIBrowserDOMWindow) ||
-        aIID.equals(nsCI.nsISupports))
+	aIID.equals(nsCI.nsISupports))
       return this;
     throw Components.results.NS_NOINTERFACE;
   },
@@ -369,7 +392,7 @@ nsBrowserAccess.prototype =
 //                                  .createInstance(nsCI.nsIURI);
 //             referrer.spec = Components.lookupMethod(aOpener,"location")
 //                                       .call(aOpener);
-// 	    alert ("referrer: " + referrer);
+//	    alert ("referrer: " + referrer);
 //           }
 //           newWindow.QueryInterface(nsCI.nsIInterfaceRequestor)
 //                    .getInterface(nsCI.nsIWebNavigation)
@@ -379,26 +402,26 @@ nsBrowserAccess.prototype =
 //         }
 //         break;
 //       default : // OPEN_CURRENTWINDOW or an illegal value
-        try {
-          if (aOpener) {
-            newWindow = Components.lookupMethod(aOpener,"top")
-                                  .call(aOpener);
-            referrer = Components.classes["@mozilla.org/network/standard-url;1"]
-                                 .createInstance(nsCI.nsIURI);
-            referrer.spec = Components.lookupMethod(aOpener,"location")
-                                      .call(aOpener);
-            newWindow.QueryInterface(nsCI.nsIInterfaceRequestor)
-                     .getInterface(nsIWebNavigation)
-                     .loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, referrer,
-                              null, null);
+	try {
+	  if (aOpener) {
+	    newWindow = Components.lookupMethod(aOpener,"top")
+				  .call(aOpener);
+	    referrer = Components.classes["@mozilla.org/network/standard-url;1"]
+				 .createInstance(nsCI.nsIURI);
+	    referrer.spec = Components.lookupMethod(aOpener,"location")
+				      .call(aOpener);
+	    newWindow.QueryInterface(nsCI.nsIInterfaceRequestor)
+		     .getInterface(nsIWebNavigation)
+		     .loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, referrer,
+			      null, null);
 //           } else {
 //             newWindow = gBrowser.selectedBrowser.docShell
 //                                 .QueryInterface(nsCI.nsIInterfaceRequestor)
 //                                 .getInterface(nsCI.nsIDOMWindow);
 //             loadURI(url, null);
-          }
-        } catch(e) {
-        }
+	  }
+	} catch(e) {
+	}
 //     }
     return newWindow;
   }
