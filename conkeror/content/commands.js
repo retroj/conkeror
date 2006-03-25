@@ -156,6 +156,7 @@ function init_commands()
     add_command("customize", customize, []);
     add_command("adblock-add-pattern", adblock_add_pattern, []);
     add_command("adblock-list-patterns", adblock_list_patterns, []);
+    add_command("print-buffer", print_buffer, []);
     } catch(e) {alert(e);}
 }
 
@@ -254,6 +255,12 @@ function exec_command(cmd)
 
 function add_command(name, fn, args)
 {
+    for (var i=0; i <gCommands.length; i++) {
+	if (gCommands[i][0] == name) {
+	    gCommand[i] = [name,fn,args];
+	    return;
+	}
+    }
     gCommands.push([name,fn,args]);
 }
 
@@ -1188,4 +1195,9 @@ function adblock_list_patterns (arg)
     var block = branch.prefHasUserValue("adblock") ? branch.getCharPref("adblock") : "";
 
     message (block);
+}
+
+function print_buffer()
+{
+    window._content.print();
 }

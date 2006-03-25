@@ -1,3 +1,9 @@
+2006-03-25  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* commands.js (init_commands): new command print-buffer
+	(print_buffer): new function
+	(add_command): replace existing commands.
+
 2006-03-17  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.22
