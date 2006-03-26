@@ -1,5 +1,9 @@
 2006-03-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
+	* Release 0.24
+	
+2006-03-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
 	* numberedlinks.js: asynchronously number links. asynchronously update floating links.
 
 	* conkeror.js (delayedStartup): add frame_focus_observer to page-end-load

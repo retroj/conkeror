@@ -1,0 +1,9 @@
+-*- outline -*-
+
+** Changes since 0.23
+* new print-buffer command
+* new extension command
+* new renumber-links command
+* asynchronous link numbering
+
+
