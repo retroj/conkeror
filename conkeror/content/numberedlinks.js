@@ -262,17 +262,23 @@ function createNL (doc, node, id, type, where, post, img)
 	span.style.borderStyle = "solid";
 	span.style.MozBorderRadius = "0.5em";
 // 	span.style.visibility = "hidden";
+	if ((type == "image" && getBrowser().numberedLinks) || (type != "image" && getBrowser().numberedImages))
+	    span.style.display = "none";
+
 	if (where == NL_FLOATER || where == NL_IMGFLOATER) {
 
 
-	    post.push(function ()
-	                {
-			    var pt = abs_point(where == NL_IMGFLOATER ? img : node);
+// 	    post.push(function ()
+// 	                {
+// 			    var pt = abs_point(where == NL_IMGFLOATER ? img : node);
+// 			    span.style.left =  pt.x + "px";
+// 			    span.style.top = pt.y + "px";
+// 			});
+	    var pt = abs_point(where == NL_IMGFLOATER ? img : node);
 			    span.style.left =  pt.x + "px";
 			    span.style.top = pt.y + "px";
-			});
-	    span.style.left = "0px";
-	    span.style.top = "0px";
+// 	    span.style.left = "0px";
+// 	    span.style.top = "0px";
 	    span.style.position = "absolute";
 	    span.style.MozOpacity = nl_floater_opacity;
 	    span.style.zIndex = "999"; // always on top
@@ -282,6 +288,7 @@ function createNL (doc, node, id, type, where, post, img)
 	} else {
 	    node.insertBefore (span, node.firstChild);
 	}
+
     } catch (e) {alert("createNL: " + e);}
     //     alert (node.offsetTop + " " + node.offsetLeft);
 }
@@ -332,98 +339,183 @@ function inlink (node)
 }
 
 // For a single document, grab all the nodes
-function doLinkNodes(doc, linknum)
+// function doLinkNodes(doc, linknum)
+// {
+//     try {
+// //     var a_nodes = doc.links;
+//     var st = new Date();
+//     var post = [];
+//     var a_nodes = doc.getElementsByTagName('a');
+//     var ar_nodes = doc.getElementsByTagName('area');
+//     var img_nodes = doc.getElementsByTagName('img');
+//     var embed_nodes = doc.getElementsByTagName('embed');
+//     var i_nodes = doc.getElementsByTagName('input');
+//     var s_nodes = doc.getElementsByTagName('select');
+//     var t_nodes = doc.getElementsByTagName('textarea');
+
+//     for (var i=0; i<t_nodes.length; i++) {
+// 	createNum(t_nodes[i], linknum, post, doc);
+// 	linknum++;
+//     }
+//     for (var i=0; i<s_nodes.length; i++) {
+// 	createNum(s_nodes[i], linknum, post, doc);
+// 	linknum++;
+//     }
+//     for (var i=0; i<i_nodes.length; i++) {
+// 	if (i_nodes[i].type == "hidden") continue;
+// 	createNum(i_nodes[i], linknum, post, doc);
+// 	linknum++;
+//     }
+//     for (var i=0; i<a_nodes.length; i++) {
+// 	if (!a_nodes[i].hasAttribute('href')) continue;
+// 	createNum(a_nodes[i], linknum, post, doc);
+// 	linknum++;
+//     }
+//     for (var i=0; i<ar_nodes.length; i++) {
+// 	if (!ar_nodes[i].hasAttribute('href')) continue;
+// 	createNum(ar_nodes[i], linknum, post, doc);
+// 	linknum++;
+//     }
+//     for (var i=0; i<img_nodes.length; i++) {
+// 	if (!img_nodes[i].hasAttribute('src')) continue;
+// 	createNum(img_nodes[i], linknum, post, doc);
+// 	linknum++;
+//     }
+//     for (var i=0; i<embed_nodes.length; i++) {
+// 	if (!embed_nodes[i].hasAttribute('src')) continue;
+// 	createNum(embed_nodes[i], linknum, post, doc);
+// 	linknum++;
+//     }
+
+//     // floaters have to be calculated afterwards because of
+//     // the reflowing of non-floaters
+//     for (var i=0; i<post.length; i++) {
+// 	post[i]();
+//     }
+
+//     end = new Date();
+// //     alert("elapse: " + (end.getTime() - st.getTime()));
+//     } catch (e) {alert(e);}
+
+//     return linknum;
+// }
+
+function already_linkified (doc)
 {
-    try {
-//     var a_nodes = doc.links;
-    var st = new Date();
-    var post = [];
-    var a_nodes = doc.getElementsByTagName('a');
-    var ar_nodes = doc.getElementsByTagName('area');
-    var img_nodes = doc.getElementsByTagName('img');
-    var embed_nodes = doc.getElementsByTagName('embed');
-    var i_nodes = doc.getElementsByTagName('input');
-    var s_nodes = doc.getElementsByTagName('select');
-    var t_nodes = doc.getElementsByTagName('textarea');
-
-    for (var i=0; i<t_nodes.length; i++) {
-	createNum(t_nodes[i], linknum, post, doc);
-	linknum++;
-    }
-    for (var i=0; i<s_nodes.length; i++) {
-	createNum(s_nodes[i], linknum, post, doc);
-	linknum++;
-    }
-    for (var i=0; i<i_nodes.length; i++) {
-	if (i_nodes[i].type == "hidden") continue;
-	createNum(i_nodes[i], linknum, post, doc);
-	linknum++;
-    }
-    for (var i=0; i<a_nodes.length; i++) {
-	if (!a_nodes[i].hasAttribute('href')) continue;
-	createNum(a_nodes[i], linknum, post, doc);
-	linknum++;
-    }
-    for (var i=0; i<ar_nodes.length; i++) {
-	if (!ar_nodes[i].hasAttribute('href')) continue;
-	createNum(ar_nodes[i], linknum, post, doc);
-	linknum++;
-    }
-    for (var i=0; i<img_nodes.length; i++) {
-	if (!img_nodes[i].hasAttribute('src')) continue;
-	createNum(img_nodes[i], linknum, post, doc);
-	linknum++;
-    }
-    for (var i=0; i<embed_nodes.length; i++) {
-	if (!embed_nodes[i].hasAttribute('src')) continue;
-	createNum(embed_nodes[i], linknum, post, doc);
-	linknum++;
+    var nodes = doc.getElementsByTagName("SPAN");
+    // When a node is deleted, it is deleted from nodes too. So we can't simply iterate through them
+    for (var i=0; i<nodes.length;) {
+	if (nodes[i].hasAttribute("__nodeid")) return true;
     }
 
-    // floaters have to be calculated afterwards because of
-    // the reflowing of non-floaters
-    for (var i=0; i<post.length; i++) {
-	post[i]();
-    }
-
-    end = new Date();
-//     alert("elapse: " + (end.getTime() - st.getTime()));
-    } catch (e) {alert(e);}
-
-    return linknum;
+    return false;
 }
 
 function removeExisting(doc)
 {
     var nodes = doc.getElementsByTagName("SPAN");
-    for (var i=0; i<nodes.length; i++) {
-	if (!nodes[i].hasAttribute("__nodeid")) continue;
-	nodes[i].parent.removeChild(nodes[i]);
+    // When a node is deleted, it is deleted from nodes too. So we can't simply iterate through them
+    for (var i=0; i<nodes.length;) {
+	if (nodes[i].hasAttribute("__nodeid")) {
+	    nodes[i].parentNode.removeChild (nodes[i]);
+	} else {
+	    i++;
+	}
     }
 }
 
-function removeExistingNLs()
+function removeExistingNLs(cont)
 {
-    var frames = window._content.frames;
-    removeExisting(window._content.document);
+    var frames = cont.frames;
+    removeExisting(cont.document);
     for (var i=0; i<frames.length; i++) {
 	removeExisting(frames[i].document);
     }
 }
 
-function createNumberedLinks()
+function getLinkNodes (doc)
 {
+    var types = ['input', 'a','select','img','embed','textarea','area'];
+    var nodes = [];
+    for (i=0; i<types.length; i++) {
+	var tmp = doc.getElementsByTagName(types[i]);
+	for (j=0; j<tmp.length; j++)
+	    nodes.unshift (tmp[j]);
+    }
+    return nodes;
+}
+
+// For a single document, grab all the nodes
+function doLinkNodes(doc, nodes, linknum)
+{
+    try {
+	var post = [];
+
+	// 20 at a time
+	for (var i=0; i<20; i++) {
+	    if (nodes.length <= 0) break;
+
+	    var node = nodes.pop();
+
+	    if ((node.tagName == "INPUT" && node.type == "hidden")
+		|| ((node.tagName == "AREA" || node.tagName == "A") && !node.hasAttribute('href'))
+		|| ((node.tagName == "IMG" || node.tagName == "EMBED") && !node.hasAttribute('src')))
+		continue;
+	    createNum(node, linknum, post, doc);
+	    linknum++;
+	}
+
+	return [linknum, post, nodes];
+
+	//     // floaters have to be calculated afterwards because of
+	//     // the reflowing of non-floaters
+	//     for (var i=0; i<post.length; i++) {
+	// 	post[i]();
+	//     }
+
+    } catch (e) {alert(e);}
+
+    //     return linknum;
+}
+
+function continueNumberedLinks (doc, linknum, nodes, docs)
+{
+    try {
+	var ret = doLinkNodes(doc, nodes, linknum);
+	if (ret[2].length > 0) {
+	    setTimeout (continueNumberedLinks, 0, doc, ret[0], ret[2], docs);
+	} else {
+	    // floaters have to be calculated afterwards because of
+	    // the reflowing of non-floaters
+	    update_nl_pos (doc);
+	    if (docs.length > 0) {
+		var newdoc = docs.pop();
+		setTimeout (continueNumberedLinks, 0, newdoc, ret[0], getLinkNodes (newdoc), docs);
+	    } else {
+		//message(ret[0] + " links numbered.");
+	    }
+	}
+
+    } catch (e) {alert(e);}
+}
+
+function createNumberedLinks(cont)
+{
+    try {
+    var frames = cont.frames;
+    var docs = [];
+
     // Remove any existing spans. This is in response to double
     // numberedlinks that I can't seem to get rid of.
-    removeExistingNLs();
-    // Now add ours
-    var linknum = 1;
-    // The main content may have link nodes as well as it's frames.
-    var frames = window._content.frames;
-    linknum = doLinkNodes(window._content.document, linknum);
+    removeExistingNLs(cont);
+
     for (var i=0; i<frames.length; i++) {
-	linknum = doLinkNodes(frames[i].document, linknum);
+	docs.unshift (frames[i].document);
     }
+    
+    continueNumberedLinks (cont.document, 1, getLinkNodes (cont.document), docs);
+
+    } catch (e) { alert(e);}
 }
 
 function setVisibility (doc, link_state, img_state)
@@ -476,34 +568,78 @@ const nl_document_observer = {
 	// the buffer that needs nl != current buffer.
 	var link_state = getBrowser().numberedLinks;
 	var img_state = getBrowser().numberedImages;
-        createNumberedLinks();
+        createNumberedLinks(subject);
 	// Only show numbered links if the feature is enabled
 	setNumberedLinksVisibility (link_state, img_state);
     }
 };
 
+// function update_nl_pos (doc)
+// {
+//     var nodes = doc.getElementsByTagName("SPAN");
+//     for (var i=0; i<nodes.length; i++) {
+// 	if (!nodes[i].hasAttribute("__nodeid")) continue;
+// 	var node = doc.getElementById(nodes[i].getAttribute("__nodeid"));
+// 	if (nodes[i].style.position == "absolute"
+// 	    && nodes[i].style.display != "none") {
+// 	    var pt;
+// 	    // image links are handled slightly differently
+// 	    if (node.tagName == "A") {
+// 		var img = node.getElementsByTagName("IMG");
+// 		if (img.length > 0)
+// 		   pt = abs_point (img[0]);
+// 		else
+// 		    pt = abs_point (node);
+// 	    } else 
+// 		pt = abs_point (node);
+// 	    nodes[i].style.left =  pt.x + "px";
+// 	    nodes[i].style.top = pt.y + "px";
+// 	}
+//     }
+// }
+
+function update_span_pos (doc, span)
+{
+    try {
+    if (!span.hasAttribute("__nodeid")) return;
+
+    var node = doc.getElementById(span.getAttribute("__nodeid"));
+    if (span.style.position == "absolute"
+	&& span.style.display != "none") {
+	var pt;
+	// image links are handled slightly differently
+	if (node.tagName == "A") {
+	    var img = node.getElementsByTagName("IMG");
+	    if (img.length > 0)
+		pt = abs_point (img[0]);
+	    else
+		pt = abs_point (node);
+	} else 
+	    pt = abs_point (node);
+	span.style.left =  pt.x + "px";
+	span.style.top = pt.y + "px";
+    }
+    } catch(e) {    log ("update_span_pos " + e); }
+}
+
+function do_some_spans (doc, n, spans)
+{
+    var upto = n+100<spans.length ? n+100:spans.length;
+
+    for (var i=n; i<upto; i++) {
+	update_span_pos (doc, spans[i]);
+    }
+
+    // schedule the rest
+    if (upto < spans.length)
+	setTimeout (do_some_spans, 0, doc, upto, spans);
+}
+
 function update_nl_pos (doc)
 {
-    var nodes = doc.getElementsByTagName("SPAN");
-    for (var i=0; i<nodes.length; i++) {
-	if (!nodes[i].hasAttribute("__nodeid")) continue;
-	var node = doc.getElementById(nodes[i].getAttribute("__nodeid"));
-	if (nodes[i].style.position == "absolute"
-	    && nodes[i].style.display != "none") {
-	    var pt;
-	    // image links are handled slightly differently
-	    if (node.tagName == "A") {
-		var img = node.getElementsByTagName("IMG");
-		if (img.length > 0)
-		   pt = abs_point (img[0]);
-		else
-		    pt = abs_point (node);
-	    } else 
-		pt = abs_point (node);
-	    nodes[i].style.left =  pt.x + "px";
-	    nodes[i].style.top = pt.y + "px";
-	}
-    }
+    try {
+    do_some_spans (doc, 0, doc.getElementsByTagName("SPAN"));
+    } catch(e) {     log ("update_nl_pos " + e); }
 }
 
 function nl_resize ()

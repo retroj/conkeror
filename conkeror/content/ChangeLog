@@ -1,3 +1,18 @@
+2006-03-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* numberedlinks.js: asynchronously number links. asynchronously update floating links.
+
+	* conkeror.js (delayedStartup): add frame_focus_observer to page-end-load
+	(top_content): new function
+	(nsBrowserStatusHandler): properly handle when frames are loaded
+
+	* commands.js (init_commands): 2 new commands renumber-links and extensions
+	(customize): use preferences.xul
+	(extensions): new function
+	(renumber_links): likewise
+
+	* bindings.js (initViKmaps): new binding to textarea_kmap yank-to-clipboard.
+
 2006-03-25  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.23

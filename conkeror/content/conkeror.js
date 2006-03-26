@@ -109,6 +109,12 @@ function Startup()
     } catch (e) { log ("haag" + e); }
 }
 
+const frame_focus_observer = {
+    observe: function(subject, topic, url)
+    {
+    }
+};
+
 function delayedStartup()
 {
     window.addEventListener("keypress", readKeyPress, false);
@@ -119,6 +125,7 @@ function delayedStartup()
     var observerService = Components.classes["@mozilla.org/observer-service;1"]
 	.getService(Components.interfaces.nsIObserverService);
     observerService.addObserver(nl_document_observer, "page-end-load", false);
+    observerService.addObserver(frame_focus_observer, "page-end-load", false);
 
     // because of the absolute position of the numbers, we need to
     // adjust when the window is resized.
@@ -175,6 +182,15 @@ function delayedStartup()
 function nsBrowserStatusHandler()
 {
   this.init();
+}
+
+function top_content (content)
+{
+    // an interesting feature is that the top level content's parent is itself
+    var c = content;
+
+    while (c != c.parent) c = c.parent;
+    return c;
 }
 
 nsBrowserStatusHandler.prototype =
@@ -261,23 +277,32 @@ nsBrowserStatusHandler.prototype =
       try {
       const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
       const nsIChannel = Components.interfaces.nsIChannel;
+
+//       log (aRequest.QueryInterface(nsIChannel).originalURI.spec + ": " 
+// 	   + (aStateFlags & nsIWebProgressListener.STATE_IS_WINDOW?"+":"-") + "window "
+// 	   + (aStateFlags & nsIWebProgressListener.STATE_IS_DOCUMENT?"+":"-") + "document "
+// 	   + (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK?"+":"-") + "network "
+// 	   + " " + (aWebProgress.DOMWindow == content)
+// 	   + " " + (aWebProgress.DOMWindow.parent == content));
+
       if (aStateFlags & nsIWebProgressListener.STATE_START) {
 	if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK &&
 	    aRequest && aWebProgress.DOMWindow == content)
 	    {
 		// starting document load
-		this.startDocumentLoad(aRequest);
+		this.startDocumentLoad(aRequest, aWebProgress);
 	    }
 
       } else if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
 	  if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
 	      if (aRequest) {
-		  if (aWebProgress.DOMWindow == content) {
-		      this.endDocumentLoad(aRequest, aStatus);
+// 		  if (aWebProgress.DOMWindow == content) {
+		  this.endDocumentLoad(aRequest, aStatus, aWebProgress);
 		      updateModeline(getWebNavigation().currentURI);
-		  }
+// 		  }
 	      }
 	  }
+
 	  var msg = "";
 	  if (aRequest) {
 	      const kErrorBindingAborted = 0x804B0002;
@@ -295,7 +320,7 @@ nsBrowserStatusHandler.prototype =
 	      }
 	  }
 	  if (msg == "") {
-	    msg = "Done.";
+	      msg = "Done.";
 	  }
 	  this.updateStatusField(msg);
       }
@@ -318,22 +343,22 @@ nsBrowserStatusHandler.prototype =
 //       window.alert("onSecurityChange");
   },
 
-  startDocumentLoad : function(aRequest)
+  startDocumentLoad : function(aRequest, aWebProgress)
   {
       const nsIChannel = Components.interfaces.nsIChannel;
       var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
       var observerService = Components.classes["@mozilla.org/observer-service;1"]
 			    .getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(_content, "page-start-load", urlStr);
+      observerService.notifyObservers(top_content (aWebProgress.DOMWindow), "page-start-load", urlStr);
   },
 
-  endDocumentLoad : function(aRequest, aStatus)
+  endDocumentLoad : function(aRequest, aStatus, aWebProgress)
   {
       const nsIChannel = Components.interfaces.nsIChannel;
       var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
       var observerService = Components.classes["@mozilla.org/observer-service;1"]
 			    .getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(_content, "page-end-load", urlStr);
+      observerService.notifyObservers(top_content (aWebProgress.DOMWindow), "page-end-load", urlStr);
   }
 
 }

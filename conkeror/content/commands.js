@@ -154,9 +154,11 @@ function init_commands()
     add_command("text-reduce", text_reduce, [["p"]]);
     add_command("mode-line-mode", mode_line_mode, [["P"]]);
     add_command("customize", customize, []);
+    add_command("extensions", extensions, []);
     add_command("adblock-add-pattern", adblock_add_pattern, []);
     add_command("adblock-list-patterns", adblock_list_patterns, []);
     add_command("print-buffer", print_buffer, []);
+    add_command("renumber-links", renumber_links, []);
     } catch(e) {alert(e);}
 }
 
@@ -1173,8 +1175,14 @@ function mode_line_mode(arg)
 // contributed by Steve Youngs
 function customize (arg)
 {
-    openDialog("chrome://browser/content/pref/pref.xul", "PrefWindow",
-	       "chrome,titlebar,resizable,modal", "catFeaturesbutton");
+    window.openDialog("chrome://browser/content/preferences/preferences.xul", "PrefWindow",
+		      "chrome,titlebar,toolbar,centerscreen,modal", "catFeaturesbutton");
+}
+
+function extensions (arg)
+{
+    window.openDialog("chrome://mozapps/content/extensions/extensions.xul?type=extensions", "ExtensionsWindow",
+		      "chrome,dialog=no,resizable");
 }
 
 function adblock_add_pattern (arg)
@@ -1201,4 +1209,9 @@ function adblock_list_patterns (arg)
 function print_buffer()
 {
     window._content.print();
+}
+
+function renumber_links ()
+{
+    createNumberedLinks(window._content);
 }

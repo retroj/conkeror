@@ -406,7 +406,6 @@ function initViKmaps()
     define_key(textarea_kmap, make_key("v",MOD_META),"cmd_movePageUp");
     define_key(textarea_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
 
-
     // 101 keys
     define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
     define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_END,MOD_SHIFT), "cmd_selectEndLine");
@@ -587,7 +586,7 @@ function initKmaps()
     define_key(textarea_kmap, make_key(">",MOD_META),"cmd_moveBottom");
     define_key(textarea_kmap, make_key("v",MOD_META),"cmd_movePageUp");
     define_key(textarea_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
-
+    define_key(textarea_kmap, make_key(" ",MOD_META),"yank-to-clipboard");
 
     // 101 keys
     define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
