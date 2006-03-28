@@ -399,66 +399,59 @@ nsBrowserAccess.prototype =
 
   openURI : function(aURI, aOpener, aWhere, aContext)
   {
-    var newWindow = null;
-    var referrer = null;
-//     if (aWhere == nsCI.nsIBrowserDOMWindow.OPEN_DEFAULTWINDOW) {
-//       switch (aContext) {
-//         case nsCI.nsIBrowserDOMWindow.OPEN_EXTERNAL :
-//           aWhere = gPrefService.getIntPref("browser.link.open_external");
-//           break;
-//         default : // OPEN_NEW or an illegal value
-//           aWhere = gPrefService.getIntPref("browser.link.open_newwindow");
-//       }
-//     }
-//     var url = aURI ? aURI.spec : "about:blank";
-//     switch(aWhere) {
-//       case nsCI.nsIBrowserDOMWindow.OPEN_NEWWINDOW :
-//         newWindow = openDialog(getBrowserURL(), "_blank", "all,dialog=no", url);
-//         break;
-//       case nsCI.nsIBrowserDOMWindow.OPEN_NEWTAB :
-//         var newTab = gBrowser.addTab("about:blank");
-//         if (!gPrefService.getBoolPref("browser.tabs.loadDivertedInBackground"))
-//           gBrowser.selectedTab = newTab;
-//         newWindow = gBrowser.getBrowserForTab(newTab).docShell
-//                             .QueryInterface(nsCI.nsIInterfaceRequestor)
-//                             .getInterface(nsCI.nsIDOMWindow);
-//         try {
-//           if (aOpener) {
-//             referrer = Components.classes["@mozilla.org/network/standard-url;1"]
-//                                  .createInstance(nsCI.nsIURI);
-//             referrer.spec = Components.lookupMethod(aOpener,"location")
-//                                       .call(aOpener);
-//	    alert ("referrer: " + referrer);
-//           }
-//           newWindow.QueryInterface(nsCI.nsIInterfaceRequestor)
-//                    .getInterface(nsCI.nsIWebNavigation)
-//                    .loadURI(url, nsCI.nsIWebNavigation.LOAD_FLAGS_NONE,
-//                             referrer, null, null);
-//         } catch(e) {
-//         }
-//         break;
-//       default : // OPEN_CURRENTWINDOW or an illegal value
-	try {
-	  if (aOpener) {
-	    newWindow = Components.lookupMethod(aOpener,"top")
-				  .call(aOpener);
-	    referrer = Components.classes["@mozilla.org/network/standard-url;1"]
-				 .createInstance(nsCI.nsIURI);
-	    referrer.spec = Components.lookupMethod(aOpener,"location")
-				      .call(aOpener);
-	    newWindow.QueryInterface(nsCI.nsIInterfaceRequestor)
-		     .getInterface(nsIWebNavigation)
-		     .loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, referrer,
-			      null, null);
-//           } else {
-//             newWindow = gBrowser.selectedBrowser.docShell
-//                                 .QueryInterface(nsCI.nsIInterfaceRequestor)
-//                                 .getInterface(nsCI.nsIDOMWindow);
-//             loadURI(url, null);
+      var newwindow;
+      var url = aURI ? aURI.spec : "about:blank";
+      var isExternal = (aContext == nsCI.nsIBrowserDOMWindow.OPEN_EXTERNAL);
+      var referrer;
+
+      if (isExternal && aURI && aURI.schemeIs("chrome")) {
+	  dump("use -chrome command-line option to load external chrome urls\n");
+	  return null;
+      }
+
+      var loadflags = isExternal ? nsCI.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL : nsCI.nsIWebNavigation.LOAD_FLAGS_NONE;
+      // Apparently we need to catch the errors and ignore them.
+      try {
+	  switch(aWhere) {
+	  case nsCI.nsIBrowserDOMWindow.OPEN_NEWWINDOW :
+	      newwindow = openDialog("chrome://conkeror/content", "_blank", "all,dialog=no", url);
+	      break;
+	  case nsCI.nsIBrowserDOMWindow.OPEN_NEWTAB :
+	      var browser = getBrowser().newBrowser("about:blank");
+	      newwindow = browser.docShell
+		  .QueryInterface(nsCI.nsIInterfaceRequestor)
+		  .getInterface(nsCI.nsIDOMWindow);
+	      if (aOpener) {
+		  location = aOpener.location;
+		  referrer =
+		      Components.classes["@mozilla.org/network/io-service;1"]
+		      .getService(Components.interfaces.nsIIOService)
+		      .newURI(location, null, null);
+	      }
+	      newwindow.QueryInterface(nsCI.nsIInterfaceRequestor)
+                   .getInterface(nsCI.nsIWebNavigation)
+                   .loadURI(url, loadflags, referrer, null, null);
+	      break;
+	  default : // OPEN_CURRENTWINDOW or an illegal value
+	      if (aOpener) {
+		  newwindow = aOpener.top;
+		  location = aOpener.location;
+		  referrer =
+		      Components.classes["@mozilla.org/network/io-service;1"]
+		      .getService(Components.interfaces.nsIIOService)
+		      .newURI(location, null, null);
+
+		  newwindow.QueryInterface(nsCI.nsIInterfaceRequestor)
+		      .getInterface(nsIWebNavigation)
+		      .loadURI(url, loadflags, referrer, null, null);
+	      } else {
+		  newwindow = getBrowser().docShell
+		      .QueryInterface(nsCI.nsIInterfaceRequestor)
+		      .getInterface(nsCI.nsIDOMWindow);
+		  getWebNavigation().loadURI(url, loadflags, null, null, null);
+	      }
 	  }
-	} catch(e) {
-	}
-//     }
-    return newWindow;
+      } catch (e) { log ("error: " + e); }
+      return newwindow;
   }
-}
+};

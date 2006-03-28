@@ -96,12 +96,13 @@
 	  <![CDATA[
 	  try {
 	    if (!aUrl)
-	      aUrl = "chrome://conkeror/content/help.html";
+	      aUrl = "about:blank";
 	      var b = this.makeBrowser();
 	    this.mBrowserContainer.appendChild(b);
 	    this.setBrowserProgressListener(b.firstChild);
-	    setTimeout(function (b, url) {b.loadURIWithFlags(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);}, 0, b.firstChild, aUrl);
+            b.firstChild.loadURIWithFlags(aUrl, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
             this.setCurrentBrowser(b.firstChild);
+            return b.firstChild;
 } catch(e) {window.alert(e);}
           ]]>
 	</body>

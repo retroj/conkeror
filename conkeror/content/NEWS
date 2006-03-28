@@ -1,5 +1,8 @@
 -*- outline -*-
 
+** Changes since 0.26
+* -remote should work as expected
+
 ** Changes since 0.24
 * splits have been removed
 This was fall out from fixing a scrolling bug. I suspect splits
