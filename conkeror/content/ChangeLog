@@ -1,3 +1,22 @@
+2006-03-28  Shawn Betts  <sabetts@vcn.bc.ca>
+	
+	* Release 0.26
+	
+2006-03-28  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* conkeror.xul: make screenX screenY width height sizemode persistent
+
+	* conkeror.xml: use a deck instead of a box. fix focus typo
+	bug. remove all split related functions.
+	(getBrowserIndex): new method
+
+	* conkeror.js (Startup): give window a default size if it doesn't
+	have one already. fix loaduri bug.
+
+	* commands.js: remove commands switch-to-buffer-other-window,
+	split-flip delete-other-windows, delete-window, other-window and
+	split-window. remove corresponding js functions
+
 2006-03-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.24

@@ -1,5 +1,5 @@
-VERSION=0.24
-FILES="conkeror conkeror/content conkeror/content/utils.js conkeror/content/bm.js conkeror/content/bindings.js conkeror/content/url.js conkeror/content/numberedlinks.js conkeror/content/find.js conkeror/content/contents.rdf conkeror/content/conkeror.xul conkeror/content/conkeror.xml conkeror/content/conkeror.js conkeror/content/conkeror.css conkeror/content/commands.js conkeror/content/adblock.js conkeror/content/help.html conkeror/content/bookmarks.html conkeror/content/tutorial.html conkeror/content/pixel.png"
+VERSION=0.26
+FILES="conkeror conkeror/content conkeror/content/utils.js conkeror/content/bm.js conkeror/content/bindings.js conkeror/content/url.js conkeror/content/numberedlinks.js conkeror/content/find.js conkeror/content/contents.rdf conkeror/content/conkeror.xul conkeror/content/conkeror.xml conkeror/content/conkeror.js conkeror/content/conkeror.css conkeror/content/commands.js conkeror/content/adblock.js conkeror/content/help.html conkeror/content/bookmarks.html conkeror/content/tutorial.html conkeror/content/pixel.png conkeror/content/NEWS conkeror/content/ChangeLog"
 
 # echo Building XPI...
 # zip conkeror-$VERSION.xpi $FILES install.js

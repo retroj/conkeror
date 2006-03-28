@@ -1,5 +1,11 @@
 -*- outline -*-
 
+** Changes since 0.24
+* splits have been removed
+This was fall out from fixing a scrolling bug. I suspect splits
+weren't widely used so hopefully they won't be missed. I'm open to
+ways of getting them working again.
+
 ** Changes since 0.23
 * new print-buffer command
 * new extension command

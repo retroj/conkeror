@@ -7,14 +7,14 @@
 
 <binding id="conkframe">
       <content>
-          <xul:box flex="1" orient="vertical">
-            <xul:vbox flex="100">
+          <xul:deck flex="1">
+            <xul:vbox flex="1">
 	      <xul:browser flex="1" type="content-primary" pile="0"/>
 	      <xul:hbox class="mode-line">
 	      <xul:label class="mode-line-label" value="" crop="right" flex="1"/>
               </xul:hbox>
 	    </xul:vbox>
-	  </xul:box>
+	  </xul:deck>
       </content>
       <implementation type="application/x-javascript" implements="nsIDOMXULSelectControlElement, nsIAccessibleProvider">
             <property name="accessible">
@@ -74,6 +74,18 @@
         <body>
           <![CDATA[
             return this.mBrowsers[aIndex];
+          ]]>
+        </body>
+      </method>
+
+      <method name="getBrowserIndex">
+        <parameter name="aBrowser"/>
+        <body>
+          <![CDATA[
+           var bs = this.mBrowsers;
+           for (var i=0; i<bs.length; i++)
+              if (bs[i] == aBrowser)
+                return i;
           ]]>
         </body>
       </method>
@@ -145,8 +157,7 @@
               document.commandDispatcher.suppressFocusScroll = false;
             }
 
-            document.commandDispatcher.suppressFocusScroll = true;
-	    this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedWindow;
+	    this.mCurrentBrowser.focusedWindow = document.commandDispatcher.focusedWindow;
 	    this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
 	    this.mCurrentBrowser.setAttribute("type", "content");
 
@@ -154,7 +165,6 @@
 	    this.bringToTop(aBrowser, this.mCurrentBrowser);
 	    this.mCurrentBrowser = aBrowser;
             aBrowser.setAttribute("type", "content-primary");
-
 
             if (aBrowser.focusedElement) {
               try {
@@ -167,7 +177,6 @@
               setFocus(aBrowser.focusedWindow);
             else // new tab, focus our new content area
               setTimeout(setFocus, 0, window.content);
-            document.commandDispatcher.suppressFocusScroll = false;
 	  } catch(e) {alert(e);}
 	]]>
 	</body>
@@ -182,15 +191,8 @@
 	    if (this.mCurrentBrowser == newBrowser) {
 	      return;
 	    }
-	    // Hide the current browser, show the new one
-            if (this.mCurrentBrowser) {
-	      this.mCurrentBrowser.parentNode.setAttribute("collapsed", "true");
-	    }
-	    newBrowser.parentNode.setAttribute("collapsed", "false");
-	    // give the new browser focus
 
-	    var ord = this.mCurrentBrowser.parentNode.getAttribute("ordinal");
-	    newBrowser.parentNode.setAttribute("ordinal", ord);
+            this.mBrowserContainer.selectedIndex = this.getBrowserIndex(newBrowser);
 
 	    this.focusBrowser(newBrowser);
 	    } catch(e) {alert(e);}
@@ -265,65 +267,65 @@
 	]]>
 	</body>
       </method>
-      <method name="split">
-      <parameter name="otherBrowser"/>
-      <body>
-      <![CDATA[
-      try {
-        if (otherBrowser == this.mCurrentBrowser) {
-	  return;
-        }
-        // Make sure there isn't already a split
-	if (this.isSplit())
-	  return;
-	this.mCurrentBrowser.parentNode.setAttribute("ordinal", "0");
-	otherBrowser.parentNode.setAttribute("ordinal", "1");
-	otherBrowser.parentNode.setAttribute("collapsed", "false");
-      } catch(e) {alert(e);}
-      ]]>
-      </body>
-      </method>
-      <method name="removeSplit">
-      <body>
-      <![CDATA[
-      try {
-        for (var i=0; i<this.mBrowsers.length; i++) {
-	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
-	      && this.mBrowsers[i] != this.mCurrentBrowser) {
-	      this.mBrowsers[i].parentNode.setAttribute("collapsed", "true");
-	  }
-        }
-      } catch(e) {alert(e);}
-      ]]>
-      </body>
-      </method>
-      <method name="focusOther">
-      <body>
-      <![CDATA[
-      try {
-        for (var i=0; i<this.mBrowsers.length; i++) {
-	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
-	      && this.mBrowsers[i] != this.mCurrentBrowser) {
-	      this.focusBrowser(this.mBrowsers[i]);
-	      return;
-	  }
-        }
-      } catch(e) {alert(e);}
-      ]]>
-      </body>
-      </method>
-      <method name="flip">
-      <body>
-	<![CDATA[
-	try {
-	if (this.mBrowserContainer.getAttribute("orient") == "horizontal")
-	  this.mBrowserContainer.setAttribute("orient", "vertical");
-	else
-	  this.mBrowserContainer.setAttribute("orient", "horizontal");
-	} catch(e) {alert(e);}
-      ]]>
-      </body>
-      </method>
+<!--       <method name="split"> -->
+<!--       <parameter name="otherBrowser"/> -->
+<!--       <body> -->
+<!--       <![CDATA[ -->
+<!--       try { -->
+<!--         if (otherBrowser == this.mCurrentBrowser) { -->
+<!-- 	  return; -->
+<!--         } -->
+<!--         // Make sure there isn't already a split -->
+<!-- 	if (this.isSplit()) -->
+<!-- 	  return; -->
+<!-- 	this.mCurrentBrowser.parentNode.setAttribute("ordinal", "0"); -->
+<!-- 	otherBrowser.parentNode.setAttribute("ordinal", "1"); -->
+<!-- 	otherBrowser.parentNode.setAttribute("collapsed", "false"); -->
+<!--       } catch(e) {alert(e);} -->
+<!--       ]]> -->
+<!--       </body> -->
+<!--       </method> -->
+<!--       <method name="removeSplit"> -->
+<!--       <body> -->
+<!--       <![CDATA[ -->
+<!--       try { -->
+<!--         for (var i=0; i<this.mBrowsers.length; i++) { -->
+<!-- 	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false" -->
+<!-- 	      && this.mBrowsers[i] != this.mCurrentBrowser) { -->
+<!-- 	      this.mBrowsers[i].parentNode.setAttribute("collapsed", "true"); -->
+<!-- 	  } -->
+<!--         } -->
+<!--       } catch(e) {alert(e);} -->
+<!--       ]]> -->
+<!--       </body> -->
+<!--       </method> -->
+<!--       <method name="focusOther"> -->
+<!--       <body> -->
+<!--       <![CDATA[ -->
+<!--       try { -->
+<!--         for (var i=0; i<this.mBrowsers.length; i++) { -->
+<!-- 	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false" -->
+<!-- 	      && this.mBrowsers[i] != this.mCurrentBrowser) { -->
+<!-- 	      this.focusBrowser(this.mBrowsers[i]); -->
+<!-- 	      return; -->
+<!-- 	  } -->
+<!--         } -->
+<!--       } catch(e) {alert(e);} -->
+<!--       ]]> -->
+<!--       </body> -->
+<!--       </method> -->
+<!--       <method name="flip"> -->
+<!--       <body> -->
+<!-- 	<![CDATA[ -->
+<!-- 	try { -->
+<!-- 	if (this.mBrowserContainer.getAttribute("orient") == "horizontal") -->
+<!-- 	  this.mBrowserContainer.setAttribute("orient", "vertical"); -->
+<!-- 	else -->
+<!-- 	  this.mBrowserContainer.setAttribute("orient", "horizontal"); -->
+<!-- 	} catch(e) {alert(e);} -->
+<!--       ]]> -->
+<!--       </body> -->
+<!--       </method> -->
       <method name="pushPileDown">
       <parameter name="a"/>
       <parameter name="b"/>
@@ -391,7 +393,6 @@
 	b.__numberedImages_state = false;
 	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
 	v.setAttribute("flex", "100");
-<!-- 	v.setAttribute("style", "min-width:50%"); -->
 	var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
 	s.setAttribute("class", "mode-line");
 	var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label"); 

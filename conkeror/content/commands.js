@@ -128,16 +128,16 @@ function init_commands()
     add_command("find-alternate-url", find_alt_url, [["p"]]);
     add_command("quit", quit, []);
     add_command("revert-buffer", reload, []);
-    add_command("switch-to-buffer-other-window", switch_browser_other_window, []);
+//     add_command("switch-to-buffer-other-window", switch_browser_other_window, []);
     add_command("stop-loading", stopLoading, []);
     add_command("find-url-other-frame", new_frame, []);
     add_command("switch-to-buffer", switch_to_buffer, []);
     add_command("view-source", view_source, []);
-    add_command("split-flip", split_flip, []);
-    add_command("delete-other-windows", delete_other_windows, []);
-    add_command("delete-window", delete_window, []);
-    add_command("other-window", other_window, []);
-    add_command("split-window", split_window, []);
+//     add_command("split-flip", split_flip, []);
+//     add_command("delete-other-windows", delete_other_windows, []);
+//     add_command("delete-window", delete_window, []);
+//     add_command("other-window", other_window, []);
+//     add_command("split-window", split_window, []);
     add_command("set-mark-command", set_mark_command, []);
     add_command("exchange-point-and-mark", exchange_point_and_mark, []);
     add_command("web-jump", web_jump, [["p"]]);
@@ -598,68 +598,68 @@ function inject_css()
 
 //// Split windows
 
-function switch_browser_other_window()
-{
-    var bufs = getBrowser().getBrowserNames();
-    var defBrowser = getBrowser().lastBrowser().webNavigation.currentURI.spec;
-    var matches = zip2(bufs,getBrowser().mBrowsers);
-    miniBufferComplete("Switch to buffer in other window: (default " + defBrowser + ") ", null, "buffer", matches, true, function(m,b) 
-              {
-		  if (getBrowser().isSplit()) {
-		      var last = getBrowser().lastBrowser();
-		      getBrowser().focusOther();
-		      if (b == "")
-			  getBrowser().setCurrentBrowser(last);
-		      else
-			  getBrowser().setCurrentBrowser(m);
-		  } else {
-		      if (b=="")
-			  getBrowser().split(getBrowser().lastBrowser());
-		      else
-			  getBrowser().split(b);
-		      getBrowser().focusOther();
-		  }
-	      });
-}
+// function switch_browser_other_window()
+// {
+//     var bufs = getBrowser().getBrowserNames();
+//     var defBrowser = getBrowser().lastBrowser().webNavigation.currentURI.spec;
+//     var matches = zip2(bufs,getBrowser().mBrowsers);
+//     miniBufferComplete("Switch to buffer in other window: (default " + defBrowser + ") ", null, "buffer", matches, true, function(m,b) 
+//               {
+// 		  if (getBrowser().isSplit()) {
+// 		      var last = getBrowser().lastBrowser();
+// 		      getBrowser().focusOther();
+// 		      if (b == "")
+// 			  getBrowser().setCurrentBrowser(last);
+// 		      else
+// 			  getBrowser().setCurrentBrowser(m);
+// 		  } else {
+// 		      if (b=="")
+// 			  getBrowser().split(getBrowser().lastBrowser());
+// 		      else
+// 			  getBrowser().split(b);
+// 		      getBrowser().focusOther();
+// 		  }
+// 	      });
+// }
 
-function split_window()
-{
-    try {
-    var c = getBrowser().mBrowserContainer;
-    var b = getBrowser().mCurrentBrowser;
-    var ob;
-    if (c.length <= 1) {
-	return;
-    }
-    if (b == c.lastChild.firstChild)
-	ob = c.firstChild.firstChild;
-    else
-	ob = b.parentNode.nextSibling.firstChild;
-    getBrowser().split(ob);
-    } catch(e) {alert(e);}
-}
+// function split_window()
+// {
+//     try {
+//     var c = getBrowser().mBrowserContainer;
+//     var b = getBrowser().mCurrentBrowser;
+//     var ob;
+//     if (c.length <= 1) {
+// 	return;
+//     }
+//     if (b == c.lastChild.firstChild)
+// 	ob = c.firstChild.firstChild;
+//     else
+// 	ob = b.parentNode.nextSibling.firstChild;
+//     getBrowser().split(ob);
+//     } catch(e) {alert(e);}
+// }
 
 
-function split_flip()
-{
-    getBrowser().flip();
-}
+// function split_flip()
+// {
+//     getBrowser().flip();
+// }
 
-function delete_other_windows()
-{
-    getBrowser().removeSplit();
-}
+// function delete_other_windows()
+// {
+//     getBrowser().removeSplit();
+// }
 
-function delete_window()
-{
-    getBrowser().focusOther();
-    getBrowser().removeSplit();
-}
+// function delete_window()
+// {
+//     getBrowser().focusOther();
+//     getBrowser().removeSplit();
+// }
 
-function other_window()
-{
-    getBrowser().focusOther();
-}
+// function other_window()
+// {
+//     getBrowser().focusOther();
+// }
 
 function bookmark_bmenu_list()
 {

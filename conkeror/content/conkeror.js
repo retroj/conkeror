@@ -100,7 +100,16 @@ function Startup()
   if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
     uriToLoad = window.arguments[0];
 
-  getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, window.arguments[2], null, null);
+  if ("arguments" in window && window.arguments.length >= 3)
+      getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, window.arguments[2], null, null);
+  else
+      getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+
+  // give the browser window a default width/height
+  if (!document.documentElement.hasAttribute("width")) {
+      document.documentElement.setAttribute("width", 640);
+      document.documentElement.setAttribute("height", 480);
+  }
 
 //   // Give it a chance to set itself up before loading the URL
 //   setTimeout(getWebNavigation().loadURI, 0,

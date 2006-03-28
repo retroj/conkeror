@@ -4,12 +4,13 @@
 
 <window
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload="Startup()"
     contenttitlesetting="true"
-    title = "Conkeror"
+    title="Conkeror"
     titlemodifier=" Conkeror"
-    id = "main-window"
+    id="main-window"
+    persist="screenX screenY width height sizemode"
     windowtype="navigator:browser">
 
 
