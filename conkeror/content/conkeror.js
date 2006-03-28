@@ -151,6 +151,8 @@ function delayedStartup()
     gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
 	.getService(Components.interfaces.nsIPrefBranch);
     gPrefService.setBoolPref("accessibility.typeaheadfind", false);
+    // Turn this stupid thing off. Otherwise access keys override the conkeror keys.
+    gPrefService.setBoolPref("accessibility.accesskeycausesactivation", false);
 
     try {
 	// Load the RC file.

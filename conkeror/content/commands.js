@@ -275,7 +275,9 @@ function unfocus()
 // 	input.focus();
 // 	w.focus();
 //     }
-    window.focus();
+    if (document.commandDispatcher.focusedElement)
+	document.commandDispatcher.focusedElement.blur();
+    //window.content.focus();
 }
 
 function quit()
