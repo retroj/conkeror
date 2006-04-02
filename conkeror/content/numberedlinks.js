@@ -262,7 +262,7 @@ function createNL (doc, node, id, type, where, post, img)
 	span.style.borderStyle = "solid";
 	span.style.MozBorderRadius = "0.5em";
 // 	span.style.visibility = "hidden";
-	if ((type == "image" && getBrowser().numberedLinks) || (type != "image" && getBrowser().numberedImages))
+	if ((type == "image" && !getBrowser().numberedImages) || (type != "image" && !getBrowser().numberedLinks))
 	    span.style.display = "none";
 
 	if (where == NL_FLOATER || where == NL_IMGFLOATER) {

@@ -1,6 +1,11 @@
 2006-04-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
-	* Release 0.27
+	* Release 0.29
+	
+	* numberedlinks.js (createNL): properly decide when to hide the
+	link and when not to.
+
+	* Release 0.28
 
 2006-04-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
