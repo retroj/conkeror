@@ -102,7 +102,7 @@ function selectNumberedLink(num, args)
 
 function closeNumberedLinkBar()
 {
-    closeInput(false, true);
+    closeInput(true);
     if (gTurnOffLinksAfter) {
 	if (gOnlyImages) {
 	    toggleNumberedImages();

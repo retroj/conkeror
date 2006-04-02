@@ -33,9 +33,8 @@
   <conkframe id="content" flex="1" onkeypress="readKeyPress(event);"/>
   <hbox id="minibuffer-hbox" >
     <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
-    <label class="minibuffer" id="input-prompt" crop="left" value="" hidden="true"/>
-    <!-- it has to be 0px and not hidden because being hidden messes up the focus. -->
-    <textbox class="plain" id="input-field" width="0px"/>
+    <label class="minibuffer" id="input-prompt" crop="left" value="" collapsed="true"/>
+    <textbox class="plain" id="input-field" flex="1" collapsed="true"/>
   </hbox>
 </vbox>
 </window>

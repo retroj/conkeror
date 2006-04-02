@@ -60,7 +60,7 @@ function onUrlKeyPress(event)
 
 function closeUrlBar()
 {
-    closeInput(true, true);
+    closeInput(true);
 }
 
 // function focusUrlBar()

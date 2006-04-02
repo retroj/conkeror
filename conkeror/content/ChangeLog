@@ -1,3 +1,13 @@
+2006-04-02  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* utils.js (readInput): set the collapsed field for widgets.
+	(miniBufferKeyPress): eat the event when its RET
+	(miniBufferCompleteKeyPress): likewise
+	(closeInput): set the collapsed field for widgets. only take a
+	restoreFocus arg. all callers updated.
+
+	* conkeror.xul: use collapsed not hidden
+
 2006-03-28  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.27

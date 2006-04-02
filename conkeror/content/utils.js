@@ -121,9 +121,10 @@ function readInput(prompt, open, keypress)
     var field = document.getElementById("input-field");
     var output = document.getElementById("minibuffer-output");
 
-    output.hidden = true;
-    label.hidden = false;
-    field.setAttribute("flex", 1);
+    output.value = "";
+    output.collapsed = true;
+    label.collapsed = false;
+    field.collapsed = false;
 
     gFocusedWindow = document.commandDispatcher.focusedWindow;
     gFocusedElement = document.commandDispatcher.focusedElement;
@@ -257,13 +258,15 @@ function miniBufferKeyPress(event)
     if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	try{
 	    var val = field.value;
-	    closeInput(true, true);
 	    addHistory(val);
 	    var callback = gReadFromMinibufferCallBack;
 	    gReadFromMinibufferCallBack = null;
 	    gReadFromMinibufferAbortCallBack = null;
+	    closeInput(true);
 	    if (callback)
 		callback(val);
+	    event.preventDefault();
+	    event.preventBubble();
 	} catch (e) {window.alert(e);}
 	//    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
 	// paste current url
@@ -276,7 +279,7 @@ function miniBufferKeyPress(event)
 	    gReadFromMinibufferAbortCallBack();
 	gReadFromMinibufferAbortCallBack = null;
 	gReadFromMinibufferCallBack = null;
-	closeInput(true, true);
+	closeInput(true);
 	event.preventDefault();
 	event.preventBubble();
     } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
@@ -324,17 +327,19 @@ function miniBufferCompleteKeyPress(event)
 		if (val.length == 0 && gDefaultMatch != null)
 		    val = gDefaultMatch;
 		var match = findCompleteMatch(gMiniBufferCompletions, val);
-		closeInput(true, true);
 		addHistory(val);
 		var callback = gReadFromMinibufferCallBack;
 		gReadFromMinibufferCallBack = null;
 		gReadFromMinibufferAbortCallBack = null;
+		closeInput(true);
 		if (callback) {
 		    if (gAllowNonMatches)
 			callback(match, val);
 		    else if (match)
 			callback(match);
 		}
+	    event.preventDefault();
+	    event.preventBubble();
 	    } catch (e) {window.alert(e);}
 	} else if (handle_history(event, field)) {
 	    event.preventDefault();
@@ -372,7 +377,7 @@ function miniBufferCompleteKeyPress(event)
 		gReadFromMinibufferAbortCallBack();
 	    gReadFromMinibufferCallAbortBack = null;
 	    gReadFromMinibufferCallBack = null;
-	    closeInput(true, true);
+	    closeInput(true);
 	    event.preventDefault();
 	    event.preventBubble();
 	} else if (event.charCode && !event.ctrlKey && !metaPressed(event)) {
@@ -419,7 +424,7 @@ function setFocus(element) {
     Components.lookupMethod(element, "focus").call(element);
 }
 
-function closeInput(clearInput, restoreFocus)
+function closeInput(restoreFocus)
 {
     try {
 	var field = document.getElementById("input-field");
@@ -445,14 +450,18 @@ function closeInput(clearInput, restoreFocus)
 	    content.focus();
 	}
 
-	if (clearInput)
-	    output.value = "";
-	output.hidden = false;
-	prompt.hidden = true;
-	field.removeAttribute("flex");
+// 	if (clearInput)
+	output.collapsed = false;
+	prompt.collapsed = true;
+
+
+	// alert ("message: " + output.value);
+
+	// field.removeAttribute("flex");
+	field.collapsed = true;
 	//field.hidden = true;
-	field.value = "";
-    } catch(e) { window.alert(e); }
+	// field.value = "";
+    } catch(e) { alert(e); }
 }
 
 // Enable/disable modeline

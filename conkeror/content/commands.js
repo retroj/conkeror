@@ -43,7 +43,7 @@ function init_commands()
     add_command("eval-expression", eval_expression, [["p"]]);
     add_command("link-menu", link_menu, [["p"]]);
     add_command("beginning-of-line", beginning_of_line, []);
-    add_command("bookmark-bmenu-list", bookmark_bmenu_list, []);
+    add_command("bookmark-bmenu-list", bookmark_bmenu_list, [["p"]]);
     add_command("bookmark-current-url", bookmark_current_url, []);
     add_command("bookmark-jump", goto_bookmark, [["p"]]);
     add_command("buffer-next", browser_next, []);
@@ -277,7 +277,12 @@ function unfocus()
 //     }
     if (document.commandDispatcher.focusedElement)
 	document.commandDispatcher.focusedElement.blur();
-    //window.content.focus();
+    else if (document.commandDispatcher.focusedWindow)
+	{
+	    
+	}
+    else
+	window.content.focus();
 }
 
 function quit()
@@ -663,10 +668,10 @@ function inject_css()
 //     getBrowser().focusOther();
 // }
 
-function bookmark_bmenu_list()
+function bookmark_bmenu_list(args)
 {
-    getWebNavigation().loadURI("chrome://conkeror/content/bookmarks.html",
-			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+    var prefix = args[0];
+    open_url_in (prefix, "chrome://conkeror/content/bookmarks.html");
 }
 
 
@@ -1205,7 +1210,7 @@ function adblock_list_patterns (arg)
     var branch = prefs.getBranch("conkeror.");
     var block = branch.prefHasUserValue("adblock") ? branch.getCharPref("adblock") : "";
 
-    message (block);
+    message ("Patterns:" + block);
 }
 
 function print_buffer()

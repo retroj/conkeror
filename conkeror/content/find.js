@@ -128,7 +128,7 @@ function focusFindBarBW()
 function closeFindBar()
 {
     gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    closeInput(true, false);
+    closeInput(false);
 }
 
 
