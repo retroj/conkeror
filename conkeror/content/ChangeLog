@@ -1,5 +1,9 @@
 2006-04-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
+	* Release 0.27
+
+2006-04-02  Shawn Betts  <sabetts@vcn.bc.ca>
+
 	* utils.js (readInput): set the collapsed field for widgets.
 	(miniBufferKeyPress): eat the event when its RET
 	(miniBufferCompleteKeyPress): likewise

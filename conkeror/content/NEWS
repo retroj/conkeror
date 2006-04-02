@@ -1,5 +1,9 @@
 -*- outline -*-
 
+** Changes since 0.27
+* bookmark-bmenu-list command takes a prefix arg
+now you can open the list in a new buffer or window.
+
 ** Changes since 0.26
 * -remote should work as expected
 
