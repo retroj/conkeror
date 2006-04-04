@@ -536,14 +536,14 @@ function setVisibility (doc, link_state, img_state)
 	update_nl_pos (doc);
 }
 
-function setNumberedLinksVisibility(link_state, img_state)
+function setNumberedLinksVisibility(content, link_state, img_state)
 {
     try {
-    var frames = window._content.frames;
-    setVisibility(window._content.document, link_state, img_state);
-    for (var i=0; i<frames.length; i++) {
-	setVisibility(frames[i].document, link_state, img_state);
-    }
+	var frames = content;
+	setVisibility(content.document, link_state, img_state);
+	for (var i=0; i<frames.length; i++) {
+	    setVisibility(frames[i].document, link_state, img_state);
+	}
     } catch (e) {alert("setNumberedLinksVisibility: " + e);}
 }
 
@@ -551,26 +551,20 @@ function toggleNumberedLinks()
 {
     var buf_state = getBrowser().numberedLinks;
     getBrowser().numberedLinks = !buf_state;    
-    setNumberedLinksVisibility (!buf_state, getBrowser().numberedImages);
+    setNumberedLinksVisibility (window._content, !buf_state, getBrowser().numberedImages);
 }
 
 function toggleNumberedImages()
 {
     var buf_state = getBrowser().numberedImages;
     getBrowser().numberedImages = !buf_state;    
-    setNumberedLinksVisibility (getBrowser().numberedLinks, !buf_state);
+    setNumberedLinksVisibility (window._content, getBrowser().numberedLinks, !buf_state);
 }
 
 const nl_document_observer = {
     observe: function(subject, topic, url)
     {
-	// FIXME: we should use subject aka _content. This could bust if
-	// the buffer that needs nl != current buffer.
-	var link_state = getBrowser().numberedLinks;
-	var img_state = getBrowser().numberedImages;
         createNumberedLinks(subject);
-	// Only show numbered links if the feature is enabled
-	setNumberedLinksVisibility (link_state, img_state);
     }
 };
 

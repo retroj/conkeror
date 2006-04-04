@@ -158,7 +158,7 @@
               document.commandDispatcher.suppressFocusScroll = false;
             }
 
-	    this.mCurrentBrowser.focusedWindow = document.commandDispatcher.focusedWindow;
+    	    this.mCurrentBrowser.focusedWindow = document.commandDispatcher.focusedWindow;
 	    this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
 	    this.mCurrentBrowser.setAttribute("type", "content");
 
@@ -222,9 +222,11 @@
 	    else
               newBrowser = aBrowser.parentNode.nextSibling.firstChild;
             
+	    this.setCurrentBrowser(newBrowser);
+
 	    this.mBrowserContainer.removeChild(aBrowser.parentNode);
 	    //aBrowser.destroy();
-	    this.setCurrentBrowser(newBrowser);
+
 	    // Because we deleted a browser, lower the current browser's pile ID
 	    this.mCurrentBrowser.setAttribute('pile', this.mCurrentBrowser.getAttribute('pile')-1);
 	    } catch(e) {window.alert(e);}

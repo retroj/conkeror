@@ -1,3 +1,16 @@
+2006-04-04  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* Release 0.30
+	
+	* bindings.js (initViKmaps): remove split-window related keybindings
+	(initKmaps): likewise
+
+	* conkeror.xml (killBrowser): focus the new browser before
+	deleting the old one.
+
+	* numberedlinks.js (setNumberedLinksVisibility): take a content argument. callers updated
+	(nl_document_observer): dont call setNumberedLinksVisibility
+
 2006-04-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.29

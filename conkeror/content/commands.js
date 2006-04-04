@@ -1123,18 +1123,23 @@ const scrolly_document_observer = {
 	// We asume the focused window is the one loading. Not always
 	// the case..tho pretty safe since conkeror is only one window.
 	try {
-	win = document.commandDispatcher.focusedWindow;
-	var doc = win.content.document;
-	// Make sure we haven't already added the image
-	if (!doc.__conkeror_scrolly_hack__) {
-	    doc.__conkeror_scrolly_hack__ = true;
-	    var spc = doc.createElement("img");
-	    spc.setAttribute("width", "1");
-	    spc.setAttribute("height", getBrowser().mCurrentBrowser.boxObject.height);
-	    spc.setAttribute("src", "chrome://conkeror/content/pixel.png");
-	    doc.lastChild.appendChild(spc);
-	}
-    } catch(e) {alert(e);}
+	    var win = document.commandDispatcher.focusedWindow;
+	    var doc;
+	    if (win) 
+		doc = win.content.document;
+	    else
+		doc = content.document;
+
+	    // Make sure we haven't already added the image
+	    if (!doc.__conkeror_scrolly_hack__) {
+		doc.__conkeror_scrolly_hack__ = true;
+		var spc = doc.createElement("img");
+		spc.setAttribute("width", "1");
+		spc.setAttribute("height", getBrowser().mCurrentBrowser.boxObject.height);
+		spc.setAttribute("src", "chrome://conkeror/content/pixel.png");
+		doc.lastChild.appendChild(spc);
+	    }
+	} catch(e) {alert(e);}
     }
 };
 

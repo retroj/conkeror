@@ -252,12 +252,12 @@ function initViKmaps()
     define_key(top_kmap, make_key("q",MOD_CTRL),"quit"); 
     define_key(top_kmap, make_key("b",0),"switch-to-buffer"); 
     define_key(top_kmap, make_key("d",0),"kill-buffer");  // Delete buffer
-    define_key(ctrlw_kmap, make_key("w",0),"other-window"); // goes to other window in a split
-    define_key(ctrlw_kmap, make_key("d",0),"delete-windows");  // removes a split
-    define_key(ctrlw_kmap, make_key("D",0),"delete-other-windows");  // removes a split
-    define_key(ctrlw_kmap, make_key("f",0),"split-flip");  // changes horizontal/vertical alignment of the splits
+//     define_key(ctrlw_kmap, make_key("w",0),"other-window"); // goes to other window in a split
+//     define_key(ctrlw_kmap, make_key("d",0),"delete-windows");  // removes a split
+//     define_key(ctrlw_kmap, make_key("D",0),"delete-other-windows");  // removes a split
+//     define_key(ctrlw_kmap, make_key("f",0),"split-flip");  // changes horizontal/vertical alignment of the splits
     define_key(ctrlw_kmap, make_key("o",0),"find-url-other-frame"); 
-    define_key(ctrlw_kmap, make_key("s",0),"split-window"); // splits a window in 2 halfes if there are 2 buffers in it
+//     define_key(ctrlw_kmap, make_key("s",0),"split-window"); // splits a window in 2 halfes if there are 2 buffers in it
     define_key(ctrlw_kmap, make_key("O",0),"switch-to-buffer-other-window");
 	define_key(ctrlw_kmap, make_key("Q",0),"delete-frame");
     define_key(ctrlw_kmap, make_key("n",0),"make-frame-command");
@@ -436,10 +436,10 @@ function initKmaps()
     define_key(ctrlx_kmap, make_key("k",0),"kill-buffer"); 
     define_key(ctrlx_kmap, make_key("f",MOD_CTRL),"find-url"); 
     define_key(ctrlx_kmap, make_key("c",MOD_CTRL),"quit"); 
-    define_key(ctrlx_kmap, make_key("1",0),"delete-other-windows"); 
-    define_key(ctrlx_kmap, make_key("0",0),"delete-window"); 
-    define_key(ctrlx_kmap, make_key("2",0),"split-window"); 
-    define_key(ctrlx_kmap, make_key("o",0),"other-window"); 
+//     define_key(ctrlx_kmap, make_key("1",0),"delete-other-windows"); 
+//     define_key(ctrlx_kmap, make_key("0",0),"delete-window"); 
+//     define_key(ctrlx_kmap, make_key("2",0),"split-window"); 
+//     define_key(ctrlx_kmap, make_key("o",0),"other-window"); 
     define_key(ctrlx_kmap, make_key("v",MOD_CTRL),"find-alternate-url"); 
     define_key(ctrlx_kmap, make_key("x",MOD_CTRL),"exchange-point-and-mark"); 
     define_key(ctrlx_kmap, make_key("h",0),"cmd_selectAll");
