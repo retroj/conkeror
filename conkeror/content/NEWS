@@ -1,5 +1,8 @@
 -*- outline -*-
 
+** Changes since 0.30
+* The bookmark listing shows bookmarks from subfolders, not just the top level bookmarks.
+
 ** Changes since 0.29
 bug fixes only.
 

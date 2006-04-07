@@ -29,168 +29,110 @@ the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
-// This was taken from BookmarksHome. The code is disgusting. When I
-// figure out what the hell it does I'll make it understandable.
-function Folder( node, ancestors ) {
-    this.node = node;
-    // ancestors include name of folder
-    this.ancestors = ancestors;
+// our bookmarks array
+var bookmarks = [];
+
+// RDF variables
+var NC_NS = "http://home.netscape.com/NC-rdf#";
+
+var kRDFContractID = "@mozilla.org/rdf/rdf-service;1";
+var kRDFSVCIID = Components.interfaces.nsIRDFService;
+var kRDFRSCIID = Components.interfaces.nsIRDFResource;
+var kRDFLITIID = Components.interfaces.nsIRDFLiteral;
+var RDF = Components.classes[kRDFContractID].getService( kRDFSVCIID );
+var RDF_NS     = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+var kRDFCContractID = "@mozilla.org/rdf/container;1";
+var kRDFCIID = Components.interfaces.nsIRDFContainer;
+var RDFC = Components.classes[kRDFCContractID].createInstance( kRDFCIID );
+var kRDFCUContractID = "@mozilla.org/rdf/container-utils;1";
+var kRDFCUIID = Components.interfaces.nsIRDFContainerUtils;
+var RDFCU = Components.classes[kRDFCUContractID].getService(kRDFCUIID);
+
+var kBMSVCIID = Components.interfaces.nsIBookmarksService;
+var BMDS  = RDF.GetDataSource("rdf:bookmarks");
+var root = RDF.GetResource( "NC:BookmarksRoot" );
+var BMSVC = BMDS.QueryInterface( kBMSVCIID );
+BMSVC.readBookmarks();
+var NameArc = RDF.GetResource( NC_NS+"Name" );
+var URLArc =  RDF.GetResource( NC_NS+"URL" );
+var DescriptionArc = RDF.GetResource( NC_NS+"Description" );
+
+function getAllChildren(folder, propArray)
+{
+    var container = Components.classes[kRDFCContractID].createInstance(kRDFCIID);
+    container.Init(BMDS, folder);
+    var children = container.GetElements();
+    while (children.hasMoreElements()){
+	var child = children.getNext() ;
+	if (child instanceof Components.interfaces.nsIRDFResource){
+	    var aType = resolveType(child);
+	    /*var childResource = child.QueryInterface(kRDFRSCIID);
+	      var props = [childResource, null, null, null, null, null, null];*/
+	    if (aType == "Folder" || aType == "Livemark" || aType == "PersonalToolbarFolder")
+		getAllChildren(child, propArray);
+	    else {
+		var title =  getProperty(child, NC_NS+"Name");
+		var url =  getProperty(child, NC_NS+"URL");
+		propArray.push([title, url]);
+	    }
+	}
+    }
+}
+
+function resolveType(aResource, aDS)
+{
+    var type = this.getProperty(aResource, RDF_NS+"type", aDS);
+    if (type != "")
+	type = type.split("#")[1];
+    if (type == "Folder") {
+	if (aResource == BMSVC.getBookmarksToolbarFolder())
+	    type = "PersonalToolbarFolder";
+    }
+
+    if (type == "") {
+	// we're not sure what type it is.  figure out if it's a container.
+	var child = getProperty(aResource, NC_NS+"child", aDS);
+	if (child || RDFCU.IsContainer(aDS?aDS:BMDS, RDF.GetResource(aResource)))
+	    return "ImmutableFolder";
+
+	// not a container; make sure it has at least a URL
+	if (getProperty(aResource, NC_NS+"URL") != null)
+	    return "ImmutableBookmark";
+    }
+
+    return type;
+}
+
+function getProperty(aInput, aArcURI, aDS)
+{
+    var node;
+    var arc  = RDF.GetResource(aArcURI);
+    if (typeof(aInput) == "string") 
+	aInput = RDF.GetResource(aInput);
+    if (!aDS)
+	node = BMDS.GetTarget(aInput, arc, true);
+    else
+	node = aDS .GetTarget(aInput, arc, true);
+    try {
+	return node.QueryInterface(kRDFRSCIID).Value;
+    }
+    catch (e) {
+	return node? node.QueryInterface(kRDFLITIID).Value : "";
+    }    
 }
 
 function get_bm_strings()
 {
     try {
-	var ret_strings = [];
-    // RDF variables
-    var NC_NS = "http://home.netscape.com/NC-rdf#";
+	// only update our bookmarks array if it is empty (==simple cache)
+	if (bookmarks.length == 0)
+	    getAllChildren(root, bookmarks);
 
-    var kRDFContractID = "@mozilla.org/rdf/rdf-service;1";
-    var kRDFSVCIID = Components.interfaces.nsIRDFService;
-    var kRDFRSCIID = Components.interfaces.nsIRDFResource;
-    var kRDFLITIID = Components.interfaces.nsIRDFLiteral;
-    var RDF = Components.classes[kRDFContractID].getService( kRDFSVCIID );
-
-    var kRDFCContractID = "@mozilla.org/rdf/container;1";
-    var kRDFCIID = Components.interfaces.nsIRDFContainer;
-    var RDFC = Components.classes[kRDFCContractID].createInstance( kRDFCIID );
-    var kRDFCUContractID = "@mozilla.org/rdf/container-utils;1";
-    var kRDFCUIID = Components.interfaces.nsIRDFContainerUtils;
-    var RDFCU = Components.classes[kRDFCUContractID].getService(kRDFCUIID);
-
-    var kBMSVCIID = Components.interfaces.nsIBookmarksService;
-    var BMDS  = RDF.GetDataSource("rdf:bookmarks");
-    var root = RDF.GetResource( "NC:BookmarksRoot" );
-    var BMSVC = BMDS.QueryInterface( kBMSVCIID );
-    BMSVC.readBookmarks();
-    var NameArc = RDF.GetResource( NC_NS+"Name" );
-    var URLArc =  RDF.GetResource( NC_NS+"URL" );
-    var DescriptionArc = RDF.GetResource( NC_NS+"Description" );
-
-    // initialize preferences
-//     bMHPrefs.init();
-
-    // bookmarks collection variables
-    var curNameNode = BMDS.GetTarget( root, NameArc, true );
-    // necessary typecast
-    if( curNameNode instanceof kRDFLITIID );
-    var curFolder = new Folder( root, [curNameNode.Value] );
-    var folderStack = new Array( curFolder );
-//     var inOrExcludedFolders = bMHPrefs.getPref( "inOrExcludedFolders" ).split( "|" );
-    var enumerator, tempFolders, curNode, curUrlNode;
-    var curDescriptionNode, desc, curNodeAncestors;
-
-    // html variables
-    //     var doc = new Doc();
-    //     var searchDiv = new SearchDiv();
-    //     var columns = bMHPrefs.getPref( "nrOfColumns" ); 
-    //     var mainTable = new MainTable( columns ); 
-    //     var columnTDs = new Array( columns );
-    //     for( i = 0; i < columnTDs.length; i++ ) {
-    // 	columnTDs[i] = new ColumnTD();
-    //     }
-    //     var folderDiv;
-
-    var isExcluded, i;
-    // make page
-    while( folderStack.length > 0 ) {
-	curFolder = folderStack.pop();
-// 	folderDiv = new FolderDiv( curFolder.ancestors );
-	RDFC.Init( BMDS, curFolder.node );
-	enumerator = RDFC.GetElements();
-	tempFolders = new Array();
-	while( enumerator.hasMoreElements() ) {
-	    curNode = enumerator.getNext();
-	    curNameNode = BMDS.GetTarget( curNode, NameArc, true );
-	    curUrlNode = BMDS.GetTarget( curNode, URLArc, true );
-	    if( curNameNode instanceof kRDFLITIID ) { 
-		if( curUrlNode instanceof kRDFLITIID ) { 
-		    // curNameNode is bookmark
-		    curDescriptionNode = BMDS.GetTarget( curNode, DescriptionArc, true );
-		    desc = ( curDescriptionNode instanceof kRDFLITIID 
-			     ? curDescriptionNode.Value : "" );
-		    // 		    folderDiv.add( curNameNode.Value, curUrlNode.Value, desc );
-// 		    alert("BOOKMARK: " + curNameNode.Value + " " + curUrlNode.Value + " " + desc);
-		    ret_strings.push([curNameNode.Value, curUrlNode.Value]);
-		}
-		else if( RDFCU.IsSeq( BMDS, curNode )) {
-		    // curNameNode is folder
-		    curNodeAncestors = curFolder.ancestors.concat( [curNameNode.Value] );
-		    tempFolders.push( new Folder( curNode, curNodeAncestors ));
-		}
-	    }
-	}
-	// 	folderDiv.close();
-// 	isExcluded = false;
-// 	isExcluded = bMHPrefs.isExcludedFolder( curFolder.ancestors.toString(),
-// 						bMHPrefs.getPref( "excludeIndex" ), inOrExcludedFolders );
-	// check if folder contains bookmarks and is not excluded
-	// 	if( folderDiv.depth > folderDiv.startDepth && ! isExcluded ) {
-	// 	    i = bookmarksHome.smallestColumn( columnTDs );
-	// 	    columnTDs[i].add( folderDiv );
-    }
-    // reverse to match order in bookmarks tree
-//     folderStack = folderStack.concat( tempFolders.reverse() );
     } catch (e) {alert(e);}
 
-    return ret_strings;
+    return bookmarks;
 }
-
-  resolveType: function (aResource, aDS)
-  {
-    var type = this.getProperty(aResource, RDF_NS+"type", aDS);
-    if (type != "")
-      type = type.split("#")[1];
-    if (type == "Folder") {
-      if (aResource == BMSVC.getBookmarksToolbarFolder())
-        type = "PersonalToolbarFolder";
-    }
-
-    if (type == "") {
-      // we're not sure what type it is.  figure out if it's a container.
-      var child = this.getProperty(aResource, NC_NS+"child", aDS);
-      if (child || RDFCU.IsContainer(aDS?aDS:BMDS, RDF.GetResource(aResource)))
-        return "ImmutableFolder";
-
-      // not a container; make sure it has at least a URL
-      if (this.getProperty(aResource, NC_NS+"URL") != null)
-        return "ImmutableBookmark";
-    }
-
-    return type;
-  }
-
-// function get_bm_strings ()
-// {
-//     var strings = [];
-
-//     var kRDFSVCIID = Components.interfaces.nsIRDFService;
-//     var kRDFCIID = Components.interfaces.nsIRDFContainer;
-//     var kRDFRSCIID = Components.interfaces.nsIRDFResource;
-//     var kBMSVCIID = Components.interfaces.nsIBookmarksService;
-//     var kRDFContractID = "@mozilla.org/rdf/rdf-service;1";
-//     var kRDFCContractID = "@mozilla.org/rdf/container;1";
-//     var RDF = Components.classes[kRDFContractID].getService(kRDFSVCIID);
-//     var RDFC = Components.classes[kRDFCContractID].createInstance(kRDFCIID);
-  
-//     var BMDS = RDF.GetDataSource("rdf:bookmarks");
-//     var BMSVC = BMDS.QueryInterface(kBMSVCIID);
-//     var root = RDF.GetResource("NC:BookmarksRoot");
-//     var NC_NS = "http://home.netscape.com/NC-rdf#";
-//     const kName = RDF.GetResource(NC_NS+"Name");
-//     BMSVC.readBookmarks();
-//     RDFC.Init(BMDS, root);
-//     var folderContents = RDFC.GetElements();
-//     alert(folderContents.hasMoreElements());
-//     while (folderContents.hasMoreElements()) {
-//         var rsrc = folderContents.getNext().QueryInterface(kRDFRSCIID);
-// //         var rtype = BookmarksUtils.resolveType(rsrc);
-// //         if (rtype == "BookmarkSeparator")
-// //           continue;
-// 	var aname = BMDS.GetTarget(a, kName, true).QueryInterface(kRDFLITIID).Value;
-// 	alert(rsrc);
-//     }
-//     return strings;
-// }
 
 function genBookmarks()
 {
@@ -198,17 +140,19 @@ function genBookmarks()
 	var bms = get_bm_strings();
 	document.write("<h1>Bookmarks</h1>")
 
-	if (bms.length) {
-	    document.write("<table>");
-	    for (var i=0; i<bms.length; i++) {
-		document.write("<TR>");
-		document.write("<TD><a href=\"" + bms[i][1] + "\">" + bms[i][0] + "</TD>");
-		document.write("</TR>");
+	    if (bms.length) {
+		// newer bookmarks should be at the top
+		bms.reverse();
+		document.write("<table>");
+		for (var i=0; i<bms.length; i++) {
+		    document.write("<TR>");
+		    document.write("<TD><a href=\"" + bms[i][1] + "\">" + bms[i][0] + "</TD>");
+		    document.write("</TR>");
+		}
+		document.write("</table>");
+	    } else {
+		document.write("<p>No bookmarks.</p>");
 	    }
-	    document.write("</table>");
-	} else {
-	    document.write("<p>No bookmarks.</p>");
-	}
 
     } catch(e) {alert(e);}
 }

@@ -1,3 +1,7 @@
+2006-04-06  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* bm.js: return bookmarks from subfolders.
+
 2006-04-04  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.30
