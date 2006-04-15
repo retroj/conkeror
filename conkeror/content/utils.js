@@ -375,7 +375,7 @@ function miniBufferCompleteKeyPress(event)
 	    // Call the abort callback
 	    if (gReadFromMinibufferAbortCallBack)
 		gReadFromMinibufferAbortCallBack();
-	    gReadFromMinibufferCallAbortBack = null;
+	    gReadFromMinibufferAbortCallBack = null;
 	    gReadFromMinibufferCallBack = null;
 	    closeInput(true);
 	    event.preventDefault();
@@ -403,7 +403,7 @@ function setInputValue(str)
 function readFromMiniBuffer(prompt, initVal, history, callBack, abortCallback)
 {
     gReadFromMinibufferCallBack = callBack;
-    gReadFromMinibufferCallAbortBack = abortCallback;
+    gReadFromMinibufferAbortCallBack = abortCallback;
     initHistory(history);
     readInput(prompt, function () { setInputValue(initVal); }, "miniBufferKeyPress(event);");
 }
@@ -411,7 +411,7 @@ function readFromMiniBuffer(prompt, initVal, history, callBack, abortCallback)
 function miniBufferComplete(prompt, initVal, history, completions, nonMatches, callBack, abortCallback, def)
 {
     gReadFromMinibufferCallBack = callBack;
-    gReadFromMinibufferCallAbortBack = abortCallback;
+    gReadFromMinibufferAbortCallBack = abortCallback;
     gMiniBufferCompletions = completions;
     gCurrentCompletion = null;
     gDefaultMatch = def;

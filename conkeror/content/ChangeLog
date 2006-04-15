@@ -1,3 +1,7 @@
+2006-04-15  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* utils.js: correct the gReadFromMinibufferCallAbortBack typo.
+
 2006-04-06  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* bm.js: return bookmarks from subfolders.
