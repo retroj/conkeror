@@ -259,7 +259,7 @@ function add_command(name, fn, args)
 {
     for (var i=0; i <gCommands.length; i++) {
 	if (gCommands[i][0] == name) {
-	    gCommand[i] = [name,fn,args];
+	    gCommands[i] = [name,fn,args];
 	    return;
 	}
     }

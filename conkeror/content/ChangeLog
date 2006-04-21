@@ -1,3 +1,7 @@
+2006-04-21  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* commands.js (add_command): fix typo
+
 2006-04-15  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* utils.js: correct the gReadFromMinibufferCallAbortBack typo.
