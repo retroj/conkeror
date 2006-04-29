@@ -1,5 +1,9 @@
 2006-04-29  Shawn Betts  <sabetts@vcn.bc.ca>
 
+	* Release 0.31
+	
+2006-04-29  Shawn Betts  <sabetts@vcn.bc.ca>
+
 	* conkeror.xml : fix blank screen bug
 
 	* commands.js (renumber_links): mark the document as unmarked

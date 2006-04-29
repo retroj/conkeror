@@ -3,6 +3,10 @@
 ** Changes since 0.30
 * The bookmark listing shows bookmarks from subfolders, not just the top level bookmarks.
 
+* double number bug fixed
+
+* blank screen after killing a browser bug fixed
+
 ** Changes since 0.29
 bug fixes only.
 
