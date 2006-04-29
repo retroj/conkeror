@@ -499,21 +499,41 @@ function continueNumberedLinks (doc, linknum, nodes, docs)
     } catch (e) {alert(e);}
 }
 
+function documentNumberedp (doc)
+{
+    return doc.__conk_numbered || false;
+}
+
+function documentMarkNumbered (doc)
+{
+    doc.__conk_numbered = true;
+}
+
+function documentMarkUnnumbered (doc)
+{
+    doc.__conk_numbered = false;
+}
+
 function createNumberedLinks(cont)
 {
     try {
     var frames = cont.frames;
     var docs = [];
-
-    // Remove any existing spans. This is in response to double
-    // numberedlinks that I can't seem to get rid of.
-    removeExistingNLs(cont);
+    var numbered = true;
 
     for (var i=0; i<frames.length; i++) {
 	docs.unshift (frames[i].document);
+	numbered = numbered && documentNumberedp (frames[i].document);
+	documentMarkNumbered (frames[i].document);
     }
     
-    continueNumberedLinks (cont.document, 1, getLinkNodes (cont.document), docs);
+    // If any of the frames has not been marked we need to do it all
+    // over again.
+    if (!numbered || !documentNumberedp (cont.document)) {
+	removeExistingNLs(cont);
+	documentMarkNumbered (cont.document);
+	continueNumberedLinks (cont.document, 1, getLinkNodes (cont.document), docs);
+    }
 
     } catch (e) { alert(e);}
 }

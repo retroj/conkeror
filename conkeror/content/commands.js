@@ -1225,5 +1225,6 @@ function print_buffer()
 
 function renumber_links ()
 {
+    documentMarkUnnumbered (window._content.document);
     createNumberedLinks(window._content);
 }

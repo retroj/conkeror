@@ -257,7 +257,7 @@ function miniBufferKeyPress(event)
     var field = document.getElementById("input-field");
     if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	try{
-	    var val = field.value;
+	    var val = removeWhiteSpace (field.value);
 	    addHistory(val);
 	    var callback = gReadFromMinibufferCallBack;
 	    gReadFromMinibufferCallBack = null;
@@ -308,6 +308,13 @@ function miniBufferCompleteStr(str, matches)
     return ret;
 }
 
+// remove whitespace from the beginning and end
+function removeWhiteSpace (str)
+{
+    var tmp = new String (str);
+    return tmp.replace (/^\s+/, "").replace (/\s+$/, "");;
+}
+
 function findCompleteMatch(matches, val)
 {
     for (var i=0; i<matches.length; i++) {
@@ -323,7 +330,7 @@ function miniBufferCompleteKeyPress(event)
 	var field = document.getElementById("input-field");
 	if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	    try{
-		var val = field.value;
+		var val = removeWhiteSpace (field.value);
 		if (val.length == 0 && gDefaultMatch != null)
 		    val = gDefaultMatch;
 		var match = findCompleteMatch(gMiniBufferCompletions, val);

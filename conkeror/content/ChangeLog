@@ -1,3 +1,13 @@
+2006-04-29  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* conkeror.xml : fix blank screen bug
+
+	* commands.js (renumber_links): mark the document as unmarked
+	before recreating the links.
+
+	* numberedlinks.js: tag documents as numbered and only number
+	untagged documents.
+
 2006-04-21  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* commands.js (add_command): fix typo
