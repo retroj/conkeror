@@ -799,7 +799,11 @@ function getWebJump(value)
 {
     try {
     var start = value.indexOf(' ');
-    var jump = gWebJumpLocations[value.substr(0,start)];
+    var jump;
+    if (start == -1)
+	jump = gWebJumpLocations[value];
+    else
+	jump = gWebJumpLocations[value.substr(0,start)];
     // Try to find a web jump match
     if (!jump) {
 	var match = get_partial_match(gWebJumpLocations, value.substr(0,start));
@@ -830,9 +834,9 @@ function web_jump(args)
 
 function get_url_or_webjump(input)
 {
-    if (input.indexOf(' ') != -1) {
-	var url = getWebJump(input);
-	// return url || getWebJump("google " + input);
+    var url = getWebJump(input);
+
+    if (url) {
 	return url;
     } else {
 	return input;
