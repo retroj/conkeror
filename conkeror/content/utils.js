@@ -674,7 +674,8 @@ function readKeyPress(event)
 					  || type == "text"
 					  || type == "textfield"
 					  || type == "password"
-					  || type == "file")) {
+					  || type == "file"
+					  || type == "search")) {
 		    // Use the input keymap.
 
 		    // A bit of a hack, if there's a char code and no

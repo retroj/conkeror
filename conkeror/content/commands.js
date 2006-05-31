@@ -60,6 +60,7 @@ function init_commands()
     add_command("cmd_deleteToBeginningOfLine", cmd_deleteToBeginningOfLine, []);
     add_command("cmd_deleteToEndOfLine", cmd_deleteToEndOfLine, []);
     add_command("cmd_deleteWordBackward", cmd_deleteWordBackward, [["p"]]);
+    add_command("cmd_deleteWordForward", cmd_deleteWordForward, [["p"]]);
     add_command("cmd_endLine", cmd_endLine, []);
     add_command("cmd_lineNext", cmd_lineNext, [["p"]]);
     add_command("cmd_linePrevious", cmd_linePrevious, [["p"]]);
@@ -694,6 +695,7 @@ function cmd_deleteCharForward(args) { doCommandNTimes(args[0],"cmd_deleteCharFo
 function cmd_deleteToBeginningOfLine() { goDoCommand("cmd_deleteToBeginningOfLine"); }
 function cmd_deleteToEndOfLine() { goDoCommand("cmd_deleteToEndOfLine"); }
 function cmd_deleteWordBackward(args) { doCommandNTimes(args[0],"cmd_deleteWordBackward"); }
+function cmd_deleteWordForward(args) { doCommandNTimes(args[0],"cmd_deleteWordForward"); }
 function cmd_endLine() { goDoCommand("cmd_endLine"); }
 function cmd_lineNext(args) { doCommandNTimes(args[0],"cmd_lineNext"); }
 function cmd_linePrevious(args) { doCommandNTimes(args[0],"cmd_linePrevious"); }
