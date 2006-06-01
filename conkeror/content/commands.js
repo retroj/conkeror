@@ -161,6 +161,7 @@ function init_commands()
     add_command("print-buffer", print_buffer, []);
     add_command("renumber-links", renumber_links, []);
     add_command("jsconsole", jsconsole, [["p"]]);
+    add_command ("firefox", firefox, []);
     } catch(e) {alert(e);}
 }
 
@@ -1243,3 +1244,8 @@ function jsconsole(args)
     open_url_in (prefix, "chrome://global/content/console.xul");
 }
 
+// Open a regular firefox browser
+function firefox (arg)
+{
+    window.openDialog("chrome://browser/content/", "_blank", "chrome,dialog=no,resizable");
+}
