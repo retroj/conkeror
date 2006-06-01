@@ -1,3 +1,7 @@
+2006-05-31  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* commands.js add jsconsole command
+
 2006-05-30  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* commands.js: add cmd_deleteWordForward
