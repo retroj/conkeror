@@ -1,5 +1,8 @@
 -*- outline -*-
 
+** Changes since 0.32
+* new command jsconsole
+
 ** Changes since 0.30
 * The bookmark listing shows bookmarks from subfolders, not just the top level bookmarks.
 

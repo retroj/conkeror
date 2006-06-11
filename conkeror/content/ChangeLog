@@ -1,3 +1,7 @@
+2006-06-11  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* Release 0.33
+	
 2006-05-31  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* commands.js add jsconsole command. add firefox command.
