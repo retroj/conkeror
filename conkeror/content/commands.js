@@ -744,7 +744,13 @@ function add_webjump(key, loc)
     gWebJumpLocations[key] = loc;
 }
 
-var delicious_username = "";
+function add_delicious_webjumps (username)
+{
+    add_webjump("delicious", " http://del.icio.us/" + username);
+    add_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
+    add_webjump("sdelicious", " http://del.icio.us/search/?search=%s");
+    add_webjump("sadelicious", " http://del.icio.us/search/all?search=%s");
+}
 
 // Some built in web jumps
 function init_webjumps()
@@ -768,10 +774,6 @@ function init_webjumps()
     add_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
     add_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
     add_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
-    add_webjump("delicious", " http://del.icio.us/" + delicious_username);
-    add_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + delicious_username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
-    add_webjump("sdelicious", " http://del.icio.us/search/?search=%s");
-    add_webjump("sadelicious", " http://del.icio.us/search/all?search=%s");
     add_webjump("sheldonbrown",     "http://www.google.com/search?q=site:sheldonbrown.com %s");
 }
 
@@ -1045,6 +1047,16 @@ function go_up(args)
     open_url_in(args[0], up);
 }
 
+function list_buffers()
+{
+    getWebNavigation().loadURI("about:blank", 
+                               nsIWebNavigation.LOAD_FLAGS_NONE, null,
+			       null, null);
+
+    // There should be a better way, but I don't know what it is.
+    setTimeout(list_all_buffers,0);
+}
+
 function list_all_buffers()
 {
     var doc = _content.content.document;
@@ -1052,16 +1064,8 @@ function list_all_buffers()
     for (var i=0;i<browsers.length; i++) {
 	doc.write(browsers[i].webNavigation.currentURI.spec + "<HR>");
     }
+    stopLoading();
 }
-
-function list_buffers()
-{
-    getWebNavigation().loadURI("about:blank", 
-			       nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-    // There should be a better way, but I don't know what it is.
-    setTimeout(list_all_buffers,0);
-}
-
 function link_menu(args)
 {
     var prefix = args[0];
@@ -1247,5 +1251,5 @@ function jsconsole(args)
 // Open a regular firefox browser
 function firefox (arg)
 {
-    window.openDialog("chrome://browser/content/", "_blank", "chrome,dialog=no,resizable");
+    window.openDialog("chrome://browser/content/", "_blank", "dialog=no,resizable,all");
 }

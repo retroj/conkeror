@@ -1,3 +1,16 @@
+2006-09-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* Release 0.34
+	
+2006-09-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* numberedlinks.js (global_numbered_links_mode): new global variable
+
+	* conkeror.js (delayedStartup): init web jumps before rc file
+
+	* commands.js: turn on everything for the new window in the firefox
+	command.
+
 2006-06-11  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.33

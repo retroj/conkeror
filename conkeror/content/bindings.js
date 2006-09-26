@@ -443,6 +443,7 @@ function initKmaps()
     define_key(ctrlx_kmap, make_key("v",MOD_CTRL),"find-alternate-url"); 
     define_key(ctrlx_kmap, make_key("x",MOD_CTRL),"exchange-point-and-mark"); 
     define_key(ctrlx_kmap, make_key("h",0),"cmd_selectAll");
+    define_key(ctrlx_kmap, make_key("b",MOD_CTRL),"list-buffers"); 
     
     define_key(five_kmap, make_key("f",MOD_CTRL),"find-url-other-frame"); 
     define_key(five_kmap, make_key("0",0),"delete-frame");

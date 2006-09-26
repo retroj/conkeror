@@ -1,5 +1,12 @@
 -*- outline -*-
 
+** Changes since 0.33
+* fixed firefox command
+
+* webjumps loaded before rc file
+
+* delicious_username has been replaced with add_delicious_webjumps ("myusername");
+ 
 ** Changes since 0.32
 * new command jsconsole
 

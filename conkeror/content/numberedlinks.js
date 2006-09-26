@@ -31,6 +31,11 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 //// numbered links
 
+// This is a global override. turn this off and no numbered links will
+// be visible. FIXME: It doesn't actually disable numbered links from
+// getting added, it just stops them from being visible.
+var global_numbered_links_mode = true;
+
 // This decides whether the link is opened in the current buffer, a
 // new one, or a new frame.
 var gNumberedLinksPrefix = null;
@@ -69,7 +74,6 @@ function toggle_numbered_images (args)
 {
     toggleNumberedImages();
 }
-
 
 function goto_numbered_image (args)
 {
@@ -262,7 +266,9 @@ function createNL (doc, node, id, type, where, post, img)
 	span.style.borderStyle = "solid";
 	span.style.MozBorderRadius = "0.5em";
 // 	span.style.visibility = "hidden";
-	if ((type == "image" && !getBrowser().numberedImages) || (type != "image" && !getBrowser().numberedLinks))
+	if ((type == "image" && !getBrowser().numberedImages) 
+	    || (type != "image" && !getBrowser().numberedLinks)
+	    || !global_numbered_links_mode)
 	    span.style.display = "none";
 
 	if (where == NL_FLOATER || where == NL_IMGFLOATER) {
@@ -560,7 +566,7 @@ function setNumberedLinksVisibility(content, link_state, img_state)
 {
     try {
 	var frames = content;
-	setVisibility(content.document, link_state, img_state);
+	setVisibility(content.document, link_state && global_numbered_links_mode, img_state && global_numbered_links_mode);
 	for (var i=0; i<frames.length; i++) {
 	    setVisibility(frames[i].document, link_state, img_state);
 	}
@@ -570,15 +576,15 @@ function setNumberedLinksVisibility(content, link_state, img_state)
 function toggleNumberedLinks()
 {
     var buf_state = getBrowser().numberedLinks;
-    getBrowser().numberedLinks = !buf_state;    
-    setNumberedLinksVisibility (window._content, !buf_state, getBrowser().numberedImages);
+    getBrowser().numberedLinks = !buf_state;
+    setNumberedLinksVisibility (window._content, getBrowser().numberedLinks, getBrowser().numberedImages);
 }
 
 function toggleNumberedImages()
 {
     var buf_state = getBrowser().numberedImages;
-    getBrowser().numberedImages = !buf_state;    
-    setNumberedLinksVisibility (window._content, getBrowser().numberedLinks, !buf_state);
+    getBrowser().numberedImages = !buf_state;
+    setNumberedLinksVisibility (window._content, getBrowser().numberedLinks, getBrowser().numberedImages);
 }
 
 const nl_document_observer = {

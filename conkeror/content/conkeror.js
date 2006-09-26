@@ -154,6 +154,10 @@ function delayedStartup()
     // Turn this stupid thing off. Otherwise accesskeys override the conkeror keys.
     gPrefService.setIntPref("ui.key.generalAccessKey", 0);
 
+    // Web jumps have to be initialized before the rcfile is loaded so
+    // they can be user-overridden.
+    init_webjumps();
+
     try {
 	// Load the RC file.
 	if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
@@ -164,10 +168,6 @@ function delayedStartup()
 		load_rc_file(rcfile);
 	}
     } catch (e) {window.alert(e);}
-
-    // Web jumps have to be initialized after the rcfile is loaded for
-    // the delicious webjumps
-    init_webjumps();
 
     // This is a redo of the fix for jag bug 91884
     var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
