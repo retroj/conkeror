@@ -1,6 +1,18 @@
 -*- outline -*-
 
+** Changes since 0.34
+* 2 new globals
+The following globals can be set to change whether numbered and image
+links are visible for new buffers.
+
+default_show_numbered_links
+default_show_numbered_images
+
 ** Changes since 0.33
+* new numberedlinks global toggle: global_numbered_links_mode
+
+set this to false and you'll never see the numbered links.
+
 * fixed firefox command
 
 * webjumps loaded before rc file

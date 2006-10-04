@@ -36,6 +36,11 @@ the terms of any one of the MPL, the GPL or the LGPL.
 // getting added, it just stops them from being visible.
 var global_numbered_links_mode = true;
 
+// New buffers check these variables to decide if they should display
+// numbered links or image links (or both) by default.
+var default_show_numbered_links = true;
+var default_show_numbered_images = false;
+
 // This decides whether the link is opened in the current buffer, a
 // new one, or a new frame.
 var gNumberedLinksPrefix = null;

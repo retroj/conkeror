@@ -169,6 +169,11 @@ function delayedStartup()
 	}
     } catch (e) {window.alert(e);}
 
+    // this is a hack. Set the first buffer's links and image number
+    // visibility which could have been set in the rc file.
+    getBrowser().numberedLinks = default_show_numbered_links;
+    getBrowser().numberedImages = default_show_numbered_images;
+
     // This is a redo of the fix for jag bug 91884
     var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
 	.getService(Components.interfaces.nsIWindowWatcher);
