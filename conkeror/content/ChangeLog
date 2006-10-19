@@ -1,3 +1,7 @@
+2006-10-19  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* utils.js: let regular keys slip through for input tags of type "input"
+
 2006-10-03  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* conkeror.js: set the first browser's link and image visibility

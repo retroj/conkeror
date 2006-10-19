@@ -1,5 +1,10 @@
 -*- outline -*-
 
+User visible changes. See ChangeLog for more details listing of
+changes.
+
+** Changes since 0.35
+
 ** Changes since 0.34
 * 2 new globals
 The following globals can be set to change whether numbered and image
