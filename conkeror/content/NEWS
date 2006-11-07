@@ -3,6 +3,9 @@
 User visible changes. See ChangeLog for more details listing of
 changes.
 
+** Changes since 0.36
+* bump version to work with firefox 2.0 
+
 ** Changes since 0.35
 
 ** Changes since 0.34
