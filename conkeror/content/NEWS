@@ -3,6 +3,11 @@
 User visible changes. See ChangeLog for more details listing of
 changes.
 
+** Changes since 0.37
+* new keymap numberedlinks_kmap
+Use this keymap to customise keybindings when selecting a numbered
+link. See bindings.js for current bindings.
+
 ** Changes since 0.36
 * bump version to work with firefox 2.0 
 

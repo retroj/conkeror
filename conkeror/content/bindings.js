@@ -153,17 +153,18 @@ keyTable[KeyEvent.DOM_VK_QUOTE] = "quote";
 keyTable[KeyEvent.DOM_VK_META] = "meta";
 
 // some predefined key maps
-var 	ctrlc_kmap    	  = [];
-var 	ctrlw_kmap    	  = [];
-var 	ctrlx_kmap    	  = [];
-var 	bookmark_kmap 	  = [];
-var 	four_kmap     	  = [];
-var 	five_kmap     	  = [];
-var 	help_kmap     	  = [];
-var 	top_kmap      	  = [];
-var 	input_kmap    	  = [];
-var 	textarea_kmap 	  = [];
-var 	select_kmap   	  = [];
+var 	ctrlc_kmap	   = [];
+var 	ctrlw_kmap	   = [];
+var 	ctrlx_kmap	   = [];
+var 	bookmark_kmap	   = [];
+var 	four_kmap	   = [];
+var 	five_kmap	   = [];
+var 	help_kmap	   = [];
+var 	top_kmap	   = [];
+var 	input_kmap	   = [];
+var 	textarea_kmap	   = [];
+var 	select_kmap	   = [];
+var 	numberedlinks_kmap = [];
 
 // This keymap is used by the universal argument code
 var overlay_kmap = null;
@@ -200,7 +201,8 @@ function define_key(kmap, key, cmd)
              (kmap[i].key.keyCode && key.keyCode &&
               kmap[i].key.keyCode == key.keyCode)) &&
             kmap[i].key.modifiers == key.modifiers) {
-            if (typeof cmd == "string") {
+            if (typeof cmd == "string" 
+		|| typeof cmd == "function") {
                 kmap[i].command = cmd;
                 kmap[i].keymap = null;
             } else {
@@ -211,7 +213,8 @@ function define_key(kmap, key, cmd)
         }
     }
     var obj = {key: key};
-    if (typeof cmd == "string")
+    if (typeof cmd == "string"
+	|| typeof cmd == "function")
             obj.command = cmd;
     else 
             obj.keymap = cmd;
@@ -421,6 +424,12 @@ function initViKmaps()
     define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
 
     gCurrentKmap = top_kmap;
+
+    // numbered links bindings
+
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,0), nl_follow);
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_META), nl_focus);
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_CTRL), nl_open_other_buffer);
 }
 
 function initKmaps()
@@ -604,6 +613,12 @@ function initKmaps()
     define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
 
     gCurrentKmap = top_kmap;
+
+    // numbered links bindings
+
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,0), nl_follow);
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_META), nl_focus);
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_CTRL), nl_open_other_buffer);
 }
 
 function genBindingsHelper(doc, kmap, prefix)

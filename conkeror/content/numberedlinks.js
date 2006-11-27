@@ -132,7 +132,7 @@ function get_href (node)
     }
 }
 
-function matchLink (evt, doc, link)
+function matchLink (action, doc, link)
 {
     try {
 	var nodes = doc.getElementsByTagName('SPAN');
@@ -144,9 +144,9 @@ function matchLink (evt, doc, link)
 		var href = get_href (node);
 		if (node) {
 		    if (type == "link") {
-			if (metaPressed(evt)) {
+			if (action == 2) {
 			    node.focus();
-			} else if (evt.ctrlKey) {
+			} else if (action == 1) {
 			    getBrowser().newBrowser(href);
 			} else {
 			    var evt = doc.createEvent('MouseEvents');
@@ -167,7 +167,7 @@ function matchLink (evt, doc, link)
 		    } else if (type == "image") {
 			copy_img_location(node);
 		    } else if (type == "button") {
-			if (metaPressed(evt)) {
+			if (action == 2) {
 			    node.focus();
 			} else {
 			    var evt = doc.createEvent('MouseEvents');
@@ -178,30 +178,53 @@ function matchLink (evt, doc, link)
 			node.focus();
 		    }
 		}
-		evt.preventDefault();
-		evt.preventBubble();
-		return true;
+
 	    }
 	}
     } catch(e) {alert(e);}
     return false;
 }
 
+function nl_do_link (action)
+{
+    var findfield = document.getElementById("input-field");
+    var link = findfield.value;
+    var frames = window._content.frames;
+    closeNumberedLinkBar();
+    // See if the number is a link.
+    if (!matchLink (action, window._content.document, link)) {
+	for (var i=0;i<frames.length;i++) {
+	    if (matchLink (action, frames[i].document, link))
+		break;
+	}
+    }
+}
+
+function nl_focus ()
+{
+    nl_do_link (2);
+}
+
+function nl_open_other_buffer ()
+{
+    nl_do_link (1);
+}
+
+function nl_follow ()
+{
+    nl_do_link (0);
+}
+
 function onNumberedLinkKeyPress(evt)
 {
     try {
-    if (evt.keyCode == KeyEvent.DOM_VK_RETURN) {
-	var findfield = document.getElementById("input-field");
-	var link = findfield.value;
-	var frames = window._content.frames;
-	closeNumberedLinkBar();
-	// See if the number is a link.
-	if (!matchLink (evt, window._content.document, link)) {
-	    for (var i=0;i<frames.length;i++) {
-		if (matchLink (evt, frames[i].document, link))
-		    break;
-	    }
-	}
+    var key = getKeyAction(numberedlinks_kmap, evt);
+    if (key) {
+	key.command();
+    }else if (evt.keyCode == KeyEvent.DOM_VK_RETURN) {
+	evt.preventDefault();
+	evt.preventBubble();
+	return true;
     }
     else if (evt.keyCode == KeyEvent.DOM_VK_ESCAPE
 	     || (evt.ctrlKey && evt.charCode == 103)) {

@@ -670,14 +670,10 @@ function readKeyPress(event)
 		var type = elt.getAttribute("type");
 		if (type != null) {type = type.toLowerCase();}
 		if (tag == "html:input"
-		    || tag == "input" && (type == null
-					  || type == "text"
-					  || type == "textfield"
-					  || type == "password"
-					  || type == "file"
-					  || type == "search"
-					  || type == "input")) {
-		    // Use the input keymap.
+		    || tag == "input" && (type != "radio"
+					  && type != "checkbox")) {
+		    // Use the input keymap for any input tag that
+		    // isn't a radio button or checkbox.
 
 		    // A bit of a hack, if there's a char code and no
 		    // modifiers are set, then just let it get processed
