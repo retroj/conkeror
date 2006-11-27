@@ -1,5 +1,9 @@
 2006-11-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
+	* Release 0.38
+
+2006-11-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
 	* utils.js: use the input keymap for any input that isn't a radio or checkbox
 
 	* bindings.js: create a numberedlinks_kmap and bind numberedlinks
