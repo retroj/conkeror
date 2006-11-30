@@ -11,7 +11,8 @@
     titlemodifier=" Conkeror"
     id="main-window"
     persist="screenX screenY width height sizemode"
-    windowtype="navigator:browser">
+    windowtype="navigator:browser"
+    onkeypress="readKeyPress(event);">
 
 
   <script type="application/x-javascript" src="chrome://browser/content/bookmarks/bookmarks.js"/>
