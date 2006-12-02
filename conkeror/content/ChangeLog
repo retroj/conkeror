@@ -1,3 +1,7 @@
+2006-12-01  Shawn Betts  <sabetts@shitbender.gagrod>
+
+	* commands.js (open_url_in): return the browser
+
 2006-11-30  Shawn Betts  <sabetts@shitbender.gagrod>
 	
 	* Release 0.39

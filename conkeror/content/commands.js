@@ -446,12 +446,13 @@ function open_url_in(prefix, url)
     if (prefix == 1) {
 	// Open in current buffer
 	getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+	return getBrowser();
     } else if (prefix <= 4) {
 	// Open in new buffer
-	getBrowser().newBrowser(url);
+	return getBrowser().newBrowser(url);
     } else {
 	// Open in new frame
-	window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", url);
+	return window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", url);
     }
 }
 
