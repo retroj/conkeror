@@ -158,6 +158,9 @@ function delayedStartup()
     // they can be user-overridden.
     init_webjumps();
 
+    // initialize default_directory, used when saving pages.
+    set_default_directory();
+
     try {
 	// Load the RC file.
 	if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {

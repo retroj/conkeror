@@ -147,6 +147,9 @@ function init_commands()
     add_command("help-with-tutorial", tutorial_page, []);
     add_command("redraw", redraw, []);
     add_command("save-link", save_link, []);
+    add_command("save-page", save_page, []);
+    add_command("save-page-as-text", save_page_as_text, []);
+    add_command("save-page-complete", save_page_complete, []);
     add_command("yank-to-clipboard", yankToClipboard, []);
     add_command("go-up", go_up, [["p"]]);
     add_command("list-buffers", list_buffers, []);
@@ -909,18 +912,161 @@ function copy_link_location()
     message("Copied '" + loc + "'");
 }
 
-function save_link()
+function save_link ()
 {
-    try {
-    var loc = get_link_location();
-    // A cheapish hack. chop off the path so only the file remains.
-    var fname = loc.replace(/^.*\//, "");
+    var url_o = makeURL (get_link_location());
+    var document_o = null;
 
-    readFromMiniBuffer("Save File As:", fname, "save",
-		       function (dest) {
-	                 download_uri(loc, dest);
-                       });
-    } catch(e) {alert(e);}
+    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    var dest_data_dir_o = null;
+    var referrer_o = null;//should there be a referrer?
+    var content_type_s = null;
+    var should_bypass_cache_p = true;//not sure...
+    //we cannot save as text or as web-complete unless we are browsing the
+    //document already.
+    var save_as_text_p = false;
+    var save_as_complete_p = false;
+    var content_disposition = null;
+    var default_dest_file_s =
+        make_default_file_name_to_save_url (url_o,
+                                            document_o,
+                                            content_type_s,
+                                            content_disposition,
+                                            null).path;
+    readFromMiniBuffer (
+        "Save Link As:", default_dest_file_s, "save",
+        function (dest_file_s) {
+            dest_file_o.initWithPath (dest_file_s);
+            download_uri_internal (
+                url_o,
+                document_o,
+                dest_file_o,
+                dest_data_dir_o,
+                referrer_o,
+                content_type_s,
+                should_bypass_cache_p,
+                save_as_text_p,
+                save_as_complete_p
+                );
+        });
+}
+
+
+function save_page ()
+{
+    var url_o = makeURL (window.content.document.documentURI);
+    var document_o = window.content.document;
+    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    var dest_data_dir_o = null;
+    var referrer_o = null;
+    var content_type_s = window.content.document.contentType;
+    var should_bypass_cache_p = true;//not sure...
+    var save_as_text_p = false;
+    var save_as_complete_p = false;
+    var content_disposition = get_document_content_disposition (document_o);
+    var default_dest_file_s =
+        make_default_file_name_to_save_url (url_o,
+                                            document_o,
+                                            content_type_s,
+                                            content_disposition,
+                                            null).path;
+    readFromMiniBuffer (
+        "Save Page As:", default_dest_file_s, "save",
+        function (dest_file_s) {
+            dest_file_o.initWithPath (dest_file_s);
+            download_uri_internal (
+                url_o,
+                document_o,
+                dest_file_o,
+                dest_data_dir_o,
+                referrer_o,
+                content_type_s,
+                should_bypass_cache_p,
+                save_as_text_p,
+                save_as_complete_p);
+        });
+}
+
+
+function save_page_as_text ()
+{
+    var url_o = makeURL (window.content.document.documentURI);
+    var document_o = window.content.document;
+    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    var dest_data_dir_o = null;
+    var referrer_o = null;
+    var content_type_s = window.content.document.contentType;
+    var should_bypass_cache_p = true;//not sure...
+    var save_as_text_p = true;
+    var save_as_complete_p = false;
+    var content_disposition = get_document_content_disposition (document_o);
+    var default_dest_file_s =
+        make_default_file_name_to_save_url (url_o,
+                                            document_o,
+                                            content_type_s,
+                                            content_disposition,
+                                            'txt').path;
+    readFromMiniBuffer (
+        "Save Page As:", default_dest_file_s, "save",
+        function (dest_file_s) {
+            dest_file_o.initWithPath (dest_file_s);
+            download_uri_internal (
+                url_o,
+                document_o,
+                dest_file_o,
+                dest_data_dir_o,
+                referrer_o,
+                content_type_s,
+                should_bypass_cache_p,
+                save_as_text_p,
+                save_as_complete_p
+                );
+        });
+}
+
+function save_page_complete ()
+{
+    var url_o = makeURL (window.content.document.documentURI);
+    var document_o = window.content.document;
+
+    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    var dest_data_dir_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    var referrer_o = null;
+    var content_type_s = window.content.document.contentType;
+    var should_bypass_cache_p = true;//not sure...
+    var save_as_text_p = false;
+    var save_as_complete_p = true;
+    var content_disposition = get_document_content_disposition (document_o);
+    var default_dest_file_s =
+        make_default_file_name_to_save_url (url_o,
+                                            document_o,
+                                            content_type_s,
+                                            content_disposition,
+                                            null).path;
+    readFromMiniBuffer (
+        "Save Page As:", default_dest_file_s, "save",
+        function (dest_file_s) {
+            dest_file_o.initWithPath (dest_file_s);
+            //it would be nice to prompt for the data directory, too.  This is
+            //a job for interactive().
+            dest_data_dir_o.initWithPath (dest_file_s + ".support");
+            download_uri_internal (
+                url_o,
+                document_o,
+                dest_file_o,
+                dest_data_dir_o,
+                referrer_o,
+                content_type_s,
+                should_bypass_cache_p,
+                save_as_text_p,
+                save_as_complete_p
+                );
+        });
 }
 
 function source_file()

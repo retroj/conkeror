@@ -30,6 +30,8 @@ the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
 var gBrowser = null;
+var default_directory = null;
+
 
 function copy_img_location (node)
 {
@@ -940,36 +942,464 @@ function makeFileURL(aFile)
   return ioService.newFileURI(aFile);
 }
 
-function makeWebBrowserPersist()
+function get_document_content_disposition (document_o)
 {
-  const persistContractID = "@mozilla.org/embedding/browser/nsWebBrowserPersist;1";
-  const persistIID = Components.interfaces.nsIWebBrowserPersist;
-  return Components.classes[persistContractID].createInstance(persistIID);
+    var content_disposition = null;
+    try {
+        content_disposition =
+            document_o.defaultView
+            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+            .getInterface(Components.interfaces.nsIDOMWindowUtils)
+            .getDocumentMetadata("content-disposition");
+    } catch (e) { }
+    return content_disposition;
 }
 
-function download_uri(uri, dest)
+// download_uri
+//
+// called by the command save-link.
+// 
+function download_uri (url_s, dest_s)
 {
-    try {
-    var persist = makeWebBrowserPersist();
+    var url_o = makeURL (url_s);
+    var document_o = null;
+
+    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    dest_file_o.initWithPath(dest_s);
+    var dest_data_dir_o = null;
+    var referrer_o = null;//should there be a referrer?
+    var content_type_s = null;
+    var should_bypass_cache_p = true;//not sure...
+
+    //we cannot save as text or as web-complete unless we are browsing the
+    //document already.
+    var save_as_text_p = false;
+    var save_as_complete_p = false;
+
+    download_uri_internal (
+        url_o,
+        document_o,
+        dest_file_o,
+        dest_data_dir_o,
+        referrer_o,
+        content_type_s,
+        should_bypass_cache_p,
+        save_as_text_p,
+        save_as_complete_p
+        );
+}
+
+/*
+ * download_uri_internal
+ *
+ *  url_o           an nsIURI object of the page to be saved. required.
+ *
+ *  document_o      a document object of the page to be saved.
+ *                  null if you want to save an URL that is not being
+ *                  browsed, but in that case, you cannot save as text
+ *                  or as `web-complete'.
+ *
+ *  dest_file_o     an nsILocalFile object for the destination file.
+ *                  required.
+ *
+ *  dest_data_dir_o  an nsILocalFile object for the directory to hold
+ *                   linked files when doing save-as-complete.  Otherwise
+ *                   null.
+ *
+ *  referrer_o      nsIURI to pass as the referrer.  May be null.
+ *
+ *  content_type_s  a string content type of the document.  Required to
+ *                  save as text or save as complete.  Should be provided
+ *                  for save-page, but probably safe to pass null.  for URI's
+ *                  not browsed yet (save-link) pass null.
+ *
+ *  should_bypass_cache_p   boolean tells whether to bypass cache data or not.
+ *                          Usually pass true.
+ *
+ *  save_as_text_p  boolean tells whether to save as text.  mutually exclusive
+ *                  with save_as_complete_p.  Only available when document_o is
+ *                  supplied.
+ *
+ *  save_as_complete_p  boolean tells whether to save in complete mode.
+ *                      mutually exclusive with save_as_text_p.  Only available
+ *                      when document_o is supplied.  Requires dest_data_dir_o be
+ *                      supplied.
+ *
+ */
+function download_uri_internal (url_o, document_o,
+                                dest_file_o, dest_data_dir_o, referrer_o,
+                                content_type_s, should_bypass_cache_p,
+                                save_as_text_p, save_as_complete_p)
+{
+    // We have no DOM, and can only save the URL as is.
+    const SAVEMODE_FILEONLY      = 0x00;
+    // We have a DOM and can save as complete.
+    const SAVEMODE_COMPLETE_DOM  = 0x01;
+    // We have a DOM which we can serialize as text.
+    const SAVEMODE_COMPLETE_TEXT = 0x02;
+
+    function GetSaveModeForContentType(aContentType)
+    {
+        var saveMode = SAVEMODE_FILEONLY;
+        switch (aContentType) {
+            case "text/html":
+            case "application/xhtml+xml":
+                saveMode |= SAVEMODE_COMPLETE_TEXT;
+                // Fall through
+            case "text/xml":
+            case "application/xml":
+                saveMode |= SAVEMODE_COMPLETE_DOM;
+                break;
+        }
+        return saveMode;
+    }
+
+    //getPostData might be handy outside of download_uri_internal.
+    //
+    function getPostData()
+    {
+        try {
+            var sessionHistory = getWebNavigation().sessionHistory;
+            var entry = sessionHistory.getEntryAtIndex(sessionHistory.index, false);
+            entry = entry.QueryInterface(Components.interfaces.nsISHEntry);
+            return entry.postData;
+        }
+        catch (e) {
+        }
+        return null;
+    }
+
+
+    // to save the current page, pass in the url object of the current url, and the document object.
+
+    // saveMode defaults to SAVEMODE_FILEONLY, meaning we have no DOM, so we can only save the file as-is.
+    // SAVEMODE_COMPLETE_DOM means we can save as complete.
+    // SAVEMODE_COMPLETE_TEXT means we have a DOM and we can serialize it as text.
+    // text/html will have all these flags set, meaning it can be saved in all these ways.
+    // text/xml will have just FILEONLY and COMPLETE_DOM.  We cannot serialize plain XML as text.
+
+    var saveMode = GetSaveModeForContentType (content_type_s);
+
+    // is_document_p is a flag that tells us a document object was passed
+    // in, its content type was passed in, and this content type has a DOM.
+
+    var is_document_p = document_o != null && saveMode != SAVEMODE_FILEONLY;
+
+    // use_save_document_p is a flag that tells us that it is possible to save as
+    // either COMPLETE or TEXT, and that saving as such was requested by the
+    // caller.
+    //
+    // Therefore, it is ONLY possible to save in COMPLETE or TEXT
+    // mode if we pass in a document object and its content type, and its
+    // content type supports those save modes.
+    //
+    // Ergo, we can implement the Conkeror commands, save-page-as-text and
+    // save-page-complete, but not corresponding commands for links.
+
+    var use_save_document_p = is_document_p &&
+        (((saveMode & SAVEMODE_COMPLETE_DOM) && !save_as_text_p && save_as_complete_p) ||
+         ((saveMode & SAVEMODE_COMPLETE_TEXT) && save_as_text_p));
+
+    if (save_as_text_p && !use_save_document_p)
+        throw ("Cannot save this page as text.");
+
+    if (save_as_complete_p && !use_save_document_p)
+        throw ("Cannot save this page in complete mode.");
+
+    // source may be a document object or an url object.
+
+    var source = use_save_document_p ? document_o : url_o;
+
+    // fileURL is an url object representing the output file.
+
+    var fileURL = makeFileURL (dest_file_o);
+
+
+
+    var persistArgs = {
+        source: source,
+        contentType: ((use_save_document_p && save_as_text_p) ?
+                      "text/plain" : content_type_s),
+        target: fileURL,
+        postData: (is_document_p ? getPostData() : null), //ok (new)
+        bypassCache: should_bypass_cache_p
+    };
+
+    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
+    var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+        .createInstance(nsIWBP);
 
     // Calculate persist flags.
-    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
-    const flags = nsIWBP.PERSIST_FLAGS_NO_CONVERSION 
-	          | nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES
-	          | nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
-    persist.persistFlags = flags;
+    const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FLAGS;
+    if (should_bypass_cache_p)
+        persist.persistFlags = flags | nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
+    else
+        persist.persistFlags = flags | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
+
+    // Let the WebBrowserPersist decide whether the incoming data is encoded
+    // and whether it needs to go through a content converter e.g. to
+    // decompress it.
+    persist.persistFlags |= nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
 
     // Create download and initiate it (below)
-    var file = Components.classes["@mozilla.org/file/local;1"]
-	                 .createInstance(Components.interfaces.nsILocalFile);
-    file.initWithPath(dest);
-    
-    var source = makeURL(uri);
-    var target = makeFileURL(file);
+    //
+    //XXX RetroJ:
+    //  This transfer object is what produces the gui downloads display.  As a
+    //  future project, we will use a nsIWebProgressListener internal to
+    //  conkeror that does not involve annoying gui dialogs.
+    //
+    var tr = Components.classes["@mozilla.org/transfer;1"].createInstance(Components.interfaces.nsITransfer);
 
-    var dl = Components.classes["@mozilla.org/download;1"]
-	               .createInstance(Components.interfaces.nsIDownload);
-    dl.init(source, target, null, null, null, persist);
-    persist.saveURI(source, null, null, null, null, file);
-    } catch(e) {alert(e);}
+    if (use_save_document_p)
+    {
+        // Saving a Document, not a URI:
+        var encodingFlags = 0;
+        if (persistArgs.contentType == "text/plain")
+        {
+            encodingFlags |= nsIWBP.ENCODE_FLAGS_FORMATTED;
+            encodingFlags |= nsIWBP.ENCODE_FLAGS_ABSOLUTE_LINKS;
+            encodingFlags |= nsIWBP.ENCODE_FLAGS_NOFRAMES_CONTENT;
+        } else {
+            encodingFlags |= nsIWBP.ENCODE_FLAGS_BASIC_ENTITIES;
+        }
+
+        const kWrapColumn = 80;
+        
+        // this transfer object is the only place in this document-saving branch where url_o is needed.
+        tr.init (url_o, persistArgs.target, "", null, null, null, persist);
+        persist.progressListener = tr;
+        //persist.progressListener = progress_listener;
+        persist.saveDocument (persistArgs.source, persistArgs.target, dest_data_dir_o,
+                              persistArgs.contentType, encodingFlags, kWrapColumn);
+    } else {
+        // Saving a URI:
+
+        tr.init (source, persistArgs.target, "", null, null, null, persist);
+        persist.progressListener = tr;
+        //persist.progressListener = progress_listener;
+        persist.saveURI (source, null, referrer_o, persistArgs.postData, null,
+                         persistArgs.target);
+    }
+}
+
+
+
+/**
+ * Determine what the 'default' path is for operations like save-page.
+ * Returns an nsILocalFile.
+ * @param url_o nsIURI of the document being saved.
+ * @param aDocument The document to be saved
+ * @param aContentType The content type we're saving, if it could be
+ *        determined by the caller.
+ * @param aContentDisposition The content-disposition header for the object
+ *        we're saving, if it could be determined by the caller.
+ * @param dest_extension_s To override the extension of the destination file,
+ *        pass the extension you want here.  Otherwise pass null.  This is
+ *        used by save_page_as_text.
+ */
+function make_default_file_name_to_save_url (url_o, aDocument, aContentType, aContentDisposition, dest_extension_s)
+{
+     function getDefaultExtension(file_name_s, url_o, aContentType)
+     {
+         if (aContentType == "text/plain" || aContentType == "application/octet-stream" || url_o.scheme == "ftp")
+             return "";   // temporary fix for bug 120327
+ 
+         // First try the extension from the filename
+         var url = Components.classes["@mozilla.org/network/standard-url;1"]
+             .createInstance(Components.interfaces.nsIURL);
+         url.filePath = file_name_s;
+ 
+         var ext = url.fileExtension;
+ 
+         // This mirrors some code in nsExternalHelperAppService::DoContent
+         // Use the filename first and then the URI if that fails
+   
+         var mimeInfo = null;
+         if (aContentType || ext) {
+             try {
+                 mimeInfo = Components.classes["@mozilla.org/mime;1"]
+                     .getService(Components.interfaces.nsIMIMEService)
+                     .getFromTypeAndExtension(aContentType, ext);
+             }
+             catch (e) {
+             }
+         }
+ 
+         if (ext && mimeInfo && mimeInfo.extensionExists(ext))
+             return ext;
+   
+         // Well, that failed.  Now try the extension from the URI
+         var urlext;
+         try {
+             url = url_o.QueryInterface(Components.interfaces.nsIURL);
+             urlext = url.fileExtension;
+         } catch (e) {
+         }
+ 
+         if (urlext && mimeInfo && mimeInfo.extensionExists(urlext)) {
+             return urlext;
+         } else {
+             try {
+                 return mimeInfo.primaryExtension;
+             }
+             catch (e) {
+                 // Fall back on the extensions in the filename and URI for lack
+                 // of anything better.
+                 return ext || urlext;
+             }
+         }
+     }
+ 
+ 
+     function getDefaultFileName(aDefaultFileName, aURI, aDocument,
+                                 aContentDisposition)
+     {
+         function getCharsetforSave(aDocument)
+         {
+             if (aDocument)
+                 return aDocument.characterSet;
+ 
+             if (document.commandDispatcher.focusedWindow)
+                 return document.commandDispatcher.focusedWindow.document.characterSet;
+ 
+             return window.content.document.characterSet;
+         }
+ 
+         function validateFileName(aFileName)
+         {
+             var re = /[\/]+/g;
+             if (navigator.appVersion.indexOf("Windows") != -1) {
+                 re = /[\\\/\|]+/g;
+                 aFileName = aFileName.replace(/[\"]+/g, "'");
+                 aFileName = aFileName.replace(/[\*\:\?]+/g, " ");
+                 aFileName = aFileName.replace(/[\<]+/g, "(");
+                 aFileName = aFileName.replace(/[\>]+/g, ")");
+             }
+             else if (navigator.appVersion.indexOf("Macintosh") != -1)
+                 re = /[\:\/]+/g;
+   
+             return aFileName.replace(re, "_");
+         }
+ 
+ 
+         // 1) look for a filename in the content-disposition header, if any
+         if (aContentDisposition) {
+             const mhp = Components.classes["@mozilla.org/network/mime-hdrparam;1"]
+                 .getService(Components.interfaces.nsIMIMEHeaderParam);
+             var dummy = { value: null };  // Need an out param...
+             var charset = getCharsetforSave(aDocument);
+ 
+             var fileName = null;
+             try {
+                 fileName = mhp.getParameter(aContentDisposition, "filename", charset,
+                                             true, dummy);
+             }
+             catch (e) {
+                 try {
+                     fileName = mhp.getParameter(aContentDisposition, "name", charset, true,
+                                                 dummy);
+                 }
+                 catch (e) {
+                 }
+             }
+             if (fileName)
+                 return fileName;
+         }
+ 
+         try {
+             var url = aURI.QueryInterface(Components.interfaces.nsIURL);
+             if (url.fileName != "") {
+                 // 2) Use the actual file name, if present
+                 var textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
+                     .getService(Components.interfaces.nsITextToSubURI);
+                 return validateFileName(textToSubURI.unEscapeURIForUI(url.originCharset || "UTF-8", url.fileName));
+             }
+         } catch (e) {
+             // This is something like a data: and so forth URI... no filename here.
+         }
+ 
+         if (aDocument) {
+             var docTitle = validateFileName(aDocument.title).replace(/^\s+|\s+$/g, "");
+             if (docTitle) {
+                 // 3) Use the document title
+                 return docTitle;
+             }
+         }
+ 
+         if (aDefaultFileName)
+             // 4) Use the caller-provided name, if any
+             return validateFileName(aDefaultFileName);
+ 
+         // 5) If this is a directory, use the last directory name
+         var path = aURI.path.match(/\/([^\/]+)\/$/);
+         if (path && path.length > 1)
+             return validateFileName(path[1]);
+ 
+         try {
+             if (aURI.host)
+                 // 6) Use the host.
+                 return aURI.host;
+         } catch (e) {
+             // Some files have no information at all, like Javascript generated pages
+         }
+         try {
+             // 7) Use the default file name
+             return getStringBundle().GetStringFromName("DefaultSaveFileName");
+         } catch (e) {
+             //in case localized string cannot be found
+         }
+         // 8) If all else fails, use "index"
+         return "index";
+     }
+ 
+     // end of support functions.
+     //
+ 
+     var file_ext_s;
+     var file_base_name_s;
+
+    try {
+        // Assuming nsiUri is valid, calling QueryInterface(...) on it will
+        // populate extra object fields (eg filename and file extension).
+        var url = url_o.QueryInterface(Components.interfaces.nsIURL);
+        file_ext_s = url.fileExtension;
+    } catch (e) { }
+
+    // Get the default filename:
+    var file_name_s = getDefaultFileName(null, url_o, aDocument, aContentDisposition);
+
+    // If file_ext_s is still blank, and url_o is a web link (http or
+    // https), make the extension `.html'.
+    if (! file_ext_s && !aDocument && !aContentType && (/^http(s?)/i.test(url_o.scheme))) {
+        file_ext_s = ".html";
+        file_base_name_s = file_name_s;
+    } else {
+        file_ext_s = getDefaultExtension(file_name_s, url_o, aContentType);
+        // related to temporary fix for bug 120327 in getDefaultExtension
+        if (file_ext_s == "")
+            file_ext_s = file_name_s.replace (/^.*?\.(?=[^.]*$)/, "");
+        file_base_name_s = file_name_s.replace (/\.[^.]*$/, "");
+    }
+
+    if (dest_extension_s)
+        file_ext_s = dest_extension_s;
+
+    var file_name_o  = default_directory.clone();
+    file_name_o.append (file_base_name_s +'.'+ file_ext_s);
+    return file_name_o;
+}
+
+function set_default_directory (directory_s) {
+    if (! directory_s)
+    {
+        var env = Components.classes['@mozilla.org/process/environment;1']
+            .createInstance (Components.interfaces.nsIEnvironment);
+        if (env.exists ('HOME'))
+            directory_s = env.get('HOME');
+    }
+    default_directory = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    default_directory.initWithPath (directory_s);
+
 }

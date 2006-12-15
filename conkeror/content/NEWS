@@ -4,6 +4,10 @@ User visible changes. See ChangeLog for more details listing of
 changes.
 
 ** Changes since 0.39
+* fixed save-link
+
+* new commands save-page, save-page-as-text, save-page-complete
+
 * Hopefully keyboard focus is fixed
 Conkeror listens on the window, now, for keypresses making it that
 much harder to lose keyboard focus. Hitting TAB to focus the window
