@@ -396,9 +396,9 @@ function initViKmaps()
     define_key(textarea_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
     define_key(textarea_kmap, make_key("d",MOD_META),"cmd_deleteWordForward");
     define_key(textarea_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
-    define_key(textarea_kmap, make_key("b",MOD_META),"cmd_WordPrevious");
+    define_key(textarea_kmap, make_key("b",MOD_META),"cmd_wordPrevious");
     define_key(textarea_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
-    define_key(textarea_kmap, make_key("f",MOD_META),"cmd_WordNext");
+    define_key(textarea_kmap, make_key("f",MOD_META),"cmd_wordNext");
     define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
     define_key(textarea_kmap, make_key("w",MOD_META),"cmd_copy");
     define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
@@ -584,9 +584,9 @@ function initKmaps()
     define_key(textarea_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
     define_key(textarea_kmap, make_key("d",MOD_META),"cmd_deleteWordForward");
     define_key(textarea_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
-    define_key(textarea_kmap, make_key("b",MOD_META),"cmd_WordPrevious");
+    define_key(textarea_kmap, make_key("b",MOD_META),"cmd_wordPrevious");
     define_key(textarea_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
-    define_key(textarea_kmap, make_key("f",MOD_META),"cmd_WordNext");
+    define_key(textarea_kmap, make_key("f",MOD_META),"cmd_wordNext");
     define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
     define_key(textarea_kmap, make_key("w",MOD_META),"cmd_copy");
     define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
@@ -702,8 +702,8 @@ function add_escape_bindings()
 
     // Textarea
     define_key(textarea_esc_kmap, make_key("d",0),"cmd_deleteWordForward");
-    define_key(textarea_esc_kmap, make_key("b",0),"cmd_WordPrevious");
-    define_key(textarea_esc_kmap, make_key("f",0),"cmd_WordNext");
+    define_key(textarea_esc_kmap, make_key("b",0),"cmd_wordPrevious");
+    define_key(textarea_esc_kmap, make_key("f",0),"cmd_wordNext");
     define_key(textarea_esc_kmap, make_key("w",0),"cmd_copy");
     define_key(textarea_esc_kmap, make_key("<",0),"cmd_moveTop");
     define_key(textarea_esc_kmap, make_key(">",0),"cmd_moveBottom");

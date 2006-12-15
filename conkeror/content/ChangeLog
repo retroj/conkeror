@@ -1,5 +1,7 @@
 2006-12-15  Shawn Betts  <sabetts@vcn.bc.ca>
 
+	* bindings.js: fix next/prev word bindings in textarea_map
+
 	* utils.js: Support code for url downloading
 
 	* conkeror.js (delayedStartup): set the default directory
