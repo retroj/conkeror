@@ -1,12 +1,12 @@
 @import url("chrome://communicator/skin/");
 
 .mode-line {
-  border-left: 2px solid rgb(230,230,230);
-  border-top: 2px solid rgb(230,230,230);
-  border-right: 2px solid rgb(100,100,100);
-  border-bottom: 2px solid rgb(100,100,100);
+  border-left: 1px solid rgb(230,230,230);
+  border-top: 1px solid rgb(230,230,230);
+  border-right: 1px solid rgb(100,100,100);
+  border-bottom: 1px solid rgb(100,100,100);
   margin: 0 0 0 0;
- background-color: rgb(200,200,200);
+  background-color: rgb(200,200,200);
 }
 
 label.mode-line-label {
