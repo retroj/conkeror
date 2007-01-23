@@ -126,7 +126,8 @@ const frame_focus_observer = {
 
 function delayedStartup()
 {
-    window.addEventListener("keypress", readKeyPress, false);
+    // with this enabled we get duplicate events because we listen for events on the window from conkeror.xul
+//     window.addEventListener("keypress", readKeyPressFromListen, false);
 
     element = _content;
 

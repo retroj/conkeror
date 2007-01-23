@@ -1,3 +1,11 @@
+2007-01-23  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* Release 0.41
+	
+2007-01-23  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* conkeror.js: remove keypress listener on the window.
+
 2006-12-15  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.40
