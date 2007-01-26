@@ -149,17 +149,25 @@ function matchLink (action, doc, link)
 			} else if (action == 1) {
 			    getBrowser().newBrowser(href);
 			} else {
+			    var img = node.getElementsByTagName("IMG");
 			    var evt = doc.createEvent('MouseEvents');
-			    var x = 0;
-			    var y = 0;
+			    var x = 1;
+			    var y = 1;
 			    if (gNumberedLinksPrefix == 1) {
 				if (node.localName.toLowerCase() == "area") {
 				    var coords = node.getAttribute("coords").split(",");
 				    x = Number(coords[0]);
 				    y = Number(coords[1]);
 				}
-				evt.initMouseEvent('click', true, true, doc.defaultView, 1, x, y, 0, 0, null, null, null, null, 0, null);
-				node.dispatchEvent(evt);
+				evt.initMouseEvent('click', true, true, doc.defaultView, 0, x, y, 0, 0, null, null, null, null, 0, null);
+				// Handle the annoying case where
+				// there's a link with an image inside
+				// it and the onclick is on the image
+				// not the A tag.
+				if (img.length > 0)
+				    img[0].dispatchEvent(evt);
+				else
+				    node.dispatchEvent(evt);
 			    } else {
 				open_url_in(gNumberedLinksPrefix, node.href);
 			    }
@@ -171,7 +179,7 @@ function matchLink (action, doc, link)
 			    node.focus();
 			} else {
 			    var evt = doc.createEvent('MouseEvents');
-			    evt.initMouseEvent('click', true, true, doc.defaultView, 1, 0, 0, 0, 0, null, null, null, null, 0, null);
+			    evt.initMouseEvent('click', true, true, doc.defaultView, 0, 0, 0, 0, 0, null, null, null, null, 0, null);
 			    node.dispatchEvent(evt);
 			}
 		    } else {

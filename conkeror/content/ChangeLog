@@ -1,3 +1,7 @@
+2007-01-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* numberedlinks.js: click the image if a link has an image in it.
+
 2007-01-23  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.41
