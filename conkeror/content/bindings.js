@@ -152,67 +152,103 @@ keyTable[KeyEvent.DOM_VK_CLOSE_BRACKET] = "close_bracket";
 keyTable[KeyEvent.DOM_VK_QUOTE] = "quote";
 keyTable[KeyEvent.DOM_VK_META] = "meta";
 
+var context_kmaps = [];
+
 // some predefined key maps
-var 	ctrlc_kmap	   = [];
-var 	ctrlw_kmap	   = [];
-var 	ctrlx_kmap	   = [];
-var 	bookmark_kmap	   = [];
-var 	four_kmap	   = [];
-var 	five_kmap	   = [];
-var 	help_kmap	   = [];
-var 	top_kmap	   = [];
-var 	input_kmap	   = [];
-var 	textarea_kmap	   = [];
-var 	select_kmap	   = [];
-var 	numberedlinks_kmap = [];
+var 	ctrlc_kmap	   = null;
+var 	ctrlw_kmap	   = null;
+var 	ctrlx_kmap	   = null;
+var 	bookmark_kmap	   = null;
+var 	four_kmap	   = null;
+var 	five_kmap	   = null;
+var 	help_kmap	   = null;
+var 	top_kmap	   = null;
+var 	input_kmap	   = null;
+var 	textarea_kmap	   = null;
+var 	select_kmap	   = null;
+var 	numberedlinks_kmap = null;
+var     top_esc_kmap   	   = null;
+var     textarea_esc_kmap  = null;
+var     input_esc_kmap     = null;
+var     minibuffer_kmap    = null;
+var     isearch_kmap       = null;
 
 // This keymap is used by the universal argument code
 var overlay_kmap = null;
+
+var universal_kmap = null;
+
+var abort_key = null;
 
 const MOD_CTRL = 0x1;
 const MOD_META = 0x2;
 const MOD_SHIFT = 0x4;
 
-function make_match_any_key()
+// Key Matching Functions.  These are functions that may be passed to make_key
+// in place of key code or char code.  They take an event object as their
+// argument and turn true if the event matches the class of keys that they
+// represent.
+//
+function match_any_key (event)
 {
-    var key = {};
-    key.matchAny = true;
-    return key;
+    return true;
 }
+
+function match_any_unmodified_key (event)
+{
+    try {
+        return event.charCode &&
+            !metaPressed(event) &&
+            !event.ctrlKey;
+    } catch (e) { }
+}
+
+
 
 function make_key(keyCode, mods)
 {
     var key = {};
-    if (typeof keyCode == "string")
+    if (typeof keyCode == "function")
+        key.match_function = keyCode;
+    else if (typeof keyCode == "string")
 	key.charCode = keyCode.charCodeAt(0);
     else
 	key.keyCode = keyCode;
-    key.modifiers = mods;
+
+    if (mods)
+        key.modifiers = mods;
+    else
+        key.modifiers = 0;
+
     return key;
 }
 
 // bind key to either the keymap or command in the keymap, kmap
-// Contributed by Nikolai Weibull
-function define_key(kmap, key, cmd)
+function define_key(kmap, key, cmd, fallthrough)
 {
     for (var i = 0; i < kmap.length; i++) {
-        if (((kmap[i].key.charCode && key.charCode &&
-              kmap[i].key.charCode == key.charCode) ||
-             (kmap[i].key.keyCode && key.keyCode &&
-              kmap[i].key.keyCode == key.keyCode)) &&
-            kmap[i].key.modifiers == key.modifiers) {
-            if (typeof cmd == "string" 
-		|| typeof cmd == "function") {
+        if ((((kmap[i].key.charCode && key.charCode &&
+               kmap[i].key.charCode == key.charCode) ||
+              (kmap[i].key.keyCode && key.keyCode &&
+               kmap[i].key.keyCode == key.keyCode)) &&
+             kmap[i].key.modifiers == key.modifiers) ||
+            (kmap[i].key.match_function && key.match_function &&
+             kmap[i].key.match_function == key.match_function)) {
+            if (typeof cmd == "string" ||
+                typeof cmd == "function")
+            {
                 kmap[i].command = cmd;
                 kmap[i].keymap = null;
             } else {
                 kmap[i].command = null;
                 kmap[i].keymap = cmd;
             }
+            kmap[i].fallthrough = fallthrough;
             return;
         }
     }
-    var obj = {key: key};
+    var obj = {key: key,
+               fallthrough: fallthrough};
     if (typeof cmd == "string"
 	|| typeof cmd == "function")
             obj.command = cmd;
@@ -221,25 +257,100 @@ function define_key(kmap, key, cmd)
     kmap.push(obj);
 }
 
+function make_keymap ()
+{
+    var k = [];
+    k.parent = null;
+    return k;
+}
+
+function make_context_keymap (predicate)
+{
+    var k = make_keymap();
+    k.predicate = predicate;
+    return k;
+}
+
+
+function numberedlinks_kmap_predicate () {
+    return numberedlinks_minibuffer_active;
+}
+
+
+function isearch_kmap_predicate () {
+    return isearch_active;
+}
+
+
+function minibuffer_kmap_predicate (element) {
+    try {
+        var input_field = document.getElementById ("input-field");
+        return element.baseURI == "chrome://conkeror/content/conkeror.xul" &&
+            element == input_field.inputField;
+    } catch (e) { }
+}
+
+
+function input_kmap_predicate (element) {
+    // Use the input keymap for any input tag that
+    // isn't a radio button or checkbox.
+    try {
+        var tag = element.tagName.toLowerCase();
+        var type = element.getAttribute ("type");
+        if (type != null) {type = type.toLowerCase();}
+        return tag == "html:input" ||
+            (tag == "input" &&
+             type != "radio" &&
+             type != "checkbox");
+    } catch (e) { }
+}
+
+
+function textarea_kmap_predicate (element) {
+    try {
+        return element.tagName == "TEXTAREA";
+    } catch (e) { }
+}
+
+
 function clearKmaps()
 {
-    ctrlc_kmap    	  = [];
-    ctrlw_kmap    	  = [];
-    ctrlx_kmap    	  = [];
-    bookmark_kmap 	  = [];
-    four_kmap     	  = [];
-    five_kmap     	  = [];
-    help_kmap     	  = [];
-    top_kmap      	  = [];
-    input_kmap    	  = [];
-    textarea_kmap 	  = [];
-    select_kmap   	  = [];
+    ctrlc_kmap    	  = make_keymap();
+    ctrlw_kmap    	  = make_keymap();
+    ctrlx_kmap    	  = make_keymap();
+    bookmark_kmap 	  = make_keymap();
+    four_kmap     	  = make_keymap();
+    five_kmap     	  = make_keymap();
+    help_kmap     	  = make_keymap();
+    top_kmap      	  = make_keymap();
+    input_kmap            = make_context_keymap (input_kmap_predicate);
+    textarea_kmap 	  = make_context_keymap (textarea_kmap_predicate);
+    minibuffer_kmap       = make_context_keymap (minibuffer_kmap_predicate);
+    select_kmap   	  = make_keymap();
+    numberedlinks_kmap    = make_context_keymap (numberedlinks_kmap_predicate);
+    isearch_kmap          = make_context_keymap (isearch_kmap_predicate);
+
+    top_esc_kmap   	  = make_keymap();
+    textarea_esc_kmap     = make_keymap();
+    input_esc_kmap        = make_keymap();
+
+    universal_kmap        = make_keymap();
+
+    context_kmaps = [numberedlinks_kmap,
+                     isearch_kmap,
+                     minibuffer_kmap,
+                     input_kmap,
+                     textarea_kmap];
 }
 
 // VI Keys for the heathens. Thanks to maxauthority on #conkeror for
 // the patch.
 function initViKmaps()
 {
+    clearKmaps();
+
+    abort_key = make_key("g",MOD_CTRL);
+
     // submaps
     define_key(top_kmap, make_key("h",MOD_CTRL), help_kmap);
     define_key(top_kmap, make_key("w",MOD_CTRL), ctrlw_kmap);
@@ -262,7 +373,7 @@ function initViKmaps()
     define_key(ctrlw_kmap, make_key("o",0),"find-url-other-frame"); 
 //     define_key(ctrlw_kmap, make_key("s",0),"split-window"); // splits a window in 2 halfes if there are 2 buffers in it
     define_key(ctrlw_kmap, make_key("O",0),"switch-to-buffer-other-window");
-	define_key(ctrlw_kmap, make_key("Q",0),"delete-frame");
+    define_key(ctrlw_kmap, make_key("Q",0),"delete-frame");
     define_key(ctrlw_kmap, make_key("n",0),"make-frame-command");
 
     
@@ -361,6 +472,8 @@ function initViKmaps()
 	// shows a query with a list of all links on the current website, currently quite broken
     define_key(top_kmap, make_key("m", MOD_CTRL),"link-menu");
 
+    input_kmap.parent = top_kmap;
+
     // Input area keys - the same as for emacs
     define_key(input_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
     define_key(input_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
@@ -387,21 +500,12 @@ function initViKmaps()
     // Nasty keys
     define_key(input_kmap, make_key("r",MOD_CTRL),"cmd_redo");
 
+    // This must be at the end of input_kmap defs so it's matched last.
+    define_key(input_kmap, make_key (match_any_unmodified_key), null, true);
+
+    textarea_kmap.parent = input_kmap;
+
     // textarea keys - the same as for emacs
-    define_key(textarea_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
-    define_key(textarea_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "cmd_deleteCharBackward");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, MOD_META), 
-	       "cmd_deleteWordBackward");
-    define_key(textarea_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
-    define_key(textarea_kmap, make_key("d",MOD_META),"cmd_deleteWordForward");
-    define_key(textarea_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
-    define_key(textarea_kmap, make_key("b",MOD_META),"cmd_wordPrevious");
-    define_key(textarea_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
-    define_key(textarea_kmap, make_key("f",MOD_META),"cmd_wordNext");
-    define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
-    define_key(textarea_kmap, make_key("w",MOD_META),"cmd_copy");
-    define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
     define_key(textarea_kmap, make_key("n",MOD_CTRL),"cmd_lineNext");
     define_key(textarea_kmap, make_key("p",MOD_CTRL),"cmd_linePrevious");
     define_key(textarea_kmap, make_key("<",MOD_META),"cmd_moveTop");
@@ -410,30 +514,30 @@ function initViKmaps()
     define_key(textarea_kmap, make_key("v",MOD_CTRL),"cmd_movePageDown");
 
     // 101 keys
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_END,MOD_SHIFT), "cmd_selectEndLine");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT), 
-	       "cmd_selectWordPrevious");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), 
-	       "cmd_selectWordNext");
     define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_UP,MOD_SHIFT), "cmd_selectPageUp");
     define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_DOWN,MOD_SHIFT), "cmd_selectPageDown");
 
     // Nasty keys
-    define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
+    // define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
+
+    init_minibuffer_keys ();
+
+    init_numberedlinks_keys ();
+
+    init_isearch_keys ();
+
+    init_universal_arg_keys ();
 
     gCurrentKmap = top_kmap;
 
-    // numbered links bindings
-
-    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,0), nl_follow);
-    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_META), nl_focus);
-    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_CTRL), nl_open_other_buffer);
 }
 
 function initKmaps()
 {
+    clearKmaps();
+
+    abort_key = make_key("g",MOD_CTRL);
+
     define_key(help_kmap, make_key("b",0),"describe-bindings");
     define_key(help_kmap, make_key("i",0),"help-page");
     define_key(help_kmap, make_key("t",0),"help-with-tutorial");
@@ -575,21 +679,12 @@ function initKmaps()
     // Nasty keys
     define_key(input_kmap, make_key("r",MOD_CTRL),"cmd_redo");
 
+    // This must be at the end of input_kmap defs so it's matched last.
+    define_key(input_kmap, make_key (match_any_unmodified_key), null, true);
+
+    textarea_kmap.parent = input_kmap;
+
     // textarea keys
-    define_key(textarea_kmap, make_key("a",MOD_CTRL),"cmd_beginLine");
-    define_key(textarea_kmap, make_key("e",MOD_CTRL),"cmd_endLine");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "cmd_deleteCharBackward");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, MOD_META), 
-	       "cmd_deleteWordBackward");
-    define_key(textarea_kmap, make_key("d",MOD_CTRL),"cmd_deleteCharForward");
-    define_key(textarea_kmap, make_key("d",MOD_META),"cmd_deleteWordForward");
-    define_key(textarea_kmap, make_key("b",MOD_CTRL),"cmd_charPrevious");
-    define_key(textarea_kmap, make_key("b",MOD_META),"cmd_wordPrevious");
-    define_key(textarea_kmap, make_key("f",MOD_CTRL),"cmd_charNext");
-    define_key(textarea_kmap, make_key("f",MOD_META),"cmd_wordNext");
-    define_key(textarea_kmap, make_key("y",MOD_CTRL),"cmd_paste");
-    define_key(textarea_kmap, make_key("w",MOD_META),"cmd_copy");
-    define_key(textarea_kmap, make_key("k",MOD_CTRL),"cmd_deleteToEndOfLine");
     define_key(textarea_kmap, make_key("n",MOD_CTRL),"cmd_lineNext");
     define_key(textarea_kmap, make_key("p",MOD_CTRL),"cmd_linePrevious");
     define_key(textarea_kmap, make_key("<",MOD_META),"cmd_moveTop");
@@ -599,32 +694,94 @@ function initKmaps()
     define_key(textarea_kmap, make_key(" ",MOD_META),"yank-to-clipboard");
 
     // 101 keys
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_END,MOD_SHIFT), "cmd_selectEndLine");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT), 
-	       "cmd_selectWordPrevious");
-    define_key(textarea_kmap, make_key(KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), 
-	       "cmd_selectWordNext");
     define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_UP,MOD_SHIFT), "cmd_selectPageUp");
     define_key (textarea_kmap, make_key(KeyEvent.DOM_VK_PAGE_DOWN,MOD_SHIFT), "cmd_selectPageDown");
 
-    // Nasty keys
-    define_key(textarea_kmap, make_key("r",MOD_CTRL),"cmd_redo");
+
+
+
+    init_minibuffer_keys ();
+
+    init_numberedlinks_keys ();
+
+    init_isearch_keys ();
+
+    init_universal_arg_keys ();
 
     gCurrentKmap = top_kmap;
 
-    // numbered links bindings
-
-    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,0), nl_follow);
-    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_META), nl_focus);
-    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_CTRL), nl_open_other_buffer);
 }
+
+
+function init_minibuffer_keys () {
+    // minibuffer bindings
+    //
+    define_key (minibuffer_kmap, make_key (KeyEvent.DOM_VK_RETURN,0), "exit-minibuffer");
+    define_key (minibuffer_kmap, make_key ("p",MOD_META), "minibuffer-history-previous");
+    define_key (minibuffer_kmap, make_key ("n",MOD_META), "minibuffer-history-next");
+    define_key (minibuffer_kmap, make_key (KeyEvent.DOM_VK_ESCAPE, 0), "minibuffer-abort");
+    define_key (minibuffer_kmap, make_key ("g",MOD_CTRL), "minibuffer-abort");
+    define_key (minibuffer_kmap, make_key (KeyEvent.DOM_VK_TAB, 0), "minibuffer-complete");
+    define_key (minibuffer_kmap, make_key (KeyEvent.DOM_VK_TAB, MOD_SHIFT), "minibuffer-complete-reverse");
+    minibuffer_kmap.parent = input_kmap;
+}
+
+
+function init_numberedlinks_keys () {
+    // numbered links bindings
+    //
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,0), "numberedlinks-follow");
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_META), "numberedlinks-focus");
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_RETURN,MOD_CTRL), "numberedlinks-follow-other-buffer");
+    define_key (numberedlinks_kmap, make_key (KeyEvent.DOM_VK_ESCAPE, 0), "numberedlinks-escape");
+    define_key (numberedlinks_kmap, make_key ("g",MOD_CTRL), "numberedlinks-escape");
+    // we also want to consume TAB but ignore it.  there should be a general command for this.
+    numberedlinks_kmap.parent = minibuffer_kmap;
+}
+
+
+function init_isearch_keys () {
+    // isearch bindings
+    //
+    define_key (isearch_kmap, make_key (KeyEvent.DOM_VK_BACK_SPACE,0), "isearch-backspace");
+    define_key (isearch_kmap, make_key ("r", MOD_CTRL), "isearch-backward");
+    define_key (isearch_kmap, make_key ("s", MOD_CTRL), "isearch-forward");
+    define_key (isearch_kmap, make_key ("g", MOD_CTRL), "isearch-abort");
+    define_key (isearch_kmap, make_key (KeyEvent.DOM_VK_ESCAPE, 0), "isearch-abort");
+    define_key (isearch_kmap, make_key (match_any_unmodified_key), "isearch-add-character");
+    define_key (isearch_kmap, make_key (match_any_key), "isearch-done");
+}
+
+
+function init_universal_arg_keys ()
+{
+    define_key(universal_kmap, make_key("u", MOD_CTRL), "universal-argument-more");
+    define_key(universal_kmap, make_key("1", 0), "universal-digit");
+    define_key(universal_kmap, make_key("2", 0), "universal-digit");
+    define_key(universal_kmap, make_key("3", 0), "universal-digit");
+    define_key(universal_kmap, make_key("4", 0), "universal-digit");
+    define_key(universal_kmap, make_key("5", 0), "universal-digit");
+    define_key(universal_kmap, make_key("6", 0), "universal-digit");
+    define_key(universal_kmap, make_key("7", 0), "universal-digit");
+    define_key(universal_kmap, make_key("8", 0), "universal-digit");
+    define_key(universal_kmap, make_key("9", 0), "universal-digit");
+    define_key(universal_kmap, make_key("0", 0), "universal-digit");
+    // This must be at the end so it's matched last.
+    //define_key(universal_kmap, make_key (match_any_key), "universal-argument-other-key");
+}
+
 
 function genBindingsHelper(doc, kmap, prefix)
 {
     try {
     for (var i=0; i<kmap.length; i++) {
+        //fallthrough keys are used by context-maps like input-kmap to ensure
+        //that ordinary, unmodified characters will go to the input widget
+        //instead of top_kmap.  Therefore we don't display these keys in the
+        //help screen.
+        //
+        if (kmap[i].fallthrough) continue;
+        if (kmap[i].key.match_function) continue;
 	var command = kmap[i].command || "Prefix Command";;
 	var key;
 	if (kmap[i].key.charCode)
@@ -670,10 +827,6 @@ function genBindings(kmap, name)
 
 //// ESCAPE bindings
 
-var     top_esc_kmap   	  = [];
-var 	textarea_esc_kmap = [];
-var 	input_esc_kmap    = [];
-
 function add_escape_bindings()
 {
     define_key(top_kmap, make_key(KeyEvent.DOM_VK_ESCAPE, 0), top_esc_kmap);
@@ -700,11 +853,13 @@ function add_escape_bindings()
     define_key(input_esc_kmap, make_key("f",0),"cmd_wordNext");
     define_key(input_esc_kmap, make_key("w",0),"cmd_copy");
 
+    textarea_esc_kmap.parent = input_esc_kmap;
+
     // Textarea
-    define_key(textarea_esc_kmap, make_key("d",0),"cmd_deleteWordForward");
-    define_key(textarea_esc_kmap, make_key("b",0),"cmd_wordPrevious");
-    define_key(textarea_esc_kmap, make_key("f",0),"cmd_wordNext");
-    define_key(textarea_esc_kmap, make_key("w",0),"cmd_copy");
+    // define_key(textarea_esc_kmap, make_key("d",0),"cmd_deleteWordForward");
+    // define_key(textarea_esc_kmap, make_key("b",0),"cmd_wordPrevious");
+    // define_key(textarea_esc_kmap, make_key("f",0),"cmd_wordNext");
+    // define_key(textarea_esc_kmap, make_key("w",0),"cmd_copy");
     define_key(textarea_esc_kmap, make_key("<",0),"cmd_moveTop");
     define_key(textarea_esc_kmap, make_key(">",0),"cmd_moveBottom");
     define_key(textarea_esc_kmap, make_key("v",0),"cmd_movePageUp");

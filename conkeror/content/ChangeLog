@@ -1,3 +1,18 @@
+2007-02-13  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* utils.js: restructure minibuffer key events
+
+	* numberedlinks.js: use readFromMiniBuffer. function renaming.
+
+	* commands.js: add minibuffer and isearch commands and
+	corresponding functions. Use readFromMiniBuffer.
+
+	* bindings.js: add context maps. keymap restructuring. All callers updated.
+
+2007-01-26  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* Release 0.42
+	
 2007-01-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* numberedlinks.js: click the image if a link has an image in it.

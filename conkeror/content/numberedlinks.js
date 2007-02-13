@@ -49,6 +49,8 @@ var gTurnOffLinksAfter = false;
 // Set this to true to display only images
 var gOnlyImages = false;
 
+var numberedlinks_minibuffer_active = false;
+
 function selectNumberedLink_1(args) { selectNthLink(1, args); }
 function selectNumberedLink_2(args) { selectNthLink(2, args); }
 function selectNumberedLink_3(args) { selectNthLink(3, args); }
@@ -103,15 +105,21 @@ function goto_numbered_link(args)
 
 function selectNumberedLink(num, args)
 {
+    // Setup a context for the context-keymap system.
+    numberedlinks_minibuffer_active = true;
     gNumberedLinksPrefix = args[0];
-    readInput("Goto Numbered Link:", null, "onNumberedLinkKeyPress(event);");
-    var field = document.getElementById('input-field');
-    field.value = num;
+    var prompt;
+    if (gOnlyImages)
+        prompt = "Goto Numbered Image:";
+    else
+        prompt = "Goto Numbered Link:";
+    readFromMiniBuffer(prompt, num);
 }
 
 function closeNumberedLinkBar()
 {
     closeInput(true);
+    numberedlinks_minibuffer_active = false;
     if (gTurnOffLinksAfter) {
 	if (gOnlyImages) {
 	    toggleNumberedImages();
@@ -193,7 +201,7 @@ function matchLink (action, doc, link)
     return false;
 }
 
-function nl_do_link (action)
+function numberedlinks_do_link (action)
 {
     var findfield = document.getElementById("input-field");
     var link = findfield.value;
@@ -208,43 +216,25 @@ function nl_do_link (action)
     }
 }
 
-function nl_focus ()
+function numberedlinks_focus ()
 {
-    nl_do_link (2);
+    numberedlinks_do_link (2);
 }
 
-function nl_open_other_buffer ()
+function numberedlinks_follow_other_buffer ()
 {
-    nl_do_link (1);
+    numberedlinks_do_link (1);
 }
 
-function nl_follow ()
+function numberedlinks_follow ()
 {
-    nl_do_link (0);
+    numberedlinks_do_link (0);
 }
 
-function onNumberedLinkKeyPress(evt)
-{
-    try {
-    var key = getKeyAction(numberedlinks_kmap, evt);
-    if (key) {
-	key.command();
-    }else if (evt.keyCode == KeyEvent.DOM_VK_RETURN) {
-	evt.preventDefault();
-	evt.preventBubble();
-	return true;
-    }
-    else if (evt.keyCode == KeyEvent.DOM_VK_ESCAPE
-	     || (evt.ctrlKey && evt.charCode == 103)) {
-	closeNumberedLinkBar();
-	evt.preventDefault();
-	evt.preventBubble();
-    } else if (evt.keyCode == KeyEvent.DOM_VK_TAB) {
-	// Ignore tabs
-	evt.preventDefault();
-	evt.preventBubble();
-    }
-    } catch(e) {alert(e);}
+
+function numberedlinks_escape () {
+    numberedlinks_minibuffer_active = false;
+    closeNumberedLinkBar();
 }
 
 function onNumberedLinkBlur() {
@@ -698,7 +688,7 @@ function update_nl_pos (doc)
     } catch(e) {     log ("update_nl_pos " + e); }
 }
 
-function nl_resize ()
+function numberedlinks_resize ()
 {
     var frames = window._content.frames;
     update_nl_pos (window._content.document);

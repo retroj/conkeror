@@ -116,7 +116,7 @@ function getMarkupDocumentViewer ()
 }
 
 // A function to setup reading input in the minibuffer
-function readInput(prompt, open, keypress)
+function read_from_minibuffer_internal (prompt)
 {
 //     var messageWindow = document.getElementById("message-bar");
     var label = document.getElementById("input-prompt");
@@ -126,15 +126,13 @@ function readInput(prompt, open, keypress)
     output.value = "";
     output.collapsed = true;
     label.collapsed = false;
+    field.value = "";
     field.collapsed = false;
 
     gFocusedWindow = document.commandDispatcher.focusedWindow;
     gFocusedElement = document.commandDispatcher.focusedElement;
 
     label.value = prompt;
-    field.setAttribute("onkeypress", keypress);
-
-    if (open) open();
 
     // If this isn't given a timeout it doesn't focus in ff1.5. I
     // don't know why.
@@ -144,31 +142,11 @@ function readInput(prompt, open, keypress)
     field.focus();
 //     document.commandDispatcher.focusedWindow = window;
 //     document.commandDispatcher.focusedElement = field;
-
-}
-
-function handle_basic_input(event)
-{
-    try {
-    // Find the command
-    var key = getKeyAction(input_kmap, event);
-
-
-
-    // For now, don't handle embedded keymaps. Just commands 
-    if (key) {
-	if (key.command) {
-	    exec_command(key.command);
-	    return true;
-	}
-    }
-
-    return false;
-    } catch(e) {alert(e);}
 }
 
 // Keeps track of history
 var gHistory = [];
+var minibuffer_history_max_items = 100;
 
 function getHistory(id)
 {
@@ -194,38 +172,13 @@ function metaPressed (event)
     return event.altKey || event.metaKey;
 }
 
-function handle_history(event, field)
-{
-    if (event.charCode == 110 && metaPressed(event)) {
-	if (gHistoryArray != null) {
-	    gHistoryPoint++;
-	    if (gHistoryPoint < gHistoryArray.length) {
-		field.value = gHistoryArray[gHistoryPoint];
-	    } else {
-		gHistoryPoint = gHistoryArray.length - 1;
-	    }
-	}
-	return true;
-    } else if (event.charCode == 112 && metaPressed(event)) {
-	if (gHistoryArray != null) {
-	    gHistoryPoint--;
-	    if (gHistoryPoint >= 0) {
-		field.value = gHistoryArray[gHistoryPoint];
-	    } else {
-		gHistoryPoint = 0;
-	    }
-	}
-	return true;
-    }
-    return false;
-}
-
 function addHistory(str)
 {
-    // FIXME: make 100 customizable
-    if (gHistoryArray.length >= 100)
-	gHistoryArray.splice(0, 1);
-    gHistoryArray.push(str);
+    if (gHistoryArray != null) {
+        if (gHistoryArray.length >= minibuffer_history_max_items)
+            gHistoryArray.splice(0, 1);
+        gHistoryArray.push(str);
+    }
 }
 
 // The focus before we read from the minibuffer
@@ -244,7 +197,7 @@ var gCurrentCompletion = null;
 
 var gCurrentCompletions = null;
 
-var gDefault = null;
+var gDefaultMatch = null;
 
 var gAllowNonMatches = false;
 
@@ -252,49 +205,6 @@ var gAllowNonMatches = false;
 var gHistoryPoint = null;
 // The arry we're using for history
 var gHistoryArray = null;
-
-function miniBufferKeyPress(event)
-{
-    try {
-    var field = document.getElementById("input-field");
-    if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-	try{
-	    var val = removeWhiteSpace (field.value);
-	    addHistory(val);
-	    var callback = gReadFromMinibufferCallBack;
-	    gReadFromMinibufferCallBack = null;
-	    gReadFromMinibufferAbortCallBack = null;
-	    closeInput(true);
-	    if (callback)
-		callback(val);
-	    event.preventDefault();
-	    event.preventBubble();
-	} catch (e) {window.alert(e);}
-	//    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
-	// paste current url
-    } else if (handle_history(event, field)) {
-	event.preventDefault();
-	event.preventBubble();	
-    } else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE
-	       || (event.ctrlKey && (event.charCode == 103))) {
-	if (gReadFromMinibufferAbortCallBack)
-	    gReadFromMinibufferAbortCallBack();
-	gReadFromMinibufferAbortCallBack = null;
-	gReadFromMinibufferCallBack = null;
-	closeInput(true);
-	event.preventDefault();
-	event.preventBubble();
-    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
-	// gobble the tab
-	event.preventDefault();
-	event.preventBubble();
-    } else if (handle_basic_input(event)) {
-	// gobble the tab
-	event.preventDefault();
-	event.preventBubble();
-    }
-    } catch(e) {alert(e);}
-}
 
 // Cheap completion
 function miniBufferCompleteStr(str, matches)
@@ -326,81 +236,6 @@ function findCompleteMatch(matches, val)
     return null;
 }
 
-function miniBufferCompleteKeyPress(event)
-{
-    try {
-	var field = document.getElementById("input-field");
-	if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
-	    try{
-		var val = removeWhiteSpace (field.value);
-		if (val.length == 0 && gDefaultMatch != null)
-		    val = gDefaultMatch;
-		var match = findCompleteMatch(gMiniBufferCompletions, val);
-		addHistory(val);
-		var callback = gReadFromMinibufferCallBack;
-		gReadFromMinibufferCallBack = null;
-		gReadFromMinibufferAbortCallBack = null;
-		closeInput(true);
-		if (callback) {
-		    if (gAllowNonMatches)
-			callback(match, val);
-		    else if (match)
-			callback(match);
-		}
-	    event.preventDefault();
-	    event.preventBubble();
-	    } catch (e) {window.alert(e);}
-	} else if (handle_history(event, field)) {
-	    event.preventDefault();
-	    event.preventBubble();
-	} else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
-	    var str = field.value;
-	    var idx;
-	    if (gCurrentCompletion != null) {
-		idx = gCurrentCompletion + (event.shiftKey ? -1:1);
-		if (idx >= gCurrentCompletions.length)
-		    idx = 0;
-		else if (idx < 0)
-		    idx = gCurrentCompletions.length - 1;
-	    } else {
-		idx = 0;
-		// Build our completion list
-		gCurrentCompletions = miniBufferCompleteStr(str, gMiniBufferCompletions);
-		if (gCurrentCompletions.length == 0)
-		    idx = null;
-	    }
-	    if (idx != null) {
-		gCurrentCompletion = idx;
-		field.value = gCurrentCompletions[idx][0];
-		// When we allow non-matches it generally means the
-		// completion takes an argument. So add a space.
-		if (gAllowNonMatches)
-		    field.value += " ";
-	    }
-	    event.preventDefault();
-	    event.preventBubble();
-	} else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE
-		   || (event.ctrlKey && (event.charCode == 103))) {
-	    // Call the abort callback
-	    if (gReadFromMinibufferAbortCallBack)
-		gReadFromMinibufferAbortCallBack();
-	    gReadFromMinibufferAbortCallBack = null;
-	    gReadFromMinibufferCallBack = null;
-	    closeInput(true);
-	    event.preventDefault();
-	    event.preventBubble();
-	} else if (event.charCode && !event.ctrlKey && !metaPressed(event)) {
-	    // They typed a letter, so reset the completion cycle
-	    gCurrentCompletion = null;
-	} else if (handle_basic_input(event)) {
-	    // they did something so reset the completion cycle
-	    gCurrentCompletion = null;
-	    event.preventDefault();
-	    event.preventBubble();
-	}	    
-    } catch(e) {alert(e);}
-}
-
 function setInputValue(str)
 {
     var field = document.getElementById("input-field"); 
@@ -409,24 +244,23 @@ function setInputValue(str)
 
 // Read a string from the minibuffer and call callBack with the string
 // as an argument.
-function readFromMiniBuffer(prompt, initVal, history, callBack, abortCallback)
-{
-    gReadFromMinibufferCallBack = callBack;
-    gReadFromMinibufferAbortCallBack = abortCallback;
-    initHistory(history);
-    readInput(prompt, function () { setInputValue(initVal); }, "miniBufferKeyPress(event);");
-}
-
-function miniBufferComplete(prompt, initVal, history, completions, nonMatches, callBack, abortCallback, def)
+function readFromMiniBuffer(prompt, initVal, history, completions, allowNonMatches, defaultMatch, callBack, abortCallback)
 {
     gReadFromMinibufferCallBack = callBack;
     gReadFromMinibufferAbortCallBack = abortCallback;
     gMiniBufferCompletions = completions;
     gCurrentCompletion = null;
-    gDefaultMatch = def;
-    gAllowNonMatches = nonMatches;
+    gDefaultMatch = defaultMatch;
+    gAllowNonMatches = allowNonMatches;
     initHistory(history);
-    readInput(prompt, function () { setInputValue(initVal); }, "miniBufferCompleteKeyPress(event);");    
+    // set up onchange to reset the current completion
+    if (gMiniBufferCompletions != null) {
+        var field = document.getElementById("input-field"); 
+        field.onchange = "gCurrentCompletion = null;"
+    }
+    read_from_minibuffer_internal (prompt);
+    if (initVal)
+        setInputValue(initVal);
 }
 
 function setFocus(element) {
@@ -470,6 +304,7 @@ function closeInput(restoreFocus)
 	field.collapsed = true;
 	//field.hidden = true;
 	// field.value = "";
+        field.onchange = "";
     } catch(e) { alert(e); }
 }
 
@@ -573,6 +408,7 @@ var gCurrentKmap = null;
 // The event for the last command
 var gCommandLastEvent = null;
 
+
 function addKeyPressHelpTimeout() {
     setTimeout(function () {if (gKeySeq.length>0) {message(gKeySeq.join(" ")); gKeyTimeout = true; }}, 2500);
 }
@@ -602,30 +438,31 @@ function formatKey(key, mods)
 
 function keyMatch(key, event)
 {
-    // A key with the matchAny prop always matches
-    if (key.key.matchAny)
-	return true;
-    else
-	return ((key.key.charCode && event.charCode == key.key.charCode)
-		|| (key.key.keyCode && event.keyCode == key.key.keyCode))
-	    && getMods(event) == key.key.modifiers;
+    return (((key.charCode && event.charCode == key.charCode) ||
+             (key.keyCode && event.keyCode == key.keyCode)) &&
+            getMods(event) == key.modifiers) ||
+        (key.match_function && key.match_function (event));
 }
 
-function getKeyAction(kmap, event)
+function getKeyBinding(kmap, event)
 {
     for (var i=0; i<kmap.length; i++) {
-	if (keyMatch(kmap[i], event)) {
+	if (keyMatch(kmap[i].key, event)) {
 	    return kmap[i];
 	}
+    }
+    if (kmap.parent)
+    {
+        return getKeyBinding (kmap.parent, event);
     }
     return null;
 }
 
 function getMods(event)
 {
-    // The shift key into account when building the charCode, so it
-    // can be said that the shift key has already be processed. So
-    // don't include it in the mods if charCode exists in the event.
+    // Take the shift key into account when building the charCode, so it can
+    // be said that the shift key has already been processed.  Don't include
+    // it in the mods if charCode exists in the event.
     return event.ctrlKey ? MOD_CTRL:0 |
 	metaPressed(event) ? MOD_META:0 |
 	(event.shiftKey && !event.charCode) ? MOD_SHIFT: 0;
@@ -640,7 +477,6 @@ function copyEvent(event)
     ev.metaKey = event.metaKey;
     ev.altKey = event.altKey;
     ev.shiftKey = event.shiftKey;
-    ev.fake = true;
     return ev;
 }
 
@@ -649,82 +485,84 @@ function readKeyPress(event)
     try {
 	// kmap contains the keys and commands we're looking for.
 	var kmap = gCurrentKmap;
-	var key = null;
+	var binding = null;
 	var done = true;
 
 	clearMessage();
-
-// 	gKeySeq.push(formatKey(event.charCode, getMods(event)));
-// 	message(gKeySeq.join(" "));
 
 	// Make a fake event
 	gCommandLastEvent = copyEvent(event);
 
 	// First check if there's an overlay kmap
 	if (overlay_kmap != null) {
-	    key = getKeyAction(overlay_kmap, event);
-	} else if (kmap == top_kmap) {
-	    // This is hacky. Check a seperate key map first, if some sort of
-	    // form input is focused.
-	    var elt = document.commandDispatcher.focusedElement;
-	    if (elt) {
-		var tag = elt.tagName.toLowerCase();
-		var type = elt.getAttribute("type");
-		if (type != null) {type = type.toLowerCase();}
-		if (tag == "html:input"
-		    || tag == "input" && (type != "radio"
-					  && type != "checkbox")) {
-		    // Use the input keymap for any input tag that
-		    // isn't a radio button or checkbox.
+            // It is the responsibility of the overlay map to catch any key,
+            // so that it can deactivate itself when an unhandled key is
+            // pressed.  It then re-sends the event.  Therefore the following
+            // expression will never evaluate to null.
+            //
+	    binding = getKeyBinding(overlay_kmap, event);
 
-		    // A bit of a hack, if there's a char code and no
-		    // modifiers are set, then just let it get processed
-		    if (event.charCode && !metaPressed(event) && !event.ctrlKey)
-			return;
-		    key = getKeyAction(input_kmap, event);
-		} else if (elt.tagName == "TEXTAREA") {
-		    // Use the textarea keymap
-		    if (event.charCode && !metaPressed(event) && !event.ctrlKey)
-			return;
-		    key = getKeyAction(textarea_kmap, event);
-		}
-	    }
+            if (binding == null) {
+                // disengage the universal keymap.
+                overlay_kmap = null;
+                //alert (gPrefixArg);
+            }
 	}
 
-	// Check for a key match
-	if (key == null) {
-	    key = getKeyAction(kmap, event);
+        if (kmap == top_kmap) {
+            // If we are not in the middle of a key sequence, context keymaps
+            // get a chance to take the key.
+            // 
+            // Try the predicate of each context keymap until we find one that
+            // matches.
+            //
+            for (var i = 0; i < context_kmaps.length; i++) {
+                if (context_kmaps[i].predicate (document.commandDispatcher.focusedElement)) {
+                    binding = getKeyBinding(context_kmaps[i], event);
+                    //alert (window.dump_obj (binding));
+                    break;
+                }
+            }
 	}
 
-	// If it's the top level map and we didn't match the key, let
-	// it fall through so something else can try handling
-	// it. Otherwise, we wanna grab it because we're in the middle
-	// of a key sequence.
-	if (key || kmap != top_kmap) {
-	    // gobble the key if it's not a fake event
-	    if (!event.fake) {
-		event.preventDefault();
-		event.preventBubble();
-	    }
+	// Finally, top_kmap and friends get dibs.
+	//
+	if (binding == null) {
+	    binding = getKeyBinding(kmap, event);
 	}
 
-	// Finally, process the key
-	if (key) {
-	    if (key.keymap) {
-		gCurrentKmap = key.keymap;
+        // Should we let the underlying gui have the key?  We use this for
+        // ordinary characters in input elements.
+        //
+        try {
+            if (binding.fallthrough)
+                return;
+        } catch (e) { }
+
+        // If we have a binding, or are in the middle of a key sequence,
+        // prevent anything else from seeing this event.
+        //
+	if (binding || kmap != top_kmap) {
+            event.preventDefault();
+            event.preventBubble();
+	}
+
+	// Finally, process the binding
+	if (binding) {
+	    if (binding.keymap) {
+		gCurrentKmap = binding.keymap;
 		if (!gKeyTimeout)
 		    addKeyPressHelpTimeout();
 		// We're going for another round
 		done = false;
-	    } else {
-		exec_command(key.command);
+	    } else if (binding.command) {
+                exec_command(binding.command);
 	    }
 	} else {
-	    // C-g always aborts unless it's bound
-	    if (event.ctrlKey && event.charCode == 103)
-		abort();
-// 	    else
-// 		message(gKeySeq.join(" ") + " is undefined");
+	    // No binding was found.  If this is the universal abort_key, then
+	    // abort().
+            if (keyMatch (abort_key, event))
+                abort();
 	}
 
 	// Clean up if we're done

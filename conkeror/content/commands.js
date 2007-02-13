@@ -108,6 +108,10 @@ function init_commands()
     add_command("go-forward", goForward, [["p"]]);
     add_command("isearch-backward", isearch_backward, []);
     add_command("isearch-forward", isearch_forward, []);
+    add_command("isearch-backspace", isearch_backspace, []);
+    add_command("isearch-abort", isearch_abort, []);
+    add_command("isearch-add-character", isearch_add_character, [["E"]]);
+    add_command("isearch-done", isearch_done, []);
     add_command("keyboard-quit", stopLoading, []);
     add_command("kill-buffer", kill_browser, []);
     add_command("make-frame-command", makeFrame, []);
@@ -121,6 +125,10 @@ function init_commands()
     add_command("numberedlinks-7", selectNumberedLink_7, [["p"]]);
     add_command("numberedlinks-8", selectNumberedLink_8, [["p"]]);
     add_command("numberedlinks-9", selectNumberedLink_9, [["p"]]);
+    add_command("numberedlinks-follow", numberedlinks_follow, []);
+    add_command("numberedlinks-focus", numberedlinks_focus, []);
+    add_command("numberedlinks-follow-other-buffer", numberedlinks_follow_other_buffer, []);
+    add_command("numberedlinks-escape", numberedlinks_escape, []);
     add_command("goto-numbered-link", goto_numbered_link, [["p"]]);
     add_command("goto-numbered-image", goto_numbered_image, [["p"]]);
     add_command("toggle-numbered-links", toggle_numbered_links, []);
@@ -164,7 +172,16 @@ function init_commands()
     add_command("print-buffer", print_buffer, []);
     add_command("renumber-links", renumber_links, []);
     add_command("jsconsole", jsconsole, [["p"]]);
-    add_command ("firefox", firefox, []);
+    add_command("firefox", firefox, []);
+    add_command("universal-argument", universal_argument,[]);
+    add_command("universal-argument-more", universal_argument_more,[["P"]]);
+    add_command("universal-digit", universal_digit,[["P"]]);
+    add_command("exit-minibuffer", exit_minibuffer, []);
+    add_command("minibuffer-history-previous", minibuffer_history_previous, []);
+    add_command("minibuffer-history-next", minibuffer_history_next, []);
+    add_command("minibuffer-abort", minibuffer_abort, []);
+    add_command("minibuffer-complete", minibuffer_complete, []);
+    add_command("minibuffer-complete-reverse", minibuffer_complete_reverse, []);
     } catch(e) {alert(e);}
 }
 
@@ -196,6 +213,12 @@ function interactive(args)
 	    // -- invoked this command.  If used more than once, the
 	    // -- Nth `e' returns the Nth parameterized event.  This
 	    // -- skips events that are integers or symbols.
+        } else if (args[i][0] == "E") {
+            // Event that invoked this command.
+            //
+            //XXX: RetroJ: This interactive command may be redundant of "e".
+            //             If so, eliminate it.
+            output.push(gCommandLastEvent);
 	} else if (args[i][0] == "f") {
 	    // -- Existing file name.
 	} else if (args[i][0] == "F") {
@@ -472,7 +495,7 @@ function open_url(args, fillInput)
 	templs.push([x,x]);
     var input = fillInput ? getWebNavigation().currentURI.spec : null;
 
-    miniBufferComplete(open_url_in_prompt(prefix), input, "url", templs, true, 
+    readFromMiniBuffer(open_url_in_prompt(prefix), input, "url", templs, true, null,
 		       function(match,url) {open_url_in(prefix, get_url_or_webjump(url));});
 }
 
@@ -503,7 +526,7 @@ function switch_to_buffer()
     var bufs = getBrowser().getBrowserNames();
     var defBrowser = getBrowser().lastBrowser().webNavigation.currentURI.spec;
     var matches = zip2(bufs,getBrowser().mBrowsers);
-    miniBufferComplete("Switch to buffer: (default " + defBrowser + ") ", null, "buffer", matches, false, go_to_buffer, null, defBrowser);
+    readFromMiniBuffer("Switch to buffer: (default " + defBrowser + ") ", null, "buffer", matches, false, defBrowser, go_to_buffer, null);
 
 }
 
@@ -512,7 +535,7 @@ function kill_browser()
     var defBrowser = getBrowser().webNavigation.currentURI.spec;
     var bufs = getBrowser().getBrowserNames();
     var matches = zip2(bufs,getBrowser().mBrowsers);
-    miniBufferComplete("Kill buffer: (default " + defBrowser + ") ", null, "buffer", matches, true,
+    readFromMiniBuffer("Kill buffer: (default " + defBrowser + ") ", null, "buffer", matches, true, null,
 		       function(m,b) {if (b=="") {getBrowser().killCurrentBrowser();} else {getBrowser().killBrowser(m);}});
 
 }
@@ -539,13 +562,14 @@ function yankToClipboard()
 function goto_bookmark(args)
 {
     var prefix = args[0];
-    miniBufferComplete(open_url_in_prompt(prefix,"Go to bookmark"), null, "bookmark", 
-		       get_bm_strings(), false, function(url) { open_url_in(prefix,url); });
+    readFromMiniBuffer(open_url_in_prompt(prefix,"Go to bookmark"), null, "bookmark", 
+		       get_bm_strings(), false, null, function(url) { open_url_in(prefix,url); });
 }
 
 function bookmark_current_url()
 {
     readFromMiniBuffer("Add bookmark:", getBrowser().mCurrentBrowser.contentTitle, "add-bookmark",
+                       null, null, null,
 		       function (title) 
                          {
 			     bookmark_doc(getBrowser(), title);
@@ -566,12 +590,73 @@ function bookmark_doc(browser, aTitle)
 
 function isearch_forward()
 {
-    readInput('', focusFindBar, 'onFindKeyPress(event);');
+    if (isearch_active) {
+        var findField = document.getElementById("input-field");
+        if (gFindState.length == 1) {
+            findField.value = gLastSearch;
+            find(gLastSearch, true, lastFindState()["point"]);
+        } else {
+            find(lastFindState()["search-str"], true, lastFindState()["range"]);
+        }
+        resumeFindState(lastFindState());
+    } else {
+        focusFindBar();
+        readFromMiniBuffer('I-Search:');
+    }
 }
 
 function isearch_backward()
 {
-    readInput('', focusFindBarBW, 'onFindKeyPress(event);');
+    if (isearch_active) {
+        var findField = document.getElementById("input-field");
+        if (gFindState.length == 1) {
+            findField.value = gLastSearch;
+            find(gLastSearch, false, lastFindState()["point"]);
+        } else {
+            find(lastFindState()["search-str"], false, lastFindState()["range"]);
+        }
+        resumeFindState(lastFindState());
+    } else {
+        focusFindBarBW();
+        readFromMiniBuffer('I-Search backward:');
+    }
+}
+
+function isearch_backspace ()
+{
+    var findField = document.getElementById("input-field");
+    if (gFindState.length > 1) {
+        var state = gFindState.pop();
+        resumeFindState(lastFindState());
+    }
+}
+
+function isearch_abort ()
+{
+    var findField = document.getElementById("input-field");
+    closeFindBar();
+    gWin.scrollTo(gFindState[0]["screenx"], gFindState[0]["screeny"]);
+    clearSelection();
+    clearHighlight();
+}
+
+function isearch_add_character (args)
+{
+    var event = args[0];
+    var findField = document.getElementById("input-field");
+    var str;
+    str = lastFindState()["search-str"];
+    str += String.fromCharCode(event.charCode);
+    find(str, lastFindState()["direction"], lastFindState()["point"]);
+    resumeFindState(lastFindState());
+}
+
+function isearch_done ()
+{
+    closeFindBar();
+    gLastSearch = lastFindState()["search-str"];
+    clearHighlight();
+    focusLink();
 }
 
 function browser_next()
@@ -600,7 +685,7 @@ function meta_x(args)
     for (i in gCommands)
 	matches.push([gCommands[i][0],gCommands[i][0]]);
 
-    miniBufferComplete(prompt + "M-x", null, "commands", matches, false, 
+    readFromMiniBuffer(prompt + "M-x", null, "commands", matches, false, null,
 		       function(c) {exec_command(c)}, abort);
 }
 
@@ -838,8 +923,8 @@ function web_jump(args)
     var templs =[];
     for (var x in gWebJumpLocations)
 	templs.push([x,x]);
-    miniBufferComplete(open_url_in_prompt(prefix, "Web Jump"), null, "webjump", templs, 
-		       true, function(m,v) {doWebJump(prefix,m,v);});
+    readFromMiniBuffer(open_url_in_prompt(prefix, "Web Jump"), null, "webjump", templs, 
+		       true, null, function(m,v) {doWebJump(prefix,m,v);});
 }
 
 function get_url_or_webjump(input)
@@ -936,6 +1021,7 @@ function save_link ()
                                             null).path;
     readFromMiniBuffer (
         "Save Link As:", default_dest_file_s, "save",
+        null, null, null,
         function (dest_file_s) {
             dest_file_o.initWithPath (dest_file_s);
             download_uri_internal (
@@ -974,6 +1060,7 @@ function save_page ()
                                             null).path;
     readFromMiniBuffer (
         "Save Page As:", default_dest_file_s, "save",
+        null, null, null,
         function (dest_file_s) {
             dest_file_o.initWithPath (dest_file_s);
             download_uri_internal (
@@ -1011,6 +1098,7 @@ function save_page_as_text ()
                                             'txt').path;
     readFromMiniBuffer (
         "Save Page As:", default_dest_file_s, "save",
+        null, null, null,
         function (dest_file_s) {
             dest_file_o.initWithPath (dest_file_s);
             download_uri_internal (
@@ -1050,6 +1138,7 @@ function save_page_complete ()
                                             null).path;
     readFromMiniBuffer (
         "Save Page As:", default_dest_file_s, "save",
+        null, null, null,
         function (dest_file_s) {
             dest_file_o.initWithPath (dest_file_s);
             //it would be nice to prompt for the data directory, too.  This is
@@ -1071,7 +1160,7 @@ function save_page_complete ()
 
 function source_file()
 {
-    readFromMiniBuffer("Source File:", null, "source", load_rc_file);
+    readFromMiniBuffer("Source File:", null, "source", null, null, null, load_rc_file);
 }
 
 function load_rc_file(file)
@@ -1107,33 +1196,11 @@ function redraw()
 
 var gPrefixArg = null;
 
-var universal_kmap = [];
-
-function init_universal_arg()
-{
-    add_command("universal-argument", universal_argument,[]);
-    add_command("universal-argument-more", universal_argument_more,[["P"]]);
-    add_command("universal-digit", universal_digit,[["P"]]);
-    add_command("universal-argument-other-key", universal_argument_other_key,[["P"]]);
-
-    define_key(universal_kmap, make_key("u", MOD_CTRL), "universal-argument-more");
-    define_key(universal_kmap, make_key("1", 0), "universal-digit");
-    define_key(universal_kmap, make_key("2", 0), "universal-digit");
-    define_key(universal_kmap, make_key("3", 0), "universal-digit");
-    define_key(universal_kmap, make_key("4", 0), "universal-digit");
-    define_key(universal_kmap, make_key("5", 0), "universal-digit");
-    define_key(universal_kmap, make_key("6", 0), "universal-digit");
-    define_key(universal_kmap, make_key("7", 0), "universal-digit");
-    define_key(universal_kmap, make_key("8", 0), "universal-digit");
-    define_key(universal_kmap, make_key("9", 0), "universal-digit");
-    define_key(universal_kmap, make_key("0", 0), "universal-digit");
-    // This must be at the end so it's matched last.
-    define_key(universal_kmap, make_match_any_key(), "universal-argument-other-key");
-}
-
 function universal_digit(args)
 {
     var prefix = args[0];
+    //XXX RetroJ: we should use an interactive code like "e" instead of
+    //            gCommandLastEvent
     var ch = gCommandLastEvent.charCode;
     var digit = ch - 48;
     // Array means they typed only C-u's. Otherwise, add another digit
@@ -1161,17 +1228,6 @@ function universal_argument_more(args)
 	gPrefixArg = prefix;
 	overlay_kmap = null;
     }
-}
-
-function universal_argument_other_key(args)
-{
-    // Set up the prefix arg
-    var prefix = args[0];
-    gPrefixArg = prefix;
-    // clear our overlay map...
-    overlay_kmap = null;
-    // ...and process the key again.
-    setTimeout(readKeyPress, 0, gCommandLastEvent);
 }
 
 function univ_arg_to_number(prefix)
@@ -1235,8 +1291,8 @@ function link_menu(args)
 	    strs.push([name, links[i].getAttribute("href")]);
     }
 
-    miniBufferComplete(open_url_in_prompt(prefix,"Menu"), null, "link-menu", strs, 
-		       false, function(v) {open_url_in(prefix,v);});
+    readFromMiniBuffer(open_url_in_prompt(prefix,"Menu"), null, "link-menu", strs,
+		       false, null, function(v) {open_url_in(prefix,v);});
 }
 
 function text_reset() 
@@ -1244,7 +1300,7 @@ function text_reset()
     try {
  	getBrowser().markupDocumentViewer.textZoom = 1.0;
 	// We need to update the floaters
-	nl_resize();
+	numberedlinks_resize();
     } catch(e) { alert(e); }
 }
 
@@ -1253,7 +1309,7 @@ function text_reduce(args)
     try {
  	getBrowser().markupDocumentViewer.textZoom -= 0.25 * args[0];
 	// We need to update the floaters
-	nl_resize();
+	numberedlinks_resize();
     } catch(e) { alert(e); }
 }
 
@@ -1262,13 +1318,13 @@ function text_enlarge(args)
     try {
  	getBrowser().markupDocumentViewer.textZoom += 0.25 * args[0];
 	// We need to update the floaters
-	nl_resize();
+	numberedlinks_resize();
     } catch(e) { alert(e); }
 }
 
 function eval_expression()
 {
-    readFromMiniBuffer("Eval:", null, "eval-expression", eval);
+    readFromMiniBuffer("Eval:", null, "eval-expression", null, null, null, eval);
 }
 
 // our little hack. Add a big blank chunk to the bottom of the
@@ -1318,14 +1374,12 @@ function toggle_eod_space()
 // Enable Vi keybindings
 function use_vi_keys()
 {
-    clearKmaps();
     initViKmaps();
 }
 
 // Enable Emacs keybindings
 function use_emacs_keys()
 {
-    clearKmaps();
     initKmaps();
 }
 
@@ -1361,7 +1415,8 @@ function adblock_add_pattern (arg)
     var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
     var branch = prefs.getBranch("conkeror.");
 
-    readFromMiniBuffer("Add Adblock Filter: ", null, "adblock", 
+    readFromMiniBuffer("Add Adblock Filter: ", null, "adblock",
+                       null, null, null,
 		       function (str) {
 			   var block = branch.prefHasUserValue("adblock") ? branch.getCharPref("adblock") : "";
 			   branch.setCharPref("adblock", block + " " + str);
@@ -1399,4 +1454,131 @@ function jsconsole(args)
 function firefox (arg)
 {
     window.openDialog("chrome://browser/content/", "_blank", "dialog=no,resizable,all");
+}
+
+
+// minibuffer stuff
+//
+function exit_minibuffer ()
+{
+    var completion_mode_p = (gMiniBufferCompletions != null);
+    var match = null;
+    try {
+        var field = document.getElementById("input-field");
+        var val = removeWhiteSpace (field.value);
+        if (completion_mode_p) {
+            if (val.length == 0 && gDefaultMatch != null)
+                val = gDefaultMatch;
+            match = findCompleteMatch(gMiniBufferCompletions, val);
+        }
+        addHistory(val);
+        var callback = gReadFromMinibufferCallBack;
+        gReadFromMinibufferCallBack = null;
+        gReadFromMinibufferAbortCallBack = null;
+        closeInput(true);
+        if (callback) {
+            if (completion_mode_p) {
+                if (gAllowNonMatches) {
+                    callback (match, val);
+                } else if (match) {
+                    callback (match);
+                }
+            } else {
+                callback(val);
+            }
+        }
+    } catch (e) {window.alert(e);}
+}
+
+function minibuffer_history_previous ()
+{
+    if (gHistoryArray != null) {
+        var field = document.getElementById("input-field");
+        gHistoryPoint++;
+        if (gHistoryPoint < gHistoryArray.length) {
+            field.value = gHistoryArray[gHistoryPoint];
+        } else {
+            gHistoryPoint = gHistoryArray.length - 1;
+        }
+    }
+}
+
+function minibuffer_history_next ()
+{
+    if (gHistoryArray != null) {
+        var field = document.getElementById("input-field");
+        gHistoryPoint--;
+        if (gHistoryPoint >= 0) {
+            field.value = gHistoryArray[gHistoryPoint];
+        } else {
+            gHistoryPoint = 0;
+        }
+    }
+}
+
+function minibuffer_abort ()
+{
+    if (gReadFromMinibufferAbortCallBack)
+        gReadFromMinibufferAbortCallBack();
+    gReadFromMinibufferAbortCallBack = null;
+    gReadFromMinibufferCallBack = null;
+    closeInput(true);
+}
+
+function minibuffer_complete ()
+{
+    var completion_mode_p = (gMiniBufferCompletions != null);
+    if (! completion_mode_p) { return; }
+
+    var field = document.getElementById("input-field");
+    var str = field.value;
+    var idx;
+    if (gCurrentCompletion != null) {
+        idx = gCurrentCompletion + 1; //(shift ? -1:1);
+        if (idx >= gCurrentCompletions.length)
+            idx = 0;
+    } else {
+        idx = 0;
+        // Build our completion list
+        gCurrentCompletions = miniBufferCompleteStr(str, gMiniBufferCompletions);
+        if (gCurrentCompletions.length == 0)
+            idx = null;
+    }
+    if (idx != null) {
+        gCurrentCompletion = idx;
+        field.value = gCurrentCompletions[idx][0];
+        // When we allow non-matches it generally means the
+        // completion takes an argument. So add a space.
+        if (gAllowNonMatches)
+            field.value += " ";
+    }
+}
+
+function minibuffer_complete_reverse ()
+{
+    var completion_mode_p = (gMiniBufferCompletions != null);
+    if (! completion_mode_p) { return; }
+
+    var field = document.getElementById("input-field");
+    var str = field.value;
+    var idx;
+    if (gCurrentCompletion != null) {
+        idx = gCurrentCompletion - 1; // (shift ? -1:1);
+        if (idx < 0)
+            idx = gCurrentCompletions.length - 1;
+    } else {
+        idx = 0;
+        // Build our completion list
+        gCurrentCompletions = miniBufferCompleteStr(str, gMiniBufferCompletions);
+        if (gCurrentCompletions.length == 0)
+            idx = null;
+    }
+    if (idx != null) {
+        gCurrentCompletion = idx;
+        field.value = gCurrentCompletions[idx][0];
+        // When we allow non-matches it generally means the
+        // completion takes an argument. So add a space.
+        if (gAllowNonMatches)
+            field.value += " ";
+    }
 }

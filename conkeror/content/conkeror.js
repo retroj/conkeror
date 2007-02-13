@@ -47,7 +47,6 @@ function Startup()
 
   init_commands();
   initKmaps();
-  init_universal_arg();
   initBookmarkService();
 
   try {
@@ -126,9 +125,6 @@ const frame_focus_observer = {
 
 function delayedStartup()
 {
-    // with this enabled we get duplicate events because we listen for events on the window from conkeror.xul
-//     window.addEventListener("keypress", readKeyPressFromListen, false);
-
     element = _content;
 
     // Set up our end document hook for numbered links
@@ -140,7 +136,7 @@ function delayedStartup()
     // because of the absolute position of the numbers, we need to
     // adjust when the window is resized.
     try {
-	window.document.addEventListener("resize", nl_resize, true);
+	window.document.addEventListener("resize", numberedlinks_resize, true);
     } catch(e) {alert(e);}
 
 

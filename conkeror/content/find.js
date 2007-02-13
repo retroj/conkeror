@@ -31,6 +31,8 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 // isearch
 
+var isearch_active = false;
+
 // The point we search from
 var gLastSearch = "";
 
@@ -114,6 +116,7 @@ function focusFindBar()
     var state = createInitialFindState();
     gFindState = [];
     gFindState.push(state);
+    isearch_active = true;
     resumeFindState(state);
 }
 
@@ -128,6 +131,7 @@ function focusFindBarBW()
 function closeFindBar()
 {
     gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    isearch_active = false;
     closeInput(false);
 }
 
@@ -422,60 +426,6 @@ function find(str, dir, pt)
 	addFindState (gWin.scrollX, gWin.scrollY, str, wrapped,
 		      point, matchRange, matchRange, dir);
     }
-}
-
-function onFindKeyPress(event)
-{
-    var updateFind = false;
-
-    try {
-    var findField = document.getElementById("input-field");
-
-    if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE) {
-	if (gFindState.length > 1) {
-	    var state = gFindState.pop();
-	    resumeFindState(lastFindState());
-	}
-    } else if (event.charCode == 114 && event.ctrlKey) { // C-r
-	if (gFindState.length == 1) {
-	    findField.value = gLastSearch;
-	    find(gLastSearch, false, lastFindState()["point"]);
-	} else {
-	    find(lastFindState()["search-str"], false, lastFindState()["range"]);
-	}
-	resumeFindState(lastFindState());
-    } else if (event.charCode == 115 && event.ctrlKey) { // C-s
-	if (gFindState.length == 1) {
-	    findField.value = gLastSearch;
-	    find(gLastSearch, true, lastFindState()["point"]);
-	} else {
-	    find(lastFindState()["search-str"], true, lastFindState()["range"]);
-	}
-	resumeFindState(lastFindState());
-    } else if (event.keyCode == KeyEvent.DOM_VK_ESCAPE
-	       || (event.ctrlKey && (event.charCode == 103))) { // C-g
-	closeFindBar();
-	gWin.scrollTo(gFindState[0]["screenx"], gFindState[0]["screeny"]);
-	clearSelection();
-	clearHighlight();
-    } else if (event.charCode && !event.ctrlKey && !metaPressed(event)) {
-	var str;
-	str = lastFindState()["search-str"];
-	str += String.fromCharCode(event.charCode);
-	find(str, lastFindState()["direction"], lastFindState()["point"]);
-	resumeFindState(lastFindState());
-    } else {
-	// Anything else closes i-search
-	closeFindBar();
-	gLastSearch = lastFindState()["search-str"];
-	clearHighlight();
-	focusLink();
-    }
-
-    // We control what goes into the input box
-    event.preventDefault();
-    event.preventBubble();
-    } catch (e) {alert(e);}
 }
 
 
