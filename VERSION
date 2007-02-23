@@ -1,0 +1,19 @@
+## This file is the only place where you have to set Conkeror's version.  The
+## version is given here in the form of a specifier of three terms:
+## MAJOR.MINOR.MILESTONE.  The build system will process this value to reflect
+## the build target.  For release builds, the last term will be automatically
+## dropped.  For non-release builds, a fourth term (build date) will be
+## appended.
+##
+
+## To prepare a release, the maintainer should increment the minor version
+## (second component), and set the milestone version (third component) to 0.
+##
+
+## The milestone (third component) should be incremented for any nontrivial
+## change to the project source in the public repository since the last
+## release.  The milestone gives developers an unambiguous way to indicate the
+## relevant version of a patch or bug report.
+##
+
+VERSION=0.42.2
