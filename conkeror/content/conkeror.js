@@ -29,6 +29,8 @@ the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
+const conkeror_version = "$CONKEROR_VERSION$";
+
 const nsCI               = Components.interfaces;
 const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 

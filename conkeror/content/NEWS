@@ -3,6 +3,9 @@
 User visible changes. See ChangeLog for more details listing of
 changes.
 
+** Changes since 0.42
+* conkeror_version added
+
 ** Changes since 0.39
 * fixed next/prev word bindings for text areas
 

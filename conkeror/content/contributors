@@ -13,3 +13,4 @@ Len Trigg (lenbok at gmail com)
 John J. Foerch
   - saving links and pages
   - major minibuffer and keymap restructuring
+  - a real build/release system and versioning
