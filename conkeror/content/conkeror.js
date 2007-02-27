@@ -159,6 +159,8 @@ function delayedStartup()
     // initialize default_directory, used when saving pages.
     set_default_directory();
 
+    init_minibuffer ();
+
     try {
 	// Load the RC file.
 	if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {

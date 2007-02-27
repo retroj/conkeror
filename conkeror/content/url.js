@@ -31,12 +31,11 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 function onUrlKeyPress(event)
 {
-    var field = document.getElementById("input-field");
 //     var urlbar = document.getElementById("input-toolbox");
 
     if (event.keyCode == KeyEvent.DOM_VK_RETURN) {
 	try{
-	    var url = field.value;
+	    var url = minibuffer.input.value;
 	    closeUrlBar();
 	    getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
 	} catch (e) {window.alert(e);}
@@ -51,7 +50,7 @@ function onUrlKeyPress(event)
 	event.preventDefault();
 	event.preventBubble();
 //     } else if (event.ctrlKey && event.charCode == 121) { // C-y
-// 	field.value += gBrowser.currentURI.spec;
+// 	minibuffer.input.value += gBrowser.currentURI.spec;
 // 	event.preventDefault();
     }
 
@@ -65,9 +64,8 @@ function closeUrlBar()
 
 // function focusUrlBar()
 // {
-//     var url = document.getElementById("input-field");
 //     var urlbar = document.getElementById("url-toolbox");
 //     urlbar.hidden = false;
-//     url.focus();
-//     url.value = getWebNavigation().currentURI.spec;
+//     minibuffer.input.focus();
+//     minibuffer.input.value = getWebNavigation().currentURI.spec;
 // }

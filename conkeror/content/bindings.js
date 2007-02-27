@@ -284,9 +284,8 @@ function isearch_kmap_predicate () {
 
 function minibuffer_kmap_predicate (element) {
     try {
-        var input_field = document.getElementById ("input-field");
         return element.baseURI == "chrome://conkeror/content/conkeror.xul" &&
-            element == input_field.inputField;
+            element == minibuffer.input.inputField;
     } catch (e) { }
 }
 
@@ -723,6 +722,17 @@ function init_minibuffer_keys () {
     define_key (minibuffer_kmap, make_key ("g",MOD_CTRL), "minibuffer-abort");
     define_key (minibuffer_kmap, make_key (KeyEvent.DOM_VK_TAB, 0), "minibuffer-complete");
     define_key (minibuffer_kmap, make_key (KeyEvent.DOM_VK_TAB, MOD_SHIFT), "minibuffer-complete-reverse");
+
+    // Because we programmatically modify the selection during minibuffer
+    // completion, certain keys need to be handled specially, notably
+    // backspace.  This is currently done by setting a flag in
+    // minibuffer-backspace, and a course of action being taken based on this
+    // flag in the handler for the textbox's oninput.  Using a flag is a
+    // rather rigid system, so maybe we can come up with something more
+    // flexable, involving, say, functions that carry out the desired
+    // behavior.
+    define_key(input_kmap, make_key(KeyEvent.DOM_VK_BACK_SPACE, 0), "minibuffer-backspace");
+
     minibuffer_kmap.parent = input_kmap;
 }
 
@@ -766,8 +776,6 @@ function init_universal_arg_keys ()
     define_key(universal_kmap, make_key("8", 0), "universal-digit");
     define_key(universal_kmap, make_key("9", 0), "universal-digit");
     define_key(universal_kmap, make_key("0", 0), "universal-digit");
-    // This must be at the end so it's matched last.
-    //define_key(universal_kmap, make_key (match_any_key), "universal-argument-other-key");
 }
 
 

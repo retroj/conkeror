@@ -120,17 +120,16 @@ function read_from_minibuffer_internal (prompt)
 {
 //     var messageWindow = document.getElementById("message-bar");
     var label = document.getElementById("input-prompt");
-    var field = document.getElementById("input-field");
     var output = document.getElementById("minibuffer-output");
 
     output.value = "";
     output.collapsed = true;
     label.collapsed = false;
-    field.value = "";
-    field.collapsed = false;
+    minibuffer.input.value = "";
+    minibuffer.input.collapsed = false;
 
-    gFocusedWindow = document.commandDispatcher.focusedWindow;
-    gFocusedElement = document.commandDispatcher.focusedElement;
+    minibuffer.focused_window = document.commandDispatcher.focusedWindow;
+    minibuffer.focused_element = document.commandDispatcher.focusedElement;
 
     label.value = prompt;
 
@@ -139,7 +138,7 @@ function read_from_minibuffer_internal (prompt)
 //     setTimeout (function (){field.focus();}, 0);
 
     window.focus();
-    field.focus();
+    minibuffer.input.focus();
 //     document.commandDispatcher.focusedWindow = window;
 //     document.commandDispatcher.focusedElement = field;
 }
@@ -159,11 +158,11 @@ function getHistory(id)
 function initHistory(id)
 {
     if (id != null) {
-	gHistoryArray = getHistory(id);
-	gHistoryPoint = gHistoryArray.length;
+	minibuffer.history = getHistory(id);
+	minibuffer.history_index = minibuffer.history.length;
     } else {
-	gHistoryPoint = null;
-	gHistoryArray = null;
+	minibuffer.history_index = null;
+	minibuffer.history = null;
     }    
 }
 
@@ -174,37 +173,55 @@ function metaPressed (event)
 
 function addHistory(str)
 {
-    if (gHistoryArray != null) {
-        if (gHistoryArray.length >= minibuffer_history_max_items)
-            gHistoryArray.splice(0, 1);
-        gHistoryArray.push(str);
+    if (minibuffer.history != null) {
+        if (minibuffer.history.length >= minibuffer_history_max_items)
+            minibuffer.history.splice(0, 1);
+        minibuffer.history.push(str);
     }
 }
 
+var minibuffer = {
+input: null,
+
 // The focus before we read from the minibuffer
-var gFocusedElement = null;
-var gFocusedWindow = null;
+focused_element: null,
+focused_window: null,
 
 // The callback setup to be called when readFromMiniBuffer is done
-var gReadFromMinibufferCallBack = null;
-var gReadFromMinibufferAbortCallBack = null;
+callback: null,
+abort_callback: null,
 
 // The completions for the user to choose
-var gMiniBufferCompletions = [];
+completions: [],
 
 // The current completion
-var gCurrentCompletion = null;
+current_completion: null,
+current_completions: null,
 
-var gCurrentCompletions = null;
-
-var gDefaultMatch = null;
-
-var gAllowNonMatches = false;
+default_match: null,
+allow_nonmatches: false,
 
 // The current idx into the history
-var gHistoryPoint = null;
+history_index: null,
 // The arry we're using for history
-var gHistoryArray = null;
+history: null,
+
+// hooks
+oninput: function () { exec_command ("minibuffer-change"); },
+
+
+// flag for backspace
+do_not_complete: false
+
+};
+
+
+
+function init_minibuffer () {
+    minibuffer.input = document.getElementById("input-field");
+}
+
+
 
 // Cheap completion
 function miniBufferCompleteStr(str, matches)
@@ -238,29 +255,25 @@ function findCompleteMatch(matches, val)
 
 function setInputValue(str)
 {
-    var field = document.getElementById("input-field"); 
-    field.value = str;
+    minibuffer.input.value = str;
 }
 
 // Read a string from the minibuffer and call callBack with the string
 // as an argument.
 function readFromMiniBuffer(prompt, initVal, history, completions, allowNonMatches, defaultMatch, callBack, abortCallback)
 {
-    gReadFromMinibufferCallBack = callBack;
-    gReadFromMinibufferAbortCallBack = abortCallback;
-    gMiniBufferCompletions = completions;
-    gCurrentCompletion = null;
-    gDefaultMatch = defaultMatch;
-    gAllowNonMatches = allowNonMatches;
+    minibuffer.callback = callBack;
+    minibuffer.abort_callback = abortCallback;
+    minibuffer.completions = completions;
+    minibuffer.current_completion = null;
+    minibuffer.default_match = defaultMatch;
+    minibuffer.allow_nonmatches = allowNonMatches;
     initHistory(history);
-    // set up onchange to reset the current completion
-    if (gMiniBufferCompletions != null) {
-        var field = document.getElementById("input-field"); 
-        field.onchange = "gCurrentCompletion = null;"
-    }
     read_from_minibuffer_internal (prompt);
-    if (initVal)
+    if (initVal) {
         setInputValue(initVal);
+	if (initVal.length > 1) minibuffer.input.setSelectionRange(0, minibuffer.input.value.length);
+    }
 }
 
 function setFocus(element) {
@@ -270,24 +283,23 @@ function setFocus(element) {
 function closeInput(restoreFocus)
 {
     try {
-	var field = document.getElementById("input-field");
 	var prompt = document.getElementById("input-prompt");
 	var output = document.getElementById("minibuffer-output");
-	if (gFocusedElement && restoreFocus) {
+	if (minibuffer.focused_element && restoreFocus) {
 	    try {
 		// Focusing the element will scroll the window to the focused
 		// element, but we want to restore focus without moving the
 		// window. So scroll back after we've focused.
-		var screenx = gFocusedWindow.scrollX;
-		var screeny = gFocusedWindow.scrollY;
-		setFocus(gFocusedElement);
-		gFocusedWindow.scrollTo(screenx,screeny);
+		var screenx = minibuffer.focused_window.scrollX;
+		var screeny = minibuffer.focused_window.scrollY;
+		setFocus(minibuffer.focused_element);
+		minibuffer.focused_window.scrollTo(screenx,screeny);
 	    } catch (e) {
-		setFocus(gFocusedWindow);
+		setFocus(minibuffer.focused_window);
 	    }
-	} else if (gFocusedWindow) {
+	} else if (minibuffer.focused_window) {
 	    content.focus();
-// 	    setFocus(gFocusedWindow);
+// 	    setFocus(minibuffer.focused_window);
 	} else {
 	    // Last resort
 	    content.focus();
@@ -300,11 +312,11 @@ function closeInput(restoreFocus)
 
 	// alert ("message: " + output.value);
 
-	// field.removeAttribute("flex");
-	field.collapsed = true;
-	//field.hidden = true;
-	// field.value = "";
-        field.onchange = "";
+	// minibuffer.input.removeAttribute("flex");
+	minibuffer.input.collapsed = true;
+	//minibuffer.input.hidden = true;
+	// minibuffer.input.value = "";
+        minibuffer.input.onchange = "";
     } catch(e) { alert(e); }
 }
 
@@ -495,13 +507,7 @@ function readKeyPress(event)
 
 	// First check if there's an overlay kmap
 	if (overlay_kmap != null) {
-            // It is the responsibility of the overlay map to catch any key,
-            // so that it can deactivate itself when an unhandled key is
-            // pressed.  It then re-sends the event.  Therefore the following
-            // expression will never evaluate to null.
-            //
 	    binding = getKeyBinding(overlay_kmap, event);
-
             if (binding == null) {
                 // disengage the universal keymap.
                 overlay_kmap = null;
@@ -509,6 +515,13 @@ function readKeyPress(event)
             }
 	}
 
+        ///XXX: context can override overlay.  is this right?
+        ///
+        /// consider: you hit C-u, thus enabling an overlay map.  then you hit `1'.
+        ///           There is a good case to be made that this character key should
+        ///           go to the gui control, not the overlay map.
+        ///           
+        ///
         if (kmap == top_kmap) {
             // If we are not in the middle of a key sequence, context keymaps
             // get a chance to take the key.
@@ -531,23 +544,22 @@ function readKeyPress(event)
 	    binding = getKeyBinding(kmap, event);
 	}
 
-        // Should we let the underlying gui have the key?  We use this for
-        // ordinary characters in input elements.
+        // Should we stop this event from being processed by the gui?
         //
-        try {
-            if (binding.fallthrough)
-                return;
-        } catch (e) { }
-
-        // If we have a binding, or are in the middle of a key sequence,
-        // prevent anything else from seeing this event.
+        // 1) we have a binding, and the binding's fallthrough property is not
+        //    true.
         //
-	if (binding || kmap != top_kmap) {
+        // 2) we are in the middle of a key sequence, and we need to say that
+        //    the key sequence given has no command.
+        //
+        if ((binding && ! binding.fallthrough) ||
+            kmap != top_kmap)
+        {
             event.preventDefault();
             event.preventBubble();
-	}
+        }
 
-	// Finally, process the binding
+	// Finally, process the binding.
 	if (binding) {
 	    if (binding.keymap) {
 		gCurrentKmap = binding.keymap;

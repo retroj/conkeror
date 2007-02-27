@@ -79,10 +79,9 @@ function addFindState(screenX, screenY, searchStr, wrapped, point, range, select
 
 function resumeFindState(state)
 {
-    var findField = document.getElementById("input-field");
     var label = document.getElementById("input-prompt");
 
-    findField.value = state["search-str"];
+    minibuffer.input.value = state["search-str"];
     if (state["selection"])
 	setSelection(state["selection"]);
     else

@@ -193,8 +193,7 @@ function get_numberedlink (number)
 
 function numberedlinks_do_link (action)
 {
-    var findfield = document.getElementById("input-field");
-    var link = findfield.value;
+    var link = minibuffer.input.value;
     closeNumberedLinkBar();
     // See if the number is a link.
     var nl = get_numberedlink (link);

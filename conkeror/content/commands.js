@@ -42,12 +42,25 @@ a: { func: function (spec) {
         }
 },
 
-b: { func: function (spec) {
-            // -- Name of existing buffer.
-            return null;
-        }
+// b: Name of existing buffer.
+b: { async: function (spec, iargs, callback, callback_args) {
+            var bufs = getBrowser().getBrowserNames();
+            var matches = zip2(bufs,getBrowser().mBrowsers);
+            var prompt = (1 in spec && spec[1] ? spec[1] : "Buffer: ");
+            var initval = (2 in spec && spec[2] ? spec[2]() : getBrowser().webNavigation.currentURI.spec);
+            readFromMiniBuffer(prompt, initval, "buffer", matches, null, null,
+                               function (s) {
+                                   callback_args.push (s);
+                                   do_interactive (iargs, callback, callback_args);
+                               });
+        },
+     doc: "Name of existing buffer, defaulting to the current one.\n"+
+     "Its optional arguments are:\n"+
+     "PROMPT      A string prompt for the minibuffer read.  The default is 'Buffer: '.\n"+
+     "INITVAL     A function to get the initial value.  The default is the current URL."
 },
 
+// XXX: does it make sense to have an interactive method for non-existent buffers?
 B: { func: function (spec) {
             // -- Name of buffer, possibly nonexistent.
             return null;
@@ -78,11 +91,8 @@ D: { func: function (spec) {
         }
 },
 
-e: { func: function (spec) {
-            // Event that invoked this command.
-            return gCommandLastEvent;
-        }
-},
+// e: Event that invoked this command.
+e: { func: function (spec) { return gCommandLastEvent; } },
 
 f: { func: function (spec) {
             // -- Existing file name.
@@ -96,12 +106,10 @@ F: { func: function (spec) {
         }
 },
 
-i: { func: function (spec) {
-            // -- Ignored, i.e. always nil.  Does not do I/O.
-            return null;
-        }
-},
+// i: Ignored, i.e. always nil.  Does not do I/O.
+i: { func: function (spec) { return null; } },
 
+// image: numbered image.
 image: { async: function (spec, iargs, callback, callback_args) {
             // -- Number read using minibuffer.
             var prompt = (1 in spec ? spec[1] : "Image Number: ");
@@ -154,8 +162,8 @@ M: { func: function (spec) {
         }
 },
 
+// n: Number read using minibuffer.
 n: { async: function (spec, iargs, callback, callback_args) {
-            // -- Number read using minibuffer.
             var prompt = "Number: ";
             if (1 in iarg)
                 prompt = iarg[1];
@@ -174,16 +182,16 @@ N: { func: function (spec) {
         }
 },
 
+// p: Prefix arg converted to number.  Does not do I/O.
 p: { func: function (spec) {
-            // -- Prefix arg converted to number.  Does not do I/O.
             var prefix = gPrefixArg;
             gPrefixArg = null;
             return univ_arg_to_number(prefix);
         }
 },
 
+// P: Prefix arg in raw form.  Does not do I/O.
 P: { func: function (spec) {
-            // -- Prefix arg in raw form.  Does not do I/O.
             var prefix = gPrefixArg;
             gPrefixArg = null;
             return prefix;
@@ -350,11 +358,10 @@ interactive ("conkeror-version", show_conkeror_version, []);
 
 function unfocus()
 {
-    var input = document.getElementById("input-field");
 //     var w = document.commandDispatcher.focusedWindow;
 //     // Hey, waddya know. It's another sick hack.
 //     if (w) {
-// 	input.focus();
+// 	minibuffer.input.focus();
 // 	w.focus();
 //     }
     if (document.commandDispatcher.focusedElement)
@@ -602,27 +609,21 @@ function go_to_buffer(match)
     getBrowser().setCurrentBrowser(match);
 }
 
-function switch_to_buffer()
+
+function switch_to_buffer (buffer)
 {
-    var bufs = getBrowser().getBrowserNames();
-    var defBrowser = getBrowser().lastBrowser().webNavigation.currentURI.spec;
-    var matches = zip2(bufs,getBrowser().mBrowsers);
-    readFromMiniBuffer("Switch to buffer: (default " + defBrowser + ") ", null, "buffer", matches, false, defBrowser, go_to_buffer, null);
-
+    go_to_buffer (buffer);
 }
-interactive("switch-to-buffer", switch_to_buffer, []);
+interactive("switch-to-buffer", switch_to_buffer,
+            [["b", "Switch to buffer: ",
+              function () { return getBrowser().lastBrowser().webNavigation.currentURI.spec; } ]]);
 
 
-function kill_browser()
+function kill_buffer (buffer)
 {
-    var defBrowser = getBrowser().webNavigation.currentURI.spec;
-    var bufs = getBrowser().getBrowserNames();
-    var matches = zip2(bufs,getBrowser().mBrowsers);
-    readFromMiniBuffer("Kill buffer: (default " + defBrowser + ") ", null, "buffer", matches, true, null,
-		       function(m,b) {if (b=="") {getBrowser().killCurrentBrowser();} else {getBrowser().killBrowser(m);}});
-
+    getBrowser().killBrowser(buffer);
 }
-interactive("kill-buffer", kill_browser, []);
+interactive("kill-buffer", kill_buffer, [["b", "Kill buffer: "]]);
 
 
 function copyCurrentUrl()
@@ -683,9 +684,8 @@ function bookmark_doc(browser, aTitle)
 function isearch_forward()
 {
     if (isearch_active) {
-        var findField = document.getElementById("input-field");
         if (gFindState.length == 1) {
-            findField.value = gLastSearch;
+            minibuffer.input.value = gLastSearch;
             find(gLastSearch, true, lastFindState()["point"]);
         } else {
             find(lastFindState()["search-str"], true, lastFindState()["range"]);
@@ -702,9 +702,8 @@ interactive("isearch-forward", isearch_forward, []);
 function isearch_backward()
 {
     if (isearch_active) {
-        var findField = document.getElementById("input-field");
         if (gFindState.length == 1) {
-            findField.value = gLastSearch;
+            minibuffer.input.value = gLastSearch;
             find(gLastSearch, false, lastFindState()["point"]);
         } else {
             find(lastFindState()["search-str"], false, lastFindState()["range"]);
@@ -720,7 +719,6 @@ interactive("isearch-backward", isearch_backward, []);
 
 function isearch_backspace ()
 {
-    var findField = document.getElementById("input-field");
     if (gFindState.length > 1) {
         var state = gFindState.pop();
         resumeFindState(lastFindState());
@@ -731,7 +729,6 @@ interactive("isearch-backspace", isearch_backspace, []);
 
 function isearch_abort ()
 {
-    var findField = document.getElementById("input-field");
     closeFindBar();
     gWin.scrollTo(gFindState[0]["screenx"], gFindState[0]["screeny"]);
     clearSelection();
@@ -742,7 +739,6 @@ interactive("isearch-abort", isearch_abort, []);
 
 function isearch_add_character (event)
 {
-    var findField = document.getElementById("input-field");
     var str;
     str = lastFindState()["search-str"];
     str += String.fromCharCode(event.charCode);
@@ -1518,6 +1514,7 @@ function universal_argument_more(prefix)
 	gPrefixArg = [prefix[0] * 4];
     else {
 	// terminate the prefix arg
+        ///XXX: is this reachable?
 	gPrefixArg = prefix;
 	overlay_kmap = null;
     }
@@ -1793,24 +1790,24 @@ interactive("firefox", firefox, []);
 //
 function exit_minibuffer ()
 {
-    var completion_mode_p = (gMiniBufferCompletions != null);
+    //XXX: minibuffer.completions defaults to a 0 element array.  possible bug here.
+    var completion_mode_p = (minibuffer.completions != null);
     var match = null;
     try {
-        var field = document.getElementById("input-field");
-        var val = removeWhiteSpace (field.value);
+        var val = removeWhiteSpace (minibuffer.input.value);
         if (completion_mode_p) {
-            if (val.length == 0 && gDefaultMatch != null)
-                val = gDefaultMatch;
-            match = findCompleteMatch(gMiniBufferCompletions, val);
+            if (val.length == 0 && minibuffer.default_match != null)
+                val = minibuffer.default_match;
+            match = findCompleteMatch(minibuffer.completions, val);
         }
         addHistory(val);
-        var callback = gReadFromMinibufferCallBack;
-        gReadFromMinibufferCallBack = null;
-        gReadFromMinibufferAbortCallBack = null;
+        var callback = minibuffer.callback;
+        minibuffer.callback = null;
+        minibuffer.abort_callback = null;
         closeInput(true);
         if (callback) {
             if (completion_mode_p) {
-                if (gAllowNonMatches) {
+                if (minibuffer.allow_nonmatches) {
                     callback (match, val);
                 } else if (match) {
                     callback (match);
@@ -1826,13 +1823,12 @@ interactive("exit-minibuffer", exit_minibuffer, []);
 
 function minibuffer_history_previous ()
 {
-    if (gHistoryArray != null) {
-        var field = document.getElementById("input-field");
-        gHistoryPoint++;
-        if (gHistoryPoint < gHistoryArray.length) {
-            field.value = gHistoryArray[gHistoryPoint];
+    if (minibuffer.history != null) {
+        minibuffer.history_index++;
+        if (minibuffer.history_index < minibuffer.history.length) {
+            minibuffer.input.value = minibuffer.history[minibuffer.history_index];
         } else {
-            gHistoryPoint = gHistoryArray.length - 1;
+            minibuffer.history_index = minibuffer.history.length - 1;
         }
     }
 }
@@ -1841,13 +1837,12 @@ interactive("minibuffer-history-previous", minibuffer_history_previous, []);
 
 function minibuffer_history_next ()
 {
-    if (gHistoryArray != null) {
-        var field = document.getElementById("input-field");
-        gHistoryPoint--;
-        if (gHistoryPoint >= 0) {
-            field.value = gHistoryArray[gHistoryPoint];
+    if (minibuffer.history != null) {
+        minibuffer.history_index--;
+        if (minibuffer.history_index >= 0) {
+            minibuffer.input.value = minibuffer.history[minibuffer.history_index];
         } else {
-            gHistoryPoint = 0;
+            minibuffer.history_index = 0;
         }
     }
 }
@@ -1856,41 +1851,57 @@ interactive("minibuffer-history-next", minibuffer_history_next, []);
 
 function minibuffer_abort ()
 {
-    if (gReadFromMinibufferAbortCallBack)
-        gReadFromMinibufferAbortCallBack();
-    gReadFromMinibufferAbortCallBack = null;
-    gReadFromMinibufferCallBack = null;
+    if (minibuffer.abort_callback)
+        minibuffer.abort_callback();
+    minibuffer.abort_callback = null;
+    minibuffer.callback = null;
     closeInput(true);
 }
 interactive("minibuffer-abort", minibuffer_abort, []);
 
 
-function minibuffer_complete ()
+function minibuffer_complete(direction)
 {
-    var completion_mode_p = (gMiniBufferCompletions != null);
-    if (! completion_mode_p) { return; }
-
-    var field = document.getElementById("input-field");
-    var str = field.value;
-    var idx;
-    if (gCurrentCompletion != null) {
-        idx = gCurrentCompletion + 1; //(shift ? -1:1);
-        if (idx >= gCurrentCompletions.length)
-            idx = 0;
-    } else {
-        idx = 0;
-        // Build our completion list
-        gCurrentCompletions = miniBufferCompleteStr(str, gMiniBufferCompletions);
-        if (gCurrentCompletions.length == 0)
-            idx = null;
+    function wrap(val, max)
+    {
+        if (val < 0)
+            return max;
+        if (val > max)
+            return 0;
+        return val;
     }
-    if (idx != null) {
-        gCurrentCompletion = idx;
-        field.value = gCurrentCompletions[idx][0];
-        // When we allow non-matches it generally means the
-        // completion takes an argument. So add a space.
-        if (gAllowNonMatches)
-            field.value += " ";
+
+    var field = minibuffer.input;
+    var str = field.value;
+    var enteredText = str.substring(0, field.selectionStart);
+    var initialSelectionStart = field.selectionStart;
+    //    if (typeof(direction) == 'undefined')
+    direction = 1;
+
+    if(! minibuffer.completions || minibuffer.completions.length == 0) return;
+
+    minibuffer.current_completions = miniBufferCompleteStr(enteredText, minibuffer.completions);
+    minibuffer.current_completion = minibuffer.current_completion || 0; // TODO: set this based on contents of field?
+
+    // deselect unambiguous part
+    while (minibuffer.current_completions.length ==
+	   miniBufferCompleteStr(str.substring(0, field.selectionStart + 1),
+				 minibuffer.completions).length &&
+	   field.selectionStart != field.value.length) {
+	field.setSelectionRange(field.selectionStart + 1, field.value.length);
+    }
+
+    // if the above had no effect, cycle through options
+    if (initialSelectionStart == field.selectionStart) {
+	minibuffer.current_completion = wrap(minibuffer.current_completion + direction, minibuffer.current_completions.length - 1);
+	//minibuffer.current_completion = minibuffer.current_completion + direction;
+	if(!minibuffer.current_completions[minibuffer.current_completion]) return;
+	field.value = minibuffer.current_completions[minibuffer.current_completion][0];
+	// When we allow non-matches it generally means the
+	// completion takes an argument. So add a space.
+	if (minibuffer.allow_nonmatches)
+	    field.value += " ";
+	field.setSelectionRange(enteredText.length, field.value.length);
     }
 }
 interactive("minibuffer-complete", minibuffer_complete, []);
@@ -1898,30 +1909,48 @@ interactive("minibuffer-complete", minibuffer_complete, []);
 
 function minibuffer_complete_reverse ()
 {
-    var completion_mode_p = (gMiniBufferCompletions != null);
-    if (! completion_mode_p) { return; }
-
-    var field = document.getElementById("input-field");
-    var str = field.value;
-    var idx;
-    if (gCurrentCompletion != null) {
-        idx = gCurrentCompletion - 1; // (shift ? -1:1);
-        if (idx < 0)
-            idx = gCurrentCompletions.length - 1;
-    } else {
-        idx = 0;
-        // Build our completion list
-        gCurrentCompletions = miniBufferCompleteStr(str, gMiniBufferCompletions);
-        if (gCurrentCompletions.length == 0)
-            idx = null;
-    }
-    if (idx != null) {
-        gCurrentCompletion = idx;
-        field.value = gCurrentCompletions[idx][0];
-        // When we allow non-matches it generally means the
-        // completion takes an argument. So add a space.
-        if (gAllowNonMatches)
-            field.value += " ";
-    }
+    minibuffer_complete(-1);
 }
 interactive("minibuffer-complete-reverse", minibuffer_complete_reverse, []);
+
+
+function minibuffer_change (event)
+{
+    // this command gets called by minibuffer.oninput, so the current value of
+    // the field is whatever the user typed.
+    //
+    var enteredText = minibuffer.input.value;
+    var len = minibuffer.input.value.length;
+    
+
+    // are there other viable options?
+    if (minibuffer.completions)
+    {
+        // here we check a flag set by minibuffer-backspace.  this is sort of
+        // an inflexable solution, chaining us to this one particular
+        // behavior.  perhaps instead of a flag, we could have a callback that
+        // handles how to select the text.
+        if (! minibuffer.do_not_complete)
+        {
+            minibuffer.current_completions = miniBufferCompleteStr (minibuffer.input.value, minibuffer.completions);
+
+            if (minibuffer.current_completions.length != 0)
+            {
+                minibuffer.input.value = minibuffer.current_completions[0][0];
+                minibuffer.input.setSelectionRange(len, minibuffer.input.value.length);
+            }
+        } else {
+            minibuffer.do_not_complete = false;
+        }
+    }
+    // XXX: what is current_completion used for?
+    minibuffer.current_completion = null;
+}
+interactive ("minibuffer-change", minibuffer_change, ['e']);
+
+
+function minibuffer_backspace (prefix) {
+    minibuffer.do_not_complete = true;
+    cmd_deleteCharBackward (prefix);
+}
+interactive ("minibuffer-backspace", minibuffer_backspace, ['p'])

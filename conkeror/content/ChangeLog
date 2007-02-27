@@ -1,5 +1,47 @@
 2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* utils.js (minibuffer): new object replaces globals:
+	gFocusedElement, gFocusedWindow, gReadFromMinibufferCallBack,
+	gReadFromMinibufferAbortCallBack, gMiniBufferCompletions,
+	gCurrentCompletion, gCurrentCompletions, gDefaultMatch,
+	gAllowNonMatches, gHistoryPoint, and gHistoryArray.
+
+	* utils.js (init_minibuffer): new function.
+
+	* conkeror.js (delayedStartup): call init_minibuffer.
+
+	* utils.js, commands.js: implemented minibuffer object.
+	
+	* find.js, numberedlinks.js, bindings.js, url.js: implemented
+	minibuffer object.
+
+	* bindings.js (init_minibuffer_keys): binding for backspace.
+
+	* commands.js (interactive_methods): implemented method `b'.
+
+	* commands.js (switch_to_buffer): use interactive method `b'.
+
+	* commands.js (kill_browser): renamed to kill_buffer, and use
+	interactive method `b'.
+
+	* commands.js (minibuffer_complete): implement new completion.
+
+	* commands.js (minibuffer_complete_reverse): implement new
+	completion.
+
+	* commands.js (minibuffer_change): new command for completion.
+
+	* commands.js (minibuffer_backspace): new command for completion.
+
+	* conkeror.xul (input-field): added oninput event.
+
+	* utils.js (readFromMiniBuffer): implemented new completion.
+
+	* utils.js (readKeyPress): a binding can now have both a
+	fallthrough and a command.
+	
+2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* commands.js (conkeror-version): new command
 	
 2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
