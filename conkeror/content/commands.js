@@ -341,6 +341,13 @@ function add_command (name, fn, args)
 }
 
 
+function show_conkeror_version ()
+{
+    message (conkeror_version);
+}
+interactive ("conkeror-version", show_conkeror_version, []);
+
+
 function unfocus()
 {
     var input = document.getElementById("input-field");
