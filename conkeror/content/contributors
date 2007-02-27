@@ -1,5 +1,7 @@
 The following people have helped make conkeror what it is today!
 
+Jesse Black  (jwb6542 at rit edu)
+
 Martin Stubenschrott  (stubenschrott at gmx net)
   - vi bindings
   - bookmark improvements
@@ -14,3 +16,4 @@ John J. Foerch
   - saving links and pages
   - major minibuffer and keymap restructuring
   - a real build/release system and versioning
+  - ...

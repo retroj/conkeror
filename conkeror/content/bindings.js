@@ -413,7 +413,7 @@ function initViKmaps()
     define_key(top_kmap, make_key("8",0),"numberedlinks-8");
     define_key(top_kmap, make_key("9",0),"numberedlinks-9");
     define_key(top_kmap, make_key(",",0),"goto-numbered-link");
-    define_key(top_kmap, make_key(".",0),"goto-numbered-image");
+    define_key(top_kmap, make_key(".",0),"copy-numbered-image-location");
     define_key(top_kmap, make_key("u",0),"buffer-previous");
     define_key(top_kmap, make_key("u", MOD_CTRL), "universal-argument");
     define_key(top_kmap, make_key("i",0),"buffer-next");
@@ -599,7 +599,7 @@ function initKmaps()
     define_key(top_kmap, make_key("8",0),"numberedlinks-8");
     define_key(top_kmap, make_key("9",0),"numberedlinks-9");
     define_key(top_kmap, make_key("n",0),"goto-numbered-link");
-    define_key(top_kmap, make_key("i",0),"goto-numbered-image");
+    define_key(top_kmap, make_key("i",0),"copy-numbered-image-location");
     define_key(top_kmap, make_key("p",MOD_META),"buffer-previous");
     define_key(top_kmap, make_key("n",MOD_META),"buffer-next");
     define_key(top_kmap, make_key("c",0),"copy-current-url");

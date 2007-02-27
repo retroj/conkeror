@@ -1,3 +1,30 @@
+2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* bindings.js: rename goto-numbered-image to
+	copy-numbered-image-location
+
+	* commands.js: rename interactive to do_interactive, and rewrote
+	it to support asynchronous interaction, and `interactive_methods'
+	structure.  rename add_command to interactive, and place
+	interactive calls next to the function that each is relevant to.
+	removed init_commands.  added interactive method, `image'.
+	rewrote exec_command to support asynchronous interactivity.
+	updated the args of many commands to new style.  new command
+	save-image (save_image).
+
+	* conkeror.js: removed call to init_commands
+
+	* conkeror.xul: swap order of numberedlinks.js and commands.js.
+
+	* numberedlinks.js: remove variable gOnlyImages.  update args of
+	commands.  rename goto_numbered_image to
+	copy_numbered_image_location, and rewrote.  removed image
+	capabilities from selectNumberedLink.  renamed matchLink to
+	get_numberedlink_in_document and rewrote to move out side-effect
+	code.  new function get_numberedlink.  rewrote
+	numberedlinks_do_link to perform side-effects formerly in
+	matchLink.
+
 2007-02-22  Shawn Betts  <sabetts@shitbender.gagrod>
 
 	* conkeror.js: add conkeror_version 

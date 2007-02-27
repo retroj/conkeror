@@ -46,22 +46,37 @@ var default_show_numbered_images = false;
 var gNumberedLinksPrefix = null;
 // Set this to true and after a numberedlink is selected, they will be turned off
 var gTurnOffLinksAfter = false;
-// Set this to true to display only images
-var gOnlyImages = false;
 
 var numberedlinks_minibuffer_active = false;
 
-function selectNumberedLink_1(args) { selectNthLink(1, args); }
-function selectNumberedLink_2(args) { selectNthLink(2, args); }
-function selectNumberedLink_3(args) { selectNthLink(3, args); }
-function selectNumberedLink_4(args) { selectNthLink(4, args); }
-function selectNumberedLink_5(args) { selectNthLink(5, args); }
-function selectNumberedLink_6(args) { selectNthLink(6, args); }
-function selectNumberedLink_7(args) { selectNthLink(7, args); }
-function selectNumberedLink_8(args) { selectNthLink(8, args); }
-function selectNumberedLink_9(args) { selectNthLink(9, args); }
+function selectNumberedLink_1(prefix) { selectNthLink(1, prefix); }
+interactive("numberedlinks-1", selectNumberedLink_1, ["p"]);
 
-function selectNthLink (num, args)
+function selectNumberedLink_2(prefix) { selectNthLink(2, prefix); }
+interactive("numberedlinks-2", selectNumberedLink_2, ["p"]);
+
+function selectNumberedLink_3(prefix) { selectNthLink(3, prefix); }
+interactive("numberedlinks-3", selectNumberedLink_3, ["p"]);
+
+function selectNumberedLink_4(prefix) { selectNthLink(4, prefix); }
+interactive("numberedlinks-4", selectNumberedLink_4, ["p"]);
+
+function selectNumberedLink_5(prefix) { selectNthLink(5, prefix); }
+interactive("numberedlinks-5", selectNumberedLink_5, ["p"]);
+
+function selectNumberedLink_6(prefix) { selectNthLink(6, prefix); }
+interactive("numberedlinks-6", selectNumberedLink_6, ["p"]);
+
+function selectNumberedLink_7(prefix) { selectNthLink(7, prefix); }
+interactive("numberedlinks-7", selectNumberedLink_7, ["p"]);
+
+function selectNumberedLink_8(prefix) { selectNthLink(8, prefix); }
+interactive("numberedlinks-8", selectNumberedLink_8, ["p"]);
+
+function selectNumberedLink_9(prefix) { selectNthLink(9, prefix); }
+interactive("numberedlinks-9", selectNumberedLink_9, ["p"]);
+
+function selectNthLink (num, prefix)
 {
     var buf_state = getBrowser().numberedLinks;
     if (!buf_state) {
@@ -69,51 +84,65 @@ function selectNthLink (num, args)
 	toggleNumberedLinks();
     }
 
-    selectNumberedLink(num, args);
+    selectNumberedLink(num, prefix);
 }
 
-function toggle_numbered_links (args)
+function toggle_numbered_links ()
 {
     toggleNumberedLinks();
 }
+interactive("toggle-numbered-links", toggle_numbered_links, []);
 
-function toggle_numbered_images (args)
+
+function toggle_numbered_images ()
 {
     toggleNumberedImages();
 }
+interactive("toggle-numbered-images", toggle_numbered_images, []);
 
-function goto_numbered_image (args)
+
+function copy_numbered_image_location (prefix, number)
 {
-    var buf_state = getBrowser().numberedImages;
-    if (!buf_state) {
-	gTurnOffLinksAfter = true;
-	toggleNumberedImages();
+    function fail (number)
+    {
+        message ("'"+number+"' is not the number of any image here. ");
     }
-    gOnlyImages = true;
-    selectNumberedLink("", args);
-}
 
-function goto_numbered_link(args)
+    var nl = get_numberedlink (number);
+    if (! nl) { fail (number); return; }
+
+    // we have a node.  we must now produce some side-effect based on its type
+    // and the requested action.
+    //
+    var type = nl.nlnode.getAttribute("__conktype");
+
+    if (type == "image") {
+        copy_img_location(nl.node);
+    } else {
+        fail (number);
+    }
+}
+interactive("copy-numbered-image-location", copy_numbered_image_location, ['p','image']);
+
+
+function goto_numbered_link(prefix)
 {
     var buf_state = getBrowser().numberedLinks;
     if (!buf_state) {
 	gTurnOffLinksAfter = true;
 	toggleNumberedLinks();
     }
-    selectNumberedLink("", args);
+    selectNumberedLink("", prefix);
 }
+interactive("goto-numbered-link", goto_numbered_link, ["p"]);
 
-function selectNumberedLink(num, args)
+
+function selectNumberedLink(num, prefix)
 {
     // Setup a context for the context-keymap system.
     numberedlinks_minibuffer_active = true;
-    gNumberedLinksPrefix = args[0];
-    var prompt;
-    if (gOnlyImages)
-        prompt = "Goto Numbered Image:";
-    else
-        prompt = "Goto Numbered Link:";
-    readFromMiniBuffer(prompt, num);
+    gNumberedLinksPrefix = prefix;
+    readFromMiniBuffer("Goto Numbered Link:", num);
 }
 
 function closeNumberedLinkBar()
@@ -121,15 +150,9 @@ function closeNumberedLinkBar()
     closeInput(true);
     numberedlinks_minibuffer_active = false;
     if (gTurnOffLinksAfter) {
-	if (gOnlyImages) {
-	    toggleNumberedImages();
-	    gOnlyImages = false;
-	} else {
-	    toggleNumberedLinks();
-	}
+        toggleNumberedLinks();
 	gTurnOffLinksAfter = false;
     }
-	
 }
 
 function get_href (node)
@@ -140,102 +163,121 @@ function get_href (node)
     }
 }
 
-function matchLink (action, doc, link)
+function get_numberedlink_in_document (doc, number)
 {
-    try {
-	var nodes = doc.getElementsByTagName('SPAN');
-	for (var i=0; i<nodes.length; i++) {
-	    // 	    if (nodes[i].style.visibility == "hidden") continue;
-	    if (link == nodes[i].getAttribute("__conkid")) {
-		var node = doc.getElementById(nodes[i].getAttribute("__nodeid"));
-		var type = nodes[i].getAttribute("__conktype");
-		var href = get_href (node);
-		if (node) {
-		    if (type == "link") {
-			if (action == 2) {
-			    node.focus();
-			} else if (action == 1) {
-			    getBrowser().newBrowser(href);
-			} else {
-			    var img = node.getElementsByTagName("IMG");
-			    var evt = doc.createEvent('MouseEvents');
-			    var x = 1;
-			    var y = 1;
-			    if (gNumberedLinksPrefix == 1) {
-				if (node.localName.toLowerCase() == "area") {
-				    var coords = node.getAttribute("coords").split(",");
-				    x = Number(coords[0]);
-				    y = Number(coords[1]);
-				}
-				evt.initMouseEvent('click', true, true, doc.defaultView, 0, x, y, 0, 0, null, null, null, null, 0, null);
-				// Handle the annoying case where
-				// there's a link with an image inside
-				// it and the onclick is on the image
-				// not the A tag.
-				if (img.length > 0)
-				    img[0].dispatchEvent(evt);
-				else
-				    node.dispatchEvent(evt);
-			    } else {
-				open_url_in(gNumberedLinksPrefix, node.href);
-			    }
-			}
-		    } else if (type == "image") {
-			copy_img_location(node);
-		    } else if (type == "button") {
-			if (action == 2) {
-			    node.focus();
-			} else {
-			    var evt = doc.createEvent('MouseEvents');
-			    evt.initMouseEvent('click', true, true, doc.defaultView, 0, 0, 0, 0, 0, null, null, null, null, 0, null);
-			    node.dispatchEvent(evt);
-			}
-		    } else {
-			node.focus();
-		    }
-		}
+    var nodes = doc.getElementsByTagName('SPAN');
+    for (var i=0; i<nodes.length; i++) {
+        if (nodes[i].getAttribute("__conkid") == number) {
+            return nodes[i];
+        }
+    }
+}
 
-	    }
-	}
-    } catch(e) {alert(e);}
-    return false;
+function get_numberedlink (number)
+{
+    var doc = window._content.document;
+    var frames = window._content.frames;
+    var nlnode = get_numberedlink_in_document (doc, number);
+    var i = 0;
+    while (! nlnode && i < frames.length)
+    {
+        nlnode = get_numberedlink_in_document (frames[i].document, number);
+        doc = frames[i].document;
+        i++;
+    }
+    var node = doc.getElementById(nlnode.getAttribute("__nodeid"));
+    if (! nlnode || ! node || ! doc)
+        return;
+    return { nlnode: nlnode, node: node, doc: doc };
 }
 
 function numberedlinks_do_link (action)
 {
     var findfield = document.getElementById("input-field");
     var link = findfield.value;
-    var frames = window._content.frames;
     closeNumberedLinkBar();
     // See if the number is a link.
-    if (!matchLink (action, window._content.document, link)) {
-	for (var i=0;i<frames.length;i++) {
-	    if (matchLink (action, frames[i].document, link))
-		break;
-	}
+    var nl = get_numberedlink (link);
+    if (! nl) return;
+
+    // we have a node.  we must now produce some side-effect based on its type
+    // and the requested action.
+    //
+    var type = nl.nlnode.getAttribute("__conktype");
+    var href = get_href (nl.node);
+
+    if (type == "link") {
+        if (action == 2) {
+            nl.node.focus();
+        } else if (action == 1) {
+            getBrowser().newBrowser(href);
+        } else {
+            var img = nl.node.getElementsByTagName("IMG");
+            var evt = nl.doc.createEvent('MouseEvents');
+            var x = 1;
+            var y = 1;
+            if (gNumberedLinksPrefix == 1) {
+                if (nl.node.localName.toLowerCase() == "area") {
+                    var coords = nl.node.getAttribute("coords").split(",");
+                    x = Number(coords[0]);
+                    y = Number(coords[1]);
+                }
+                evt.initMouseEvent('click', true, true, nl.doc.defaultView, 0, x, y, 0, 0, null, null, null, null, 0, null);
+                // Handle the annoying case where
+                // there's a link with an image inside
+                // it and the onclick is on the image
+                // not the A tag.
+                if (img.length > 0)
+                    img[0].dispatchEvent(evt);
+                else
+                    nl.node.dispatchEvent(evt);
+            } else {
+                open_url_in(gNumberedLinksPrefix, nl.node.href);
+            }
+        }
+    } else if (type == "image") {
+        copy_img_location(nl.node); //XXX: RetroJ: demolition
+    } else if (type == "button") {
+        if (action == 2) {
+            nl.node.focus();
+        } else {
+            var evt = nl.doc.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, nl.doc.defaultView, 0, 0, 0, 0, 0, null, null, null, null, 0, null);
+            nl.node.dispatchEvent(evt);
+        }
+    } else {
+        nl.node.focus ();
     }
 }
+
 
 function numberedlinks_focus ()
 {
     numberedlinks_do_link (2);
 }
+interactive("numberedlinks-focus", numberedlinks_focus, []);
+
 
 function numberedlinks_follow_other_buffer ()
 {
     numberedlinks_do_link (1);
 }
+interactive("numberedlinks-follow-other-buffer", numberedlinks_follow_other_buffer, []);
+
 
 function numberedlinks_follow ()
 {
     numberedlinks_do_link (0);
 }
+interactive("numberedlinks-follow", numberedlinks_follow, []);
 
 
 function numberedlinks_escape () {
     numberedlinks_minibuffer_active = false;
     closeNumberedLinkBar();
 }
+interactive("numberedlinks-escape", numberedlinks_escape, []);
+
 
 function onNumberedLinkBlur() {
 

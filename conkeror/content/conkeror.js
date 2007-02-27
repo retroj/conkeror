@@ -47,7 +47,6 @@ function Startup()
 //   var b = document.getElementById("blahblu");
 //   b.setCurrentBrowser(0);
 
-  init_commands();
   initKmaps();
   initBookmarkService();
 

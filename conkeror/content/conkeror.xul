@@ -20,8 +20,8 @@
 
   <script type="application/x-javascript" src="utils.js"/>
   <script type="application/x-javascript" src="bm.js"/>
-  <script type="application/x-javascript" src="numberedlinks.js"/>
   <script type="application/x-javascript" src="commands.js"/>
+  <script type="application/x-javascript" src="numberedlinks.js"/>
   <script type="application/x-javascript" src="url.js"/>
   <script type="application/x-javascript" src="find.js"/>
   <script type="application/x-javascript" src="conkeror.js"/>
