@@ -237,7 +237,7 @@ code for examples of how it works.
 
 <LI>To add a new key binding:
 <pre>
-define_key(ctrlx_kmap, make_key("c", MOD_META), "command-name");
+define_key(ctrlx_kmap, kbd("c", MOD_META), "command-name");
 </pre>
 This binds C-x M-c to execute "command-name". Take a look at
 bindings.js for the builtin keymaps and key bindings.
