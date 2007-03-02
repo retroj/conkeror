@@ -135,7 +135,6 @@ function delayedStartup()
 
     getBrowser().addEventListener ("DOMContentLoaded",
                                    function () {
-                                       log ("content loaded " + this.webProgress.DOMWindow.__conk_numbered);
                                        createNumberedLinks(top_content (this.webProgress.DOMWindow));
                                    },
                                    true);
