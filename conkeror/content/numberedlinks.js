@@ -486,6 +486,7 @@ function already_linkified (doc)
 function removeExisting(doc)
 {
     var nodes = doc.getElementsByTagName("SPAN");
+    documentMarkUnnumbered (doc);
     // When a node is deleted, it is deleted from nodes too. So we can't simply iterate through them
     for (var i=0; i<nodes.length;) {
 	if (nodes[i].hasAttribute("__nodeid")) {
@@ -557,15 +558,16 @@ function continueNumberedLinks (doc, linknum, nodes, docs)
 	if (ret[2].length > 0) {
 	    setTimeout (continueNumberedLinks, 0, doc, ret[0], ret[2], docs);
 	} else {
-	    // floaters have to be calculated afterwards because of
-	    // the reflowing of non-floaters
+// 	    // floaters have to be calculated afterwards because of
+// 	    // the reflowing of non-floaters
 	    update_nl_pos (doc);
+            documentMarkNumbered (doc);
 	    if (docs.length > 0) {
 		var newdoc = docs.pop();
-		setTimeout (continueNumberedLinks, 0, newdoc, ret[0], getLinkNodes (newdoc), docs);
-	    } else {
-		//message(ret[0] + " links numbered.");
-	    }
+                var nodes = getLinkNodes (newdoc);
+                var firstnum = reserveLinkNumbers (nodes.length);
+		setTimeout (continueNumberedLinks, 0, newdoc, firstnum, nodes, docs);
+            }
 	}
 
     } catch (e) {alert(e);}
@@ -573,7 +575,17 @@ function continueNumberedLinks (doc, linknum, nodes, docs)
 
 function documentNumberedp (doc)
 {
-    return doc.__conk_numbered || false;
+    return doc.__conk_numbered == true;
+}
+
+function documentUnnumberedp (doc)
+{
+    return !doc.__conk_numbered;
+}
+
+function documentMarkInProgress (doc)
+{
+    doc.__conk_numbered = "in-progress";
 }
 
 function documentMarkNumbered (doc)
@@ -586,6 +598,15 @@ function documentMarkUnnumbered (doc)
     doc.__conk_numbered = false;
 }
 
+// reserve a number of links. Returns the start number to be used
+function reserveLinkNumbers (num)
+{
+    // the toplevel content stores where we're at for numbering.
+    var start = window._content.__conk_start_num || 1;
+    window._content.__conk_start_num = start + num;
+    return start;
+}
+
 function createNumberedLinks(cont)
 {
     try {
@@ -593,18 +614,24 @@ function createNumberedLinks(cont)
     var docs = [];
     var numbered = true;
 
+    // find the frames that need numbering
     for (var i=0; i<frames.length; i++) {
-	docs.unshift (frames[i].document);
-	numbered = numbered && documentNumberedp (frames[i].document);
-	documentMarkNumbered (frames[i].document);
+        if (documentUnnumberedp (frames[i].document)) {
+            docs.unshift (frames[i].document);
+            documentMarkInProgress (frames[i].document);
+        }
     }
     
-    // If any of the frames has not been marked we need to do it all
-    // over again.
-    if (!numbered || !documentNumberedp (cont.document)) {
-	removeExistingNLs(cont);
-	documentMarkNumbered (cont.document);
-	continueNumberedLinks (cont.document, 1, getLinkNodes (cont.document), docs);
+    if (documentUnnumberedp (cont.document)) {
+        docs.unshift (cont.document);
+        documentMarkInProgress (cont.document);
+    }
+
+    if (docs.length > 0) {
+        var doc = docs.pop();
+        var nodes = getLinkNodes (doc);
+        var firstnum = reserveLinkNumbers (nodes.length);
+        continueNumberedLinks (doc, firstnum, nodes, docs);
     }
 
     } catch (e) { alert(e);}
@@ -656,7 +683,10 @@ function toggleNumberedImages()
 const nl_document_observer = {
     observe: function(subject, topic, url)
     {
-        createNumberedLinks(subject);
+//         log ("nl_document_observer");
+//         createNumberedLinks(subject);
+        // domcontentloaded handles creating the links. here we just need to move the floater links over the now loaded content
+        numberedlinks_resize (subject);
     }
 };
 
@@ -728,10 +758,10 @@ function update_nl_pos (doc)
     } catch(e) {     log ("update_nl_pos " + e); }
 }
 
-function numberedlinks_resize ()
+function numberedlinks_resize (cont)
 {
-    var frames = window._content.frames;
-    update_nl_pos (window._content.document);
+    var frames = cont.frames;
+    update_nl_pos (cont.document);
     for (var i=0; i<frames.length; i++) {
 	update_nl_pos (frames[i].document);
     }   

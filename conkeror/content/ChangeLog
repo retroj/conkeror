@@ -1,3 +1,16 @@
+2007-03-02  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* bindings.js: bind C-l to renumber-links.
+
+	* conkeror.js: create numbered links on DOMContentLoaded event.
+
+	* commands.js: work with new numbering code
+
+	* numberedlinks.js: use top level content to store numbered link
+	start number. only number documents not already numbered. add
+	in-progress numbering state. nl_document_observer only updates
+	floater number locations.
+
 2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* bindings.js (make_key): renamed to kbd.

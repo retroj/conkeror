@@ -1597,7 +1597,7 @@ function text_reset()
     try {
  	getBrowser().markupDocumentViewer.textZoom = 1.0;
 	// We need to update the floaters
-	numberedlinks_resize();
+	numberedlinks_resize(window._content);
     } catch(e) { alert(e); }
 }
 interactive("text-reset", text_reset, []);
@@ -1608,7 +1608,7 @@ function text_reduce(prefix)
     try {
  	getBrowser().markupDocumentViewer.textZoom -= 0.25 * prefix;
 	// We need to update the floaters
-	numberedlinks_resize();
+	numberedlinks_resize(window._content);
     } catch(e) { alert(e); }
 }
 interactive("text-reduce", text_reduce, ["p"]);
@@ -1619,7 +1619,7 @@ function text_enlarge(prefix)
     try {
  	getBrowser().markupDocumentViewer.textZoom += 0.25 * prefix;
 	// We need to update the floaters
-	numberedlinks_resize();
+	numberedlinks_resize(window._content);
     } catch(e) { alert(e); }
 }
 interactive("text-enlarge", text_enlarge, ["p"]);
@@ -1763,7 +1763,8 @@ interactive("print-buffer", print_buffer, []);
 
 function renumber_links ()
 {
-    documentMarkUnnumbered (window._content.document);
+    removeExistingNLs(window._content);
+    window._content.__conk_start_num = null;
     createNumberedLinks(window._content);
 }
 interactive("renumber-links", renumber_links, []);

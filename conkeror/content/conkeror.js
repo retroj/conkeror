@@ -130,13 +130,20 @@ function delayedStartup()
     // Set up our end document hook for numbered links
     var observerService = Components.classes["@mozilla.org/observer-service;1"]
 	.getService(Components.interfaces.nsIObserverService);
-    observerService.addObserver(nl_document_observer, "page-end-load", false);
+       observerService.addObserver(nl_document_observer, "page-end-load", false);
     observerService.addObserver(frame_focus_observer, "page-end-load", false);
+
+    getBrowser().addEventListener ("DOMContentLoaded",
+                                   function () {
+                                       log ("content loaded " + this.webProgress.DOMWindow.__conk_numbered);
+                                       createNumberedLinks(top_content (this.webProgress.DOMWindow));
+                                   },
+                                   true);
 
     // because of the absolute position of the numbers, we need to
     // adjust when the window is resized.
     try {
-	window.document.addEventListener("resize", numberedlinks_resize, true);
+	window.document.addEventListener("resize", function () {numberedlinks_resize(window._content);}, true);
     } catch(e) {alert(e);}
 
 
