@@ -1,5 +1,7 @@
 2007-03-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
+	* commands.js: swap names of minibuffer_history_next and minibuffer_history_previous
+
 	* bindings.js: bind C-l to renumber-links.
 
 	* conkeror.js: create numbered links on DOMContentLoaded event.

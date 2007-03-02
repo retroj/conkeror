@@ -1821,7 +1821,7 @@ function exit_minibuffer ()
 interactive("exit-minibuffer", exit_minibuffer, []);
 
 
-function minibuffer_history_previous ()
+function minibuffer_history_next ()
 {
     if (minibuffer.history != null) {
         minibuffer.history_index++;
@@ -1832,10 +1832,10 @@ function minibuffer_history_previous ()
         }
     }
 }
-interactive("minibuffer-history-previous", minibuffer_history_previous, []);
+interactive("minibuffer-history-next", minibuffer_history_next, []);
 
 
-function minibuffer_history_next ()
+function minibuffer_history_previous ()
 {
     if (minibuffer.history != null) {
         minibuffer.history_index--;
@@ -1846,7 +1846,7 @@ function minibuffer_history_next ()
         }
     }
 }
-interactive("minibuffer-history-next", minibuffer_history_next, []);
+interactive("minibuffer-history-previous", minibuffer_history_previous, []);
 
 
 function minibuffer_abort ()
