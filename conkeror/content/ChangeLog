@@ -1,3 +1,9 @@
+2007-03-04  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* conkeror.xul: removed bubble-phase keypress handler.
+
+	* conkeror.js: capture phase keypress handler.
+	
 2007-03-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* commands.js: swap names of minibuffer_history_next and minibuffer_history_previous

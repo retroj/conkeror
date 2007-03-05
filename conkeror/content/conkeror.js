@@ -127,6 +127,8 @@ function delayedStartup()
 {
     element = _content;
 
+    window.addEventListener ("keypress", readKeyPress, true);
+
     // Set up our end document hook for numbered links
     var observerService = Components.classes["@mozilla.org/observer-service;1"]
 	.getService(Components.interfaces.nsIObserverService);
