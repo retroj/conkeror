@@ -732,6 +732,7 @@ function init_minibuffer_keys () {
     define_key (minibuffer_kmap, kbd  ("g",MOD_CTRL), "minibuffer-abort");
     define_key (minibuffer_kmap, kbd  (KeyEvent.DOM_VK_TAB, 0), "minibuffer-complete");
     define_key (minibuffer_kmap, kbd  (KeyEvent.DOM_VK_TAB, MOD_SHIFT), "minibuffer-complete-reverse");
+    define_key (minibuffer_kmap, kbd  (" ", 0), "minibuffer-accept-match");
 
     // Because we programmatically modify the selection during minibuffer
     // completion, certain keys need to be handled specially, notably

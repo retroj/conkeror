@@ -1897,15 +1897,29 @@ function minibuffer_complete(direction)
 	//minibuffer.current_completion = minibuffer.current_completion + direction;
 	if(!minibuffer.current_completions[minibuffer.current_completion]) return;
 	field.value = minibuffer.current_completions[minibuffer.current_completion][0];
-	// When we allow non-matches it generally means the
-	// completion takes an argument. So add a space.
-	if (minibuffer.allow_nonmatches)
-	    field.value += " ";
 	field.setSelectionRange(enteredText.length, field.value.length);
     }
 }
 interactive("minibuffer-complete", minibuffer_complete, []);
 
+function minibuffer_accept_match ()
+{
+    var field = minibuffer.input;
+
+    if (field.selectionStart == field.selectionEnd) {
+        var start = field.selectionStart;
+        // bleh
+        field.value = field.value.substr(0, field.selectionStart) + " " + field.value.substr(field.selectionStart);
+	field.setSelectionRange(start + 1, start + 1);
+    } else {
+    // When we allow non-matches it generally means the
+    // completion takes an argument. So add a space.
+    if (minibuffer.allow_nonmatches && minibuffer.input.value[minibuffer.input.length-1] != " ")
+        minibuffer.input.value += " ";
+	field.setSelectionRange(field.value.length, field.value.length);
+    }
+}
+interactive("minibuffer-accept-match", minibuffer_accept_match, []);
 
 function minibuffer_complete_reverse ()
 {

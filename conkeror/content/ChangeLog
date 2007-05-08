@@ -1,3 +1,9 @@
+2007-05-08  Shawn Betts  <sabetts@vcn.bc.ca>
+
+	* bindings.js: bind minibuffer-accept-match to space
+
+	* commands.js: new command minibuffer-accept-match.
+
 2007-03-04  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* conkeror.xul: removed bubble-phase keypress handler.
