@@ -40,51 +40,11 @@ var global_numbered_links_mode = true;
 var default_show_numbered_links = true;
 var default_show_numbered_images = false;
 
-// This decides whether the link is opened in the current buffer, a
-// new one, or a new frame.
-var gNumberedLinksPrefix = null;
 // Set this to true and after a numberedlink is selected, they will be turned off
 var gTurnOffLinksAfter = false;
 
 var numberedlinks_minibuffer_active = false;
 
-function selectNumberedLink_1(prefix) { selectNthLink(1, prefix); }
-interactive("numberedlinks-1", selectNumberedLink_1, ["p"]);
-
-function selectNumberedLink_2(prefix) { selectNthLink(2, prefix); }
-interactive("numberedlinks-2", selectNumberedLink_2, ["p"]);
-
-function selectNumberedLink_3(prefix) { selectNthLink(3, prefix); }
-interactive("numberedlinks-3", selectNumberedLink_3, ["p"]);
-
-function selectNumberedLink_4(prefix) { selectNthLink(4, prefix); }
-interactive("numberedlinks-4", selectNumberedLink_4, ["p"]);
-
-function selectNumberedLink_5(prefix) { selectNthLink(5, prefix); }
-interactive("numberedlinks-5", selectNumberedLink_5, ["p"]);
-
-function selectNumberedLink_6(prefix) { selectNthLink(6, prefix); }
-interactive("numberedlinks-6", selectNumberedLink_6, ["p"]);
-
-function selectNumberedLink_7(prefix) { selectNthLink(7, prefix); }
-interactive("numberedlinks-7", selectNumberedLink_7, ["p"]);
-
-function selectNumberedLink_8(prefix) { selectNthLink(8, prefix); }
-interactive("numberedlinks-8", selectNumberedLink_8, ["p"]);
-
-function selectNumberedLink_9(prefix) { selectNthLink(9, prefix); }
-interactive("numberedlinks-9", selectNumberedLink_9, ["p"]);
-
-function selectNthLink (num, prefix)
-{
-    var buf_state = getBrowser().numberedLinks;
-    if (!buf_state) {
-	gTurnOffLinksAfter = true;
-	toggleNumberedLinks();
-    }
-
-    selectNumberedLink(num, prefix);
-}
 
 function toggle_numbered_links ()
 {
@@ -124,36 +84,6 @@ function copy_numbered_image_location (prefix, number)
 interactive("copy-numbered-image-location", copy_numbered_image_location, ['p','image']);
 
 
-function goto_numbered_link(prefix)
-{
-    var buf_state = getBrowser().numberedLinks;
-    if (!buf_state) {
-	gTurnOffLinksAfter = true;
-	toggleNumberedLinks();
-    }
-    selectNumberedLink("", prefix);
-}
-interactive("goto-numbered-link", goto_numbered_link, ["p"]);
-
-
-function selectNumberedLink(num, prefix)
-{
-    // Setup a context for the context-keymap system.
-    numberedlinks_minibuffer_active = true;
-    gNumberedLinksPrefix = prefix;
-    readFromMiniBuffer("Goto Numbered Link:", num);
-}
-
-function closeNumberedLinkBar()
-{
-    closeInput(true);
-    numberedlinks_minibuffer_active = false;
-    if (gTurnOffLinksAfter) {
-        toggleNumberedLinks();
-	gTurnOffLinksAfter = false;
-    }
-}
-
 function get_href (node)
 {
     if (node.hasAttribute("href")) {
@@ -190,13 +120,14 @@ function get_numberedlink (number)
     return { nlnode: nlnode, node: node, doc: doc };
 }
 
-function numberedlinks_do_link (action)
+function numberedlinks_do_link (prefix, link, action)
 {
-    var link = minibuffer.input.value;
-    closeNumberedLinkBar();
     // See if the number is a link.
     var nl = get_numberedlink (link);
-    if (! nl) return;
+    if (! nl) {
+        message ("No link with number '" + link + "'");
+        return;
+    }
 
     // we have a node.  we must now produce some side-effect based on its type
     // and the requested action.
@@ -205,16 +136,21 @@ function numberedlinks_do_link (action)
     var href = get_href (nl.node);
 
     if (type == "link") {
-        if (action == 2) {
+        if (action == "numberedlinks-focus") {
             nl.node.focus();
-        } else if (action == 1) {
+        } else if (action == "numberedlinks-follow-other-buffer") {
             getBrowser().newBrowser(href);
+        } else if (action == "numberedlinks-follow-other-frame") {
+            open_url_in (5, href);
+        } else if (action == "numberedlinks-save") {
+            nl.node.focus();
+            call_interactively ("save-focused-link");
         } else {
             var img = nl.node.getElementsByTagName("IMG");
             var evt = nl.doc.createEvent('MouseEvents');
             var x = 1;
             var y = 1;
-            if (gNumberedLinksPrefix == 1) {
+            if (prefix == 1) {
                 if (nl.node.localName.toLowerCase() == "area") {
                     var coords = nl.node.getAttribute("coords").split(",");
                     x = Number(coords[0]);
@@ -230,13 +166,11 @@ function numberedlinks_do_link (action)
                 else
                     nl.node.dispatchEvent(evt);
             } else {
-                open_url_in(gNumberedLinksPrefix, nl.node.href);
+                open_url_in(prefix, nl.node.href);
             }
         }
-    } else if (type == "image") {
-        copy_img_location(nl.node); //XXX: RetroJ: demolition
     } else if (type == "button") {
-        if (action == 2) {
+        if (action == "numberedlinks-focus") {
             nl.node.focus();
         } else {
             var evt = nl.doc.createEvent('MouseEvents');
@@ -247,34 +181,23 @@ function numberedlinks_do_link (action)
         nl.node.focus ();
     }
 }
+interactive("numberedlinks-1", numberedlinks_do_link, ["p", ["link", null, function (a) { return "1"; }], "minibuffer_exit"]);
+interactive("numberedlinks-2", numberedlinks_do_link, ["p", ["link", null, function (a) { return "2"; }], "minibuffer_exit"]);
+interactive("numberedlinks-3", numberedlinks_do_link, ["p", ["link", null, function (a) { return "3"; }], "minibuffer_exit"]);
+interactive("numberedlinks-4", numberedlinks_do_link, ["p", ["link", null, function (a) { return "4"; }], "minibuffer_exit"]);
+interactive("numberedlinks-5", numberedlinks_do_link, ["p", ["link", null, function (a) { return "5"; }], "minibuffer_exit"]);
+interactive("numberedlinks-6", numberedlinks_do_link, ["p", ["link", null, function (a) { return "6"; }], "minibuffer_exit"]);
+interactive("numberedlinks-7", numberedlinks_do_link, ["p", ["link", null, function (a) { return "7"; }], "minibuffer_exit"]);
+interactive("numberedlinks-8", numberedlinks_do_link, ["p", ["link", null, function (a) { return "8"; }], "minibuffer_exit"]);
+interactive("numberedlinks-9", numberedlinks_do_link, ["p", ["link", null, function (a) { return "9"; }], "minibuffer_exit"]);
+interactive("goto-numbered-link", numberedlinks_do_link, ["p", "link", "minibuffer_exit"]);
 
 
-function numberedlinks_focus ()
-{
-    numberedlinks_do_link (2);
-}
-interactive("numberedlinks-focus", numberedlinks_focus, []);
-
-
-function numberedlinks_follow_other_buffer ()
-{
-    numberedlinks_do_link (1);
-}
-interactive("numberedlinks-follow-other-buffer", numberedlinks_follow_other_buffer, []);
-
-
-function numberedlinks_follow ()
-{
-    numberedlinks_do_link (0);
-}
-interactive("numberedlinks-follow", numberedlinks_follow, []);
-
-
-function numberedlinks_escape () {
-    numberedlinks_minibuffer_active = false;
-    closeNumberedLinkBar();
-}
-interactive("numberedlinks-escape", numberedlinks_escape, []);
+interactive("numberedlinks-focus", exit_minibuffer, ['current_command']);
+interactive("numberedlinks-follow", exit_minibuffer, ['current_command']);
+interactive("numberedlinks-follow-other-buffer", exit_minibuffer, ['current_command']);
+interactive("numberedlinks-follow-other-frame", exit_minibuffer, ['current_command']);
+interactive("numberedlinks-save", exit_minibuffer, ['current_command']);
 
 
 function onNumberedLinkBlur() {

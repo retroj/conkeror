@@ -32,7 +32,7 @@ the terms of any one of the MPL, the GPL or the LGPL.
 // aren't part of a module go here.
 
 var gCommands = [];
-
+var gCurrentCommand = null;
 
 var interactive_methods = {
 a: { func: function (spec) {
@@ -41,16 +41,22 @@ a: { func: function (spec) {
         }
 },
 
+active_document: { func: function (spec) {
+            // -- The document currently being browsed.
+            return window.content.document;
+        }
+},
+
 // b: Name of existing buffer.
-b: { async: function (spec, iargs, callback, callback_args) {
+b: { async: function (spec, iargs, callback, callback_args, given_args) {
             var bufs = getBrowser().getBrowserNames();
             var matches = zip2(bufs,getBrowser().mBrowsers);
             var prompt = (1 in spec && spec[1] ? spec[1] : "Buffer: ");
-            var initval = (2 in spec && spec[2] ? spec[2]() : getBrowser().webNavigation.currentURI.spec);
+            var initval = (2 in spec && spec[2] ? spec[2](callback_args) : getBrowser().webNavigation.currentURI.spec);
             readFromMiniBuffer(prompt, initval, "buffer", matches, null, null,
                                function (s) {
                                    callback_args.push (s);
-                                   do_interactive (iargs, callback, callback_args);
+                                   do_interactive (iargs, callback, callback_args, given_args);
                                });
         },
      doc: "Name of existing buffer, defaulting to the current one.\n"+
@@ -78,6 +84,12 @@ C: { func: function (spec) {
         }
 },
 
+current_command: { func: function (spec) {
+            // -- Name of the command being evaluated right now.
+            return gCurrentCommand;
+        }
+},
+
 d: { func: function (spec) {
             // -- Value of point as number.  Does not do I/O.
             return null;
@@ -93,23 +105,61 @@ D: { func: function (spec) {
 // e: Event that invoked this command.
 e: { func: function (spec) { return gCommandLastEvent; } },
 
-f: { func: function (spec) {
-            // -- Existing file name.
-            return null;
+f: { async: function (spec, iargs, callback, callback_args, given_args) {
+            // -- Exisiting file object. (nsILocalFile)
+            var prompt = (1 in spec && spec[1] ? spec[1] : "File: ");
+            var initval = (2 in spec && spec[2] ? spec[2](callback_args) : default_directory.path);
+            var hist = (3 in spec ? spec[3] : null);
+            readFromMiniBuffer(prompt, initval, hist, null, null, null,
+                               function (s) {
+                                   var f = Components.classes["@mozilla.org/file/local;1"]
+                                       .createInstance(Components.interfaces.nsILocalFile);
+                                   f.initWithPath (s);
+                                   callback_args.push (f);
+                                   do_interactive (iargs, callback, callback_args, given_args);
+                               },
+                               null);
         }
 },
 
-F: { func: function (spec) {
-            // -- Possibly nonexistent file name.
-            return null;
+F: { async: function (spec, iargs, callback, callback_args, given_args) {
+            // -- Possibly nonexistent file object. (nsILocalFile)
+            var prompt = (1 in spec && spec[1] ? spec[1] : "File: ");
+            var initval = (2 in spec && spec[2] ? spec[2](callback_args) : default_directory.path);
+            var hist = (3 in spec ? spec[3] : null);
+            readFromMiniBuffer(prompt, initval, hist, null, null, null,
+                               function (s) {
+                                   var f = Components.classes["@mozilla.org/file/local;1"]
+                                       .createInstance(Components.interfaces.nsILocalFile);
+                                   f.initWithPath (s);
+                                   callback_args.push (f);
+                                   do_interactive (iargs, callback, callback_args, given_args);
+                               },
+                               null);
         }
 },
+
+focused_link_url_o: { func: function (spec) {
+            // -- Focused link element
+            ///JJF: check for errors or wrong element type.
+            return makeURL (get_link_location (document.commandDispatcher.focusedElement));
+        }
+},
+
+
+focused_link_url_s: { func: function (spec) {
+            // -- Focused link element
+            ///JJF: check for errors or wrong element type.
+            return get_link_location (document.commandDispatcher.focusedElement);
+        }
+},
+
 
 // i: Ignored, i.e. always nil.  Does not do I/O.
 i: { func: function (spec) { return null; } },
 
 // image: numbered image.
-image: { async: function (spec, iargs, callback, callback_args) {
+image: { async: function (spec, iargs, callback, callback_args, given_args) {
             // -- Number read using minibuffer.
             var prompt = (1 in spec ? spec[1] : "Image Number: ");
             var buf_state = getBrowser().numberedImages;
@@ -126,7 +176,7 @@ image: { async: function (spec, iargs, callback, callback_args) {
                                        toggleNumberedImages();
                                        gTurnOffLinksAfter = false;
                                    }
-                                   do_interactive (iargs, callback, callback_args);
+                                   do_interactive (iargs, callback, callback_args, given_args);
                                },
                                function () {
                                    if (gTurnOffLinksAfter) {
@@ -137,6 +187,51 @@ image: { async: function (spec, iargs, callback, callback_args) {
         }
 },
 
+
+image_url_o: { async: function (spec, iargs, callback, callback_args, given_args) {
+
+            var prompt = (1 in spec ? spec[1] : "Image Number: ");
+            var buf_state = getBrowser().numberedImages;
+            if (!buf_state) {
+                // turn on image numbers
+                gTurnOffLinksAfter = true;
+                toggleNumberedImages();
+            }
+            // Setup a context for the context-keymap system.
+            readFromMiniBuffer(prompt, null, null, null, null, null,
+                               function (s) {
+                                   function fail (number)
+                                   {
+                                       message ("'"+number+"' is not the number of any image here. ");
+                                   }
+                                   var nl = get_numberedlink (s);
+                                   if (! nl) { fail (s); return; }
+                                   var type = nl.nlnode.getAttribute("__conktype");
+                                   var loc;
+                                   if (type == "image" && nl.node.getAttribute("src")) {
+                                       loc = nl.node.getAttribute("src");
+                                       loc = makeURLAbsolute(nl.node.baseURI, loc);
+                                   } else {
+                                       fail (number);
+                                   }
+                                   callback_args.push (makeURL (loc));
+
+                                   if (gTurnOffLinksAfter) {
+                                       toggleNumberedImages();
+                                       gTurnOffLinksAfter = false;
+                                   }
+                                   do_interactive (iargs, callback, callback_args, given_args);
+                               },
+                               function () {
+                                   if (gTurnOffLinksAfter) {
+                                       toggleNumberedImages ();
+                                       gTurnOffLinksAfter = false;
+                                   }
+                               });
+        }
+},
+
+
 k: { func: function (spec) {
             // -- Key sequence (downcase the last event if needed to get a definition).
             return null;
@@ -146,6 +241,40 @@ k: { func: function (spec) {
 K: { func: function (spec) {
             // -- Key sequence to be redefined (do not downcase the last event).
             return null;
+        }
+},
+
+// link: numbered link
+link: { async: function (spec, iargs, callback, callback_args, given_args) {
+            var prompt = (1 in spec && spec[1] ? spec[1] : "Link Number: ");
+            var initVal = (2 in spec && spec[2] ? spec[2](callback_args) : "");
+            var buf_state = getBrowser().numberedLinks;
+            if (!buf_state) {
+                gTurnOffLinksAfter = true;
+                toggleNumberedLinks();
+            }
+            // Setup a context for the context-keymap system.
+            numberedlinks_minibuffer_active = true;
+
+            readFromMiniBuffer(prompt, initVal, null, null, null, null,
+                               function (s) {
+                                   callback_args.push (s);
+                                   if (gTurnOffLinksAfter) {
+                                       toggleNumberedLinks();
+                                       gTurnOffLinksAfter = false;
+                                   }
+                                   // unset keymap context
+                                   numberedlinks_minibuffer_active = false;
+                                   do_interactive (iargs, callback, callback_args, given_args);
+                               },
+                               function () {
+                                   if (gTurnOffLinksAfter) {
+                                       toggleNumberedLinks ();
+                                       gTurnOffLinksAfter = false;
+                                   }
+                                   // unset keymap context
+                                   numberedlinks_minibuffer_active = false;
+                               });
         }
 },
 
@@ -161,15 +290,22 @@ M: { func: function (spec) {
         }
 },
 
+
+minibuffer_exit: { func: function (spec) {
+            // -- minibuffer.exit
+            return minibuffer.exit;
+        }
+},
+
 // n: Number read using minibuffer.
-n: { async: function (spec, iargs, callback, callback_args) {
+n: { async: function (spec, iargs, callback, callback_args, given_args) {
             var prompt = "Number: ";
-            if (1 in iarg)
-                prompt = iarg[1];
+            if (1 in spec)
+                prompt = spec[1];
             readFromMiniBuffer(prompt, null, null, null, null, null,
                                function (s) {
                                    callback_args.push (s);
-                                   do_interactive (iargs, callback, callback_args);
+                                   do_interactive (iargs, callback, callback_args, given_args);
                                },
                                null);
         }
@@ -194,6 +330,22 @@ P: { func: function (spec) {
             var prefix = gPrefixArg;
             gPrefixArg = null;
             return prefix;
+        }
+},
+
+pref: { func: function (spec) {
+            var pref = spec[1];
+            var type = gPrefService.getPrefType (pref);
+            switch (type) {
+                case gPrefService.PREF_BOOL:
+                    return gPrefService.getBoolPref (pref);
+                case gPrefService.PREF_INT:
+                    return gPrefService.getIntPref (pref);
+                case gPrefService.PREF_STRING:
+                    return gPrefService.getCharPref (pref);
+                default:
+                    return null;
+            }
         }
 },
 
@@ -246,7 +398,7 @@ Z: { func: function (spec) {
 }};
 
 
-function do_interactive (iargs, callback, callback_args)
+function do_interactive (iargs, callback, callback_args, given_args)
 {
     if (! callback_args) callback_args = Array ();
 
@@ -255,6 +407,13 @@ function do_interactive (iargs, callback, callback_args)
     {
         // process as many synchronous args as possible
         iarg = iargs.shift ();
+        if (given_args && 0 in given_args) {
+            var got = given_args.shift ();
+            if (got) {
+                callback_args.push (got);
+                continue;
+            }
+        }
         if (typeof (iarg) == "string") {
             method = iarg;
             iarg = Array (iarg);
@@ -296,27 +455,31 @@ function do_interactive (iargs, callback, callback_args)
         // all the information they need to continue the interactive
         // process when their data has been gathered.
         //
-        interactive_methods[method].async (iarg, iargs, callback, callback_args);
+        interactive_methods[method].async (iarg, iargs, callback, callback_args, given_args);
     } else {
         callback (callback_args);
     }
 }
 
 
-function exec_command(cmd)
+function call_interactively (cmd, given_args)
 {
     try {
+        gCurrentCommand = cmd;
         for (var i=0; i<gCommands.length; i++) {
             if (gCommands[i][0] == cmd)
             {
                 // Copy the interactive args spec, because do_interactive is
                 // destructive to its first argument.
                 var iargs = gCommands[i][2].slice (0);
+                var given = given_args ? given_args.slice (0) : null;
                 do_interactive (iargs,
                                 function (args) {
                                     gCommands[i][1].apply (this, args);
                                     updateModeline ();
-                                });
+                                },
+                                null,
+                                given);
                 return;
             }
         }
@@ -615,7 +778,7 @@ function switch_to_buffer (buffer)
 }
 interactive("switch-to-buffer", switch_to_buffer,
             [["b", "Switch to buffer: ",
-              function () { return getBrowser().lastBrowser().webNavigation.currentURI.spec; } ]]);
+              function (a) { return getBrowser().lastBrowser().webNavigation.currentURI.spec; } ]]);
 
 
 function kill_buffer (buffer)
@@ -773,7 +936,7 @@ interactive("buffer-previous", browser_prev, []);
 
 function meta_x(prefix)
 {
-    // setup the prefix arg which will be reset in exec_command
+    // setup the prefix arg which will be reset in call_interactively
     gPrefixArg = prefix;
     var prompt = "";
     if (gPrefixArg == null)
@@ -788,7 +951,7 @@ function meta_x(prefix)
 	matches.push([gCommands[i][0],gCommands[i][0]]);
 
     readFromMiniBuffer(prompt + "M-x", null, "commands", matches, false, null,
-		       function(c) {exec_command(c)}, abort);
+		       function(c) {call_interactively(c)}, abort);
 }
 interactive("execute-extended-command", meta_x, ["P"]);
 
@@ -1045,12 +1208,18 @@ function add_delicious_webjumps (username)
 function init_webjumps()
 {
     add_webjump("google",     "http://www.google.com/search?q=%s");
+    add_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
+    add_webjump("maps",       "http://maps.google.com/?q=%s");
     add_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
     add_webjump("clusty",     "http://www.clusty.com/search?query=%s");
     add_webjump("wikipedia",  "http://en.wikipedia.org/wiki/Special:Search?search=%s");
     add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
-    add_webjump("xulplanet",  "http://xulplanet.com/cgi-bin/search/search.cgi?terms=%s");
+    add_webjump("xulplanet",  "http://www.google.com/custom?q=%s&cof=S%3A"+
+                "http%3A%2F%2Fwww.xulplanet.com%3BAH%3Aleft%3BLH%3A65%3BLC"+
+                "%3A4682B4%3BL%3Ahttp%3A%2F%2Fwww.xulplanet.com%2Fimages%2F"+
+                "xulplanet.png%3BALC%3Ablue%3BLW%3A215%3BAWFID%3A0979f384d5"+
+                "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go");
     add_webjump("image",      "http://images.google.com/images?q=%s");
     add_webjump("bugzilla",   "https://bugzilla.mozilla.org/show_bug.cgi?id=%s");
     add_webjump("clhs",       "http://www.xach.com/clhs?q=%s");
@@ -1179,13 +1348,11 @@ function exchange_point_and_mark()
 interactive("exchange-point-and-mark", exchange_point_and_mark, []);
 
 
-// This is cheap.
-function get_link_location()
+function get_link_location (element)
 {
-    var e = document.commandDispatcher.focusedElement;
-    if (e && e.getAttribute("href")) {
-	var loc = e.getAttribute("href");
-	return makeURLAbsolute(e.baseURI, loc);
+    if (element && element.getAttribute("href")) {
+	var loc = element.getAttribute("href");
+	return makeURLAbsolute(element.baseURI, loc);
     }
 }
 
@@ -1197,263 +1364,169 @@ function get_link_text()
     }
 }
 
-function copy_link_location()
+
+function copy_link_location (loc)
 {
-    var loc = get_link_location();
     writeToClipboard(loc);
     message("Copied '" + loc + "'");
 }
-interactive("copy-link-location", copy_link_location, []);
+interactive("copy-link-location", copy_link_location, ['focused_link_url_s']);
 
 
-function save_link ()
+function save_focused_link (url_o, dest_file_o)
 {
-    var url_o = makeURL (get_link_location());
-    var document_o = null;
+    download_uri_internal (url_o,
+                           null,        // document_o
+                           dest_file_o,
+                           null,        // dest_data_dir_o
+                           null,        // referrer_o
+                           null,        // content_type_s
+                           true,        // should_bypass_cache_p
+                           false,       // save_as_text_p
+                           false);      // save_as_complete_p
+}
+interactive ("save-focused-link", save_focused_link,
+             ['focused_link_url_o',
+              ['F', "Save Link As: ",
+               function (args) {
+                   return make_default_file_name_to_save_url (args[0]).path;
+               },
+               "save"]]);
 
-    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    var dest_data_dir_o = null;
-    var referrer_o = null;//should there be a referrer?
-    var content_type_s = null;
+
+function save_image (url_o, dest_file_o)
+{
+    download_uri_internal (url_o,
+                           null,        // document_o
+                           dest_file_o,
+                           null,        // dest_data_dir_o
+                           null,        // referrer_o
+                           null,        // content_type_s
+                           true,        // should_bypass_cache_p
+                           false,       // save_as_text_p
+                           false);      // save_as_complete_p
+}
+interactive ("save-image", save_image,
+             ['image_url_o',
+              ['F', "Save Image As: ",
+               function (args) {
+                   return make_default_file_name_to_save_url (args[0]).path;
+               },
+               "save"]]);
+
+
+function save_page (document_o, dest_file_o)
+{
+    var url_o = makeURL (document_o.documentURI);
+    var content_type_s = document_o.contentType;
     var should_bypass_cache_p = true;//not sure...
-    //we cannot save as text or as web-complete unless we are browsing the
-    //document already.
-    var save_as_text_p = false;
-    var save_as_complete_p = false;
-    var content_disposition = null;
-    var default_dest_file_s =
-        make_default_file_name_to_save_url (url_o,
-                                            document_o,
-                                            content_type_s,
-                                            content_disposition,
-                                            null).path;
-    readFromMiniBuffer (
-        "Save Link As:", default_dest_file_s, "save",
-        null, null, null,
-        function (dest_file_s) {
-            dest_file_o.initWithPath (dest_file_s);
-            download_uri_internal (
-                url_o,
-                document_o,
-                dest_file_o,
-                dest_data_dir_o,
-                referrer_o,
-                content_type_s,
-                should_bypass_cache_p,
-                save_as_text_p,
-                save_as_complete_p
-                );
-        });
+    download_uri_internal (url_o,
+                           document_o,
+                           dest_file_o,
+                           null,   // dest_data_dir_o
+                           null,   // referrer_o
+                           content_type_s,
+                           should_bypass_cache_p,
+                           false,  // save_as_text_p
+                           false); // save_as_complete_p
 }
-interactive("save-link", save_link, []);
+interactive("save-page", save_page,
+            ['active_document',
+             ['F', "Save Page As: ",
+              function (args) {
+                  var document_o = args[0];
+                  var url_o = makeURL (document_o.documentURI);
+                  var content_type_s = document_o.contentType;
+                  var content_disposition = get_document_content_disposition (document_o);
+                  return make_default_file_name_to_save_url (
+                      url_o,
+                      document_o,
+                      content_type_s,
+                      content_disposition).path;
+              },
+              "save"]]);
 
 
-function save_image (number)
+function save_page_as_text (document_o, dest_file_o)
 {
-    function fail (number)
-    {
-        message ("'"+number+"' is not the number of any image here. ");
-    }
-    var nl = get_numberedlink (number);
-    if (! nl) { fail (number); return; }
-
-    // we have a node.  we must now produce some side-effect based on its type
-    // and the requested action.
-    //
-    var type = nl.nlnode.getAttribute("__conktype");
-
-    var url_o;
-    var loc;
-    if (type == "image" && nl.node.getAttribute("src")) {
-        loc = nl.node.getAttribute("src");
-        loc = makeURLAbsolute(nl.node.baseURI, loc);
-    } else {
-        fail (number);
-    }
-
-    var url_o = makeURL (loc);
-    var document_o = null;
-
-    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    var dest_data_dir_o = null;
-    var referrer_o = null;//should there be a referrer?
-    var content_type_s = null;
+    var url_o = makeURL (document_o.documentURI);
+    var content_type_s = document_o.contentType;
     var should_bypass_cache_p = true;//not sure...
-    //we cannot save as text or as web-complete unless we are browsing the
-    //document already.
-    var save_as_text_p = false;
-    var save_as_complete_p = false;
-    var content_disposition = null;
-    var default_dest_file_s =
-        make_default_file_name_to_save_url (url_o,
-                                            document_o,
-                                            content_type_s,
-                                            content_disposition,
-                                            null).path;
-    readFromMiniBuffer (
-        "Save Image As:", default_dest_file_s, "save",
-        null, null, null,
-        function (dest_file_s) {
-            dest_file_o.initWithPath (dest_file_s);
-            download_uri_internal (
-                url_o,
-                document_o,
-                dest_file_o,
-                dest_data_dir_o,
-                referrer_o,
-                content_type_s,
-                should_bypass_cache_p,
-                save_as_text_p,
-                save_as_complete_p
-                );
-        });
+    download_uri_internal (url_o,
+                           document_o,
+                           dest_file_o,
+                           null,   // dest_data_dir_o
+                           null,   // referrer_o
+                           content_type_s,
+                           should_bypass_cache_p,
+                           true,  // save_as_text_p
+                           false); // save_as_complete_p
 }
-interactive("save-image", save_image, ['image']);
+interactive("save-page-as-text", save_page_as_text,
+            ['active_document',
+             ['F', "Save Page As: ",
+              function (args) {
+                  var document_o = args[0];
+                  var url_o = makeURL (document_o.documentURI);
+                  var content_type_s = document_o.contentType;
+                  var content_disposition = get_document_content_disposition (document_o);
+                  return make_default_file_name_to_save_url (
+                      url_o,
+                      document_o,
+                      content_type_s,
+                      content_disposition,
+                      'txt').path;
+              },
+              "save"]]);
 
 
-function save_page ()
+function save_page_complete (document_o, dest_file_o, dest_data_dir_o)
 {
-    var url_o = makeURL (window.content.document.documentURI);
-    var document_o = window.content.document;
-    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    var dest_data_dir_o = null;
-    var referrer_o = null;
-    var content_type_s = window.content.document.contentType;
+    var url_o = makeURL (document_o.documentURI);
+    var content_type_s = document_o.contentType;
     var should_bypass_cache_p = true;//not sure...
-    var save_as_text_p = false;
-    var save_as_complete_p = false;
-    var content_disposition = get_document_content_disposition (document_o);
-    var default_dest_file_s =
-        make_default_file_name_to_save_url (url_o,
-                                            document_o,
-                                            content_type_s,
-                                            content_disposition,
-                                            null).path;
-    readFromMiniBuffer (
-        "Save Page As:", default_dest_file_s, "save",
-        null, null, null,
-        function (dest_file_s) {
-            dest_file_o.initWithPath (dest_file_s);
-            download_uri_internal (
-                url_o,
-                document_o,
-                dest_file_o,
-                dest_data_dir_o,
-                referrer_o,
-                content_type_s,
-                should_bypass_cache_p,
-                save_as_text_p,
-                save_as_complete_p);
-        });
+    download_uri_internal (url_o,
+                           document_o,
+                           dest_file_o,
+                           dest_data_dir_o,
+                           null,   // referrer_o
+                           content_type_s,
+                           should_bypass_cache_p,
+                           false,  // save_as_text_p
+                           true); // save_as_complete_p
 }
-interactive("save-page", save_page, []);
+interactive("save-page-complete", save_page_complete,
+            ['active_document',
+             ['F', "Save Page As: ",
+              function (args) {
+                  var document_o = args[0];
+                  var url_o = makeURL (document_o.documentURI);
+                  var content_type_s = document_o.contentType;
+                  var content_disposition = get_document_content_disposition (document_o);
+                  return make_default_file_name_to_save_url (
+                      url_o,
+                      document_o,
+                      content_type_s,
+                      content_disposition).path;
+              },
+              "save"],
+             ['F', "Data Directory: ",
+              function (args) { return args[1].path + ".support"; },
+              "save"]]);
 
 
-function save_page_as_text ()
-{
-    var url_o = makeURL (window.content.document.documentURI);
-    var document_o = window.content.document;
-    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    var dest_data_dir_o = null;
-    var referrer_o = null;
-    var content_type_s = window.content.document.contentType;
-    var should_bypass_cache_p = true;//not sure...
-    var save_as_text_p = true;
-    var save_as_complete_p = false;
-    var content_disposition = get_document_content_disposition (document_o);
-    var default_dest_file_s =
-        make_default_file_name_to_save_url (url_o,
-                                            document_o,
-                                            content_type_s,
-                                            content_disposition,
-                                            'txt').path;
-    readFromMiniBuffer (
-        "Save Page As:", default_dest_file_s, "save",
-        null, null, null,
-        function (dest_file_s) {
-            dest_file_o.initWithPath (dest_file_s);
-            download_uri_internal (
-                url_o,
-                document_o,
-                dest_file_o,
-                dest_data_dir_o,
-                referrer_o,
-                content_type_s,
-                should_bypass_cache_p,
-                save_as_text_p,
-                save_as_complete_p
-                );
-        });
-}
-interactive("save-page-as-text", save_page_as_text, []);
+interactive("source", function (fo) { load_rc (fo.path); }, [['f',"Source File: ",null,"source"]]);
 
-
-function save_page_complete ()
-{
-    var url_o = makeURL (window.content.document.documentURI);
-    var document_o = window.content.document;
-
-    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    var dest_data_dir_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    var referrer_o = null;
-    var content_type_s = window.content.document.contentType;
-    var should_bypass_cache_p = true;//not sure...
-    var save_as_text_p = false;
-    var save_as_complete_p = true;
-    var content_disposition = get_document_content_disposition (document_o);
-    var default_dest_file_s =
-        make_default_file_name_to_save_url (url_o,
-                                            document_o,
-                                            content_type_s,
-                                            content_disposition,
-                                            null).path;
-    readFromMiniBuffer (
-        "Save Page As:", default_dest_file_s, "save",
-        null, null, null,
-        function (dest_file_s) {
-            dest_file_o.initWithPath (dest_file_s);
-            //it would be nice to prompt for the data directory, too.  This is
-            //a job for do_interactive().
-            dest_data_dir_o.initWithPath (dest_file_s + ".support");
-            download_uri_internal (
-                url_o,
-                document_o,
-                dest_file_o,
-                dest_data_dir_o,
-                referrer_o,
-                content_type_s,
-                should_bypass_cache_p,
-                save_as_text_p,
-                save_as_complete_p
-                );
-        });
-}
-interactive("save-page-complete", save_page_complete, []);
-
-
-function source_file()
-{
-    readFromMiniBuffer("Source File:", null, "source", null, null, null, load_rc_file);
-}
-interactive("source", source_file, []);
-
-
-function load_rc_file(file)
-{
-    var fd = fopen(file, "<");
-    var s = fd.read();
-    fd.close();
-
-    try {
-    eval(s);
-    } catch(e) {alert(e);}
-}
+interactive ("reinit",
+             function (fn) {
+                 try {
+                     load_rc (fn);
+                     message ("loaded \""+fn+"\"");
+                 } catch (e) {
+                     message ("failed to load \""+fn+"\"");
+                 }
+             },
+             [['pref', 'conkeror.rcfile']]);
 
 function help_page()
 {
@@ -1788,7 +1861,7 @@ interactive("firefox", firefox, []);
 
 // minibuffer stuff
 //
-function exit_minibuffer ()
+function exit_minibuffer (exit)
 {
     //XXX: minibuffer.completions defaults to a 0 element array.  possible bug here.
     var completion_mode_p = (minibuffer.completions != null);
@@ -1804,6 +1877,7 @@ function exit_minibuffer ()
         var callback = minibuffer.callback;
         minibuffer.callback = null;
         minibuffer.abort_callback = null;
+        minibuffer.exit = exit;
         closeInput(true);
         if (callback) {
             if (completion_mode_p) {
@@ -1816,9 +1890,9 @@ function exit_minibuffer ()
                 callback(val);
             }
         }
-    } catch (e) {window.alert(e);}
+    } catch (e) {message ("exit_minibuffer: "+e);}
 }
-interactive("exit-minibuffer", exit_minibuffer, []);
+interactive("exit-minibuffer", exit_minibuffer, ['current_command']);
 
 
 function minibuffer_history_next ()
@@ -1902,6 +1976,7 @@ function minibuffer_complete(direction)
 }
 interactive("minibuffer-complete", minibuffer_complete, []);
 
+
 function minibuffer_accept_match ()
 {
     var field = minibuffer.input;
@@ -1912,14 +1987,15 @@ function minibuffer_accept_match ()
         field.value = field.value.substr(0, field.selectionStart) + " " + field.value.substr(field.selectionStart);
 	field.setSelectionRange(start + 1, start + 1);
     } else {
-    // When we allow non-matches it generally means the
-    // completion takes an argument. So add a space.
-    if (minibuffer.allow_nonmatches && minibuffer.input.value[minibuffer.input.length-1] != " ")
-        minibuffer.input.value += " ";
+        // When we allow non-matches it generally means the
+        // completion takes an argument. So add a space.
+        if (minibuffer.allow_nonmatches && minibuffer.input.value[minibuffer.input.length-1] != " ")
+            minibuffer.input.value += " ";
 	field.setSelectionRange(field.value.length, field.value.length);
     }
 }
 interactive("minibuffer-accept-match", minibuffer_accept_match, []);
+
 
 function minibuffer_complete_reverse ()
 {
@@ -1967,4 +2043,4 @@ function minibuffer_backspace (prefix) {
     minibuffer.do_not_complete = true;
     cmd_deleteCharBackward (prefix);
 }
-interactive ("minibuffer-backspace", minibuffer_backspace, ['p'])
+interactive ("minibuffer-backspace", minibuffer_backspace, ['p']);

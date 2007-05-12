@@ -1,3 +1,73 @@
+2007-05-12  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.8
+
+	* bindings.js (input_kmap_predicate): check type for submit and
+	reset.
+
+	* bindings.js: remove binding for switch-to-buffer-other-window.
+
+	* bindings.js (init_numberedlinks_keys): remove
+	numberedlinks-escape.  add numberedlinks-follow-other-frame and
+	numberedlinks-save.
+
+	* commands.js (gCurrentCommand): new global.
+
+	* commands.js (interactive_methods): new methods: active_document,
+	current_command, f (rewritten), F (rewritten), focused_link_url_s,
+	image_url_o, link, minibuffer_exit, pref
+
+	* commands.js: added `given_args' argument throughout interactive
+	system.
+
+	* commands.js (interactive_methods): `initVal's for minibuffer
+	reading methods are now defined to be functions that recieve as an
+	arg, all interactive values collected so far.
+
+	* commands.js (exec_command): renamed to call_interactively.
+
+	* commands.js (init_webjumps): added lucky, maps. fixed xulplanet.
+
+	* commands.js (get_link_location): now takes element as argument
+	instead of getting it by side-effect.
+
+	* commands.js (copy_link_location, save_image, save_page,
+	save_page_as_text, save_page_complete, source, reinit): rewrote to
+	use interactive.
+
+	* commands.js (save_link): removed.
+
+	* commands.js (save_focused_link): new function and command.
+
+	* commands.js (exit_minibuffer): now accepts interactive arg,
+	exit.
+
+	* conkeror.js (gPrefService): declare.
+
+	* numberedlinks.js (gNumberedLinksPrefix): removed global.
+
+	* numberedlinks.js (selectNumberedLink_*, selectNthLink,
+	goto_numbered_link, closeNumberedLinkBar): removed.
+
+	* numberedlinks.js (numberedlinks_do_link): rewrote to use
+	interactive.
+
+	* numberedlinks.js (numberedlinks_focus,
+	numberedlinks_follow_other_buffer, numberedlinks_follow,
+	numberedlinks_escape): removed functions. rewrote command defs.
+
+	* url.js (onUrlKeyPress): replaced preventBubble call with
+	stopPropagation.
+
+	* utils.js (minibuffer): new field, `exit'.
+
+	* utils.js (readKeyPress): replaced preventBubble call with
+	stopPropagation.
+
+	* utils.js (dumpln, load_rc): new functions.
+
+	
+	
 2007-05-08  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* bindings.js: bind minibuffer-accept-match to space

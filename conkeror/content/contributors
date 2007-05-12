@@ -11,12 +11,18 @@ Frank Ruel
 
 Len Trigg (lenbok at gmail com)
   - jsconsole command
+  - rc directory code
 
 John J. Foerch
   - saving links and pages
   - major minibuffer and keymap restructuring
   - a real build/release system and versioning
+  - interactive system
   - ...
 
 Philip Hagelberg
   - new minibuffer completion
+
+Jeremy Maitin-Shepard (jeremy at jeremyms com)
+  - enabled extension manager, eliminated built-in adblock
+  - solved the case of the disappearing chrome (!)

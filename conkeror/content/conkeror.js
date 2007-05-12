@@ -34,6 +34,9 @@ const nsCI               = Components.interfaces;
 const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 
 var console         = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+
+var gPrefService = null;
+
 function log(msg) { console.logStringMessage(msg); }
 
 function Startup()
@@ -125,7 +128,7 @@ const frame_focus_observer = {
 
 function delayedStartup()
 {
-    element = _content;
+    var element = _content;
 
     window.addEventListener ("keypress", readKeyPress, true);
 
@@ -175,7 +178,7 @@ function delayedStartup()
 	} else {
 	    var rcfile = gPrefService.getCharPref("conkeror.rcfile");
 	    if (rcfile.length)
-		load_rc_file(rcfile);
+                load_rc (rcfile);
 	}
     } catch (e) {window.alert(e);}
 

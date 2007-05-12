@@ -206,11 +206,16 @@ history_index: null,
 history: null,
 
 // hooks
-oninput: function () { exec_command ("minibuffer-change"); },
-
+oninput: function () { call_interactively ("minibuffer-change"); },
 
 // flag for backspace
-do_not_complete: false
+do_not_complete: false,
+
+// exit: a field corresponding to the interactive method `minibuffer_exit'.
+// It is meant to be set by commands that call `exit_minibuffer', as a way to
+// pass additional information to the command for which the minibuffer was
+// being read, such as what keystroke caused exit_minibuffer to be called.
+exit: null
 
 };
 
@@ -240,7 +245,7 @@ function miniBufferCompleteStr(str, matches)
 function removeWhiteSpace (str)
 {
     var tmp = new String (str);
-    return tmp.replace (/^\s+/, "").replace (/\s+$/, "");;
+    return tmp.replace (/^\s+/, "").replace (/\s+$/, "");
 }
 
 function findCompleteMatch(matches, val)
@@ -555,7 +560,7 @@ function readKeyPress(event)
             kmap != top_kmap)
         {
             event.preventDefault();
-            event.preventBubble();
+            event.stopPropagation();
         }
 
 	// Finally, process the binding.
@@ -567,7 +572,7 @@ function readKeyPress(event)
 		// We're going for another round
 		done = false;
 	    } else if (binding.command) {
-                exec_command(binding.command);
+                call_interactively (binding.command);
 	    }
 	} else {
 	    // No binding was found.  If this is the universal abort_key, then
@@ -1251,4 +1256,57 @@ function set_default_directory (directory_s) {
         .createInstance(Components.interfaces.nsILocalFile);
     default_directory.initWithPath (directory_s);
 
+}
+
+
+function dumpln (str) {
+    dump (str+"\n");
+}
+
+
+
+function load_rc (path_s)
+{
+    function load_rc_file(file)
+    {
+        var fd = fopen(file, "<");
+        var s = fd.read();
+        fd.close();
+        try {
+            eval(s);
+        } catch(e) {alert(e);}
+    }
+
+    function load_rc_directory (file_o) {
+        var entries = file_o.directoryEntries;
+        var files = [];
+        while (entries.hasMoreElements ()) {
+            var entry = entries.getNext ();
+            entry.QueryInterface (Components.interfaces.nsIFile);
+            if (entry.leafName.match(/^[^.].*\.js$/i)) {
+                files.push(entry);
+            }
+        }
+        files.sort(function (a, b) {
+                if (a.leafName < b.leafName) {
+                    return -1;
+                } else if (a.leafName > b.leafName) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        for (var i = 0; i < files.length; i++) {
+            load_rc_file(files[i]);
+        }
+    }
+
+    var file_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    file_o.initWithPath(path_s);
+    if (file_o.isDirectory()) {
+        load_rc_directory (file_o);
+    } else {
+        load_rc_file (path_s);
+    }
 }

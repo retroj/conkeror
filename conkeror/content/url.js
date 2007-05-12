@@ -47,7 +47,7 @@ function onUrlKeyPress(event)
 	       || (event.ctrlKey && (event.charCode == 103))) {
 	closeUrlBar();
 	event.preventDefault();
-	event.preventBubble();
+	event.stopPropagation();
 //     } else if (event.ctrlKey && event.charCode == 121) { // C-y
 // 	minibuffer.input.value += gBrowser.currentURI.spec;
 // 	event.preventDefault();

@@ -310,8 +310,10 @@ function input_kmap_predicate (element) {
         return tag == "html:input" ||
             (tag == "input" &&
              type != "radio" &&
-             type != "checkbox");
-    } catch (e) { }
+             type != "checkbox" &&
+             type != "submit" &&
+             type != "reset");
+    } catch (e) { return false; }
 }
 
 
@@ -381,7 +383,6 @@ function initViKmaps()
 //     define_key(ctrlw_kmap, kbd ("f",0),"split-flip");  // changes horizontal/vertical alignment of the splits
     define_key(ctrlw_kmap, kbd ("o",0),"find-url-other-frame"); 
 //     define_key(ctrlw_kmap, kbd ("s",0),"split-window"); // splits a window in 2 halfes if there are 2 buffers in it
-    define_key(ctrlw_kmap, kbd ("O",0),"switch-to-buffer-other-window");
     define_key(ctrlw_kmap, kbd ("Q",0),"delete-frame");
     define_key(ctrlw_kmap, kbd ("n",0),"make-frame-command");
 
@@ -551,8 +552,6 @@ function initKmaps()
     define_key(help_kmap, kbd ("i",0),"help-page");
     define_key(help_kmap, kbd ("t",0),"help-with-tutorial");
     define_key(top_kmap, kbd ("\\",0),"view-source");
-
-    define_key(four_kmap, kbd ("b",0),"switch-to-buffer-other-window");
 
     define_key(ctrlx_kmap, kbd ("b",0),"switch-to-buffer"); 
     define_key(ctrlx_kmap, kbd ("k",0),"kill-buffer"); 
@@ -751,11 +750,11 @@ function init_minibuffer_keys () {
 function init_numberedlinks_keys () {
     // numbered links bindings
     //
-    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,0), "numberedlinks-follow");
     define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_META), "numberedlinks-focus");
+    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,0), "numberedlinks-follow");
     define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_CTRL), "numberedlinks-follow-other-buffer");
-    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_ESCAPE, 0), "numberedlinks-escape");
-    define_key (numberedlinks_kmap, kbd ("g",MOD_CTRL), "numberedlinks-escape");
+    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_CTRL + MOD_META),"numberedlinks-follow-other-frame");
+    define_key (numberedlinks_kmap, kbd ("v",MOD_CTRL), "numberedlinks-save");
     // we also want to consume TAB but ignore it.  there should be a general command for this.
     numberedlinks_kmap.parent = minibuffer_kmap;
 }
