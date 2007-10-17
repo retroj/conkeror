@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>CFBundleDisplayName</key>
+    <string>Conkeror</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>org.mozdev.conkeror</string>
+
+    <key>CFBundleName</key>
+    <string>Conkeror</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>$CONKEROR_SHORT_VERSION$</string>
+
+    <key>CFBundleSignature</key>
+    <string>conk</string> <!-- for letter code, supposed to be unique?!? -->
+
+    <key>CFBundleVersion</key>
+    <string>$CONKEROR_VERSION$</string>
+
+    <key>NSHumanReadableCopyright</key>
+    <string>(c) 2007, Shawn Betts</string>
+
+    <key>CFBundleDevelopmentRegion</key>
+    <string>English</string>
+
+    <key>CFBundleExecutable</key>
+    <string>xulrunner</string>
+
+    <key>CFBundleGetInfoString</key>
+    <string>Conkeror $CONKEROR_VERSION$, A 100% keyboard driven mozilla based web browser.</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string> <!-- I have no good reference as to why this is 6.0 -->
+  </dict>
+</plist>

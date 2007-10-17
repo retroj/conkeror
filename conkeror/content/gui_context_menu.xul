@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE overlay>
+
+<overlay id="contextmenu"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+
+  <window id="main-window">
+    <popupset id="mainPopupSet">
+      <popup id="contentAreaContextMenu"
+             onpopupshowing="if (event.target != this)
+                                 return true;
+                             the_gui_context_menu = new gui_context_menu (this);
+                             return the_gui_context_menu.has_methods ();"
+             onpopuphiding="if (event.target == this) {
+                                the_gui_context_menu.destroy ();
+                                the_gui_context_menu = null;
+                            }">
+      </popup>
+    </popupset>
+    <script type="application/x-javascript" src="context.js"/>
+    <script type="application/x-javascript" src="gui_context_menu.js"/>
+  </window>
+
+
+  <conkframe id="content"
+             context="contentAreaContextMenu"/>
+
+
+</overlay>

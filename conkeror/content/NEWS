@@ -4,6 +4,8 @@ User visible changes. See ChangeLog for more details listing of
 changes.
 
 ** Changes since 0.42
+* XULRunner platform.
+
 * new command, conkeror-version
 
 * add_command renamed to interactive
@@ -11,6 +13,10 @@ changes.
 * make_key renamed to kbd
 
 * new command, save-image
+
+* new command, reinit
+
+* new numberedlinks keys to save-link and follow in another frame.
 
 ** Changes since 0.39
 * fixed next/prev word bindings for text areas

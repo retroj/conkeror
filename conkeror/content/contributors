@@ -21,8 +21,20 @@ John J. Foerch
   - ...
 
 Philip Hagelberg
+  - wiki
   - new minibuffer completion
+  - follow-link-in-new-buffer in top_kmap
 
 Jeremy Maitin-Shepard (jeremy at jeremyms com)
   - enabled extension manager, eliminated built-in adblock
   - solved the case of the disappearing chrome (!)
+  - application scope, improved command line handling.
+  - window title setting.
+  - build script open bsd compatibility
+  - ...
+
+Doug Kearns
+  - Win32 home directory lookup
+
+Clinton Ebadi <clinton@unknownlamer.org>
+  - hyperlinked buffer list

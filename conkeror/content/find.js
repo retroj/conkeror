@@ -145,6 +145,7 @@ function getFastFind()
     }
     return gFastFind;
     } catch(e) {alert(e);}
+    return null;
 }
 
 function getSelectionController()
@@ -361,6 +362,7 @@ function highlightFind(str, color, wrapped, dir, pt)
 
 	return selectionRange;
     } catch(e) { alert(e); }
+    return null;
 }
 
 function clearHighlight()

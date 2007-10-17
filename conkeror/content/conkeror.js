@@ -33,48 +33,60 @@ const conkeror_version = "$CONKEROR_VERSION$";
 const nsCI               = Components.interfaces;
 const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 
+var conkeror = Components.classes["@conkeror.mozdev.org/application;1"]
+    .getService ()
+    .wrappedJSObject;
+
 var console         = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 
 var gPrefService = null;
-
 function log(msg) { console.logStringMessage(msg); }
 
 function Startup()
 {
     try {
 //   gBrowser = document.getElementById("content");
-  var uriToLoad = "chrome://conkeror/content/help.html";
+        //var uriToLoad = "chrome://conkeror/content/help.html";
+        var uriToLoad = null;
+
+        if ("arguments" in window && window.arguments.length >= 1)
+        {
+            uriToLoad = window.arguments[0];
+        }
+
 //   var uriToLoad = "file:///home/sabetts/src/conkeror/testframes.html";
 
 //   var b = document.getElementById("blahblu");
 //   b.setCurrentBrowser(0);
 
-  initKmaps();
-  initBookmarkService();
+        initKmaps();
+//  initBookmarkService();
 
-  try {
-    // Create the browser instance component.
-    appCore = Components.classes["@mozilla.org/appshell/component/browser/instance;1"]
-			.createInstance(Components.interfaces.nsIBrowserInstance);
-    if (!appCore)
-      throw "couldn't create a browser instance";
-  } catch (e) {
-    alert("Error launching browser window:" + e);
-    window.close(); // Give up.
-    return;
-  }
+        var appCore = null;
+
+        try {
+            // Create the browser instance component.
+            appCore = Components.classes["@mozilla.org/appshell/component/browser/instance;1"]
+                .createInstance(Components.interfaces.nsIBrowserInstance);
+            if (!appCore)
+                throw "couldn't create a browser instance";
+        } catch (e) {
+            alert("Error launching browser window:" + e);
+            window.close(); // Give up.
+            return;
+        }
 
 
-  // Setup our status handler
-  window.XULBrowserWindow = new nsBrowserStatusHandler();
-  window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-	.getInterface(Components.interfaces.nsIWebNavigation)
-	.QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
-	.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-	.getInterface(Components.interfaces.nsIXULWindow)
-	.XULBrowserWindow = window.XULBrowserWindow;
-  window.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
-      new nsBrowserAccess();
+        // Setup our status handler
+        window.XULBrowserWindow = new nsBrowserStatusHandler();
+        window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+            .getInterface(Components.interfaces.nsIWebNavigation)
+            .QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
+            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+            .getInterface(Components.interfaces.nsIXULWindow)
+            .XULBrowserWindow = window.XULBrowserWindow;
+        window.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
+            new nsBrowserAccess();
 
 //   window.browserContentListener =
 //       new nsBrowserContentListener(window, getBrowser());
@@ -83,40 +95,57 @@ function Startup()
 //                         .createInstance(Components.interfaces.nsIAppShellService);
 //   appshell.registerTopLevelWindow(window);
 
-  // set default character set if provided
-  if ("arguments" in window && window.arguments.length > 1 && window.arguments[1]) {
-    if (window.arguments[1].indexOf("charset=") != -1) {
-      var arrayArgComponents = window.arguments[1].split("=");
-      if (arrayArgComponents) {
-	//we should "inherit" the charset menu setting in a new window
-	getMarkupDocumentViewer().defaultCharacterSet = arrayArgComponents[1];
-      }
-    }
-  }
+        // set default character set if provided
+        /*
+          if ("arguments" in window && window.arguments.length > 1 && window.arguments[1]) {
+          if (window.arguments[1].indexOf("charset=") != -1) {
+          var arrayArgComponents = window.arguments[1].split("=");
+          if (arrayArgComponents) {
+          //we should "inherit" the charset menu setting in a new window
+          getMarkupDocumentViewer().defaultCharacterSet = arrayArgComponents[1];
+          }
+          }
+          }
+        */
+        appCore.setWebShellWindow(window);
 
-  appCore.setWebShellWindow(window);
-
-  getBrowser().setProgressListener(window.XULBrowserWindow, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
+        getBrowser().setProgressListener(window.XULBrowserWindow, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
 
-  if ("arguments" in window && window.arguments.length >= 1 && window.arguments[0])
-    uriToLoad = window.arguments[0];
+        // give the browser window a default width/height
+        if (!document.documentElement.hasAttribute("width")) {
+            document.documentElement.setAttribute("width", 640);
+            document.documentElement.setAttribute("height", 480);
+        }
 
-  if ("arguments" in window && window.arguments.length >= 3)
-      getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, window.arguments[2], null, null);
-  else
-      getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+        // Turn off typeahead. We'll use our own that's way better.
+        gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
+            .getService(Components.interfaces.nsIPrefBranch);
+        gPrefService.setBoolPref("accessibility.typeaheadfind", false);
+        // Turn this stupid thing off. Otherwise accesskeys override the conkeror keys.
+        gPrefService.setIntPref("ui.key.generalAccessKey", 0);
 
-  // give the browser window a default width/height
-  if (!document.documentElement.hasAttribute("width")) {
-      document.documentElement.setAttribute("width", 640);
-      document.documentElement.setAttribute("height", 480);
-  }
+
+        try {
+            // Load the RC file.
+            if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
+                gPrefService.setCharPref("conkeror.rcfile", "");
+            } else {
+                var rcfile = gPrefService.getCharPref("conkeror.rcfile");
+                if (rcfile.length)
+                    load_rc (rcfile);
+            }
+        } catch (e) {window.alert(e);}
+
+        if (uriToLoad)
+            getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+        set_window_title();
+  
 
 //   // Give it a chance to set itself up before loading the URL
 //   setTimeout(getWebNavigation().loadURI, 0,
 //     uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-  setTimeout(delayedStartup,0);
+        setTimeout(delayedStartup,0);
     } catch (e) { log ("haag" + e); }
 }
 
@@ -140,10 +169,12 @@ function delayedStartup()
 
     getBrowser().addEventListener ("DOMContentLoaded",
                                    function () {
-                                       createNumberedLinks(top_content (this.webProgress.DOMWindow));
+                                     set_window_title();
+                                     createNumberedLinks(top_content (this.webProgress.DOMWindow));
                                    },
                                    true);
-
+    set_window_title();
+    
     // because of the absolute position of the numbers, we need to
     // adjust when the window is resized.
     try {
@@ -155,13 +186,6 @@ function delayedStartup()
     //       getBrowser().addEventListener("PluginNotFound", missingPlugin, false);
     //   } catch (e) { alert(e); }
 
-    // Turn off typeahead. We'll use our own that's way better.
-    gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
-	.getService(Components.interfaces.nsIPrefBranch);
-    gPrefService.setBoolPref("accessibility.typeaheadfind", false);
-    // Turn this stupid thing off. Otherwise accesskeys override the conkeror keys.
-    gPrefService.setIntPref("ui.key.generalAccessKey", 0);
-
     // Web jumps have to be initialized before the rcfile is loaded so
     // they can be user-overridden.
     init_webjumps();
@@ -171,16 +195,6 @@ function delayedStartup()
 
     init_minibuffer ();
 
-    try {
-	// Load the RC file.
-	if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
-	    gPrefService.setCharPref("conkeror.rcfile", "");
-	} else {
-	    var rcfile = gPrefService.getCharPref("conkeror.rcfile");
-	    if (rcfile.length)
-                load_rc (rcfile);
-	}
-    } catch (e) {window.alert(e);}
 
     // this is a hack. Set the first buffer's links and image number
     // visibility which could have been set in the rc file.
@@ -358,6 +372,7 @@ nsBrowserStatusHandler.prototype =
 
   onLocationChange : function(aWebProgress, aRequest, aLocation)
   {
+    set_window_title();
       updateModeline(aLocation);
   },
 

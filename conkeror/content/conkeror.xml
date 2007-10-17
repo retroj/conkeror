@@ -42,7 +42,7 @@
             </field>
 
       <property name="mBrowsers"
-                onget="return this.mBrowserContainer.getElementsByTagName('browser');"
+                onget="return this.mBrowserContainer.getElementsByTagNameNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'browser');"
                 readonly="true"/>
 
       <method name="isSplit">
@@ -340,7 +340,6 @@
 	    if (p > a && p <= b)
 	      this.mBrowsers[i].setAttribute('pile', p-1);
 	    }    
-	  }
 	]]>
 	</body>
       </method>
@@ -368,7 +367,6 @@
 	    max = p>max ? p:max;
 	  }
 	  return max;
-	}
       ]]>
       </body>
       </method>
@@ -381,7 +379,6 @@
 	      return this.mBrowsers[i];
 	  }
 	  return null;
-	}
       ]]>
       </body>
       </method>
@@ -442,7 +439,7 @@
                 readonly="true"/>
 
       <property name="browsers"
-                onget="return this.mBrowserContainer.getElementsByTagName('browser');"
+                onget="return this.mBrowserContainer.getElementsByTagNameNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'browser');"
                 readonly="true"/>
 
       <property name="numberedLinks"

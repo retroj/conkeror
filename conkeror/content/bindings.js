@@ -157,7 +157,6 @@ var context_kmaps = [];
 var 	ctrlc_kmap	   = null;
 var 	ctrlw_kmap	   = null;
 var 	ctrlx_kmap	   = null;
-var 	bookmark_kmap	   = null;
 var 	four_kmap	   = null;
 var 	five_kmap	   = null;
 var 	help_kmap	   = null;
@@ -171,6 +170,7 @@ var     textarea_esc_kmap  = null;
 var     input_esc_kmap     = null;
 var     minibuffer_kmap    = null;
 var     isearch_kmap       = null;
+var     frameset_kmap      = null;
 
 // This keymap is used by the universal argument code
 var overlay_kmap = null;
@@ -199,7 +199,7 @@ function match_any_unmodified_key (event)
         return event.charCode &&
             !metaPressed(event) &&
             !event.ctrlKey;
-    } catch (e) { }
+    } catch (e) { return false; }
 }
 
 
@@ -296,7 +296,7 @@ function minibuffer_kmap_predicate (element) {
     try {
         return element.baseURI == "chrome://conkeror/content/conkeror.xul" &&
             element == minibuffer.input.inputField;
-    } catch (e) { }
+    } catch (e) { return false; }
 }
 
 
@@ -320,7 +320,7 @@ function input_kmap_predicate (element) {
 function textarea_kmap_predicate (element) {
     try {
         return element.tagName == "TEXTAREA";
-    } catch (e) { }
+    } catch (e) { return false; }
 }
 
 
@@ -329,7 +329,6 @@ function clearKmaps()
     ctrlc_kmap    	  = make_keymap();
     ctrlw_kmap    	  = make_keymap();
     ctrlx_kmap    	  = make_keymap();
-    bookmark_kmap 	  = make_keymap();
     four_kmap     	  = make_keymap();
     five_kmap     	  = make_keymap();
     help_kmap     	  = make_keymap();
@@ -340,6 +339,7 @@ function clearKmaps()
     select_kmap   	  = make_keymap();
     numberedlinks_kmap    = make_context_keymap (numberedlinks_kmap_predicate);
     isearch_kmap          = make_context_keymap (isearch_kmap_predicate);
+    frameset_kmap         = make_keymap();
 
     top_esc_kmap   	  = make_keymap();
     textarea_esc_kmap     = make_keymap();
@@ -366,6 +366,7 @@ function initViKmaps()
     define_key(top_kmap, kbd ("h",MOD_CTRL), help_kmap);
     define_key(top_kmap, kbd ("w",MOD_CTRL), ctrlw_kmap);
     define_key(top_kmap, kbd ("w",0),        ctrlw_kmap); 
+    define_key(top_kmap, kbd ("f",0),        frameset_kmap);
 
 	// same as emacs, since vi doesnt really have this
     define_key(help_kmap, kbd ("b",0),"describe-bindings");
@@ -386,11 +387,6 @@ function initViKmaps()
     define_key(ctrlw_kmap, kbd ("Q",0),"delete-frame");
     define_key(ctrlw_kmap, kbd ("n",0),"make-frame-command");
 
-    
-	// bookmark managment, vi doesnt have bookmarks, use our own keys instead
-    define_key(top_kmap, kbd ("a",0),"bookmark-current-url"); //Add bookmark
-    define_key(top_kmap, kbd ("x",0),"bookmark-jump");  // eXectue boomark
-    define_key(top_kmap, kbd ("X",0),"bookmark-bmenu-list"); 
 	// normal file marks, keys like in vi
     define_key(top_kmap, kbd ("m",0),"set-mark-command"); 
     define_key(top_kmap, kbd ("'",0),"exchange-point-and-mark"); 
@@ -412,7 +408,6 @@ function initViKmaps()
     define_key(top_kmap, kbd ("\\",0),"view-source");
     define_key(top_kmap, kbd ("?",0),"isearch-backward");
     define_key(top_kmap, kbd ("r",0),"revert-buffer");
-    define_key(top_kmap, kbd ("f",0),"next-frame");
     define_key(top_kmap, kbd ("1",0),"numberedlinks-1");
     define_key(top_kmap, kbd ("2",0),"numberedlinks-2");
     define_key(top_kmap, kbd ("3",0),"numberedlinks-3");
@@ -482,6 +477,8 @@ function initViKmaps()
 	// shows a query with a list of all links on the current website, currently quite broken
     define_key(top_kmap, kbd ("m", MOD_CTRL),"link-menu");
 
+    define_key(top_kmap, kbd(KeyEvent.DOM_VK_RETURN, MOD_CTRL), "follow-link-in-new-buffer");
+
     input_kmap.parent = top_kmap;
 
     // Input area keys - the same as for emacs
@@ -502,7 +499,7 @@ function initViKmaps()
     // 101 keys
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_END,MOD_SHIFT),"cmd_selectEndLine");
-    define_key(input_kmap, kbd (KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
+    define_key(input_kmap, kbd (KeyEvent.DOM_VK_BACK_SPACE,MOD_CTRL), "cmd_deleteWordBackward");
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT),
 	       "cmd_selectWordPrevious");
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), "cmd_selectWordNext");
@@ -536,6 +533,8 @@ function initViKmaps()
 
     init_isearch_keys ();
 
+    init_frameset_keys ();
+
     init_universal_arg_keys ();
 
     gCurrentKmap = top_kmap;
@@ -565,23 +564,19 @@ function initKmaps()
     define_key(ctrlx_kmap, kbd ("x",MOD_CTRL),"exchange-point-and-mark"); 
     define_key(ctrlx_kmap, kbd ("h",0),"cmd_selectAll");
     define_key(ctrlx_kmap, kbd ("b",MOD_CTRL),"list-buffers"); 
+    define_key(ctrlx_kmap, kbd ("s",MOD_CTRL),"save-page");
     
     define_key(five_kmap, kbd ("f",MOD_CTRL),"find-url-other-frame"); 
     define_key(five_kmap, kbd ("0",0),"delete-frame");
     define_key(five_kmap, kbd ("2",0),"make-frame-command");
 
-    
-    define_key(bookmark_kmap, kbd ("m",0),"bookmark-current-url"); 
-    define_key(bookmark_kmap, kbd ("b",0),"bookmark-jump"); 
-    define_key(bookmark_kmap, kbd ("l",0),"bookmark-bmenu-list"); 
-
     define_key(ctrlx_kmap, kbd ("4",0), four_kmap); 
     define_key(ctrlx_kmap, kbd ("5",0), five_kmap); 
-    define_key(ctrlx_kmap, kbd ("r",0), bookmark_kmap); 
 
     define_key(top_kmap, kbd ("h",MOD_CTRL), help_kmap);
     define_key(top_kmap, kbd ("x",MOD_CTRL), ctrlx_kmap);
     define_key(top_kmap, kbd ("c",MOD_CTRL), ctrlc_kmap); 
+    define_key(top_kmap, kbd ("f",0),        frameset_kmap);
 
     define_key(top_kmap, kbd ("u",0),"go-up");
     define_key(top_kmap, kbd ("u", MOD_CTRL), "universal-argument");
@@ -596,7 +591,6 @@ function initKmaps()
     define_key(top_kmap, kbd ("B",0),"go-back");
     define_key(top_kmap, kbd ("F",0),"go-forward");
     define_key(top_kmap, kbd ("R",0),"revert-buffer");
-    define_key(top_kmap, kbd ("f",0),"next-frame");
     define_key(top_kmap, kbd ("1",0),"numberedlinks-1");
     define_key(top_kmap, kbd ("2",0),"numberedlinks-2");
     define_key(top_kmap, kbd ("3",0),"numberedlinks-3");
@@ -615,6 +609,7 @@ function initKmaps()
     define_key(top_kmap, kbd ("x",MOD_META),"execute-extended-command");
     define_key(top_kmap, kbd ("g",MOD_CTRL),"keyboard-quit");
     define_key(top_kmap, kbd ( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
+    define_key(top_kmap, kbd ( "=", 0),"text-reset");
     define_key(top_kmap, kbd ( "+", 0),"text-enlarge");
     define_key(top_kmap, kbd ( "-", 0),"text-reduce");
 
@@ -661,6 +656,8 @@ function initKmaps()
 
     define_key(top_kmap, kbd ("m", 0),"link-menu");
 
+    define_key(top_kmap, kbd(KeyEvent.DOM_VK_RETURN, MOD_CTRL), "follow-link-in-new-buffer");
+
     // Input area keys
     define_key(input_kmap, kbd ("a",MOD_CTRL),"cmd_beginLine");
     define_key(input_kmap, kbd ("e",MOD_CTRL),"cmd_endLine");
@@ -679,7 +676,7 @@ function initKmaps()
     // 101 keys
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_HOME,MOD_SHIFT), "cmd_selectBeginLine");
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_END,MOD_SHIFT),"cmd_selectEndLine");
-    define_key(input_kmap, kbd (KeyEvent.DOM_VK_BACK,MOD_CTRL), "cmd_deleteWordBackward");
+    define_key(input_kmap, kbd (KeyEvent.DOM_VK_BACK_SPACE,MOD_CTRL), "cmd_deleteWordBackward");
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_LEFT,MOD_CTRL|MOD_SHIFT),
 	       "cmd_selectWordPrevious");
     define_key(input_kmap, kbd (KeyEvent.DOM_VK_RIGHT,MOD_CTRL|MOD_SHIFT), "cmd_selectWordNext");
@@ -713,6 +710,8 @@ function initKmaps()
     init_numberedlinks_keys ();
 
     init_isearch_keys ();
+
+    init_frameset_keys ();
 
     init_universal_arg_keys ();
 
@@ -773,6 +772,16 @@ function init_isearch_keys () {
 }
 
 
+function init_frameset_keys () {
+    define_key(frameset_kmap, kbd ("f",0),"next-frameset-frame");
+    define_key(frameset_kmap, kbd ("i",0),"next-iframe");
+    define_key(frameset_kmap, kbd (KeyEvent.DOM_VK_RETURN,0), "open-frameset-frame-in-current-buffer");
+    define_key(frameset_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_CTRL), "open-frameset-frame-in-new-buffer");
+    define_key(frameset_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_CTRL | MOD_META), "open-frameset-frame-in-new-frame");
+    define_key(frameset_kmap, kbd ("c",0), "copy-frameset-frame-location");
+}
+
+
 function init_universal_arg_keys ()
 {
     define_key(universal_kmap, kbd ("u", MOD_CTRL), "universal-argument-more");
@@ -786,6 +795,7 @@ function init_universal_arg_keys ()
     define_key(universal_kmap, kbd ("8", 0), "universal-digit");
     define_key(universal_kmap, kbd ("9", 0), "universal-digit");
     define_key(universal_kmap, kbd ("0", 0), "universal-digit");
+    define_key(universal_kmap, kbd ("-", 0), "universal-negate");
 }
 
 

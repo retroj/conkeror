@@ -51,7 +51,7 @@ active_document: { func: function (spec) {
 b: { async: function (spec, iargs, callback, callback_args, given_args) {
             var bufs = getBrowser().getBrowserNames();
             var matches = zip2(bufs,getBrowser().mBrowsers);
-            var prompt = (1 in spec && spec[1] ? spec[1] : "Buffer: ");
+            var prompt = (1 in spec && spec[1] ? spec[1](callback_args) : "Buffer: ");
             var initval = (2 in spec && spec[2] ? spec[2](callback_args) : getBrowser().webNavigation.currentURI.spec);
             readFromMiniBuffer(prompt, initval, "buffer", matches, null, null,
                                function (s) {
@@ -73,7 +73,7 @@ B: { func: function (spec) {
 },
 
 c: { func: function (spec) {
-            // -- Character (no input method is used).
+            // -- Character
             return null;
         }
 },
@@ -84,9 +84,46 @@ C: { func: function (spec) {
         }
 },
 
+content_charset: { func: function (spec) {
+            // -- Charset of content area of focusedWindow
+            var focusedWindow = document.commandDispatcher.focusedWindow;
+            if (focusedWindow == window)
+                focusedWindow = content;
+            if (focusedWindow)
+                return document.commandDispatcher.focusedWindow.document.characterSet;
+            else
+                return null;
+        }
+},
+
+content_selection: { func: function (spec) {
+            // -- Selection of content area of focusedWindow
+            var focusedWindow = document.commandDispatcher.focusedWindow;
+            if (focusedWindow == window)
+                focusedWindow = content;
+            return focusedWindow.getSelection ();
+        }
+},
+
 current_command: { func: function (spec) {
             // -- Name of the command being evaluated right now.
             return gCurrentCommand;
+        }
+},
+
+current_frameset_frame_url_s: { func: function (spec) {
+            var w = document.commandDispatcher.focusedWindow;
+            return w.location.href;
+        }
+},
+
+current_url_o: { func: function (spec) {
+            return getWebNavigation().currentURI;
+        }
+},
+
+current_url_s: { func: function (spec) {
+            return getWebNavigation().currentURI.spec;
         }
 },
 
@@ -107,7 +144,7 @@ e: { func: function (spec) { return gCommandLastEvent; } },
 
 f: { async: function (spec, iargs, callback, callback_args, given_args) {
             // -- Exisiting file object. (nsILocalFile)
-            var prompt = (1 in spec && spec[1] ? spec[1] : "File: ");
+            var prompt = (1 in spec && spec[1] ? spec[1](callback_args) : "File: ");
             var initval = (2 in spec && spec[2] ? spec[2](callback_args) : default_directory.path);
             var hist = (3 in spec ? spec[3] : null);
             readFromMiniBuffer(prompt, initval, hist, null, null, null,
@@ -124,7 +161,7 @@ f: { async: function (spec, iargs, callback, callback_args, given_args) {
 
 F: { async: function (spec, iargs, callback, callback_args, given_args) {
             // -- Possibly nonexistent file object. (nsILocalFile)
-            var prompt = (1 in spec && spec[1] ? spec[1] : "File: ");
+            var prompt = (1 in spec && spec[1] ? spec[1](callback_args) : "File: ");
             var initval = (2 in spec && spec[2] ? spec[2](callback_args) : default_directory.path);
             var hist = (3 in spec ? spec[3] : null);
             readFromMiniBuffer(prompt, initval, hist, null, null, null,
@@ -161,7 +198,7 @@ i: { func: function (spec) { return null; } },
 // image: numbered image.
 image: { async: function (spec, iargs, callback, callback_args, given_args) {
             // -- Number read using minibuffer.
-            var prompt = (1 in spec ? spec[1] : "Image Number: ");
+            var prompt = (1 in spec ? spec[1](callback_args) : "Image Number: ");
             var buf_state = getBrowser().numberedImages;
             if (!buf_state) {
                 // turn on image numbers
@@ -190,7 +227,7 @@ image: { async: function (spec, iargs, callback, callback_args, given_args) {
 
 image_url_o: { async: function (spec, iargs, callback, callback_args, given_args) {
 
-            var prompt = (1 in spec ? spec[1] : "Image Number: ");
+            var prompt = (1 in spec ? spec[1](callback_args) : "Image Number: ");
             var buf_state = getBrowser().numberedImages;
             if (!buf_state) {
                 // turn on image numbers
@@ -232,6 +269,50 @@ image_url_o: { async: function (spec, iargs, callback, callback_args, given_args
 },
 
 
+image_url_s: { async: function (spec, iargs, callback, callback_args, given_args) {
+
+            var prompt = (1 in spec ? spec[1](callback_args) : "Image Number: ");
+            var buf_state = getBrowser().numberedImages;
+            if (!buf_state) {
+                // turn on image numbers
+                gTurnOffLinksAfter = true;
+                toggleNumberedImages();
+            }
+            // Setup a context for the context-keymap system.
+            readFromMiniBuffer(prompt, null, null, null, null, null,
+                               function (s) {
+                                   function fail (number)
+                                   {
+                                       message ("'"+number+"' is not the number of any image here. ");
+                                   }
+                                   var nl = get_numberedlink (s);
+                                   if (! nl) { fail (s); return; }
+                                   var type = nl.nlnode.getAttribute("__conktype");
+                                   var loc;
+                                   if (type == "image" && nl.node.getAttribute("src")) {
+                                       loc = nl.node.getAttribute("src");
+                                       loc = makeURLAbsolute(nl.node.baseURI, loc);
+                                   } else {
+                                       fail (number);
+                                   }
+                                   callback_args.push (loc);
+
+                                   if (gTurnOffLinksAfter) {
+                                       toggleNumberedImages();
+                                       gTurnOffLinksAfter = false;
+                                   }
+                                   do_interactive (iargs, callback, callback_args, given_args);
+                               },
+                               function () {
+                                   if (gTurnOffLinksAfter) {
+                                       toggleNumberedImages ();
+                                       gTurnOffLinksAfter = false;
+                                   }
+                               });
+        }
+},
+
+
 k: { func: function (spec) {
             // -- Key sequence (downcase the last event if needed to get a definition).
             return null;
@@ -246,7 +327,7 @@ K: { func: function (spec) {
 
 // link: numbered link
 link: { async: function (spec, iargs, callback, callback_args, given_args) {
-            var prompt = (1 in spec && spec[1] ? spec[1] : "Link Number: ");
+            var prompt = (1 in spec && spec[1] ? spec[1](callback_args) : "Link Number: ");
             var initVal = (2 in spec && spec[2] ? spec[2](callback_args) : "");
             var buf_state = getBrowser().numberedLinks;
             if (!buf_state) {
@@ -284,9 +365,17 @@ m: { func: function (spec) {
         }
 },
 
-M: { func: function (spec) {
-            // -- Any string.  Inherits the current input method.
-            return null;
+mathml_node: { async: function (spec, iargs, callback, callback_args, given_args) {
+            // -- DOM node of a MathML
+            //TO-DO: implement mathml_node interactive spec.
+            callback_args.push (null);
+            do_interactive (iargs, callback, callback_args, given_args);
+        }
+},
+
+minibuffer_exit: { func: function (spec) {
+            // -- minibuffer.exit
+            return minibuffer.exit;
         }
 },
 
@@ -355,9 +444,17 @@ r: { func: function (spec) {
         }
 },
 
-s: { func: function (spec) {
-            // -- Any string.  Does not inherit the current input method.
-            return null;
+s: { async: function (spec, iargs, callback, callback_args, given_args) {
+            // -- Any string.
+            var prompt = "String: ";
+            if (1 in spec)
+                prompt = spec[1];
+            readFromMiniBuffer(prompt, null, null, null, null, null,
+                               function (s) {
+                                   callback_args.push (s);
+                                   do_interactive (iargs, callback, callback_args, given_args);
+                               },
+                               null);
         }
 },
 
@@ -367,9 +464,33 @@ S: { func: function (spec) {
         }
 },
 
+//RETROJ: this may be improperly named.  it can read either an url or a
+//        webjump from the minibuffer, but it will always return an url.
+url_or_webjump: { async: function (spec, iargs, callback, callback_args, given_args) {
+            var prompt = (1 in spec && spec[1] ? spec[1](callback_args) : "URL: ");
+            var initval = (2 in spec && spec[2] ? spec[2](callback_args) : "");
+            var hist = (3 in spec ? spec[3] : null);
+            var completions = (4 in spec && spec[4] ? spec[4](callback_args) : []);
+            readFromMiniBuffer(prompt, initval, hist, completions, true, null,
+                               function (match, s) {
+                                   if (s == "") // well-formedness check. (could be better!)
+                                       throw ("invalid url or webjump (\""+s+"\")");
+                                   callback_args.push (get_url_or_webjump (s));
+                                   do_interactive (iargs, callback, callback_args, given_args);
+                               },
+                               null);
+        }
+},
+
 v: { func: function (spec) {
             // -- Variable name: symbol that is user-variable-p.
             return null;
+        }
+},
+
+value: { func: function (spec) {
+            // -- given value
+            return (1 in spec ? spec[1] : null);
         }
 },
 
@@ -475,7 +596,7 @@ function call_interactively (cmd, given_args)
                 var given = given_args ? given_args.slice (0) : null;
                 do_interactive (iargs,
                                 function (args) {
-                                    gCommands[i][1].apply (this, args);
+                                    gCommands[i][1].apply (conkeror, args);
                                     updateModeline ();
                                 },
                                 null,
@@ -484,7 +605,9 @@ function call_interactively (cmd, given_args)
             }
         }
         message("No such command '" + cmd + "'");
-    } catch(e) {alert(e);}
+    } catch(e) {
+        message ("call_interactively: " + e);
+    }
 }
 
 
@@ -537,16 +660,7 @@ function unfocus()
 }
 interactive("unfocus", unfocus, []);
 
-
-function quit()
-{
-    // Using app-startup to quit? Not very intuitive.
-    var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-	.getService(Components.interfaces.nsIAppStartup);
-    appStartup.quit(appStartup.eAttemptQuit);
-}
-interactive("quit", quit, []);
-
+interactive("quit", conkeror.quit, []);
 
 function goBack(prefix)
 {
@@ -587,66 +701,125 @@ function reload ()
 interactive("revert-buffer", reload, []);
 
 
-// frame navigation
+var notification_timer = null;
 
-function nextFrame()
-{
-    try {
-    var frames = window._content.frames;
+function next_frameset_frame (prefix) {
+    function notify (x, y, text) {
+        var notification = document.getElementById ("frameset-notification");
+        var notification_label = document.getElementById ("frameset-notification-label");
+        notification_label.value = text;
+        notification.showPopup (document.getElementById ("content"),
+                                x, y, "popup");
+        clearTimeout (notification_timer);
+        notification_timer = setTimeout (
+            function () { notification.hidePopup (); },
+            1000);
+    }
 
+    function find_frames_r (doc) {
+        var frames = [];
+        var fr = doc.getElementsByTagName ("FRAME");
+        if (fr.length == 0) { return []; }
+        for (var i = 0; i < fr.length; i++) {
+            frames.push (fr[i]);
+            frames = frames.concat (find_frames_r (fr[i].contentDocument));
+        }
+        return frames;
+    }
+
+    var frames = find_frames_r (window.content.document);
     if (frames.length == 0)
-	return;
+    {
+        message ("no other frameset frame");
+        return;
+    }
 
     var w = document.commandDispatcher.focusedWindow;
+
     var next = 0;
 
-    // Find the next frame to focus
-    for (var i=0; i<frames.length; i++) {
-	if (w == frames[i]) {
-	    next = i+1;
-	    break;
-	}
+    for (var i = 0; i < frames.length; i++) {
+        if (w.document == frames[i].contentDocument) {
+            next = (i + prefix) % frames.length;
+            // the % operator is actually remainder in javascript, so we have
+            // to watch for negative results.
+            if (next < 0)
+                next += frames.length;
+            break;
+        }
     }
-    // Focus the next one, 0 if we're at the last one
-    if (next >= frames.length)
-	next = 0;
-    frames[next].focus();
-    var oldbg = frames[next].document.bgColor;
-    frames[next].document.bgColor = "red";
-    setTimeout(function(doc, bgcolor) { doc.bgColor = bgcolor }, 100, frames[next].document, oldbg);
+    frames[next].scrollIntoView (false);
+    frames[next].contentWindow.focus();
 
-    } catch(e) {alert(e);}
+    var box = frames[next].ownerDocument.getBoxObjectFor (frames[next]);
+
+    notify (box.screenX, box.screenY,
+            "frameset frame "+next);
 }
-interactive("next-frame", nextFrame, []);
+interactive("next-frameset-frame", next_frameset_frame, ['p']);
 
-//     alert(frames.length);
 
-//     alert(window.document.getElementsByTagName('iframe'));
-//     alert(frames[0].top.parent.document);
-//     var foo = frames[0].parent.document.createElement("toolbox");
-//     frames[0].parent.childNodes;
 
-//     frames[0].focus();
+function next_iframe (prefix) {
+    function notify (x, y, text) {
+        var notification = document.getElementById ("frameset-notification");
+        var notification_label = document.getElementById ("frameset-notification-label");
+        notification_label.value = text;
+        notification.showPopup (document.getElementById ("content"),
+                                x, y, "popup");
+        clearTimeout (notification_timer);
+        notification_timer = setTimeout (
+            function () { notification.hidePopup (); },
+            1000);
+    }
 
-//     var popup = frames[0].document.createElement("popup");
-//     var txt = frames[0].document.createElement("label");
-//     txt.value = "blah";
-//     popup.appendChild(txt);
-//     popup.id = "framepopup";
-// //     popup.showPopup(frames[0], 0, 0);
+    var frames = window.content.document.getElementsByTagName ("IFRAME");
+    if (frames.length == 0)
+    {
+        message ("no other iframe");
+        return;
+    }
 
-//     var w = document.commandDispatcher.focusedWindow;
-//     var elem = document.commandDispatcher.focusedElement;
-// //     alert(elem);
-// //     alert(w);
-// //     frames[0].document.write("hey you");
-// //     alert(window.content);
-// //     alert(frames[0]);
-// //     alert(frames[0].window.firstChild);
-// //     for (var i=0; i<frames[0].attributes.length; i++) {
-// // 	alert(frames[0].attributes[i]);
-// //     }
-// //     frames[1].window.focus();
+    var current = document.commandDispatcher.focusedWindow;
+
+    var pnext = 0;
+
+    for (var i = 0; i < frames.length; i++) {
+        if (current.document == frames[i].contentDocument) {
+            pnext = (i + prefix) % frames.length;
+            // the % operator is actually remainder in javascript, so we have
+            // to watch for negative results.
+            if (pnext < 0)
+                pnext += frames.length;
+            break;
+        }
+    }
+
+    var next = pnext;
+    frames[next].contentWindow.focus();
+
+    while (document.commandDispatcher.focusedWindow == current)
+    {
+        next = (next + (prefix < 0 ? -1 : 1)) % frames.length;
+        if (next < 0)
+            next += frames.length;
+
+        if (next == pnext) {
+            message ("no other iframe visible");
+            return;
+        }
+
+        frames[next].contentWindow.focus();
+    }
+
+    var box = window.content.document.getBoxObjectFor (frames[next]);
+    frames[next].scrollIntoView (false);
+
+    notify (box.screenX, box.screenY,
+            "iframe "+next);
+}
+interactive("next-iframe", next_iframe, ['p']);
+
 
 function beginning_of_line()
 {
@@ -668,27 +841,10 @@ function scrollHorizComplete(n)
     w.scrollTo(n>0?w.scrollMaxX:0, w.scrollY);
 }
 
-function view_source()
-{
-    try {
-	var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
-	var viewSrcUrl = "view-source:" + getWebNavigation().currentURI.spec;
-	getWebNavigation().loadURI(viewSrcUrl, loadFlags, null, null, null);
-    } catch(e) {alert(e);}
-}
-interactive("view-source", view_source, []);
-
-
-function new_frame()
-{
-    open_url(16);
-}
-interactive("find-url-other-frame", new_frame, []);
-
 
 function makeFrame()
 {
-    window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", "about:blank");
+  conkeror.make_frame(conkeror.homepage);
 }
 interactive("make-frame-command", makeFrame, []);
 
@@ -721,39 +877,83 @@ function open_url_in(prefix, url)
 	return getBrowser();
     } else if (prefix <= 4) {
 	// Open in new buffer
-	return getBrowser().newBrowser(url);
+        return conkeror.find_url_new_buffer (url); // XXX: this will get the
+                                                   // active frame, not
+                                                   // necessarily the frame
+                                                   // from which the command
+                                                   // was run.
+	// return getBrowser().newBrowser(url); // DEMOLITION: :)
     } else {
 	// Open in new frame
-	return window.openDialog("chrome://conkeror/content", "_blank", "chrome,all,dialog=no", url);
+      conkeror.make_frame(url);
+      return 1;
     }
 }
 
-function find_alt_url(prefix)
-{
-    open_url(prefix, true);
-}
-interactive("find-alternate-url", find_alt_url, ["p"]);
+interactive("follow-image", open_url_in, ['p', 'image_url_s']);
 
+interactive("open-url", open_url_in,
+            ['p',
+             ['url_or_webjump',
+              function (args) { return open_url_in_prompt (args[0]); },// prompt
+              null, // initval
+              "url", // history
+              function (args) {
+                  var templs =[];
+                  for (var x in gWebJumpLocations)
+                      templs.push([x,x]);
+                  return templs; }]]); // completions
 
-function open_url(prefix, fillInput)
-{
-    var templs =[];
-    for (var x in gWebJumpLocations)
-	templs.push([x,x]);
-    var input = fillInput ? getWebNavigation().currentURI.spec : null;
+interactive("find-url-other-frame", open_url_in,
+            [['value', 16],
+             ['url_or_webjump',
+              function (args) { return open_url_in_prompt (args[0]); },// prompt
+              null, // initval
+              "url", // history
+              function (args) {
+                  var templs =[];
+                  for (var x in gWebJumpLocations)
+                      templs.push([x,x]);
+                  return templs; }]]);
 
-    readFromMiniBuffer(open_url_in_prompt(prefix), input, "url", templs, true, null,
-		       function(match,url) {open_url_in(prefix, get_url_or_webjump(url));});
-}
-interactive("open-url", open_url, ["p"]);
+interactive("find-alternate-url", open_url_in,
+            ['p',
+             ['url_or_webjump',
+              function (args) { return open_url_in_prompt (args[0]); },// prompt
+              function (args) { return getWebNavigation().currentURI.spec; }, // initval
+              "url", // history
+              function (args) {
+                  var templs =[];
+                  for (var x in gWebJumpLocations)
+                      templs.push([x,x]);
+                  return templs; }]]);
 
+interactive("find-url", open_url_in,
+            [['value', 4],
+             ['url_or_webjump',
+              function (args) { return open_url_in_prompt (args[0]); },// prompt
+              null, // initval
+              "url", // history
+              function (args) {
+                  var templs =[];
+                  for (var x in gWebJumpLocations)
+                      templs.push([x,x]);
+                  return templs; }]]);
 
-// Open a new browser with url
-function find_url()
-{
-    open_url(4);
-}
-interactive("find-url", find_url, []);
+interactive("follow-link", open_url_in,
+            [['value', 1], 'focused_link_url_s']);
+
+interactive("follow-link-in-new-buffer", open_url_in,
+            [['value', 4], 'focused_link_url_s']);
+
+interactive("open-frameset-frame-in-current-buffer", open_url_in,
+            [["value", 1],"current_frameset_frame_url_s"]);
+
+interactive("open-frameset-frame-in-new-buffer", open_url_in,
+            [["value", 4],"current_frameset_frame_url_s"]);
+
+interactive("open-frameset-frame-in-new-frame", open_url_in,
+            [["value", 16],"current_frameset_frame_url_s"]);
 
 
 function get_buffer_from_name(buf)
@@ -764,6 +964,7 @@ function get_buffer_from_name(buf)
 	    return getBrowser().getBrowserAtIndex(i);
 	}
     }
+    return null;
 }
 
 function go_to_buffer(match)
@@ -777,7 +978,7 @@ function switch_to_buffer (buffer)
     go_to_buffer (buffer);
 }
 interactive("switch-to-buffer", switch_to_buffer,
-            [["b", "Switch to buffer: ",
+            [["b", function (a) { return "Switch to buffer: "; },
               function (a) { return getBrowser().lastBrowser().webNavigation.currentURI.spec; } ]]);
 
 
@@ -785,15 +986,18 @@ function kill_buffer (buffer)
 {
     getBrowser().killBrowser(buffer);
 }
-interactive("kill-buffer", kill_buffer, [["b", "Kill buffer: "]]);
+interactive("kill-buffer", kill_buffer, [["b", function (a) { return "Kill buffer: "; }]]);
 
 
-function copyCurrentUrl()
+function copy_location (s)
 {
-    writeToClipboard(getWebNavigation().currentURI.spec);
-    message("Copied current URL");
+    writeToClipboard (s);
+    message ("Copied '"+s+"'");
 }
-interactive("copy-current-url", copyCurrentUrl, []);
+interactive("copy-current-url", copy_location, ['current_url_s']);
+interactive("copy-link-location", copy_location, ['focused_link_url_s']);
+interactive("copy-image-location", copy_location, ['image_url_s']);
+interactive("copy-frameset-frame-location", copy_location, ['current_frameset_frame_url_s']);
 
 
 // Copy the contents of the X11 clipboard to ours. This is a cheap
@@ -810,38 +1014,6 @@ function yankToClipboard()
 }
 interactive("yank-to-clipboard", yankToClipboard, []);
 
-
-function goto_bookmark(prefix)
-{
-    readFromMiniBuffer(open_url_in_prompt(prefix,"Go to bookmark"), null, "bookmark", 
-		       get_bm_strings(), false, null, function(url) { open_url_in(prefix,url); });
-}
-interactive("bookmark-jump", goto_bookmark, ["p"]);
-
-
-function bookmark_current_url()
-{
-    readFromMiniBuffer("Add bookmark:", getBrowser().mCurrentBrowser.contentTitle, "add-bookmark",
-                       null, null, null,
-		       function (title) 
-                         {
-			     bookmark_doc(getBrowser(), title);
-			     message ("Bookmarked " + getWebNavigation().currentURI.spec
-				      + " - " + title);
-			 });
-}
-interactive("bookmark-current-url", bookmark_current_url, []);
-
-
-// FIXME: This code pops up a dialog box which sorta sucks. But it
-// works.
-function bookmark_doc(browser, aTitle)
-{
-    var url = browser.webNavigation.currentURI.spec;
-    var title, docCharset = "text/unicode";
-    title = aTitle || getBrowser().mCurrentBrowser.contentTitle || url;
-    BookmarksUtils.addBookmark(url, title, docCharset);
-}
 
 function isearch_forward()
 {
@@ -1029,13 +1201,6 @@ function inject_css()
 // }
 */
 
-function bookmark_bmenu_list(prefix)
-{
-    open_url_in (prefix, "chrome://conkeror/content/bookmarks.html");
-}
-interactive("bookmark-bmenu-list", bookmark_bmenu_list, ["p"]);
-
-
 /// built in commands
 function doCommandNTimes(n,cmd)
 {
@@ -1207,6 +1372,7 @@ function add_delicious_webjumps (username)
 // Some built in web jumps
 function init_webjumps()
 {
+    add_webjump("conkerorwiki","http://dev.technomancy.us/conkeror/index.cgi/search?q=%s&wiki=on&changeset=on&ticket=on");
     add_webjump("google",     "http://www.google.com/search?q=%s");
     add_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
     add_webjump("maps",       "http://maps.google.com/?q=%s");
@@ -1277,7 +1443,7 @@ function getWebJump(value)
 	    return null;
     }
     return webjump_build_url(jump, value.substring(start + 1));
-    } catch(e) {alert(e);}
+    } catch(e) {alert(e); return null;}
 }
 
 function doWebJump(prefix, match, value)
@@ -1365,12 +1531,41 @@ function get_link_text()
 }
 
 
-function copy_link_location (loc)
+function copy_email_address (loc)
 {
-    writeToClipboard(loc);
-    message("Copied '" + loc + "'");
+    // Copy the comma-separated list of email addresses only.
+    // There are other ways of embedding email addresses in a mailto:
+    // link, but such complex parsing is beyond us.
+    var qmark = loc.indexOf( "?" );
+    var addresses;
+
+    if ( qmark > 7 ) {                   // 7 == length of "mailto:"
+        addresses = loc.substring( 7, qmark );
+    } else {
+        addresses = loc.substr( 7 );
+    }
+
+    //XXX: the original code, which we got from firefox, unescapes the string
+    //     using the current character set.  To do this in conkeror, we
+    //     *should* use an interactive method that gives us the character set,
+    //     rather than fetching it by side-effect.
+
+    //     // Let's try to unescape it using a character set
+    //     // in case the address is not ASCII.
+    //     try {
+    //         var characterSet = this.target.ownerDocument.characterSet;
+    //         const textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
+    //             .getService(Components.interfaces.nsITextToSubURI);
+    //         addresses = textToSubURI.unEscapeURIForUI(characterSet, addresses);
+    //     }
+    //     catch(ex) {
+    //         // Do nothing.
+    //     }
+
+    writeToClipboard(addresses);
+    message("Copied '" + addresses + "'");
 }
-interactive("copy-link-location", copy_link_location, ['focused_link_url_s']);
+interactive("copy-email-address", copy_email_address, ['focused_link_url_s']);
 
 
 function save_focused_link (url_o, dest_file_o)
@@ -1387,7 +1582,7 @@ function save_focused_link (url_o, dest_file_o)
 }
 interactive ("save-focused-link", save_focused_link,
              ['focused_link_url_o',
-              ['F', "Save Link As: ",
+              ['F', function (a) { return "Save Link As: "; },
                function (args) {
                    return make_default_file_name_to_save_url (args[0]).path;
                },
@@ -1402,13 +1597,13 @@ function save_image (url_o, dest_file_o)
                            null,        // dest_data_dir_o
                            null,        // referrer_o
                            null,        // content_type_s
-                           true,        // should_bypass_cache_p
+                           false,       // should_bypass_cache_p
                            false,       // save_as_text_p
                            false);      // save_as_complete_p
 }
 interactive ("save-image", save_image,
              ['image_url_o',
-              ['F', "Save Image As: ",
+              ['F', function (a) { return "Save Image As: "; },
                function (args) {
                    return make_default_file_name_to_save_url (args[0]).path;
                },
@@ -1419,20 +1614,19 @@ function save_page (document_o, dest_file_o)
 {
     var url_o = makeURL (document_o.documentURI);
     var content_type_s = document_o.contentType;
-    var should_bypass_cache_p = true;//not sure...
     download_uri_internal (url_o,
                            document_o,
                            dest_file_o,
                            null,   // dest_data_dir_o
                            null,   // referrer_o
                            content_type_s,
-                           should_bypass_cache_p,
+                           false,  // should_bypass_cache_p
                            false,  // save_as_text_p
                            false); // save_as_complete_p
 }
 interactive("save-page", save_page,
             ['active_document',
-             ['F', "Save Page As: ",
+             ['F', function (a) { return "Save Page As: "; },
               function (args) {
                   var document_o = args[0];
                   var url_o = makeURL (document_o.documentURI);
@@ -1458,13 +1652,13 @@ function save_page_as_text (document_o, dest_file_o)
                            null,   // dest_data_dir_o
                            null,   // referrer_o
                            content_type_s,
-                           should_bypass_cache_p,
-                           true,  // save_as_text_p
+                           false,  //should_bypass_cache_p
+                           true,   // save_as_text_p
                            false); // save_as_complete_p
 }
 interactive("save-page-as-text", save_page_as_text,
             ['active_document',
-             ['F', "Save Page As: ",
+             ['F', function (a) { return "Save Page As: "; },
               function (args) {
                   var document_o = args[0];
                   var url_o = makeURL (document_o.documentURI);
@@ -1484,20 +1678,19 @@ function save_page_complete (document_o, dest_file_o, dest_data_dir_o)
 {
     var url_o = makeURL (document_o.documentURI);
     var content_type_s = document_o.contentType;
-    var should_bypass_cache_p = true;//not sure...
     download_uri_internal (url_o,
                            document_o,
                            dest_file_o,
                            dest_data_dir_o,
                            null,   // referrer_o
                            content_type_s,
-                           should_bypass_cache_p,
+                           false,  // should_bypass_cache_p
                            false,  // save_as_text_p
-                           true); // save_as_complete_p
+                           true);  // save_as_complete_p
 }
 interactive("save-page-complete", save_page_complete,
             ['active_document',
-             ['F', "Save Page As: ",
+             ['F', function (a) { return "Save Page As: "; },
               function (args) {
                   var document_o = args[0];
                   var url_o = makeURL (document_o.documentURI);
@@ -1510,12 +1703,12 @@ interactive("save-page-complete", save_page_complete,
                       content_disposition).path;
               },
               "save"],
-             ['F', "Data Directory: ",
+             ['F', function (a) { return "Data Directory: "; },
               function (args) { return args[1].path + ".support"; },
               "save"]]);
 
 
-interactive("source", function (fo) { load_rc (fo.path); }, [['f',"Source File: ",null,"source"]]);
+interactive("source", function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 
 interactive ("reinit",
              function (fn) {
@@ -1564,12 +1757,25 @@ function universal_digit(prefix)
     // Array means they typed only C-u's. Otherwise, add another digit
     // to our accumulating prefix arg.
     if (typeof prefix == "object") {
-	gPrefixArg = digit;
+        if (prefix[0] < 0)
+            gPrefixArg = 0 - digit;
+        else
+            gPrefixArg = digit;
     } else {
 	gPrefixArg = prefix * 10 + digit;
     }
 }
 interactive("universal-digit", universal_digit,["P"]);
+
+
+function universal_negate ()
+{
+    if (typeof gPrefixArg == "object")
+        gPrefixArg[0] = 0 - gPrefixArg[0];
+    else
+        gPrefixArg = 0 - gPrefixArg;
+}
+interactive("universal-negate", universal_negate,[]);
 
 
 function universal_argument()
@@ -1604,7 +1810,7 @@ function univ_arg_to_number(prefix)
     else if (typeof prefix == "number")
 	return prefix;
 
-    } catch(e) {alert("univ: " + e);}
+    } catch(e) {alert("univ: " + e); return null;}
 }
 
 function go_up(prefix)
@@ -1616,27 +1822,55 @@ function go_up(prefix)
 interactive("go-up", go_up, ["p"]);
 
 
-function list_buffers()
-{
+// XXX: this whole thing is really hacky.  what *should* happen is that
+//      list-buffers would create a special buffer that would be a
+//      chrome-level xul element, rather than some web page in a browser.
+//      Note how the links use addEventListener instead of onclick, as a
+//      normal link would.  I did not figure out how to use onclick because of
+//      problems creating a closure around the buffer object.  (onclick's
+//      value is a string, while addEventListener's is a function.)
+//
+//      Also we use an A element here even though we are not dealing with a
+//      proper hyperlink, just to get the side-effect of numberedlinks.
+//
+function list_buffers () {
+    function make_buffer_button (buffer)
+    {
+        var button = window.content.document.createElement ('a');
+        button.setAttribute ('href', '#');
+        button.setAttribute ('onmouseover', 'this.style.cursor = "pointer";');
+        button.setAttribute ('onmouseout', 'this.style.cursor = "auto";');
+        button.addEventListener ('click', 
+                                 function () { getBrowser().setCurrentBrowser (buffer); }, 
+                                 false);
+        var text = window.content.document.createTextNode (buffer.webNavigation.currentURI.spec);
+        button.appendChild (text);
+        return button;
+    }
+
+    function list_all_buffers ()
+    {
+        var doc = window.content.document;
+        var browsers = getBrowser().mBrowsers;
+
+        var buffer_list = doc.createElement ('ul');
+        var buffer_list_item = null;
+
+        for (var i = 0; i < browsers.length; i++) {
+            buffer_list_item = doc.createElement ('li');
+            buffer_list_item.appendChild (make_buffer_button (browsers[i]));
+            buffer_list.appendChild (buffer_list_item);
+        }
+        doc.body.appendChild (buffer_list);
+    }
+
     getWebNavigation().loadURI("about:blank", 
                                nsIWebNavigation.LOAD_FLAGS_NONE, null,
 			       null, null);
-
-    // There should be a better way, but I don't know what it is.
-    setTimeout(list_all_buffers,0);
+    setTimeout(list_all_buffers, 0);
 }
 interactive("list-buffers", list_buffers, []);
 
-
-function list_all_buffers()
-{
-    var doc = _content.content.document;
-    var browsers = getBrowser().mBrowsers;
-    for (var i=0;i<browsers.length; i++) {
-	doc.write(browsers[i].webNavigation.currentURI.spec + "<HR>");
-    }
-    stopLoading();
-}
 
 function link_menu(prefix)
 {
@@ -1781,51 +2015,7 @@ function mode_line_mode(arg)
 }
 interactive("mode-line-mode", mode_line_mode, ["P"]);
 
-
-// Open the familiar preferences window.
-// contributed by Steve Youngs
-function customize ()
-{
-    window.openDialog("chrome://browser/content/preferences/preferences.xul", "PrefWindow",
-		      "chrome,titlebar,toolbar,centerscreen,modal", "catFeaturesbutton");
-}
-interactive("customize", customize, []);
-interactive("preferences", customize, []);
-
-
-function extensions ()
-{
-    window.openDialog("chrome://mozapps/content/extensions/extensions.xul?type=extensions", "ExtensionsWindow",
-		      "chrome,dialog=no,resizable");
-}
-interactive("extensions", extensions, []);
-
-
-function adblock_add_pattern ()
-{
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-    var branch = prefs.getBranch("conkeror.");
-
-    readFromMiniBuffer("Add Adblock Filter: ", null, "adblock",
-                       null, null, null,
-		       function (str) {
-			   var block = branch.prefHasUserValue("adblock") ? branch.getCharPref("adblock") : "";
-			   branch.setCharPref("adblock", block + " " + str);
-		       });
-}
-interactive("adblock-add-pattern", adblock_add_pattern, []);
-
-
-function adblock_list_patterns ()
-{
-    var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-    var branch = prefs.getBranch("conkeror.");
-    var block = branch.prefHasUserValue("adblock") ? branch.getCharPref("adblock") : "";
-
-    message ("Patterns:" + block);
-}
-interactive("adblock-list-patterns", adblock_list_patterns, []);
-
+interactive("extensions", conkeror.show_extension_manager, []);
 
 function print_buffer()
 {
@@ -1851,14 +2041,6 @@ function jsconsole(prefix)
 interactive("jsconsole", jsconsole, ["p"]);
 
 
-// Open a regular firefox browser
-function firefox ()
-{
-    window.openDialog("chrome://browser/content/", "_blank", "dialog=no,resizable,all");
-}
-interactive("firefox", firefox, []);
-
-
 // minibuffer stuff
 //
 function exit_minibuffer (exit)
@@ -1866,31 +2048,29 @@ function exit_minibuffer (exit)
     //XXX: minibuffer.completions defaults to a 0 element array.  possible bug here.
     var completion_mode_p = (minibuffer.completions != null);
     var match = null;
-    try {
-        var val = removeWhiteSpace (minibuffer.input.value);
+    var val = removeWhiteSpace (minibuffer.input.value);
+    if (completion_mode_p) {
+        if (val.length == 0 && minibuffer.default_match != null)
+            val = minibuffer.default_match;
+        match = findCompleteMatch(minibuffer.completions, val);
+    }
+    addHistory(val);
+    var callback = minibuffer.callback;
+    minibuffer.callback = null;
+    minibuffer.abort_callback = null;
+    minibuffer.exit = exit;
+    closeInput(true);
+    if (callback) {
         if (completion_mode_p) {
-            if (val.length == 0 && minibuffer.default_match != null)
-                val = minibuffer.default_match;
-            match = findCompleteMatch(minibuffer.completions, val);
-        }
-        addHistory(val);
-        var callback = minibuffer.callback;
-        minibuffer.callback = null;
-        minibuffer.abort_callback = null;
-        minibuffer.exit = exit;
-        closeInput(true);
-        if (callback) {
-            if (completion_mode_p) {
-                if (minibuffer.allow_nonmatches) {
-                    callback (match, val);
-                } else if (match) {
-                    callback (match);
-                }
-            } else {
-                callback(val);
+            if (minibuffer.allow_nonmatches) {
+                callback (match, val);
+            } else if (match) {
+                callback (match);
             }
+        } else {
+            callback(val);
         }
-    } catch (e) {message ("exit_minibuffer: "+e);}
+    }
 }
 interactive("exit-minibuffer", exit_minibuffer, ['current_command']);
 
@@ -2044,3 +2224,36 @@ function minibuffer_backspace (prefix) {
     cmd_deleteCharBackward (prefix);
 }
 interactive ("minibuffer-backspace", minibuffer_backspace, ['p']);
+
+
+function view_source (url_s)
+{
+    if (url_s.substring (0,12) != "view-source:") {
+        try {
+            var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
+            getWebNavigation().loadURI("view-source:"+url_s, loadFlags, null, null, null);
+        } catch(e) {alert(e);}
+    } else {
+        message ("already viewing source");
+    }
+}
+interactive("view-source", view_source, ['current_url_s']);
+
+
+function view_partial_source (charset, selection) {
+    if (charset) { charset = "charset=" + charset; }
+    window.openDialog("chrome://global/content/viewPartialSource.xul",
+                      "_blank", "scrollbars,resizable,chrome,dialog=no",
+                      null, charset, selection, 'selection');
+}
+interactive ('view-partial-source', view_partial_source, ['content_charset', 'content_selection']);
+
+
+function  view_mathml_source (charset, target) {
+    if (charset) { charset = "charset=" + charset; }
+    window.openDialog("chrome://global/content/viewPartialSource.xul",
+                      "_blank", "scrollbars,resizable,chrome,dialog=no",
+                      null, charset, target, 'mathml');
+}
+interactive ('view-mathml-source', view_mathml_source, ['content_charset', 'mathml_node']);
+

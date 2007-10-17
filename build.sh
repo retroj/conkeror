@@ -2,32 +2,7 @@
 
 source VERSION
 
-## TARGET
-##
-##   xpi        build the xpi as non-release.  version will get subminor
-##              tacked on.
-##
-##   release    build the xpi as release.  the xpi will be put in
-##              ../downloads/
-##
-##   jar        build the jar only as non-release.  version will get
-##              subminor tacked on.
-##
-##   install-jar   build the jar and attempt shortcut install to $PROFILE
-##
-##   announce   Edit the web page to announce the new release version.
-##
-##   etags      build TAGS file, requires directory arg.
-##
-##
 TARGET='help'
-
-
-## PROFILE
-##
-##   This variable is used when a shortcut jar-only install is requested.
-##
-PROFILE="" # arg for install-jar
 
 ## ETAGSDIR
 ##
@@ -36,38 +11,32 @@ PROFILE="" # arg for install-jar
 ##
 ETAGSDIR=""
 
-while [[ "$1" = [-a-z]* ]]; do
-    case "$1" in
-        install-jar)
-            TARGET=install-jar
-            PROFILE="$2"
-            if [[ -z "$2" ]]; then
-                echo "error: install-jar requires an arg.  please read the source."
-                exit 1
-            fi
-            shift ;;
-        xpi)
-            TARGET=xpi ;;
-        jar)
-            TARGET=jar ;;
-        release)
-            TARGET=release ;;
-        announce)
-            TARGET=announce ;;
-        etags)
-            TARGET=etags
-            ETAGSDIR="$2"
-            shift ;;
-        notes)
-            TARGET=notes ;;
-        help|-help|--help)
-            TARGET=help ;;
-        *)
-            echo 'bad usage. please read the source.'
-            exit 1
-    esac
-    shift
-done
+case "$1" in
+    jar)
+        TARGET=jar ;;
+    xulapp)
+        TARGET=xulapp ;;
+    ## xulapp-osx)
+    ##     TARGET=xulapp-osx ;;
+    dist-tar)
+        TARGET=dist-tar ;;
+    release)
+        TARGET=release ;;
+    announce)
+        TARGET=announce ;;
+    etags)
+        TARGET=etags
+        ETAGSDIR="$2"
+        shift ;;
+    notes)
+        TARGET=notes ;;
+    help|-help|--help)
+        TARGET=help ;;
+    *)
+        echo 'bad usage. please read the source.'
+        exit 1
+esac
+shift
 
 
 ## if this is not an official release, tag on a build date.
@@ -75,81 +44,68 @@ done
 ## if this is an official release, strip the subminor.
 ##
 MILESTONE="${VERSION##*.}"
+BUILD_DATE=$(date +%Y%m%d)
+SHORT_VERSION="$VERSION"
 
 case "$TARGET" in
     release|announce)
         VERSION="${VERSION%.*}" ;;
     *)
-        VERSION="${VERSION}.$(date +%Y%m%d)"
+        VERSION="$VERSION.$BUILD_DATE"
 esac
 echo "build target: $TARGET, $VERSION"
 
 
+### UTILITIES
+###
+###
+
+
+
+## SCRATCH
+##
+##   Temporary directory for build process.
+##
+SCRATCH=""
+
+function get_scratch () {
+    if [[ -z "$SCRATCH" ]]; then
+        SCRATCH=$(mktemp -d)
+    fi
+}
+
+
+function do_cleanup () {
+    if [[ -n "$SCRATCH" ]]; then
+        rm -r "$SCRATCH"
+        SCRATCH=""
+    fi
+}
+
 
 function assert_conkeror_src () {
-    if  [[ ! -e install.rdf ]] || \
-        [[ ! -e conkeror/content/contents.rdf ]];
-    then
-        echo "This directory does not appear to contain the Conkeror source code."
+    if  [[ ! -e application.ini ]]; then
+        echo "The current directory does not appear to contain the Conkeror source code."
         exit 1
     fi
 }
 
 
-
-function do_target_jar () {
-    echo -n Building JAR...
-    mkdir -p jar-build
-    cp -r conkeror jar-build/conkeror
-    pushd jar-build > /dev/null
-    FILES=($(find conkeror -regex '.*[^~#]' | grep -v CVS))
-    ## begin preprocessing
-    ##
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' conkeror/content/contents.rdf
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' conkeror/content/conkeror.js
-    ##
-    ## end preprocessing
-    zip conkeror.jar "${FILES[@]}" > /dev/null
-    popd > /dev/null
-    mv jar-build/conkeror.jar .
-    rm -r jar-build
-    echo ok
+function copy_tree_sans_boring () {
+    src="$1"
+    dest="$2"
+    mkdir -p "$dest"
+    O=$IFS
+    IFS=$'\n'
+    ( cd "$src"; find . -name CVS -prune -or \( -type d -and \
+                                   \! -name '*[~#]' -print0 \) ) \
+        | ( cd "$dest"; xargs -0 mkdir -p )
+    files=($( cd "$src"; find . -name CVS -prune -or \( -type f -and \
+                \! -name '*[~#]' -print \) ))
+    for file in "${files[@]}" ; do cp "$src/$file" "$dest/$file" ; done
+    IFS=$O
 }
 
-
-function do_target_install_jar () {
-    do_target_jar
-    echo -n Performing JAR-only install for profile "$PROFILE"...
-    # find the salted profile dir
-    salted=$(ls -d ~/.mozilla/firefox/*."$PROFILE")'/extensions/{a79fe89b-6662-4ff4-8e88-09950ad4dfde}/chrome/'
-    if [[ ! -e "$salted" ]]; then
-        echo failed
-        echo "error (not found): $salted"
-        exit 1
-    fi
-    mv conkeror.jar "$salted"
-    echo ok
-}
-
-
-function do_target_xpi () {
-    do_target_jar
-    echo -n Building XPI...
-    mkdir -p xpi-build/chrome
-    mv conkeror.jar xpi-build/chrome/
-    cp install.rdf xpi-build/
-    cp -r components xpi-build/components
-    pushd xpi-build > /dev/null
-    ## begin preprocessing
-    ##
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' install.rdf
-    ##
-    ## end preprocessing
-    zip -r ../conkeror-firefox-$VERSION.xpi chrome install.rdf components/nsCrank.js > /dev/null
-    popd > /dev/null
-    rm -r xpi-build
-    echo ok
-}
 
 
 function do_check_milestone_for_release ()
@@ -172,16 +128,6 @@ function do_check_milestone_for_release ()
         echo "Leaving $dest untouched.  Continuing with build."
     fi
 }
-
-
-function do_target_release () {
-    do_check_milestone_for_release
-    do_target_xpi
-    echo -n Putting conkeror-firefox-$VERSION.xpi in downloads directory ...
-    mv conkeror-firefox-$VERSION.xpi ../downloads
-    echo ok
-}
-
 
 
 function diff_wrapper () {
@@ -211,6 +157,125 @@ function diff_wrapper () {
 }
 
 
+
+
+
+### TARGETS
+###
+###
+
+function do_target_jar () {
+    echo -n Building JAR...
+    get_scratch
+    jarbuild="$SCRATCH/jar-build"
+    mkdir "$jarbuild"
+    cp -r conkeror "$jarbuild/conkeror"
+    pushd "$jarbuild" > /dev/null
+    FILES=($(find conkeror -name CVS -prune -or \( -type f -and \! -name '*[~#]' -print \)))
+    ## begin preprocessing
+    ##
+    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' conkeror/content/contents.rdf
+    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' conkeror/content/conkeror.js
+    ##
+    ## end preprocessing
+    zip conkeror.jar "${FILES[@]}" > /dev/null
+    popd > /dev/null
+    mv "$jarbuild/conkeror.jar" .
+    echo ok
+    do_cleanup
+}
+
+
+function do_target_xulapp () {
+    do_target_jar
+    echo -n Building XULRunner Application...
+    get_scratch
+    mkdir -p "$SCRATCH/chrome"
+    cp application.ini "$SCRATCH"
+    mv conkeror.jar "$SCRATCH/chrome/"
+    cp chrome.manifest "$SCRATCH/chrome/"
+    copy_tree_sans_boring defaults "$SCRATCH/defaults"
+    copy_tree_sans_boring components "$SCRATCH/components"
+    pushd "$SCRATCH" > /dev/null
+    ## begin preprocessing
+    ##
+    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' application.ini
+    perl -pi -e 's/\$CONKEROR_BUILD_DATE\$/'$BUILD_DATE'/g' application.ini
+    ##
+    ## end preprocessing
+    zip -r conkeror.xulapp * > /dev/null
+    popd > /dev/null
+    mv "$SCRATCH/conkeror.xulapp" .
+    do_cleanup
+    echo ok
+}
+
+
+function do_target_xulapp_osx () {
+    do_target_xulapp
+    get_scratch
+    contents="$SCRATCH/Contents"
+    mkdir "$contents"
+    unzip conkeror.xulapp -d "$contents/Resources" > /dev/null
+    ## to-do: create Contents/Resources/app_icons.icns
+    cp Info.plist "$contents/"
+    ## begin preprocessing
+    ##
+    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' "$contents/Info.plist"
+    perl -pi -e 's/\$CONKEROR_SHORT_VERSION\$/'$SHORT_VERSION'/g' "$contents/Info.plist"
+    ##
+    ## end preprocessing
+
+    mkdir -p "$contents/Frameworks/XUL.framework"
+    ## XUL.framework will contain files copied from /Library/Frameworks/XUL.framework/Versions/1.8/
+    ##
+    ## make sure you copy all symlinks correctly. (use rsync -rl /Library/Frameworks/XUL.framework ...)
+    mkdir "$contents/MacOS"
+    ## place the xulrunner stub executable from /Library/Frameworks/XUL.framework/Versions/1.8/xulrunner
+    ## in Contents/MacOS
+
+    ## now make Conkeror.app
+
+    ## and clean up
+    do_cleanup
+}
+
+
+function do_target_dist_tar () {
+    do_target_xulapp
+    get_scratch
+    ## now we have conkeror.xulapp
+    ## package it with install.sh
+    ##
+    ## some other files should probably go in here.. NEWS, for example
+    mkdir "$SCRATCH/conkeror-$VERSION"
+    mv conkeror.xulapp "$SCRATCH/conkeror-$VERSION/"
+    cp install.sh "$SCRATCH/conkeror-$VERSION/"
+    pushd "$SCRATCH" > /dev/null
+    tar c conkeror-$VERSION | gzip > conkeror-$VERSION.tar.gz
+    popd > /dev/null
+    mv "$SCRATCH/conkeror-$VERSION.tar.gz" .
+    echo -n "Making conkeror-$VERSION.tar.gz ..."
+    do_cleanup
+    echo ok
+}
+
+
+function do_target_release () {
+    do_check_milestone_for_release
+    ## Make any and all release archives.
+    ##
+    ## Right now, we just make a tar.gz archive that includes an install
+    ## script.  In the future, we could consider making an OSX App, a Windows
+    ## Installer EXE, and a Mozilla XPI Installer.
+    ##
+    do_target_dist_tar
+    echo -n Putting conkeror-$VERSION.tar.gz in downloads directory ...
+    mv conkeror-$VERSION.tar.gz ../downloads
+    echo ok
+}
+
+
 function do_target_announce () {
     do_check_milestone_for_release
     echo Entering ../www/ ... ok
@@ -220,7 +285,7 @@ function do_target_announce () {
     perlexp='s/(?<=<!--\scontrolled\scontent\sinsertion\spoint::whatsnew\s-->\n) ()(?!.*'$VERSION'.*$)/<li>'$VERSION' released! \('"$(date '+%b %d, %Y')"'\)<\/li>\n/mxg'
     diff_wrapper "$scratch" index.html "$perlexp"
 
-    perlexp='s/(?<=<!-- begin controlled content. do not edit manually. id:newestlink -->).*?(?=<!-- end controlled content. -->)/<a href="http:\/\/downloads.mozdev.org\/conkeror\/conkeror-firefox-'$VERSION'.xpi">conkeror-firefox-'$VERSION'.xpi<\/a>/g'
+    perlexp='s/(?<=<!-- begin controlled content. do not edit manually. id:newestlink -->).*?(?=<!-- end controlled content. -->)/<a href="http:\/\/downloads.mozdev.org\/conkeror\/conkeror-'$VERSION'.tar.gz">conkeror-'$VERSION'.tar.gz<\/a>/g'
     diff_wrapper "$scratch" installation.html "$perlexp"
 
     rm -r "$scratch"
@@ -268,14 +333,9 @@ function do_target_help () {
     echo 'Usage:  ./build.sh <TARGET>'
     echo 'where <TARGET> is one of:'
     echo
-    echo ' jar                    Builds a non-release jar in the current directory.'
+    echo ' xulapp'
     echo
-    echo ' install-jar <PROFILE>  Builds a non-release jar, attempts to find the'
-    echo '                        location of an installed Conkeror for <PROFILE>'
-    echo '                        and puts the jar there.  <PROFILE> is the human-'
-    echo '                        readable name, not the salted name.'
-    echo
-    echo ' xpi                    Builds a non-release xpi in the current directory.'
+    echo ' dist-tar'
     echo
     echo ' release                Builds a release xpi and puts it in ../downloads.'
     echo
@@ -293,12 +353,21 @@ function do_target_help () {
 }
 
 
+
+
+
+
+### MAIN
+###
+###
+
 assert_conkeror_src
 
 case "$TARGET" in
     jar) do_target_jar ;;
-    install-jar) do_target_install_jar ;;
-    xpi) do_target_xpi ;;
+    xulapp) do_target_xulapp ;;
+    ## xulapp-osx) do_target_xulapp_osx ;;
+    dist-tar) do_target_dist_tar ;;
     release) do_target_release ;;
     announce) do_target_announce ;;
     etags) do_target_etags ;;
@@ -306,3 +375,4 @@ case "$TARGET" in
     help) do_target_help ;;
 esac
 
+do_cleanup

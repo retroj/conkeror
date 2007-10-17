@@ -100,6 +100,7 @@ function get_numberedlink_in_document (doc, number)
             return nodes[i];
         }
     }
+    return null;
 }
 
 function get_numberedlink (number)
@@ -116,7 +117,7 @@ function get_numberedlink (number)
     }
     var node = doc.getElementById(nlnode.getAttribute("__nodeid"));
     if (! nlnode || ! node || ! doc)
-        return;
+        return null;
     return { nlnode: nlnode, node: node, doc: doc };
 }
 
@@ -470,7 +471,7 @@ function doLinkNodes(doc, nodes, linknum)
 	//     }
 
     } catch (e) {alert(e);}
-
+    return null;
     //     return linknum;
 }
 
@@ -487,9 +488,9 @@ function continueNumberedLinks (doc, linknum, nodes, docs)
             documentMarkNumbered (doc);
 	    if (docs.length > 0) {
 		var newdoc = docs.pop();
-                var nodes = getLinkNodes (newdoc);
-                var firstnum = reserveLinkNumbers (nodes.length);
-		setTimeout (continueNumberedLinks, 0, newdoc, firstnum, nodes, docs);
+                var newnodes = getLinkNodes (newdoc);
+                var firstnum = reserveLinkNumbers (newnodes.length);
+		setTimeout (continueNumberedLinks, 0, newdoc, firstnum, newnodes, docs);
             }
 	}
 

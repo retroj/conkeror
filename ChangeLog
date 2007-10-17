@@ -1,0 +1,70 @@
+2007-08-23  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.23
+
+	* components/commandline.js: extensive changes.  much code moved
+	to application.js.
+
+	* components/application.js: new file.
+
+	* build.sh (copy_tree_sans_boring, do_target_jar): rewritten find
+	calls.
+
+	* conkeror/locale/en-US/gui_context_menu.properties:
+	context_copy_frameset_frame_location.label and
+	context_copy_frameset_frame_location.accesskey new.
+
+	* defaults/preferences/prefs.js: dom.disable_open_during_load,
+	javascript.options.showInConsole,
+	dom.disable_window_open_feature.status,
+	dom.disable_window_open_feature.location,
+	dom.disable_window_status_change, dom.disable_window_move_resize,
+	dom.disable_window_flip new.
+
+2007-05-20  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.16
+
+	* defaults/preferences/find.js: new file.
+
+	* conkeror/locale/en-US/gui_context_menu.properties: new file.
+
+	* chrome.manifest: added locale conkeror en-US.
+
+2007-05-15  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.15
+
+	* components/commandline.js (conkeror): new global.
+
+	* components/commandline.js (init_conkeror): new function.
+
+	* components/commandline.js (myAppHandler): renamed to
+	conkerorHandler.
+
+	* components/commandline.js (conkerorHandler.handle): rewritten.
+
+	* components/commandline.js (myAppHandlerModule): renamed to
+	conkerorModule.
+
+2007-05-10  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* defaults/preferences/prefs.js: browser.chromeURL
+
+2007-05-10  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* components/nsCrank.js: removed.
+
+	* conkeror/branding/brand.dtd: new file.
+
+	* conkeror/branding/brand.properties: new file.
+
+	* application.ini (XRE): EnableExtensionManager=1.
+
+	* chrome.manifest: branding entry.
+
+	* default/preferences/prefs.js: removed defaultChromeURI.
+
+	* components/commandline.js (jsdump, consoledump, consoledumpln):
+	new.
+

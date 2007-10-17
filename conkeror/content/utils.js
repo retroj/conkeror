@@ -32,6 +32,7 @@ var gBrowser = null;
 var default_directory = null;
 
 
+///XXX: demolition
 function copy_img_location (node)
 {
     var loc;
@@ -324,6 +325,37 @@ function closeInput(restoreFocus)
     } catch(e) { alert(e); }
 }
 
+// Window title formatting
+
+/**
+ * The value of this variable should be a function that takes two
+ * string arguments (page_title, page_url) and returns the window
+ * title to use.
+ */
+var titleFormatter = default_title_formatter;
+
+/**
+ * Default tile formatter.  The page url is ignored.  If there is a
+ * page_title, returns: "Page title - Conkeror".  Otherwise, it
+ * returns just: "Conkeror".
+ */
+function default_title_formatter(page_title, page_url)
+{
+  if (page_title && page_title.length > 0)
+    return page_title + " - Conkeror";
+  else
+    return "Conkeror";
+}
+
+function set_window_title()
+{
+  var page_title = getBrowser().mCurrentBrowser.contentTitle;
+  var page_url = getWebNavigation().currentURI.spec;
+
+  var title = titleFormatter(page_title, page_url);
+  document.title = title;
+}
+
 // Enable/disable modeline
 var gModeLineMode = true;
 
@@ -479,9 +511,9 @@ function getMods(event)
     // Take the shift key into account when building the charCode, so it can
     // be said that the shift key has already been processed.  Don't include
     // it in the mods if charCode exists in the event.
-    return event.ctrlKey ? MOD_CTRL:0 |
-	metaPressed(event) ? MOD_META:0 |
-	(event.shiftKey && !event.charCode) ? MOD_SHIFT: 0;
+    return (event.ctrlKey ? MOD_CTRL:0) |
+	(metaPressed(event) ? MOD_META:0) |
+	((event.shiftKey && !event.charCode) ? MOD_SHIFT: 0);
 }
 
 function copyEvent(event)
@@ -598,7 +630,9 @@ function goDoCommand(command)
         if (controller && controller.isCommandEnabled(command))
             controller.doCommand(command);
     }
-    catch (e) { }
+    catch (e) {
+        message ("goDoCommand: failed on "+command+" ("+e+")");
+    }
 }
 
 function zip2(array1, array2)
@@ -608,26 +642,6 @@ function zip2(array1, array2)
     for(var i=0; i<len; i++)
 	acc.push([array1[i],array2[i]]);
     return acc;
-}
-
-var BMDS;
-var BMSVC;
-var RDF;
-var kBMSVCIID;
-
-function initBookmarkService()
-{
-    var kRDFSVCIID     = Components.interfaces.nsIRDFService;
-    var kRDFContractID = "@mozilla.org/rdf/rdf-service;1";
-    RDF                = Components.classes[kRDFContractID].getService(kRDFSVCIID);
-    kBMSVCIID      = Components.interfaces.nsIBookmarksService;
-    BMDS  	       = RDF.GetDataSource("rdf:bookmarks");
-    BMSVC 	       = BMDS.QueryInterface(kBMSVCIID);
-}
-
-function add_bookmark(url, title, charset)
-{
-    BMSVC.addBookmarkImmediately(url, title, kBMSVCIID.BOOKMARK_DEFAULT_TYPE, charset);
 }
 
 //////////// Stolen from venkman
@@ -1245,17 +1259,27 @@ function make_default_file_name_to_save_url (url_o, aDocument, aContentType, aCo
 }
 
 function set_default_directory (directory_s) {
-    if (! directory_s)
-    {
+    function getenv (variable) {
         var env = Components.classes['@mozilla.org/process/environment;1']
             .createInstance (Components.interfaces.nsIEnvironment);
-        if (env.exists ('HOME'))
-            directory_s = env.get('HOME');
+        if (env.exists (variable))
+            return env.get(variable);
+        return null;
+    }
+
+    if (! directory_s)
+    {
+        directory_s = getenv ('HOME');
+    }
+    if (! directory_s &&
+        navigator.platform == "Win32")
+    {
+        directory_s = getenv ('USERPROFILE') ||
+            getenv ('HOMEDRIVE') + getenv ('HOMEPATH');
     }
     default_directory = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
     default_directory.initWithPath (directory_s);
-
 }
 
 
@@ -1310,3 +1334,117 @@ function load_rc (path_s)
         load_rc_file (path_s);
     }
 }
+
+
+function add_stringbundle (id, src)
+{
+    const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+    var stringbundleset = document.getElementById ("stringbundleset");
+    var item = document.createElementNS (XUL_NS,"stringbundle");
+    item.setAttribute ("id", id);
+    item.setAttribute ("src", src);
+    stringbundleset.appendChild (item);
+    return item;
+}
+
+
+
+
+
+
+// var commandline_flags = {
+//     'default': { doc: "This action is associated with stand-alone command-line arguments (those with no flag).",
+//                  arg: 'URL',
+//                  func: function (url) { dumpln (url); }
+//     },
+
+//     '-r': { doc: "Recycle active buffer for first url",
+//             arg: false,
+//             func: function () { dump ("I saw -r\n"); }
+//     },
+
+//     '-c': { doc: "Call interactive command",
+//             arg: 'COMMAND',
+//             func: function (command) { dump ("I saw -c with command, "+command+"\n"); }
+//     }
+// };
+
+
+// function commandline_handler (cmdline) {
+//     try {
+//         var flag;
+//         var expect = false;
+//         var actions = [];
+//         if (cmdline.length == 0) {
+//             // FIXME: what should happen when a command line is remoted that
+//             // has no arguments?  new frame?  request focus for active frame?
+//             dumpln ("conkeror: command line remoted with no args.");
+//         }
+//         for (var i = 0; i < cmdline.length; i++) {
+//             var arg = cmdline.getArgument (i);
+//             if (expect == false && arg[0] == '-') {
+//                 // looks like a flag
+//                 if (arg in commandline_flags) {
+//                     if (commandline_flags[arg].arg) {
+//                         flag = arg;
+//                         expect = true;
+//                     } else {
+//                         // this flag takes no argument.
+//                         actions.push ([arg]);
+//                     }
+//                 } else {
+//                     throw ("unrecognized flag: "+arg);
+//                 }
+//             } else {
+//                 if (expect) {
+//                     expect = false;
+//                     actions.push ([flag, arg]);
+//                 } else {
+//                     // stand-alone argument, like an URL.  use default action.
+//                     actions.push (['default', arg]);
+//                 }
+//             }
+//         }
+//         if (expect) { //p-tui!
+//             var detail = (commandline_flags[flag].arg == true ? ""
+//                           : " ("+commandline_flags[flag].arg + ")");
+//             throw ("expected argument for flag, " + flag + detail);
+//         }
+
+//         while (actions.length) {
+//             try {
+//                 var a = actions.shift ();
+//                 if (commandline_flags[ a[0] ].arg) {
+//                     // an arg has been collected for this action (a[1])
+//                     commandline_flags[ a[0] ].func (a[1]);
+//                 } else {
+//                     commandline_flags[ a[0] ].func ();
+//                 }
+//             } catch (e) {
+//                 dump ("conkeror: command line action failed:\n"+e+"\n");
+//             }
+//         }
+
+//         // should we open a new window?
+// //         if (cmdline.state == cmdline.STATE_INITIAL_LAUNCH) {
+// //             // we need to open a window, with our object as arg.
+// //             ww.openWindow(null, CHROME_URI, "_blank",
+// //                           "chrome,menubar,toolbar,status,resizable,dialog=no",
+// //                           {wrappedJSObject: window_arguments});
+// //         } else {
+// //             // we need to pass our object to the active window.
+// //             try {
+// //                 ww.activeWindow.handle_window_arguments ({wrappedJSObject: window_arguments});
+// //             } catch (e) {
+// //                 dump ("conkeror: failed to find active window:\n"
+// //                       +"          "+ e + "\n");
+// //             }
+// //         }
+
+//     } catch (e) {
+//         dump ("conkeror: abandoning command line interpretation because:\n"
+//               +"          "+ e + "\n");
+// //         Components.utils.reportError (e);
+//     }
+// }
+

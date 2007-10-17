@@ -1,85 +1,411 @@
-2007-05-12  John J. Foerch  <jjfoerch@earthlink.net>
+2007-08-24  John J. Foerch  <jjfoerch@earthlink.net>
 
-	* VERSION: 0.42.8
+	* conkeror.xml: use getElementsByTagNameNS instead of getElementsByTagName.
 
-	* bindings.js (input_kmap_predicate): check type for submit and
-	reset.
+	* conkeror.xml: remove spurious `}' characters from several places.
 
-	* bindings.js: remove binding for switch-to-buffer-other-window.
+	* bindings.js: use DOM_VK_BACK_SPACE instead of DOM_VK_BACK.
 
-	* bindings.js (init_numberedlinks_keys): remove
-	numberedlinks-escape.  add numberedlinks-follow-other-frame and
+2007-08-23  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.23
+
+	* conkeror.js: new way to set conkeror object.
+
+	* conkeror.js: do not set conkeror_id.
+
+	* conkeror.js (Startup): uriToLoad defaults to null, and only load
+	an url if one is explicitly passed in.
+
+	* commands.js (interactive_methods.current_frameset_frame_url_s)
+	(interactive_methods.current_url_o, interactive_methods.s): new
+	methods.
+
+	* commands.js (interactive_methods.M): removed.
+
+	* commands.js (call_interactively): object scope of interactive
+	calls is now the conkeror object.
+
+	* commands.js (next_frameset_frame): support nested frames.
+
+	* commands.js (open_url_in): use conkeror object to make new
+	buffer.
+
+	* commands.js (open-frameset-frame-in-current-buffer)
+	(open-frameset-frame-in-new-buffer)
+	(open-frameset-frame-in-new-frame, copy-frameset-frame-location):
+	new commands.
+
+	* commands.js (copyCurrentUrl, copy_link_location): removed
+	functions.
+
+	* commands.js (copy_location): new function.
+
+	* commands.js (copy-current-url, copy-link-location)
+	(copy-image-location): redefined in terms of copy_location.
+
+	* bindings.js (initKmaps): binding for text-reset.
+
+	* bindings.js (init_frameset_keys): bindings for
+	open-frameset-frame-in-current-buffer,
+	open-frameset-frame-in-new-buffer,
+	open-frameset-frame-in-new-frame, copy-frameset-frame-location.
+
+	* daemon-mode.js: new file.
+
+	* context.js (context_methods): copy_frameset_frame_location
+
+	* utils.js (getMods): fixed bug concerning ctrl and alt being
+	pressed at the same time.
+
+2007-06-25  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.22
+
+	* commands.js (list_buffers): use A element to get numberedlinks
+	effect.
+
+2007-06-23  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.21
+
+	* commands.js (interactive_methods.url_or_webjump): error on empty
+	minibuffer read.
+
+	* commands.js (call_interactively): message on error.
+
+	* commands.js (list_buffers): items in buffer list can be clicked.
+
+	* commands.js (list_all_buffers): now in inner function of
+	list_buffers.
+
+	* commands.js (exit_minibuffer): no longer catch errors.
+
+	* commands.js (view_source): check if already viewing source.
+
+	* utils.js (set_default_directory): check environment variables
+	present on Win32 platform.
+
+2007-06-19  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.20
+
+	* commands.js (next_frameset_frame): message instead of notify on
+	error.  scrollIntoView focused frame.
+
+	* commands.js (next_iframe): message instead of notify on error.
+	skip hidden iframes.
+
+	* conkeror.xul (frameset-notification-label): description element.
+
+2007-06-18  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.19
+
+	* bindings.js (frameset_kmap, init_frameset_keys): new.  bound `f'
+	to frameset_kmap.
+
+	* bindings.js (init_universal_arg_keys): binding for
+	universal-negate.
+
+	* commands.js (nextFrame): removed function and command.
+
+	* commands.js (notification_timer, next_frameset_frame,
+	next_iframe): new global, functions, and commands.
+
+	* commands.js (follow-link): new command.
+
+	* commands.js (universal_digit): accomodate negatives.
+
+	* commands.js (universal_negate): new function and command.
+
+	* conkeror.xul (frameset-notification): new popup element.
+
+2007-06-17  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.18
+
+	* commands.js (follow-link-in-new-buffer): new command
+
+	* bindings.js: top_kmap binding for follow-link-in-new-buffer.
+
+2007-05-21  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.17
+
+	* commands.js (interactive_methods): prompt specs are now expected
+	to be functions.  update interactive_methods and interactive
+	declarations throughout program.
+
+	* commands.js (interactive_methods): new methods, url_or_webjump and value.
+
+	* commands.js (new_frame, find_alt_url, open_url, find_url):
+	removed.
+
+	* commands.js (find-url-other-frame, open-url, find-alternate-url,
+	find-url): rewrote in terms of open_url_in.
+
+	* gui_context_menu.s (add_contextmenu_submenu): fixed call to
+	add_submenu.
+
+2007-05-20  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.16
+
+	* commands.js (save_page, save_image, save_page_as_text): do not bypass cache.
+
+	* context.js: new file
+
+	* dom-utils.js: new file
+
+	* gui_context_menu.js: new file
+
+	* gui_context_menu.xul: new file
+
+	* bindings.js: added binding for save-page.
+
+	* commands.js (interactive_methods): new methods, content_charset,
+	content_selection, current_url_s, image_url_s, mathml_node.
+
+	* commands.js (follow-image): command now defined in terms of
+	open_url_in.
+
+	* commands.js (init_webjumps): added conkerorwiki webjump.
+
+	* commands.js (copy-image-location): defined in terms of
+	copy_link_location.
+
+	* commands.js (copy_email_address, view_partial_source,
+	view_mathml_source): new functions and corresponding commands.
+
+	* conkeror.xul: new stringbundleset, and script element for dom-utils.js.
+
+	* utils.js (goDoCommand): message on failure.
+
+	* utils.js (initBookmarkService, add_bookmark): removed.
+
+	* utils.js (add_stringbundle): new.
+
+	* utils.js (commandline_flags, commandline_handler):
+	removed (commented for now).
+
+2007-05-15  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.15
+
+	* utils.js (titleFormatter): new global.
+
+	* utils.js (default_title_formatter, set_window_title): new
+	functions.
+
+	* conkeror.js (conkeror, conkeror_id): new globals.
+
+	* conkeror.js (Startup): default page is now about:blank.
+
+	* conkeror.js (Startup): accept an url as a single argument.
+
+	* conkeror.js (Startup): load rc here. call set_window_title.
+
+	* conkeror.js (delayedStartup): set_window_title at
+	DOMContentLoaded.
+
+	* conkeror.js (delayedStartup): remove loading rc.
+
+	* conkeror.js (nsBrowserStatusHandler.onLocationChange):
+	set_window_title.
+
+	* conkeror.xul: contenttitlesetting is now false.
+
+	* commands.js (quit, extensions, makeFrame, open_url_in): updated
+	to use app-scope.
+
+	* commands.js (customize, preferences): removed commands.
+
+2007-05-11  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.14
+
+	* bindings.js (init_numberedlinks_keys): bind C-s to
 	numberedlinks-save.
-
-	* commands.js (gCurrentCommand): new global.
-
-	* commands.js (interactive_methods): new methods: active_document,
-	current_command, f (rewritten), F (rewritten), focused_link_url_s,
-	image_url_o, link, minibuffer_exit, pref
-
-	* commands.js: added `given_args' argument throughout interactive
-	system.
-
-	* commands.js (interactive_methods): `initVal's for minibuffer
-	reading methods are now defined to be functions that recieve as an
-	arg, all interactive values collected so far.
-
-	* commands.js (exec_command): renamed to call_interactively.
-
-	* commands.js (init_webjumps): added lucky, maps. fixed xulplanet.
-
-	* commands.js (get_link_location): now takes element as argument
-	instead of getting it by side-effect.
-
-	* commands.js (copy_link_location, save_image, save_page,
-	save_page_as_text, save_page_complete, source, reinit): rewrote to
-	use interactive.
-
-	* commands.js (save_link): removed.
-
-	* commands.js (save_focused_link): new function and command.
-
-	* commands.js (exit_minibuffer): now accepts interactive arg,
-	exit.
-
-	* conkeror.js (gPrefService): declare.
-
-	* numberedlinks.js (gNumberedLinksPrefix): removed global.
-
-	* numberedlinks.js (selectNumberedLink_*, selectNthLink,
-	goto_numbered_link, closeNumberedLinkBar): removed.
-
-	* numberedlinks.js (numberedlinks_do_link): rewrote to use
-	interactive.
-
-	* numberedlinks.js (numberedlinks_focus,
-	numberedlinks_follow_other_buffer, numberedlinks_follow,
-	numberedlinks_escape): removed functions. rewrote command defs.
-
-	* url.js (onUrlKeyPress): replaced preventBubble call with
-	stopPropagation.
-
-	* utils.js (minibuffer): new field, `exit'.
-
-	* utils.js (readKeyPress): replaced preventBubble call with
-	stopPropagation.
-
-	* utils.js (dumpln, load_rc): new functions.
-
-	
-	
-2007-05-08  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* bindings.js: bind minibuffer-accept-match to space
 
 	* commands.js: new command minibuffer-accept-match.
+
+	* commands.js (exec_command): renamed to call_interactively.
+	updated all callers.
+
+	* commands.js (call_interactively): new argument, given_args.
+
+	* commands.js (do_interactive): new argument, given_args.
+
+	* commands.js (interactive_methods): initval functions now take as
+	an argument the interactive values collected so far.
+
+	* commands.js (interactive_methods.F, .focused_link_url_o,
+	.focused_link_url_s): new methods
+
+	* commands.js (get_link_location): takes arg instead of performing
+	side-effect.
+
+	* commands.js (copy_link_location): uses interactive
+	focused_link_url_s now.
+
+	* commands.js (save_link, save-link): removed.
+
+	* commands.js (save_focused_link): new command.
+
+	* commands.js (firefox): removed.
+
+	* commands.js (exit_minibuffer): interactive spec now includes
+	current-command.
+
+	* bm.js, bookmarks.html: removed files.
+
+	* commands.js (goto_bookmark, bookmark_current_url, bookmark_doc,
+	bookmark_bmenu_list): removed.
+
+	* bindings.js: removed bookmarks keys.
+
+	* bindings.js (input_kmap_predicate): test for buttons.
+
+	* bindings.js (minibuffer_kmap_predicate, textarea_kmap_predicate,
+	input_kmap_predicate): always return a value.
+
+	* bindings.js (init_numberedlinks_keys): change binding for
+	numberedlinks-follow-other-frame to C-M-RET.
+
+	* numberedlinks.js (numberedlinks_do_link): call save-focused-link
+	instead of save-link.  updated interactive defs so initval is a
+	function.
+
+	* numberedlinks.js (numberedlinks_exit_minibuffer): removed.
+	updated interactive defs to call exit_minibuffer.
+
+	* commands.js (get_buffer_from_name, getWebJump,
+	univ_arg_to_number): always return a value.
+
+	* numberedlinks.js (get_numberedlink_in_document,
+	get_numberedlink, doLinkNodes): always return a value.
+
+	* numberedlinks.js (continueNumberedLinks): rename second var
+	nodes to newnodes.
+
+	* find.js (getFastFind, highlightFind): always return a value.
+
+	* bindings.js (match_any_unmodified_key): always return a value.
+
+	* utils.js (load_rc): declare i.
+
+	* commands.js (source_file, reinit): removed named functions, and
+	updated interactive spec for `source' and `reinit' commands.
+
+	* commands.js (interactive_methods.n): corrected wrong variable name.
+
+	* commands.js (save_page, save_page_as_text, save_page_complete,
+	save_image): rewrote to use interactive.
+
+	* commands.js (interactive_methods.active_document): new.
+
+2007-05-10  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* adblock.js: removed file.
+
+	* commands.js: removed adblock_add_pattern and adblock_list_patterns.
+
+	* conkeror.js: handle an url passed by command line argument.
+
+	* conkeror.xul: remove load of adblock.js.
+
+	* utils.js (readKeyPress): replace preventBubble call with
+	stopPropagation.
+
+	* url.js: replace preventBubble call with
+	stopPropagation.
+
+2007-05-10  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* bindings.js (init_numberedlinks_keys): added bindings for
+	numberedlinks-save and numberedlinks-follow-other-frame.  removed
+	bindings for numberedlinks-escape.
+
+	* commands.js (interactive_methods.current_command): new
+	interactive method, along with global gCurrentCommand, and update
+	to exec_command to set the global.
+
+	* commands.js (interactive_methods.link): new interactive method.
+
+	* commands.js (interactive_methods.minibuffer_exit): new
+	interactive method.
+
+	* commands.js (save_link): new argument, `href'.
+
+	* commands.js (exit_minibuffer): new argument, `exit'.  message
+	instead of alert in catch.
+
+	* numberedlinks.js: removed gNumberedLinksPrefix,
+	selectNumberedLink_*, selectNthLink, goto_numbered_link,
+	selectNumberedLink, closeNumberedLinkBar, numberedlinks_focus,
+	numberedlinks_follow_other_buffer, numberedlinks_follow,
+	numberedlinks_escape.
+
+	* numberedlinks.js (numberedlinks_do_link): new (interactive)
+	argument, `prefix'.  Message when nl not found.  Changed action
+	numbers to string names.  Added handling for
+	numbered-links-follow-other-frame, numberedlinks-save.  Removed
+	numbered image handling.  Added interactive definintions for this
+	function.
+
+	* numberedlinks.js (numberedlinks_exit_minibuffer): new function
+	with several interactive commands to call it.
+
+	* utils.js (minibuffer.exit): new field.
+
+2007-03-11  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* components/commandline.js: general improvements
+
+	* conkeror.js (Startup): handle new command line component.
+
+	* utils.js (commandline_handler): new function
+
+2007-03-09  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* utils.js (dumpln): new function
+
+	* utils.js (load_rc): new function, replaces load_rc_file
+
+	* commands.js (source_file): updated to call load_rc
+
+	* commands.js (reinit): new command
+
+	* conkeror.js (Startup): updated to call load_rc
+
+	* components/commandline.js: new file
+
+	* build.sh (install-debian): new target
+
+2007-03-06  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* build.sh: build rule xulrunner and support code.
+
+	* chrome.manifest: new file.
+
+	* conkeror.ini: new file.
+
+	* conkeror.js: comment out initBookmarkService.  comment out
+	window.arguments support.
+
+	* conkeror.xul: comment out bookmark stuff.
+
+	* defaults/preferences/prefs.js: new file.
 
 2007-03-04  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* conkeror.xul: removed bubble-phase keypress handler.
 
 	* conkeror.js: capture phase keypress handler.
-	
+
 2007-03-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* commands.js: swap names of minibuffer_history_next and minibuffer_history_previous
@@ -102,7 +428,7 @@
 	* bindings.js: changed all calls to make_key.
 
 	* help.html: changed make_key to kbd.
-	
+
 2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* utils.js (minibuffer): new object replaces globals:
@@ -116,7 +442,7 @@
 	* conkeror.js (delayedStartup): call init_minibuffer.
 
 	* utils.js, commands.js: implemented minibuffer object.
-	
+
 	* find.js, numberedlinks.js, bindings.js, url.js: implemented
 	minibuffer object.
 
@@ -144,11 +470,11 @@
 
 	* utils.js (readKeyPress): a binding can now have both a
 	fallthrough and a command.
-	
+
 2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* commands.js (conkeror-version): new command
-	
+
 2007-02-27  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* bindings.js: rename goto-numbered-image to
@@ -194,7 +520,7 @@
 2007-01-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.42
-	
+
 2007-01-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* numberedlinks.js: click the image if a link has an image in it.
@@ -202,7 +528,7 @@
 2007-01-23  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.41
-	
+
 2007-01-23  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* conkeror.js: remove keypress listener on the window.
@@ -210,7 +536,7 @@
 2006-12-15  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.40
-	
+
 2006-12-15  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* bindings.js: fix next/prev word bindings in textarea_map
@@ -226,7 +552,7 @@
 	* commands.js (open_url_in): return the browser
 
 2006-11-30  Shawn Betts  <sabetts@shitbender.gagrod>
-	
+
 	* Release 0.39
 
 2006-11-30  Shawn Betts  <sabetts@shitbender.gagrod>
@@ -266,7 +592,7 @@
 2006-09-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.34
-	
+
 2006-09-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* numberedlinks.js (global_numbered_links_mode): new global variable
@@ -279,7 +605,7 @@
 2006-06-11  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.33
-	
+
 2006-05-31  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* commands.js add jsconsole command. add firefox command.
@@ -301,7 +627,7 @@
 2006-04-29  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.31
-	
+
 2006-04-29  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* conkeror.xml : fix blank screen bug
@@ -327,7 +653,7 @@
 2006-04-04  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.30
-	
+
 	* conkeror.js (delayedStartup): turn off accesskeys.
 
 	* bindings.js (initViKmaps): remove split-window related keybindings
@@ -342,7 +668,7 @@
 2006-04-02  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.29
-	
+
 	* numberedlinks.js (createNL): properly decide when to hide the
 	link and when not to.
 
@@ -361,22 +687,22 @@
 2006-03-28  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.27
-	
+
 2006-03-28  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* conkeror.xml: load about:blank by default in new browsers. dont
 	use a timeout to load the url.
 
 	* conkeror.js: handle -remote urls
-	
+
 2006-03-28  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.26
-	
+
 2006-03-28  Shawn Betts  <sabetts@vcn.bc.ca>
-	
+
 	* commands.js: fix unfocus so it actually works.
-	
+
 	* conkeror.xul: make screenX screenY width height sizemode persistent
 
 	* conkeror.xml: use a deck instead of a box. fix focus typo
@@ -393,7 +719,7 @@
 2006-03-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.24
-	
+
 2006-03-26  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* numberedlinks.js: asynchronously number links. asynchronously update floating links.
@@ -412,11 +738,11 @@
 2006-03-25  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* Release 0.23
-	
+
 2006-03-25  Shawn Betts  <sabetts@vcn.bc.ca>
 
 	* utils.js (readinput): fix the field focus bug.
-	
+
 	* commands.js (init_commands): new command print-buffer
 	(print_buffer): new function
 	(add_command): replace existing commands.
