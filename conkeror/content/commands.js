@@ -379,13 +379,6 @@ minibuffer_exit: { func: function (spec) {
         }
 },
 
-
-minibuffer_exit: { func: function (spec) {
-            // -- minibuffer.exit
-            return minibuffer.exit;
-        }
-},
-
 // n: Number read using minibuffer.
 n: { async: function (spec, iargs, callback, callback_args, given_args) {
             var prompt = "Number: ";

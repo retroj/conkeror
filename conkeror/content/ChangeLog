@@ -1,4 +1,13 @@
+2007-10-17  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.25
+
+	* commands.js (interactive_methods): removed duplicated definition
+	of minibuffer_exit.
+
 2007-08-24  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.24
 
 	* conkeror.xml: use getElementsByTagNameNS instead of getElementsByTagName.
 
