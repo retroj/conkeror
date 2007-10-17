@@ -1,5 +1,17 @@
 2007-08-23  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.26
+
+	* htmlBindings.xml: removed file.
+
+	* patformHTMLBindings.xml: removed file.
+
+	* install.js: removed file.
+
+	* install.rdf: removed file.
+
+2007-08-23  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.23
 
 	* components/commandline.js: extensive changes.  much code moved
