@@ -1,5 +1,19 @@
 2007-10-17  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.27
+
+	* conkeror.js (conkeror_version): removed variable.
+
+	* conkeror.js (gPrefService): removed variable and updated
+	references.
+
+	* commands.js (show_conkeror_version): update reference.
+
+	* commands.js (interactive_methods.pref): updated to use
+	conkeror.preferences.
+
+2007-10-17  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.25
 
 	* commands.js (interactive_methods): removed duplicated definition

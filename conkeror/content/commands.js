@@ -417,14 +417,14 @@ P: { func: function (spec) {
 
 pref: { func: function (spec) {
             var pref = spec[1];
-            var type = gPrefService.getPrefType (pref);
+            var type = conkeror.preferences.getPrefType (pref);
             switch (type) {
-                case gPrefService.PREF_BOOL:
-                    return gPrefService.getBoolPref (pref);
-                case gPrefService.PREF_INT:
-                    return gPrefService.getIntPref (pref);
-                case gPrefService.PREF_STRING:
-                    return gPrefService.getCharPref (pref);
+                case conkeror.preferences.PREF_BOOL:
+                    return conkeror.preferences.getBoolPref (pref);
+                case conkeror.preferences.PREF_INT:
+                    return conkeror.preferences.getIntPref (pref);
+                case conkeror.preferences.PREF_STRING:
+                    return conkeror.preferences.getCharPref (pref);
                 default:
                     return null;
             }
@@ -629,7 +629,7 @@ function add_command (name, fn, args)
 
 function show_conkeror_version ()
 {
-    message (conkeror_version);
+    message (conkeror.version);
 }
 interactive ("conkeror-version", show_conkeror_version, []);
 

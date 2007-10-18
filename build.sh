@@ -172,12 +172,6 @@ function do_target_jar () {
     cp -r conkeror "$jarbuild/conkeror"
     pushd "$jarbuild" > /dev/null
     FILES=($(find conkeror -name CVS -prune -or \( -type f -and \! -name '*[~#]' -print \)))
-    ## begin preprocessing
-    ##
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' conkeror/content/contents.rdf
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' conkeror/content/conkeror.js
-    ##
-    ## end preprocessing
     zip conkeror.jar "${FILES[@]}" > /dev/null
     popd > /dev/null
     mv "$jarbuild/conkeror.jar" .
@@ -201,6 +195,7 @@ function do_target_xulapp () {
     ##
     perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' application.ini
     perl -pi -e 's/\$CONKEROR_BUILD_DATE\$/'$BUILD_DATE'/g' application.ini
+    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' components/application.js
     ##
     ## end preprocessing
     zip -r conkeror.xulapp * > /dev/null
@@ -326,9 +321,9 @@ function do_target_help () {
     echo "For this script to work, your current working directory must"
     echo "be \`<CONKEROR>/src' where <CONKEROR> is the project root."
     echo "This script expects to find the subdirectory structure,"
-    echo "\`conkeror/content', VERSION and install.rdf in the current"
-    echo "directory, \`downloads' and \`www' in the parent directory,"
-    echo "and possibly other files."
+    echo "\`conkeror/content', and VERSION in the current directory,"
+    echo "\`downloads' and \`www' in the parent directory, and possibly"
+    echo "other files."
     echo
     echo 'Usage:  ./build.sh <TARGET>'
     echo 'where <TARGET> is one of:'

@@ -33,13 +33,20 @@ function application () {
     this.window_watcher = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
         .getService(Components.interfaces.nsIWindowWatcher);
     var conkeror = this;
+    conkeror.start_time = Date.now ();
     conkeror.url_remoting_fn = conkeror.make_frame;
     eval (get_chrome_contents ("chrome://conkeror/content/daemon-mode.js"));
+
+    conkeror.preferences = Components.classes["@mozilla.org/preferences-service;1"]
+        .getService (Components.interfaces.nsIPrefBranch);
 }
 
 application.prototype = {
 
+version: "$CONKEROR_VERSION$", // preprocessor variable
+start_time: null,
 window_watcher: null,
+preferences: null,
 chrome: "chrome://conkeror/content/conkeror.xul",
 homepage: "chrome://conkeror/content/help.html",
 url_remoting_fn: null,

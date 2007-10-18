@@ -1,4 +1,18 @@
-2007-08-23  John J. Foerch  <jjfoerch@earthlink.net>
+2007-10-17  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.27
+
+	* build.sh: removed references to install.rdf.
+
+	* build.sh: preprocess application.js instead of conkeror.js.
+
+	* components/application.js (application): new field, `version'.
+
+	* components/application.js (application): new field, `start_time'.
+
+	* components/application.js (application): new field, `preferences'.
+
+2007-10-17  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.26
 

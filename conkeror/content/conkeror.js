@@ -28,8 +28,6 @@ the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
-const conkeror_version = "$CONKEROR_VERSION$";
-
 const nsCI               = Components.interfaces;
 const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
 
@@ -39,7 +37,6 @@ var conkeror = Components.classes["@conkeror.mozdev.org/application;1"]
 
 var console         = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 
-var gPrefService = null;
 function log(msg) { console.logStringMessage(msg); }
 
 function Startup()
@@ -119,19 +116,17 @@ function Startup()
         }
 
         // Turn off typeahead. We'll use our own that's way better.
-        gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
-            .getService(Components.interfaces.nsIPrefBranch);
-        gPrefService.setBoolPref("accessibility.typeaheadfind", false);
+        conkeror.preferences.setBoolPref("accessibility.typeaheadfind", false);
         // Turn this stupid thing off. Otherwise accesskeys override the conkeror keys.
-        gPrefService.setIntPref("ui.key.generalAccessKey", 0);
+        conkeror.preferences.setIntPref("ui.key.generalAccessKey", 0);
 
 
         try {
             // Load the RC file.
-            if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
-                gPrefService.setCharPref("conkeror.rcfile", "");
+            if (!conkeror.preferences.prefHasUserValue("conkeror.rcfile")) {
+                conkeror.preferences.setCharPref("conkeror.rcfile", "");
             } else {
-                var rcfile = gPrefService.getCharPref("conkeror.rcfile");
+                var rcfile = conkeror.preferences.getCharPref("conkeror.rcfile");
                 if (rcfile.length)
                     load_rc (rcfile);
             }
