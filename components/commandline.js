@@ -21,6 +21,7 @@ const conkeror_cmdline = {
         .wrappedJSObject;
 
     var performDefault = true;
+    var suppress_rc = false;
 
     for (var i = 0; i < cmdline.length; ++i)
     {
@@ -28,18 +29,30 @@ const conkeror_cmdline = {
       if (i + 1 < cmdline.length)
       {
         var param = cmdline.getArgument(i + 1);
-        if (arg == "-i")
+        if (arg == "-e")
         {
-          performDefault = false;
           eval(param);
           ++i;
           continue;
         }
 
       }
-      if (arg == "-q")
+      if (arg == "-batch")
       {
         performDefault = false;
+        continue;
+      }
+      if (arg == "-l")
+      {
+          try {
+              conkeror.load_rc (param);
+          } catch (e) { dump (e + "\n"); }
+          ++i;
+          continue;
+      }
+      if (arg == "-q")
+      {
+        suppress_rc = true;
         continue;
       }
       // are we remoting or is this the first invocation?
@@ -48,15 +61,26 @@ const conkeror_cmdline = {
 
       performDefault = false;
     }
-    
+
     if (cmdline.length > 0)
       cmdline.removeArguments(0, cmdline.length - 1);
+
+    var initial_launch = (cmdline.state == cmdline.STATE_INITIAL_LAUNCH);
+    if (! suppress_rc && initial_launch)
+    {
+        try {
+            conkeror.load_rc ();
+        } catch (e) { dump (e + "\n"); }
+    } else if (suppress_rc && ! initial_launch) {
+        //XXX: issue a warning about an attempt to suppress the RC
+        //     when it will not be loaded anyway?
+    }
 
     if (performDefault) {
         conkeror.make_frame(conkeror.homepage);
     }
   },
-  
+
   /* nsIFactory */
 
   createInstance : function (outer, iid)

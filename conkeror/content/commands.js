@@ -1701,12 +1701,12 @@ interactive("save-page-complete", save_page_complete,
               "save"]]);
 
 
-interactive("source", function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
+interactive("source", function (fo) { conkeror.load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 
 interactive ("reinit",
              function (fn) {
                  try {
-                     load_rc (fn);
+                     conkeror.load_rc (fn);
                      message ("loaded \""+fn+"\"");
                  } catch (e) {
                      message ("failed to load \""+fn+"\"");

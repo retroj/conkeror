@@ -1,3 +1,20 @@
+2007-10-19  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.28
+
+	* debug.js: new file.
+
+	* localfile.js: new file.
+
+	* utils.js (dumpln): removed.
+
+	* utils.js (load_rc): removed.
+
+	* conkeror.js (Startup): do not load rc anymore.  rewrote
+	window.arguments handling.
+
+	* commands.js (reinit, source): use conkeror.load_rc.
+
 2007-10-17  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.27

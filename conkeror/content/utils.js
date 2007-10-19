@@ -1283,59 +1283,6 @@ function set_default_directory (directory_s) {
 }
 
 
-function dumpln (str) {
-    dump (str+"\n");
-}
-
-
-
-function load_rc (path_s)
-{
-    function load_rc_file(file)
-    {
-        var fd = fopen(file, "<");
-        var s = fd.read();
-        fd.close();
-        try {
-            eval(s);
-        } catch(e) {alert(e);}
-    }
-
-    function load_rc_directory (file_o) {
-        var entries = file_o.directoryEntries;
-        var files = [];
-        while (entries.hasMoreElements ()) {
-            var entry = entries.getNext ();
-            entry.QueryInterface (Components.interfaces.nsIFile);
-            if (entry.leafName.match(/^[^.].*\.js$/i)) {
-                files.push(entry);
-            }
-        }
-        files.sort(function (a, b) {
-                if (a.leafName < b.leafName) {
-                    return -1;
-                } else if (a.leafName > b.leafName) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-        for (var i = 0; i < files.length; i++) {
-            load_rc_file(files[i]);
-        }
-    }
-
-    var file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    file_o.initWithPath(path_s);
-    if (file_o.isDirectory()) {
-        load_rc_directory (file_o);
-    } else {
-        load_rc_file (path_s);
-    }
-}
-
-
 function add_stringbundle (id, src)
 {
     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";

@@ -3,7 +3,7 @@
 function get_chrome_contents (chrome_uri_s) {
     try {
         var op = Components.classes["@mozilla.org/network/io-service;1"]
-            .getService(Components.interfaces.nsIIOService) 
+            .getService(Components.interfaces.nsIIOService)
             .newChannel(chrome_uri_s, null, null)
             .open();
         var inputStream = Components.classes["@mozilla.org/scriptableinputstream;1"]
@@ -19,14 +19,12 @@ function get_chrome_contents (chrome_uri_s) {
         return buf;
     } catch (e) {
         inputStream.close();
-        dumpln ('error loading '+chrome_uri_s+"\n    "+e);
+        dump ('error loading '+chrome_uri_s+"\n    "+e+"\n");
     }
 }
 
 
 
-
-// http://kb.mozillazine.org/Implementing_XPCOM_components_in_JavaScript
 
 function application () {
     this.wrappedJSObject = this;
@@ -35,10 +33,17 @@ function application () {
     var conkeror = this;
     conkeror.start_time = Date.now ();
     conkeror.url_remoting_fn = conkeror.make_frame;
-    eval (get_chrome_contents ("chrome://conkeror/content/daemon-mode.js"));
 
     conkeror.preferences = Components.classes["@mozilla.org/preferences-service;1"]
         .getService (Components.interfaces.nsIPrefBranch);
+
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/debug.js"));
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/localfile.js"));
+
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/daemon-mode.js"));
+
+    conkeror.set_default_directory ();
+
 }
 
 application.prototype = {
@@ -49,45 +54,133 @@ window_watcher: null,
 preferences: null,
 chrome: "chrome://conkeror/content/conkeror.xul",
 homepage: "chrome://conkeror/content/help.html",
+default_directory: null,
 url_remoting_fn: null,
+quit_hook: [],
+make_frame_hook: [],
+make_frame_after_hook: [],
+dom_content_loaded_hook: [],
+frame_resize_hook: [],
 
-run_hooks: function (hooks)
+add_hook: function (hook, func, append)
 {
+    if (append)
+        hook.push (func);
+    else
+        hook.unshift (func);
+},
+
+run_hooks: function (hooks, scope, args)
+{
+    if (! scope) { scope = this; }
+    if (! args) { args = []; }
     for (var i in hooks) {
-        hooks[i]();
+        try {
+            hooks[i].apply (scope, args);
+        } catch (e) {
+            dump ('run_hooks: '+e+"\n");
+        }
     }
 },
 
-generate_new_frame_name: function (name)
+generate_new_frame_tag: function (tag)
 {
-    if (name && ! this.window_watcher.getWindowByName (name, null)) {
-        return name;
+    var existing = [];
+    var exact_match = false;
+    var en = this.window_watcher.getWindowEnumerator ();
+    if (tag == '') { tag = null; }
+    var re;
+    if (tag) {
+        re = new RegExp ("^" + tag + "<(\\d+)>$");
+    } else {
+        re = new RegExp ("^(\\d+)$");
     }
-    var pre = name ? name + '<' : '';
-    var post = name ? '>' : '';
-    var n = 0;
-    do {
-        name = pre + n + post;
-        n++;
-    } while (this.window_watcher.getWindowByName (name, null));
-    return name;
+    while (en.hasMoreElements ()) {
+        var w = en.getNext().QueryInterface (Components.interfaces.nsIDOMWindow);
+        if ('tag' in w)  {
+            if (tag && w.tag == tag) {
+                exact_match = true;
+                continue;
+            }
+            var re_result = re.exec (w.tag);
+            if (re_result)
+                existing.push (re_result[1]);
+        }
+    }
+    if (tag && ! exact_match)
+        return tag;
+
+    existing.sort (function (a, b) { return a - b; });
+
+    var n = 1;
+    for (var i = 0; i < existing.length; i++) {
+        if (existing[i] < n) continue;
+        if (existing[i] == n) { n++; continue; }
+        break;
+    }
+    if (tag) {
+        return tag + "<" + n + ">";
+    } else {
+        return n;
+    }
 },
 
-make_frame: function (url, name)
+encode_xpcom_structure: function (data)
 {
-    var open_args = Components.classes["@mozilla.org/supports-string;1"]
-        .createInstance(Components.interfaces.nsISupportsString);
-    open_args.data = url;
+    var ret = null;
+    if (typeof data == 'string') {
+        ret = Components.classes["@mozilla.org/supports-string;1"]
+            .createInstance(Components.interfaces.nsISupportsString);
+        ret.data = data;
+    } else if (typeof data == 'object') { // should be a check for array.
+        ret = Components.classes["@mozilla.org/array;1"]
+            .createInstance(Components.interfaces.nsIMutableArray);
+        for (var i = 0; i < data.length; i++) {
+            ret.appendElement (this.encode_xpcom_structure (data[i]), false);
+        }
+    } else {
+        throw 'make_xpcom_struct was given something other than String or Array';
+    }
+    return ret;
+},
 
-    name = this.generate_new_frame_name (name);
+decode_xpcom_structure: function (data)
+{
+    function dostring (data) {
+        try {
+            var iface = data.QueryInterface (Components.interfaces.nsISupportsString);
+            return iface.data;
+        } catch (e) {
+            return null;
+        }
+    }
 
+    var ret = dostring (data);
+    if (ret) { return ret; }
+    // it's not a string, so we will assume it is an array.
+    ret = [];
+    var en = data.QueryInterface (Components.interfaces.nsIArray).enumerate ();
+    while (en.hasMoreElements ()) {
+        ret.push (this.decode_xpcom_structure (en.getNext ()));
+    }
+    return ret;
+},
+
+make_frame: function (url, tag)
+{
+    var open_args = ['conkeror'];
+    if (url) { open_args.push (['find'].concat (url)); }
+    if (tag) { open_args.push (['tag', tag]); }
+    open_args = this.encode_xpcom_structure (open_args);
     var result = this.window_watcher.openWindow(null,
                                                 this.chrome,
-                                                name,
+                                                null,
                                                 "resizable=yes,dialog=no",
                                                 open_args);
+    this.run_hooks (this.make_frame_hook, result);
     return result;
 },
+
 find_url_new_buffer: function (url)
 {
     // get the active frame, and create a new buffer in it.  if there is not
@@ -98,10 +191,18 @@ find_url_new_buffer: function (url)
         return this.make_frame (url);
     }
 },
-get_frame_by_name : function (name)
+
+get_frame_by_tag : function (tag)
 {
-    return this.window_watcher.getWindowByName (name, null);
+    var en = this.window_watcher.getWindowEnumerator ();
+    while (en.hasMoreElements ()) {
+        var w = en.getNext().QueryInterface (Components.interfaces.nsIDOMWindow);
+        if ('tag' in w && w.tag == tag)
+            return w;
+    }
+    return null;
 },
+
 show_extension_manager : function ()
 {
     return this.window_watcher.openWindow(null,
@@ -111,7 +212,6 @@ show_extension_manager : function ()
                                           null);
 },
 
-quit_hook: [],
 quit : function ()
 {
     this.run_hooks (this.quit_hook);
@@ -119,6 +219,98 @@ quit : function ()
     var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
         .getService(Components.interfaces.nsIAppStartup);
     appStartup.quit(appStartup.eAttemptQuit);
+},
+
+set_default_directory : function (directory_s) {
+    function getenv (variable) {
+        var env = Components.classes['@mozilla.org/process/environment;1']
+            .createInstance (Components.interfaces.nsIEnvironment);
+        if (env.exists (variable))
+            return env.get(variable);
+        return null;
+    }
+
+    var appinfo = Components.classes['@mozilla.org/xre/app-info;1']
+        .createInstance (Components.interfaces.nsIXULRuntime);
+
+    if (! directory_s)
+    {
+        directory_s = getenv ('HOME');
+    }
+
+    if (! directory_s &&
+        appinfo.OS == "WINNT")
+    {
+        directory_s = getenv ('USERPROFILE') ||
+            getenv ('HOMEDRIVE') + getenv ('HOMEPATH');
+    }
+    this.default_directory = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    this.default_directory.initWithPath (directory_s);
+},
+
+/*
+ * path_s: string path to load.  may be a file, a directory, or null.
+ *   if it is a file, that file will be loaded.  if it is a directory,
+ *   all `.js' files in that directory will be loaded.  if it is null,
+ *   the preference `conkeror.rcfile' will be read for the default.
+ */
+load_rc : function (path_s)
+{
+    // make `conkeror' object visible to the scope of the rc.
+    var conkeror = this;
+
+    function load_rc_file(file)
+    {
+        var fd = conkeror.fopen (file, "<");
+        var s = fd.read ();
+        fd.close ();
+        try {
+            eval.call (conkeror, s);
+        } catch (e) { dump (e + "\n");}
+    }
+
+    function load_rc_directory (file_o) {
+        var entries = file_o.directoryEntries;
+        var files = [];
+        while (entries.hasMoreElements ()) {
+            var entry = entries.getNext ();
+            entry.QueryInterface (Components.interfaces.nsIFile);
+            if (entry.leafName.match(/^[^.].*\.js$/i)) {
+                files.push(entry);
+            }
+        }
+        files.sort(function (a, b) {
+                if (a.leafName < b.leafName) {
+                    return -1;
+                } else if (a.leafName > b.leafName) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        for (var i = 0; i < files.length; i++) {
+            load_rc_file(files[i]);
+        }
+    }
+
+    if (! path_s)
+    {
+        if (conkeror.preferences.prefHasUserValue ("conkeror.rcfile")) {
+            var rcfile = conkeror.preferences.getCharPref("conkeror.rcfile");
+            if (rcfile.length)
+                path_s = rcfile;
+        }
+    }
+
+    var file_o = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+    file_o.initWithPath(path_s);
+    if (file_o.isDirectory()) {
+        load_rc_directory (file_o);
+    } else {
+        load_rc_file (path_s);
+    }
 },
 
 // nsISupports

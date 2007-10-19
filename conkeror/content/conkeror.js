@@ -41,17 +41,28 @@ function log(msg) { console.logStringMessage(msg); }
 
 function Startup()
 {
+    // Handle window.arguments
+    //
+    var urisToLoad = [];
+    var tag = null;
+    if ('arguments' in window)
+    {
+        for (var i = 0; i < window.arguments.length; i++) {
+            var open_args = conkeror.decode_xpcom_structure (window.arguments[i]);
+            if (0 in open_args && open_args[0] == 'conkeror')
+            {
+                for (var j = 1; j < open_args.length; j++) {
+                    var op = open_args[j];
+                    if (op[0] == 'tag') { tag = op[1]; }
+                    else if (op[0] == 'find') { urisToLoad = op.slice (1); }
+                }
+            }
+        }
+    }
+    window.tag = conkeror.generate_new_frame_tag (tag);
+
     try {
 //   gBrowser = document.getElementById("content");
-        //var uriToLoad = "chrome://conkeror/content/help.html";
-        var uriToLoad = null;
-
-        if ("arguments" in window && window.arguments.length >= 1)
-        {
-            uriToLoad = window.arguments[0];
-        }
-
-//   var uriToLoad = "file:///home/sabetts/src/conkeror/testframes.html";
 
 //   var b = document.getElementById("blahblu");
 //   b.setCurrentBrowser(0);
@@ -120,22 +131,10 @@ function Startup()
         // Turn this stupid thing off. Otherwise accesskeys override the conkeror keys.
         conkeror.preferences.setIntPref("ui.key.generalAccessKey", 0);
 
-
-        try {
-            // Load the RC file.
-            if (!conkeror.preferences.prefHasUserValue("conkeror.rcfile")) {
-                conkeror.preferences.setCharPref("conkeror.rcfile", "");
-            } else {
-                var rcfile = conkeror.preferences.getCharPref("conkeror.rcfile");
-                if (rcfile.length)
-                    load_rc (rcfile);
-            }
-        } catch (e) {window.alert(e);}
-
-        if (uriToLoad)
-            getWebNavigation().loadURI(uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+        if (0 in urisToLoad) {
+            getWebNavigation().loadURI (urisToLoad[0], Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+        }
         set_window_title();
-  
 
 //   // Give it a chance to set itself up before loading the URL
 //   setTimeout(getWebNavigation().loadURI, 0,

@@ -1,3 +1,35 @@
+2007-10-19  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* components/commandline.js (handle): new variable suppress_rc.
+	Eval switch, `-i', changed to `-e'.  Eval switch no longer
+	automatically suppresses opening a window.  Batch mode switch `-q'
+	changed to `-batch'.  New switch `-l'.  New switch `-q' to
+	suppress rc.  Conditionally load rc.
+
+	* components/application.js (get_chrome_contents): use dump
+	instead of dumpln.
+
+	* components/application.js (application.set_default_directory):
+	new function, and accompanying variable, `default_directory'.
+
+	* components/application.js (application): load debug.js and
+	localfile.js.
+
+	* components/application.js (application.encode_xpcom_structure)
+	(application.decode_xpcom_structure, application.add_hook)
+	(application.generate_new_frame_tag)
+	(application.get_frame_by_tag): new.
+
+	* components/application.js (application.run_hooks): rewrote.  new
+	parameter, `scope'.
+
+	* components/application.js (application.generate_new_frame_name)
+	(application.get_frame_by_name): removed.
+
+	* components/application.js (application.make_frame): replaced
+	`name' with `tag'.  new way of encoding arguments to pass to the
+	frame.  run make_frame_hook.
+
 2007-10-17  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.27
