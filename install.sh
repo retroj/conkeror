@@ -39,7 +39,7 @@ if [[ -n "$BUILD" ]]; then
     ## -build has been requested.
     ## assert we are in the conkeror source directory
     assert_conkeror_src
-    ./build.sh xulapp
+    bash build.sh xulapp
 fi
 
 ### conkeror.xulapp should be in the current directory

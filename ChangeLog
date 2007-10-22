@@ -1,5 +1,19 @@
 2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.31
+
+	* build.sh: usage instructions say `bash build.sh <target>'
+
+2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.30
+
+	* build.sh: provide a template to mktemp.
+
+	* install.sh: use bash build.sh xulapp.
+
+2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.29
 
 	* components/commandline.js (handle): rename performDefault to

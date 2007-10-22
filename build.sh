@@ -70,7 +70,7 @@ SCRATCH=""
 
 function get_scratch () {
     if [[ -z "$SCRATCH" ]]; then
-        SCRATCH=$(mktemp -d)
+        SCRATCH=$(mktemp -d conkeror-XXXXX)
     fi
 }
 
@@ -275,7 +275,7 @@ function do_target_announce () {
     do_check_milestone_for_release
     echo Entering ../www/ ... ok
     pushd ../www/ > /dev/null
-    scratch=$(mktemp -d)
+    scratch=$(mktemp -d conkeror-XXXXX)
 
     perlexp='s/(?<=<!--\scontrolled\scontent\sinsertion\spoint::whatsnew\s-->\n) ()(?!.*'$VERSION'.*$)/<li>'$VERSION' released! \('"$(date '+%b %d, %Y')"'\)<\/li>\n/mxg'
     diff_wrapper "$scratch" index.html "$perlexp"
@@ -325,7 +325,7 @@ function do_target_help () {
     echo "\`downloads' and \`www' in the parent directory, and possibly"
     echo "other files."
     echo
-    echo 'Usage:  ./build.sh <TARGET>'
+    echo 'Usage:  bash build.sh <TARGET>'
     echo 'where <TARGET> is one of:'
     echo
     echo ' xulapp'
