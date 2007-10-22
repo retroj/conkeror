@@ -36,7 +36,9 @@ function onUrlKeyPress(event)
 	try{
 	    var url = minibuffer.input.value;
 	    closeUrlBar();
-	    getWebNavigation().loadURI(url, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+	    getWebNavigation().loadURI (url,
+                                        Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
+                                        null, null, null);
 	} catch (e) {window.alert(e);}
 	//    } else if (event.keyCode == KeyEvent.DOM_VK_TAB) {
 	// paste current url

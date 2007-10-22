@@ -1,3 +1,23 @@
+2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.29
+
+	* components/commandline.js (handle): rename performDefault to
+	perform_default.
+
+	* components/application.js (application): load keyboard.js,
+	utils.js, numbering.js, bindings.js, minibuffer.js, commands.js,
+	interactive.js
+
+	* defaults/preferences/prefs.js: ui.key.generalAccessKey,
+	accessibility.typeaheadfind
+
+	* components/application.js (application.commands)
+	(application.current_command): new variables.
+
+	* components/appication.js (application): call init_webjumps and
+	init_window_title.
+
 2007-10-19  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* components/commandline.js (handle): new variable suppress_rc.

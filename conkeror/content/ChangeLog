@@ -1,3 +1,217 @@
+2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.29
+
+	* frame.js, interactive.js, keyboard.js, minibuffer.js,
+	numbering.js: new files.
+
+	* conkeror.js (Startup): renamed to init_frame
+
+	* conkeror.js (delayedStartup): renamed to delayed_init_frame, and
+	completely rewrote.
+
+	* conkeror.js (log, console): removed.
+
+	* conkeror.xml, numberedlinks.js: replaced calls to `log' with `dumpln'
+
+	* conkeror.xul: use init_frame instead of Startup.
+
+	* conkeror.xul: load frame.js instead of utils.js
+
+	* conkeror.xul: use minibuffer.oninput.call
+
+	* bindings.js (numberedlinks_kmap_predicate)
+	(isearch_kmap_predicate): qualify predicate variables with
+	application object.
+
+	* bindings.js (minibuffer_kmap_predicate): check classname of
+	element, because direct reference is not available in application
+	scope.
+
+	* bindings.js (input_kmap_predicate, initKmaps): current_kmap
+	instead of gCurrentKmap.
+
+	* bindings.js: call initKmaps here, to better modularize this
+	file.
+
+	* conkeror.xml: remove nsIAccessibleProvider, split-related, and
+	numberedlinks-related code.
+
+	* find.js: isearch_active now conkeror.isearch_active.
+
+	* conkeror.js (conkeror_progress_listener)
+	(conkeror_xul_browser_window): new
+
+	* conkeror.js (init_frame): There is no try.
+
+	* conkeror.js (init_frame): hook up conkeror_progress_listener,
+	conkeror_xul_browser_window. remove appCore and appShell.  run
+	make_frame_after_hook
+
+	* conkeror.js (frame_focus_observer, nsBrowserStatusHandler)
+	(top_content): removed.
+
+	* commands.js (gCommands, gCurrentCommand): removed, and updated
+	all references to conkeror.commands and conkeror.current_command.
+
+	* commands.js (interactive_methods, do_interactive)
+	(call_interactively, interactive): moved to interactive.js.
+
+	* commands.js (add_command, beginning_of_line, end_of_line)
+	(go_to_buffer): removed.
+
+	* commands.js (switch_to_buffer, cmd_scrollTop, cmd_scrollBottom):
+	rewrote.
+
+	* commands.js (beginning-of-line, end-of-line): use
+	scrollHorizComplete.
+
+	* application.js (application.quit): moved to commands.js.
+
+	* commands.js (show_conkeror_version, next_frameset_frame)
+	(next_iframe, copy_location, yankToClipboard, goDoCommand)
+	(set_mark_command): use this.message.
+
+	* commands.js (unfocus, next_frameset_frame, next_iframe)
+	(scrollHorizComplete, set_mark_command): use this.document.
+
+	* commands.js (next_frameset_frame, next_iframe): use
+	this.clearTimeout and this.setTimeout.
+
+	* commands.js (next_frameset_frame, next_iframe): use notify.call.
+
+	* commands.js (unfocus, next_frameset_frame, next_iframe)
+	(delete_frame, renumber_links): use this.window.
+
+	* commands.js (goBack, goForward, stopLoading, reload)
+	(open_url_in, find-alternate-url, help_page, tutorial_page)
+	(go_up): use this.getWebNavigation.
+
+	* commands.js (open_url_in, switch-to-buffer, kill_buffer)
+	(text_reset, text_reduce, text_enlarge): use this.getBrowser.
+
+	* commands.js (open_url_in): use find_url_new_buffer.
+
+	* commands.js (open_url_in): use make_frame.
+
+	* commands.js (stopLoading, reload, open_url_in)
+	(describe_bindings, help_page, tutorial_page, list_buffers): fully
+	qualify nsIWebNavigation.
+
+	* commands.js (makeFrame): use conkeror.make_frame.
+
+	* commands.js (open_url_in_prompt, get_buffer_from_name)
+	(webjump_build_url, get_partial_match, getWebJump, web_jump)
+	(get_url_or_webjump, exchange_point_and_mark, get_link_text)
+	(universal_digit, universal_argument_more, univ_arg_to_number)
+	(link_menu, scrolly_document_observer, toggle_eod_space)
+	(mode_line_mode): whitespace
+
+	* commands.js (isearch_forward, isearch_backward): use
+	conkeror.isearch_active.
+
+	* commands.js (meta_x): use conkeror.commands.
+
+	* commands.js (meta_x, eval_expression): use
+	this.readFromMiniBuffer.
+
+	* commands.js (meta_x): use call_interactively.call.
+
+	* commands.js (meta_x): use this.abort.
+
+	* commands.js (goDoCommand): use this.top.
+
+	* commands.js (cmd_beginLine, cmd_copy, cmd_copyOrDelete, cmd_cut)
+	(cmd_cutOrDelete, cmd_deleteToBeginningOfLine)
+	(cmd_deleteToEndOfLine, cmd_endLine, cmd_moveTop, cmd_moveBottom)
+	(cmd_selectAll, cmd_selectBeginLine, cmd_selectBottom)
+	(cmd_selectEndLine, cmd_selectTop, cmd_scrollBeginLine)
+	(cmd_scrollEndLine): removed functions. rewrote interactive
+	definition to call goDoCommand directly.
+
+	* commands.js (doCommandNTimes): use goDoCommand.call.
+
+	* commands.js (cmd_charNext, cmd_charPrevious)
+	(cmd_deleteCharBackward, cmd_deleteCharForward)
+	(cmd_deleteWordBackward, cmd_deleteWordForward, cmd_lineNext)
+	(cmd_linePrevious, cmd_movePageDown, cmd_movePageUp, cmd_redo)
+	(cmd_selectCharNext, cmd_selectCharPrevious, cmd_selectLineNext)
+	(cmd_selectLinePrevious, cmd_selectPageDown, cmd_selectPageUp)
+	(cmd_selectWordNext, cmd_selectWordPrevious, cmd_undo)
+	(cmd_wordNext, cmd_wordPrevious, cmd_scrollPageUp)
+	(cmd_scrollPageDown, cmd_scrollLineUp, cmd_scrollLineDown)
+	(cmd_scrollLeft, cmd_scrollRight, cmd_paste): removed functions.
+	redefined interactive commands to directly call doCommandNTimes.
+
+	* commands.js (get_link_location): moved to utils.js.
+
+	* commands.js (source, reinit): use load_rc.
+
+	* commands.js (go_up): use open_url_in.call.
+
+	* commands.js (text_reset, text_reduce, text_enlarge): remove call
+	to numberedlinks_resize.
+
+	* commands.js (use_vi_keys): use conkeror.initViKmaps.
+
+	* commands.js (use_emacs_keys): use conkeror.initKmaps.
+
+	* commands.js (renumber_links): use this.removeExistingNLs.
+
+	* commands.js (renumber_links): use this.createNumberedLinks.call.
+
+	* commands.js (exit_minibuffer, minibuffer_history_next)
+	(minibuffer_history_previous, minibuffer_abort)
+	(minibuffer_complete, minibuffer_accept_match)
+	(minibuffer_complete_reverse, minibuffer_change)
+	(minibuffer_backspace): move to minibuffer.js.
+
+	* commands.js (view_source): use dumpln instead of alert.
+
+	* utils.js (gBrowser, message, minibuffer, readKeyPress)
+	(make_default_filename_to_save_url, abs_point, getAccessibility)
+	(getBrowser, getWebNavigation, getMarkupDocumentViewer)
+	(read_from_minibuffer_internal, gHistory)
+	(minibuffer_history_max_items, getHistory, initHistory)
+	(addHistory, init_minibuffer, miniBufferCompleteStr)
+	(removeWhiteSpace, findCompleteMatch, setInputValue)
+	(readFromMiniBuffer, setFocus, closeInput, gModeLineMode)
+	(showModeLine, updateModeLine, readFromClipboard, clearMessage)
+	(gKeySeq, gKeyTimeout, gCommandLastEvent, addKeyPressHelpTimeout)
+	(formatMods, formatKey, copyEvent, zip2, abort, makeURL)
+	(makeFileURL, get_document_content_disposition, download_uri)
+	(download_uri_internal, make_default_file_name_to_save_url)
+	(add_stringbundle): moved to frame.js.
+
+	* utils.js (default_directory, set_default_directory, load_rc):
+	moved to application.js.
+
+	* utils.js (copy_img_location, titleFormatter): removed.
+
+	* utils.js (metaPressed, keyMatch, getKeyBinding, getMods): moved
+	to keyboard.js.
+
+	* frame.js (minibuffer.oninput): use
+	conkeror.call_interactively.call.
+
+	* utils.js (gCurrentKmap): removed and changed all references to
+	conkeror.current_kmap.
+
+	* frame.js (readKeyPress): overlay_kmap changed to
+	conkeror.overlay_kmap.  top_kmap changed to conkeror.top_kmap.
+	context_kmaps changed to conkeror.context_kmaps.  use
+	conkeror.getKeyBinding.  use conkeror.call_interactively.call.
+	use conkeror.keyMatch.  use conkeror.abort_key.
+
+	* utils.js (goDoCommand): moved to commands.js.
+
+	* utils.js (fopen, LocalFile): moved to localfile.js.
+
+	* frame.js (make_default_filename_to_save_url): use
+	conkeror.default_directory.
+
+	* frame.js (dumpln): moved to debug.js.
+
 2007-10-19  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.28

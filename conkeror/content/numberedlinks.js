@@ -43,7 +43,8 @@ var default_show_numbered_images = false;
 // Set this to true and after a numberedlink is selected, they will be turned off
 var gTurnOffLinksAfter = false;
 
-var numberedlinks_minibuffer_active = false;
+conkeror.numberedlinks_minibuffer_active = false;
+
 
 
 function toggle_numbered_links ()
@@ -84,6 +85,8 @@ function copy_numbered_image_location (prefix, number)
 interactive("copy-numbered-image-location", copy_numbered_image_location, ['p','image']);
 
 
+// XXX: get_href should go into some general utilities file, perhaps
+//      dom-utils.  can someone explain why we use XPCNativeWrapper here, too?
 function get_href (node)
 {
     if (node.hasAttribute("href")) {
@@ -424,9 +427,9 @@ function removeExisting(doc)
 function removeExistingNLs(cont)
 {
     var frames = cont.frames;
-    removeExisting(cont.document);
+    this.removeExisting (cont.document);
     for (var i=0; i<frames.length; i++) {
-	removeExisting(frames[i].document);
+	this.removeExisting (frames[i].document);
     }
 }
 
@@ -607,8 +610,6 @@ function toggleNumberedImages()
 const nl_document_observer = {
     observe: function(subject, topic, url)
     {
-//         log ("nl_document_observer");
-//         createNumberedLinks(subject);
         // domcontentloaded handles creating the links. here we just need to move the floater links over the now loaded content
         numberedlinks_resize (subject);
     }
@@ -659,7 +660,7 @@ function update_span_pos (doc, span)
 	span.style.left =  pt.x + "px";
 	span.style.top = pt.y + "px";
     }
-    } catch(e) {    log ("update_span_pos " + e); }
+    } catch(e) { dumpln ("update_span_pos: " + e); }
 }
 
 function do_some_spans (doc, n, spans)
@@ -679,7 +680,7 @@ function update_nl_pos (doc)
 {
     try {
     do_some_spans (doc, 0, doc.getElementsByTagName("SPAN"));
-    } catch(e) {     log ("update_nl_pos " + e); }
+    } catch(e) { dumpln ("update_nl_pos: " + e); }
 }
 
 function numberedlinks_resize (cont)

@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 
-<bindings id="emacsWindowBindings"
-          xmlns="http://www.mozilla.org/xbl"
+<bindings xmlns="http://www.mozilla.org/xbl"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
           xmlns:xbl="http://www.mozilla.org/xbl">
 
@@ -16,15 +15,7 @@
 	    </xul:vbox>
 	  </xul:deck>
       </content>
-      <implementation type="application/x-javascript" implements="nsIDOMXULSelectControlElement, nsIAccessibleProvider">
-            <property name="accessible">
-              <getter>
-              <![CDATA[
-                var accService = Components.classes["@mozilla.org/accessibilityService;1"].getService(Components.interfaces.nsIAccessibilityService);
-                return accService.createXULGroupboxAccessible(this);
-              ]]>
-            </getter>
-            </property>
+      <implementation type="application/x-javascript" implements="nsIDOMXULSelectControlElement">
             <field name="mCurrentWindow">
 	          null
 	    </field>
@@ -45,19 +36,6 @@
                 onget="return this.mBrowserContainer.getElementsByTagNameNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'browser');"
                 readonly="true"/>
 
-      <method name="isSplit">
-      <body>
-        <![CDATA[
-        for (var i=0; i<this.mBrowsers.length; i++) {
-	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false"
-	      && this.mBrowsers[i] != this.mCurrentBrowser) {
-	      return true;
-          }
-        }
-	return false;
-	]]>
-      </body>
-      </method>
       <method name="setBrowserProgressListener">
         <parameter name="aBrowser"/>
         <body>
@@ -100,7 +78,7 @@
 	      var b = this.makeBrowser();
 	    this.mBrowserContainer.appendChild(b);
 	    this.setBrowserProgressListener(b.firstChild);
-            b.firstChild.loadURIWithFlags(aUrl, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+            b.firstChild.loadURIWithFlags(aUrl, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
             this.setCurrentBrowser(b.firstChild);
             return b.firstChild;
 } catch(e) {window.alert(e);}
@@ -267,69 +245,10 @@
 	    names.push(bs[i].webNavigation.currentURI.spec);
 	  }
 	  return names;
-        } catch(e) {log ("getBrowserNames: " + e);}
+        } catch(e) {dumpln ("getBrowserNames: " + e);}
 	]]>
 	</body>
       </method>
-<!--       <method name="split"> -->
-<!--       <parameter name="otherBrowser"/> -->
-<!--       <body> -->
-<!--       <![CDATA[ -->
-<!--       try { -->
-<!--         if (otherBrowser == this.mCurrentBrowser) { -->
-<!-- 	  return; -->
-<!--         } -->
-<!--         // Make sure there isn't already a split -->
-<!-- 	if (this.isSplit()) -->
-<!-- 	  return; -->
-<!-- 	this.mCurrentBrowser.parentNode.setAttribute("ordinal", "0"); -->
-<!-- 	otherBrowser.parentNode.setAttribute("ordinal", "1"); -->
-<!-- 	otherBrowser.parentNode.setAttribute("collapsed", "false"); -->
-<!--       } catch(e) {alert(e);} -->
-<!--       ]]> -->
-<!--       </body> -->
-<!--       </method> -->
-<!--       <method name="removeSplit"> -->
-<!--       <body> -->
-<!--       <![CDATA[ -->
-<!--       try { -->
-<!--         for (var i=0; i<this.mBrowsers.length; i++) { -->
-<!-- 	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false" -->
-<!-- 	      && this.mBrowsers[i] != this.mCurrentBrowser) { -->
-<!-- 	      this.mBrowsers[i].parentNode.setAttribute("collapsed", "true"); -->
-<!-- 	  } -->
-<!--         } -->
-<!--       } catch(e) {alert(e);} -->
-<!--       ]]> -->
-<!--       </body> -->
-<!--       </method> -->
-<!--       <method name="focusOther"> -->
-<!--       <body> -->
-<!--       <![CDATA[ -->
-<!--       try { -->
-<!--         for (var i=0; i<this.mBrowsers.length; i++) { -->
-<!-- 	  if (this.mBrowsers[i].parentNode.getAttribute("collapsed") == "false" -->
-<!-- 	      && this.mBrowsers[i] != this.mCurrentBrowser) { -->
-<!-- 	      this.focusBrowser(this.mBrowsers[i]); -->
-<!-- 	      return; -->
-<!-- 	  } -->
-<!--         } -->
-<!--       } catch(e) {alert(e);} -->
-<!--       ]]> -->
-<!--       </body> -->
-<!--       </method> -->
-<!--       <method name="flip"> -->
-<!--       <body> -->
-<!-- 	<![CDATA[ -->
-<!-- 	try { -->
-<!-- 	if (this.mBrowserContainer.getAttribute("orient") == "horizontal") -->
-<!-- 	  this.mBrowserContainer.setAttribute("orient", "vertical"); -->
-<!-- 	else -->
-<!-- 	  this.mBrowserContainer.setAttribute("orient", "horizontal"); -->
-<!-- 	} catch(e) {alert(e);} -->
-<!--       ]]> -->
-<!--       </body> -->
-<!--       </method> -->
       <method name="pushPileDown">
       <parameter name="a"/>
       <parameter name="b"/>
@@ -393,8 +312,6 @@
   	  b.setAttribute("pile", 1);
         else
 	  b.setAttribute("pile", parseInt(this.getPileTop())+1);
-	b.__numberedLinks_state = default_show_numbered_links;
-	b.__numberedImages_state = default_show_numbered_images;
 	var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox"); 
 	v.setAttribute("flex", "100");
 	var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
@@ -442,17 +359,9 @@
                 onget="return this.mBrowserContainer.getElementsByTagNameNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'browser');"
                 readonly="true"/>
 
-      <property name="numberedLinks"
-                onget="return this.mCurrentBrowser.__numberedLinks_state;"
-		onset="this.mCurrentBrowser.__numberedLinks_state = val; return val;"/>
-      <property name="numberedImages"
-                onget="return this.mCurrentBrowser.__numberedImages_state;"
-		onset="this.mCurrentBrowser.__numberedImages_state = val; return val;"/>
-
       <constructor>
         <![CDATA[
 	  this.mCurrentBrowser = this.getBrowserAtIndex(0);
-	  this.numberedLinks = true;
 	  this.mProgressFilter = Components.classes["@mozilla.org/appshell/component/browser-status-filter;1"]
                                            .createInstance(Components.interfaces.nsIWebProgress);
           this.setBrowserProgressListener(this.mCurrentBrowser);

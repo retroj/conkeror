@@ -28,18 +28,115 @@ the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
-const nsCI               = Components.interfaces;
-const nsIWebNavigation = Components.interfaces.nsIWebNavigation;
-
 var conkeror = Components.classes["@conkeror.mozdev.org/application;1"]
     .getService ()
     .wrappedJSObject;
 
-var console         = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 
-function log(msg) { console.logStringMessage(msg); }
+// nsIWebProgressListener implementation to monitor activity in the browser.
+var conkeror_progress_listener = {
+    _requestsStarted: 0,
+    _requestsFinished: 0,
 
-function Startup()
+    // We need to advertize that we support weak references.  This is done simply
+    // by saying that we QI to nsISupportsWeakReference.  XPConnect will take
+    // care of actually implementing that interface on our behalf.
+    QueryInterface: function(iid) {
+        if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
+            iid.equals(Components.interfaces.nsISupportsWeakReference) ||
+            iid.equals(Components.interfaces.nsISupports))
+            return this;
+
+        throw Components.results.NS_ERROR_NO_INTERFACE;
+    },
+
+    // This method is called to indicate state changes.
+    onStateChange: function(webProgress, request, stateFlags, status) {
+        const WPL = Components.interfaces.nsIWebProgressListener;
+
+        if (stateFlags & WPL.STATE_IS_REQUEST) {
+            if (stateFlags & WPL.STATE_START) {
+                this._requestsStarted++;
+            } else if (stateFlags & WPL.STATE_STOP) {
+                this._requestsFinished++;
+            }
+        }
+
+        if (stateFlags & WPL.STATE_IS_NETWORK) {
+            if (stateFlags & WPL.STATE_STOP) {
+                this.onStatusChange(webProgress, request, 0, "Done");
+                this._requestsStarted = this._requestsFinished = 0;
+            }
+        }
+    },
+
+    // This method is called to indicate progress changes for the currently
+    // loading page.
+    onProgressChange: function(webProgress, request, curSelf, maxSelf,
+                               curTotal, maxTotal) {
+    },
+
+    // This method is called to indicate a change to the current location.
+    // The url can be gotten as location.spec.
+    onLocationChange: function(webProgress, request, location) {
+    },
+
+    // This method is called to indicate a status changes for the currently
+    // loading page.  The message is already formatted for display.
+    // Status messages could be displayed in the minibuffer output area.
+    onStatusChange: function(webProgress, request, status, message) {
+    },
+
+    // This method is called when the security state of the browser changes.
+    onSecurityChange: function(webProgress, request, state) {
+        const WPL = Components.interfaces.nsIWebProgressListener;
+
+        if (state & WPL.STATE_IS_INSECURE) {
+            // update visual indicator
+        } else {
+            var level = "unknown";
+            if (state & WPL.STATE_IS_SECURE) {
+                if (state & WPL.STATE_SECURE_HIGH)
+                    level = "high";
+                else if (state & WPL.STATE_SECURE_MED)
+                    level = "medium";
+                else if (state & WPL.STATE_SECURE_LOW)
+                    level = "low";
+            } else if (state & WPL_STATE_IS_BROKEN) {
+                level = "mixed";
+            }
+            // provide a visual indicator of the security state here.
+        }
+    }
+};
+
+
+// The interface nsIXULBrowserWindow handles updating chrome
+// components for link-rollovers.
+var conkeror_xul_browser_window = {
+    QueryInterface: function (iid) {
+        if (iid.equals (Components.interfaces.nsIXULBrowserWindow) ||
+            iid.equals (Components.interfaces.nsISupports))
+            return this;
+        throw Components.results.NS_ERROR_NO_INTERFACE;
+    },
+
+    setJSDefaultStatus: function (status) { },
+
+    setJSStatus: function (status) { },
+
+    setOverLink: function (link) {
+        // check the current value so we don't trigger an attribute change
+        // and cause needless (slow!) UI updates
+        var status_field = document.getElementById ("minibuffer-output");
+        if (status_field.value != link) {
+            status_field.value = link;
+        }
+    }
+};
+
+
+function init_frame ()
 {
     // Handle window.arguments
     //
@@ -61,424 +158,82 @@ function Startup()
     }
     window.tag = conkeror.generate_new_frame_tag (tag);
 
-    try {
-//   gBrowser = document.getElementById("content");
+    // Hook up our web progress listener
+    getBrowser().setProgressListener (
+        conkeror_progress_listener,
+        Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
-//   var b = document.getElementById("blahblu");
-//   b.setCurrentBrowser(0);
+    // Hook up our XULBrowserWindow status handler
+    window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+        .getInterface(Components.interfaces.nsIWebNavigation)
+        .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+        .treeOwner
+        .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+        .getInterface(Components.interfaces.nsIXULWindow)
+        .XULBrowserWindow = conkeror_xul_browser_window;
 
-        initKmaps();
-//  initBookmarkService();
-
-        var appCore = null;
-
-        try {
-            // Create the browser instance component.
-            appCore = Components.classes["@mozilla.org/appshell/component/browser/instance;1"]
-                .createInstance(Components.interfaces.nsIBrowserInstance);
-            if (!appCore)
-                throw "couldn't create a browser instance";
-        } catch (e) {
-            alert("Error launching browser window:" + e);
-            window.close(); // Give up.
-            return;
-        }
-
-
-        // Setup our status handler
-        window.XULBrowserWindow = new nsBrowserStatusHandler();
-        window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-            .getInterface(Components.interfaces.nsIWebNavigation)
-            .QueryInterface(Components.interfaces.nsIDocShellTreeItem).treeOwner
-            .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-            .getInterface(Components.interfaces.nsIXULWindow)
-            .XULBrowserWindow = window.XULBrowserWindow;
-        window.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
-            new nsBrowserAccess();
-
-//   window.browserContentListener =
-//       new nsBrowserContentListener(window, getBrowser());
-
-//   var appshell = Components.classes["@mozilla.org/appshell/appShellService;1"]
-//                         .createInstance(Components.interfaces.nsIAppShellService);
-//   appshell.registerTopLevelWindow(window);
-
-        // set default character set if provided
-        /*
-          if ("arguments" in window && window.arguments.length > 1 && window.arguments[1]) {
-          if (window.arguments[1].indexOf("charset=") != -1) {
-          var arrayArgComponents = window.arguments[1].split("=");
-          if (arrayArgComponents) {
-          //we should "inherit" the charset menu setting in a new window
-          getMarkupDocumentViewer().defaultCharacterSet = arrayArgComponents[1];
-          }
-          }
-          }
-        */
-        appCore.setWebShellWindow(window);
-
-        getBrowser().setProgressListener(window.XULBrowserWindow, Components.interfaces.nsIWebProgress.NOTIFY_ALL);
-
-
-        // give the browser window a default width/height
-        if (!document.documentElement.hasAttribute("width")) {
-            document.documentElement.setAttribute("width", 640);
-            document.documentElement.setAttribute("height", 480);
-        }
-
-        // Turn off typeahead. We'll use our own that's way better.
-        conkeror.preferences.setBoolPref("accessibility.typeaheadfind", false);
-        // Turn this stupid thing off. Otherwise accesskeys override the conkeror keys.
-        conkeror.preferences.setIntPref("ui.key.generalAccessKey", 0);
-
-        if (0 in urisToLoad) {
-            getWebNavigation().loadURI (urisToLoad[0], Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-        }
-        set_window_title();
-
-//   // Give it a chance to set itself up before loading the URL
-//   setTimeout(getWebNavigation().loadURI, 0,
-//     uriToLoad, nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-        setTimeout(delayedStartup,0);
-    } catch (e) { log ("haag" + e); }
-}
-
-const frame_focus_observer = {
-    observe: function(subject, topic, url)
-    {
+    // TO-DO: is this necessary?  if we need default dimensions, why
+    // not just set attributes on the WINDOW element in conkeror.xul?
+    //
+    // give the browser window a default width/height
+    if (!document.documentElement.hasAttribute("width")) {
+        document.documentElement.setAttribute("width", 640);
+        document.documentElement.setAttribute("height", 480);
     }
-};
-
-function delayedStartup()
-{
-    var element = _content;
 
     window.addEventListener ("keypress", readKeyPress, true);
 
-    // Set up our end document hook for numbered links
-    var observerService = Components.classes["@mozilla.org/observer-service;1"]
-	.getService(Components.interfaces.nsIObserverService);
-       observerService.addObserver(nl_document_observer, "page-end-load", false);
-    observerService.addObserver(frame_focus_observer, "page-end-load", false);
-
+    // BUG: we need this event to happen for each individual buffer.
+    //
     getBrowser().addEventListener ("DOMContentLoaded",
                                    function () {
-                                     set_window_title();
-                                     createNumberedLinks(top_content (this.webProgress.DOMWindow));
+                                       conkeror.run_hooks (conkeror.dom_content_loaded_hook, window, [this]);
                                    },
                                    true);
-    set_window_title();
-    
-    // because of the absolute position of the numbers, we need to
-    // adjust when the window is resized.
-    try {
-	window.document.addEventListener("resize", function () {numberedlinks_resize(window._content);}, true);
-    } catch(e) {alert(e);}
 
+    window.document.addEventListener ("resize",
+                                      function () {
+                                          conkeror.run_hooks (conkeror.frame_resize_hook, window);
+                                      },
+                                      true);
 
-    //   try {
-    //       getBrowser().addEventListener("PluginNotFound", missingPlugin, false);
-    //   } catch (e) { alert(e); }
-
-    // Web jumps have to be initialized before the rcfile is loaded so
-    // they can be user-overridden.
-    init_webjumps();
-
-    // initialize default_directory, used when saving pages.
-    set_default_directory();
-
-    init_minibuffer ();
-
-
-    // this is a hack. Set the first buffer's links and image number
-    // visibility which could have been set in the rc file.
-    getBrowser().numberedLinks = default_show_numbered_links;
-    getBrowser().numberedImages = default_show_numbered_images;
-
-    // This is a redo of the fix for jag bug 91884
-    var ww = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-	.getService(Components.interfaces.nsIWindowWatcher);
-    if (window == ww.activeWindow) {
-	element.focus();
-    } else {
-	// set the element in command dispatcher so focus will restore properly
-	// when the window does become active
-	if (element instanceof Components.interfaces.nsIDOMWindow) {
-	    document.commandDispatcher.focusedWindow = element;
-	    document.commandDispatcher.focusedElement = null;
-	} else if (element instanceof Components.interfaces.nsIDOMElement) {
-	    document.commandDispatcher.focusedWindow = element.ownerDocument.defaultView;
-	    document.commandDispatcher.focusedElement = element;
-	}
+    if (0 in urisToLoad) {
+        getWebNavigation().loadURI (urisToLoad[0], Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
     }
+    /* BUG: right now, we really have no way to load urls in a specific
+     * frame.  Just the active frame.
+
+     for (var i = 1; i < urisToLoad.length; i++) {
+     conkeror.open_url_in.call (this, 4, urisToLoad[i]);
+     }
+    */
+
+    conkeror.run_hooks (conkeror.make_frame_after_hook, this);
+
+    setTimeout(delayed_init_frame,0);
+}
+
+
+function delayed_init_frame ()
+{
+    init_minibuffer ();
 
     // Add a timer to update the modeline once a minute
     setInterval (updateModeline, 60000);
+
+    // This is a redo of the fix for jag bug 91884
+    if (window == conkeror.window_watcher.activeWindow) {
+	content.focus();
+    } else {
+	// set the element in command dispatcher so focus will restore properly
+	// when the window does become active
+	if (content instanceof Components.interfaces.nsIDOMWindow) {
+	    document.commandDispatcher.focusedWindow = content;
+	    document.commandDispatcher.focusedElement = null;
+	} else if (content instanceof Components.interfaces.nsIDOMElement) {
+	    document.commandDispatcher.focusedWindow = content.ownerDocument.defaultView;
+	    document.commandDispatcher.focusedElement = content;
+	}
+    }
 }
 
-function nsBrowserStatusHandler()
-{
-  this.init();
-}
-
-function top_content (content)
-{
-    // an interesting feature is that the top level content's parent is itself
-    var c = content;
-
-    while (c != c.parent) c = c.parent;
-    return c;
-}
-
-nsBrowserStatusHandler.prototype =
-{
-  // Stored Status, Link and Loading values
-  status : "",
-  lastURI: null,
-
-  statusTimeoutInEffect : false,
-
-  QueryInterface : function(aIID)
-  {
-    if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
-	aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-	aIID.equals(Components.interfaces.nsIXULBrowserWindow) ||
-	aIID.equals(Components.interfaces.nsISupports))
-      return this;
-    throw Components.results.NS_NOINTERFACE;
-  },
-
-  init : function()
-  {
-    this.statusTextField = document.getElementById("minibuffer-output");
-    //    this.urlBar          = document.getElementById("urlbar");
-  },
-
-  destroy : function()
-  {
-      this.statusTextField = null;
-  },
-
-  setJSStatus : function(status)
-  {
-//       window.alert("setJSStatus");
-    this.updateStatusField(status);
-  },
-
-  setJSDefaultStatus : function(status)
-  {
-//       window.alert("setJSDefaultStatus");
-    this.updateStatusField(status);
-  },
-
-  setDefaultStatus : function(status)
-  {
-    this.updateStatusField(status);
-  },
-
-  setOverLink : function(link, b)
-  {
-    this.updateStatusField(link);
-  },
-
-  updateStatusField : function(text)
-  {
-    // check the current value so we don't trigger an attribute change
-    // and cause needless (slow!) UI updates
-
-    try{
-     if (this.statusText != text) {
-      this.statusTextField.value = text;
-      this.statusText = text;
-     }
-    } catch (e) {window.alert(e);}
-  },
-
-  onLinkIconAvailable : function(aBrowser, aHref)
-  {
-      // Weee, do we care about this?
-  },
-
-  onProgressChange : function (aWebProgress, aRequest,
-			       aCurSelfProgress, aMaxSelfProgress,
-			       aCurTotalProgress, aMaxTotalProgress)
-  {
-//       window.alert("onprogressChange");
-      // We don't care about this right now
-
-
-  },
-
-  onStateChange : function(aWebProgress, aRequest, aStateFlags, aStatus)
-  {
-      try {
-      const nsIWebProgressListener = Components.interfaces.nsIWebProgressListener;
-      const nsIChannel = Components.interfaces.nsIChannel;
-
-//       log (aRequest.QueryInterface(nsIChannel).originalURI.spec + ": " 
-// 	   + (aStateFlags & nsIWebProgressListener.STATE_IS_WINDOW?"+":"-") + "window "
-// 	   + (aStateFlags & nsIWebProgressListener.STATE_IS_DOCUMENT?"+":"-") + "document "
-// 	   + (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK?"+":"-") + "network "
-// 	   + " " + (aWebProgress.DOMWindow == content)
-// 	   + " " + (aWebProgress.DOMWindow.parent == content));
-
-      if (aStateFlags & nsIWebProgressListener.STATE_START) {
-	if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK &&
-	    aRequest && aWebProgress.DOMWindow == content)
-	    {
-		// starting document load
-		this.startDocumentLoad(aRequest, aWebProgress);
-	    }
-
-      } else if (aStateFlags & nsIWebProgressListener.STATE_STOP) {
-	  if (aStateFlags & nsIWebProgressListener.STATE_IS_NETWORK) {
-	      if (aRequest) {
-// 		  if (aWebProgress.DOMWindow == content) {
-		  this.endDocumentLoad(aRequest, aStatus, aWebProgress);
-		      updateModeline(getWebNavigation().currentURI);
-// 		  }
-	      }
-	  }
-
-	  var msg = "";
-	  if (aRequest) {
-	      const kErrorBindingAborted = 0x804B0002;
-	      const kErrorNetTimeout = 0x804B000E;
-	      const kErrorNotFound = 2152398878;
-	      switch (aStatus) {
-	      case kErrorBindingAborted:
-		  msg = "Quit";
-		  break;
-	      case kErrorNetTimeout:
-		  msg = "Timed Out.";
-		  break;
-	      case kErrorNotFound:
-		  msg = "Not Found.";
-	      }
-	  }
-	  if (msg == "") {
-	      msg = "Done.";
-	  }
-	  this.updateStatusField(msg);
-      }
-      } catch(e) {window.alert(e);}
-  },
-
-  onLocationChange : function(aWebProgress, aRequest, aLocation)
-  {
-    set_window_title();
-      updateModeline(aLocation);
-  },
-
-  onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage)
-  {
-//     window.alert("status change: " + aMessage);
-    this.updateStatusField(aMessage);
-  },
-
-  onSecurityChange : function(aWebProgress, aRequest, aState)
-  {
-//       window.alert("onSecurityChange");
-  },
-
-  startDocumentLoad : function(aRequest, aWebProgress)
-  {
-      const nsIChannel = Components.interfaces.nsIChannel;
-      var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
-      var observerService = Components.classes["@mozilla.org/observer-service;1"]
-			    .getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(top_content (aWebProgress.DOMWindow), "page-start-load", urlStr);
-  },
-
-  endDocumentLoad : function(aRequest, aStatus, aWebProgress)
-  {
-      const nsIChannel = Components.interfaces.nsIChannel;
-      var urlStr = aRequest.QueryInterface(nsIChannel).originalURI.spec;
-      var observerService = Components.classes["@mozilla.org/observer-service;1"]
-			    .getService(Components.interfaces.nsIObserverService);
-      observerService.notifyObservers(top_content (aWebProgress.DOMWindow), "page-end-load", urlStr);
-  }
-
-}
-
-/// plugins
-function missingPlugin(evt)
-{
-    window.alert("tough luck. yer missing a plugin");
-    evt.preventDefault();
-}
-
-/// Browser access
-
-function nsBrowserAccess()
-{
-}
-
-nsBrowserAccess.prototype =
-{
-  QueryInterface : function(aIID)
-  {
-    if (aIID.equals(nsCI.nsIBrowserDOMWindow) ||
-	aIID.equals(nsCI.nsISupports))
-      return this;
-    throw Components.results.NS_NOINTERFACE;
-  },
-
-  openURI : function(aURI, aOpener, aWhere, aContext)
-  {
-      var newwindow;
-      var url = aURI ? aURI.spec : "about:blank";
-      var isExternal = (aContext == nsCI.nsIBrowserDOMWindow.OPEN_EXTERNAL);
-      var referrer;
-
-      if (isExternal && aURI && aURI.schemeIs("chrome")) {
-	  dump("use -chrome command-line option to load external chrome urls\n");
-	  return null;
-      }
-
-      var loadflags = isExternal ? nsCI.nsIWebNavigation.LOAD_FLAGS_FROM_EXTERNAL : nsCI.nsIWebNavigation.LOAD_FLAGS_NONE;
-      // Apparently we need to catch the errors and ignore them.
-      try {
-	  switch(aWhere) {
-	  case nsCI.nsIBrowserDOMWindow.OPEN_NEWWINDOW :
-	      newwindow = openDialog("chrome://conkeror/content", "_blank", "all,dialog=no", url);
-	      break;
-	  case nsCI.nsIBrowserDOMWindow.OPEN_NEWTAB :
-	      var browser = getBrowser().newBrowser("about:blank");
-	      newwindow = browser.docShell
-		  .QueryInterface(nsCI.nsIInterfaceRequestor)
-		  .getInterface(nsCI.nsIDOMWindow);
-	      if (aOpener) {
-		  location = aOpener.location;
-		  referrer =
-		      Components.classes["@mozilla.org/network/io-service;1"]
-		      .getService(Components.interfaces.nsIIOService)
-		      .newURI(location, null, null);
-	      }
-	      newwindow.QueryInterface(nsCI.nsIInterfaceRequestor)
-                   .getInterface(nsCI.nsIWebNavigation)
-                   .loadURI(url, loadflags, referrer, null, null);
-	      break;
-	  default : // OPEN_CURRENTWINDOW or an illegal value
-	      if (aOpener) {
-		  newwindow = aOpener.top;
-		  location = aOpener.location;
-		  referrer =
-		      Components.classes["@mozilla.org/network/io-service;1"]
-		      .getService(Components.interfaces.nsIIOService)
-		      .newURI(location, null, null);
-
-		  newwindow.QueryInterface(nsCI.nsIInterfaceRequestor)
-		      .getInterface(nsIWebNavigation)
-		      .loadURI(url, loadflags, referrer, null, null);
-	      } else {
-		  newwindow = getBrowser().docShell
-		      .QueryInterface(nsCI.nsIInterfaceRequestor)
-		      .getInterface(nsCI.nsIDOMWindow);
-		  getWebNavigation().loadURI(url, loadflags, null, null, null);
-	      }
-	  }
-      } catch (e) { log ("error: " + e); }
-      return newwindow;
-  }
-};

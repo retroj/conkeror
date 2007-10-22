@@ -20,7 +20,7 @@ const conkeror_cmdline = {
         .getService ()
         .wrappedJSObject;
 
-    var performDefault = true;
+    var perform_default = true;
     var suppress_rc = false;
 
     for (var i = 0; i < cmdline.length; ++i)
@@ -39,7 +39,7 @@ const conkeror_cmdline = {
       }
       if (arg == "-batch")
       {
-        performDefault = false;
+        perform_default = false;
         continue;
       }
       if (arg == "-l")
@@ -59,7 +59,7 @@ const conkeror_cmdline = {
       //
       conkeror.url_remoting_fn (arg);
 
-      performDefault = false;
+      perform_default = false;
     }
 
     if (cmdline.length > 0)
@@ -76,7 +76,7 @@ const conkeror_cmdline = {
         //     when it will not be loaded anyway?
     }
 
-    if (performDefault) {
+    if (perform_default) {
         conkeror.make_frame(conkeror.homepage);
     }
   },

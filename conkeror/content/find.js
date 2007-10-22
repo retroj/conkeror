@@ -30,7 +30,7 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 // isearch
 
-var isearch_active = false;
+conkeror.isearch_active = false;
 
 // The point we search from
 var gLastSearch = "";
@@ -114,7 +114,7 @@ function focusFindBar()
     var state = createInitialFindState();
     gFindState = [];
     gFindState.push(state);
-    isearch_active = true;
+    conkeror.isearch_active = true;
     resumeFindState(state);
 }
 
@@ -129,7 +129,7 @@ function focusFindBarBW()
 function closeFindBar()
 {
     gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    isearch_active = false;
+    conkeror.isearch_active = false;
     closeInput(false);
 }
 

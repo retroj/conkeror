@@ -39,11 +39,23 @@ function application () {
 
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/debug.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/localfile.js"));
-
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/utils.js"));
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/keyboard.js"));
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/interactive.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/daemon-mode.js"));
+
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/commands.js")); // depends: interactive.js
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/minibuffer.js")); // depends: interactive.js
+
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/bindings.js")); // depends: keyboard.js
+
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/numbering.js"));
 
     conkeror.set_default_directory ();
 
+    conkeror.init_webjumps ();
+
+    conkeror.init_window_title ();
 }
 
 application.prototype = {
@@ -56,6 +68,8 @@ chrome: "chrome://conkeror/content/conkeror.xul",
 homepage: "chrome://conkeror/content/help.html",
 default_directory: null,
 url_remoting_fn: null,
+commands: [],
+current_command: null,
 quit_hook: [],
 make_frame_hook: [],
 make_frame_after_hook: [],
