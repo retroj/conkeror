@@ -1,5 +1,12 @@
 2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.32
+
+	* test/cmdline.sh, test/batch-suite.js, test/make-temp-install.sh:
+	initial checkin of test suite.
+
+2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.31
 
 	* build.sh: usage instructions say `bash build.sh <target>'
