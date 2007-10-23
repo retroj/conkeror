@@ -171,7 +171,6 @@ function initViKmaps()
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_BACK_SPACE,0),"go-up");
     define_key(top_kmap, kbd ("h",0),"go-back");
     define_key(top_kmap, kbd ("l",0),"go-forward");
-    define_key(top_kmap, kbd ("l",MOD_CTRL),"renumber-links");
     define_key(top_kmap, kbd ("a",MOD_CTRL),"cmd_selectAll"); // not really vi like, but ggVG is even worse for select all
     define_key(top_kmap, kbd (",",MOD_CTRL),"toggle-numbered-links");
     define_key(top_kmap, kbd (".",MOD_CTRL),"toggle-numbered-images");
@@ -244,9 +243,6 @@ function initViKmaps()
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_END, MOD_SHIFT),"cmd_selectEndLine");
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_UP, MOD_SHIFT),"cmd_selectLinePrevious");
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_DOWN, MOD_SHIFT),"cmd_selectLineNext");
-
-	// shows a query with a list of all links on the current website, currently quite broken
-    define_key(top_kmap, kbd ("m", MOD_CTRL),"link-menu");
 
     define_key(top_kmap, kbd(KeyEvent.DOM_VK_RETURN, MOD_CTRL), "follow-link-in-new-buffer");
 
@@ -353,7 +349,6 @@ function initKmaps()
     define_key(top_kmap, kbd ("u",0),"go-up");
     define_key(top_kmap, kbd ("u", MOD_CTRL), "universal-argument");
     define_key(top_kmap, kbd (" ",MOD_META),"yank-to-clipboard");
-    define_key(top_kmap, kbd ("l",MOD_CTRL),"renumber-links");
     define_key(top_kmap, kbd ("g",0),"open-url");
     define_key(top_kmap, kbd ("l",MOD_META),"toggle-numbered-links");
     define_key(top_kmap, kbd ("l",MOD_CTRL | MOD_META),"toggle-numbered-images");
@@ -425,8 +420,6 @@ function initKmaps()
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_END, MOD_SHIFT),"cmd_selectEndLine");
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_UP, MOD_SHIFT),"cmd_selectLinePrevious");
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_DOWN, MOD_SHIFT),"cmd_selectLineNext");
-
-    define_key(top_kmap, kbd ("m", 0),"link-menu");
 
     define_key(top_kmap, kbd(KeyEvent.DOM_VK_RETURN, MOD_CTRL), "follow-link-in-new-buffer");
 

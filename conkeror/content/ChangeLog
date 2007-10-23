@@ -1,3 +1,29 @@
+2007-10-23  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.33
+
+	* commands.js (link_menu, link-menu, renumber_links)
+	(renumber-links, get_buffer_from_name, inject_css): removed.
+
+	* commands.js (jsconsole): removed function. updated command to
+	use open_url_in directly.
+
+	* commands.js (makeFrame): renamed to make_frame_command.
+
+	* commands.js (make-frame-command): updated.
+
+	* commands.js (browser_next, browser_prev): use this.getBrowser.
+
+	* commands.js (view_partial_source, view_mathml_source): use
+	this.window.
+
+	* commands.js (print_buffer): use this.window.content.
+
+	* commands.js (view_source): use this.getWebNavigation.  use
+	this.message.
+
+	* bindings.js: remove bindings for link-menu and renumber-links.
+
 2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.29

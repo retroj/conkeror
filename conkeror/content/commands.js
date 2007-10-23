@@ -28,9 +28,6 @@ the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
-// Functions that are called by commands in conkeror.xul and that
-// aren't part of a module go here.
-
 
 function quit ()
 {
@@ -55,7 +52,7 @@ function unfocus()
         this.document.commandDispatcher.focusedElement.blur();
     else if (this.document.commandDispatcher.focusedWindow)
     {
-            
+        // null op
     }
     else
         this.window.content.focus();
@@ -231,11 +228,11 @@ interactive("beginning-of-line", scrollHorizComplete, [['value', -1]]);
 interactive("end-of-line", scrollHorizComplete, [['value', 1]]);
 
 
-function makeFrame()
+function make_frame_command ()
 {
     make_frame (homepage);
 }
-interactive("make-frame-command", makeFrame, []);
+interactive("make-frame-command", make_frame_command, []);
 
 
 function delete_frame()
@@ -245,6 +242,7 @@ function delete_frame()
 interactive("delete-frame", delete_frame, []);
 
 
+// XXX: move open_url_in_prompt to utils.js?
 function open_url_in_prompt(prefix, str)
 {
     if (str == null)
@@ -344,17 +342,8 @@ interactive("open-frameset-frame-in-new-buffer", open_url_in,
 interactive("open-frameset-frame-in-new-frame", open_url_in,
             [["value", 16],"current_frameset_frame_url_s"]);
 
-
-function get_buffer_from_name(buf)
-{
-    var bs = getBrowser().getBrowserNames();
-    for (var i=0; i<bs.length; i++) {
-        if (bs[i] == buf) {
-            return getBrowser().getBrowserAtIndex(i);
-        }
-    }
-    return null;
-}
+interactive("jsconsole", open_url_in,
+            ["p", ["value", "chrome://global/content/console.xul"]]);
 
 
 function switch_to_buffer (buffer)
@@ -478,14 +467,14 @@ interactive("isearch-done", isearch_done, []);
 
 function browser_next()
 {
-    getBrowser().nextBrowser();
+    this.getBrowser().nextBrowser();
 }
 interactive("buffer-next", browser_next, []);
 
 
 function browser_prev()
 {
-    getBrowser().prevBrowser();
+    this.getBrowser().prevBrowser();
 }
 interactive("buffer-previous", browser_prev, []);
 
@@ -510,13 +499,6 @@ function meta_x(prefix)
                              function(c) { call_interactively.call (this, c); }, this.abort);
 }
 interactive("execute-extended-command", meta_x, ["P"]);
-
-
-function inject_css()
-{
-    var doc = _content.content.document;
-    doc.createLinkNode;
-}
 
 
 /// built in commands
@@ -1105,33 +1087,6 @@ function list_buffers () {
 interactive("list-buffers", list_buffers, []);
 
 
-function link_menu(prefix)
-{
-    // Find the frame that's focused
-    var w = document.commandDispatcher.focusedWindow;
-    var strs = [];
-
-    var links = _content.content.document.getElementsByTagName('a');
-    for (var i=0;i<links.length; i++) {
-        if (!links[i].hasAttribute("href")) continue;
-        var name;
-        // This reall should be cleaner
-        if (getBrowser().numberedLinks) {
-            name = links[i].firstChild.nextSibling.nodeValue;
-        } else {
-            name = links[i].firstChild.nodeValue;
-        }
-        // Don't add links with no name
-        if (name && name.length)
-            strs.push([name, links[i].getAttribute("href")]);
-    }
-
-    readFromMiniBuffer (open_url_in_prompt(prefix,"Menu"), null, "link-menu", strs,
-                        false, null, function(v) {open_url_in(prefix,v);});
-}
-interactive("link-menu", link_menu, ["p"]);
-
-
 function text_reset() 
 {
     try {
@@ -1252,26 +1207,9 @@ interactive("extensions", conkeror.show_extension_manager, []);
 
 function print_buffer()
 {
-    window._content.print();
+    this.window.content.print();
 }
 interactive("print-buffer", print_buffer, []);
-
-
-function renumber_links ()
-{
-    this.removeExistingNLs (this.window.content);
-    this.window.content.__conk_start_num = null;
-    this.createNumberedLinks.call (this, this.window.content);
-}
-interactive("renumber-links", renumber_links, []);
-
-
-/* Open javascript console */
-function jsconsole(prefix)
-{
-    open_url_in (prefix, "chrome://global/content/console.xul");
-}
-interactive("jsconsole", jsconsole, ["p"]);
 
 
 function view_source (url_s)
@@ -1279,10 +1217,10 @@ function view_source (url_s)
     if (url_s.substring (0,12) != "view-source:") {
         try {
             var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
-            getWebNavigation().loadURI("view-source:"+url_s, loadFlags, null, null, null);
+            this.getWebNavigation().loadURI("view-source:"+url_s, loadFlags, null, null, null);
         } catch(e) { dumpln (e); }
     } else {
-        message ("already viewing source");
+        this.message ("already viewing source");
     }
 }
 interactive("view-source", view_source, ['current_url_s']);
@@ -1290,18 +1228,18 @@ interactive("view-source", view_source, ['current_url_s']);
 
 function view_partial_source (charset, selection) {
     if (charset) { charset = "charset=" + charset; }
-    window.openDialog("chrome://global/content/viewPartialSource.xul",
-                      "_blank", "scrollbars,resizable,chrome,dialog=no",
-                      null, charset, selection, 'selection');
+    this.window.openDialog("chrome://global/content/viewPartialSource.xul",
+                           "_blank", "scrollbars,resizable,chrome,dialog=no",
+                           null, charset, selection, 'selection');
 }
 interactive ('view-partial-source', view_partial_source, ['content_charset', 'content_selection']);
 
 
 function  view_mathml_source (charset, target) {
     if (charset) { charset = "charset=" + charset; }
-    window.openDialog("chrome://global/content/viewPartialSource.xul",
-                      "_blank", "scrollbars,resizable,chrome,dialog=no",
-                      null, charset, target, 'mathml');
+    this.window.openDialog("chrome://global/content/viewPartialSource.xul",
+                           "_blank", "scrollbars,resizable,chrome,dialog=no",
+                           null, charset, target, 'mathml');
 }
 interactive ('view-mathml-source', view_mathml_source, ['content_charset', 'mathml_node']);
 
