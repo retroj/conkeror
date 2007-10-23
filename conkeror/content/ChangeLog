@@ -1,5 +1,15 @@
 2007-10-23  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.34
+
+	* frame.js (updateModeline): check if url is null.  build
+	mode-line string in a variable.
+
+	* interactive.js (do_interactive): try blocks around each
+	interaction and callback.
+
+2007-10-23  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.33
 
 	* commands.js (link_menu, link-menu, renumber_links)

@@ -513,7 +513,11 @@ function do_interactive (iargs, callback, callback_args, given_args)
         if ('func' in interactive_methods[method])
         {
             // 'func' denotes that this method can be done synchronously.
-            callback_args.push (interactive_methods[method].func.call (this, iarg));
+            try {
+                callback_args.push (interactive_methods[method].func.call (this, iarg));
+            } catch (e) {
+                this.message ('do_interactive (' + method + '): ' + e);
+            }
             // do_interactive (iargs, callback, callback_args);
         } else {
             // an asynchronous call needs to be made.  break the loop and let
@@ -537,9 +541,17 @@ function do_interactive (iargs, callback, callback_args, given_args)
         // all the information they need to continue the interactive
         // process when their data has been gathered.
         //
-        interactive_methods[method].async.call (this, iarg, iargs, callback, callback_args, given_args);
+        try {
+            interactive_methods[method].async.call (this, iarg, iargs, callback, callback_args, given_args);
+        } catch (e) {
+            this.message ('do_interactive (' + method + '): ' + e);
+        }
     } else {
-        callback.call (this, callback_args);
+        try {
+            callback.call (this, callback_args);
+        } catch (e) {
+            this.message ('do_interactive <CALLBACK>: ' + e);
+        }
     }
 }
 
