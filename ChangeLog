@@ -1,3 +1,12 @@
+2007-10-24  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.35
+
+	* components/application.js (application.get_os): new function.
+
+	* components/application.js (application.set_default_directory):
+	use get_os.
+
 2007-10-22  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.32

@@ -235,6 +235,14 @@ quit : function ()
     appStartup.quit(appStartup.eAttemptQuit);
 },
 
+get_os: function ()
+{
+    // possible return values: 'Darwin', 'Linux', 'WINNT', ...
+    var appinfo = Components.classes['@mozilla.org/xre/app-info;1']
+        .createInstance (Components.interfaces.nsIXULRuntime);
+    return appinfo.OS;
+},
+
 set_default_directory : function (directory_s) {
     function getenv (variable) {
         var env = Components.classes['@mozilla.org/process/environment;1']
@@ -244,16 +252,13 @@ set_default_directory : function (directory_s) {
         return null;
     }
 
-    var appinfo = Components.classes['@mozilla.org/xre/app-info;1']
-        .createInstance (Components.interfaces.nsIXULRuntime);
-
     if (! directory_s)
     {
         directory_s = getenv ('HOME');
     }
 
     if (! directory_s &&
-        appinfo.OS == "WINNT")
+        this.get_os() == "WINNT")
     {
         directory_s = getenv ('USERPROFILE') ||
             getenv ('HOMEDRIVE') + getenv ('HOMEPATH');

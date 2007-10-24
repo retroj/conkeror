@@ -783,15 +783,16 @@ interactive("copy-email-address", copy_email_address, ['focused_link_url_s']);
 
 function save_focused_link (url_o, dest_file_o)
 {
-    download_uri_internal (url_o,
-                           null,        // document_o
-                           dest_file_o,
-                           null,        // dest_data_dir_o
-                           null,        // referrer_o
-                           null,        // content_type_s
-                           true,        // should_bypass_cache_p
-                           false,       // save_as_text_p
-                           false);      // save_as_complete_p
+    this.download_uri_internal (
+        url_o,
+        null,        // document_o
+        dest_file_o,
+        null,        // dest_data_dir_o
+        null,        // referrer_o
+        null,        // content_type_s
+        true,        // should_bypass_cache_p
+        false,       // save_as_text_p
+        false);      // save_as_complete_p
 }
 interactive ("save-focused-link", save_focused_link,
              ['focused_link_url_o',
@@ -804,15 +805,16 @@ interactive ("save-focused-link", save_focused_link,
 
 function save_image (url_o, dest_file_o)
 {
-    download_uri_internal (url_o,
-                           null,        // document_o
-                           dest_file_o,
-                           null,        // dest_data_dir_o
-                           null,        // referrer_o
-                           null,        // content_type_s
-                           false,       // should_bypass_cache_p
-                           false,       // save_as_text_p
-                           false);      // save_as_complete_p
+    this.download_uri_internal (
+        url_o,
+        null,        // document_o
+        dest_file_o,
+        null,        // dest_data_dir_o
+        null,        // referrer_o
+        null,        // content_type_s
+        false,       // should_bypass_cache_p
+        false,       // save_as_text_p
+        false);      // save_as_complete_p
 }
 interactive ("save-image", save_image,
              ['image_url_o',
@@ -827,15 +829,16 @@ function save_page (document_o, dest_file_o)
 {
     var url_o = makeURL (document_o.documentURI);
     var content_type_s = document_o.contentType;
-    download_uri_internal (url_o,
-                           document_o,
-                           dest_file_o,
-                           null,   // dest_data_dir_o
-                           null,   // referrer_o
-                           content_type_s,
-                           false,  // should_bypass_cache_p
-                           false,  // save_as_text_p
-                           false); // save_as_complete_p
+    this.download_uri_internal (
+        url_o,
+        document_o,
+        dest_file_o,
+        null,   // dest_data_dir_o
+        null,   // referrer_o
+        content_type_s,
+        false,  // should_bypass_cache_p
+        false,  // save_as_text_p
+        false); // save_as_complete_p
 }
 interactive("save-page", save_page,
             ['active_document',
@@ -859,15 +862,16 @@ function save_page_as_text (document_o, dest_file_o)
     var url_o = makeURL (document_o.documentURI);
     var content_type_s = document_o.contentType;
     var should_bypass_cache_p = true;//not sure...
-    download_uri_internal (url_o,
-                           document_o,
-                           dest_file_o,
-                           null,   // dest_data_dir_o
-                           null,   // referrer_o
-                           content_type_s,
-                           false,  //should_bypass_cache_p
-                           true,   // save_as_text_p
-                           false); // save_as_complete_p
+    this.download_uri_internal (
+        url_o,
+        document_o,
+        dest_file_o,
+        null,   // dest_data_dir_o
+        null,   // referrer_o
+        content_type_s,
+        false,  //should_bypass_cache_p
+        true,   // save_as_text_p
+        false); // save_as_complete_p
 }
 interactive("save-page-as-text", save_page_as_text,
             ['active_document',
@@ -891,15 +895,16 @@ function save_page_complete (document_o, dest_file_o, dest_data_dir_o)
 {
     var url_o = makeURL (document_o.documentURI);
     var content_type_s = document_o.contentType;
-    download_uri_internal (url_o,
-                           document_o,
-                           dest_file_o,
-                           dest_data_dir_o,
-                           null,   // referrer_o
-                           content_type_s,
-                           false,  // should_bypass_cache_p
-                           false,  // save_as_text_p
-                           true);  // save_as_complete_p
+    this.download_uri_internal (
+        url_o,
+        document_o,
+        dest_file_o,
+        dest_data_dir_o,
+        null,   // referrer_o
+        content_type_s,
+        false,  // should_bypass_cache_p
+        false,  // save_as_text_p
+        true);  // save_as_complete_p
 }
 interactive("save-page-complete", save_page_complete,
             ['active_document',
