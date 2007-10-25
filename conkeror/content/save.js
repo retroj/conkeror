@@ -181,7 +181,9 @@ function download_uri_internal (url_o, document_o,
 
 
 
-
+/*
+ *  GENERATE FILENAME
+ */
 
 
 /* maybe_get_filename_extension
@@ -281,21 +283,6 @@ function getCharsetforSave(aDocument)
     return null;
 }
 
-function validateFileName(aFileName)
-{
-    var re = /[\/]+/g;
-    if (get_os() == 'WINNT') {
-        re = /[\\\/\|]+/g;
-        aFileName = aFileName.replace(/[\"]+/g, "'");
-        aFileName = aFileName.replace(/[\*\:\?]+/g, " ");
-        aFileName = aFileName.replace(/[\<]+/g, "(");
-        aFileName = aFileName.replace(/[\>]+/g, ")");
-    }
-    else if (get_os() == 'Darwin')
-        re = /[\:\/]+/g;
-
-    return aFileName.replace(re, "_");
-}
 
 function maybe_filename_from_content_disposition (aContentDisposition, charset) {
     if (aContentDisposition) {
@@ -312,7 +299,7 @@ function maybe_filename_from_content_disposition (aContentDisposition, charset) 
             } catch (e) { }
         }
         if (fileName)
-            return validateFileName (fileName);
+            return fileName;
         else
             return null;
     }
@@ -326,7 +313,7 @@ function maybe_filename_from_url (aURI) {
             // 2) Use the actual file name, if present
             var textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
                 .getService(Components.interfaces.nsITextToSubURI);
-            return validateFileName(textToSubURI.unEscapeURIForUI(url.originCharset || "UTF-8", url.fileName));
+            return textToSubURI.unEscapeURIForUI(url.originCharset || "UTF-8", url.fileName);
         }
     } catch (e) {
         // This is something like a data: and so forth URI... no filename here.
@@ -336,7 +323,7 @@ function maybe_filename_from_url (aURI) {
 
 function maybe_filename_from_document_title (aDocument) {
     if (aDocument) {
-        var docTitle = validateFileName(aDocument.title).replace(/^\s+|\s+$/g, "");
+        var docTitle = aDocument.title.replace(/^\s+|\s+$/g, "");
         if (docTitle) {
             // 3) Use the document title
             return docTitle;
@@ -350,7 +337,7 @@ function maybe_filename_from_url_last_directory (aURI) {
     try {
     var path = aURI.path.match(/\/([^\/]+)\/$/);
     if (path && path.length > 1)
-        return validateFileName(path[1]);
+        return path[1];
     return null;
     } catch (e) {
         return null;
@@ -371,14 +358,47 @@ function maybe_filename_from_localization_default () {
     }
 }
 
+function generate_filename_safely_default (filename) {
+    return filename.replace (/[\/]+/g, '_');
+}
+
+function generate_filename_safely_darwin (filename) {
+    return filename.replace(/[\:\/]+/g, '_');
+}
+
+function generate_filename_safely_winnt (filename)
+{
+    filename = filename.replace (/[\"]+/g,     "'");
+    filename = filename.replace (/[\*\:\?]+/g, ' ');
+    filename = filename.replace (/[\<]+/g,     '(');
+    filename = filename.replace (/[\>]+/g,     ')');
+    filename = filename.replace (/[\\\/\|]+/g, '_');
+    return filename;
+}
+
+
+var generate_filename_safely_fn = null;
+
+switch (get_os()) {
+    case 'Darwin':
+        generate_filename_safely_fn = generate_filename_safely_darwin;
+    case 'WINNT':
+        generate_filename_safely_fn = generate_filename_safely_winnt;
+    default:
+        generate_filename_safely_fn = generate_filename_safely_default;
+}
+
+
+
 function getDefaultFileName (aURI, aDocument, aContentDisposition) {
-    return (maybe_filename_from_content_disposition (aContentDisposition, getCharsetforSave(aDocument)) ||
-            maybe_filename_from_url (aURI) ||
-            maybe_filename_from_document_title (aDocument) ||
-            maybe_filename_from_url_last_directory (aURI) ||
-            maybe_filename_from_url_host (aURI) ||
-            maybe_filename_from_localization_default () ||
-            "index");
+    return generate_filename_safely_fn
+               (maybe_filename_from_content_disposition (aContentDisposition, getCharsetforSave(aDocument)) ||
+                maybe_filename_from_url (aURI) ||
+                maybe_filename_from_document_title (aDocument) ||
+                maybe_filename_from_url_last_directory (aURI) ||
+                maybe_filename_from_url_host (aURI) ||
+                maybe_filename_from_localization_default () ||
+                "index");
 }
 
 /**
@@ -394,23 +414,28 @@ function getDefaultFileName (aURI, aDocument, aContentDisposition) {
  *        pass the extension you want here.  Otherwise pass null.  This is
  *        used by save_page_as_text.
  */
-function generate_filename (url_o, aDocument, aContentType, aContentDisposition, dest_extension_s)
+function generate_filename (url, aDocument, aContentType, aContentDisposition, dest_extension_s)
 {
+    try {
+        url.QueryInterface (Components.interfaces.nsIURI);
+    } catch (e) {
+        url = makeURL (url);
+    }
     var file_ext_s;
     var file_base_name_s;
 
-    file_ext_s = maybe_get_url_extension (url_o);
+    file_ext_s = maybe_get_url_extension (url);
 
     // Get the default filename:
-    var file_name_s = getDefaultFileName(url_o, aDocument, aContentDisposition);
+    var file_name_s = getDefaultFileName(url, aDocument, aContentDisposition);
 
-    // If file_ext_s is still blank, and url_o is a web link (http or
+    // If file_ext_s is still blank, and url is a web link (http or
     // https), make the extension `.html'.
-    if (! file_ext_s && !aDocument && !aContentType && (/^http(s?)/i.test(url_o.scheme))) {
+    if (! file_ext_s && !aDocument && !aContentType && (/^http(s?)/i.test(url.scheme))) {
         file_ext_s = ".html";
         file_base_name_s = file_name_s;
     } else {
-        file_ext_s = getDefaultExtension(file_name_s, url_o, aContentType);
+        file_ext_s = getDefaultExtension(file_name_s, url, aContentType);
         // related to temporary fix for bug 120327 in getDefaultExtension
         if (file_ext_s == "")
             file_ext_s = file_name_s.replace (/^.*?\.(?=[^.]*$)/, "");
@@ -432,10 +457,15 @@ function generate_filename (url_o, aDocument, aContentType, aContentDisposition,
  */
 
 
-function save_focused_link (url_o, dest_file_o)
+function save_focused_link (url, dest_file_o)
 {
+    try {
+        url.QueryInterface (Components.interfaces.nsIURI);
+    } catch (e) {
+        url = makeURL (url);
+    }
     download_uri_internal (
-        url_o,
+        url,
         null,        // document_o
         dest_file_o,
         null,        // dest_data_dir_o
@@ -447,7 +477,7 @@ function save_focused_link (url_o, dest_file_o)
         false);      // save_as_complete_p
 }
 interactive ("save-focused-link", save_focused_link,
-             ['focused_link_url_o',
+             ['focused_link_url',
               ['F', function (a) { return "Save Link As: "; },
                function (args) {
                    return generate_filename (args[0]).path;
@@ -457,6 +487,11 @@ interactive ("save-focused-link", save_focused_link,
 
 function save_image (url_o, dest_file_o)
 {
+    try {
+        url.QueryInterface (Components.interfaces.nsIURI);
+    } catch (e) {
+        url = makeURL (url);
+    }
     download_uri_internal (
         url_o,
         null,        // document_o
@@ -470,7 +505,7 @@ function save_image (url_o, dest_file_o)
         false);      // save_as_complete_p
 }
 interactive ("save-image", save_image,
-             ['image_url_o',
+             ['image_url',
               ['F', function (a) { return "Save Image As: "; },
                function (args) {
                    return generate_filename (args[0]).path;

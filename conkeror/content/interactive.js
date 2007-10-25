@@ -79,18 +79,13 @@ current_command: { func: function (spec) {
         }
 },
 
-current_frameset_frame_url_s: { func: function (spec) {
+current_frameset_frame_url: { func: function (spec) {
             var w = this.document.commandDispatcher.focusedWindow;
             return w.location.href;
         }
 },
 
-current_url_o: { func: function (spec) {
-            return this.getWebNavigation().currentURI;
-        }
-},
-
-current_url_s: { func: function (spec) {
+current_url: { func: function (spec) {
             return this.getWebNavigation().currentURI.spec;
         }
 },
@@ -144,15 +139,7 @@ F: { async: function (spec, iargs, callback, callback_args, given_args) {
         }
 },
 
-focused_link_url_o: { func: function (spec) {
-            // -- Focused link element
-            ///JJF: check for errors or wrong element type.
-            return makeURL (get_link_location (this.document.commandDispatcher.focusedElement));
-        }
-},
-
-
-focused_link_url_s: { func: function (spec) {
+focused_link_url: { func: function (spec) {
             // -- Focused link element
             ///JJF: check for errors or wrong element type.
             return get_link_location (this.document.commandDispatcher.focusedElement);
@@ -193,51 +180,7 @@ image: { async: function (spec, iargs, callback, callback_args, given_args) {
 },
 
 
-image_url_o: { async: function (spec, iargs, callback, callback_args, given_args) {
-
-            var prompt = (1 in spec ? spec[1].call (this, callback_args) : "Image Number: ");
-            var buf_state = this.getBrowser().numberedImages;
-            if (!buf_state) {
-                // turn on image numbers
-                this.gTurnOffLinksAfter = true;
-                this.toggleNumberedImages();
-            }
-            // Setup a context for the context-keymap system.
-            this.readFromMiniBuffer (prompt, null, null, null, null, null,
-                                     function (s) {
-                                         function fail (number)
-                                         {
-                                             message ("'"+number+"' is not the number of any image here. ");
-                                         }
-                                         var nl = this.get_numberedlink (s);
-                                         if (! nl) { this.fail (s); return; }
-                                         var type = nl.nlnode.getAttribute("__conktype");
-                                         var loc;
-                                         if (type == "image" && nl.node.getAttribute("src")) {
-                                             loc = nl.node.getAttribute("src");
-                                             loc = makeURLAbsolute (nl.node.baseURI, loc);
-                                         } else {
-                                             fail (number);
-                                         }
-                                         callback_args.push (makeURL (loc));
-
-                                         if (gTurnOffLinksAfter) {
-                                             this.toggleNumberedImages();
-                                             this.gTurnOffLinksAfter = false;
-                                         }
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
-                                     },
-                                     function () {
-                                         if (this.gTurnOffLinksAfter) {
-                                             this.toggleNumberedImages ();
-                                             this.gTurnOffLinksAfter = false;
-                                         }
-                                     });
-        }
-},
-
-
-image_url_s: { async: function (spec, iargs, callback, callback_args, given_args) {
+image_url: { async: function (spec, iargs, callback, callback_args, given_args) {
 
             var prompt = (1 in spec ? spec[1].call (this, callback_args) : "Image Number: ");
             var buf_state = this.getBrowser().numberedImages;
@@ -254,7 +197,7 @@ image_url_s: { async: function (spec, iargs, callback, callback_args, given_args
                                              this.message ("'"+number+"' is not the number of any image here. ");
                                          }
                                          var nl = this.get_numberedlink (s);
-                                         if (! nl) { fail (s); return; }
+                                         if (! nl) { this.fail (s); return; }
                                          var type = nl.nlnode.getAttribute("__conktype");
                                          var loc;
                                          if (type == "image" && nl.node.getAttribute("src")) {

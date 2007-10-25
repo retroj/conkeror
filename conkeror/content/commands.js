@@ -277,7 +277,7 @@ function open_url_in (prefix, url)
     }
 }
 
-interactive("follow-image", open_url_in, ['p', 'image_url_s']);
+interactive("follow-image", open_url_in, ['p', 'image_url']);
 
 interactive("open-url", open_url_in,
             ['p',
@@ -328,19 +328,19 @@ interactive("find-url", open_url_in,
                   return templs; }]]);
 
 interactive("follow-link", open_url_in,
-            [['value', 1], 'focused_link_url_s']);
+            [['value', 1], 'focused_link_url']);
 
 interactive("follow-link-in-new-buffer", open_url_in,
-            [['value', 4], 'focused_link_url_s']);
+            [['value', 4], 'focused_link_url']);
 
 interactive("open-frameset-frame-in-current-buffer", open_url_in,
-            [["value", 1],"current_frameset_frame_url_s"]);
+            [["value", 1],"current_frameset_frame_url"]);
 
 interactive("open-frameset-frame-in-new-buffer", open_url_in,
-            [["value", 4],"current_frameset_frame_url_s"]);
+            [["value", 4],"current_frameset_frame_url"]);
 
 interactive("open-frameset-frame-in-new-frame", open_url_in,
-            [["value", 16],"current_frameset_frame_url_s"]);
+            [["value", 16],"current_frameset_frame_url"]);
 
 interactive("jsconsole", open_url_in,
             ["p", ["value", "chrome://global/content/console.xul"]]);
@@ -367,10 +367,10 @@ function copy_location (s)
     writeToClipboard (s);
     this.message ("Copied '"+s+"'");
 }
-interactive("copy-current-url", copy_location, ['current_url_s']);
-interactive("copy-link-location", copy_location, ['focused_link_url_s']);
-interactive("copy-image-location", copy_location, ['image_url_s']);
-interactive("copy-frameset-frame-location", copy_location, ['current_frameset_frame_url_s']);
+interactive("copy-current-url", copy_location, ['current_url']);
+interactive("copy-link-location", copy_location, ['focused_link_url']);
+interactive("copy-image-location", copy_location, ['image_url']);
+interactive("copy-frameset-frame-location", copy_location, ['current_frameset_frame_url']);
 
 
 // Copy the contents of the X11 clipboard to ours. This is a cheap
@@ -778,7 +778,7 @@ function copy_email_address (loc)
     writeToClipboard(addresses);
     message("Copied '" + addresses + "'");
 }
-interactive("copy-email-address", copy_email_address, ['focused_link_url_s']);
+interactive("copy-email-address", copy_email_address, ['focused_link_url']);
 
 
 interactive("source", function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
@@ -1083,7 +1083,7 @@ function view_source (url_s)
         this.message ("already viewing source");
     }
 }
-interactive("view-source", view_source, ['current_url_s']);
+interactive("view-source", view_source, ['current_url']);
 
 
 function view_partial_source (charset, selection) {

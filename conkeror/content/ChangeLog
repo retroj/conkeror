@@ -1,5 +1,43 @@
 2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.38
+
+	* save.js (validateFileName): removed, and removed all calls.
+
+	* save.js (generate_filename_safely_default)
+	(generate_filename_safely_darwin, generate_filename_safely_winnt):
+	new functions.
+
+	* save.js (generate_filename_safely_fn): new variable, plus
+	initialization code.
+
+	* save.js (getDefaultFileName): use generate_filename_safely_fn.
+
+	* interactive.js (interactive_methods.focused_link_url_s): renamed
+	to focused_link_url.  updated all callers.
+
+	* interactive.js (interactive_methods.image_url_s): renamed to
+	image_url.  updated all callers.
+
+	* interactive.js (interactive_methods.current_url_s): renamed to
+	current_url.  updated all callers.
+
+	* interactive.js (interactive_methods.current_frameset_frame_url_s):
+	renamed to current_frameset_frame_url.  updated all callers.
+
+	* interactive.js (interactive_methods.current_url_o)
+	(interactive_methods.focused_link_url_o)
+	(interactive_methods.image_url_o): removed.
+
+	* save.js (save-focused-link): use `focused_link_url'.
+
+	* save.js (save_focused_link, generate_filename, save_image): take
+	string or nsIURI.
+
+	* save.js (save-image): use `image_url'.
+
+2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.37
 
 	* frame.js (download_uri_internal): moved to save.js.
