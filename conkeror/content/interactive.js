@@ -551,6 +551,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
             callback.call (this, callback_args);
         } catch (e) {
             this.message ('do_interactive <CALLBACK>: ' + e);
+            dumpln ('do_interactive <CALLBACK>: ' + e);
         }
     }
 }

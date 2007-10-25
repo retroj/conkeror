@@ -557,10 +557,20 @@ function abort()
 }
 
 
+function getPostData()
+{
+    try {
+        var sessionHistory = getWebNavigation().sessionHistory;
+        var entry = sessionHistory.getEntryAtIndex(sessionHistory.index, false);
+        entry = entry.QueryInterface(Components.interfaces.nsISHEntry);
+        return entry.postData;
+    } catch (e) { }
+    return null;
+}
+
+
 // download_uri
 //
-// called by the command save-link.
-// 
 function download_uri (url_s, dest_s)
 {
     var url_o = makeURL (url_s);
@@ -571,6 +581,7 @@ function download_uri (url_s, dest_s)
     dest_file_o.initWithPath(dest_s);
     var dest_data_dir_o = null;
     var referrer_o = null;//should there be a referrer?
+    var post_data_o = null;
     var content_type_s = null;
     var should_bypass_cache_p = true;//not sure...
 
@@ -585,206 +596,13 @@ function download_uri (url_s, dest_s)
         dest_file_o,
         dest_data_dir_o,
         referrer_o,
+        post_data_o,
         content_type_s,
         should_bypass_cache_p,
         save_as_text_p,
         save_as_complete_p
         );
 }
-
-/*
- * download_uri_internal
- *
- *  url_o           an nsIURI object of the page to be saved. required.
- *
- *  document_o      a document object of the page to be saved.
- *                  null if you want to save an URL that is not being
- *                  browsed, but in that case, you cannot save as text
- *                  or as `web-complete'.
- *
- *  dest_file_o     an nsILocalFile object for the destination file.
- *                  required.
- *
- *  dest_data_dir_o  an nsILocalFile object for the directory to hold
- *                   linked files when doing save-as-complete.  Otherwise
- *                   null.
- *
- *  referrer_o      nsIURI to pass as the referrer.  May be null.
- *
- *  content_type_s  a string content type of the document.  Required to
- *                  save as text or save as complete.  Should be provided
- *                  for save-page, but probably safe to pass null.  for URI's
- *                  not browsed yet (save-link) pass null.
- *
- *  should_bypass_cache_p   boolean tells whether to bypass cache data or not.
- *                          Usually pass true.
- *
- *  save_as_text_p  boolean tells whether to save as text.  mutually exclusive
- *                  with save_as_complete_p.  Only available when document_o is
- *                  supplied.
- *
- *  save_as_complete_p  boolean tells whether to save in complete mode.
- *                      mutually exclusive with save_as_text_p.  Only available
- *                      when document_o is supplied.  Requires dest_data_dir_o be
- *                      supplied.
- *
- */
-function download_uri_internal (url_o, document_o,
-                                dest_file_o, dest_data_dir_o, referrer_o,
-                                content_type_s, should_bypass_cache_p,
-                                save_as_text_p, save_as_complete_p)
-{
-    // We have no DOM, and can only save the URL as is.
-    const SAVEMODE_FILEONLY      = 0x00;
-    // We have a DOM and can save as complete.
-    const SAVEMODE_COMPLETE_DOM  = 0x01;
-    // We have a DOM which we can serialize as text.
-    const SAVEMODE_COMPLETE_TEXT = 0x02;
-
-    function GetSaveModeForContentType(aContentType)
-    {
-        var saveMode = SAVEMODE_FILEONLY;
-        switch (aContentType) {
-            case "text/html":
-            case "application/xhtml+xml":
-                saveMode |= SAVEMODE_COMPLETE_TEXT;
-                // Fall through
-            case "text/xml":
-            case "application/xml":
-                saveMode |= SAVEMODE_COMPLETE_DOM;
-                break;
-        }
-        return saveMode;
-    }
-
-    //getPostData might be handy outside of download_uri_internal.
-    //
-    function getPostData()
-    {
-        try {
-            var sessionHistory = getWebNavigation().sessionHistory;
-            var entry = sessionHistory.getEntryAtIndex(sessionHistory.index, false);
-            entry = entry.QueryInterface(Components.interfaces.nsISHEntry);
-            return entry.postData;
-        }
-        catch (e) {
-        }
-        return null;
-    }
-
-
-    // to save the current page, pass in the url object of the current url, and the document object.
-
-    // saveMode defaults to SAVEMODE_FILEONLY, meaning we have no DOM, so we can only save the file as-is.
-    // SAVEMODE_COMPLETE_DOM means we can save as complete.
-    // SAVEMODE_COMPLETE_TEXT means we have a DOM and we can serialize it as text.
-    // text/html will have all these flags set, meaning it can be saved in all these ways.
-    // text/xml will have just FILEONLY and COMPLETE_DOM.  We cannot serialize plain XML as text.
-
-    var saveMode = GetSaveModeForContentType (content_type_s);
-
-    // is_document_p is a flag that tells us a document object was passed
-    // in, its content type was passed in, and this content type has a DOM.
-
-    var is_document_p = document_o != null && saveMode != SAVEMODE_FILEONLY;
-
-    // use_save_document_p is a flag that tells us that it is possible to save as
-    // either COMPLETE or TEXT, and that saving as such was requested by the
-    // caller.
-    //
-    // Therefore, it is ONLY possible to save in COMPLETE or TEXT
-    // mode if we pass in a document object and its content type, and its
-    // content type supports those save modes.
-    //
-    // Ergo, we can implement the Conkeror commands, save-page-as-text and
-    // save-page-complete, but not corresponding commands for links.
-
-    var use_save_document_p = is_document_p &&
-        (((saveMode & SAVEMODE_COMPLETE_DOM) && !save_as_text_p && save_as_complete_p) ||
-         ((saveMode & SAVEMODE_COMPLETE_TEXT) && save_as_text_p));
-
-    if (save_as_text_p && !use_save_document_p)
-        throw ("Cannot save this page as text.");
-
-    if (save_as_complete_p && !use_save_document_p)
-        throw ("Cannot save this page in complete mode.");
-
-    // source may be a document object or an url object.
-
-    var source = use_save_document_p ? document_o : url_o;
-
-    // fileURL is an url object representing the output file.
-
-    var fileURL = conkeror.makeFileURL (dest_file_o);
-
-
-
-    var persistArgs = {
-        source: source,
-        contentType: ((use_save_document_p && save_as_text_p) ?
-                      "text/plain" : content_type_s),
-        target: fileURL,
-        postData: (is_document_p ? getPostData() : null), //ok (new)
-        bypassCache: should_bypass_cache_p
-    };
-
-    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
-    var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-        .createInstance(nsIWBP);
-
-    // Calculate persist flags.
-    const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FLAGS;
-    if (should_bypass_cache_p)
-        persist.persistFlags = flags | nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
-    else
-        persist.persistFlags = flags | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
-
-    // Let the WebBrowserPersist decide whether the incoming data is encoded
-    // and whether it needs to go through a content converter e.g. to
-    // decompress it.
-    persist.persistFlags |= nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION;
-
-    // Create download and initiate it (below)
-    //
-    //XXX RetroJ:
-    //  This transfer object is what produces the gui downloads display.  As a
-    //  future project, we will use a nsIWebProgressListener internal to
-    //  conkeror that does not involve annoying gui dialogs.
-    //
-    var tr = Components.classes["@mozilla.org/transfer;1"].createInstance(Components.interfaces.nsITransfer);
-
-    if (use_save_document_p)
-    {
-        // Saving a Document, not a URI:
-        var encodingFlags = 0;
-        if (persistArgs.contentType == "text/plain")
-        {
-            encodingFlags |= nsIWBP.ENCODE_FLAGS_FORMATTED;
-            encodingFlags |= nsIWBP.ENCODE_FLAGS_ABSOLUTE_LINKS;
-            encodingFlags |= nsIWBP.ENCODE_FLAGS_NOFRAMES_CONTENT;
-        } else {
-            encodingFlags |= nsIWBP.ENCODE_FLAGS_BASIC_ENTITIES;
-        }
-
-        const kWrapColumn = 80;
-
-        // this transfer object is the only place in this document-saving branch where url_o is needed.
-        tr.init (url_o, persistArgs.target, "", null, null, null, persist);
-        persist.progressListener = tr;
-        //persist.progressListener = progress_listener;
-        persist.saveDocument (persistArgs.source, persistArgs.target, dest_data_dir_o,
-                              persistArgs.contentType, encodingFlags, kWrapColumn);
-    } else {
-        // Saving a URI:
-
-        tr.init (source, persistArgs.target, "", null, null, null, persist);
-        persist.progressListener = tr;
-        //persist.progressListener = progress_listener;
-        persist.saveURI (source, null, referrer_o, persistArgs.postData, null,
-                         persistArgs.target);
-    }
-}
-
 
 
 

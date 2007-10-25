@@ -1,5 +1,26 @@
 2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.37
+
+	* frame.js (download_uri_internal): moved to save.js.
+
+	* save.js (download_uri_internal): new argument, `post_data_o'.
+	use this instead of calling getPostData.
+
+	* save.js (download_uri_internal): moved inner function
+	`getPostData' to frame.js.
+
+	* save.js (save_focused_link, save_image, save_page)
+	(save_page_as_text, save_page_complete): use
+	`download_uri_internal' instead of `this.download_uri_internal'.
+	updated calls to download_uri_internal to pass new argument for
+	post_data_o.
+
+	* frame.js (download_uri): updated call to download_uri_internal
+	to pass new argument for post_data_o.
+
+2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.36
 
 	* save.js: new file.
