@@ -147,7 +147,7 @@ F: { async: function (spec, iargs, callback, callback_args, given_args) {
 focused_link_url_o: { func: function (spec) {
             // -- Focused link element
             ///JJF: check for errors or wrong element type.
-            return this.makeURL (get_link_location (this.document.commandDispatcher.focusedElement));
+            return makeURL (get_link_location (this.document.commandDispatcher.focusedElement));
         }
 },
 

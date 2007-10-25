@@ -1,3 +1,9 @@
+2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.36
+
+	* components/application.js (application): load save.js.
+
 2007-10-24  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.35

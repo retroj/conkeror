@@ -1,3 +1,31 @@
+2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.36
+
+	* save.js: new file.
+
+	* commands.js (save_focused_link, save-focused-link, save_image)
+	(save-image, save_page, save-page, save_page_as_text)
+	(save-page-as-text, save_page_complete, save-page-complete): moved
+	to save.js.
+
+	* interactive.js (interactive_methods.focused_link_url_o): use
+	`makeURL' instead of `this.makeURL'.
+
+	* utils.js (make_default_file_name_to_save_url): moved to save.js.
+	renamed to `generate_filename'.  rewrote.
+
+	* save.js (maybe_get_filename_extension)
+	(maybe_get_preferred_filename_extension, maybe_get_url_extension)
+	(maybe_get_preferred_url_extension, getDefaultExtension)
+	(getCharsetForSave, validateFileName)
+	(maybe_filename_from_content_disposition, maybe_filename_from_url)
+	(maybe_filename_from_document_title)
+	(maybe_filename_from_url_last_directory)
+	(maybe_filename_from_url_host)
+	(maybe_filename_from_localization_default, getDefaultFileName):
+	new functions.
+
 2007-10-24  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.35
