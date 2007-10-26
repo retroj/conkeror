@@ -16,8 +16,6 @@ case "$1" in
         TARGET=jar ;;
     xulapp)
         TARGET=xulapp ;;
-    ## xulapp-osx)
-    ##     TARGET=xulapp-osx ;;
     dist-tar)
         TARGET=dist-tar ;;
     release)
@@ -187,7 +185,7 @@ function do_target_xulapp () {
     mkdir -p "$SCRATCH/chrome"
     cp application.ini "$SCRATCH"
     mv conkeror.jar "$SCRATCH/chrome/"
-    cp chrome.manifest "$SCRATCH/chrome/"
+    cp chrome.manifest.for-jar "$SCRATCH/chrome/chrome.manifest"
     copy_tree_sans_boring defaults "$SCRATCH/defaults"
     copy_tree_sans_boring components "$SCRATCH/components"
     pushd "$SCRATCH" > /dev/null
@@ -203,36 +201,6 @@ function do_target_xulapp () {
     mv "$SCRATCH/conkeror.xulapp" .
     do_cleanup
     echo ok
-}
-
-
-function do_target_xulapp_osx () {
-    do_target_xulapp
-    get_scratch
-    contents="$SCRATCH/Contents"
-    mkdir "$contents"
-    unzip conkeror.xulapp -d "$contents/Resources" > /dev/null
-    ## to-do: create Contents/Resources/app_icons.icns
-    cp Info.plist "$contents/"
-    ## begin preprocessing
-    ##
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' "$contents/Info.plist"
-    perl -pi -e 's/\$CONKEROR_SHORT_VERSION\$/'$SHORT_VERSION'/g' "$contents/Info.plist"
-    ##
-    ## end preprocessing
-
-    mkdir -p "$contents/Frameworks/XUL.framework"
-    ## XUL.framework will contain files copied from /Library/Frameworks/XUL.framework/Versions/1.8/
-    ##
-    ## make sure you copy all symlinks correctly. (use rsync -rl /Library/Frameworks/XUL.framework ...)
-    mkdir "$contents/MacOS"
-    ## place the xulrunner stub executable from /Library/Frameworks/XUL.framework/Versions/1.8/xulrunner
-    ## in Contents/MacOS
-
-    ## now make Conkeror.app
-
-    ## and clean up
-    do_cleanup
 }
 
 
@@ -361,7 +329,6 @@ assert_conkeror_src
 case "$TARGET" in
     jar) do_target_jar ;;
     xulapp) do_target_xulapp ;;
-    ## xulapp-osx) do_target_xulapp_osx ;;
     dist-tar) do_target_dist_tar ;;
     release) do_target_release ;;
     announce) do_target_announce ;;

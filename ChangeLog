@@ -1,5 +1,19 @@
 2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
 
+	* VERSION: 0.42.39
+
+	* chrome.manifest.for-jar: new file.
+
+	* chrome.manifest: rewrote so conkeror can be run in-place,
+	without building.
+
+	* build.sh (do_target_xulapp): use `chrome.manifest.for-jar' when
+	building the xulapp.
+
+	* build.sh: removed unused OSX-related code.
+
+2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
+
 	* VERSION: 0.42.36
 
 	* components/application.js (application): load save.js.
