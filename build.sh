@@ -68,7 +68,7 @@ SCRATCH=""
 
 function get_scratch () {
     if [[ -z "$SCRATCH" ]]; then
-        SCRATCH=$(mktemp -d conkeror-XXXXX)
+        SCRATCH=$(mktemp -d conkeror-XXXXXX)
     fi
 }
 
@@ -243,7 +243,7 @@ function do_target_announce () {
     do_check_milestone_for_release
     echo Entering ../www/ ... ok
     pushd ../www/ > /dev/null
-    scratch=$(mktemp -d conkeror-XXXXX)
+    scratch=$(mktemp -d conkeror-XXXXXX)
 
     perlexp='s/(?<=<!--\scontrolled\scontent\sinsertion\spoint::whatsnew\s-->\n) ()(?!.*'$VERSION'.*$)/<li>'$VERSION' released! \('"$(date '+%b %d, %Y')"'\)<\/li>\n/mxg'
     diff_wrapper "$scratch" index.html "$perlexp"
