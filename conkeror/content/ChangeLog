@@ -1,3 +1,25 @@
+2007-10-27  John J. Foerch  <jjfoerch@earthlink.net>
+
+	* VERSION: 0.42.40
+
+	* conkeror.js (init_frame): pass `event.target' to
+	dom_content_loaded_hook functions.
+
+	* utils.js (title_format_fn): declare variable.
+
+	* numbering.js (numbering_default): declare variable.
+
+	* numbering.js (numbering_get_number, numbering_get_number1)
+	(numbering_get_element, numbering_document_highest): new
+	functions.
+
+	* numbering.js (numbering_generate): rewrote.
+
+	* numbering.js (numbering_simple): do not handle `embed' elements.
+	exclude certain elements based on their attributes.
+
+	* numbering.js (numbering_generate_default): new parameter, `document'.
+
 2007-10-25  John J. Foerch  <jjfoerch@earthlink.net>
 
 	* VERSION: 0.42.38

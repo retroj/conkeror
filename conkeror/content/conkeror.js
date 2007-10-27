@@ -183,13 +183,16 @@ function init_frame ()
 
     window.addEventListener ("keypress", readKeyPress, true);
 
-    // BUG: we need this event to happen for each individual buffer.
+    // DOMContentLoaded will fire for each document, including those
+    // in frameset frames and iframes.  We pass `event.target' -- the
+    // document object in question -- to our event handlers.
     //
-    getBrowser().addEventListener ("DOMContentLoaded",
-                                   function () {
-                                       conkeror.run_hooks (conkeror.dom_content_loaded_hook, window, [this]);
-                                   },
-                                   true);
+    getBrowser().addEventListener (
+        "DOMContentLoaded",
+        function (event) {
+            conkeror.run_hooks (conkeror.dom_content_loaded_hook, window, [event.target]);
+        },
+        true);
 
     window.document.addEventListener ("resize",
                                       function () {

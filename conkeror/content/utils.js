@@ -51,6 +51,8 @@ function default_title_formatter ()
         return "Conkeror";
 }
 
+var title_format_fn = null;
+
 function set_window_title ()
 {
     this.document.title = title_format_fn.call (this);
