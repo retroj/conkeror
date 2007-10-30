@@ -696,11 +696,11 @@ function get_url_or_webjump(input)
 
 function describe_bindings()
 {
-    getWebNavigation().loadURI("about:blank", 
+    this.getWebNavigation().loadURI("about:blank", 
                                Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
                                null, null, null);
     // Oh man. this is SO gross.
-    setTimeout(genAllBindings, 0);
+    this.setTimeout(genAllBindings, 0, this);
 }
 interactive("describe-bindings", describe_bindings, []);
 
@@ -821,23 +821,21 @@ interactive("redraw", redraw, []);
 
 // universal argument code
 
-var gPrefixArg = null;
-
 function universal_digit(prefix)
 {
     //XXX RetroJ: we should use an interactive code like "e" instead of
     //            gCommandLastEvent
-    var ch = gCommandLastEvent.charCode;
+    var ch = this.gCommandLastEvent.charCode;
     var digit = ch - 48;
     // Array means they typed only C-u's. Otherwise, add another digit
     // to our accumulating prefix arg.
     if (typeof prefix == "object") {
         if (prefix[0] < 0)
-            gPrefixArg = 0 - digit;
+            this.gPrefixArg = 0 - digit;
         else
-            gPrefixArg = digit;
+            this.gPrefixArg = digit;
     } else {
-        gPrefixArg = prefix * 10 + digit;
+        this.gPrefixArg = prefix * 10 + digit;
     }
 }
 interactive("universal-digit", universal_digit,["P"]);
@@ -846,17 +844,18 @@ interactive("universal-digit", universal_digit,["P"]);
 function universal_negate ()
 {
     if (typeof gPrefixArg == "object")
-        gPrefixArg[0] = 0 - gPrefixArg[0];
+        this.gPrefixArg[0] = 0 - this.gPrefixArg[0];
     else
-        gPrefixArg = 0 - gPrefixArg;
+        this.gPrefixArg = 0 - this.gPrefixArg;
 }
 interactive("universal-negate", universal_negate,[]);
 
 
 function universal_argument()
 {
-    gPrefixArg = [4];
-    overlay_kmap = universal_kmap;
+    this.gPrefixArg = [4];
+    /* this refers to the window */
+    this.overlay_kmap = universal_kmap;
 }
 interactive("universal-argument", universal_argument,[]);
 
@@ -864,12 +863,12 @@ interactive("universal-argument", universal_argument,[]);
 function universal_argument_more(prefix)
 {
     if (typeof prefix == "object")
-        gPrefixArg = [prefix[0] * 4];
+        this.gPrefixArg = [prefix[0] * 4];
     else {
         // terminate the prefix arg
         ///XXX: is this reachable?
-        gPrefixArg = prefix;
-        overlay_kmap = null;
+        this.gPrefixArg = prefix;
+        this.overlay_kmap = null;
     }
 }
 interactive("universal-argument-more", universal_argument_more,["P"]);
@@ -923,10 +922,12 @@ function list_buffers () {
         return button;
     }
 
+    var window = this;
+
     function list_all_buffers ()
     {
         var doc = window.content.document;
-        var browsers = getBrowser().mBrowsers;
+        var browsers = window.getBrowser().mBrowsers;
 
         var buffer_list = doc.createElement ('ul');
         var buffer_list_item = null;
@@ -939,10 +940,10 @@ function list_buffers () {
         doc.body.appendChild (buffer_list);
     }
 
-    getWebNavigation().loadURI("about:blank", 
+    window.getWebNavigation().loadURI("about:blank", 
                                Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
                                null, null, null);
-    setTimeout(list_all_buffers, 0);
+    window.setTimeout(list_all_buffers, 0);
 }
 interactive("list-buffers", list_buffers, []);
 

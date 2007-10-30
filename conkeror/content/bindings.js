@@ -54,24 +54,24 @@ var universal_kmap = null;
 //      coordinated by a single app-scope.  for example, what happens when you
 //      start a search in one window and switch to another before completing
 //      the search?
-function numberedlinks_kmap_predicate () {
-    return conkeror.numberedlinks_minibuffer_active;
+function numberedlinks_kmap_predicate (window, element) {
+    return window.numberedlinks_minibuffer_active;
 }
 
-function isearch_kmap_predicate () {
-    return conkeror.isearch_active;
+function isearch_kmap_predicate (window, element) {
+    return window.isearch_active;
 }
 
 // XXX: this predicate is not as safe a check as it used to be when it was
 //      done in window scope.  to-do: make it better.
-function minibuffer_kmap_predicate (element) {
+function minibuffer_kmap_predicate (window, element) {
     try {
         return element.baseURI == "chrome://conkeror/content/conkeror.xul" &&
             element.className == 'textbox-input'; // minibuffer.input.inputField;
     } catch (e) { return false; }
 }
 
-function input_kmap_predicate (element) {
+function input_kmap_predicate (window, element) {
     // Use the input keymap for any input tag that
     // isn't a radio button or checkbox.
     try {
@@ -88,7 +88,7 @@ function input_kmap_predicate (element) {
 }
 
 
-function textarea_kmap_predicate (element) {
+function textarea_kmap_predicate (window, element) {
     try {
         return element.tagName == "TEXTAREA";
     } catch (e) { return false; }
@@ -303,9 +303,6 @@ function initViKmaps()
     init_frameset_keys ();
 
     init_universal_arg_keys ();
-
-    current_kmap = top_kmap;
-
 }
 
 
@@ -479,9 +476,6 @@ function initKmaps()
     init_frameset_keys ();
 
     init_universal_arg_keys ();
-
-    current_kmap = top_kmap;
-
 }
 
 
@@ -563,8 +557,9 @@ function init_universal_arg_keys ()
     define_key(universal_kmap, kbd ("-", 0), "universal-negate");
 }
 
-
-function genBindingsHelper(doc, kmap, prefix)
+/* FIXME: All of this genBindings stuff should operate on a particular
+   buffer, rather than the current selected buffer. */
+function genBindingsHelper(window, doc, kmap, prefix)
 {
     try {
     for (var i=0; i<kmap.length; i++) {
@@ -578,9 +573,9 @@ function genBindingsHelper(doc, kmap, prefix)
 	var command = kmap[i].command || "Prefix Command";;
 	var key;
 	if (kmap[i].key.charCode)
-	    key = formatKey(kmap[i].key.charCode, kmap[i].key.modifiers);
+	    key = window.formatKey(kmap[i].key.charCode, kmap[i].key.modifiers);
 	else
-	    key = formatMods(kmap[i].key.modifiers) + keyTable[kmap[i].key.keyCode];
+	    key = window.formatMods(kmap[i].key.modifiers) + keyTable[kmap[i].key.keyCode];
 
 	doc.write("<TR><TD>")
 	    doc.write(prefix.join(" ") + " " + key);
@@ -591,31 +586,31 @@ function genBindingsHelper(doc, kmap, prefix)
 	if (kmap[i].keymap) {
 	    var p = [];
 	    for (var j in prefix) p[j] = prefix[j];
-	    p.push(formatKey(kmap[i].key.charCode, kmap[i].key.modifiers));
-	    genBindingsHelper(doc, kmap[i].keymap, p);
+	    p.push(window.formatKey(kmap[i].key.charCode, kmap[i].key.modifiers));
+	    genBindingsHelper(window, doc, kmap[i].keymap, p);
 	}
     }
-    } catch(e) {alert(e);}
+    } catch(e) {window.alert(e);}
 }
 
-function genAllBindings(kmap)
+function genAllBindings(window, kmap)
 {
-    genBindings(top_kmap, "Top Level");
-    genBindings(input_kmap, "Text Box");
-    genBindings(textarea_kmap, "Text Area");
+  genBindings(window, top_kmap, "Top Level");
+  genBindings(window, input_kmap, "Text Box");
+  genBindings(window, textarea_kmap, "Text Area");
 }
 
-function genBindings(kmap, name)
+function genBindings(window, kmap, name)
 {
     try {
-	var doc = _content.content.document;
+	var doc = window.content.document;
 
 	doc.write("<h1>" + name + " Key bindings</h1><p>");
 	doc.write("<table border='1'>");
 	doc.write("<tr><th>Key<th>Binding");
-	genBindingsHelper(doc, kmap, []);
+	genBindingsHelper(window, doc, kmap, []);
 	doc.write("</table></p>");
-    } catch(e) {alert(e);}
+    } catch(e) {window.alert(e);}
 }
 
 //// ESCAPE bindings

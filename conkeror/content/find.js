@@ -30,7 +30,10 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 // isearch
 
-conkeror.isearch_active = false;
+// FIXME: Most of these variables should not be app-scope
+
+// FIXME: Uses of conkeror.isearch_active should be replaced with
+// proper references to window.isearch_active.
 
 // The point we search from
 var gLastSearch = "";

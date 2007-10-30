@@ -126,9 +126,6 @@ keyTable[KeyEvent.DOM_VK_META] = "meta";
 var context_kmaps = [];
 var top_kmap = null;
 var abort_key = null;
-var overlay_kmap = null; // for universal arg system.
-
-var current_kmap = null;
 
 const MOD_CTRL = 0x1;
 const MOD_META = 0x2;

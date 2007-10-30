@@ -29,7 +29,12 @@ the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
 var gBrowser = null;
+var current_kmap = null;
+var overlay_kmap = null;
+var gPrefixArg = null;
 
+var isearch_active = false;
+var numberedlinks_minibuffer_active = false;
 
 function abs_point (node)
 {
@@ -419,9 +424,9 @@ function addKeyPressHelpTimeout() {
 
 function formatMods(mods)
 {
-    return (mods&MOD_META ? "A-":"") 
-	+ (mods&MOD_CTRL ? "C-":"") 
-	+ (mods&MOD_SHIFT ? "S-":"");
+    return (mods& conkeror.MOD_META ? "A-":"") 
+	+ (mods&conkeror.MOD_CTRL ? "C-":"") 
+	+ (mods&conkeror.MOD_SHIFT ? "S-":"");
 }
 
 function formatKey(key, mods)
@@ -446,7 +451,13 @@ function readKeyPress(event)
 {
     try {
 	// kmap contains the keys and commands we're looking for.
-	var kmap = conkeror.current_kmap;
+
+      /* The current key map is a per-frame property; there is no
+         reason to try to duplicate Emacs behavior here, since it is
+         counter-intuitive. */
+	var kmap = window.current_kmap;
+    if (!kmap) kmap = conkeror.top_kmap;
+    
 	var binding = null;
 	var done = true;
 
@@ -456,11 +467,12 @@ function readKeyPress(event)
 	gCommandLastEvent = copyEvent(event);
 
 	// First check if there's an overlay kmap
-	if (conkeror.overlay_kmap != null) {
-	    binding = conkeror.getKeyBinding (conkeror.overlay_kmap, event);
+	if (window.overlay_kmap != null) {
+	    binding = conkeror.getKeyBinding (window.overlay_kmap, event);
             if (binding == null) {
                 // disengage the universal keymap.
-                conkeror.overlay_kmap = null;
+              /* The overlay kmap is also per-frame */
+              window.overlay_kmap = null;
                 //alert (gPrefixArg);
             }
 	}
@@ -482,7 +494,10 @@ function readKeyPress(event)
 //             if (document.commandDispatcher.focusedElement)
 //                 dumpln (conkeror.dump_obj (document.commandDispatcher.focusedElement));
             for (var i = 0; i < conkeror.context_kmaps.length; i++) {
-                if (conkeror.context_kmaps[i].predicate (document.commandDispatcher.focusedElement)) {
+              /* Predicates are passed the top-level frame on which
+                 the event occurred, since all key handling is
+                 per-frame. */
+              if (conkeror.context_kmaps[i].predicate (window, document.commandDispatcher.focusedElement)) {
                     binding = conkeror.getKeyBinding (conkeror.context_kmaps[i], event);
                     //alert (window.dump_obj (binding));
                     break;
@@ -514,7 +529,7 @@ function readKeyPress(event)
 	// Finally, process the binding.
 	if (binding) {
 	    if (binding.keymap) {
-		conkeror.current_kmap = binding.keymap;
+          window.current_kmap = binding.keymap;
 		if (!gKeyTimeout)
 		    addKeyPressHelpTimeout();
 		// We're going for another round
@@ -532,7 +547,7 @@ function readKeyPress(event)
 	// Clean up if we're done
 	if (done) {
 	    gKeySeq = [];
-	    conkeror.current_kmap = conkeror.top_kmap;
+	    window.current_kmap = null;
 	}
 
     } catch(e){alert(e);}

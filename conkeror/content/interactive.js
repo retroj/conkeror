@@ -246,7 +246,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
                 this.toggleNumberedLinks();
             }
             // Setup a context for the context-keymap system.
-            conkeror.numberedlinks_minibuffer_active = true;
+            this.numberedlinks_minibuffer_active = true;
 
             this.readFromMiniBuffer (prompt, initVal, null, null, null, null,
                                      function (s) {
@@ -256,7 +256,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
                                              this.gTurnOffLinksAfter = false;
                                          }
                                          // unset keymap context
-                                         conkeror.numberedlinks_minibuffer_active = false;
+                                         this.numberedlinks_minibuffer_active = false;
                                          do_interactive.call (this, iargs, callback, callback_args, given_args);
                                      },
                                      function () {
@@ -265,7 +265,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
                                              this.gTurnOffLinksAfter = false;
                                          }
                                          // unset keymap context
-                                         conkeror.numberedlinks_minibuffer_active = false;
+                                         this.numberedlinks_minibuffer_active = false;
                                      });
         }
 },
@@ -312,16 +312,16 @@ N: { func: function (spec) {
 
 // p: Prefix arg converted to number.  Does not do I/O.
 p: { func: function (spec) {
-            var prefix = gPrefixArg;
-            gPrefixArg = null;
+            var prefix = this.gPrefixArg;
+            this.gPrefixArg = null;
             return univ_arg_to_number(prefix);
         }
 },
 
 // P: Prefix arg in raw form.  Does not do I/O.
 P: { func: function (spec) {
-            var prefix = gPrefixArg;
-            gPrefixArg = null;
+            var prefix = this.gPrefixArg;
+            this.gPrefixArg = null;
             return prefix;
         }
 },
@@ -448,7 +448,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
 
         if (! method in interactive_methods) {
             // prefix should get reset on failed interactive call.
-            gPrefixArg = null;
+            this.gPrefixArg = null;
             this.message ("Failed: invalid interactive specifier: '"+iarg+"'");
             return;
         }
@@ -474,7 +474,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
         if (! 'async' in interactive_methods[method]) {
             // fail.  improperly defined interactive method.
             // prefix should get reset on failed interactive call.
-            gPrefixArg = null;
+            this.gPrefixArg = null;
             this.message ("Failed: improperly defined interactive specifer: '"+iarg+"'");
         }
 

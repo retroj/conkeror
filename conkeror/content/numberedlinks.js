@@ -43,9 +43,6 @@ var default_show_numbered_images = false;
 // Set this to true and after a numberedlink is selected, they will be turned off
 var gTurnOffLinksAfter = false;
 
-conkeror.numberedlinks_minibuffer_active = false;
-
-
 
 function toggle_numbered_links ()
 {
