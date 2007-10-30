@@ -71,7 +71,7 @@ function copy_numbered_image_location (prefix, number)
     // we have a node.  we must now produce some side-effect based on its type
     // and the requested action.
     //
-    var type = nl.nlnode.getAttribute("__conktype");
+    var type = nl.el_type;
 
     if (type == "image") {
         copy_img_location(nl.node);
@@ -92,33 +92,20 @@ function get_href (node)
     }
 }
 
-function get_numberedlink_in_document (doc, number)
-{
-    var nodes = doc.getElementsByTagName('SPAN');
-    for (var i=0; i<nodes.length; i++) {
-        if (nodes[i].getAttribute("__conkid") == number) {
-            return nodes[i];
-        }
-    }
-    return null;
-}
-
 function get_numberedlink (number)
 {
-    var doc = window._content.document;
-    var frames = window._content.frames;
-    var nlnode = get_numberedlink_in_document (doc, number);
-    var i = 0;
-    while (! nlnode && i < frames.length)
-    {
-        nlnode = get_numberedlink_in_document (frames[i].document, number);
-        doc = frames[i].document;
-        i++;
-    }
-    var node = doc.getElementById(nlnode.getAttribute("__nodeid"));
-    if (! nlnode || ! node || ! doc)
-        return null;
-    return { nlnode: nlnode, node: node, doc: doc };
+  /* Careful: This might be a security hole. */
+  var numInfo = content.wrappedJSObject.__conkeror_numbering_data;
+  if (!numInfo)
+    return null;
+  var arr = numInfo.arr;
+  var num = parseInt(number);
+  if (arr && num > 0 && num < arr.length)
+  {
+    var entry = arr[num];
+    return entry;
+  }
+  return null;
 }
 
 function numberedlinks_do_link (prefix, link, action)
@@ -133,7 +120,7 @@ function numberedlinks_do_link (prefix, link, action)
     // we have a node.  we must now produce some side-effect based on its type
     // and the requested action.
     //
-    var type = nl.nlnode.getAttribute("__conktype");
+    var type = nl.el_type;
     var href = get_href (nl.node);
 
     if (type == "link") {

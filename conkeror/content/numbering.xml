@@ -1,0 +1,99 @@
+<?xml version="1.0" ?>
+
+<bindings xmlns="http://www.mozilla.org/xbl" xmlns:html="http://www.w3.org/1999/xhtml">
+  <binding id="binding">
+    <content>
+      <html:span class="__conk_link_number" style="display: none;"></html:span><children/>
+    </content>
+    <implementation>
+      <constructor><![CDATA[
+        try
+        {
+          var tp;
+          var insertType; /* 1 => inside,  2 => before */
+
+          /* Ignore hidden INPUT elements */
+          if (this.tagName == "INPUT" && this.type == "hidden")
+            return;
+          if (this.tagName == "A")
+          {
+            tp = "link";
+            insertType = 1;
+          } else if (this.tagName == "INPUT" &&
+                     (this.type == "submit" ||
+                      this.type == "button" ||
+                      this.type == "checkbox" ||
+                      this.type == "radio"))
+          {
+            tp = "button";
+            insertType = 2;
+          } else
+          {
+            tp = "widget";
+            insertType = 2;
+          }
+
+          var span;
+          if (insertType == 1)
+          {
+            var anon = document.getAnonymousNodes(this);
+            span = anon.item(0);
+          }
+          else
+          {
+            span = document.createElementNS("http://www.w3.org/1999/xhtml","span");
+            span.setAttribute("class", "__conk_link_number");
+            span.setAttribute("style", "display: none;");
+          }
+
+          /* Use the numbering_helper component to register this
+             numbered item in the appropriate data structure and get
+             the next available number.  This requires privileged code
+             because it has to cross frame boundaries. */
+          var topwin = window.top;
+          var helper = window.__conkeror_numbering_helper;
+          var num = helper.wrappedJSObject.register_item(topwin, document, this, tp, span);
+
+          /* Make node refer to this, for use in the setTimeout
+             handler where `this' will not be available. */
+          var node = this;
+
+          /* The actual changes to the DOM need to be done in the
+             setTimeout handler rather than directly from this
+             destructor; otherwise, they do not work properly, perhaps
+             because the document isn't fully initialized at the time
+             this constructor is called. */
+          setTimeout( function () {
+              if (node.insertType == 2)
+                node.parentNode.insertBefore(span, node);
+              span.style.display = "inline";
+              span.appendChild(document.createTextNode(num + ""));
+            }, 0);
+
+          /* Store these values for use by the destructor */
+          this.__conk_num = num;
+          this.__num_node = span;
+          this.insertType = insertType;
+        } catch (e) {
+          /* An exception can occur if the binding is to a node that is itself
+             an anonymous node, such as the anonymous button element associated
+             with a SELECT element.  In that case, a number should just not be
+             added, and this exception can be ignored. */
+        }
+      ]]></constructor>
+      <destructor><![CDATA[
+        try {
+          if (this.__conk_num)
+          {
+            var topwin = window.top;
+            window.__conkeror_numbering_helper.wrappedJSObject.unregister_item(topwin, this.__conk_num);
+          }
+          if (this.__num_node && this.insertType == 2)
+          {            
+            this.__num_node.parentNode.removeChild(this.__num_node);
+          }
+        } catch (e) {/* Ignore exceptions in the destructor */}
+      ]]></destructor>
+    </implementation>
+  </binding>
+</bindings>
