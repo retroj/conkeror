@@ -517,7 +517,7 @@ function goDoCommand (command)
          commands won't work.  Fix this problem by setting focus to
          the content window. */
       if (this.document.commandDispatcher.focusedWindow == this)
-        window.content.focus();
+        this.content.focus();
         var controller = this.top.document.commandDispatcher.getControllerForCommand (command);
         if (controller && controller.isCommandEnabled (command))
             controller.doCommand (command);
