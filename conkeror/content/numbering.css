@@ -4,7 +4,7 @@ A, button, input, select, textarea {
 }
 
 span.__conk_link_number {
-  -moz-border-radius: 0.5em; !important;
+  -moz-border-radius: 0.5em !important;
   border: 1px solid grey !important;
   background-color: white !important;
   color: black !important;
