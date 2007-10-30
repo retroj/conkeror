@@ -36,6 +36,23 @@ var gPrefixArg = null;
 var isearch_active = false;
 var numberedlinks_minibuffer_active = false;
 
+
+/* Isearch-related frame-local variables */
+
+// The point we search from
+var gLastSearch = "";
+
+// The window to search in (which frame)
+var gWin = null;
+var gSelCtrl = null;
+
+// The find engine
+var gFastFind = null;
+
+// A list of find states
+var gFindState = [];
+
+
 function abs_point (node)
 {
     var orig = node;

@@ -390,17 +390,18 @@ interactive("yank-to-clipboard", yankToClipboard, []);
 
 function isearch_forward()
 {
-    if (conkeror.isearch_active) {
-        if (gFindState.length == 1) {
-            minibuffer.input.value = gLastSearch;
-            find(gLastSearch, true, lastFindState()["point"]);
+  var window = this;
+    if (window.isearch_active) {
+        if (window.gFindState.length == 1) {
+            window.minibuffer.input.value = window.gLastSearch;
+            find(window, window.gLastSearch, true, lastFindState(window)["point"]);
         } else {
-            find(lastFindState()["search-str"], true, lastFindState()["range"]);
+          find(window, lastFindState(window)["search-str"], true, lastFindState(window)["range"]);
         }
-        resumeFindState(lastFindState());
+        resumeFindState(window, lastFindState(window));
     } else {
-        focusFindBar();
-        readFromMiniBuffer('I-Search:');
+        focusFindBar(window);
+        window.readFromMiniBuffer('I-Search:');
     }
 }
 interactive("isearch-forward", isearch_forward, []);
@@ -408,17 +409,19 @@ interactive("isearch-forward", isearch_forward, []);
 
 function isearch_backward()
 {
-    if (conkeror.isearch_active) {
-        if (gFindState.length == 1) {
-            minibuffer.input.value = gLastSearch;
-            find(gLastSearch, false, lastFindState()["point"]);
+
+  var window = this;
+    if (window.isearch_active) {
+        if (window.gFindState.length == 1) {
+            window.minibuffer.input.value = window.gLastSearch;
+            find(window, window.gLastSearch, false, lastFindState(window)["point"]);
         } else {
-            find(lastFindState()["search-str"], false, lastFindState()["range"]);
+          find(window, lastFindState(window)["search-str"], false, lastFindState(window)["range"]);
         }
-        resumeFindState(lastFindState());
+        resumeFindState(window, lastFindState(window));
     } else {
-        focusFindBarBW();
-        readFromMiniBuffer('I-Search backward:');
+        focusFindBarBW(window);
+        window.readFromMiniBuffer('I-Search backward:');
     }
 }
 interactive("isearch-backward", isearch_backward, []);
@@ -426,9 +429,10 @@ interactive("isearch-backward", isearch_backward, []);
 
 function isearch_backspace ()
 {
-    if (gFindState.length > 1) {
-        var state = gFindState.pop();
-        resumeFindState(lastFindState());
+  var window = this;
+    if (window.gFindState.length > 1) {
+        var state = window.gFindState.pop();
+        resumeFindState(window, lastFindState(window));
     }
 }
 interactive("isearch-backspace", isearch_backspace, []);
@@ -436,31 +440,34 @@ interactive("isearch-backspace", isearch_backspace, []);
 
 function isearch_abort ()
 {
-    closeFindBar();
-    gWin.scrollTo(gFindState[0]["screenx"], gFindState[0]["screeny"]);
-    clearSelection();
-    clearHighlight();
+  var window = this;
+    closeFindBar(window);
+    window.gWin.scrollTo(window.gFindState[0]["screenx"], window.gFindState[0]["screeny"]);
+    clearSelection(window);
+    clearHighlight(window);
 }
 interactive("isearch-abort", isearch_abort, []);
 
 
 function isearch_add_character (event)
 {
+  var window = this;
     var str;
-    str = lastFindState()["search-str"];
+    str = lastFindState(window)["search-str"];
     str += String.fromCharCode(event.charCode);
-    find(str, lastFindState()["direction"], lastFindState()["point"]);
-    resumeFindState(lastFindState());
+    find(window, str, lastFindState(window)["direction"], lastFindState(window)["point"]);
+    resumeFindState(window, lastFindState(window));
 }
 interactive("isearch-add-character", isearch_add_character, ["e"]);
 
 
 function isearch_done ()
 {
-    closeFindBar();
-    gLastSearch = lastFindState()["search-str"];
-    clearHighlight();
-    focusLink();
+  var window = this;
+    closeFindBar(window);
+    window.gLastSearch = lastFindState(window)["search-str"];
+    clearHighlight(window);
+    focusLink(window);
 }
 interactive("isearch-done", isearch_done, []);
 

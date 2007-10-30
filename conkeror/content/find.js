@@ -30,42 +30,25 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 // isearch
 
-// FIXME: Most of these variables should not be app-scope
+// FIXME: There is no reason to create a state as an Array, since we
+// only use it as an Object.  Also, we should use . syntax rather than
+// [] syntax.
 
-// FIXME: Uses of conkeror.isearch_active should be replaced with
-// proper references to window.isearch_active.
-
-// The point we search from
-var gLastSearch = "";
-
-// The window to search in (which frame)
-var gWin = null;
-var gSelCtrl = null;
-
-// The find engine
-var gFastFind = null;
-
-// A list of find states
-var gFindState = [];
-
-// Whether we're searching for links or text
-var gLinksOnly = null;
-
-function createInitialFindState()
+function createInitialFindState(window)
 {
     var state = new Array();
-    state["screenx"] = gWin.scrollX;
-    state["screeny"] = gWin.scrollY;
+    state["screenx"] = window.gWin.scrollX;
+    state["screeny"] = window.gWin.scrollY;
     state["search-str"] = "";
     state["wrapped"] = false;
     state["point"] = null;
-    state["range"] = document.createRange();
+    state["range"] = window.document.createRange();
     state["selection"] = null;
     state["direction"] = true;
     return state;
 }
 
-function addFindState(screenX, screenY, searchStr, wrapped, point, range, selection, direction)
+function addFindState(window, screenX, screenY, searchStr, wrapped, point, range, selection, direction)
 {
     var state = new Array();
     state["screenx"] = screenX;
@@ -76,37 +59,37 @@ function addFindState(screenX, screenY, searchStr, wrapped, point, range, select
     state["range"] = range;
     state["selection"] = selection;
     state["direction"] = direction;
-    gFindState.push(state);
+    window.gFindState.push(state);
 }
 
-function resumeFindState(state)
+function resumeFindState(window, state)
 {
-    var label = document.getElementById("input-prompt");
+    var label = window.document.getElementById("input-prompt");
 
-    minibuffer.input.value = state["search-str"];
+    window.minibuffer.input.value = state["search-str"];
     if (state["selection"])
-	setSelection(state["selection"]);
+      setSelection(window, state["selection"]);
     else
-	clearSelection();
-    gWin.scrollTo(state["screenx"], state["screeny"]);
+      clearSelection(window);
+    window.gWin.scrollTo(state["screenx"], state["screeny"]);
 
     label.value = (state["wrapped"] ? "Wrapped ":"") 
 	+ (state["range"] ? "":"Failing ") + "I-Search" + (state["direction"]? "": " backward") + ":";
 }
 
-function lastFindState()
+function lastFindState(window)
 {
-    return gFindState[gFindState.length-1];
+    return window.gFindState[window.gFindState.length-1];
 }
 
-function focusFindBar()
+function focusFindBar(window)
 {
     try {
-    gWin = document.commandDispatcher.focusedWindow;
-    gSelCtrl = getFocusedSelCtrl();
-    gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
-    gSelCtrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    } catch(e) {alert(e);}
+    window.gWin = window.document.commandDispatcher.focusedWindow;
+    window.gSelCtrl = getFocusedSelCtrl(window);
+    window.gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
+    window.gSelCtrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    } catch(e) {window.alert(e);}
 
 //     var bar = document.getElementById("find-toolbox");
 //     var field = document.getElementById("find-field");
@@ -114,47 +97,32 @@ function focusFindBar()
 //     field.focus();
 
     // initialize our state list
-    var state = createInitialFindState();
-    gFindState = [];
-    gFindState.push(state);
-    conkeror.isearch_active = true;
-    resumeFindState(state);
+    var state = createInitialFindState(window);
+    window.gFindState = [];
+    window.gFindState.push(state);
+    window.isearch_active = true;
+    resumeFindState(window, state);
 }
 
-function focusFindBarBW()
+function focusFindBarBW(window)
 {
-    focusFindBar();
+    focusFindBar(window);
     lastFindState()["direction"] = false;
-    resumeFindState(lastFindState());
+    resumeFindState(window, lastFindState());
 }
 
 
-function closeFindBar()
+function closeFindBar(window)
 {
-    gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    conkeror.isearch_active = false;
-    closeInput(false);
+    window.gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    window.isearch_active = false;
+    window.closeInput(false);
 }
 
-
-function getFastFind()
-{
-    try {
-    if (gFastFind == null) {
-	gFastFind = Components.classes["@mozilla.org/typeaheadfind;1"]
-	    .createInstance(Components.interfaces.nsITypeAheadFind); 
-	alert(gFastFind);
-// 	gFastFind.init(gBrowser.docShell);
-    }
-    return gFastFind;
-    } catch(e) {alert(e);}
-    return null;
-}
-
-function getSelectionController()
+function getSelectionController(window)
 {
 //     var ds = window._content.frames[0].docShell;
-  var ds = getBrowser().docShell;
+  var ds = window.getBrowser().docShell;
 //   var frame = gBrowser.docShell.presShell.getRootFrame();
 //     var ds = window._content.frames[0].docShell;
 
@@ -164,23 +132,10 @@ function getSelectionController()
   return display.QueryInterface(Components.interfaces.nsISelectionController);
 }
 
-function highlight(range, node)
-{
-  var startContainer = range.startContainer;
-  var startOffset = range.startOffset;
-  var endOffset = range.endOffset;
-  var docfrag = range.extractContents();
-  var before = startContainer.splitText(startOffset);
-  var parent = before.parentNode;
-  node.appendChild(docfrag);
-  parent.insertBefore(node, before);
-  return node;
-}
-
 // turn on the selection in all frames
-function getFocusedSelCtrl()
+function getFocusedSelCtrl(window)
 {
-  var ds = getBrowser().docShell;
+  var ds = window.getBrowser().docShell;
   var dsEnum = ds.getDocShellEnumerator(Components.interfaces.nsIDocShellTreeItem.typeContent,
                                         Components.interfaces.nsIDocShell.ENUMERATE_FORWARDS);
   while (dsEnum.hasMoreElements()) {
@@ -202,18 +157,18 @@ function getFocusedSelCtrl()
 }
 
 // Select the range and scroll it into view
-function clearSelection()
+function clearSelection(window)
 {
-    var selctrl = gSelCtrl;
+    var selctrl = window.gSelCtrl;
     var sel = selctrl.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
     sel.removeAllRanges();
 }
 
-function setSelection(range)
+function setSelection(window, range)
 {
     try {
 	var selctrlcomp = Components.interfaces.nsISelectionController;
-	var selctrl = gSelCtrl;
+	var selctrl = window.gSelCtrl;
 	var sel = selctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
 	sel.removeAllRanges();
 	sel.addRange(range.cloneRange());
@@ -221,63 +176,15 @@ function setSelection(range)
 	selctrl.scrollSelectionIntoView(selctrlcomp.SELECTION_NORMAL,
 					selctrlcomp.SELECTION_FOCUS_REGION,
 				     true);
-    } catch(e) {alert("setSelection: " + e);}
-}
-
-function highlightAllBut(str, range, color)
-{
-    try {
-	var finder = Components.classes["@mozilla.org/embedcomp/rangefind;1"].createInstance()
-	    .QueryInterface(Components.interfaces.nsIFind);
-	var searchRange;
-	var startPt;
-	var endPt;
-
-	var doc = window.content.document;
-	var body = doc.body;
-
-	searchRange = doc.createRange();
-	startPt = doc.createRange();
-	endPt = doc.createRange();
-
-	var count = body.childNodes.length;
-
-	// Search range in the doc
-	searchRange.setStart(body,0);
-	searchRange.setEnd(body, count);
-	startPt.setStart(body, 0);
-	startPt.setEnd(body, 0);
-	endPt.setStart(body, count);
-	endPt.setEnd(body, count);
-
-	// Highlight the rest
-	var retRange = null;
-	var hlNode = doc.createElement("span");
-	hlNode.setAttribute("style", "background-color: " + color + ";");
-	hlNode.setAttribute("id", "__conkeror-findbar-search-id");
-
-	while ((retRange = finder.Find(str, searchRange, startPt, endPt))) {
-	    if (retRange.startContainer != range.startContainer) {
-		var nodeSurround = hlNode.cloneNode(true);
-		var node = highlight(retRange, nodeSurround);
-		startPt = node.ownerDocument.createRange();
-		startPt.setStart(node, node.childNodes.length);
-		startPt.setEnd(node, node.childNodes.length);
-	    } else {
-		startPt = retRange.endContainer.ownerDocument.createRange();
-		startPt.setStart(retRange.endContainer, retRange.endOffset);
-		startPt.setEnd(retRange.endContainer, retRange.endOffset);
-	    }
-	}
-    } catch(e) {alert(e);}
+    } catch(e) {window.alert("setSelection: " + e);}
 }
 
 // Highlight find matches and move selection to the first occurrence
 // starting from pt.
-function highlightFind(str, color, wrapped, dir, pt)
+function highlightFind(window, str, color, wrapped, dir, pt)
 {
     try {
-	var doc = gWin.document;
+	var doc = window.gWin.document;
 	var finder = Components.classes["@mozilla.org/embedcomp/rangefind;1"].createInstance()
 	    .QueryInterface(Components.interfaces.nsIFind);
 	var searchRange;
@@ -322,6 +229,7 @@ function highlightFind(str, color, wrapped, dir, pt)
 	var retRange = null;
 	var selectionRange = null;
 
+
 	if (!wrapped) {
 	    do {
 		retRange = finder.Find(str, searchRange, startPt, endPt);
@@ -331,8 +239,8 @@ function highlightFind(str, color, wrapped, dir, pt)
 		    var ec = retRange.endContainer;
 		    var scp = sc.parentNode;
 		    var ecp = ec.parentNode;
-		    var sy1 = abs_point(scp).y;
-		    var ey2 = abs_point(ecp).y + ecp.offsetHeight;
+		    var sy1 = window.abs_point(scp).y;
+		    var ey2 = window.abs_point(ecp).y + ecp.offsetHeight;
 
 		    startPt = retRange.startContainer.ownerDocument.createRange();
 		    if (!dir) {
@@ -347,8 +255,8 @@ function highlightFind(str, color, wrapped, dir, pt)
 		    // bit to fit the selection in completely.
 // 		    alert ("sy1: " + sy1 + " scry: " + gWin.scrollY);
 // 		    alert ("ey2: " + ey2 + " bot: " + (gWin.scrollY + gWin.innerHeight));
-		    keepSearching = (dir && sy1 < gWin.scrollY)
-			|| (!dir && ey2 >= gWin.scrollY + gWin.innerHeight);
+		    keepSearching = (dir && sy1 < window.gWin.scrollY)
+			|| (!dir && ey2 >= window.gWin.scrollY + window.gWin.innerHeight);
 		}
 	    } while (retRange && keepSearching);
 	} else {
@@ -356,7 +264,7 @@ function highlightFind(str, color, wrapped, dir, pt)
 	}
 
 	if (retRange) {
-	    setSelection(retRange);
+      setSelection(window, retRange);
 	    selectionRange = retRange.cloneRange();
 	    // 	    highlightAllBut(str, retRange, color);
 	} else {
@@ -364,16 +272,16 @@ function highlightFind(str, color, wrapped, dir, pt)
 	}
 
 	return selectionRange;
-    } catch(e) { alert(e); }
+    } catch(e) { window.alert(e); }
     return null;
 }
 
-function clearHighlight()
+function clearHighlight(window)
 {
-    var win = window._content; 
+    var win = window.content; 
     var doc = win.document;
-    if (!document)
-	return;
+    if (!doc)
+      return;
 
     var elem = null;
     while ((elem = doc.getElementById("__conkeror-findbar-search-id"))) {
@@ -389,9 +297,9 @@ function clearHighlight()
     }
 }
 
-function focusLink()
+function focusLink(window)
 {
-    var sel = gSelCtrl.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    var sel = window.gSelCtrl.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
     var node = sel.focusNode;
     if (node == null)
 	return;
@@ -406,29 +314,30 @@ function focusLink()
     } while ((node = node.parentNode));
 }
 
-function find(str, dir, pt)
+function find(window, str, dir, pt)
 {
     var matchRange;
-    clearHighlight();
+    clearHighlight(window);
+
+    var lastState = lastFindState(window);
 
     // Should we wrap this time?
-    var wrapped = lastFindState()["wrapped"];
+    var wrapped = lastState["wrapped"];
     var point = pt;
-    if (lastFindState()["wrapped"] == false 
-	&& lastFindState()["range"] == null
-	&& lastFindState()["search-str"] == str
-	&& lastFindState()["direction"] == dir) {
-	wrapped = true;
-	point = null;
+    if (lastState["wrapped"] == false 
+        && lastState["range"] == null
+        && lastState["search-str"] == str
+        && lastState["direction"] == dir) {
+      wrapped = true;
+      point = null;
     }
-    matchRange = highlightFind(str, "lightblue", wrapped, dir, point);
+    matchRange = highlightFind(window, str, "lightblue", wrapped, dir, point);
     if (matchRange == null) {
-	addFindState (gWin.scrollX, gWin.scrollY, str, wrapped, point,
-		      matchRange, lastFindState()["selection"], dir);
+      addFindState (window, window.gWin.scrollX, window.gWin.scrollY, str, wrapped, point,
+                    matchRange, lastFindState(window)["selection"], dir);
     } else {
-	addFindState (gWin.scrollX, gWin.scrollY, str, wrapped,
-		      point, matchRange, matchRange, dir);
+      addFindState (window, window.gWin.scrollX, window.gWin.scrollY, str, wrapped,
+                    point, matchRange, matchRange, dir);
     }
 }
-
 
