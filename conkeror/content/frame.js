@@ -330,13 +330,10 @@ function closeInput(restoreFocus)
 }
 
 
-// Enable/disable modeline
-var gModeLineMode = true;
-
 function showModeline()
 {
     var modeline = getBrowser().modeLine;
-    modeline.hidden = !gModeLineMode;
+    modeline.hidden = !conkeror.mode_line_enabled;
 }
 
 function updateModeline()

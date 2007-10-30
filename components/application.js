@@ -98,6 +98,7 @@ progress_changed_hook: [],
 status_changed_hook: [],
 select_buffer_hook: [],
 frame_resize_hook: [],
+mode_line_enabled: true,
 
 add_hook: function (hook, func, append)
 {
