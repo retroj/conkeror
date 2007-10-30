@@ -24,7 +24,7 @@ numbering_helper.prototype = {
     var correctBuffer = null;
     for (var i = 0; i < buffers.length; ++i)
     {
-      var buffer = buffers.item(0).firstChild;
+      var buffer = buffers.item(i).firstChild;
       if (buffer.contentWindow == content_win)
       {
         correctBuffer = buffer;
