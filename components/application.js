@@ -50,8 +50,10 @@ function application () {
 
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/bindings.js")); // depends: keyboard.js
 
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/numbering.js"));
+    // FIXME: This is commented out because it currently does nothing except print numbering_resize messages
+    //eval.call (this, get_chrome_contents ("chrome://conkeror/content/numbering.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/find.js"));
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/numberedlinks.js"));
 
     conkeror.set_default_directory ();
 

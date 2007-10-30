@@ -240,30 +240,36 @@ K: { func: function (spec) {
 link: { async: function (spec, iargs, callback, callback_args, given_args) {
             var prompt = (1 in spec && spec[1] ? spec[1].call (this, callback_args) : "Link Number: ");
             var initVal = (2 in spec && spec[2] ? spec[2].call (this, callback_args) : "");
+            /* FIXME: numbered link toggling is not yet working */
+            /* 
             var buf_state = this.getBrowser().numberedLinks;
             if (!buf_state) {
                 this.gTurnOffLinksAfter = true;
-                this.toggleNumberedLinks();
-            }
+                toggleNumberedLinks();
+            } */
             // Setup a context for the context-keymap system.
             this.numberedlinks_minibuffer_active = true;
 
             this.readFromMiniBuffer (prompt, initVal, null, null, null, null,
                                      function (s) {
                                          callback_args.push (s);
+                                         /* FIXME: numbered link toggling not yet working
                                          if (this.gTurnOffLinksAfter) {
                                              this.toggleNumberedLinks();
                                              this.gTurnOffLinksAfter = false;
-                                         }
+                                         }*/
                                          // unset keymap context
                                          this.numberedlinks_minibuffer_active = false;
                                          do_interactive.call (this, iargs, callback, callback_args, given_args);
                                      },
                                      function () {
+                                       /* FIXME: numbered link toggling not yet working */
+                                       /*
                                          if (this.gTurnOffLinksAfter) {
                                              this.toggleNumberedLinks ();
                                              this.gTurnOffLinksAfter = false;
                                          }
+                                         */
                                          // unset keymap context
                                          this.numberedlinks_minibuffer_active = false;
                                      });

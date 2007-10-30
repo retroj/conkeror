@@ -43,19 +43,20 @@ var default_show_numbered_images = false;
 // Set this to true and after a numberedlink is selected, they will be turned off
 var gTurnOffLinksAfter = false;
 
-
 function toggle_numbered_links ()
 {
     toggleNumberedLinks();
 }
-interactive("toggle-numbered-links", toggle_numbered_links, []);
+// FIXME: This command does not yet work
+//interactive("toggle-numbered-links", toggle_numbered_links, []);
 
 
 function toggle_numbered_images ()
 {
     toggleNumberedImages();
 }
-interactive("toggle-numbered-images", toggle_numbered_images, []);
+// FIXME: This command does not yet work
+//interactive("toggle-numbered-images", toggle_numbered_images, []);
 
 
 function copy_numbered_image_location (prefix, number)
@@ -79,7 +80,8 @@ function copy_numbered_image_location (prefix, number)
         fail (number);
     }
 }
-interactive("copy-numbered-image-location", copy_numbered_image_location, ['p','image']);
+// FIXME: This command does not yet work
+//interactive("copy-numbered-image-location", copy_numbered_image_location, ['p','image']);
 
 
 // XXX: get_href should go into some general utilities file, perhaps
@@ -92,10 +94,10 @@ function get_href (node)
     }
 }
 
-function get_numberedlink (number)
+function get_numberedlink (window, number)
 {
   /* Careful: This might be a security hole. */
-  var numInfo = content.wrappedJSObject.__conkeror_numbering_data;
+  var numInfo = window.content.wrappedJSObject.__conkeror_numbering_data;
   if (!numInfo)
     return null;
   var arr = numInfo.arr;
@@ -110,12 +112,13 @@ function get_numberedlink (number)
 
 function numberedlinks_do_link (prefix, link, action)
 {
+  var window = this;
     // See if the number is a link.
-    var nl = get_numberedlink (link);
-    if (! nl) {
-        message ("No link with number '" + link + "'");
-        return;
-    }
+  var nl = get_numberedlink (window, link);
+  if (! nl) {
+    window.message ("No link with number '" + link + "'");
+    return;
+  }
 
     // we have a node.  we must now produce some side-effect based on its type
     // and the requested action.
@@ -127,12 +130,12 @@ function numberedlinks_do_link (prefix, link, action)
         if (action == "numberedlinks-focus") {
             nl.node.focus();
         } else if (action == "numberedlinks-follow-other-buffer") {
-            getBrowser().newBrowser(href);
+            window.getBrowser().newBrowser(href);
         } else if (action == "numberedlinks-follow-other-frame") {
-            open_url_in (5, href);
+          open_url_in.call (window, 5, href);
         } else if (action == "numberedlinks-save") {
             nl.node.focus();
-            call_interactively ("save-focused-link");
+            call_interactively.call (window, "save-focused-link");
         } else {
             var img = nl.node.getElementsByTagName("IMG");
             var evt = nl.doc.createEvent('MouseEvents');
@@ -154,7 +157,7 @@ function numberedlinks_do_link (prefix, link, action)
                 else
                     nl.node.dispatchEvent(evt);
             } else {
-                open_url_in(prefix, nl.node.href);
+              open_url_in.call(window, prefix, nl.node.href);
             }
         }
     } else if (type == "button") {
