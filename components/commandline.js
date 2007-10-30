@@ -23,7 +23,27 @@ const conkeror_cmdline = {
     var perform_default = true;
     var suppress_rc = false;
 
-    for (var i = 0; i < cmdline.length; ++i)
+    var i = 0;
+    
+    /* -q must be the first argument, if it is given */
+    if (cmdline.length > 0 && cmdline.getArgument(0) == "-q")
+    {
+      suppress_rc = true;
+      i++;
+    }
+
+    var initial_launch = (cmdline.state == cmdline.STATE_INITIAL_LAUNCH);
+    if (! suppress_rc && initial_launch)
+    {
+        try {
+            conkeror.load_rc ();
+        } catch (e) { dump (e + "\n"); }
+    } else if (suppress_rc && ! initial_launch) {
+        //XXX: issue a warning about an attempt to suppress the RC
+        //     when it will not be loaded anyway?
+    }
+    
+    for (; i < cmdline.length; ++i)
     {
       var arg = cmdline.getArgument(i);
       if (i + 1 < cmdline.length)
@@ -58,11 +78,6 @@ const conkeror_cmdline = {
           ++i;
           continue;
       }
-      if (arg == "-q")
-      {
-        suppress_rc = true;
-        continue;
-      }
       // are we remoting or is this the first invocation?
       //
       conkeror.url_remoting_fn (arg);
@@ -73,16 +88,6 @@ const conkeror_cmdline = {
     if (cmdline.length > 0)
       cmdline.removeArguments(0, cmdline.length - 1);
 
-    var initial_launch = (cmdline.state == cmdline.STATE_INITIAL_LAUNCH);
-    if (! suppress_rc && initial_launch)
-    {
-        try {
-            conkeror.load_rc ();
-        } catch (e) { dump (e + "\n"); }
-    } else if (suppress_rc && ! initial_launch) {
-        //XXX: issue a warning about an attempt to suppress the RC
-        //     when it will not be loaded anyway?
-    }
 
     if (perform_default) {
         conkeror.make_frame(conkeror.homepage);
