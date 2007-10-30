@@ -74,17 +74,24 @@ var conkeror_progress_listener = {
     // loading page.
     onProgressChange: function(webProgress, request, curSelf, maxSelf,
                                curTotal, maxTotal) {
+    // FIXME: This should probably be called with the relevant buffer as a parameter
+      conkeror.run_hooks (conkeror.progress_changed_hook, window, [webProgress, request, curSelf,
+                          maxSelf, curTotal, maxTotal]);
     },
 
     // This method is called to indicate a change to the current location.
     // The url can be gotten as location.spec.
-    onLocationChange: function(webProgress, request, location) {
+    onLocationChange : function(webProgress, request, location) {
+    // FIXME: This should probably be called with the relevant buffer as a parameter
+      conkeror.run_hooks (conkeror.location_changed_hook, window, [webProgress, request, location]);
     },
 
     // This method is called to indicate a status changes for the currently
     // loading page.  The message is already formatted for display.
     // Status messages could be displayed in the minibuffer output area.
     onStatusChange: function(webProgress, request, status, message) {
+    // FIXME: This should probably be called with the relevant buffer as a parameter
+      conkeror.run_hooks (conkeror.status_changed_hook, window, [webProgress, request, status, message]);
     },
 
     // This method is called when the security state of the browser changes.
@@ -159,6 +166,7 @@ function init_frame ()
     window.tag = conkeror.generate_new_frame_tag (tag);
 
     // Hook up our web progress listener
+    /* FIXME: This really should be added per-buffer, rather than in this strange way */
     getBrowser().setProgressListener (
         conkeror_progress_listener,
         Components.interfaces.nsIWebProgress.NOTIFY_ALL);
@@ -194,6 +202,17 @@ function init_frame ()
         },
         true);
 
+
+    /* FIXME: This should really be added as a handler to an
+       individual xul:browser, rather than catching the event only
+       once it propagates up. */
+    getBrowser().addEventListener (
+        "DOMTitleChanged",
+        function (event) {
+            conkeror.run_hooks (conkeror.dom_title_changed_hook, window, [event.target]);
+        },
+        true);    
+
     window.document.addEventListener ("resize",
                                       function () {
                                           conkeror.run_hooks (conkeror.frame_resize_hook, window);
@@ -222,11 +241,14 @@ function delayed_init_frame ()
     init_minibuffer ();
 
     // Add a timer to update the modeline once a minute
+    /* FIXME: User should be able to customize modeline format; once
+       that is allowed, the specific modeline format should take care
+       of adding timers it needs */
     setInterval (updateModeline, 60000);
 
     // This is a redo of the fix for jag bug 91884
     if (window == conkeror.window_watcher.activeWindow) {
-	content.focus();
+      content.focus();
     } else {
 	// set the element in command dispatcher so focus will restore properly
 	// when the window does become active

@@ -61,8 +61,10 @@ function set_window_title ()
 function init_window_title ()
 {
     conkeror.title_format_fn = default_title_formatter;
-    conkeror.add_hook (conkeror.dom_content_loaded_hook, conkeror.set_window_title);
+    conkeror.add_hook (conkeror.dom_title_changed_hook, conkeror.set_window_title);
     conkeror.add_hook (conkeror.make_frame_after_hook, conkeror.set_window_title);
+    conkeror.add_hook (conkeror.location_changed_hook, conkeror.set_window_title);
+    conkeror.add_hook (conkeror.select_buffer_hook, conkeror.set_window_title);
 }
 ///
 

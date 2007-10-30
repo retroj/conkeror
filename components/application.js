@@ -61,6 +61,10 @@ function application () {
 
     conkeror.init_window_title ();
 
+    conkeror.add_hook(conkeror.location_changed_hook, function () { this.updateModeline(); });
+    conkeror.add_hook(conkeror.make_frame_after_hook, function () { this.updateModeline(); });
+    conkeror.add_hook(conkeror.select_buffer_hook, function () { this.updateModeline(); });
+
     // Register numbering stylesheet
     {
       var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
@@ -88,6 +92,11 @@ quit_hook: [],
 make_frame_hook: [],
 make_frame_after_hook: [],
 dom_content_loaded_hook: [],
+dom_title_changed_hook: [],
+location_changed_hook: [],
+progress_changed_hook: [],
+status_changed_hook: [],
+select_buffer_hook: [],
 frame_resize_hook: [],
 
 add_hook: function (hook, func, append)

@@ -157,6 +157,7 @@
               setFocus(aBrowser.focusedWindow);
             else // new tab, focus our new content area
               setTimeout(setFocus, 0, window.content);
+          conkeror.run_hooks(conkeror.select_buffer_hook, window, [this.mCurrentBrowser]);
 	  } catch(e) {alert(e);}
 	]]>
 	</body>
