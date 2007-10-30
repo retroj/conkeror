@@ -795,16 +795,17 @@ interactive("copy-email-address", copy_email_address, ['focused_link_url']);
 
 interactive("source", function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 
-interactive ("reinit",
-             function (fn) {
-                 try {
-                     load_rc (fn);
-                     message ("loaded \""+fn+"\"");
-                 } catch (e) {
-                     message ("failed to load \""+fn+"\"");
-                 }
-             },
-             [['pref', 'conkeror.rcfile']]);
+function reinit (fn)
+{
+  try {
+    load_rc (fn);
+    this.message ("loaded \""+fn+"\"");
+  } catch (e) {
+    this.message ("failed to load \""+fn+"\"");
+  }
+}
+
+interactive ("reinit", reinit, [['pref', 'conkeror.rcfile']]);
 
 function help_page ()
 {
