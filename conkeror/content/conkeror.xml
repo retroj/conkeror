@@ -64,6 +64,7 @@
            for (var i=0; i<bs.length; i++)
               if (bs[i] == aBrowser)
                 return i;
+           return null;
           ]]>
         </body>
       </method>
@@ -81,7 +82,7 @@
             b.firstChild.loadURIWithFlags(aUrl, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
             this.setCurrentBrowser(b.firstChild);
             return b.firstChild;
-} catch(e) {window.alert(e);}
+} catch(e) {window.alert(e); return null; }
           ]]>
 	</body>
       </method>
@@ -245,7 +246,7 @@
 	    names.push(bs[i].webNavigation.currentURI.spec);
 	  }
 	  return names;
-        } catch(e) {dumpln ("getBrowserNames: " + e);}
+        } catch(e) {dumpln ("getBrowserNames: " + e); return null; }
 	]]>
 	</body>
       </method>
@@ -325,7 +326,7 @@
 	v.appendChild(b);
 	v.appendChild(s);
 	return v;
-      } catch(e) {alert(e);}
+      } catch(e) {alert(e); return null;}
       ]]>
       </body>
       </method>

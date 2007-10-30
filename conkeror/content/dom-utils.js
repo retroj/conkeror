@@ -80,6 +80,7 @@ function image_node_p (node)
 {
     if (node instanceof Components.interfaces.nsIImageLoadingContent && node.currentURI) 
         return true;
+    return false;
 }
 
 function image_node_loaded_p (node)
@@ -87,6 +88,7 @@ function image_node_loaded_p (node)
     var request = node.getRequest (Components.interfaces.nsIImageLoadingContent.CURRENT_REQUEST);
     if (request && (request.imageStatus & request.STATUS_SIZE_AVAILABLE))
         return true;
+    return false;
 }
 
 function image_node_url_spec (node)
@@ -98,6 +100,7 @@ function image_standalone_p (node)
 {
     if (node.ownerDocument instanceof ImageDocument)
         return true;
+    return false;
 }
 
 function html_input_node_p (node)
