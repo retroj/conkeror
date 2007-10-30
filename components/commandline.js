@@ -42,6 +42,14 @@ const conkeror_cmdline = {
         perform_default = false;
         continue;
       }
+      if (arg == "-daemon")
+      {
+        perform_default = false;
+        conkeror.daemon_mode(1);
+        var frame = conkeror.make_frame();
+        frame.setTimeout(function() { frame.close(); }, 0);
+        continue;
+      }
       if (arg == "-l")
       {
           try {
