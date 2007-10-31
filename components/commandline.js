@@ -55,7 +55,14 @@ const conkeror_cmdline = {
           ++i;
           continue;
         }
-
+        if (arg == "-l")
+        {
+            try {
+                conkeror.load_rc (param);
+            } catch (e) { dump (e + "\n"); }
+            ++i;
+            continue;
+        }
       }
       if (arg == "-batch")
       {
@@ -69,14 +76,6 @@ const conkeror_cmdline = {
         var frame = conkeror.make_frame();
         frame.setTimeout(function() { frame.close(); }, 0);
         continue;
-      }
-      if (arg == "-l")
-      {
-          try {
-              conkeror.load_rc (param);
-          } catch (e) { dump (e + "\n"); }
-          ++i;
-          continue;
       }
       // are we remoting or is this the first invocation?
       //
