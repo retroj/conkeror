@@ -89,9 +89,10 @@ var conkeror_progress_listener = {
     // This method is called to indicate a status changes for the currently
     // loading page.  The message is already formatted for display.
     // Status messages could be displayed in the minibuffer output area.
-    onStatusChange: function(webProgress, request, status, message) {
+    onStatusChange: function(webProgress, request, status, msg) {
     // FIXME: This should probably be called with the relevant buffer as a parameter
-      conkeror.run_hooks (conkeror.status_changed_hook, window, [webProgress, request, status, message]);
+        message (msg);
+        conkeror.run_hooks (conkeror.status_changed_hook, window, [webProgress, request, status, msg]);
     },
 
     // This method is called when the security state of the browser changes.
