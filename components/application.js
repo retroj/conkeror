@@ -237,15 +237,6 @@ get_frame_by_tag : function (tag)
     return null;
 },
 
-show_extension_manager : function ()
-{
-    return this.window_watcher.openWindow(null,
-                                          "chrome://mozapps/content/extensions/extensions.xul?type=extensions",
-                                          "ExtensionsWindow",
-                                          "resizable=yes,dialog=no",
-                                          null);
-},
-
 quit : function ()
 {
     this.run_hooks (this.quit_hook);

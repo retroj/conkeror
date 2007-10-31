@@ -1072,7 +1072,17 @@ function mode_line_mode(arg)
 }
 interactive("mode-line-mode", mode_line_mode, ["P"]);
 
+
+function show_extension_manager () {
+    return conkeror.window_watcher.openWindow (
+        null,
+        "chrome://mozapps/content/extensions/extensions.xul?type=extensions",
+        "ExtensionsWindow",
+        "resizable=yes,dialog=no",
+        null);
+}
 interactive("extensions", conkeror.show_extension_manager, []);
+
 
 function print_buffer()
 {
