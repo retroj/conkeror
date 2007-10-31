@@ -3,7 +3,7 @@ A, button, input, select, textarea {
   -moz-binding: url(chrome://conkeror/content/numbering.xml#binding) !important;
 }
 
-span.__conk_link_number {
+span.__conkeror_link_number {
   -moz-border-radius: 0.5em !important;
   border: 1px solid grey !important;
   background-color: white !important;

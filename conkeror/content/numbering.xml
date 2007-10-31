@@ -3,7 +3,7 @@
 <bindings xmlns="http://www.mozilla.org/xbl" xmlns:html="http://www.w3.org/1999/xhtml">
   <binding id="binding">
     <content>
-      <html:span class="__conk_link_number" style="display: none;"></html:span><children/>
+      <html:span class="__conkeror_link_number" style="display: none;"></html:span><children/>
     </content>
     <implementation>
       <constructor><![CDATA[
@@ -42,7 +42,7 @@
           else
           {
             span = document.createElementNS("http://www.w3.org/1999/xhtml","span");
-            span.setAttribute("class", "__conk_link_number");
+            span.setAttribute("class", "__conkeror_link_number");
             span.setAttribute("style", "display: none;");
           }
 
@@ -71,7 +71,7 @@
             }, 0);
 
           /* Store these values for use by the destructor */
-          this.__conk_num = num;
+          this.__conkeror_num = num;
           this.__num_node = span;
           this.insertType = insertType;
         } catch (e) {
@@ -83,7 +83,7 @@
       ]]></constructor>
       <destructor><![CDATA[
         try {
-          if (this.__conk_num)
+          if (this.__conkeror_num)
           {
             var topwin = window.top;
             window.__conkeror_numbering_helper.wrappedJSObject.unregister_item(topwin, this.__conk_num);
