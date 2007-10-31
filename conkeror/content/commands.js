@@ -513,11 +513,6 @@ interactive("execute-extended-command", meta_x, ["P"]);
 function goDoCommand (command)
 {
     try {
-      /* If only the top-level chrome window has focus, then these
-         commands won't work.  Fix this problem by setting focus to
-         the content window. */
-      if (this.document.commandDispatcher.focusedWindow == this)
-        window.content.focus();
         var controller = this.top.document.commandDispatcher.getControllerForCommand (command);
         if (controller && controller.isCommandEnabled (command))
             controller.doCommand (command);
