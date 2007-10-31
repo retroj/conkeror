@@ -86,7 +86,7 @@
           if (this.__conkeror_num)
           {
             var topwin = window.top;
-            window.__conkeror_numbering_helper.wrappedJSObject.unregister_item(topwin, this.__conk_num);
+            window.__conkeror_numbering_helper.wrappedJSObject.unregister_item(topwin, this.__conkeror_num);
           }
           if (this.__num_node && this.insertType == 2)
           {            
