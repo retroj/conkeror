@@ -524,7 +524,6 @@ function call_interactively (cmd, given_args)
                                      iargs,
                                      function (args) {
                                          conkeror.commands[i][1].apply (this, args);
-                                         this.updateModeline ();
                                      },
                                      null,
                                      given);

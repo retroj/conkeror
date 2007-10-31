@@ -98,19 +98,18 @@ function getAccessibility(node)
 function getBrowser()
 {
     if (gBrowser == null)
-	gBrowser = document.getElementById("content");
+        gBrowser = document.getElementById("content");
     return gBrowser;
 }
 
 function getWebNavigation ()
 {
-  try {
-//       alert(getBrowser().curbrow.firstChild.webNavigation);
-      return getBrowser().webNavigation;
-  } catch (e) {
-      window.alert(e);
-    return null;
-  }    
+    try {
+        return getBrowser().webNavigation;
+    } catch (e) {
+        dumpln ('getWebNavigation: '+e);
+        return null;
+    }
 }
 
 function getMarkupDocumentViewer ()
@@ -336,7 +335,7 @@ function showModeline()
     modeline.hidden = !conkeror.mode_line_enabled;
 }
 
-function updateModeline()
+function update_mode_line ()
 {
     var url = getWebNavigation().currentURI;
     var docshell = document.getElementById("content").webNavigation;
@@ -357,6 +356,10 @@ function updateModeline()
     modeline.value = val;
     showModeline();
 }
+
+conkeror.add_hook(conkeror.location_changed_hook, update_mode_line);
+conkeror.add_hook(conkeror.make_frame_after_hook, update_mode_line);
+conkeror.add_hook(conkeror.select_buffer_hook,    update_mode_line);
 
 
 // clipboard

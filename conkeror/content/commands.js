@@ -1067,7 +1067,7 @@ function mode_line_mode(arg)
         gModeLineMode = !gModeLineMode;
 
     if (win) {
-        updateModeline();
+        update_mode_line ();
     }
 }
 interactive("mode-line-mode", mode_line_mode, ["P"]);
