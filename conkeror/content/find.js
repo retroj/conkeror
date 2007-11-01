@@ -150,7 +150,7 @@ function getFocusedSelCtrl(window)
   }
 
   // One last try
-  return getBrowser().docShell
+  return window.getBrowser().docShell
       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsISelectionDisplay)
       .QueryInterface(Components.interfaces.nsISelectionController);
