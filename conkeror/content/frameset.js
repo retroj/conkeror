@@ -14,19 +14,21 @@ function frameset_notify (x, y, text) {
 }
 
 
-function next_frameset_frame (prefix) {
-    function find_frames_r (doc) {
-        var frames = [];
-        var fr = doc.getElementsByTagName ("FRAME");
-        if (fr.length == 0) { return []; }
+function frameset_find_frames_r (doc, types) {
+    var frames = [];
+    for (var j = 0; j < types.length; j++) {
+        var fr = doc.getElementsByTagName (types[j]);
         for (var i = 0; i < fr.length; i++) {
             frames.push (fr[i]);
-            frames = frames.concat (find_frames_r (fr[i].contentDocument));
+            frames = frames.concat (frameset_find_frames_r (fr[i].contentDocument, types));
         }
-        return frames;
     }
+    return frames;
+}
 
-    var frames = find_frames_r (this.window.content.document);
+
+function next_frameset_frame (prefix) {
+    var frames = frameset_find_frames_r (this.window.content.document, ["FRAME"]);
     if (frames.length == 0)
     {
         this.message ("no other frameset frame");
