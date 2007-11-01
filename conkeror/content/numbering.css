@@ -1,5 +1,6 @@
+@namespace url(http://www.w3.org/1999/xhtml);
 
-A, button, input, select, textarea {
+a, button, input, select, textarea {
   -moz-binding: url(chrome://conkeror/content/numbering.xml#binding) !important;
 }
 
