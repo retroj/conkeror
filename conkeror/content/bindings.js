@@ -539,6 +539,7 @@ function init_frameset_keys () {
     define_key(frameset_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_CTRL | MOD_META), "open-frameset-frame-in-new-frame");
     define_key(frameset_kmap, kbd ("c",0), "copy-frameset-frame-location");
     define_key(frameset_kmap, kbd ("t", 0), "frameset-focus-top");
+    define_key(frameset_kmap, kbd ("u", 0), "frameset-focus-up");
 }
 
 

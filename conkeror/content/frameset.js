@@ -118,3 +118,10 @@ function frameset_focus_top () {
 interactive("frameset-focus-top", frameset_focus_top, []);
 
 
+function frameset_focus_up () {
+    var parent = this.document.commandDispatcher.focusedWindow.parent;
+    parent.focus();
+    frameset_notify.call (this, parent.screenX, parent.screenY, "frameset up");
+}
+interactive("frameset-focus-up", frameset_focus_up, []);
+
