@@ -983,6 +983,7 @@ function view_source (url_s)
     }
 }
 interactive("view-source", view_source, ['current_url']);
+interactive("frameset-view-source", view_source, ['current_frameset_frame_url']);
 
 
 function view_partial_source (charset, selection) {

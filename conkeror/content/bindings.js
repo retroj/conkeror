@@ -540,6 +540,7 @@ function init_frameset_keys () {
     define_key(frameset_kmap, kbd ("c",0), "copy-frameset-frame-location");
     define_key(frameset_kmap, kbd ("t", 0), "frameset-focus-top");
     define_key(frameset_kmap, kbd ("u", 0), "frameset-focus-up");
+    define_key(frameset_kmap, kbd ("\\", 0), "frameset-view-source");
 }
 
 
