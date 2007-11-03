@@ -20,7 +20,7 @@ const conkeror_cmdline = {
         .getService ()
         .wrappedJSObject;
 
-    var perform_default = true;
+    var suppress_default = false;
     var suppress_rc = false;
 
     var i = 0;
@@ -39,59 +39,78 @@ const conkeror_cmdline = {
             conkeror.load_rc ();
         } catch (e) { dump (e + "\n"); }
     } else if (suppress_rc && ! initial_launch) {
-        dump ("warning: attempt to suppress load_rc in remote invocation\n");
+        dump ("w: attempt to suppress load_rc in remote invocation\n");
     }
+
+      var flags = {
+          batch: {
+              suppress_default: true
+          },
+          daemon: {
+              suppress_default: true,
+              func: function () {
+                  //conkeror.daemon_mode(1);
+                  //var frame = conkeror.make_frame();
+                  //frame.setTimeout(function() { frame.close(); }, 0);
+              }
+          },
+          e: {
+              param: true,
+              func: function (param) {
+                  eval (param);
+              }
+          },
+          l: {
+              param: true,
+              func: function (param) {
+                  try {
+                      conkeror.load_rc (param);
+                  } catch (e) { dump (e + "\n"); }
+              }
+          },
+          q: {
+              func: function () {
+                  dump ("w: -q may only be used as the first argument.\n");
+              }
+          }
+      };
 
     for (; i < cmdline.length; ++i)
     {
-      var arg = cmdline.getArgument(i);
-      if (i + 1 < cmdline.length)
-      {
-        var param = cmdline.getArgument(i + 1);
-        if (arg == "-e")
-        {
-          eval(param);
-          ++i;
-          continue;
+        var arg = cmdline.getArgument(i);
+        if (arg[0] == '-') {
+            var arg1 = arg.substring(1);
+            if (arg1 in flags) {
+                if ('suppress_default' in flags[arg1] && flags[arg1].suppress_default) {
+                    suppress_default = true;
+                }
+                if ('func' in flags[arg1]) {
+                    if ('param' in flags[arg1] && flags[arg1].param) {
+                        i++; // increment the argument counter to skip the parameter
+                        if (i >= cmdline.length) {
+                            dump ("w: ignoring command switch `"+arg+"' because no argument was provided.\n");
+                            continue;
+                        }
+                        var param = cmdline.getArgument (i);
+                        flags[arg1].func.call (conkeror, param);
+                    } else {
+                        flags[arg1].func.call (conkeror);
+                    }
+                }
+                continue;
+            }
         }
-        if (arg == "-l")
-        {
-            try {
-                conkeror.load_rc (param);
-            } catch (e) { dump (e + "\n"); }
-            ++i;
-            continue;
-        }
-      }
-        if (arg == "-q") {
-            dump ("warning: -q may only be used as the first argument.\n");
-            continue;
-        }
-      if (arg == "-batch")
-      {
-        perform_default = false;
-        continue;
-      }
-      if (arg == "-daemon")
-      {
-        perform_default = false;
-        conkeror.daemon_mode(1);
-        var frame = conkeror.make_frame();
-        frame.setTimeout(function() { frame.close(); }, 0);
-        continue;
-      }
-      // are we remoting or is this the first invocation?
-      //
-      conkeror.url_remoting_fn (arg);
 
-      perform_default = false;
+        conkeror.url_remoting_fn (arg);
+
+        suppress_default = true;
     }
 
     if (cmdline.length > 0)
       cmdline.removeArguments(0, cmdline.length - 1);
 
 
-    if (perform_default) {
+    if (! suppress_default) {
         conkeror.make_frame(conkeror.homepage);
     }
   },
