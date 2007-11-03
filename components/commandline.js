@@ -49,9 +49,9 @@ const conkeror_cmdline = {
           daemon: {
               suppress_default: true,
               func: function () {
-                  //conkeror.daemon_mode(1);
-                  //var frame = conkeror.make_frame();
-                  //frame.setTimeout(function() { frame.close(); }, 0);
+                  conkeror.daemon_mode(1);
+                  var frame = conkeror.make_frame();
+                  frame.setTimeout(function() { frame.close(); }, 0);
               }
           },
           e: {
