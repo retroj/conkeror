@@ -24,7 +24,7 @@ const conkeror_cmdline = {
     var suppress_rc = false;
 
     var i = 0;
-    
+
     /* -q must be the first argument, if it is given */
     if (cmdline.length > 0 && cmdline.getArgument(0) == "-q")
     {
@@ -39,10 +39,9 @@ const conkeror_cmdline = {
             conkeror.load_rc ();
         } catch (e) { dump (e + "\n"); }
     } else if (suppress_rc && ! initial_launch) {
-        //XXX: issue a warning about an attempt to suppress the RC
-        //     when it will not be loaded anyway?
+        dump ("warning: attempt to suppress load_rc in remote invocation\n");
     }
-    
+
     for (; i < cmdline.length; ++i)
     {
       var arg = cmdline.getArgument(i);
@@ -64,6 +63,10 @@ const conkeror_cmdline = {
             continue;
         }
       }
+        if (arg == "-q") {
+            dump ("warning: -q may only be used as the first argument.\n");
+            continue;
+        }
       if (arg == "-batch")
       {
         perform_default = false;
