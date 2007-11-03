@@ -91,14 +91,16 @@ assert-equal \
 ##  has to be agreement between this script and the js script
 ##  concerning how test results are reported.
 ##
+UNEXPECTEDOUT=0
 while read LINE; do
     echo "$LINE"
-    if [[ "$LINE" = test:* ]]; then
-        let "TESTSRUN = $TESTSRUN + 1"
-        if [[ "$LINE" = *\ ...\ fail ]]; then
-            let "TESTSFAILED = $TESTSFAILED + 1"
-        fi
-    fi
+    let "TESTSRUN = $TESTSRUN + 1"
+    case "$LINE" in
+        *\ ...\ fail)
+            let "TESTSFAILED = $TESTSFAILED + 1" ;;
+        *\ ...\ pass) ;;
+        *) let "UNEXPECTEDOUT = $UNEXPEXECTEDOUT + 1" ;;
+    esac
 done < <(./bin/conkeror -q -batch -l "$BATCHSUITEJS" 2>&1)
 
 
@@ -113,4 +115,11 @@ done < <(./bin/conkeror -q -batch -l "$BATCHSUITEJS" 2>&1)
 popd > /dev/null
 rm -r "$scratch"
 
-echo "Summary: $TESTSRUN run, $TESTSFAILED failed"
+echo -n "Summary: $TESTSRUN run, $TESTSFAILED failed"
+
+if [[ "$UNEXPECTEDOUT" -gt 0 ]]; then
+    echo ", $UNEXPECTEDOUT lines of unexpected output"
+fi
+
+echo
+
