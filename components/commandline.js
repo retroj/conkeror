@@ -101,15 +101,26 @@ const conkeror_cmdline = {
             }
         }
 
-        conkeror.url_remoting_fn (arg);
-
+        // something other than a switch was passed on the command
+        // line.  suppress the default frame, and call the
+        // user-configurable remoting function on it.
+        //
         suppress_default = true;
+        conkeror.url_remoting_fn (arg);
     }
 
-    if (cmdline.length > 0)
-      cmdline.removeArguments(0, cmdline.length - 1);
+      // we are greedy and handle all command line arguments.  remove
+      // everything from the command line object, so no other
+      // components can see them.
+      //
+      if (cmdline.length > 0) {
+          cmdline.removeArguments(0, cmdline.length - 1);
+      }
 
-
+      // no args were found for url_remoting_fn, and no switches
+      // explicitly suppressed the creation of a default frame
+      // (e.g. -batch or -daemon)
+      //
     if (! suppress_default) {
         conkeror.make_frame(conkeror.homepage);
     }
