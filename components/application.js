@@ -99,6 +99,7 @@ mode_line_enabled: true,
 
 add_hook: function (hook, func, append)
 {
+    if (hook.indexOf (func) != -1) return;
     if (append)
         hook.push (func);
     else
@@ -216,8 +217,30 @@ make_frame: function (url, tag)
     return result;
 },
 
+// The simple case for find_url_new_buffer is to just load an url into
+// an existing frame.  However, find_url_new_buffer must also deal
+// with the case where it is called many times synchronously (as by a
+// command-line handler) when there is no active frame into which to
+// load urls.  We only want to make one frame, so we keep a queue of
+// urls to load, and put a function in `make_frame_after_hook' that
+// will load those urls.
+//
+find_url_new_buffer_queue: null,
 find_url_new_buffer: function (url, frame)
 {
+    function  find_url_new_buffer_internal () {
+        // get urls from queue
+        if (this.conkeror.find_url_new_buffer_queue) {
+            for (var i = 0; i < this.conkeror.find_url_new_buffer_queue.length; i++) {
+                this.conkeror.find_url_new_buffer (
+                    this.conkeror.find_url_new_buffer_queue[i],
+                    this);
+            }
+            // reset queue
+            this.conkeror.find_url_new_buffer_queue = null;
+        }
+    }
+
     // window_watcher.activeWindow is the default frame, but it may be
     // null, too.
     //
@@ -226,8 +249,15 @@ find_url_new_buffer: function (url, frame)
     }
     if (frame) {
         return frame.getBrowser().newBrowser(url);
+    } else if (this.find_url_new_buffer_queue) {
+        // we are queueing
+        this.find_url_new_buffer_queue.push (url);
     } else {
-        return this.make_frame (url);
+        // establish a queue and make a frame
+        this.find_url_new_buffer_queue = [];
+        this.add_hook (this.make_frame_after_hook, find_url_new_buffer_internal);
+        frame = this.make_frame (url);
+        return frame;
     }
 },
 
