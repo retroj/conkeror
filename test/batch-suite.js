@@ -20,7 +20,8 @@ function assert_equal (suite, desc, expected, actual) {
 }
 
 function tree_equal (a, b) {
-    if (typeof a == 'string' && typeof b == 'string') {
+    if ((typeof a == 'string' && typeof b == 'string') ||
+        (typeof a == 'number' && typeof b == 'number')) {
         return a == b;
     } else if (typeof a == 'object' && typeof b == 'object') {
         if (a.length != b.length) {
