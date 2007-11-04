@@ -216,12 +216,16 @@ make_frame: function (url, tag)
     return result;
 },
 
-find_url_new_buffer: function (url)
+find_url_new_buffer: function (url, frame)
 {
-    // get the active frame, and create a new buffer in it.  if there is not
-    // one, make a frame.
-    if (this.window_watcher.activeWindow) {
-        return this.window_watcher.activeWindow.getBrowser().newBrowser(url);
+    // window_watcher.activeWindow is the default frame, but it may be
+    // null, too.
+    //
+    if (frame == null) {
+        frame = this.window_watcher.activeWindow;
+    }
+    if (frame) {
+        return frame.getBrowser().newBrowser(url);
     } else {
         return this.make_frame (url);
     }

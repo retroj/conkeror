@@ -148,7 +148,7 @@ function init_frame ()
 {
     // Handle window.arguments
     //
-    var urisToLoad = [];
+    var uris_to_load = [];
     var tag = null;
     if ('arguments' in window)
     {
@@ -159,7 +159,7 @@ function init_frame ()
                 for (var j = 1; j < open_args.length; j++) {
                     var op = open_args[j];
                     if (op[0] == 'tag') { tag = op[1]; }
-                    else if (op[0] == 'find') { urisToLoad = op.slice (1); }
+                    else if (op[0] == 'find') { uris_to_load = op.slice(1).reverse(); }
                 }
             }
         }
@@ -212,7 +212,7 @@ function init_frame ()
         function (event) {
             conkeror.run_hooks (conkeror.dom_title_changed_hook, window, [event.target]);
         },
-        true);    
+        true);
 
     window.document.addEventListener ("resize",
                                       function () {
@@ -220,16 +220,12 @@ function init_frame ()
                                       },
                                       true);
 
-    if (0 in urisToLoad) {
-        getWebNavigation().loadURI (urisToLoad[0], Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+    if (0 in uris_to_load) {
+        getWebNavigation().loadURI (uris_to_load[0], Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
     }
-    /* BUG: right now, we really have no way to load urls in a specific
-     * frame.  Just the active frame.
-
-     for (var i = 1; i < urisToLoad.length; i++) {
-     conkeror.open_url_in.call (this, 4, urisToLoad[i]);
-     }
-    */
+    for (var i = 1; i < uris_to_load.length; i++) {
+        conkeror.find_url_new_buffer (uris_to_load[i], window);
+    }
 
     conkeror.run_hooks (conkeror.make_frame_after_hook, this);
 
