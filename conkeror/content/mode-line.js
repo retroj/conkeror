@@ -1,11 +1,5 @@
 
 
-function showModeline()
-{
-    var modeline = this.getBrowser().modeLine;
-    modeline.hidden = ! conkeror.mode_line_enabled;
-}
-
 function update_mode_line ()
 {
     var url = this.getWebNavigation().currentURI;
@@ -25,7 +19,7 @@ function update_mode_line ()
 	+ ":" + (mins<10 ?"0" +mins:mins);
     val += "    (" + x + "," + y + ")";
     modeline.value = val;
-    showModeline.call (this);
+    modeline.hidden = ! conkeror.mode_line_enabled;
 }
 
 
