@@ -237,12 +237,6 @@ function delayed_init_frame ()
 {
     init_minibuffer ();
 
-    // Add a timer to update the modeline once a minute
-    /* FIXME: User should be able to customize modeline format; once
-       that is allowed, the specific modeline format should take care
-       of adding timers it needs */
-    setInterval (update_mode_line, 60000);
-
     // This is a redo of the fix for jag bug 91884
     if (window == conkeror.window_watcher.activeWindow) {
       content.focus();

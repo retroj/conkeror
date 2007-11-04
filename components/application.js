@@ -43,6 +43,7 @@ function application () {
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/keyboard.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/interactive.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/daemon-mode.js"));
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/mode-line.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/save.js"));
 
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/commands.js")); // depends: interactive.js
