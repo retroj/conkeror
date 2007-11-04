@@ -94,3 +94,21 @@ assert_that ("batchjs", "decode_xpcom_structure (encode_xpcom_structure ( ... ))
                          conkeror.decode_xpcom_structure (
                              conkeror.encode_xpcom_structure (
                                  [["foo", "bar"], "baz", ["quux"]]))));
+
+function test_add_hook_set () {
+    var myhook = [1,2,3];
+    conkeror.add_hook (myhook, 1);
+    assert_that ("batchjs", "test_add_hook_set",
+                 tree_equal ([1,2,3], myhook));
+
+    myhook = [1,2,3];
+    conkeror.add_hook (myhook, 4, true);
+    assert_that ("batchjs", "test_add_hook_set (append)",
+                 tree_equal ([1,2,3,4], myhook));
+
+    myhook = [1,2,3];
+    conkeror.add_hook (myhook, 0);
+    assert_that ("batchjs", "test_add_hook_set (append)",
+                 tree_equal ([0,1,2,3], myhook));
+}
+test_add_hook_set ();
