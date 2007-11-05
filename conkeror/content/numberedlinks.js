@@ -130,7 +130,7 @@ function numberedlinks_do_link (prefix, link, action)
         if (action == "numberedlinks-focus") {
             nl.node.focus();
         } else if (action == "numberedlinks-follow-other-buffer") {
-            window.getBrowser().newBrowser(href);
+            window.newBrowser(href);
         } else if (action == "numberedlinks-follow-other-frame") {
           open_url_in.call (window, 5, href);
         } else if (action == "numberedlinks-save") {

@@ -53,6 +53,35 @@ var gFastFind = null;
 var gFindState = [];
 
 
+///////// Begin surgery from conkeror.xml
+
+
+
+function newBrowser (aUrl) {
+    dumpln ('dbg: newBrowser '+aUrl);
+    try {
+	if (!aUrl)
+	    aUrl = "about:blank";
+	var b = getBrowser().makeBrowser();
+	getBrowser().mBrowserContainer.appendChild(b);
+	getBrowser().setBrowserProgressListener(b.firstChild);
+        b.firstChild.loadURIWithFlags(aUrl, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
+        getBrowser().setCurrentBrowser(b.firstChild);
+        return b.firstChild;
+    } catch(e) {window.alert(e); return null; }
+}
+
+///////// End surgery from conkeror.xml
+
+
+
+
+
+
+
+
+
+
 function abs_point (node)
 {
     var orig = node;

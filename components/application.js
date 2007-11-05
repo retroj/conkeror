@@ -249,7 +249,7 @@ find_url_new_buffer: function (url, frame)
         frame = this.window_watcher.activeWindow;
     }
     if (frame) {
-        return frame.getBrowser().newBrowser(url);
+        return frame.newBrowser(url);
     } else if (this.find_url_new_buffer_queue) {
         // we are queueing
         this.find_url_new_buffer_queue.push (url);

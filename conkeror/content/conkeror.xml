@@ -68,24 +68,6 @@
           ]]>
         </body>
       </method>
-
-      <method name="newBrowser">
-        <parameter name="aUrl"/>
-        <body>
-	  <![CDATA[
-	  try {
-	    if (!aUrl)
-	      aUrl = "about:blank";
-	      var b = this.makeBrowser();
-	    this.mBrowserContainer.appendChild(b);
-	    this.setBrowserProgressListener(b.firstChild);
-            b.firstChild.loadURIWithFlags(aUrl, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-            this.setCurrentBrowser(b.firstChild);
-            return b.firstChild;
-} catch(e) {window.alert(e); return null; }
-          ]]>
-	</body>
-      </method>
       <method name="nextBrowser">
         <body>
 	  <![CDATA[
