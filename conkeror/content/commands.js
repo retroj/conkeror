@@ -232,7 +232,7 @@ function switch_to_buffer (buffer)
 }
 interactive("switch-to-buffer", switch_to_buffer,
             [["b", function (a) { return "Switch to buffer: "; },
-              function (a) { return this.getBrowser().lastBrowser().webNavigation.currentURI.spec; } ]]);
+              function (a) { return this.lastBrowser().webNavigation.currentURI.spec; } ]]);
 
 
 function kill_buffer (buffer)

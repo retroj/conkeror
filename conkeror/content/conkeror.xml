@@ -68,16 +68,6 @@
           ]]>
         </body>
       </method>
-      <method name="lastBrowser">
-      <body>
-	<![CDATA[
-	if (this.mBrowsers.length == 1) 
-	  return this.mBrowsers[0];
-	else
-	  return this.getBrowserForPileID(this.getPileTop()-1);
-	]]>
-      </body>      
-      </method>
       <method name="focusBrowser">
         <parameter name="aBrowser"/>
 	<body>

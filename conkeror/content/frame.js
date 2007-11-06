@@ -161,7 +161,7 @@ function killBrowser (aBrowser) {
 
         // pick the next browser to be the new current browser
         if (this.getBrowser().mCurrentBrowser == aBrowser) {
-            var newBrowser = this.getBrowser().lastBrowser();
+            var newBrowser = this.lastBrowser();
             var par = aBrowser.parentNode;
             this.getBrowser().setCurrentBrowser(newBrowser);
             aBrowser.destroy();
@@ -179,6 +179,14 @@ function killBrowser (aBrowser) {
     } catch(e) {window.alert(e);}
 }
 
+
+function lastBrowser () {
+    dumpln ('dbg: lastBrowser');
+    if (this.getBrowser().mBrowsers.length == 1)
+        return this.getBrowser().mBrowsers[0];
+    else
+        return this.getBrowser().getBrowserForPileID(this.getBrowser().getPileTop()-1);
+}
 
 ///////// End surgery from conkeror.xml
 
