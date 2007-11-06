@@ -105,24 +105,6 @@
 	]]>
 	</body>
       </method>
-      <method name="setCurrentBrowser">
-        <parameter name="aBrowser"/>
-        <body>
-	  <![CDATA[
-	  try{
-	    var newBrowser = aBrowser;
-
-	    if (this.mCurrentBrowser == newBrowser) {
-	      return;
-	    }
-
-            this.mBrowserContainer.selectedIndex = this.getBrowserIndex(newBrowser);
-
-	    this.focusBrowser(newBrowser);
-	    } catch(e) {alert(e);}
-          ]]>	    	
-        </body>
-      </method>
       <method name="pushPileDown">
       <parameter name="a"/>
       <parameter name="b"/>

@@ -228,7 +228,7 @@ interactive("jsconsole", open_url_in,
 
 function switch_to_buffer (buffer)
 {
-    this.getBrowser().setCurrentBrowser(buffer);
+    this.setCurrentBrowser(buffer);
 }
 interactive("switch-to-buffer", switch_to_buffer,
             [["b", function (a) { return "Switch to buffer: "; },
@@ -802,8 +802,8 @@ function list_buffers () {
         button.setAttribute ('href', '#');
         button.setAttribute ('onmouseover', 'this.style.cursor = "pointer";');
         button.setAttribute ('onmouseout', 'this.style.cursor = "auto";');
-        button.addEventListener ('click', 
-                                 function () { getBrowser().setCurrentBrowser (buffer); }, 
+        button.addEventListener ('click',
+                                 function () { setCurrentBrowser (buffer); },
                                  false);
         var text = window.content.document.createTextNode (buffer.webNavigation.currentURI.spec);
         button.appendChild (text);

@@ -66,7 +66,7 @@ function newBrowser (aUrl) {
         getBrowser().mBrowserContainer.appendChild(b);
         getBrowser().setBrowserProgressListener(b.firstChild);
         b.firstChild.loadURIWithFlags(aUrl, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-        getBrowser().setCurrentBrowser(b.firstChild);
+        setCurrentBrowser(b.firstChild);
         return b.firstChild;
     } catch(e) {window.alert(e); return null; }
 }
@@ -78,9 +78,9 @@ function nextBrowser () {
         if (this.getBrowser().mCurrentBrowser == null || this.getBrowser().mBrowsers.length <= 1)
             return;
         if (this.getBrowser().mCurrentBrowser.parentNode == this.getBrowser().mBrowserContainer.lastChild)
-            this.getBrowser().setCurrentBrowser(this.getBrowser().mBrowserContainer.firstChild.firstChild);
+            this.setCurrentBrowser(this.getBrowser().mBrowserContainer.firstChild.firstChild);
         else
-            this.getBrowser().setCurrentBrowser(this.getBrowser().mCurrentBrowser.parentNode.nextSibling.firstChild);
+            this.setCurrentBrowser(this.getBrowser().mCurrentBrowser.parentNode.nextSibling.firstChild);
     } catch(e) {window.alert(e);}
 }
 
@@ -91,9 +91,9 @@ function prevBrowser () {
             return;
 
         if (this.getBrowser().mCurrentBrowser.parentNode == this.getBrowser().mBrowserContainer.firstChild)
-            this.getBrowser().setCurrentBrowser(this.getBrowser().mBrowserContainer.lastChild.firstChild);
+            this.setCurrentBrowser(this.getBrowser().mBrowserContainer.lastChild.firstChild);
         else
-            this.getBrowser().setCurrentBrowser(this.getBrowser().mCurrentBrowser.parentNode.previousSibling.firstChild);
+            this.setCurrentBrowser(this.getBrowser().mCurrentBrowser.parentNode.previousSibling.firstChild);
     } catch(e) {alert(e); }
 }
 
@@ -163,7 +163,7 @@ function killBrowser (aBrowser) {
         if (this.getBrowser().mCurrentBrowser == aBrowser) {
             var newBrowser = this.lastBrowser();
             var par = aBrowser.parentNode;
-            this.getBrowser().setCurrentBrowser(newBrowser);
+            this.setCurrentBrowser(newBrowser);
             aBrowser.destroy();
             this.getBrowser().mBrowserContainer.removeChild(par);
             this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowser().getBrowserIndex(this.getBrowser().mCurrentBrowser);
@@ -187,6 +187,23 @@ function lastBrowser () {
     else
         return this.getBrowser().getBrowserForPileID(this.getBrowser().getPileTop()-1);
 }
+
+
+function setCurrentBrowser (aBrowser) {
+    dumpln ('dbg: setCurrentBrowser '+aBrowser);
+    try {
+        var newBrowser = aBrowser;
+
+        if (this.getBrowser().mCurrentBrowser == newBrowser) {
+            return;
+        }
+
+        this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowser().getBrowserIndex(newBrowser);
+
+        this.getBrowser().focusBrowser(newBrowser);
+    } catch(e) {alert(e);}
+}
+
 
 ///////// End surgery from conkeror.xml
 
