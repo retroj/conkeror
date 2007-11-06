@@ -167,13 +167,6 @@
           ]]>
 	</body>
       </method>
-      <method name="killCurrentBrowser">
-        <body>
-	<![CDATA[
-	  this.killBrowser(this.mCurrentBrowser);
-	]]>
-	</body>
-      </method>
       <method name="setProgressListener">
         <parameter name="aListener"/>
 	<parameter name="aMask"/>
