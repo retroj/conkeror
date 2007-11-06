@@ -354,7 +354,7 @@ interactive("isearch-done", isearch_done, []);
 
 function browser_next()
 {
-    this.getBrowser().nextBrowser();
+    this.nextBrowser();
 }
 interactive("buffer-next", browser_next, []);
 

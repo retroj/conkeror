@@ -68,20 +68,6 @@
           ]]>
         </body>
       </method>
-      <method name="nextBrowser">
-        <body>
-	  <![CDATA[
-	  try {
-	    if (this.mCurrentBrowser == null || this.mBrowsers.length <= 1)
-	      return;
-	    if (this.mCurrentBrowser.parentNode == this.mBrowserContainer.lastChild)
-	      this.setCurrentBrowser(this.mBrowserContainer.firstChild.firstChild);
-	    else
-	      this.setCurrentBrowser(this.mCurrentBrowser.parentNode.nextSibling.firstChild);
-} catch(e) {window.alert(e);}
-          ]]>
-</body>
-      </method>
       <method name="prevBrowser">
       <body>
 	  <![CDATA[

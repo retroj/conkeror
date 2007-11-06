@@ -60,15 +60,28 @@ var gFindState = [];
 function newBrowser (aUrl) {
     dumpln ('dbg: newBrowser '+aUrl);
     try {
-	if (!aUrl)
-	    aUrl = "about:blank";
-	var b = getBrowser().makeBrowser();
-	getBrowser().mBrowserContainer.appendChild(b);
-	getBrowser().setBrowserProgressListener(b.firstChild);
+        if (!aUrl)
+            aUrl = "about:blank";
+        var b = getBrowser().makeBrowser();
+        getBrowser().mBrowserContainer.appendChild(b);
+        getBrowser().setBrowserProgressListener(b.firstChild);
         b.firstChild.loadURIWithFlags(aUrl, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
         getBrowser().setCurrentBrowser(b.firstChild);
         return b.firstChild;
     } catch(e) {window.alert(e); return null; }
+}
+
+
+function nextBrowser () {
+    dumpln ('dbg: nextBrowser');
+    try {
+        if (this.getBrowser().mCurrentBrowser == null || this.getBrowser().mBrowsers.length <= 1)
+            return;
+        if (this.getBrowser().mCurrentBrowser.parentNode == this.getBrowser().mBrowserContainer.lastChild)
+            this.getBrowser().setCurrentBrowser(this.getBrowser().mBrowserContainer.firstChild.firstChild);
+        else
+            this.getBrowser().setCurrentBrowser(this.getBrowser().mCurrentBrowser.parentNode.nextSibling.firstChild);
+    } catch(e) {window.alert(e);}
 }
 
 ///////// End surgery from conkeror.xml
