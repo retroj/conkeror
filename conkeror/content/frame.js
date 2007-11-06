@@ -62,7 +62,7 @@ function newBrowser (aUrl) {
     try {
         if (!aUrl)
             aUrl = "about:blank";
-        var b = getBrowser().makeBrowser();
+        var b = makeBrowser();
         getBrowser().mBrowserContainer.appendChild(b);
         getBrowser().setBrowserProgressListener(b.firstChild);
         b.firstChild.loadURIWithFlags(aUrl, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
@@ -118,6 +118,32 @@ function getBrowserNames () {
         }
         return names;
     } catch(e) {dumpln ("getBrowserNames: " + e); return null; }
+}
+
+function makeBrowser () {
+    dumpln ('dbg: makeBrowser');
+    try {
+        var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "browser");
+        b.setAttribute("type", "content");
+        b.setAttribute("flex", "1");
+        if (this.getBrowser().mBrowsers.length == 0)
+            b.setAttribute("pile", 1);
+        else
+            b.setAttribute("pile", parseInt(this.getBrowser().getPileTop())+1);
+        var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox");
+        v.setAttribute("flex", "100");
+        var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
+        s.setAttribute("class", "mode-line");
+        var sp = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "label");
+        sp.setAttribute("value", "");
+        sp.setAttribute("flex", "1");
+        sp.setAttribute("class", "mode-line-label");
+        sp.setAttribute("crop", "right");
+        s.appendChild(sp);
+        v.appendChild(b);
+        v.appendChild(s);
+        return v;
+    } catch(e) {alert(e); return null;}
 }
 
 
