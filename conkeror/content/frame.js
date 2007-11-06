@@ -84,6 +84,19 @@ function nextBrowser () {
     } catch(e) {window.alert(e);}
 }
 
+function prevBrowser () {
+    dumpln ('dbg: prevBrowser');
+    try {
+        if (this.getBrowser().mCurrentBrowser == null || this.getBrowser().mBrowsers.length <= 1)
+            return;
+
+        if (this.getBrowser().mCurrentBrowser.parentNode == this.getBrowser().mBrowserContainer.firstChild)
+            this.getBrowser().setCurrentBrowser(this.getBrowser().mBrowserContainer.lastChild.firstChild);
+        else
+            this.getBrowser().setCurrentBrowser(this.getBrowser().mCurrentBrowser.parentNode.previousSibling.firstChild);
+    } catch(e) {alert(e); }
+}
+
 ///////// End surgery from conkeror.xml
 
 

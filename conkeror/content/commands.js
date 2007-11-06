@@ -361,7 +361,7 @@ interactive("buffer-next", browser_next, []);
 
 function browser_prev()
 {
-    this.getBrowser().prevBrowser();
+    this.prevBrowser();
 }
 interactive("buffer-previous", browser_prev, []);
 
