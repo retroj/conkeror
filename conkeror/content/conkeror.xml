@@ -167,22 +167,6 @@
           ]]>
 	</body>
       </method>
-      <method name="setProgressListener">
-        <parameter name="aListener"/>
-	<parameter name="aMask"/>
-	<body>
-          <![CDATA[
-	  try {
-	    if (this.mProgressListener)
-	      this.mProgressFilter.removeProgressListener(this.mProgressListener);
-	    this.mProgressListener = aListener;
-	    if (this.mProgressListener) {
-	      this.mProgressFilter.addProgressListener(this.mProgressListener, aMask);
-	    }
-} catch(e) {window.alert(e);}
-	  ]]>
-	</body>
-      </method>
       <method name="getBrowserNames">
         <body>
 	<![CDATA[

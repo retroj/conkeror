@@ -97,6 +97,19 @@ function prevBrowser () {
     } catch(e) {alert(e); }
 }
 
+function setProgressListener (aListener, aMask) {
+    dumpln ('dbg: setProgressListener ('+aListener+', '+aMask+')');
+    try {
+        if (this.getBrowser().mProgressListener)
+            this.getBrowser().mProgressFilter.removeProgressListener(this.getBrowser().mProgressListener);
+        this.getBrowser().mProgressListener = aListener;
+        if (this.getBrowser().mProgressListener) {
+            this.getBrowser().mProgressFilter.addProgressListener(this.getBrowser().mProgressListener, aMask);
+        }
+    } catch(e) {window.alert(e);}
+}
+
+
 ///////// End surgery from conkeror.xml
 
 

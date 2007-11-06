@@ -168,7 +168,7 @@ function init_frame ()
 
     // Hook up our web progress listener
     /* FIXME: This really should be added per-buffer, rather than in this strange way */
-    getBrowser().setProgressListener (
+    setProgressListener (
         conkeror_progress_listener,
         Components.interfaces.nsIWebProgress.NOTIFY_ALL);
 
