@@ -237,7 +237,7 @@ interactive("switch-to-buffer", switch_to_buffer,
 
 function kill_buffer (buffer)
 {
-    this.getBrowser().killBrowser(buffer);
+    this.killBrowser(buffer);
 }
 interactive("kill-buffer", kill_buffer, [["b", function (a) { return "Kill buffer: "; }]]);
 

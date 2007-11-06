@@ -147,6 +147,39 @@ function makeBrowser () {
 }
 
 
+
+function killBrowser (aBrowser) {
+    dumpln ('dbg: killBrowser '+aBrowser);
+    try {
+        if (this.getBrowser().mBrowsers.length <= 1)
+            return;
+
+        // make sure we can kill the browser
+        var ds = aBrowser.docShell;
+        if (ds.contentViewer && !ds.contentViewer.permitUnload())
+            return;
+
+        // pick the next browser to be the new current browser
+        if (this.getBrowser().mCurrentBrowser == aBrowser) {
+            var newBrowser = this.getBrowser().lastBrowser();
+            var par = aBrowser.parentNode;
+            this.getBrowser().setCurrentBrowser(newBrowser);
+            aBrowser.destroy();
+            this.getBrowser().mBrowserContainer.removeChild(par);
+            this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowser().getBrowserIndex(this.getBrowser().mCurrentBrowser);
+            // this creates a gap so fill it.
+            this.getBrowser().mCurrentBrowser.setAttribute('pile', this.getBrowser().mCurrentBrowser.getAttribute('pile')-1);
+        } else {
+            var par = aBrowser.parentNode;
+            this.getBrowser().pushPileDown (aBrowser.getAttribute ('pile'), this.getBrowser().mCurrentBrowser);
+            aBrowser.destroy();
+            this.getBrowser().mBrowserContainer.removeChild(par);
+            this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowser().getBrowserIndex(this.getBrowser().mCurrentBrowser);
+        }
+    } catch(e) {window.alert(e);}
+}
+
+
 ///////// End surgery from conkeror.xml
 
 

@@ -133,40 +133,6 @@
           ]]>	    	
         </body>
       </method>
-      <method name="killBrowser">
-        <parameter name="aBrowser"/>
-	<body>
-	  <![CDATA[
-	   try {
-	    if (this.mBrowsers.length <= 1)
-	      return;
-
-            // make sure we can kill the browser
-            var ds = aBrowser.docShell;
-            if (ds.contentViewer && !ds.contentViewer.permitUnload())
-              return;
-
-	    // pick the next browser to be the new current browser
-            if (this.mCurrentBrowser == aBrowser) {
-	      var newBrowser = this.lastBrowser();
-              var par = aBrowser.parentNode;
-	      this.setCurrentBrowser(newBrowser);
-              aBrowser.destroy();
-	      this.mBrowserContainer.removeChild(par);
-              this.mBrowserContainer.selectedIndex = this.getBrowserIndex(this.mCurrentBrowser);
-              // this creates a gap so fill it.
-	      this.mCurrentBrowser.setAttribute('pile', this.mCurrentBrowser.getAttribute('pile')-1);
-            } else {
-              var par = aBrowser.parentNode;
-              this.pushPileDown (aBrowser.getAttribute ('pile'), this.mCurrentBrowser);
-              aBrowser.destroy();
-	      this.mBrowserContainer.removeChild(par);
-              this.mBrowserContainer.selectedIndex = this.getBrowserIndex(this.mCurrentBrowser);
-            }
-	    } catch(e) {window.alert(e);}
-          ]]>
-	</body>
-      </method>
       <method name="pushPileDown">
       <parameter name="a"/>
       <parameter name="b"/>
