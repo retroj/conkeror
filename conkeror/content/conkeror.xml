@@ -167,20 +167,6 @@
           ]]>
 	</body>
       </method>
-      <method name="getBrowserNames">
-        <body>
-	<![CDATA[
-	try {
-	  var bs = this.mBrowsers;
-	  var names = [];
-	  for (var i=0; i<bs.length; i++) {
-	    names.push(bs[i].webNavigation.currentURI.spec);
-	  }
-	  return names;
-        } catch(e) {dumpln ("getBrowserNames: " + e); return null; }
-	]]>
-	</body>
-      </method>
       <method name="pushPileDown">
       <parameter name="a"/>
       <parameter name="b"/>

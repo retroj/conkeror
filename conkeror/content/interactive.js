@@ -15,7 +15,7 @@ active_document: { func: function (spec) {
 
 // b: Name of existing buffer.
 b: { async: function (spec, iargs, callback, callback_args, given_args) {
-            var bufs = this.getBrowser().getBrowserNames();
+            var bufs = this.getBrowserNames();
             var matches = this.zip2(bufs,this.getBrowser().mBrowsers);
             var prompt = (1 in spec && spec[1] ? spec[1].call (this, callback_args) : "Buffer: ");
             var initval = (2 in spec && spec[2] ?

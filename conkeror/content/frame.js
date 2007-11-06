@@ -109,6 +109,17 @@ function setProgressListener (aListener, aMask) {
     } catch(e) {window.alert(e);}
 }
 
+function getBrowserNames () {
+    try {
+        var bs = this.getBrowser().mBrowsers;
+        var names = [];
+        for (var i=0; i<bs.length; i++) {
+            names.push(bs[i].webNavigation.currentURI.spec);
+        }
+        return names;
+    } catch(e) {dumpln ("getBrowserNames: " + e); return null; }
+}
+
 
 ///////// End surgery from conkeror.xml
 
