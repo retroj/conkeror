@@ -79,6 +79,12 @@ current_command: { func: function (spec) {
         }
 },
 
+current_frame: { func: function (spec) {
+            // -- Frame of the current command.
+            return this;
+        }
+},
+
 current_frameset_frame_url: { func: function (spec) {
             var w = this.document.commandDispatcher.focusedWindow;
             return w.location.href;
