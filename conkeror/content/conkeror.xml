@@ -69,21 +69,6 @@
 	]]>
 	</body>
       </method>
-      <method name="bringToTop">
-      <parameter name="b"/>
-      <parameter name="oldb"/>
-      <body>
-        <![CDATA[
-	  bp = b.getAttribute('pile');
-	  oldbp = oldb.getAttribute('pile');
-	  // is b already higher in the pile than oldb?
-	  if (bp > oldbp)
-	    return;
-	  this.pushPileDown(bp, oldbp);
-	  b.setAttribute('pile', oldbp);
-	]]>
-      </body>
-      </method>
       <method name="getPileTop">
         <body>
 	  <![CDATA[

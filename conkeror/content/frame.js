@@ -230,7 +230,7 @@ function focusBrowser (aBrowser) {
         this.getBrowser().mCurrentBrowser.setAttribute("type", "content");
 
         // Update the pile
-        this.getBrowser().bringToTop(aBrowser, this.getBrowser().mCurrentBrowser);
+        this.bringToTop(aBrowser, this.getBrowser().mCurrentBrowser);
         this.getBrowser().mCurrentBrowser = aBrowser;
         aBrowser.setAttribute("type", "content-primary");
 
@@ -247,6 +247,19 @@ function focusBrowser (aBrowser) {
             setTimeout(setFocus, 0, window.content);
         conkeror.run_hooks(conkeror.select_buffer_hook, window, [this.getBrowser().mCurrentBrowser]);
     } catch(e) {alert(e);}
+}
+
+
+
+function bringToTop (b, oldb) {
+    dumpln ('dbg: bringToTop ('+b+', '+oldb')');
+    bp = b.getAttribute('pile');
+    oldbp = oldb.getAttribute('pile');
+    // is b already higher in the pile than oldb?
+    if (bp > oldbp)
+        return;
+    this.getBrowser().pushPileDown(bp, oldbp);
+    b.setAttribute('pile', oldbp);
 }
 
 
