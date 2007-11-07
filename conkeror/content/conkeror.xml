@@ -56,18 +56,6 @@
         </body>
       </method>
 
-      <method name="getPileTop">
-        <body>
-	  <![CDATA[
-	  var max = this.mBrowsers[0].getAttribute('pile');
-	  for(i=1; i<this.mBrowsers.length; i++) {
-	    var p = this.mBrowsers[i].getAttribute('pile');
-	    max = p>max ? p:max;
-	  }
-	  return max;
-      ]]>
-      </body>
-      </method>
       <method name="getBrowserForPileID">
         <parameter name="id"/>
         <body>

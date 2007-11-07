@@ -129,7 +129,7 @@ function makeBrowser () {
         if (this.getBrowser().mBrowsers.length == 0)
             b.setAttribute("pile", 1);
         else
-            b.setAttribute("pile", parseInt(this.getBrowser().getPileTop())+1);
+            b.setAttribute("pile", parseInt(this.getPileTop())+1);
         var v = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "vbox");
         v.setAttribute("flex", "100");
         var s = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "hbox");
@@ -185,7 +185,7 @@ function lastBrowser () {
     if (this.getBrowser().mBrowsers.length == 1)
         return this.getBrowser().mBrowsers[0];
     else
-        return this.getBrowser().getBrowserForPileID(this.getBrowser().getPileTop()-1);
+        return this.getBrowser().getBrowserForPileID(this.getPileTop()-1);
 }
 
 
@@ -271,6 +271,18 @@ function pushPileDown (a, b) {
             this.getBrowser().mBrowsers[i].setAttribute('pile', p-1);
     }
 }
+
+
+function getPileTop () {
+    dumpln ('dbg: getPileTop');
+    var max = this.getBrowser().mBrowsers[0].getAttribute('pile');
+    for(i=1; i<this.getBrowser().mBrowsers.length; i++) {
+        var p = this.getBrowser().mBrowsers[i].getAttribute('pile');
+        max = p>max ? p:max;
+    }
+    return max;
+}
+
 
 ///////// End surgery from conkeror.xml
 
