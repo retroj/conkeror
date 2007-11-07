@@ -252,7 +252,7 @@ function focusBrowser (aBrowser) {
 
 
 function bringToTop (b, oldb) {
-    dumpln ('dbg: bringToTop ('+b+', '+oldb')');
+    dumpln ('dbg: bringToTop ('+b+', '+oldb+')');
     bp = b.getAttribute('pile');
     oldbp = oldb.getAttribute('pile');
     // is b already higher in the pile than oldb?
