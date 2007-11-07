@@ -48,6 +48,7 @@ function application () {
 
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/commands.js")); // depends: interactive.js
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/frameset.js")); // depends: interactive.js
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/webjump.js"));  // depends: interactive.js
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/minibuffer.js")); // depends: interactive.js
 
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/bindings.js")); // depends: keyboard.js
