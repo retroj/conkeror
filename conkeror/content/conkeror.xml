@@ -56,18 +56,6 @@
         </body>
       </method>
 
-      <method name="getBrowserIndex">
-        <parameter name="aBrowser"/>
-        <body>
-          <![CDATA[
-           var bs = this.mBrowsers;
-           for (var i=0; i<bs.length; i++)
-              if (bs[i] == aBrowser)
-                return i;
-           return null;
-          ]]>
-        </body>
-      </method>
       <method name="focusBrowser">
         <parameter name="aBrowser"/>
 	<body>

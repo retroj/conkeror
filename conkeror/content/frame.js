@@ -166,7 +166,7 @@ function killBrowser (aBrowser) {
             this.setCurrentBrowser(newBrowser);
             aBrowser.destroy();
             this.getBrowser().mBrowserContainer.removeChild(par);
-            this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowser().getBrowserIndex(this.getBrowser().mCurrentBrowser);
+            this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowserIndex(this.getBrowser().mCurrentBrowser);
             // this creates a gap so fill it.
             this.getBrowser().mCurrentBrowser.setAttribute('pile', this.getBrowser().mCurrentBrowser.getAttribute('pile')-1);
         } else {
@@ -174,7 +174,7 @@ function killBrowser (aBrowser) {
             this.getBrowser().pushPileDown (aBrowser.getAttribute ('pile'), this.getBrowser().mCurrentBrowser);
             aBrowser.destroy();
             this.getBrowser().mBrowserContainer.removeChild(par);
-            this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowser().getBrowserIndex(this.getBrowser().mCurrentBrowser);
+            this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowserIndex(this.getBrowser().mCurrentBrowser);
         }
     } catch(e) {window.alert(e);}
 }
@@ -198,10 +198,20 @@ function setCurrentBrowser (aBrowser) {
             return;
         }
 
-        this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowser().getBrowserIndex(newBrowser);
+        this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowserIndex(newBrowser);
 
         this.getBrowser().focusBrowser(newBrowser);
     } catch(e) {alert(e);}
+}
+
+
+function getBrowserIndex (aBrowser) {
+    dumpln ('dbg: getBrowserIndex '+aBrowser);
+    var bs = this.getBrowser().mBrowsers;
+    for (var i=0; i<bs.length; i++)
+        if (bs[i] == aBrowser)
+            return i;
+    return null;
 }
 
 
