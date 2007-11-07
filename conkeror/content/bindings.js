@@ -158,11 +158,6 @@ function initViKmaps()
     define_key(ctrlw_kmap, kbd ("Q",0),"delete-frame");
     define_key(ctrlw_kmap, kbd ("n",0),"make-frame-command");
 
-	// normal file marks, keys like in vi
-    define_key(top_kmap, kbd ("m",0),"set-mark-command"); 
-    define_key(top_kmap, kbd ("'",0),"exchange-point-and-mark"); 
-
-
 	// browser commands
     define_key(top_kmap, kbd ("o",0),"open-url");
     define_key(top_kmap, kbd ("O",0),"find-url"); // same as above but in new buffer
@@ -326,7 +321,6 @@ function initKmaps()
 //     define_key(ctrlx_kmap, kbd ("2",0),"split-window"); 
 //     define_key(ctrlx_kmap, kbd ("o",0),"other-window"); 
     define_key(ctrlx_kmap, kbd ("v",MOD_CTRL),"find-alternate-url"); 
-    define_key(ctrlx_kmap, kbd ("x",MOD_CTRL),"exchange-point-and-mark"); 
     define_key(ctrlx_kmap, kbd ("h",0),"cmd_selectAll");
     define_key(ctrlx_kmap, kbd ("b",MOD_CTRL),"list-buffers"); 
     define_key(ctrlx_kmap, kbd ("s",MOD_CTRL),"save-page");
@@ -380,7 +374,6 @@ function initKmaps()
     // movement keys
     define_key(top_kmap, kbd ( KeyEvent.DOM_VK_BACK_SPACE, 0),"cmd_scrollPageUp");
     define_key(top_kmap, kbd (" ",0),"cmd_scrollPageDown");
-    define_key(top_kmap, kbd (" ",MOD_CTRL),"set-mark-command");
     define_key(top_kmap, kbd ("v",MOD_META),"cmd_scrollPageUp");
     define_key(top_kmap, kbd ("v",MOD_CTRL),"cmd_scrollPageDown");
     define_key(top_kmap, kbd ("p",MOD_CTRL),"cmd_scrollLineUp");

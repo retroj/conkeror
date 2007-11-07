@@ -415,11 +415,8 @@ interactive("cmd_selectEndLine", goDoCommand, [['value', 'cmd_selectEndLine']]);
 interactive("cmd_selectTop", goDoCommand, [['value', 'cmd_selectTop']]);
 interactive("cmd_scrollBeginLine", goDoCommand, [['value', 'cmd_scrollBeginLine']]);
 interactive("cmd_scrollEndLine", goDoCommand, [['value', 'cmd_scrollEndLine']]);
-function cmd_scrollTop() { set_mark_command.call (this); goDoCommand.call (this, "cmd_scrollTop"); }
-interactive("cmd_scrollTop", cmd_scrollTop, []);
-function cmd_scrollBottom() { set_mark_command.call (this); goDoCommand.call (this, "cmd_scrollBottom"); }
-interactive("cmd_scrollBottom", cmd_scrollBottom, []);
-
+interactive("cmd_scrollTop", goDoCommand, [['value', 'cmd_scrollTop']]);
+interactive("cmd_scrollBottom", goDoCommand, [['value', 'cmd_scrollBottom']]);
 
 
 function doCommandNTimes(n,cmd)
@@ -467,36 +464,6 @@ function describe_bindings (frame)
     frame.setTimeout(genAllBindings, 0, frame);
 }
 interactive("describe-bindings", describe_bindings, ['current_frame']);
-
-
-/// Hacky mark stuff
-/// IDEA: Maybe this should be done with a selection?
-
-function set_mark_command()
-{
-    var w = this.document.commandDispatcher.focusedWindow;
-    if (!w)
-        return;
-    w.__conkeror__markX = w.scrollX;
-    w.__conkeror__markY = w.scrollY;
-    this.message("Mark set");
-}
-interactive("set-mark-command", set_mark_command, []);
-
-
-function exchange_point_and_mark()
-{
-    try {
-    var w = document.commandDispatcher.focusedWindow;
-    if (!w)
-        return;
-    var x = w.__conkeror__markX || 0;
-    var y = w.__conkeror__markY || 0;
-    set_mark_command();
-    w.scrollTo(x, y);
-    } catch(e) {alert(e);}
-}
-interactive("exchange-point-and-mark", exchange_point_and_mark, []);
 
 
 function get_link_text()
