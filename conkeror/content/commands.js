@@ -514,41 +514,34 @@ interactive("copy-email-address", copy_email_address, ['focused_link_url']);
 
 interactive("source", function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 
-function reinit (fn)
+function reinit (frame, fn)
 {
   try {
     load_rc (fn);
-    this.message ("loaded \""+fn+"\"");
+    frame.message ("loaded \""+fn+"\"");
   } catch (e) {
-    this.message ("failed to load \""+fn+"\"");
+    frame.message ("failed to load \""+fn+"\"");
   }
 }
 
-interactive ("reinit", reinit, [['pref', 'conkeror.rcfile']]);
+interactive ("reinit", reinit, ['current_frame', ['pref', 'conkeror.rcfile']]);
 
-function help_page ()
+function help_page (frame)
 {
-    this.getWebNavigation().loadURI ("chrome://conkeror/content/help.html", 
+    frame.getWebNavigation().loadURI ("chrome://conkeror/content/help.html",
+                                      Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
+                                      null, null, null);
+}
+interactive("help-page", help_page, ['current_frame']);
+
+
+function tutorial_page (frame)
+{
+    frame.getWebNavigation().loadURI("chrome://conkeror/content/tutorial.html",
                                      Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
                                      null, null, null);
 }
-interactive("help-page", help_page, []);
-
-
-function tutorial_page ()
-{
-    this.getWebNavigation().loadURI("chrome://conkeror/content/tutorial.html", 
-                                    Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
-                                    null, null, null);
-}
-interactive("help-with-tutorial", tutorial_page, []);
-
-
-function redraw()
-{
-    message("FIXME: unimplemented");
-}
-interactive("redraw", redraw, []);
+interactive("help-with-tutorial", tutorial_page, ['current_frame']);
 
 
 // universal argument code
@@ -619,13 +612,13 @@ function univ_arg_to_number(prefix)
     } catch(e) {alert("univ: " + e); return null;}
 }
 
-function go_up (prefix)
+function go_up (frame, prefix)
 {
-    var loc = this.getWebNavigation().currentURI.spec;
+    var loc = frame.getWebNavigation().currentURI.spec;
     var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
-    open_url_in.call (this, prefix, up);
+    open_url_in (frame, prefix, up);
 }
-interactive("go-up", go_up, ["p"]);
+interactive("go-up", go_up, ['current_frame', "p"]);
 
 
 // XXX: this whole thing is really hacky.  what *should* happen is that
@@ -680,44 +673,44 @@ function list_buffers () {
 interactive("list-buffers", list_buffers, []);
 
 
-function text_reset() 
+function text_reset (frame)
 {
     try {
-        this.getBrowser().markupDocumentViewer.textZoom = 1.0;
+        frame.getBrowser().markupDocumentViewer.textZoom = 1.0;
         // We need to update the floaters
         // numberedlinks_resize(window._content);
     } catch(e) { alert(e); }
 }
-interactive("text-reset", text_reset, []);
+interactive("text-reset", text_reset, ['current_frame']);
 
 
-function text_reduce(prefix) 
+function text_reduce (frame, prefix)
 {
     try {
-        this.getBrowser().markupDocumentViewer.textZoom -= 0.25 * prefix;
+        frame.getBrowser().markupDocumentViewer.textZoom -= 0.25 * prefix;
         // We need to update the floaters
         // numberedlinks_resize(window._content);
     } catch(e) { alert(e); }
 }
-interactive("text-reduce", text_reduce, ["p"]);
+interactive("text-reduce", text_reduce, ['current_frame', "p"]);
 
 
-function text_enlarge(prefix) 
+function text_enlarge (frame, prefix)
 {
     try {
-        this.getBrowser().markupDocumentViewer.textZoom += 0.25 * prefix;
+        frame.getBrowser().markupDocumentViewer.textZoom += 0.25 * prefix;
         // We need to update the floaters
         // numberedlinks_resize(window._content);
     } catch(e) { alert(e); }
 }
-interactive("text-enlarge", text_enlarge, ["p"]);
+interactive("text-enlarge", text_enlarge, ['current_frame', "p"]);
 
 
-function eval_expression()
+function eval_expression (frame)
 {
-    this.readFromMiniBuffer ("Eval:", null, "eval-expression", null, null, null, eval);
+    frame.readFromMiniBuffer ("Eval:", null, "eval-expression", null, null, null, eval);
 }
-interactive("eval-expression", eval_expression, []);
+interactive("eval-expression", eval_expression, ['current_frame']);
 
 
 // our little hack. Add a big blank chunk to the bottom of the
@@ -808,42 +801,42 @@ function show_extension_manager () {
 interactive("extensions", conkeror.show_extension_manager, []);
 
 
-function print_buffer()
+function print_buffer (frame)
 {
-    this.window.content.print();
+    frame.window.content.print();
 }
-interactive("print-buffer", print_buffer, []);
+interactive("print-buffer", print_buffer, ['current_frame']);
 
 
-function view_source (url_s)
+function view_source (frame, url_s)
 {
     if (url_s.substring (0,12) != "view-source:") {
         try {
             var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
-            this.getWebNavigation().loadURI("view-source:"+url_s, loadFlags, null, null, null);
+            frame.getWebNavigation().loadURI("view-source:"+url_s, loadFlags, null, null, null);
         } catch(e) { dumpln (e); }
     } else {
-        this.message ("already viewing source");
+        frame.message ("already viewing source");
     }
 }
-interactive("view-source", view_source, ['current_url']);
-interactive("frameset-view-source", view_source, ['current_frameset_frame_url']);
+interactive("view-source", view_source, ['current_frame', 'current_url']);
+interactive("frameset-view-source", view_source, ['current_frame', 'current_frameset_frame_url']);
 
 
-function view_partial_source (charset, selection) {
+function view_partial_source (frame, charset, selection) {
     if (charset) { charset = "charset=" + charset; }
-    this.window.openDialog("chrome://global/content/viewPartialSource.xul",
-                           "_blank", "scrollbars,resizable,chrome,dialog=no",
-                           null, charset, selection, 'selection');
+    frame.window.openDialog("chrome://global/content/viewPartialSource.xul",
+                            "_blank", "scrollbars,resizable,chrome,dialog=no",
+                            null, charset, selection, 'selection');
 }
-interactive ('view-partial-source', view_partial_source, ['content_charset', 'content_selection']);
+interactive ('view-partial-source', view_partial_source, ['current_frame', 'content_charset', 'content_selection']);
 
 
-function  view_mathml_source (charset, target) {
+function  view_mathml_source (frame, charset, target) {
     if (charset) { charset = "charset=" + charset; }
-    this.window.openDialog("chrome://global/content/viewPartialSource.xul",
-                           "_blank", "scrollbars,resizable,chrome,dialog=no",
-                           null, charset, target, 'mathml');
+    frame.window.openDialog("chrome://global/content/viewPartialSource.xul",
+                            "_blank", "scrollbars,resizable,chrome,dialog=no",
+                            null, charset, target, 'mathml');
 }
-interactive ('view-mathml-source', view_mathml_source, ['content_charset', 'mathml_node']);
+interactive ('view-mathml-source', view_mathml_source, ['current_frame', 'content_charset', 'mathml_node']);
 
