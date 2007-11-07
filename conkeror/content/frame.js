@@ -171,7 +171,7 @@ function killBrowser (aBrowser) {
             this.getBrowser().mCurrentBrowser.setAttribute('pile', this.getBrowser().mCurrentBrowser.getAttribute('pile')-1);
         } else {
             var par = aBrowser.parentNode;
-            this.getBrowser().pushPileDown (aBrowser.getAttribute ('pile'), this.getBrowser().mCurrentBrowser);
+            this.pushPileDown (aBrowser.getAttribute ('pile'), this.getBrowser().mCurrentBrowser);
             aBrowser.destroy();
             this.getBrowser().mBrowserContainer.removeChild(par);
             this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowserIndex(this.getBrowser().mCurrentBrowser);
@@ -258,10 +258,19 @@ function bringToTop (b, oldb) {
     // is b already higher in the pile than oldb?
     if (bp > oldbp)
         return;
-    this.getBrowser().pushPileDown(bp, oldbp);
+    this.pushPileDown(bp, oldbp);
     b.setAttribute('pile', oldbp);
 }
 
+
+function pushPileDown (a, b) {
+    dumpln ('dbg: pushPileDown ('+a+', '+b+')');
+    for(i=0; i<this.getBrowser().mBrowsers.length; i++) {
+        var p = this.getBrowser().mBrowsers[i].getAttribute('pile');
+        if (p > a && p <= b)
+            this.getBrowser().mBrowsers[i].setAttribute('pile', p-1);
+    }
+}
 
 ///////// End surgery from conkeror.xml
 

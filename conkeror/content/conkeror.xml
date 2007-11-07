@@ -56,19 +56,6 @@
         </body>
       </method>
 
-      <method name="pushPileDown">
-      <parameter name="a"/>
-      <parameter name="b"/>
-      <body>
-        <![CDATA[
-	  for(i=0; i<this.mBrowsers.length; i++) {
-	    var p = this.mBrowsers[i].getAttribute('pile');
-	    if (p > a && p <= b)
-	      this.mBrowsers[i].setAttribute('pile', p-1);
-	    }    
-	]]>
-	</body>
-      </method>
       <method name="getPileTop">
         <body>
 	  <![CDATA[
