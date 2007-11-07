@@ -56,18 +56,6 @@
         </body>
       </method>
 
-      <method name="getBrowserForPileID">
-        <parameter name="id"/>
-        <body>
-	  <![CDATA[
-	  for(i=0; i<this.mBrowsers.length; i++) {
-	    if (id == this.mBrowsers[i].getAttribute("pile"))
-	      return this.mBrowsers[i];
-	  }
-	  return null;
-      ]]>
-      </body>
-      </method>
       <property name="modeLine"
                 onget="return this.mCurrentBrowser.nextSibling.firstChild"
 		readonly="true"/>

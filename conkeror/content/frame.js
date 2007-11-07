@@ -185,7 +185,7 @@ function lastBrowser () {
     if (this.getBrowser().mBrowsers.length == 1)
         return this.getBrowser().mBrowsers[0];
     else
-        return this.getBrowser().getBrowserForPileID(this.getPileTop()-1);
+        return this.getBrowserForPileID(this.getPileTop()-1);
 }
 
 
@@ -283,6 +283,16 @@ function getPileTop () {
     return max;
 }
 
+
+
+function getBrowserForPileID (id) {
+    dumpln ('dbg: getBrowserForPileID '+id);
+    for(i=0; i<this.getBrowser().mBrowsers.length; i++) {
+        if (id == this.getBrowser().mBrowsers[i].getAttribute("pile"))
+            return this.getBrowser().mBrowsers[i];
+    }
+    return null;
+}
 
 ///////// End surgery from conkeror.xml
 
