@@ -200,7 +200,7 @@ function setCurrentBrowser (aBrowser) {
 
         this.getBrowser().mBrowserContainer.selectedIndex = this.getBrowserIndex(newBrowser);
 
-        this.getBrowser().focusBrowser(newBrowser);
+        this.focusBrowser(newBrowser);
     } catch(e) {alert(e);}
 }
 
@@ -212,6 +212,41 @@ function getBrowserIndex (aBrowser) {
         if (bs[i] == aBrowser)
             return i;
     return null;
+}
+
+
+function focusBrowser (aBrowser) {
+    dumpln ('dbg: focusBrowser '+aBrowser);
+    try {
+        function setFocus(element) {
+            document.commandDispatcher.suppressFocusScroll = true;
+            //Components.lookupMethod(element, "focus").call(element);
+            element.focus();
+            document.commandDispatcher.suppressFocusScroll = false;
+        }
+
+        this.getBrowser().mCurrentBrowser.focusedWindow = document.commandDispatcher.focusedWindow;
+        this.getBrowser().mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
+        this.getBrowser().mCurrentBrowser.setAttribute("type", "content");
+
+        // Update the pile
+        this.getBrowser().bringToTop(aBrowser, this.getBrowser().mCurrentBrowser);
+        this.getBrowser().mCurrentBrowser = aBrowser;
+        aBrowser.setAttribute("type", "content-primary");
+
+        if (aBrowser.focusedElement) {
+            try {
+                setFocus(aBrowser.focusedElement);
+            } catch (e) {
+                setFocus(aBrowser.focusedWindow);
+            }
+        }
+        else if (aBrowser.focusedWindow)
+            setFocus(aBrowser.focusedWindow);
+        else // new tab, focus our new content area
+            setTimeout(setFocus, 0, window.content);
+        conkeror.run_hooks(conkeror.select_buffer_hook, window, [this.getBrowser().mCurrentBrowser]);
+    } catch(e) {alert(e);}
 }
 
 

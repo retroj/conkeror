@@ -56,43 +56,6 @@
         </body>
       </method>
 
-      <method name="focusBrowser">
-        <parameter name="aBrowser"/>
-	<body>
-	<![CDATA[
-	  try {
-            function setFocus(element) {
-              document.commandDispatcher.suppressFocusScroll = true;
-              //Components.lookupMethod(element, "focus").call(element);
-              element.focus();
-              document.commandDispatcher.suppressFocusScroll = false;
-            }
-
-    	    this.mCurrentBrowser.focusedWindow = document.commandDispatcher.focusedWindow;
-	    this.mCurrentBrowser.focusedElement = document.commandDispatcher.focusedElement;
-	    this.mCurrentBrowser.setAttribute("type", "content");
-
-	    // Update the pile
-	    this.bringToTop(aBrowser, this.mCurrentBrowser);
-	    this.mCurrentBrowser = aBrowser;
-            aBrowser.setAttribute("type", "content-primary");
-
-            if (aBrowser.focusedElement) {
-              try {
-                setFocus(aBrowser.focusedElement);
-              } catch (e) {
-                setFocus(aBrowser.focusedWindow);
-              }
-            }
-            else if (aBrowser.focusedWindow)
-              setFocus(aBrowser.focusedWindow);
-            else // new tab, focus our new content area
-              setTimeout(setFocus, 0, window.content);
-          conkeror.run_hooks(conkeror.select_buffer_hook, window, [this.mCurrentBrowser]);
-	  } catch(e) {alert(e);}
-	]]>
-	</body>
-      </method>
       <method name="pushPileDown">
       <parameter name="a"/>
       <parameter name="b"/>
