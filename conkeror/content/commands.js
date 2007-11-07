@@ -388,76 +388,76 @@ interactive("execute-extended-command", meta_x, ['current_frame', "P"]);
 
 /// built in commands
 // see: http://www.xulplanet.com/tutorials/xultu/commandupdate.html
-function goDoCommand (command)
+function goDoCommand (frame, command)
 {
     try {
-        var controller = this.top.document.commandDispatcher.getControllerForCommand (command);
+        var controller = frame.top.document.commandDispatcher.getControllerForCommand (command);
         if (controller && controller.isCommandEnabled (command))
             controller.doCommand (command);
     } catch (e) {
-        this.message ("goDoCommand ("+command+"): "+e);
+        frame.message ("goDoCommand ("+command+"): "+e);
     }
 }
-interactive("cmd_beginLine", goDoCommand, [['value', 'cmd_beginLine']]);
-interactive("cmd_copy", goDoCommand, [['value', 'cmd_copy']]);
-interactive("cmd_copyOrDelete", goDoCommand, [['value', 'cmd_copyOrDelete']]);
-interactive("cmd_cut", goDoCommand, [['value', 'cmd_cut']]);
-interactive("cmd_cutOrDelete", goDoCommand, [['value', 'cmd_cutOrDelete']]);
-interactive("cmd_deleteToBeginningOfLine", goDoCommand, [['value', 'cmd_deleteToBeginningOfLine']]);
-interactive("cmd_deleteToEndOfLine", goDoCommand, [['value', 'cmd_deleteToEndOfLine']]);
-interactive("cmd_endLine", goDoCommand, [['value', 'cmd_endLine']]);
-interactive("cmd_moveTop", goDoCommand, [['value', 'cmd_moveTop']]);
-interactive("cmd_moveBottom", goDoCommand, [['value', 'cmd_moveBottom']]);
-interactive("cmd_selectAll", goDoCommand, [['value', 'cmd_selectAll']]);
-interactive("cmd_selectBeginLine", goDoCommand, [['value', 'cmd_selectBeginLine']]);
-interactive("cmd_selectBottom", goDoCommand, [['value', 'cmd_selectBottom']]);
-interactive("cmd_selectEndLine", goDoCommand, [['value', 'cmd_selectEndLine']]);
-interactive("cmd_selectTop", goDoCommand, [['value', 'cmd_selectTop']]);
-interactive("cmd_scrollBeginLine", goDoCommand, [['value', 'cmd_scrollBeginLine']]);
-interactive("cmd_scrollEndLine", goDoCommand, [['value', 'cmd_scrollEndLine']]);
-interactive("cmd_scrollTop", goDoCommand, [['value', 'cmd_scrollTop']]);
-interactive("cmd_scrollBottom", goDoCommand, [['value', 'cmd_scrollBottom']]);
+interactive("cmd_beginLine", goDoCommand, ['current_frame', ['value', 'cmd_beginLine']]);
+interactive("cmd_copy", goDoCommand, ['current_frame', ['value', 'cmd_copy']]);
+interactive("cmd_copyOrDelete", goDoCommand, ['current_frame', ['value', 'cmd_copyOrDelete']]);
+interactive("cmd_cut", goDoCommand, ['current_frame', ['value', 'cmd_cut']]);
+interactive("cmd_cutOrDelete", goDoCommand, ['current_frame', ['value', 'cmd_cutOrDelete']]);
+interactive("cmd_deleteToBeginningOfLine", goDoCommand, ['current_frame', ['value', 'cmd_deleteToBeginningOfLine']]);
+interactive("cmd_deleteToEndOfLine", goDoCommand, ['current_frame', ['value', 'cmd_deleteToEndOfLine']]);
+interactive("cmd_endLine", goDoCommand, ['current_frame', ['value', 'cmd_endLine']]);
+interactive("cmd_moveTop", goDoCommand, ['current_frame', ['value', 'cmd_moveTop']]);
+interactive("cmd_moveBottom", goDoCommand, ['current_frame', ['value', 'cmd_moveBottom']]);
+interactive("cmd_selectAll", goDoCommand, ['current_frame', ['value', 'cmd_selectAll']]);
+interactive("cmd_selectBeginLine", goDoCommand, ['current_frame', ['value', 'cmd_selectBeginLine']]);
+interactive("cmd_selectBottom", goDoCommand, ['current_frame', ['value', 'cmd_selectBottom']]);
+interactive("cmd_selectEndLine", goDoCommand, ['current_frame', ['value', 'cmd_selectEndLine']]);
+interactive("cmd_selectTop", goDoCommand, ['current_frame', ['value', 'cmd_selectTop']]);
+interactive("cmd_scrollBeginLine", goDoCommand, ['current_frame', ['value', 'cmd_scrollBeginLine']]);
+interactive("cmd_scrollEndLine", goDoCommand, ['current_frame', ['value', 'cmd_scrollEndLine']]);
+interactive("cmd_scrollTop", goDoCommand, ['current_frame', ['value', 'cmd_scrollTop']]);
+interactive("cmd_scrollBottom", goDoCommand, ['current_frame', ['value', 'cmd_scrollBottom']]);
 
 
-function doCommandNTimes(n,cmd)
+function doCommandNTimes (frame, n, cmd)
 {
     for(i=0;i<n;i++)
-        goDoCommand.call (this, cmd);
+        goDoCommand (frame, cmd);
 }
-interactive("cmd_charNext", doCommandNTimes, ["p", ['value', 'cmd_charNext']]);
-interactive("cmd_charPrevious", doCommandNTimes, ["p", ['value', 'cmd_charPrevious']]);
-interactive("cmd_deleteCharBackward", doCommandNTimes, ["p", ['value','cmd_deleteCharBackward']]);
-interactive("cmd_deleteCharForward", doCommandNTimes, ["p", ['value', 'cmd_deleteCharForward']]);
-interactive("cmd_deleteWordBackward", doCommandNTimes, ["p", ['value', 'cmd_deleteWordBackward']]);
-interactive("cmd_deleteWordForward", doCommandNTimes, ["p", ['value', 'cmd_deleteWordForward']]);
-interactive("cmd_lineNext", doCommandNTimes, ["p", ['value', 'cmd_lineNext']]);
-interactive("cmd_linePrevious", doCommandNTimes, ["p", ['value', 'cmd_linePrevious']]);
-interactive("cmd_movePageDown", doCommandNTimes, ["p", ['value', 'cmd_movePageDown']]);
-interactive("cmd_movePageUp", doCommandNTimes, ["p", ['value', 'cmd_movePageUp']]);
-interactive("cmd_redo", doCommandNTimes, ["p", ['value', 'cmd_redo']]);
-interactive("cmd_selectCharNext", doCommandNTimes, ["p", ['value', 'cmd_selectCharNext']]);
-interactive("cmd_selectCharPrevious", doCommandNTimes, ["p", ['value', 'cmd_selectCharPrevious']]);
-interactive("cmd_selectLineNext", doCommandNTimes, ["p", ['value', 'cmd_selectLineNext']]);
-interactive("cmd_selectLinePrevious", doCommandNTimes, ["p", ['value', 'cmd_selectLinePrevious']]);
-interactive("cmd_selectPageDown", doCommandNTimes, ["p", ['value', 'cmd_selectPageDown']]);
-interactive("cmd_selectPageUp", doCommandNTimes, ["p", ['value', 'cmd_selectPageUp']]);
-interactive("cmd_selectWordNext", doCommandNTimes, ["p", ['value', 'cmd_selectWordNext']]);
-interactive("cmd_selectWordPrevious", doCommandNTimes, ["p", ['value', 'cmd_selectWordPrevious']]);
-interactive("cmd_undo", doCommandNTimes, ["p", ['value', 'cmd_undo']]);
-interactive("cmd_wordNext", doCommandNTimes, ["p", ['value', 'cmd_wordNext']]);
-interactive("cmd_wordPrevious", doCommandNTimes, ["p", ['value', 'cmd_wordPrevious']]);
-interactive("cmd_scrollPageUp", doCommandNTimes, ["p", ['value', 'cmd_scrollPageUp']]);
-interactive("cmd_scrollPageDown", doCommandNTimes, ["p", ['value', 'cmd_scrollPageDown']]);
-interactive("cmd_scrollLineUp", doCommandNTimes, ["p", ['value', 'cmd_scrollLineUp']]);
-interactive("cmd_scrollLineDown", doCommandNTimes, ["p", ['value', 'cmd_scrollLineDown']]);
-interactive("cmd_scrollLeft", doCommandNTimes, ["p", ['value', 'cmd_scrollLeft']]);
-interactive("cmd_scrollRight", doCommandNTimes, ["p", ['value', 'cmd_scrollRight']]);
-interactive("cmd_paste", doCommandNTimes, ["p", ['value', 'cmd_paste']]);
+interactive("cmd_charNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_charNext']]);
+interactive("cmd_charPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_charPrevious']]);
+interactive("cmd_deleteCharBackward", doCommandNTimes, ['current_frame', "p", ['value','cmd_deleteCharBackward']]);
+interactive("cmd_deleteCharForward", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_deleteCharForward']]);
+interactive("cmd_deleteWordBackward", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_deleteWordBackward']]);
+interactive("cmd_deleteWordForward", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_deleteWordForward']]);
+interactive("cmd_lineNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_lineNext']]);
+interactive("cmd_linePrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_linePrevious']]);
+interactive("cmd_movePageDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_movePageDown']]);
+interactive("cmd_movePageUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_movePageUp']]);
+interactive("cmd_redo", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_redo']]);
+interactive("cmd_selectCharNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectCharNext']]);
+interactive("cmd_selectCharPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectCharPrevious']]);
+interactive("cmd_selectLineNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectLineNext']]);
+interactive("cmd_selectLinePrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectLinePrevious']]);
+interactive("cmd_selectPageDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectPageDown']]);
+interactive("cmd_selectPageUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectPageUp']]);
+interactive("cmd_selectWordNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectWordNext']]);
+interactive("cmd_selectWordPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectWordPrevious']]);
+interactive("cmd_undo", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_undo']]);
+interactive("cmd_wordNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_wordNext']]);
+interactive("cmd_wordPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_wordPrevious']]);
+interactive("cmd_scrollPageUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollPageUp']]);
+interactive("cmd_scrollPageDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollPageDown']]);
+interactive("cmd_scrollLineUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollLineUp']]);
+interactive("cmd_scrollLineDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollLineDown']]);
+interactive("cmd_scrollLeft", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollLeft']]);
+interactive("cmd_scrollRight", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollRight']]);
+interactive("cmd_paste", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_paste']]);
 
 
 function describe_bindings (frame)
 {
-    frame.getWebNavigation().loadURI("about:blank", 
+    frame.getWebNavigation().loadURI("about:blank",
                                      Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
                                      null, null, null);
     // Oh man. this is SO gross.
