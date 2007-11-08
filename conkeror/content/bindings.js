@@ -338,7 +338,7 @@ function initKmaps()
     define_key(top_kmap, kbd ("f",0),        frameset_kmap);
 
     define_key(top_kmap, kbd ("u",0),"go-up");
-    define_key(top_kmap, kbd ("u", MOD_CTRL), "universal-argument");
+    define_key(top_kmap, kbd ("C-u"), "universal-argument");
     define_key(top_kmap, kbd (" ",MOD_META),"yank-to-clipboard");
     define_key(top_kmap, kbd ("g",0),"open-url");
     define_key(top_kmap, kbd ("l",MOD_META),"toggle-numbered-links");
@@ -373,27 +373,27 @@ function initKmaps()
 
     // movement keys
     define_key(top_kmap, kbd ( KeyEvent.DOM_VK_BACK_SPACE, 0),"cmd_scrollPageUp");
-    define_key(top_kmap, kbd (" ",0),"cmd_scrollPageDown");
-    define_key(top_kmap, kbd ("v",MOD_META),"cmd_scrollPageUp");
-    define_key(top_kmap, kbd ("v",MOD_CTRL),"cmd_scrollPageDown");
-    define_key(top_kmap, kbd ("p",MOD_CTRL),"cmd_scrollLineUp");
-    define_key(top_kmap, kbd ("n",MOD_CTRL),"cmd_scrollLineDown");
-    define_key(top_kmap, kbd ("b",MOD_CTRL),"cmd_scrollLeft");
-    define_key(top_kmap, kbd ("f",MOD_CTRL),"cmd_scrollRight");
-    define_key(top_kmap, kbd ("a",MOD_CTRL),"beginning-of-line");
-    define_key(top_kmap, kbd ("e",MOD_CTRL),"end-of-line");
+    define_key(top_kmap, kbd ("space"),"cmd_scrollPageDown");
+    define_key(top_kmap, kbd ("M-v"),"cmd_scrollPageUp");
+    define_key(top_kmap, kbd ("C-v"),"cmd_scrollPageDown");
+    define_key(top_kmap, kbd ("C-p"),"cmd_scrollLineUp");
+    define_key(top_kmap, kbd ("C-n"),"cmd_scrollLineDown");
+    define_key(top_kmap, kbd ("C-b"),"cmd_scrollLeft");
+    define_key(top_kmap, kbd ("C-f"),"cmd_scrollRight");
+    define_key(top_kmap, kbd ("C-a"),"beginning-of-line");
+    define_key(top_kmap, kbd ("C-e"),"end-of-line");
     define_key(top_kmap, kbd ("M-S-comma"),"cmd_scrollTop");
     define_key(top_kmap, kbd ("M-S-period"),"cmd_scrollBottom");
     define_key(top_kmap, kbd ("C-S-subtract"),"cmd_undo");
-    define_key(top_kmap, kbd ("y",MOD_CTRL),"cmd_paste");
+    define_key(top_kmap, kbd ("C-y"),"cmd_paste");
 
-    define_key(top_kmap, kbd ("b",MOD_META),"cmd_wordPrevious");
-    define_key(top_kmap, kbd ("f",MOD_META),"cmd_wordNext");
+    define_key(top_kmap, kbd ("M-b"),"cmd_wordPrevious");
+    define_key(top_kmap, kbd ("M-f"),"cmd_wordNext");
 
     define_key(top_kmap, kbd ("M-S-;"),"eval-expression");
 
-    define_key(top_kmap, kbd ("w",MOD_META),"cmd_copy");
-    define_key(top_kmap, kbd ("w",MOD_CTRL),"cmd_cut");
+    define_key(top_kmap, kbd ("M-w"),"cmd_copy");
+    define_key(top_kmap, kbd ("C-w"),"cmd_cut");
 
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_PAGE_UP, MOD_SHIFT),"cmd_selectPageUp");
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_PAGE_DOWN, MOD_SHIFT),"cmd_selectPageDown");
