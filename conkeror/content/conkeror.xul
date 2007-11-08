@@ -21,8 +21,6 @@
   <script type="application/x-javascript" src="conkeror.js"/>
   <script type="application/x-javascript" src="dom-utils.js"/>
   <script type="application/x-javascript" src="frame.js"/>
-  <script type="application/x-javascript" src="url.js"/>
-  <script type="application/x-javascript" src="find.js"/>
 
   <popupset>
     <popup id="frameset-notification">
