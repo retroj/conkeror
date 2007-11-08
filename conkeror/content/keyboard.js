@@ -353,8 +353,6 @@ function key_down_handler(event)
     window.g_last_key_code = null;
 }
 
-var derived_mappings_table = [];
-
 function key_press_handler(trueEvent)
 {
     var window = this;
@@ -365,8 +363,6 @@ function key_press_handler(trueEvent)
     var event = window.g_last_key_down_event;
     // Augment event with the charCode from the keypress
     event.charCode = trueEvent.charCode;
-    if (!window.g_last_char_code)
-        conkeror.derived_mappings_table[trueEvent.charCode] = event.keyCode;
     if (trueEvent.keyCode)
         event.keyCode = trueEvent.keyCode;
     else if (window.g_last_char_code != null
@@ -379,7 +375,7 @@ function key_press_handler(trueEvent)
     }
     window.g_last_char_code = trueEvent.charCode;
     window.g_last_key_code = trueEvent.keyCode;
-
+    //window.dumpln("Processing key: " + conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
     try {
         // kmap contains the keys and commands we're looking for.
 
