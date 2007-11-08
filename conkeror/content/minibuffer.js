@@ -65,7 +65,7 @@ interactive("minibuffer-history-previous", minibuffer_history_previous, ['curren
 function minibuffer_abort (frame)
 {
     if (frame.minibuffer.abort_callback)
-        frame.minibuffer.abort_callback();
+        frame.minibuffer.abort_callback.call(frame);
     frame.minibuffer.abort_callback = null;
     frame.minibuffer.callback = null;
     frame.closeInput(true);
