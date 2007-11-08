@@ -1,0 +1,293 @@
+<html>
+<head><title>Conkeror charCode to keyCode mapping table tool</title></head>
+<script language="JavaScript">
+var table = [];
+var numEntries = 0;
+var lastKeyDownCode = null;
+var lastKeyPressKeyCode = null;
+var lastKeyPressCharCode = null;
+var bugDetected = false;
+var addedEntry = false;
+var mismatches = [];
+var numMismatches = 0;
+var mismatchFound = false;
+var lastAddedString1 = "";
+var lastAddedString2 = "";
+
+function keydown(event)
+{
+    lastKeyDownCode = event.keyCode;
+    lastKeyPressKeyCode = null;
+    lastKeyPressCharCode = null;
+}
+
+function keypress(event)
+{
+    event.preventDefault();
+    event.stopPropagation();
+    bugDetected = false;
+    addedEntry = false;
+    mismatchFound = false;
+
+    if ((lastKeyPressKeyCode != null) &&
+        (lastKeyPressKeyCode != event.keyCode
+         || lastKeyPressCharCode != event.charCode))
+    {
+        bugDetected = true;
+    }
+
+    // First key press after a key down
+    if (event.charCode && lastKeyPressKeyCode == null)
+    {
+        if (addMapping(event.charCode, lastKeyDownCode))
+        {
+            addedEntry = true;
+        } else if (table[event.charCode] != lastKeyDownCode)
+        {
+            if (!mismatches[event.charCode])
+                mismatches[event.charCode] = [];
+            if (mismatches[event.charCode].indexOf(lastKeyDownCode) < 0)
+                mismatches[event.charCode].push(lastKeyDownCode);
+            ++numMistaches;
+            mismatchFound = true;
+        }
+    }
+
+    lastKeyPressKeyCode = event.keyCode;
+    lastKeyPressCharCode = event.charCode;
+
+    update();
+}
+
+function addMapping(charCode, keyCode)
+{
+    if (table[charCode] == null)
+    {
+        ++numEntries;
+        table[charCode] = keyCode;
+
+
+        var el = document.getElementById("headerRow");
+        var newRow = document.createElement("tr");
+        var cell = document.createElement("td");
+        cell.appendChild(document.createTextNode(charCode));
+        newRow.appendChild(cell);
+
+        cell = document.createElement("td");
+        cell.appendChild(document.createTextNode(keyCode));
+        newRow.appendChild(cell);
+
+        cell = document.createElement("td");
+        cell.appendChild(document.createTextNode(formatCharCode(charCode)));
+        newRow.appendChild(cell);
+
+        cell = document.createElement("td");
+        cell.appendChild(document.createTextNode(formatKeyCode(keyCode)));
+        newRow.appendChild(cell);
+
+        el.parentNode.insertBefore(newRow, el.nextSibling);
+        return true;
+    }
+    return false;
+}
+
+function formatKeyCode(code)
+{
+    var prefix = "DOM_VK_";
+    var name = null;
+    for (i in Components.interfaces.nsIDOMKeyEvent)
+    {
+        if (i.substr(0,prefix.length) == prefix && Components.interfaces.nsIDOMKeyEvent[i] == code)
+            return i;
+    }
+    return "";
+}
+
+function formatCharCode(code)
+{
+    if (code == 0)
+        return "";
+    else
+        return String.fromCharCode(code);
+}
+
+function add_default_mappings ()
+{
+    var code_a = 'a'.charCodeAt(0);
+    var code_z = 'z'.charCodeAt(0);
+
+    var code_A = 'A'.charCodeAt(0);
+    var code_Z = 'Z'.charCodeAt(0);
+
+    var code_0 = '0'.charCodeAt(0);
+    var code_9 = '9'.charCodeAt(0);
+
+    for (var i = code_a; i <= code_z; ++i)
+        addMapping(i, i - code_a + code_A);
+
+
+    for (var i = code_A; i <= code_Z; ++i)
+        addMapping(i, i);
+
+    for (var i = code_0; i <= code_9; ++i)
+        addMapping(i,i);
+    update();
+}
+
+function clear_session_internal()
+{
+    window.table = [];
+    window.numEntries = 0;
+    window.lastKeyDownCode = null;
+    window.lastKeyPressKeyCode = null;
+    window.lastKeyPressCharCode = null;
+    window.bugDetected = false;
+    window.addedEntry = false;
+    window.mismatches = [];
+    window.numMismatches = 0;
+    window.mismatchFound = false;
+    window.lastAddedString1 = "";
+    window.lastAddedString2 = "";
+
+    clear_table();
+}
+
+function clear_session()
+{
+    clear_session_internal();
+    update();
+}
+
+function clear_table()
+{
+    // Remove children from mapping table
+    var el = document.getElementById("headerRow").nextSibling;
+    var next;
+    while (el)
+    {
+        next = el.nextSibling;
+        el.parentNode.removeChild(el);
+        el = next;
+    }
+}
+
+function update()
+{
+    setText("tableSize", numEntries);
+    setText("keyDownKeyCode", lastKeyDownCode);
+    setText("keyPressKeyCode", lastKeyPressKeyCode);
+    setText("keyPressCharCode", lastKeyPressCharCode);
+
+    setText("keyDownKeyCodeLabel", formatKeyCode(lastKeyDownCode));
+    setText("keyPressKeyCodeLabel", formatKeyCode(lastKeyPressKeyCode));
+    setText("keyPressCharCodeLabel", formatCharCode(lastKeyPressCharCode));
+    setText("mismatches", numMismatches);
+
+    var statusText = "";
+    if (addedEntry)
+    {
+        statusText = "Added entry";
+        lastAddedString1 = lastKeyPressCharCode + " -> " + lastKeyDownCode;
+        lastAddedString2 = formatCharCode(lastKeyPressCharCode) + " -> " + formatKeyCode(lastKeyDownCode);
+    }
+    else if (bugDetected)
+        statusText = "Bug detected";
+    else if (mismatchFound)
+        statusText = "Mismatch found";
+    setText("status", statusText);
+    setText("lastAdded1", lastAddedString1);
+    setText("lastAdded2", lastAddedString2);
+}
+
+function setText(idName, text)
+{
+    var el = document.getElementById(idName);
+    if (!el.firstChild)
+        el.appendChild(document.createTextNode(text));
+    else
+        el.firstChild.nodeValue = text;
+}
+
+var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
+
+var mappingPref = "conkeror.charCodeMappingData";
+
+function load()
+{
+
+    var data = prefs.getCharPref(mappingPref);
+    if (data)
+    {
+        clear_session_internal();
+        var entries = data.split(",");
+
+        for (var i = 0; i < entries.length; i += 2)
+        {
+            var num1 = parseInt(entries[i]);
+            if (num1 != entries[i])
+                continue;
+            var num2 = parseInt(entries[i+1]);
+            if (num2 != entries[i+1])
+                continue;
+            addMapping(num1, num2);
+        }
+        setText("status", "Loaded");
+        update();
+    } else
+        setText("status", "Preference not found");
+}
+
+function save()
+{
+    var data = "";
+    for (var i = 0; i < table.length; ++i)
+    {
+        if (table[i] != null)
+        {
+            if (data.length > 0)
+                data += ",";
+            data += i + "," + table[i];
+        }
+    }
+    prefs.setCharPref(mappingPref, data);
+    setText("status", "Saved");
+}
+
+function clear_pref()
+{
+    prefs.clearUserPref(mappingPref);
+}
+
+function init()
+{
+    window.addEventListener("keydown", keydown, true);
+    window.addEventListener("keypress", keypress, true);
+    clear_session_internal();
+    load();
+    update();
+}
+
+</script>
+<body onload="init();">
+<table cellspacing="5" cellpading="5">
+<tr><td>Table size:</td><td style="width: 8em;" id="tableSize"></td></tr>
+<tr><td>Key down keyCode:</td><td id="keyDownKeyCode"></td><td id="keyDownKeyCodeLabel"></td></tr>
+<tr><td>Key press keyCode:</td><td id="keyPressKeyCode"></td><td id="keyPressKeyCodeLabel"></td></tr>
+<tr><td>Key press charCode:</td><td id="keyPressCharCode"></td><td id="keyPressCharCodeLabel"></td></tr>
+<tr><td>Mismatches:</td><td id="mismatches"></td></tr>
+<tr><td>Last added:</td><td id="lastAdded1"></td><td id="lastAdded2"></td></tr>
+<tr><td>Status:</td><td></td><td id="status"></td></tr>
+</table>
+<br/>
+<button onclick="save();">Save</button>
+<button onclick="clear_pref();">Clear Preference</button>
+<button onclick="clear_session();">Clear session</button>
+<button onclick="load();">Load</button>
+<button onclick="add_default_mappings();">Add Default Mappings</button>
+<br/><br/>
+Mapping table:<br/>
+<table border="1" cellspacing="5" cellpadding="5">
+<tr id="headerRow"><td><b>charCode</b></td><td><b>keyCode</b></td><td><b>keyCode label</b></td><td><b>charCode label</b></td></tr>
+</table>
+</body>
+</html>

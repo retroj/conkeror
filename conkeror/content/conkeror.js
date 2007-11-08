@@ -190,7 +190,10 @@ function init_frame ()
         document.documentElement.setAttribute("height", 480);
     }
 
-    window.addEventListener ("keypress", readKeyPress, true);
+    // FIXME: We should figure out what this capture flag really means
+    // and document it here.
+    window.addEventListener ("keydown", conkeror.key_down_handler, true);
+    window.addEventListener ("keypress", conkeror.key_press_handler, true);
 
     // DOMContentLoaded will fire for each document, including those
     // in frameset frames and iframes.  We pass `event.target' -- the

@@ -171,7 +171,7 @@ function initViKmaps()
     define_key(top_kmap, kbd (".",MOD_CTRL),"toggle-numbered-images");
     define_key(top_kmap, kbd ("/",0),"isearch-forward");
     define_key(top_kmap, kbd ("\\",0),"view-source");
-    define_key(top_kmap, kbd ("?",0),"isearch-backward");
+    define_key(top_kmap, kbd ("S-/",0),"isearch-backward");
     define_key(top_kmap, kbd ("r",0),"revert-buffer");
     define_key(top_kmap, kbd ("1",0),"numberedlinks-1");
     define_key(top_kmap, kbd ("2",0),"numberedlinks-2");
@@ -194,12 +194,12 @@ function initViKmaps()
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_ESCAPE,0),"stop-loading");
     define_key(top_kmap, kbd ("g",MOD_CTRL),"unfocus"); //escape from a textfield
     define_key(top_kmap, kbd ( "=", 0),"text-reset");
-    define_key(top_kmap, kbd ( "+", 0),"text-enlarge");
+    define_key(top_kmap, kbd ( "S-=", 0),"text-enlarge");
     define_key(top_kmap, kbd ( "-", 0),"text-reduce");
 
 	// shows the query on the bottom with all conkeror commands
-    define_key(top_kmap, kbd (":",0),"execute-extended-command");
-    define_key(top_kmap, kbd (":",MOD_META),"eval-expression");
+    define_key(top_kmap, kbd ("S-;"),"execute-extended-command");
+    define_key(top_kmap, kbd ("M-S-;"),"eval-expression");
 
     // movement keys
     //define_key(top_kmap, kbd (" ",MOD_SHIFT),"cmd_scrollPageUp");
@@ -211,8 +211,8 @@ function initViKmaps()
     define_key(top_kmap, kbd ("H",0),"cmd_scrollLeft");
     define_key(top_kmap, kbd ("L",0),"cmd_scrollRight");
     define_key(top_kmap, kbd ("0",0),"cmd_scrollBeginLine");
-    define_key(top_kmap, kbd ("^",0),"cmd_scrollBeginLine");
-    define_key(top_kmap, kbd ("$",0),"cmd_scrollEndLine");
+    define_key(top_kmap, kbd ("S-6",0),"cmd_scrollBeginLine");
+    define_key(top_kmap, kbd ("S-4",0),"cmd_scrollEndLine");
     define_key(top_kmap, kbd ("g",0),"cmd_scrollTop");
     define_key(top_kmap, kbd ("G",0),"cmd_scrollBottom");
 
@@ -277,8 +277,8 @@ function initViKmaps()
     // textarea keys - the same as for emacs
     define_key(textarea_kmap, kbd ("n",MOD_CTRL),"cmd_lineNext");
     define_key(textarea_kmap, kbd ("p",MOD_CTRL),"cmd_linePrevious");
-    define_key(textarea_kmap, kbd ("<",MOD_META),"cmd_moveTop");
-    define_key(textarea_kmap, kbd (">",MOD_META),"cmd_moveBottom");
+    define_key(textarea_kmap, kbd ("M-S-comma"),"cmd_moveTop");
+    define_key(textarea_kmap, kbd ("M-S-period"),"cmd_moveBottom");
     define_key(textarea_kmap, kbd ("v",MOD_META),"cmd_movePageUp");
     define_key(textarea_kmap, kbd ("v",MOD_CTRL),"cmd_movePageDown");
 
@@ -368,7 +368,7 @@ function initKmaps()
     define_key(top_kmap, kbd ("g",MOD_CTRL),"keyboard-quit");
     define_key(top_kmap, kbd ( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
     define_key(top_kmap, kbd ( "=", 0),"text-reset");
-    define_key(top_kmap, kbd ( "+", 0),"text-enlarge");
+    define_key(top_kmap, kbd ( "S-=", 0),"text-enlarge");
     define_key(top_kmap, kbd ( "-", 0),"text-reduce");
 
     // movement keys
@@ -382,15 +382,15 @@ function initKmaps()
     define_key(top_kmap, kbd ("f",MOD_CTRL),"cmd_scrollRight");
     define_key(top_kmap, kbd ("a",MOD_CTRL),"beginning-of-line");
     define_key(top_kmap, kbd ("e",MOD_CTRL),"end-of-line");
-    define_key(top_kmap, kbd ("<",MOD_META),"cmd_scrollTop");
-    define_key(top_kmap, kbd (">",MOD_META),"cmd_scrollBottom");
-    define_key(top_kmap, kbd ("_",MOD_CTRL),"cmd_undo");
+    define_key(top_kmap, kbd ("M-S-comma"),"cmd_scrollTop");
+    define_key(top_kmap, kbd ("M-S-period"),"cmd_scrollBottom");
+    define_key(top_kmap, kbd ("C-S-subtract"),"cmd_undo");
     define_key(top_kmap, kbd ("y",MOD_CTRL),"cmd_paste");
 
     define_key(top_kmap, kbd ("b",MOD_META),"cmd_wordPrevious");
     define_key(top_kmap, kbd ("f",MOD_META),"cmd_wordNext");
 
-    define_key(top_kmap, kbd (":",MOD_META),"eval-expression");
+    define_key(top_kmap, kbd ("M-S-;"),"eval-expression");
 
     define_key(top_kmap, kbd ("w",MOD_META),"cmd_copy");
     define_key(top_kmap, kbd ("w",MOD_CTRL),"cmd_cut");
@@ -558,34 +558,30 @@ function init_universal_arg_keys ()
 function genBindingsHelper(window, doc, kmap, prefix)
 {
     try {
-    for (var i=0; i<kmap.length; i++) {
-        //fallthrough keys are used by context-maps like input-kmap to ensure
-        //that ordinary, unmodified characters will go to the input widget
-        //instead of top_kmap.  Therefore we don't display these keys in the
-        //help screen.
-        //
-        if (kmap[i].fallthrough) continue;
-        if (kmap[i].key.match_function) continue;
-	var command = kmap[i].command || "Prefix Command";;
-	var key;
-	if (kmap[i].key.charCode)
-	    key = window.formatKey(kmap[i].key.charCode, kmap[i].key.modifiers);
-	else
-	    key = window.formatMods(kmap[i].key.modifiers) + keyTable[kmap[i].key.keyCode];
+        for (var i=0; i<kmap.length; i++) {
+            //fallthrough keys are used by context-maps like input-kmap to ensure
+            //that ordinary, unmodified characters will go to the input widget
+            //instead of top_kmap.  Therefore we don't display these keys in the
+            //help screen.
+            //
+            if (kmap[i].fallthrough) continue;
+            if (kmap[i].key.match_function) continue;
+            var command = kmap[i].command || "Prefix Command";;
+            var key = format_key_press(code, kmap[i].key.modifiers);
 
-	doc.write("<TR><TD>")
-	    doc.write(prefix.join(" ") + " " + key);
-	doc.write("</TD><TD>")
-	    doc.write(command);
-	doc.write("</TD></TR>");
+            doc.write("<TR><TD>")
+                doc.write(prefix.join(" ") + " " + key);
+            doc.write("</TD><TD>")
+                doc.write(command);
+            doc.write("</TD></TR>");
 
-	if (kmap[i].keymap) {
-	    var p = [];
-	    for (var j in prefix) p[j] = prefix[j];
-	    p.push(window.formatKey(kmap[i].key.charCode, kmap[i].key.modifiers));
-	    genBindingsHelper(window, doc, kmap[i].keymap, p);
-	}
-    }
+            if (kmap[i].keymap) {
+                var p = [];
+                for (var j in prefix) p[j] = prefix[j];
+                p.push(format_key_press(kmap[i].key.keyCode, kmap[i].key.modifiers));
+                genBindingsHelper(window, doc, kmap[i].keymap, p);
+            }
+        }
     } catch(e) {window.alert(e);}
 }
 
