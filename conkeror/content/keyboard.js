@@ -10,7 +10,10 @@ var charcode_to_keycode = [];
 function generate_charcode_to_keycode_table()
 {
     // Check if the user preferences contain a mapping table already
-    var data = conkeror.preferences.getCharPref("conkeror.charCodeMappingData");
+    var data = null;
+    try {
+        data = conkeror.preferences.getCharPref("conkeror.charCodeMappingData");
+    } catch (e) { }
     if (data)
     {
         var entries = data.split(",");
