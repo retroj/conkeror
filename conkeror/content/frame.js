@@ -679,44 +679,6 @@ function getPostData()
     return null;
 }
 
-
-// download_uri
-//
-function download_uri (url_s, dest_s)
-{
-    var url_o = makeURL (url_s);
-    var document_o = null;
-
-    var dest_file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    dest_file_o.initWithPath(dest_s);
-    var dest_data_dir_o = null;
-    var referrer_o = null;//should there be a referrer?
-    var post_data_o = null;
-    var content_type_s = null;
-    var should_bypass_cache_p = true;//not sure...
-
-    //we cannot save as text or as web-complete unless we are browsing the
-    //document already.
-    var save_as_text_p = false;
-    var save_as_complete_p = false;
-
-    download_uri_internal (
-        url_o,
-        document_o,
-        dest_file_o,
-        dest_data_dir_o,
-        referrer_o,
-        post_data_o,
-        content_type_s,
-        should_bypass_cache_p,
-        save_as_text_p,
-        save_as_complete_p
-        );
-}
-
-
-
 function add_stringbundle (id, src)
 {
     const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
