@@ -182,7 +182,7 @@ interactive ("minibuffer-change", minibuffer_change, ['e']);
 
 function minibuffer_backspace (prefix) {
     this.minibuffer.do_not_complete = true;
-    doCommandNTimes.call (this, prefix, 'cmd_deleteCharBackward');
+    doCommandNTimes (this, prefix, 'cmd_deleteCharBackward');
 }
 interactive ("minibuffer-backspace", minibuffer_backspace, ['p']);
 
