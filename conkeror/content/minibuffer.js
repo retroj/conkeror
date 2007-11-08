@@ -4,8 +4,6 @@
 //
 function exit_minibuffer (frame, exit)
 {
-    dumpln (frame);
-    dumpln (frame.minibuffer);
     //XXX: minibuffer.completions defaults to a 0 element array.  possible bug here.
     var completion_mode_p = (frame.minibuffer.completions != null);
     var match = null;
