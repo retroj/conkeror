@@ -214,8 +214,11 @@ var mappingPref = "conkeror.charCodeMappingData";
 
 function load()
 {
+    var data = null;
+    try {
+        data = prefs.getCharPref(mappingPref);
+    } catch (e) {}
 
-    var data = prefs.getCharPref(mappingPref);
     if (data)
     {
         clear_session_internal();
@@ -231,8 +234,8 @@ function load()
                 continue;
             addMapping(num1, num2);
         }
-        setText("status", "Loaded");
         update();
+        setText("status", "Loaded");
     } else
         setText("status", "Preference not found");
 }
@@ -264,7 +267,6 @@ function init()
     window.addEventListener("keypress", keypress, true);
     clear_session_internal();
     load();
-    update();
 }
 
 </script>
