@@ -134,8 +134,8 @@ function initViKmaps()
     abort_key = kbd ("g",MOD_CTRL);
 
     // submaps
-    define_key(top_kmap, kbd ("h",MOD_CTRL), help_kmap);
-    define_key(top_kmap, kbd ("w",MOD_CTRL), ctrlw_kmap);
+    define_key(top_kmap, kbd ("C-h"), help_kmap);
+    define_key(top_kmap, kbd ("C-w"), ctrlw_kmap);
     define_key(top_kmap, kbd ("w",0),        ctrlw_kmap); 
     define_key(top_kmap, kbd ("f",0),        frameset_kmap);
 
@@ -169,9 +169,9 @@ function initViKmaps()
     define_key(top_kmap, kbd ("a",MOD_CTRL),"cmd_selectAll"); // not really vi like, but ggVG is even worse for select all
     define_key(top_kmap, kbd (",",MOD_CTRL),"toggle-numbered-links");
     define_key(top_kmap, kbd (".",MOD_CTRL),"toggle-numbered-images");
-    define_key(top_kmap, kbd ("/",0),"isearch-forward");
-    define_key(top_kmap, kbd ("\\",0),"view-source");
-    define_key(top_kmap, kbd ("S-/",0),"isearch-backward");
+    define_key(top_kmap, kbd ("slash",0),"isearch-forward");
+    define_key(top_kmap, kbd ("back_slash",0),"view-source");
+    define_key(top_kmap, kbd ("S-slash",0),"isearch-backward");
     define_key(top_kmap, kbd ("r",0),"revert-buffer");
     define_key(top_kmap, kbd ("1",0),"numberedlinks-1");
     define_key(top_kmap, kbd ("2",0),"numberedlinks-2");
@@ -182,8 +182,8 @@ function initViKmaps()
     define_key(top_kmap, kbd ("7",0),"numberedlinks-7");
     define_key(top_kmap, kbd ("8",0),"numberedlinks-8");
     define_key(top_kmap, kbd ("9",0),"numberedlinks-9");
-    define_key(top_kmap, kbd (",",0),"goto-numbered-link");
-    define_key(top_kmap, kbd (".",0),"copy-numbered-image-location");
+    define_key(top_kmap, kbd ("comma",0),"goto-numbered-link");
+    define_key(top_kmap, kbd ("period",0),"copy-numbered-image-location");
     define_key(top_kmap, kbd ("u",0),"buffer-previous");
     define_key(top_kmap, kbd ("u", MOD_CTRL), "universal-argument");
     define_key(top_kmap, kbd ("i",0),"buffer-next");
@@ -193,9 +193,9 @@ function initViKmaps()
     define_key(top_kmap, kbd ("Y",0),"copy-link-location");
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_ESCAPE,0),"stop-loading");
     define_key(top_kmap, kbd ("g",MOD_CTRL),"unfocus"); //escape from a textfield
-    define_key(top_kmap, kbd ( "=", 0),"text-reset");
-    define_key(top_kmap, kbd ( "S-=", 0),"text-enlarge");
-    define_key(top_kmap, kbd ( "-", 0),"text-reduce");
+    define_key(top_kmap, kbd ( "equals", 0),"text-reset");
+    define_key(top_kmap, kbd ( "S-equals", 0),"text-enlarge");
+    define_key(top_kmap, kbd ( "subtract", 0),"text-reduce");
 
 	// shows the query on the bottom with all conkeror commands
     define_key(top_kmap, kbd ("S-;"),"execute-extended-command");
@@ -310,7 +310,7 @@ function initKmaps()
     define_key(help_kmap, kbd ("b",0),"describe-bindings");
     define_key(help_kmap, kbd ("i",0),"help-page");
     define_key(help_kmap, kbd ("t",0),"help-with-tutorial");
-    define_key(top_kmap, kbd ("\\",0),"view-source");
+    define_key(top_kmap, kbd ("back_slash",0),"view-source");
 
     define_key(ctrlx_kmap, kbd ("b",0),"switch-to-buffer"); 
     define_key(ctrlx_kmap, kbd ("k",0),"kill-buffer"); 
@@ -367,9 +367,9 @@ function initKmaps()
     define_key(top_kmap, kbd ("x",MOD_META),"execute-extended-command");
     define_key(top_kmap, kbd ("g",MOD_CTRL),"keyboard-quit");
     define_key(top_kmap, kbd ( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
-    define_key(top_kmap, kbd ( "=", 0),"text-reset");
-    define_key(top_kmap, kbd ( "S-=", 0),"text-enlarge");
-    define_key(top_kmap, kbd ( "-", 0),"text-reduce");
+    define_key(top_kmap, kbd ( "equals", 0),"text-reset");
+    define_key(top_kmap, kbd ( "S-equals", 0),"text-enlarge");
+    define_key(top_kmap, kbd ( "subtract", 0),"text-reduce");
 
     // movement keys
     define_key(top_kmap, kbd ( KeyEvent.DOM_VK_BACK_SPACE, 0),"cmd_scrollPageUp");
@@ -533,7 +533,7 @@ function init_frameset_keys () {
     define_key(frameset_kmap, kbd ("c",0), "copy-frameset-frame-location");
     define_key(frameset_kmap, kbd ("t", 0), "frameset-focus-top");
     define_key(frameset_kmap, kbd ("u", 0), "frameset-focus-up");
-    define_key(frameset_kmap, kbd ("\\", 0), "frameset-view-source");
+    define_key(frameset_kmap, kbd ("back_slash", 0), "frameset-view-source");
 }
 
 
@@ -550,7 +550,7 @@ function init_universal_arg_keys ()
     define_key(universal_kmap, kbd ("8", 0), "universal-digit");
     define_key(universal_kmap, kbd ("9", 0), "universal-digit");
     define_key(universal_kmap, kbd ("0", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("-", 0), "universal-negate");
+    define_key(universal_kmap, kbd ("subtract", 0), "universal-negate");
 }
 
 /* FIXME: All of this genBindings stuff should operate on a particular
