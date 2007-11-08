@@ -529,7 +529,7 @@ function call_interactively (cmd, given_args)
                 do_interactive.call (this,
                                      iargs,
                                      function (args) {
-                                         conkeror.commands[i][1].apply (this, args);
+                                         conkeror.commands[i][1].apply (conkeror, args);
                                      },
                                      null,
                                      given);

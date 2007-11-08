@@ -110,9 +110,9 @@ function get_numberedlink (window, number)
   return null;
 }
 
-function numberedlinks_do_link (prefix, link, action)
+function numberedlinks_do_link (frame, prefix, link, action)
 {
-  var window = this;
+  var window = frame;
     // See if the number is a link.
   var nl = get_numberedlink (window, link);
   if (! nl) {
@@ -132,7 +132,7 @@ function numberedlinks_do_link (prefix, link, action)
         } else if (action == "numberedlinks-follow-other-buffer") {
             window.newBrowser(href);
         } else if (action == "numberedlinks-follow-other-frame") {
-          open_url_in.call (window, 5, href);
+          open_url_in (window, 5, href);
         } else if (action == "numberedlinks-save") {
             nl.node.focus();
             call_interactively.call (window, "save-focused-link");
@@ -157,7 +157,7 @@ function numberedlinks_do_link (prefix, link, action)
                 else
                     nl.node.dispatchEvent(evt);
             } else {
-              open_url_in.call(window, prefix, nl.node.href);
+              open_url_in (window, prefix, nl.node.href);
             }
         }
     } else if (type == "button") {
@@ -172,23 +172,23 @@ function numberedlinks_do_link (prefix, link, action)
         nl.node.focus ();
     }
 }
-interactive("numberedlinks-1", numberedlinks_do_link, ["p", ["link", null, function (a) { return "1"; }], "minibuffer_exit"]);
-interactive("numberedlinks-2", numberedlinks_do_link, ["p", ["link", null, function (a) { return "2"; }], "minibuffer_exit"]);
-interactive("numberedlinks-3", numberedlinks_do_link, ["p", ["link", null, function (a) { return "3"; }], "minibuffer_exit"]);
-interactive("numberedlinks-4", numberedlinks_do_link, ["p", ["link", null, function (a) { return "4"; }], "minibuffer_exit"]);
-interactive("numberedlinks-5", numberedlinks_do_link, ["p", ["link", null, function (a) { return "5"; }], "minibuffer_exit"]);
-interactive("numberedlinks-6", numberedlinks_do_link, ["p", ["link", null, function (a) { return "6"; }], "minibuffer_exit"]);
-interactive("numberedlinks-7", numberedlinks_do_link, ["p", ["link", null, function (a) { return "7"; }], "minibuffer_exit"]);
-interactive("numberedlinks-8", numberedlinks_do_link, ["p", ["link", null, function (a) { return "8"; }], "minibuffer_exit"]);
-interactive("numberedlinks-9", numberedlinks_do_link, ["p", ["link", null, function (a) { return "9"; }], "minibuffer_exit"]);
-interactive("goto-numbered-link", numberedlinks_do_link, ["p", "link", "minibuffer_exit"]);
+interactive("numberedlinks-1", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "1"; }], "minibuffer_exit"]);
+interactive("numberedlinks-2", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "2"; }], "minibuffer_exit"]);
+interactive("numberedlinks-3", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "3"; }], "minibuffer_exit"]);
+interactive("numberedlinks-4", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "4"; }], "minibuffer_exit"]);
+interactive("numberedlinks-5", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "5"; }], "minibuffer_exit"]);
+interactive("numberedlinks-6", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "6"; }], "minibuffer_exit"]);
+interactive("numberedlinks-7", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "7"; }], "minibuffer_exit"]);
+interactive("numberedlinks-8", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "8"; }], "minibuffer_exit"]);
+interactive("numberedlinks-9", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "9"; }], "minibuffer_exit"]);
+interactive("goto-numbered-link", numberedlinks_do_link, ['current_frame', "p", "link", "minibuffer_exit"]);
 
 
-interactive("numberedlinks-focus", exit_minibuffer, ['current_command']);
-interactive("numberedlinks-follow", exit_minibuffer, ['current_command']);
-interactive("numberedlinks-follow-other-buffer", exit_minibuffer, ['current_command']);
-interactive("numberedlinks-follow-other-frame", exit_minibuffer, ['current_command']);
-interactive("numberedlinks-save", exit_minibuffer, ['current_command']);
+interactive("numberedlinks-focus", exit_minibuffer, ['current_frame', 'current_command']);
+interactive("numberedlinks-follow", exit_minibuffer, ['current_frame', 'current_command']);
+interactive("numberedlinks-follow-other-buffer", exit_minibuffer, ['current_frame', 'current_command']);
+interactive("numberedlinks-follow-other-frame", exit_minibuffer, ['current_frame', 'current_command']);
+interactive("numberedlinks-save", exit_minibuffer, ['current_frame', 'current_command']);
 
 
 function onNumberedLinkBlur() {

@@ -2,36 +2,38 @@
 
 // minibuffer stuff
 //
-function exit_minibuffer (exit)
+function exit_minibuffer (frame, exit)
 {
+    dumpln (frame);
+    dumpln (frame.minibuffer);
     //XXX: minibuffer.completions defaults to a 0 element array.  possible bug here.
-    var completion_mode_p = (this.minibuffer.completions != null);
+    var completion_mode_p = (frame.minibuffer.completions != null);
     var match = null;
-    var val = this.removeWhiteSpace (this.minibuffer.input.value);
+    var val = frame.removeWhiteSpace (frame.minibuffer.input.value);
     if (completion_mode_p) {
-        if (val.length == 0 && this.minibuffer.default_match != null)
-            val = this.minibuffer.default_match;
-        match = this.findCompleteMatch (this.minibuffer.completions, val);
+        if (val.length == 0 && frame.minibuffer.default_match != null)
+            val = frame.minibuffer.default_match;
+        match = frame.findCompleteMatch (frame.minibuffer.completions, val);
     }
-    this.addHistory(val);
-    var callback = this.minibuffer.callback;
-    this.minibuffer.callback = null;
-    this.minibuffer.abort_callback = null;
-    this.minibuffer.exit = exit;
-    this.closeInput(true);
+    frame.addHistory(val);
+    var callback = frame.minibuffer.callback;
+    frame.minibuffer.callback = null;
+    frame.minibuffer.abort_callback = null;
+    frame.minibuffer.exit = exit;
+    frame.closeInput(true);
     if (callback) {
         if (completion_mode_p) {
-            if (this.minibuffer.allow_nonmatches) {
-                callback.call (this, match, val);
+            if (frame.minibuffer.allow_nonmatches) {
+                callback.call (frame, match, val);
             } else if (match) {
-                callback.call (this, match);
+                callback.call (frame, match);
             }
         } else {
-            callback.call (this, val);
+            callback.call (frame, val);
         }
     }
 }
-interactive("exit-minibuffer", exit_minibuffer, ['current_command']);
+interactive("exit-minibuffer", exit_minibuffer, ['current_frame', 'current_command']);
 
 
 function minibuffer_history_next ()
@@ -62,15 +64,15 @@ function minibuffer_history_previous ()
 interactive("minibuffer-history-previous", minibuffer_history_previous, []);
 
 
-function minibuffer_abort ()
+function minibuffer_abort (frame)
 {
-    if (this.minibuffer.abort_callback)
-        this.minibuffer.abort_callback();
-    this.minibuffer.abort_callback = null;
-    this.minibuffer.callback = null;
-    this.closeInput(true);
+    if (frame.minibuffer.abort_callback)
+        frame.minibuffer.abort_callback();
+    frame.minibuffer.abort_callback = null;
+    frame.minibuffer.callback = null;
+    frame.closeInput(true);
 }
-interactive("minibuffer-abort", minibuffer_abort, []);
+interactive("minibuffer-abort", minibuffer_abort, ['current_frame']);
 
 
 function minibuffer_complete (direction)
@@ -118,9 +120,9 @@ function minibuffer_complete (direction)
 interactive("minibuffer-complete", minibuffer_complete, []);
 
 
-function minibuffer_accept_match ()
+function minibuffer_accept_match (frame)
 {
-    var field = this.minibuffer.input;
+    var field = frame.minibuffer.input;
 
     if (field.selectionStart == field.selectionEnd) {
         var start = field.selectionStart;
@@ -130,12 +132,12 @@ function minibuffer_accept_match ()
     } else {
         // When we allow non-matches it generally means the
         // completion takes an argument. So add a space.
-        if (this.minibuffer.allow_nonmatches && this.minibuffer.input.value[this.minibuffer.input.length-1] != " ")
-            this.minibuffer.input.value += " ";
+        if (frame.minibuffer.allow_nonmatches && frame.minibuffer.input.value[frame.minibuffer.input.length-1] != " ")
+            frame.minibuffer.input.value += " ";
         field.setSelectionRange (field.value.length, field.value.length);
     }
 }
-interactive("minibuffer-accept-match", minibuffer_accept_match, []);
+interactive("minibuffer-accept-match", minibuffer_accept_match, ['current_frame']);
 
 
 function minibuffer_complete_reverse ()
@@ -145,39 +147,39 @@ function minibuffer_complete_reverse ()
 interactive("minibuffer-complete-reverse", minibuffer_complete_reverse, []);
 
 
-function minibuffer_change (event)
+function minibuffer_change (frame, event)
 {
     // this command gets called by minibuffer.oninput, so the current value of
     // the field is whatever the user typed.
     //
-    var enteredText = this.minibuffer.input.value;
-    var len = this.minibuffer.input.value.length;
+    var enteredText = frame.minibuffer.input.value;
+    var len = frame.minibuffer.input.value.length;
 
     // are there other viable options?
-    if (this.minibuffer.completions)
+    if (frame.minibuffer.completions)
     {
         // here we check a flag set by minibuffer-backspace.  this is sort of
         // an inflexable solution, chaining us to this one particular
         // behavior.  perhaps instead of a flag, we could have a callback that
         // handles how to select the text.
-        if (! this.minibuffer.do_not_complete)
+        if (! frame.minibuffer.do_not_complete)
         {
-            this.minibuffer.current_completions =
-                this.miniBufferCompleteStr (this.minibuffer.input.value, this.minibuffer.completions);
+            frame.minibuffer.current_completions =
+                frame.miniBufferCompleteStr (frame.minibuffer.input.value, frame.minibuffer.completions);
 
-            if (this.minibuffer.current_completions.length != 0)
+            if (frame.minibuffer.current_completions.length != 0)
             {
-                this.minibuffer.input.value = this.minibuffer.current_completions[0][0];
-                this.minibuffer.input.setSelectionRange (len, this.minibuffer.input.value.length);
+                frame.minibuffer.input.value = frame.minibuffer.current_completions[0][0];
+                frame.minibuffer.input.setSelectionRange (len, frame.minibuffer.input.value.length);
             }
         } else {
-            this.minibuffer.do_not_complete = false;
+            frame.minibuffer.do_not_complete = false;
         }
     }
     // XXX: what is current_completion used for?
-    this.minibuffer.current_completion = null;
+    frame.minibuffer.current_completion = null;
 }
-interactive ("minibuffer-change", minibuffer_change, ['e']);
+interactive ("minibuffer-change", minibuffer_change, ['current_frame', 'e']);
 
 
 function minibuffer_backspace (prefix) {

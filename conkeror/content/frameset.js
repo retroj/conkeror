@@ -27,15 +27,15 @@ function frameset_find_frames_r (doc, types) {
 }
 
 
-function next_frameset_frame (prefix) {
-    var frames = frameset_find_frames_r (this.window.content.document, ["FRAME"]);
+function next_frameset_frame (frame, prefix) {
+    var frames = frameset_find_frames_r (frame.window.content.document, ["FRAME"]);
     if (frames.length == 0)
     {
-        this.message ("no other frameset frame");
+        frame.message ("no other frameset frame");
         return;
     }
 
-    var w = this.document.commandDispatcher.focusedWindow;
+    var w = frame.document.commandDispatcher.focusedWindow;
 
     var next = 0;
 
@@ -54,22 +54,22 @@ function next_frameset_frame (prefix) {
 
     var box = frames[next].ownerDocument.getBoxObjectFor (frames[next]);
 
-    frameset_notify.call (this, box.screenX, box.screenY,
+    frameset_notify.call (frame, box.screenX, box.screenY,
                           "frameset frame "+next);
 }
-interactive("next-frameset-frame", next_frameset_frame, ['p']);
+interactive("next-frameset-frame", next_frameset_frame, ['current_frame', 'p']);
 
 
 
-function next_iframe (prefix) {
-    var frames = this.window.content.document.getElementsByTagName ("IFRAME");
+function next_iframe (frame, prefix) {
+    var frames = frame.window.content.document.getElementsByTagName ("IFRAME");
     if (frames.length == 0)
     {
-        this.message ("no other iframe");
+        frame.message ("no other iframe");
         return;
     }
 
-    var current = this.document.commandDispatcher.focusedWindow;
+    var current = frame.document.commandDispatcher.focusedWindow;
 
     var pnext = 0;
 
@@ -87,41 +87,41 @@ function next_iframe (prefix) {
     var next = pnext;
     frames[next].contentWindow.focus();
 
-    while (this.document.commandDispatcher.focusedWindow == current)
+    while (frame.document.commandDispatcher.focusedWindow == current)
     {
         next = (next + (prefix < 0 ? -1 : 1)) % frames.length;
         if (next < 0)
             next += frames.length;
 
         if (next == pnext) {
-            this.message ("no other iframe visible");
+            frame.message ("no other iframe visible");
             return;
         }
 
         frames[next].contentWindow.focus();
     }
 
-    var box = this.window.content.document.getBoxObjectFor (frames[next]);
+    var box = frame.window.content.document.getBoxObjectFor (frames[next]);
     frames[next].scrollIntoView (false);
 
-    frameset_notify.call (this, box.screenX, box.screenY,
+    frameset_notify.call (frame, box.screenX, box.screenY,
                           "iframe "+next);
 }
-interactive("next-iframe", next_iframe, ['p']);
+interactive("next-iframe", next_iframe, ['current_frame', 'p']);
 
 
-function frameset_focus_top () {
-    this.top.content.focus();
-    var box = this.getBrowser().boxObject;
-    frameset_notify.call (this, box.screenX, box.screenY, "frameset top");
+function frameset_focus_top (frame) {
+    frame.top.content.focus();
+    var box = frame.getBrowser().boxObject;
+    frameset_notify.call (frame, box.screenX, box.screenY, "frameset top");
 }
-interactive("frameset-focus-top", frameset_focus_top, []);
+interactive("frameset-focus-top", frameset_focus_top, ['current_frame']);
 
 
-function frameset_focus_up () {
-    var parent = this.document.commandDispatcher.focusedWindow.parent;
+function frameset_focus_up (frame) {
+    var parent = frame.document.commandDispatcher.focusedWindow.parent;
     parent.focus();
-    frameset_notify.call (this, parent.screenX, parent.screenY, "frameset up");
+    frameset_notify.call (frame, parent.screenX, parent.screenY, "frameset up");
 }
-interactive("frameset-focus-up", frameset_focus_up, []);
+interactive("frameset-focus-up", frameset_focus_up, ['current_frame']);
 
