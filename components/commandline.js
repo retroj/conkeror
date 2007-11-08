@@ -60,6 +60,19 @@ const conkeror_cmdline = {
                   eval (param);
               }
           },
+          chrome: {
+              param: true,
+              suppress_default: true,
+              func: function (param) {
+                  try {
+                  var result = conkeror.window_watcher.openWindow(null,
+                                                              param,
+                                                              null,
+                                                              "resizable=yes,dialog=no",
+                                                              null);
+                  } catch (e) { dump("error: " + e + "\n");}
+              }
+          },
           l: {
               param: true,
               func: function (param) {
