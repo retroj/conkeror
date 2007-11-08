@@ -73,23 +73,12 @@ function minibuffer_abort (frame)
 interactive("minibuffer-abort", minibuffer_abort, ['current_frame']);
 
 
-function minibuffer_complete (frame, direction)
+function minibuffer_complete (frame)
 {
-    function wrap(val, max)
-    {
-        if (val < 0)
-            return max;
-        if (val > max)
-            return 0;
-        return val;
-    }
-
     var field = frame.minibuffer.input;
     var str = field.value;
     var enteredText = str.substring(0, field.selectionStart);
     var initialSelectionStart = field.selectionStart;
-    //    if (typeof(direction) == 'undefined')
-    direction = 1;
 
     if(! frame.minibuffer.completions || frame.minibuffer.completions.length == 0) return;
 
@@ -107,9 +96,8 @@ function minibuffer_complete (frame, direction)
     // if the above had no effect, cycle through options
     if (initialSelectionStart == field.selectionStart) {
         frame.minibuffer.current_completion =
-            wrap (frame.minibuffer.current_completion + direction,
-                  frame.minibuffer.current_completions.length - 1);
-        //frame.minibuffer.current_completion = frame.minibuffer.current_completion + direction;
+            (frame.minibuffer.current_completion + 1) %
+            frame.minibuffer.current_completions.length;
         if(! frame.minibuffer.current_completions[frame.minibuffer.current_completion]) return;
         field.value = frame.minibuffer.current_completions[frame.minibuffer.current_completion][0];
         field.setSelectionRange (enteredText.length, field.value.length);
@@ -136,13 +124,6 @@ function minibuffer_accept_match (frame)
     }
 }
 interactive("minibuffer-accept-match", minibuffer_accept_match, ['current_frame']);
-
-
-function minibuffer_complete_reverse (frame)
-{
-    minibuffer_complete (frame, -1);
-}
-interactive("minibuffer-complete-reverse", minibuffer_complete_reverse, ['current_frame']);
 
 
 function minibuffer_change (frame, event)
