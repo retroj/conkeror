@@ -36,32 +36,32 @@ function exit_minibuffer (frame, exit)
 interactive("exit-minibuffer", exit_minibuffer, ['current_frame', 'current_command']);
 
 
-function minibuffer_history_next ()
+function minibuffer_history_next (frame)
 {
-    if (this.minibuffer.history != null) {
-        this.minibuffer.history_index++;
-        if (this.minibuffer.history_index < this.minibuffer.history.length) {
-            this.minibuffer.input.value = this.minibuffer.history[this.minibuffer.history_index];
+    if (frame.minibuffer.history != null) {
+        frame.minibuffer.history_index++;
+        if (frame.minibuffer.history_index < frame.minibuffer.history.length) {
+            frame.minibuffer.input.value = frame.minibuffer.history[frame.minibuffer.history_index];
         } else {
-            this.minibuffer.history_index = this.minibuffer.history.length - 1;
+            frame.minibuffer.history_index = frame.minibuffer.history.length - 1;
         }
     }
 }
-interactive("minibuffer-history-next", minibuffer_history_next, []);
+interactive("minibuffer-history-next", minibuffer_history_next, ['current_frame']);
 
 
-function minibuffer_history_previous ()
+function minibuffer_history_previous (frame)
 {
-    if (this.minibuffer.history != null) {
-        this.minibuffer.history_index--;
-        if (this.minibuffer.history_index >= 0) {
-            this.minibuffer.input.value = this.minibuffer.history[this.minibuffer.history_index];
+    if (frame.minibuffer.history != null) {
+        frame.minibuffer.history_index--;
+        if (frame.minibuffer.history_index >= 0) {
+            frame.minibuffer.input.value = frame.minibuffer.history[frame.minibuffer.history_index];
         } else {
-            this.minibuffer.history_index = 0;
+            frame.minibuffer.history_index = 0;
         }
     }
 }
-interactive("minibuffer-history-previous", minibuffer_history_previous, []);
+interactive("minibuffer-history-previous", minibuffer_history_previous, ['current_frame']);
 
 
 function minibuffer_abort (frame)
@@ -75,7 +75,7 @@ function minibuffer_abort (frame)
 interactive("minibuffer-abort", minibuffer_abort, ['current_frame']);
 
 
-function minibuffer_complete (direction)
+function minibuffer_complete (frame, direction)
 {
     function wrap(val, max)
     {
@@ -86,38 +86,38 @@ function minibuffer_complete (direction)
         return val;
     }
 
-    var field = this.minibuffer.input;
+    var field = frame.minibuffer.input;
     var str = field.value;
     var enteredText = str.substring(0, field.selectionStart);
     var initialSelectionStart = field.selectionStart;
     //    if (typeof(direction) == 'undefined')
     direction = 1;
 
-    if(! this.minibuffer.completions || this.minibuffer.completions.length == 0) return;
+    if(! frame.minibuffer.completions || frame.minibuffer.completions.length == 0) return;
 
-    this.minibuffer.current_completions = this.miniBufferCompleteStr (enteredText, this.minibuffer.completions);
-    this.minibuffer.current_completion = this.minibuffer.current_completion || 0; // TODO: set this based on contents of field?
+    frame.minibuffer.current_completions = frame.miniBufferCompleteStr (enteredText, frame.minibuffer.completions);
+    frame.minibuffer.current_completion = frame.minibuffer.current_completion || 0; // TODO: set this based on contents of field?
 
     // deselect unambiguous part
-    while (this.minibuffer.current_completions.length ==
-           this.miniBufferCompleteStr (str.substring(0, field.selectionStart + 1),
-                                       this.minibuffer.completions).length &&
+    while (frame.minibuffer.current_completions.length ==
+           frame.miniBufferCompleteStr (str.substring(0, field.selectionStart + 1),
+                                       frame.minibuffer.completions).length &&
            field.selectionStart != field.value.length) {
         field.setSelectionRange (field.selectionStart + 1, field.value.length);
     }
 
     // if the above had no effect, cycle through options
     if (initialSelectionStart == field.selectionStart) {
-        this.minibuffer.current_completion =
-            wrap (this.minibuffer.current_completion + direction,
-                  this.minibuffer.current_completions.length - 1);
-        //this.minibuffer.current_completion = this.minibuffer.current_completion + direction;
-        if(! this.minibuffer.current_completions[this.minibuffer.current_completion]) return;
-        field.value = this.minibuffer.current_completions[this.minibuffer.current_completion][0];
+        frame.minibuffer.current_completion =
+            wrap (frame.minibuffer.current_completion + direction,
+                  frame.minibuffer.current_completions.length - 1);
+        //frame.minibuffer.current_completion = frame.minibuffer.current_completion + direction;
+        if(! frame.minibuffer.current_completions[frame.minibuffer.current_completion]) return;
+        field.value = frame.minibuffer.current_completions[frame.minibuffer.current_completion][0];
         field.setSelectionRange (enteredText.length, field.value.length);
     }
 }
-interactive("minibuffer-complete", minibuffer_complete, []);
+interactive("minibuffer-complete", minibuffer_complete, ['current_frame']);
 
 
 function minibuffer_accept_match (frame)
@@ -140,11 +140,11 @@ function minibuffer_accept_match (frame)
 interactive("minibuffer-accept-match", minibuffer_accept_match, ['current_frame']);
 
 
-function minibuffer_complete_reverse ()
+function minibuffer_complete_reverse (frame)
 {
-    minibuffer_complete.call (this, -1);
+    minibuffer_complete (frame, -1);
 }
-interactive("minibuffer-complete-reverse", minibuffer_complete_reverse, []);
+interactive("minibuffer-complete-reverse", minibuffer_complete_reverse, ['current_frame']);
 
 
 function minibuffer_change (frame, event)
@@ -182,10 +182,10 @@ function minibuffer_change (frame, event)
 interactive ("minibuffer-change", minibuffer_change, ['current_frame', 'e']);
 
 
-function minibuffer_backspace (prefix) {
-    this.minibuffer.do_not_complete = true;
-    doCommandNTimes (this, prefix, 'cmd_deleteCharBackward');
+function minibuffer_backspace (frame, prefix) {
+    frame.minibuffer.do_not_complete = true;
+    doCommandNTimes (frame, prefix, 'cmd_deleteCharBackward');
 }
-interactive ("minibuffer-backspace", minibuffer_backspace, ['p']);
+interactive ("minibuffer-backspace", minibuffer_backspace, ['current_frame', 'p']);
 
 
