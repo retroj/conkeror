@@ -614,7 +614,7 @@ interactive ("save-focused-link", save_focused_link,
              ['focused_link_url',
               ['F', function (a) { return "Save Link As: "; },
                function (args) {
-                   return generate_filename (args[0]).path;
+                   return generate_save_path (args[0]).path;
                },
                "save"]]);
 
@@ -642,7 +642,7 @@ interactive ("save-image", save_image,
              ['image_url',
               ['F', function (a) { return "Save Image As: "; },
                function (args) {
-                   return generate_filename (args[0]).path;
+                   return generate_save_path (args[0]).path;
                },
                "save"]]);
 
