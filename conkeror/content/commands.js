@@ -131,11 +131,7 @@ function open_url_in (frame, prefix, url)
         return frame.getBrowser();
     } else if (prefix <= 4) {
         // Open in new buffer
-        return find_url_new_buffer (url); // XXX: this will get the
-                                          // active frame, not
-                                          // necessarily the frame
-                                          // from which the command
-                                          // was run.
+        return find_url_new_buffer (url, frame);
     } else {
         // Open in new frame
       make_frame(url);
