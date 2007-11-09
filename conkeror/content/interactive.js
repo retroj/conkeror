@@ -73,6 +73,11 @@ content_selection: { func: function (spec) {
         }
 },
 
+current_buffer_window: { func: function (spec) {
+            return this.content;
+        }
+},
+
 current_command: { func: function (spec) {
             // -- Name of the command being evaluated right now.
             return conkeror.current_command;
@@ -85,8 +90,18 @@ current_frame: { func: function (spec) {
         }
 },
 
+current_frameset_frame: { func: function (spec) {
+            var w = this.document.commandDispatcher.focusedWindow;
+            if (w.top != this.content)
+                w = this.content;
+            return w;
+        }
+},
+
 current_frameset_frame_url: { func: function (spec) {
             var w = this.document.commandDispatcher.focusedWindow;
+            if (w.top != this.content)
+                w = this.content;
             return w.location.href;
         }
 },
