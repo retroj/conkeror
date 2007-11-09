@@ -63,16 +63,6 @@ function application () {
     conkeror.init_webjumps ();
 
     conkeror.init_window_title ();
-
-    // Register numbering stylesheet
-    {
-      var sss = Components.classes["@mozilla.org/content/style-sheet-service;1"]
-        .getService(Components.interfaces.nsIStyleSheetService);
-      var ios = Components.classes["@mozilla.org/network/io-service;1"]
-        .getService(Components.interfaces.nsIIOService);
-      var uri = ios.newURI("chrome://conkeror/content/numbering.css", null, null);
-      sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
-    }
 }
 
 application.prototype = {

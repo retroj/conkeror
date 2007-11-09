@@ -126,6 +126,7 @@ function makeBrowser () {
         var b = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "browser");
         b.setAttribute("type", "content");
         b.setAttribute("flex", "1");
+        b.setAttribute("usechromesheets", "chrome://conkeror/content/numbering.css");
         if (this.getBrowser().mBrowsers.length == 0)
             b.setAttribute("pile", 1);
         else
