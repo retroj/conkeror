@@ -125,7 +125,7 @@ function download_uri_internal (url_o, document_o,
         .createInstance(nsIWBP);
 
     // Calculate persist flags.
-    const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FLAGS;
+    const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES;
     if (should_bypass_cache_p)
         persist.persistFlags = flags | nsIWBP.PERSIST_FLAGS_BYPASS_CACHE;
     else
@@ -177,7 +177,132 @@ function download_uri_internal (url_o, document_o,
     }
 }
 
+function get_SHEntry_for_document(doc)
+{
+    try
+    {
+        var win = uri.defaultView;
+        var ifr = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+        var webNav = ifr.getInterface(nsIWebNavigation);
+        var pageLoader = webNav.QueryInterface(Components.interfaces.nsIWebPageDescriptor);
+        var desc = pageLoader.currentDescriptor.QueryInterface(Components.interfaces.nsISHEntry);
+        return desc;
+    } catch (e) { return null; }
+}
 
+/* Currently shows no graphical progress display --- used for viewing
+ * page source with an external viewer.
+ *
+ * If doc is non-null, uri is ignored; if doc is specified, the
+ * document may be retrieved from a cache.
+ *
+ * success_callback is called once the file is successfully downloaded
+ * with an nsIFile object as the first parameter, and a boolean value
+ * indicating whether the file parameter refers to a temporary file
+ * that was created by this function.  This boolean parameter might
+ * used to determine whether to delete the file after using it.
+ *
+ * If it is determined that the download will fail, failure_callback
+ * is called instead, with no parameters.
+ *
+ * If the uri is invalid, this function may throw an exception.
+ */
+function download_for_external_program(uri, doc, referrer_uri,
+                                       success_callback, failure_callback)
+{
+    var cache_key = null;
+    var post_data = null;
+    var content_type = null;
+    var content_disposition = null;
+    if (doc)
+    {
+        uri = makeURL(doc.documentURI);
+    } else
+    {
+        try {
+            uri.QueryInterface (Components.interfaces.nsIURI);
+        } catch (e) {
+            uri = makeURL (uri);
+        }
+    }
+
+    // If it is local file, there is no need to download it
+    if (uri.scheme == "file")
+    {
+        var file = uri.QueryInterface(Components.interfaces.nsIFileURL).file;
+        success_callback(file, false /* not temporary file */);
+        return;
+    }
+
+    if (doc)
+    {
+        var sh_entry = get_SHEntry_for_document(doc);
+        if (sh_entry != null)
+        {
+            cache_key = sh_entry;
+            post_data = sh_entry.postData;
+            if (!referrer_uri)
+                referrer_uri = sh_entry.referrerURI;
+        }
+
+        content_type = doc.contentType;
+        content_disposition = get_document_content_disposition(doc);
+    }
+
+    var filename = generate_filename_for_url(uri, doc, content_type, content_disposition, null);
+    var file_locator = Components.classes["@mozilla.org/file/directory_service;1"]
+        .getService(Components.interfaces.nsIProperties);
+    var file = file_locator.get("TmpD", Components.interfaces.nsIFile);
+    file.append(filename);
+    // Create the file now to ensure that no exploits are possible
+    file.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0600);
+    var fileURI = makeFileURL(file);
+    const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
+
+    var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+        .createInstance(nsIWBP);
+
+    persist.persistFlags
+        = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES
+        | nsIWBP.PERSIST_FLAGS_AUTODETECT_APPLY_CONVERSION
+        | nsIWBP.PERSIST_FLAGS_CLEANUP_ON_FAILURE
+        | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
+
+    persist.progressListener = {
+        QueryInterface: function(aIID) {
+            if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
+                aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
+                aIID.equals(Components.interfaces.nsISupports))
+                return this;
+            throw Components.results.NS_NOINTERFACE;
+        },
+        onStateChange: function(aProgress, aRequest, aFlag, aStatus) {
+            if ((aFlag & Components.interfaces.nsIWebProgressListener.STATE_STOP))
+            {
+                if (aStatus == 0)
+                {
+                    success_callback(file, true /* temporary file */);
+                }
+                else
+                {
+                    try {
+                        // Delete the temporary file
+                        file.remove(false /*non-recursive*/);
+                    } catch (e) {}
+                    failure_callback();
+                }
+            }
+            return 0;
+        },
+        onLocationChange: function() {return 0;},
+        onProgressChange: function() {return 0;},
+        onStatusChange: function() {return 0;},
+        onSecurityChange: function() {return 0;},
+        onLinkIconAvailable: function() {return 0;},
+    };
+
+    persist.saveURI(uri, cache_key, referrer_uri, post_data, null /* no extra headers */, fileURI);
+}
 
 
 
@@ -204,7 +329,7 @@ function maybe_get_filename_extension (file_name_s) {
 
 function maybe_get_url_extension (url_o) {
     try {
-        url = url_o.QueryInterface(Components.interfaces.nsIURL);
+        var url = url_o.QueryInterface(Components.interfaces.nsIURL);
         if (url.fileExtension == '')
             return null;
         return url.fileExtension;
@@ -414,7 +539,7 @@ function getDefaultFileName (aURI, aDocument, aContentDisposition) {
  *        pass the extension you want here.  Otherwise pass null.  This is
  *        used by save_page_as_text.
  */
-function generate_filename (url, aDocument, aContentType, aContentDisposition, dest_extension_s)
+function generate_filename_for_url (url, aDocument, aContentType, aContentDisposition, dest_extension_s)
 {
     try {
         url.QueryInterface (Components.interfaces.nsIURI);
@@ -446,9 +571,18 @@ function generate_filename (url, aDocument, aContentType, aContentDisposition, d
         file_ext_s = dest_extension_s;
 
     var file_name_o  = conkeror.default_directory.clone();
-    file_name_o.append (file_base_name_s +'.'+ file_ext_s);
+    return file_base_name_s +'.'+ file_ext_s;
     return file_name_o;
 }
+
+function generate_save_path (url, aDocument, aContentType, aContentDisposition, dest_extension_s)
+{
+    var file_name_o  = conkeror.default_directory.clone();
+    file_name_o.append(generate_filename_for_url(url, aDocument, aContentType,
+                                                 aContentDisposition, dest_extension_s));
+    return file_name_o;
+}
+
 
 
 
@@ -537,7 +671,7 @@ interactive("save-page", save_page,
                   var url_o = makeURL (document_o.documentURI);
                   var content_type_s = document_o.contentType;
                   var content_disposition = get_document_content_disposition (document_o);
-                  return generate_filename (
+                  return generate_save_path (
                       url_o,
                       document_o,
                       content_type_s,
@@ -571,7 +705,7 @@ interactive("save-page-as-text", save_page_as_text,
                   var url_o = makeURL (document_o.documentURI);
                   var content_type_s = document_o.contentType;
                   var content_disposition = get_document_content_disposition (document_o);
-                  return generate_filename (
+                  return generate_save_path (
                       url_o,
                       document_o,
                       content_type_s,
@@ -605,7 +739,7 @@ interactive("save-page-complete", save_page_complete,
                   var url_o = makeURL (document_o.documentURI);
                   var content_type_s = document_o.contentType;
                   var content_disposition = get_document_content_disposition (document_o);
-                  return generate_filename (
+                  return generate_save_path (
                       url_o,
                       document_o,
                       content_type_s,
