@@ -324,17 +324,13 @@ N: { func: function (spec) {
 
 // p: Prefix arg converted to number.  Does not do I/O.
 p: { func: function (spec) {
-            var prefix = this.gPrefixArg;
-            this.gPrefixArg = null;
-            return univ_arg_to_number(prefix);
+            return univ_arg_to_number(this.gPrefixArg);
         }
 },
 
 // P: Prefix arg in raw form.  Does not do I/O.
 P: { func: function (spec) {
-            var prefix = this.gPrefixArg;
-            this.gPrefixArg = null;
-            return prefix;
+            return this.gPrefixArg;
         }
 },
 
@@ -508,6 +504,10 @@ function do_interactive (iargs, callback, callback_args, given_args)
             this.message ('do_interactive (' + method + '): ' + e);
         }
     } else {
+        // always reset the prefix arg after collecting all
+        // interactive data, in case it appears multiple times in the
+        // interactive spec.
+        this.gPrefixArg = null;
         try {
             callback.call (this, callback_args);
         } catch (e) {

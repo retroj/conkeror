@@ -348,22 +348,27 @@ interactive("buffer-previous", browser_prev, ['current_frame']);
 
 function meta_x (frame, prefix)
 {
-    // setup the prefix arg which will be reset in call_interactively
-    gPrefixArg = prefix;
     var prompt = "";
-    if (gPrefixArg == null)
+    if (prefix == null)
         prompt = "";
-    else if (typeof gPrefixArg == "object")
-        prompt = gPrefixArg[0] == 4 ? "C-u " : gPrefixArg[0] + " ";
+    else if (typeof prefix == "object")
+        prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
     else
-        prompt = gPrefixArg + " ";
+        prompt = prefix + " ";
 
     var matches = [];
     for (i in conkeror.commands)
         matches.push([conkeror.commands[i][0],conkeror.commands[i][0]]);
 
     frame.readFromMiniBuffer (prompt + "M-x", null, "commands", matches, false, null,
-                              function(c) { call_interactively.call (frame, c); }, frame.abort);
+                              function(c) {
+                                  // pass the prefix given to `meta_x'
+                                  // on to the command that the user
+                                  // typed into the minibuffer.
+                                  frame.gPrefixArg = prefix;
+                                  call_interactively.call (frame, c);
+                              },
+                              frame.abort);
 }
 interactive("execute-extended-command", meta_x, ['current_frame', "P"]);
 
