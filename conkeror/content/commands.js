@@ -60,7 +60,7 @@ function unfocus (frame)
 interactive("unfocus", unfocus, ['current_frame']);
 
 
-function goBack (frame, prefix)
+function go_back (frame, prefix)
 {
     if (frame.getWebNavigation().canGoBack) {
         var hist = frame.getWebNavigation().sessionHistory;
@@ -69,10 +69,10 @@ function goBack (frame, prefix)
         frame.getWebNavigation().gotoIndex(idx);
     }
 }
-interactive("go-back", goBack, ['current_frame', "p"]);
+interactive("go-back", go_back, ['current_frame', "p"]);
 
 
-function goForward (frame, prefix)
+function go_forward (frame, prefix)
 {
     if (frame.getWebNavigation().canGoForward) {
         var hist = frame.getWebNavigation().sessionHistory;
@@ -81,15 +81,15 @@ function goForward (frame, prefix)
         frame.getWebNavigation().gotoIndex(idx);
     }
 }
-interactive("go-forward", goForward, ['current_frame', "p"]);
+interactive("go-forward", go_forward, ['current_frame', "p"]);
 
 
-function stopLoading (frame)
+function stop_loading (frame)
 {
     frame.getWebNavigation().stop (Components.interfaces.nsIWebNavigation.STOP_NETWORK);
 }
-interactive("stop-loading", stopLoading, ['current_frame']);
-interactive("keyboard-quit", stopLoading, ['current_frame']);
+interactive("stop-loading", stop_loading, ['current_frame']);
+interactive("keyboard-quit", stop_loading, ['current_frame']);
 
 
 function reload (frame)
@@ -108,11 +108,11 @@ interactive("beginning-of-line", scrollHorizComplete, ['current_frame', ['value'
 interactive("end-of-line", scrollHorizComplete, ['current_frame', ['value', 1]]);
 
 
-function make_frame_command ()
-{
-    make_frame (homepage);
-}
-interactive("make-frame-command", make_frame_command, []);
+interactive("make-frame-command", make_frame,
+            [['result',
+              function () {
+                  return conkeror.homepage;
+              }]]);
 
 
 function delete_frame (frame)
@@ -121,20 +121,6 @@ function delete_frame (frame)
 }
 interactive("delete-frame", delete_frame, ['current_frame']);
 
-
-// XXX: move open_url_in_prompt to utils.js?
-function open_url_in_prompt(prefix, str)
-{
-    if (str == null)
-        str = "Find URL";
-    if (prefix == 1) {
-        return str + ":";
-    } else if (prefix <= 4) {
-        return str + " in new buffer:";
-    } else {
-        return str + " in new frame:";
-    }
-}
 
 function open_url_in (frame, prefix, url)
 {
@@ -546,57 +532,56 @@ interactive("help-with-tutorial", tutorial_page, ['current_frame']);
 
 // universal argument code
 
-function universal_digit(prefix)
+function universal_digit (frame, prefix)
 {
     //XXX RetroJ: we should use an interactive code like "e" instead of
     //            gCommandLastEvent
-    var ch = this.gCommandLastEvent.charCode;
+    var ch = frame.gCommandLastEvent.charCode;
     var digit = ch - 48;
     // Array means they typed only C-u's. Otherwise, add another digit
     // to our accumulating prefix arg.
     if (typeof prefix == "object") {
         if (prefix[0] < 0)
-            this.gPrefixArg = 0 - digit;
+            frame.gPrefixArg = 0 - digit;
         else
-            this.gPrefixArg = digit;
+            frame.gPrefixArg = digit;
     } else {
-        this.gPrefixArg = prefix * 10 + digit;
+        frame.gPrefixArg = prefix * 10 + digit;
     }
 }
-interactive("universal-digit", universal_digit,["P"]);
+interactive("universal-digit", universal_digit,['current_frame', "P"]);
 
 
-function universal_negate ()
+function universal_negate (frame)
 {
     if (typeof gPrefixArg == "object")
-        this.gPrefixArg[0] = 0 - this.gPrefixArg[0];
+        frame.gPrefixArg[0] = 0 - frame.gPrefixArg[0];
     else
-        this.gPrefixArg = 0 - this.gPrefixArg;
+        frame.gPrefixArg = 0 - frame.gPrefixArg;
 }
-interactive("universal-negate", universal_negate,[]);
+interactive("universal-negate", universal_negate,['current_frame']);
 
 
-function universal_argument()
+function universal_argument (frame)
 {
-    this.gPrefixArg = [4];
-    /* this refers to the window */
-    this.overlay_kmap = universal_kmap;
+    frame.gPrefixArg = [4];
+    frame.overlay_kmap = universal_kmap;
 }
-interactive("universal-argument", universal_argument,[]);
+interactive("universal-argument", universal_argument,['current_frame']);
 
 
-function universal_argument_more(prefix)
+function universal_argument_more (frame, prefix)
 {
     if (typeof prefix == "object")
-        this.gPrefixArg = [prefix[0] * 4];
+        frame.gPrefixArg = [prefix[0] * 4];
     else {
         // terminate the prefix arg
         ///XXX: is this reachable?
-        this.gPrefixArg = prefix;
-        this.overlay_kmap = null;
+        frame.gPrefixArg = prefix;
+        frame.overlay_kmap = null;
     }
 }
-interactive("universal-argument-more", universal_argument_more,["P"]);
+interactive("universal-argument-more", universal_argument_more,['current_frame', "P"]);
 
 
 function univ_arg_to_number(prefix)
@@ -604,7 +589,7 @@ function univ_arg_to_number(prefix)
     try {
     if (prefix == null)
         return 1;
-    if (typeof prefix == "object") 
+    if (typeof prefix == "object")
         return prefix[0];
     else if (typeof prefix == "number")
         return prefix;

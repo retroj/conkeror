@@ -360,6 +360,12 @@ r: { func: function (spec) {
         }
 },
 
+result: { func: function (spec) {
+            // -- result of given function
+            return (1 in spec ? spec[1]() : null);
+        }
+},
+
 s: { async: function (spec, iargs, callback, callback_args, given_args) {
             // -- Any string.
             var prompt = "String: ";

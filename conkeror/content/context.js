@@ -99,7 +99,7 @@ function context_methods (node) {
     if (getWebNavigation().canGoForward)
         inherit ('nav', 'forward', function () { call_interactively('go-forward',[1]); });
     inherit ('nav', 'reload', function () { reload(); });
-    inherit ('nav', 'stop', function () { stopLoading(); });
+    inherit ('nav', 'stop', function () { stop_loading(); });
 
     // page interface
     inherit ('page', 'save_page', function () { call_interactively('save-page'); });
