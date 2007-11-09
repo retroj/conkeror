@@ -112,3 +112,24 @@ function test_add_hook_set () {
                  tree_equal ([0,1,2,3], myhook));
 }
 test_add_hook_set ();
+
+
+// test_prefix_duplication: this tests whether an interactive command
+// can receive two copies of raw-prefix-arg.  For this to work, the
+// prefix arg cannot be nulled until all interactive data has been
+// collected.
+function test_prefix_duplication () {
+    function inner (pfx1, pfx2) {
+        assert_that ("batchjs", "test_prefix_duplication",
+                     pfx1 == pfx2 && pfx1 == 1);
+    }
+    var fake_window = {
+        gPrefixArg: 1,
+        message: function (str) {dump (str + "\n");}
+    };
+    interactive ("test-prefix-duplication", inner, ['P', 'P']);
+    call_interactively.call (fake_window, "test-prefix-duplication");
+    return true;
+}
+test_prefix_duplication();
+
