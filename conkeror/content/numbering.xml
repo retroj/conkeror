@@ -9,7 +9,7 @@
       <constructor><![CDATA[
         try
         {
-          var tp;
+          var type;
           var insertType; /* 1 => inside,  2 => before */
 
           /* Ignore hidden INPUT elements */
@@ -17,42 +17,42 @@
             return;
           if (this.tagName == "A")
           {
-            tp = "link";
-            insertType = 1;
+              type = Components.interfaces.conkerorINumberingHelper.TYPE_LINK;
+              insertType = 1;
           } else if (this.tagName == "INPUT" &&
                      (this.type == "submit" ||
                       this.type == "button" ||
                       this.type == "checkbox" ||
                       this.type == "radio"))
           {
-            tp = "button";
-            insertType = 2;
+              type = Components.interfaces.conkerorINumberingHelper.TYPE_BUTTON;
+              insertType = 2;
           } else
           {
-            tp = "widget";
-            insertType = 2;
+              type = Components.interfaces.conkerorINumberingHelper.TYPE_WIDGET;
+              insertType = 2;
           }
 
           var span;
           if (insertType == 1)
           {
-            var anon = document.getAnonymousNodes(this);
-            span = anon.item(0);
+              var anon = document.getAnonymousNodes(this);
+              span = anon.item(0);
           }
           else
           {
-            span = document.createElementNS("http://www.w3.org/1999/xhtml","span");
-            span.setAttribute("class", "__conkeror_link_number");
-            span.setAttribute("style", "display: none;");
+              span = document.createElementNS("http://www.w3.org/1999/xhtml","span");
+              span.setAttribute("class", "__conkeror_link_number");
+              span.setAttribute("style", "display: none;");
           }
 
           /* Use the numbering_helper component to register this
              numbered item in the appropriate data structure and get
              the next available number.  This requires privileged code
              because it has to cross frame boundaries. */
-          var topwin = window.top;
-          var helper = window.__conkeror_numbering_helper;
-          var num = helper.wrappedJSObject.register_item(topwin, document, this, tp, span);
+          var helper = window.__conkeror_numbering_helper
+              .QueryInterface(Components.interfaces.conkerorINumberingHelper);
+          var num = helper.registerItem(this, span, type);
 
           /* Make node refer to this, for use in the setTimeout
              handler where `this' will not be available. */
@@ -64,35 +64,41 @@
              because the document isn't fully initialized at the time
              this constructor is called. */
           setTimeout( function () {
-              if (node.insertType == 2)
-                node.parentNode.insertBefore(span, node);
-              span.style.display = "inline";
-              span.appendChild(document.createTextNode(num + ""));
-            }, 0);
+                  if (insertType == 2)
+                      node.parentNode.insertBefore(span, node);
+                  span.style.display = "inline";
+                  span.appendChild(document.createTextNode(num + ""));
+              }, 0);
 
           /* Store these values for use by the destructor */
-          this.__conkeror_num = num;
-          this.__num_node = span;
-          this.insertType = insertType;
+          this.__conkeror_identifier = num;
+          this.__conkeror_number_node = span;
+          this.__conkeror_insertion_method = insertType;
         } catch (e) {
-          /* An exception can occur if the binding is to a node that is itself
-             an anonymous node, such as the anonymous button element associated
-             with a SELECT element.  In that case, a number should just not be
-             added, and this exception can be ignored. */
+            /*
+            dump("Error: " + e + "\n");
+            dump("      Stack trace: " + e.stack + "\n");
+            dump("      File name: " + e.fileName + "\n");
+            dump("      File line: " + e.line + "\n");
+            */
+            /* An exception can occur if the binding is to a node that
+               is itself an anonymous node, such as the anonymous
+               button element associated with a SELECT element.  In
+               that case, a number should just not be added, and this
+               exception can be ignored. */
         }
       ]]></constructor>
       <destructor><![CDATA[
         try {
-          if (this.__conkeror_num)
-          {
-            var topwin = window.top;
-            window.__conkeror_numbering_helper.wrappedJSObject.unregister_item(topwin, this.__conkeror_num);
-          }
-          if (this.__num_node && this.insertType == 2)
-          {            
-            this.__num_node.parentNode.removeChild(this.__num_node);
-          }
-        } catch (e) {/* Ignore exceptions in the destructor */}
+            if (this.__conkeror_identifier)
+            {
+                var helper = window.__conkeror_numbering_helper
+                    .QueryInterface(Components.interfaces.conkerorINumberingHelper);
+                helper.unregisterItem(this, this.__conkeror_identifier);
+                if (this.__conkeror_insertion_method == 2)
+                    this.__conkeror_number_node.parentNode.removeChild(this.__conkeror_number_node);
+            }
+        } catch (e) {/* Ignore exceptions in the destructor */ }
       ]]></destructor>
     </implementation>
   </binding>

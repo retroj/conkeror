@@ -2,6 +2,11 @@
 
 source VERSION
 
+SDK_DIR="/usr/lib/xulrunner"
+
+XPIDL="${SDK_DIR}/xpidl"
+XPIDL_INCLUDE="${SDK_DIR}/idl"
+
 TARGET='help'
 
 ## ETAGSDIR
@@ -188,6 +193,10 @@ function do_target_xulapp () {
     cp chrome.manifest.for-jar "$SCRATCH/chrome/chrome.manifest"
     copy_tree_sans_boring defaults "$SCRATCH/defaults"
     copy_tree_sans_boring components "$SCRATCH/components"
+    for x in idl/*; do
+        name="$(basename "$x")"
+        "${XPIDL}" -w -v -m typelib -I "${XPIDL_INCLUDE}" -e "$SCRATCH/components/${name%.idl}.xpt" "$x"
+    done
     pushd "$SCRATCH" > /dev/null
     ## begin preprocessing
     ##

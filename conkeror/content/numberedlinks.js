@@ -72,10 +72,10 @@ function copy_numbered_image_location (prefix, number)
     // we have a node.  we must now produce some side-effect based on its type
     // and the requested action.
     //
-    var type = nl.el_type;
+    var type = nl.type;
 
     if (type == "image") {
-        copy_img_location(nl.node);
+        copy_img_location(nl.target_node);
     } else {
         fail (number);
     }
@@ -89,65 +89,70 @@ function copy_numbered_image_location (prefix, number)
 function get_href (node)
 {
     if (node.hasAttribute("href")) {
-	var wrapper = new XPCNativeWrapper(node, "href", "getAttribute()");
-	return wrapper.href;
+        var wrapper = new XPCNativeWrapper(node, "href", "getAttribute()");
+        return wrapper.href;
     }
 }
 
 function get_numberedlink (window, number)
 {
-  /* Careful: This might be a security hole. */
-  var numInfo = window.content.wrappedJSObject.__conkeror_numbering_data;
-  if (!numInfo)
+    /* It is important to be careful here, since we are accessing an
+     * attribute of the content window, and using wrappedJSObject. */
+    var data_container = window.content.wrappedJSObject.__conkeror_numbering_helper;
+    if (!data_container
+        || !(data_container instanceof Components.interfaces.conkerorINumberingHelper))
+        return null;
+    var data = data_container.wrappedJSObject;
+    var arr = data.registrations;
+    var num = parseInt(number);
+    if (arr && num > 0 && num < arr.length)
+    {
+        var entry = arr[num];
+        return entry;
+    }
     return null;
-  var arr = numInfo.arr;
-  var num = parseInt(number);
-  if (arr && num > 0 && num < arr.length)
-  {
-    var entry = arr[num];
-    return entry;
-  }
-  return null;
 }
+
+const conkerorINumberingHelper = Components.interfaces.conkerorINumberingHelper;
 
 function numberedlinks_do_link (frame, prefix, link, action)
 {
-  var window = frame;
+    var window = frame;
     // See if the number is a link.
-  var nl = get_numberedlink (window, link);
-  if (! nl) {
-    window.message ("No link with number '" + link + "'");
-    return;
-  }
+    var nl = get_numberedlink (window, link);
+    if (! nl) {
+        window.message ("No link with number '" + link + "'");
+        return;
+    }
 
     // we have a node.  we must now produce some side-effect based on its type
     // and the requested action.
     //
-    var type = nl.el_type;
-    var href = get_href (nl.node);
+    var type = nl.type;
+    var href = get_href (nl.target_node);
 
-    if (type == "link") {
+    if (type == conkerorINumberingHelper.TYPE_LINK) {
         if (action == "numberedlinks-focus") {
-            nl.node.focus();
+            nl.target_node.focus();
         } else if (action == "numberedlinks-follow-other-buffer") {
             window.newBrowser(href);
         } else if (action == "numberedlinks-follow-other-frame") {
           open_url_in (window, 5, href);
         } else if (action == "numberedlinks-save") {
-            nl.node.focus();
+            nl.target_node.focus();
             call_interactively.call (window, "save-focused-link");
         } else {
-            var img = nl.node.getElementsByTagName("IMG");
-            var evt = nl.doc.createEvent('MouseEvents');
+            var img = nl.target_node.getElementsByTagName("IMG");
+            var evt = nl.document.createEvent('MouseEvents');
             var x = 1;
             var y = 1;
             if (prefix == 1) {
-                if (nl.node.localName.toLowerCase() == "area") {
-                    var coords = nl.node.getAttribute("coords").split(",");
+                if (nl.target_node.localName.toLowerCase() == "area") {
+                    var coords = nl.target_node.getAttribute("coords").split(",");
                     x = Number(coords[0]);
                     y = Number(coords[1]);
                 }
-                evt.initMouseEvent('click', true, true, nl.doc.defaultView, 0, x, y, 0, 0, null, null, null, null, 0, null);
+                evt.initMouseEvent('click', true, true, nl.document.defaultView, 0, x, y, 0, 0, null, null, null, null, 0, null);
                 // Handle the annoying case where
                 // there's a link with an image inside
                 // it and the onclick is on the image
@@ -155,21 +160,21 @@ function numberedlinks_do_link (frame, prefix, link, action)
                 if (img.length > 0)
                     img[0].dispatchEvent(evt);
                 else
-                    nl.node.dispatchEvent(evt);
+                    nl.target_node.dispatchEvent(evt);
             } else {
-              open_url_in (window, prefix, nl.node.href);
+              open_url_in (window, prefix, nl.target_node.href);
             }
         }
-    } else if (type == "button") {
+    } else if (type == conkerorINumberingHelper.TYPE_BUTTON) {
         if (action == "numberedlinks-focus") {
-            nl.node.focus();
+            nl.target_node.focus();
         } else {
-            var evt = nl.doc.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, nl.doc.defaultView, 0, 0, 0, 0, 0, null, null, null, null, 0, null);
-            nl.node.dispatchEvent(evt);
+            var evt = nl.document.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, nl.document.defaultView, 0, 0, 0, 0, 0, null, null, null, null, 0, null);
+            nl.target_node.dispatchEvent(evt);
         }
     } else {
-        nl.node.focus ();
+        nl.target_node.focus ();
     }
 }
 interactive("numberedlinks-1", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "1"; }], "minibuffer_exit"]);

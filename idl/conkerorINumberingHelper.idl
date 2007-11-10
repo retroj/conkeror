@@ -1,0 +1,34 @@
+
+#include "nsISupports.idl"
+
+interface nsIDOMWindow;
+interface nsIDOMNode;
+interface nsISupports;
+
+[scriptable, uuid(50A7BE4A-8F14-11DC-8829-756D55D89593)]
+interface conkerorINumberingHelper : nsISupports {
+
+  const short TYPE_LINK = 1;
+  const short TYPE_BUTTON = 2;
+  const short TYPE_WIDGET = 3;
+
+  /**
+   * Registers the specified numbered item.  The targetNode and
+   * numberNode must have the same ownerDocument; this ownerDocument
+   * is used to determine where the numbered item will be registered.
+   * The returned string uniquely identifies the numbered item.  The
+   * type argument must be one of the TYPE_* constants declare in this
+   * interface.
+   */
+  wstring registerItem(in nsIDOMNode targetNode,
+                       in nsIDOMNode numberNode,
+                       in short type);
+
+  /**
+   * Unregisters the specified numbered item.  The identifier passed
+   * in must equal the identifier returned from a call to registerItem
+   * with the specified targetNode.
+   */
+  void unregisterItem(in nsIDOMNode  targetNode,
+                      in wstring identifier);
+};

@@ -1,112 +1,92 @@
 
-/* This scheme may well be a security hole.  It might be necessary to
-   create a proper interface definition. */
 
 function numbering_helper() {
-  this.wrappedJSObject = this;
+    this.wrappedJSObject = { next_number : 1, registrations : [] };
 }
 
 numbering_helper.prototype = {
- register_item : function (content_win, doc, node, item_type, num_node) {
-    if (!(content_win instanceof Components.interfaces.nsISupports))
-      return null;
-    
-    var safeArg = XPCNativeWrapper(content_win);
-    var rootWindow = safeArg.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-    .getInterface(Components.interfaces.nsIWebNavigation)
-    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-    .rootTreeItem
-    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-    .getInterface(Components.interfaces.nsIDOMWindow).wrappedJSObject;
+    registerItem : function (targetNode, numberNode, type) {
+        var doc = targetNode.ownerDocument;
+        if (doc != numberNode.ownerDocument)
+            throw Components.Exception("ownerDocument values of targetNode and numberNode do not match");
 
-    /* Loop through each buffer of this root window */
-    var buffers = rootWindow.getBrowser().mBrowserContainer.childNodes;
-    var correctBuffer = null;
-    for (var i = 0; i < buffers.length; ++i)
+        /* Find the "top" node */
+        var top_window = doc.defaultView.top;
+
+        var top_helper = top_window.wrappedJSObject.__conkeror_numbering_helper;
+        if (!(top_helper instanceof Components.interfaces.conkerorINumberingHelper))
+            throw Components.Exception("top-level __conkeror_numbering_helper not found");
+
+        var data = top_helper.wrappedJSObject;
+
+        var num = data.next_number++;
+        data.registrations[num] = { document : doc,
+                                    target_node : targetNode,
+                                    type : type,
+                                    number_node : numberNode };
+        return num;
+    },
+
+    unregisterItem : function (targetNode, identifier) {
+        var doc = targetNode.ownerDocument;
+
+        /* Find the "top" node */
+        var top_window = doc.defaultView.top;
+
+        var top_helper = top_window.wrappedJSObject.__conkeror_numbering_helper;
+        if (!(top_helper instanceof Components.interfaces.conkerorINumberingHelper))
+            throw Components.Exception("top-level __conkeror_numbering_helper not found");
+
+        var data = top_helper.wrappedJSObject;
+
+        var num = parseInt(identifier);
+        if (num != identifier || num < 1 || num >= data.registrations.length)
+            throw Components.Exception("Invalid identifier");
+
+        if (data.registrations[num].target_node != targetNode)
+            throw Components.Exception("targetNode does not match identifier");
+
+        data.registrations[num].target_node = null;
+    },
+
+    /* nsISupports */
+    QueryInterface: function (aIID) {
+        if (! aIID.equals (Components.interfaces.nsISupports)
+            && !aIID.equals(Components.interfaces.conkerorINumberingHelper)
+            && !aIID.equals(Components.interfaces.nsISecurityCheckedComponent))
+            throw Components.results.NS_ERROR_NO_INTERFACE;
+        return this;
+    },
+
+    /* nsISecurityCheckedComponent */
+    canCreateWrapper : function(aIID)
     {
-      var buffer = buffers.item(i).firstChild;
-      if (buffer.contentWindow == content_win)
-      {
-        correctBuffer = buffer;
-        break;
-      }
-    }
+        if (aIID.equals(Components.interfaces.conkerorINumberingHelper)
+            || aIID.equals(Components.interfaces.nsISupports))
+            return "AllAccess";
+        return "NoAccess";
+    },
 
-    if (!correctBuffer)
-      return null;
-
-    /* Careful: This might be a security hole */
-    if (!correctBuffer.contentWindow.wrappedJSObject.__conkeror_numbering_data)
-      correctBuffer.contentWindow.wrappedJSObject.__conkeror_numbering_data = { next_num : 1, arr : new Array () };
-
-    var numInfo = correctBuffer.contentWindow.wrappedJSObject.__conkeror_numbering_data;
-    var num = numInfo.next_num++;
-    numInfo.arr[num] = { doc : doc,
-                         node : node,
-                         el_type : item_type,
-                         num_node : num_node };
-
-    return num;
-  },
-
- unregister_item : function (content_win, num) {
-    if (!(content_win instanceof Components.interfaces.nsISupports))
-      return;
-    
-    var safeArg = XPCNativeWrapper(content_win);
-    var rootWindow = safeArg.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-    .getInterface(Components.interfaces.nsIWebNavigation)
-    .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-    .rootTreeItem
-    .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-    .getInterface(Components.interfaces.nsIDOMWindow).wrappedJSObject;
-
-    /* Loop through each buffer of this root window */
-    var buffers = rootWindow.getBrowser().mBrowserContainer.childNodes;
-    var correctBuffer = null;
-    for (var i = 0; i < buffers.length; ++i)
+    canCallMethod : function (aIID, methodName)
     {
-      var buffer = buffers.item(0).firstChild;
-      if (buffer.contentWindow == content_win)
-      {
-        correctBuffer = buffer;
-        break;
-      }
-    }
+        if ((aIID.equals(Components.interfaces.conkerorINumberingHelper)
+             || aIID.equals(Components.interfaces.nsISupports))
+            && (methodName == "registerItem"
+                || methodName == "unregisterItem"
+                || methodName == "QueryInterface"))
+            return "AllAccess";
+        return "NoAccess";
+    },
 
-    if (!correctBuffer)
-      return;
+    canGetProperty : function (aIID, propertyName)
+    {
+        return "NoAccess";
+    },
 
-    /* Careful: This might be a security hole. */
-    var numInfo = correctBuffer.contentWindow.wrappedJSObject.__conkeror_numbering_data;
-    var num = parseInt(num);
-    if (numInfo && num && num > 0 && num < numInfo.arr.length)
-      numInfo.arr[num] = null;
-  },
-
-
-// nsISupports
- QueryInterface: function (aIID) {
-    if (! aIID.equals (Components.interfaces.nsISupports)
-        && !aIID.equals(Components.interfaces.nsIClassInfo))
-      throw Components.results.NS_ERROR_NO_INTERFACE;
-    return this;
-  },
- 
- getHelperForLanguage : function (count) { return null; },
-
-// property of nsIClassInfo
- flags : Components.interfaces.nsIClassInfo.DOM_OBJECT,
-
-// property of nsIClassInfo
- classDescription : "numbering_helper",
-
-// method of nsIClassInfo
- getInterfaces : function(count) {
-    var interfaceList = [Components.interfaces.nsIClassInfo];
-    count.value = interfaceList.length;
-    return interfaceList;
-  }
+    canSetProperty : function (aIID, propertyName)
+    {
+        return "NoAccess";
+    },
 };
 
 ///
@@ -173,5 +153,5 @@ canUnload: function(aCompMgr) { return true; }
 
 function NSGetModule(comMgr, fileSpec)
 {
-  return module;
+    return module;
 }
