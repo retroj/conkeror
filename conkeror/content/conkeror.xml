@@ -8,7 +8,7 @@
       <content>
           <xul:deck flex="1">
             <xul:vbox flex="1">
-	      <xul:browser flex="1" type="content-primary" usechromesheets="chrome://conkeror/content/numbering.css" pile="0"/>
+	      <xul:browser flex="1" type="content-primary" usechromesheets="chrome://conkeror/content/numbering.css, chrome://global/skin/xulscrollbars.css" pile="0"/>
 	      <xul:hbox class="mode-line">
 	      <xul:label class="mode-line-label" value="" crop="right" flex="1"/>
               </xul:hbox>
