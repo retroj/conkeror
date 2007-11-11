@@ -31,7 +31,11 @@ function browser_buffer(frame, browser)
     }
     this.element = browser;
     this.element.conkeror_buffer_object = this;
-    
+    this.element.addProgressListener(this);
+    var buffer = this;
+    this.element.addEventListener("DOMTitleChanged", function (event) {
+            run_hooks(buffer_title_change_hook, buffer);
+        }, false);
 }
 
 browser_buffer.prototype = {
@@ -59,7 +63,7 @@ browser_buffer.prototype = {
     get display_URI_string () {
         if (this._display_URI)
             return this._display_URI;
-        return this.currentURI.spec;
+        return this.current_URI.spec;
     },
 
     get name () {
@@ -85,6 +89,133 @@ browser_buffer.prototype = {
     on_switch_away : function () {
         this.element.setAttribute("type", "content");
     },
+
+    _requests_started: 0,
+    _requests_finished: 0,
+
+    /* nsIWebProgressListener */
+    QueryInterface: function(iid) {
+        if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
+            iid.equals(Components.interfaces.nsISupportsWeakReference) ||
+            iid.equals(Components.interfaces.nsISupports))
+            return this;
+        throw Components.results.NS_ERROR_NO_INTERFACE;
+    },
+
+    // This method is called to indicate state changes.
+    onStateChange: function(webProgress, request, stateFlags, status) {
+        const WPL = Components.interfaces.nsIWebProgressListener;
+        /*
+        var flagstr = "";
+        if (stateFlags & WPL.STATE_START)
+            flagstr += ",start";
+        if (stateFlags & WPL.STATE_STOP)
+            flagstr += ",stop";
+        if (stateFlags & WPL.STATE_IS_REQUEST)
+            flagstr += ",request";
+        if (stateFlags & WPL.STATE_IS_DOCUMENT)
+            flagstr += ",document";
+        if (stateFlags & WPL.STATE_IS_NETWORK)
+            flagstr += ",network";
+        if (stateFlags & WPL.STATE_IS_WINDOW)
+            flagstr += ",window";
+        dumpln("onStateChange: " + flagstr + ", status: " + status);
+        */
+        if (stateFlags & WPL.STATE_IS_REQUEST) {
+            if (stateFlags & WPL.STATE_START) {
+                this._requests_started++;
+            } else if (stateFlags & WPL.STATE_STOP) {
+                this._requests_finished++;
+            }
+        }
+        if ((stateFlags & WPL.STATE_STOP) && (this._requests_finished == this._requests_started)) {
+            this._requests_finished = this._requests_started = 0;
+            run_hooks(browser_buffer_finished_loading_hook, this);
+        }
+    },
+
+    /* This method is called to indicate progress changes for the currently
+       loading page. */
+    onProgressChange: function(webProgress, request, curSelf, maxSelf,
+                               curTotal, maxTotal) {
+        run_hooks(browser_buffer_progress_change_hook,
+                  this, request, curSelf, maxSelf, curTotal, maxTotal);
+    },
+
+    /* This method is called to indicate a change to the current location.
+       The url can be gotten as location.spec. */
+    onLocationChange : function(webProgress, request, location) {
+        /* Use the real location URI now */
+        this._display_URI = null;
+        run_hooks(browser_buffer_location_change_hook,
+                  this, request, location);
+    },
+
+    // This method is called to indicate a status changes for the currently
+    // loading page.  The message is already formatted for display.
+    // Status messages could be displayed in the minibuffer output area.
+    onStatusChange: function(webProgress, request, status, msg) {
+        run_hooks(browser_buffer_status_change_hook, this, request, status, msg);
+    },
+
+    // This method is called when the security state of the browser changes.
+    onSecurityChange: function(webProgress, request, state) {
+        const WPL = Components.interfaces.nsIWebProgressListener;
+
+        if (state & WPL.STATE_IS_INSECURE) {
+            // update visual indicator
+        } else {
+            var level = "unknown";
+            if (state & WPL.STATE_IS_SECURE) {
+                if (state & WPL.STATE_SECURE_HIGH)
+                    level = "high";
+                else if (state & WPL.STATE_SECURE_MED)
+                    level = "medium";
+                else if (state & WPL.STATE_SECURE_LOW)
+                    level = "low";
+            } else if (state & WPL_STATE_IS_BROKEN) {
+                level = "mixed";
+            }
+            // provide a visual indicator of the security state here.
+        }
+    },
+
+    do_command : function (command)
+    {
+        function attempt_command(element, command)
+        {
+            var controller;
+            if (element.controllers
+                && (controller = element.controllers.getControllerForCommand(command)) != null
+                && controller.isCommandEnabled(command))
+            {
+                controller.doCommand(command);
+                return true;
+            }
+            return false;
+        }
+
+        var doc = this.frame.document;
+        var element = doc.commandDispatcher.focusedElement;
+        if (element) {
+            var win = element.ownerDocument.defaultView;
+            if (win && win.top == this.content_window)
+                if (attempt_command(element, command))
+                    return;
+        }
+        var win = doc.commandDispatcher.focusedWindow;
+        if (win && win.top == this.content_window)
+        {
+            do  {
+                if (attempt_command(win, command))
+                    return;
+                win = win.parent;
+            } while (win);
+        }
+        attempt_command(this.content_window, command);
+    },
+
+    /* Inherit from buffer */
 
     prototype : buffer.prototype
 };
@@ -149,7 +280,30 @@ buffer_container.prototype = {
     },
 
     get selected_index () {
-        return this.container.selectedIndex;
+        var nodes = this.container.childNodes;
+        var count = nodes.length;
+        for (var i = 0; i < count; ++i)
+            if (nodes.item(i) == this.container.selectedPanel)
+                return i;
+        return null;
+    },
+
+    get unique_name_list () {
+        var existing_names = new string_hashset();
+        var bufs = [];
+        this.for_each(function(b) {
+                var base_name = b.name;
+                var name = base_name;
+                var index = 1;
+                while (existing_names.contains(name))
+                {
+                    ++index;
+                    name = base_name + "<" + index + ">";
+                }
+                existing_names.add(name);
+                bufs.push([name, b]);
+            });
+        return bufs;
     },
 
     kill_buffer : function (b) {
@@ -214,3 +368,17 @@ function buffer_initialize_frame(frame)
 }
 
 add_hook(frame_initialize_hook, buffer_initialize_frame, true);
+
+add_hook(browser_buffer_finished_loading_hook,
+         function (buffer) {
+             if (buffer == buffer.frame.buffers.current) {
+                 buffer.frame.minibuffer.show("Done");
+             }
+         });
+
+add_hook(browser_buffer_status_change_hook,
+         function (buffer, request, status, msg) {
+             if (buffer == buffer.frame.buffers.current) {
+                 buffer.frame.minibuffer.show(msg);
+             }
+         });

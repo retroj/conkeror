@@ -145,6 +145,7 @@ function open_url_in (frame, prefix, url)
         // Open in new buffer
         var buffer = new browser_buffer(frame);
         buffer.load_URI(url);
+        frame.buffers.current = buffer;
     } else {
         // Open in new frame
       make_frame(url);
@@ -232,8 +233,9 @@ function switch_to_buffer (frame, buffer)
 interactive("switch-to-buffer", switch_to_buffer,
             ['current_frame',
              ["b", function (a) { return "Switch to buffer: "; },
-              function (a) { return this.buffers.current.name; } ]]);
-
+              function (a) {
+                  return (this.buffers.selected_index + 1) % this.buffers.count;
+              }]]);
 
 function kill_buffer (frame, buffer)
 {
@@ -391,14 +393,15 @@ interactive("execute-extended-command", meta_x, ['current_frame', "P"]);
 
 /// built in commands
 // see: http://www.xulplanet.com/tutorials/xultu/commandupdate.html
+
+// Performs a command on a browser buffer content area
 function goDoCommand (frame, command)
 {
     try {
-        var controller = frame.top.document.commandDispatcher.getControllerForCommand (command);
-        if (controller && controller.isCommandEnabled (command))
-            controller.doCommand (command);
+        // FIXME: There should be some check to ensure that the current buffer is a browser buffer
+        frame.buffers.current.do_command(command);
     } catch (e) {
-        frame.message ("goDoCommand ("+command+"): "+e);
+        frame.minibuffer.message ("goDoCommand ("+command+"): "+e);
     }
 }
 interactive("cmd_beginLine", goDoCommand, ['current_frame', ['value', 'cmd_beginLine']]);

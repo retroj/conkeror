@@ -33,6 +33,69 @@ the terms of any one of the MPL, the GPL or the LGPL.
  *
  */
 
+
+function string_hashset() {
+}
+
+string_hashset.prototype = {
+    add : function(s) {
+        this["-" + s] = true;
+    },
+    
+    contains : function(s) {
+        return !(this["-" + s] === undefined);
+    },
+
+    remove : function (s) {
+        delete this["-" + s];
+    },
+
+    for_each : function (f) {
+        for (var i in this) {
+            if (i[0] == "-")
+                f(i.slice(1));
+        }
+    }
+};
+
+function string_hashmap() {
+}
+
+string_hashmap.prototype = {
+    put : function(s,value) {
+        this["-" + s] = value;
+    },
+    
+    contains : function(s) {
+        return !(this["-" + s] === undefined);
+    },
+
+    get : function(s, default_value) {
+        var result = this["-" + s];
+        if (result === undefined)
+            return default_value;
+        return s;
+    },
+
+    get_put_default : function(s, default_value) {
+        var result = this["-" + s];
+        if (result === undefined)
+            return (this["-" + s] = value);
+        return result;
+    },
+
+    remove : function (s) {
+        delete this["-" + s];
+    },
+
+    for_each : function (f) {
+        for (var i in this) {
+            if (i[0] == "-")
+                f(i.slice(1), this[i]);
+        }
+    }
+};
+
 /// Window title formatting
 
 /**
@@ -40,10 +103,9 @@ the terms of any one of the MPL, the GPL or the LGPL.
  * page_title, returns: "Page title - Conkeror".  Otherwise, it
  * returns just: "Conkeror".
  */
-function default_title_formatter ()
+function default_title_formatter (frame)
 {
-    var page_title = this.getBrowser().mCurrentBrowser.contentTitle;
-    var page_url = this.getWebNavigation().currentURI.spec;
+    var page_title = frame.buffers.current.title;
 
     if (page_title && page_title.length > 0)
         return page_title + " - Conkeror";
@@ -53,18 +115,27 @@ function default_title_formatter ()
 
 var title_format_fn = null;
 
-function set_window_title ()
+function set_window_title (frame)
 {
-    this.document.title = title_format_fn.call (this);
+    frame.document.title = title_format_fn(frame);
 }
 
 function init_window_title ()
 {
-    conkeror.title_format_fn = default_title_formatter;
-    conkeror.add_hook (conkeror.dom_title_changed_hook, conkeror.set_window_title);
-    conkeror.add_hook (conkeror.make_frame_after_hook, conkeror.set_window_title);
-    conkeror.add_hook (conkeror.location_changed_hook, conkeror.set_window_title);
-    conkeror.add_hook (conkeror.select_buffer_hook, conkeror.set_window_title);
+    title_format_fn = default_title_formatter;
+
+    add_hook(frame_initialize_late_hook, set_window_title, true);
+    add_hook(browser_buffer_location_change_hook,
+             function (buffer) {
+                 if (buffer == buffer.frame.buffers.current)
+                     set_window_title(buffer.frame);
+             }, true);
+    add_hook(select_buffer_hook, function (buffer) { set_window_title(buffer.frame); }, true);
+    add_hook(buffer_title_change_hook,
+             function (buffer) {
+                 if (buffer == buffer.frame.buffers.current)
+                     set_window_title(buffer.frame);
+             }, true);
 }
 ///
 

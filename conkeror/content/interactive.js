@@ -15,26 +15,14 @@ active_document: { func: function (spec) {
 
 // b: existing buffer.
 b: { async: function (spec, iargs, callback, callback_args, given_args) {
-            var bufs = [];
-            var existing_names = new Object();
-            this.buffers.for_each(function(b) {
-                    var base_name = b.name;
-                    var name = base_name;
-                    var index = 1;
-                    while (existing_names["i_" + name])
-                    {
-                        ++index;
-                        name = base_name + "<" + index + ">";
-                    }
-                    existing_names["i_" + name] = true;
-                    bufs.push([name, b]);
-                });
+            var bufs = this.buffers.unique_name_list;
             var prompt = (1 in spec && spec[1] ? spec[1].call (this, callback_args) : "Buffer: ");
-            var initval = (2 in spec && spec[2] ?
-                           spec[2].call (this, callback_args) : this.buffers.current.name);
+            var initindex = (2 in spec && spec[2] ?
+                             spec[2].call (this, callback_args) : this.buffers.selected_index);
             var frame = this;
-            this.minibuffer.read({prompt: prompt, initial_value: initval, history: "buffer",
+            this.minibuffer.read({prompt: prompt, initial_value: bufs[initindex][0], history: "buffer",
                         completions: bufs,
+                        select: true,
                         callback: function (s) {
                                          callback_args.push (s);
                                          do_interactive.call (frame, iargs, callback, callback_args, given_args);

@@ -426,14 +426,14 @@ minibuffer.prototype = {
         {
             this.output_element.value = str;
             this.last_message = str;
+            /*
             if (str.length > 0)
                 dumpln("MINIBUFFER: " + str);
+            */
         }
 
         if (str.length > 0 && this._input_mode_enabled)
             this._ensure_message_area_showing();
-        /* TODO: possibly flash the message even if minibuffer is in
-         * input mode */
     },
     message : function (str) {
         /* TODO: add the message to a *Messages* buffer, and/or

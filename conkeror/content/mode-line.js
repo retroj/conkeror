@@ -22,8 +22,9 @@ function update_mode_line ()
     modeline.hidden = ! conkeror.mode_line_enabled;
 }
 
-
+/*
 conkeror.add_hook(conkeror.location_changed_hook, update_mode_line);
 conkeror.add_hook(conkeror.make_frame_after_hook, update_mode_line);
 conkeror.add_hook(conkeror.select_buffer_hook,    update_mode_line);
 
+*/
