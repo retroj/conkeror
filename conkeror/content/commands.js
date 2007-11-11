@@ -31,7 +31,7 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 function quit ()
 {
-    conkeror.run_hooks (conkeror.quit_hook);
+    run_hooks(quit_hook);
     var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
         .getService(Components.interfaces.nsIAppStartup);
     appStartup.quit(appStartup.eAttemptQuit);
@@ -41,7 +41,7 @@ interactive("quit", quit, []);
 
 function show_conkeror_version (frame)
 {
-    frame.message (conkeror.version);
+    frame.minibuffer.message (conkeror.version);
 }
 interactive ("conkeror-version", show_conkeror_version, ['current_frame']);
 
@@ -62,11 +62,15 @@ interactive("unfocus", unfocus, ['current_frame']);
 
 function go_back (frame, prefix)
 {
-    if (frame.getWebNavigation().canGoBack) {
-        var hist = frame.getWebNavigation().sessionHistory;
+    var b = frame.buffers.current;
+    // Should be checking if type of buffer is browser_buffer
+    if (b.web_navigation.canGoBack)
+    {
+        var hist = b.web_navigation.sessionHistory;
         var idx = hist.index - prefix;
-        if (idx < 0) idx = 0;
-        frame.getWebNavigation().gotoIndex(idx);
+        if (idx < 0)
+            idx = 0;
+        b.web_navigation.gotoIndex(idx);
     }
 }
 interactive("go-back", go_back, ['current_frame', "p"]);
@@ -74,11 +78,14 @@ interactive("go-back", go_back, ['current_frame', "p"]);
 
 function go_forward (frame, prefix)
 {
-    if (frame.getWebNavigation().canGoForward) {
-        var hist = frame.getWebNavigation().sessionHistory;
+    var b = frame.buffers.current;
+    // Should be checking if type of buffer is browser_buffer
+    if (b.web_navigation.canGoForward)
+    {
+        var hist = b.web_navigation.sessionHistory;
         var idx = hist.index + prefix;
         if (idx >= hist.count) idx = hist.count-1;
-        frame.getWebNavigation().gotoIndex(idx);
+        b.web_navigation.gotoIndex(idx);
     }
 }
 interactive("go-forward", go_forward, ['current_frame', "p"]);
@@ -86,7 +93,9 @@ interactive("go-forward", go_forward, ['current_frame', "p"]);
 
 function stop_loading (frame)
 {
-    frame.getWebNavigation().stop (Components.interfaces.nsIWebNavigation.STOP_NETWORK);
+    var b = frame.buffers.current;
+    // Should be checking if type of buffer is browser_buffer
+    b.web_navigation.stop (Components.interfaces.nsIWebNavigation.STOP_NETWORK);
 }
 interactive("stop-loading", stop_loading, ['current_frame']);
 interactive("keyboard-quit", stop_loading, ['current_frame']);
@@ -94,7 +103,11 @@ interactive("keyboard-quit", stop_loading, ['current_frame']);
 
 function reload (frame)
 {
-    return frame.getBrowser().webNavigation.reload (Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE);
+    var b = frame.buffers.current;
+    if (b.constructor == browser_buffer)
+    {
+        b.web_navigation.reload(Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE);
+    }
 }
 interactive("revert-buffer", reload, ['current_frame']);
 
@@ -126,16 +139,15 @@ function open_url_in (frame, prefix, url)
 {
     if (prefix == 1) {
         // Open in current buffer
-        frame.getWebNavigation()
-            .loadURI (url, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE, null, null, null);
-        return frame.getBrowser();
+        // FIXME: check to ensure that current buffer is a browser_buffer
+        frame.buffers.current.load_URI(url);
     } else if (prefix <= 4) {
         // Open in new buffer
-        return find_url_new_buffer (url, frame);
+        var buffer = new browser_buffer(frame);
+        buffer.load_URI(url);
     } else {
         // Open in new frame
       make_frame(url);
-      return 1;
     }
 }
 
@@ -214,17 +226,19 @@ interactive("jsconsole", open_url_in,
 
 function switch_to_buffer (frame, buffer)
 {
-    frame.setCurrentBrowser (buffer);
+    if (buffer)
+        frame.buffers.current = buffer;
 }
 interactive("switch-to-buffer", switch_to_buffer,
             ['current_frame',
              ["b", function (a) { return "Switch to buffer: "; },
-              function (a) { return this.lastBrowser().webNavigation.currentURI.spec; } ]]);
+              function (a) { return this.buffers.current.name; } ]]);
 
 
 function kill_buffer (frame, buffer)
 {
-    frame.killBrowser (buffer);
+    if (buffer)
+        frame.buffers.kill_buffer(buffer);
 }
 interactive("kill-buffer", kill_buffer, ['current_frame', ["b", function (a) { return "Kill buffer: "; }]]);
 
@@ -360,15 +374,17 @@ function meta_x (frame, prefix)
     for (i in conkeror.commands)
         matches.push([conkeror.commands[i][0],conkeror.commands[i][0]]);
 
-    frame.readFromMiniBuffer (prompt + "M-x", null, "commands", matches, false, null,
-                              function(c) {
-                                  // pass the prefix given to `meta_x'
-                                  // on to the command that the user
-                                  // typed into the minibuffer.
-                                  frame.gPrefixArg = prefix;
-                                  call_interactively.call (frame, c);
-                              },
-                              frame.abort);
+    frame.minibuffer.read({prompt: prompt + "M-x",
+                history: "commands",
+                completions: matches,
+                callback : function(c) {
+                // pass the prefix given to `meta_x'
+                // on to the command that the user
+                // typed into the minibuffer.
+                frame.gPrefixArg = prefix;
+                call_interactively(frame, c);
+            },
+                abort_callback : frame.abort});
 }
 interactive("execute-extended-command", meta_x, ['current_frame', "P"]);
 
@@ -694,7 +710,11 @@ interactive("text-enlarge", text_enlarge, ['current_frame', "p"]);
 
 function eval_expression (frame)
 {
-    frame.readFromMiniBuffer ("Eval:", null, "eval-expression", null, null, null, eval);
+    frame.minibuffer.read( {
+            prompt: "Eval:",
+            history: "eval-expression",
+            callback: function (s) { eval.call(frame, s); }
+        });
 }
 interactive("eval-expression", eval_expression, ['current_frame']);
 

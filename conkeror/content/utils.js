@@ -140,3 +140,25 @@ function open_url_in_prompt(prefix, str)
     }
 }
 
+
+function set_focus_no_scroll(frame, element)
+{
+    frame.document.commandDispatcher.suppressFocusScroll = true;
+    element.focus();
+    frame.document.commandDispatcher.suppressFocusScroll = false;
+}
+
+
+function do_N_times(func, n)
+{
+    var args = Array.prototype.slice.call(arguments, 2);
+    while (n-- > 0)
+        func.apply(null, args);
+}
+
+// remove whitespace from the beginning and end
+function trim_whitespace (str)
+{
+    var tmp = new String (str);
+    return tmp.replace (/^\s+/, "").replace (/\s+$/, "");
+}

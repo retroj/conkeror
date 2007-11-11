@@ -94,6 +94,8 @@ function textarea_kmap_predicate (window, element) {
     } catch (e) { return false; }
 }
 
+var context_kmaps = null;
+
 
 function clearKmaps()
 {
@@ -469,31 +471,53 @@ function initKmaps()
     init_frameset_keys ();
 
     init_universal_arg_keys ();
+
+    var browser_kmset = new keymap_set();
+    browser_kmset.default_keymap = top_kmap;
+    browser_kmset.context_keymaps = context_kmaps;
+
+    browser_buffer.prototype.keymap_set = browser_kmset;
 }
 
 
 function init_minibuffer_keys () {
     // minibuffer bindings
     //
-    define_key (minibuffer_kmap, kbd  (KeyEvent.DOM_VK_RETURN,0), "exit-minibuffer");
-    define_key (minibuffer_kmap, kbd  ("p",MOD_META), "minibuffer-history-previous");
-    define_key (minibuffer_kmap, kbd  ("n",MOD_META), "minibuffer-history-next");
-    define_key (minibuffer_kmap, kbd  (KeyEvent.DOM_VK_ESCAPE, 0), "minibuffer-abort");
-    define_key (minibuffer_kmap, kbd  ("g",MOD_CTRL), "minibuffer-abort");
-    define_key (minibuffer_kmap, kbd  (KeyEvent.DOM_VK_TAB, 0), "minibuffer-complete");
-    define_key (minibuffer_kmap, kbd  (" ", 0), "minibuffer-accept-match");
+    define_key (minibuffer_kmap, "return", "exit-minibuffer");
+    define_key (minibuffer_kmap, "M-p", "minibuffer-history-previous");
+    define_key (minibuffer_kmap, "M-n", "minibuffer-history-next");
+    define_key (minibuffer_kmap, "escape", "minibuffer-abort");
+    define_key (minibuffer_kmap, "C-g", "minibuffer-abort");
+    define_key (minibuffer_kmap, "tab", "minibuffer-complete");
+    define_key (minibuffer_kmap, "space", "minibuffer-accept-match");
 
-    // Because we programmatically modify the selection during minibuffer
-    // completion, certain keys need to be handled specially, notably
-    // backspace.  This is currently done by setting a flag in
-    // minibuffer-backspace, and a course of action being taken based on this
-    // flag in the handler for the textbox's oninput.  Using a flag is a
-    // rather rigid system, so maybe we can come up with something more
-    // flexable, involving, say, functions that carry out the desired
-    // behavior.
-    define_key(input_kmap, kbd (KeyEvent.DOM_VK_BACK_SPACE, 0), "minibuffer-backspace");
+    define_key(minibuffer_kmap, "C-a", "minibuffer-cmd_beginLine");
+    define_key(minibuffer_kmap, "C-e", "minibuffer-cmd_endLine");
+    define_key(minibuffer_kmap, "back_space", "minibuffer-cmd_deleteCharBackward");
+    define_key(minibuffer_kmap, "M-back_space", "minibuffer-cmd_deleteWordBackward");
+    define_key(minibuffer_kmap, "C-d", "minibuffer-cmd_deleteCharForward");
+    define_key(minibuffer_kmap, "M-d", "minibuffer-cmd_deleteWordForward");
+    define_key(minibuffer_kmap, "C-b", "minibuffer-cmd_charPrevious");
+    define_key(minibuffer_kmap, "M-b", "minibuffer-cmd_wordPrevious");
+    define_key(minibuffer_kmap, "C-f", "minibuffer-cmd_charNext");
+    define_key(minibuffer_kmap, "M-f", "minibuffer-cmd_wordNext");
+    define_key(minibuffer_kmap, "C-y", "minibuffer-cmd_paste");
+    define_key(minibuffer_kmap, "M-w", "minibuffer-cmd_copy");
+    define_key(minibuffer_kmap, "C-k", "minibuffer-cmd_deleteToEndOfLine");
 
-    minibuffer_kmap.parent = input_kmap;
+    define_key(minibuffer_kmap, "S-home", "minibuffer-cmd_selectBeginLine");
+    define_key(minibuffer_kmap, "S-end", "minibuffer-cmd_selectEndLine");
+    define_key(minibuffer_kmap, "C-back_space", "minibuffer-cmd_deleteWordBackward");
+    define_key(minibuffer_kmap, "C-S-left", "minibuffer-cmd_selectWordPrevious");
+    define_key(minibuffer_kmap, "C-S-right", "minibuffer-cmd_selectWordNext");
+
+    // Nasty keys
+    define_key(minibuffer_kmap, "C-r", "minibuffer-cmd_redo");
+
+    // This must be at the end of minibuffer_kmap defs so it's matched last.
+    define_key(minibuffer_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character");
+
+    minibuffer_kmap.parent = top_kmap;
 }
 
 

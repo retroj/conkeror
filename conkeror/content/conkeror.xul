@@ -2,25 +2,18 @@
 
 <?xml-stylesheet href="chrome://conkeror/content/conkeror.css" type="text/css"?>
 
-<window
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    onload="init_frame();"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    onload="Components.classes['@conkeror.mozdev.org/application;1']
+            .getService ()
+            .wrappedJSObject.frame_initialize(this);"
     contenttitlesetting="false"
     title="Conkeror"
-    titlemodifier=" Conkeror"
     id="main-window"
     persist="screenX screenY width height sizemode"
     windowtype="navigator:browser">
 
-
   <stringbundleset id="stringbundleset">
   </stringbundleset>
-
-
-  <script type="application/x-javascript" src="conkeror.js"/>
-  <script type="application/x-javascript" src="dom-utils.js"/>
-  <script type="application/x-javascript" src="frame.js"/>
 
   <popupset>
     <popup id="frameset-notification">
@@ -29,11 +22,18 @@
   </popupset>
 
   <vbox flex="1">
-  <conkframe id="content" flex="1"/>
-  <hbox id="minibuffer-hbox" >
-    <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
-    <label class="minibuffer" id="input-prompt" crop="left" value="" collapsed="true"/>
-    <textbox class="plain" id="input-field" flex="1" collapsed="true" oninput="minibuffer.oninput.call(window);"/>
-  </hbox>
-</vbox>
+    <deck flex="1" id="buffer-container">
+	  <browser flex="1" type="content-primary"
+               usechromesheets="chrome://conkeror/content/numbering.css,
+                                chrome://global/skin/xulscrollbars.css"/>
+	</deck>
+	<hbox class="mode-line">
+	  <label class="mode-line-label" value="" crop="right" flex="1"/>
+    </hbox>
+    <hbox id="minibuffer-hbox">
+      <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
+      <label class="minibuffer" id="input-prompt" crop="left" value="" collapsed="true"/>
+      <textbox class="plain" id="input-field" flex="1" collapsed="true"/>
+    </hbox>
+  </vbox>
 </window>

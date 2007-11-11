@@ -128,7 +128,7 @@ function test_prefix_duplication () {
         message: function (str) {dump (str + "\n");}
     };
     interactive ("test-prefix-duplication", inner, ['P', 'P']);
-    call_interactively.call (fake_window, "test-prefix-duplication");
+    call_interactively (fake_window, "test-prefix-duplication");
     return true;
 }
 test_prefix_duplication();

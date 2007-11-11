@@ -41,6 +41,8 @@ function application () {
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/localfile.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/utils.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/keyboard.js"));
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/buffer.js")); 
+    eval.call (this, get_chrome_contents ("chrome://conkeror/content/frame.js")); 
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/interactive.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/daemon-mode.js"));
     eval.call (this, get_chrome_contents ("chrome://conkeror/content/mode-line.js"));
@@ -87,6 +89,9 @@ progress_changed_hook: [],
 status_changed_hook: [],
 select_buffer_hook: [],
 frame_resize_hook: [],
+frame_initialize_early_hook: [],
+frame_initialize_hook: [],
+frame_initialize_late_hook: [],
 mode_line_enabled: true,
 
 add_hook: function (hook, func, append)
@@ -98,13 +103,13 @@ add_hook: function (hook, func, append)
         hook.unshift (func);
 },
 
-run_hooks: function (hooks, scope, args)
+run_hooks: function (hooks)
 {
-    if (! scope) { scope = this; }
-    if (! args) { args = []; }
+    var args = Array.prototype.slice.call(arguments, 1);
     for (var i in hooks) {
-        try {
-            hooks[i].apply (scope, args);
+        try
+        {
+            hooks[i].apply (null, args);
         } catch (e) {
             dump ('run_hooks: '+e+"\n");
         }

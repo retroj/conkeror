@@ -72,8 +72,6 @@ function generate_key_tables()
 
 generate_key_tables();
 
-var context_kmaps = [];
-var top_kmap = null;
 var abort_key = null;
 
 const MOD_CTRL = 0x1;
@@ -102,6 +100,11 @@ function format_key_press(code, modifiers)
     }
     out = out + name;
     return out;
+}
+
+function format_key_event(event)
+{
+    return format_key_press(event.keyCode, get_modifiers(event));
 }
 
 
@@ -321,7 +324,8 @@ function make_keymap ()
      * list, predicate_bindings. */
     var k = { parent: null,
               keycode_bindings : [],
-              predicate_bindings : [] };
+              predicate_bindings : [],
+              predicate: null };
     return k;
 }
 
@@ -331,6 +335,27 @@ function make_context_keymap (predicate)
     k.predicate = predicate;
     return k;
 }
+
+function keymap_set ()
+{
+    this.context_keymaps = [];
+    this.default_keymap = null;
+}
+keymap_set.prototype =  {
+    lookup_key_binding : function (frame, event) {
+        var focused_element = frame.document.commandDispatcher.focusedElement;
+        
+        for (var i in this.context_keymaps)
+        {
+            var km = this.context_keymaps[i];
+            if (km.predicate(frame, focused_element))
+                return lookup_key_binding(km, event);
+        }
+        if (this.default_keymap)
+            return lookup_key_binding(this.default_keymap, event);
+        return null;
+    }
+};
 
 function copy_event(event)
 {
@@ -346,160 +371,191 @@ function copy_event(event)
 
 function key_down_handler(event)
 {
-    var window = this;
+    var frame = this;
     //window.dumpln("key down: " + conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
-    window.g_last_key_down_event = copy_event(event);
-    window.g_last_char_code = null;
-    window.g_last_key_code = null;
+
+    var state = frame.keyboard_state;
+    state.last_key_down_event = copy_event(event);
+    state.last_char_code = null;
+    state.last_key_code = null;
 }
 
-function key_press_handler(trueEvent)
+/* USER PREFERENCE */
+var keyboard_key_sequence_help_timeout = 2000;
+
+function key_press_handler(true_event)
 {
-    var window = this;
-    //window.dumpln("key press: " + trueEvent.charCode);
-    // Always ignore the current event --- just use gCommandLastEvent
-    if (!window.g_last_key_down_event)
-        return;
-    var event = window.g_last_key_down_event;
-    // Augment event with the charCode from the keypress
-    event.charCode = trueEvent.charCode;
-    if (trueEvent.keyCode)
-        event.keyCode = trueEvent.keyCode;
-    else if (window.g_last_char_code != null
-        && (window.g_last_char_code != trueEvent.charCode
-            || window.g_last_key_code != trueEvent.keyCode))
+    try{
+    var frame = this;
+    var state = frame.keyboard_state;
+
+    /* ASSERT(state.last_key_down_event != null); */
+
+    var event = state.last_key_down_event;
+    event.charCode = true_event.charCode;
+
+    // If the true_event includes a keyCode, we can just use that
+    if (true_event.keyCode)
+        event.keyCode = true_event.keyCode;
+
+    else if (state.last_char_code != null
+        && (state.last_char_code != true_event.charCode
+            || state.last_key_code != true_event.keyCode))
     {
         /* Mozilla failed to give us a key down event; use hack to get a keyCode anyway */
-        event.keyCode = charcode_to_keycode[trueEvent.charCode];
+        event.keyCode = charcode_to_keycode[true_event.charCode];
         //window.dumpln("bug turned up: fake keyCode: " + event.keyCode);
     }
-    window.g_last_char_code = trueEvent.charCode;
-    window.g_last_key_code = trueEvent.keyCode;
-    //window.dumpln("Processing key: " + conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
-    try {
-        // kmap contains the keys and commands we're looking for.
+    state.last_char_code = true_event.charCode;
+    state.last_key_code = true_event.keyCode;
 
-        /* The current key map is a per-frame property; there is no
-           reason to try to duplicate Emacs behavior here, since it is
-           counter-intuitive. */
-        var kmap = window.current_kmap;
-        if (!kmap) kmap = conkeror.top_kmap;
+    /* Clear minibuffer message */
+    frame.minibuffer.clear();    
 
-        var binding = null;
-        var done = true;
+    var binding = null;
+    var done = true;
 
-        window.clearMessage();
+    state.last_command_event = event;
 
-        // Make a fake event
-        window.gCommandLastEvent = event;
+    if (state.overlay_keymap != null)
+    {
+        binding = lookup_key_binding(state.overlay_keymap, event);
 
+        // Disengage overlay keymap if it didn't match this time
+        if (!binding)
+            state.overlay_keymap = null;
+    }
 
-        // First check if there's an overlay kmap
-        if (window.overlay_kmap != null) {
-            binding = conkeror.lookup_key_binding (window.overlay_kmap, event);
-            if (binding == null) {
-                // disengage the universal keymap.
-                /* The overlay kmap is also per-frame */
-                window.overlay_kmap = null;
-                //alert (gPrefixArg);
-            }
-        }
+    ///XXX: context can override overlay.  is this right?
+    ///
+    /// consider: you hit C-u, thus enabling an overlay map.  then you hit `1'.
+    ///           There is a good case to be made that this character key should
+    ///           go to the gui control, not the overlay map.
+    ///
+    ///
+    if (!state.active_keymap) {
 
-        ///XXX: context can override overlay.  is this right?
-        ///
-        /// consider: you hit C-u, thus enabling an overlay map.  then you hit `1'.
-        ///           There is a good case to be made that this character key should
-        ///           go to the gui control, not the overlay map.
-        ///
-        ///
-        if (kmap == conkeror.top_kmap) {
-            // If we are not in the middle of a key sequence, context keymaps
-            // get a chance to take the key.
-            //
-            // Try the predicate of each context keymap until we find one that
-            // matches.
-            //
-//             if (document.commandDispatcher.focusedElement)
-//                 dumpln (conkeror.dump_obj (document.commandDispatcher.focusedElement));
-            for (var i = 0; i < conkeror.context_kmaps.length; i++) {
-                /* Predicates are passed the top-level frame on which
-                   the event occurred, since all key handling is
-                   per-frame. */
-                if (conkeror.context_kmaps[i].predicate (window, window.document.commandDispatcher.focusedElement)) {
-                    binding = conkeror.lookup_key_binding(conkeror.context_kmaps[i], event);
-                    //alert (window.dump_obj (binding));
-                    break;
-                }
-            }
-        }
+        /* If the override_keymap_set is set, it is used instead of
+         * the keymap_set for the current buffer. */
 
-        // Finally, top_kmap and friends get dibs.
+        // If we are not in the middle of a key sequence, context keymaps
+        // get a chance to take the key.
         //
-        if (binding == null) {
-            binding = conkeror.lookup_key_binding (kmap, event);
-        }
-
-        // Should we stop this event from being processed by the gui?
+        // Try the predicate of each context keymap until we find one that
+        // matches.
         //
-        // 1) we have a binding, and the binding's fallthrough property is not
-        //    true.
-        //
-        // 2) we are in the middle of a key sequence, and we need to say that
-        //    the key sequence given has no command.
-        //
-        if ((binding && ! binding.fallthrough) ||
-            kmap != conkeror.top_kmap)
-        {
-            trueEvent.preventDefault();
-            trueEvent.stopPropagation();
-        }
+        var kmset = state.override_keymap_set;
+        if (!kmset)
+            kmset = frame.buffers.current.keymap_set;
 
-        // Finally, process the binding.
-        if (binding) {
-            if (binding.keymap) {
-                window.current_kmap = binding.keymap;
-                window.gKeySeq.push(conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
-                if (!window.gKeyTimeout)
-                    window.gKeyTimerID = window.setTimeout(function () {
-                            window.message(window.gKeySeq.join(" "));
-                            window.gKeyTimeout = true;
-                            window.gKeyTimerID = null;
-                        }, 2000);
-                else
-                    window.message(window.gKeySeq.join(" "));
-                // We're going for another round
-                done = false;
-            } else if (binding.command) {
-                conkeror.call_interactively.call (window, binding.command);
-            }
-        } else {
-            // No binding was found.  If this is the universal abort_key, then
-            // abort().
-            if (conkeror.match_binding(conkeror.abort_key, event))
-                window.abort();
+        binding = kmset.lookup_key_binding(frame, event);
+    } else
+    {
+        // Use the active keymap
+        binding = lookup_key_binding(state.active_keymap, event);
+    }
 
-            else if (window.current_kmap)
+    // Should we stop this event from being processed by the gui?
+    //
+    // 1) we have a binding, and the binding's fallthrough property is not
+    //    true.
+    //
+    // 2) we are in the middle of a key sequence, and we need to say that
+    //    the key sequence given has no command.
+    //
+    if ((binding && !binding.fallthrough) || state.active_keymap)
+    {
+        true_event.preventDefault();
+        true_event.stopPropagation();
+    }
+
+    // Finally, process the binding.
+    if (binding) {
+        if (binding.keymap) {
+            state.active_keymap = binding.keymap;
+            if (!state.current_key_sequence)
+                state.current_key_sequence = [];
+            state.current_key_sequence.push(format_key_event(event));
+
+            if (!state.help_displayed)
             {
-                window.gKeySeq.push(conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
-                window.message(window.gKeySeq.join(" ") + " is undefined");
+                state.help_timer_ID = frame.setTimeout(function () {
+                        frame.minibuffer.show(state.current_key_sequence.join(" "));
+                        state.help_displayed = true;
+                        state.help_timer_ID = null;
+                    }, keyboard_key_sequence_help_timeout);
             }
+            else
+                frame.minibuffer.show(state.current_key_sequence.join(" "));
 
-            /*
-            window.dumpln("No match for key press: "
-                          + conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
+            // We're going for another round
+            done = false;
+        } else if (binding.command) {
+            call_interactively(frame, binding.command);
+        }
+    } else {
+        // No binding was found.  If this is the universal abort_key, then
+        // abort().
+        if (match_binding(abort_key, event))
+        {
+            /* FIXME: once we have abort implemented ...
+            window.abort();
             */
         }
 
-        // Clean up if we're done
-        if (done) {
-            if (window.gKeyTimerID != null)
-            {
-                window.clearTimeout(window.gKeyTimerID);
-                window.gKeyTimerID = null;
-            }
-            window.gKeySeq = [];
-            window.current_kmap = null;
+        else if (state.active_keymap)
+        {
+            state.current_key_sequence.push(format_key_event(event));
+            frame.minibuffer.message(state.current_key_sequence.join(" ") + " is undefined");
         }
 
-    } catch(e){window.alert(e);}
+    }
+
+    // Clean up if we're done
+    if (done)
+    {
+        if (state.help_timer_ID != null)
+        {
+            frame.clearTimeout(state.help_timer_ID);
+            state.help_timer_ID = null;
+        }
+        state.help_displayed = false;
+        state.current_key_sequence = null;
+        state.active_keymap = null;
+    }
+
+    } catch(e) { dump("error: " + e + "\n");}
 }
+
+function keyboard_state()
+{
+}
+
+keyboard_state.prototype = {
+    last_key_down_event : null,
+    last_char_code : null,
+    last_key_code : null,
+    current_key_sequence : null,
+    help_timer_ID : null,
+    help_displayed : false,
+    last_command_event : null,
+    active_keymap : null,
+    overlay_keymap : null,
+
+    /* If this is non-null, it is used instead of the current buffer's
+     * keymap_set. */
+    override_keymap_set : null,
+};
+
+
+function keyboard_initialize_frame(frame)
+{
+    frame.keyboard_state = new keyboard_state();
+
+    // FIXME: We should figure out what this capture flag really means
+    // and document it here.
+    frame.addEventListener ("keydown", key_down_handler, true);
+    frame.addEventListener ("keypress", key_press_handler, true);
+}
+
+add_hook(frame_initialize_hook, keyboard_initialize_frame, true);

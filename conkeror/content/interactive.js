@@ -13,19 +13,32 @@ active_document: { func: function (spec) {
         }
 },
 
-// b: Name of existing buffer.
+// b: existing buffer.
 b: { async: function (spec, iargs, callback, callback_args, given_args) {
-            var bufs = this.getBrowserNames();
-            var matches = this.zip2(bufs,this.getBrowser().mBrowsers);
+            var bufs = [];
+            var existing_names = new Object();
+            this.buffers.for_each(function(b) {
+                    var base_name = b.name;
+                    var name = base_name;
+                    var index = 1;
+                    while (existing_names["i_" + name])
+                    {
+                        ++index;
+                        name = base_name + "<" + index + ">";
+                    }
+                    existing_names["i_" + name] = true;
+                    bufs.push([name, b]);
+                });
             var prompt = (1 in spec && spec[1] ? spec[1].call (this, callback_args) : "Buffer: ");
             var initval = (2 in spec && spec[2] ?
-                           spec[2].call (this, callback_args) :
-                           this.getBrowser().webNavigation.currentURI.spec);
-            this.readFromMiniBuffer (prompt, initval, "buffer", matches, null, null,
-                                     function (s) {
+                           spec[2].call (this, callback_args) : this.buffers.current.name);
+            var frame = this;
+            this.minibuffer.read({prompt: prompt, initial_value: initval, history: "buffer",
+                        completions: bufs,
+                        callback: function (s) {
                                          callback_args.push (s);
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
-                                     });
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                    }});
         },
      doc: "Name of existing buffer, defaulting to the current one.\n"+
      "Its optional arguments are:\n"+
@@ -124,22 +137,25 @@ D: { func: function (spec) {
 },
 
 // e: Event that invoked this command.
-e: { func: function (spec) { return this.gCommandLastEvent; } },
+e: { func: function (spec) { return this.keyboard_state.last_command_event; } },
 
 f: { async: function (spec, iargs, callback, callback_args, given_args) {
             // -- Exisiting file object. (nsILocalFile)
             var prompt = (1 in spec && spec[1] ? spec[1].call (this, callback_args) : "File: ");
             var initval = (2 in spec && spec[2] ? spec[2].call (this, callback_args) : default_directory.path);
             var hist = (3 in spec ? spec[3] : null);
-            this.readFromMiniBuffer (prompt, initval, hist, null, null, null,
-                                     function (s) {
+            var frame = this;
+            this.minibuffer.read({
+                        prompt:        prompt,
+                        initial_value: initval,
+                        history: hist,
+                        callback: function (s) {
                                          var f = Components.classes["@mozilla.org/file/local;1"]
                                              .createInstance(Components.interfaces.nsILocalFile);
                                          f.initWithPath (s);
                                          callback_args.push (f);
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
-                                     },
-                                     null);
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                    } });
         }
 },
 
@@ -148,15 +164,18 @@ F: { async: function (spec, iargs, callback, callback_args, given_args) {
             var prompt = (1 in spec && spec[1] ? spec[1].call (this, callback_args) : "File: ");
             var initval = (2 in spec && spec[2] ? spec[2].call (this, callback_args) : default_directory.path);
             var hist = (3 in spec ? spec[3] : null);
-            this.readFromMiniBuffer (prompt, initval, hist, null, null, null,
-                                     function (s) {
+            var frame = this;
+            this.minibuffer.read({
+                        prompt:        prompt,
+                        initial_value: initval,
+                        history: hist,
+                        callback: function (s) {
                                          var f = Components.classes["@mozilla.org/file/local;1"]
                                              .createInstance(Components.interfaces.nsILocalFile);
                                          f.initWithPath (s);
                                          callback_args.push (f);
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
-                                     },
-                                     null);
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                    } });
         }
 },
 
@@ -181,6 +200,7 @@ image: { async: function (spec, iargs, callback, callback_args, given_args) {
                 gTurnOffLinksAfter = true;
                 this.toggleNumberedImages();
             }
+            var frame = this;
             // Setup a context for the context-keymap system.
             this.readFromMiniBuffer (prompt, null, null, null, null, null,
                                      function (s) {
@@ -189,7 +209,7 @@ image: { async: function (spec, iargs, callback, callback_args, given_args) {
                                              toggleNumberedImages();
                                              gTurnOffLinksAfter = false;
                                          }
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
                                      },
                                      function () {
                                          if (this.gTurnOffLinksAfter) {
@@ -210,6 +230,7 @@ image_url: { async: function (spec, iargs, callback, callback_args, given_args) 
                 this.gTurnOffLinksAfter = true;
                 this.toggleNumberedImages();
             }
+            var frame = this;
             // Setup a context for the context-keymap system.
             this.readFromMiniBuffer (prompt, null, null, null, null, null,
                                      function (s) {
@@ -233,7 +254,7 @@ image_url: { async: function (spec, iargs, callback, callback_args, given_args) 
                                              this.toggleNumberedImages();
                                              this.gTurnOffLinksAfter = false;
                                          }
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
                                      },
                                      function () {
                                          if (this.gTurnOffLinksAfter) {
@@ -270,7 +291,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
             } */
             // Setup a context for the context-keymap system.
             this.numberedlinks_minibuffer_active = true;
-
+            var frame = this;
             this.readFromMiniBuffer (prompt, initVal, null, null, null, null,
                                      function (s) {
                                          callback_args.push (s);
@@ -281,7 +302,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
                                          }*/
                                          // unset keymap context
                                          this.numberedlinks_minibuffer_active = false;
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
                                      },
                                      function () {
                                        /* FIXME: numbered link toggling not yet working */
@@ -322,12 +343,14 @@ n: { async: function (spec, iargs, callback, callback_args, given_args) {
             var prompt = "Number: ";
             if (1 in spec)
                 prompt = spec[1];
-            this.readFromMiniBuffer (prompt, null, null, null, null, null,
-                                     function (s) {
-                                         callback_args.push (s);
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
-                                     },
-                                     null);
+            var frame = this;
+            this.minibuffer.read
+            ({  prompt: prompt,
+                callback: function (s) {
+                    callback_args.push (s);
+                    do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                }
+            });
         }
 },
 
@@ -382,12 +405,12 @@ s: { async: function (spec, iargs, callback, callback_args, given_args) {
             var prompt = "String: ";
             if (1 in spec)
                 prompt = spec[1];
-            this.readFromMiniBuffer (prompt, null, null, null, null, null,
-                                     function (s) {
+            var frame = this;
+            this.minibuffer.read({ prompt: prompt,
+                        callback:  function (s) {
                                          callback_args.push (s);
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
-                                     },
-                                     null);
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                    }});
         }
 },
 
@@ -404,14 +427,16 @@ url_or_webjump: { async: function (spec, iargs, callback, callback_args, given_a
             var initval = (2 in spec && spec[2] ? spec[2].call (this, callback_args) : "");
             var hist = (3 in spec ? spec[3] : null);
             var completions = (4 in spec && spec[4] ? spec[4].call (this, callback_args) : []);
-            this.readFromMiniBuffer (prompt, initval, hist, completions, true, null,
-                                     function (match, s) {
+            var frame = this;
+            this.minibuffer.read({prompt: prompt, initial_value : initval, history: hist,
+                        completions : completions,
+                        allow_non_matches : true,
+                        callback : function (match, s) {
                                          if (s == "") // well-formedness check. (could be better!)
                                              throw ("invalid url or webjump (\""+s+"\")");
                                          callback_args.push (get_url_or_webjump (s));
-                                         do_interactive.call (this, iargs, callback, callback_args, given_args);
-                                     },
-                                     null);
+                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                    }});
         }
 },
 
@@ -478,7 +503,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
         if (! method in interactive_methods) {
             // prefix should get reset on failed interactive call.
             this.gPrefixArg = null;
-            this.message ("Failed: invalid interactive specifier: '"+iarg+"'");
+            this.minibuffer.message ("Failed: invalid interactive specifier: '"+iarg+"'");
             return;
         }
 
@@ -488,7 +513,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
             try {
                 callback_args.push (interactive_methods[method].func.call (this, iarg));
             } catch (e) {
-                this.message ('do_interactive (' + method + '): ' + e);
+                this.minibuffer.message ('do_interactive (' + method + '): ' + e);
             }
             // do_interactive (iargs, callback, callback_args);
         } else {
@@ -504,7 +529,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
             // fail.  improperly defined interactive method.
             // prefix should get reset on failed interactive call.
             this.gPrefixArg = null;
-            this.message ("Failed: improperly defined interactive specifer: '"+iarg+"'");
+            this.minibuffer.message ("Failed: improperly defined interactive specifer: '"+iarg+"'");
         }
 
         // go on a little trip..
@@ -516,7 +541,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
         try {
             interactive_methods[method].async.call (this, iarg, iargs, callback, callback_args, given_args);
         } catch (e) {
-            this.message ('do_interactive (' + method + '): ' + e);
+            this.minibuffer.message ('do_interactive (' + method + '): ' + e);
         }
     } else {
         // always reset the prefix arg after collecting all
@@ -526,17 +551,14 @@ function do_interactive (iargs, callback, callback_args, given_args)
         try {
             callback.call (this, callback_args);
         } catch (e) {
-            this.message ('do_interactive <CALLBACK>: ' + e);
+            this.minibuffer.message ('do_interactive <CALLBACK>: ' + e);
             dumpln ('do_interactive <CALLBACK>: ' + e);
         }
     }
 }
 
 
-// call_interactively should always be called in frame context,
-// e.g. conkeror.call_interactively.call (someframe, cmd);
-//
-function call_interactively (cmd, given_args)
+function call_interactively(frame, cmd, given_args)
 {
     try {
         conkeror.current_command = cmd;
@@ -547,7 +569,7 @@ function call_interactively (cmd, given_args)
                 // destructive to its first argument.
                 var iargs = conkeror.commands[i][2].slice (0);
                 var given = given_args ? given_args.slice (0) : null;
-                do_interactive.call (this,
+                do_interactive.call (frame,
                                      iargs,
                                      function (args) {
                                          conkeror.commands[i][1].apply (conkeror, args);
@@ -557,9 +579,9 @@ function call_interactively (cmd, given_args)
                 return;
             }
         }
-        this.message("No such command '" + cmd + "'");
+        frame.minibuffer.message("No such command '" + cmd + "'");
     } catch(e) {
-        this.message ("call_interactively: " + e);
+        frame.minibuffer.message ("call_interactively: " + e);
     }
 }
 

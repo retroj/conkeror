@@ -16,7 +16,3 @@ label.mode-line-label {
 window {
   background-color: white;
 }
-
-conkframe {
-  -moz-binding: url("chrome://conkeror/content/conkeror.xml#conkframe");
-}

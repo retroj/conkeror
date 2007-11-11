@@ -140,7 +140,7 @@ function numberedlinks_do_link (frame, prefix, link, action)
           open_url_in (window, 5, href);
         } else if (action == "numberedlinks-save") {
             nl.target_node.focus();
-            call_interactively.call (window, "save-focused-link");
+            call_interactively(window, "save-focused-link");
         } else {
             var img = nl.target_node.getElementsByTagName("IMG");
             var evt = nl.document.createEvent('MouseEvents');
