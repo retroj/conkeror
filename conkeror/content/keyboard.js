@@ -345,15 +345,19 @@ keymap_set.prototype =  {
     lookup_key_binding : function (frame, event) {
         var focused_element = frame.document.commandDispatcher.focusedElement;
         
+        var binding = null;
         for (var i in this.context_keymaps)
         {
             var km = this.context_keymaps[i];
             if (km.predicate(frame, focused_element))
-                return lookup_key_binding(km, event);
+            {
+                binding = lookup_key_binding(km, event);
+                break;
+            }
         }
-        if (this.default_keymap)
-            return lookup_key_binding(this.default_keymap, event);
-        return null;
+        if (!binding && this.default_keymap)
+            binding = lookup_key_binding(this.default_keymap, event);
+        return binding;
     }
 };
 
@@ -426,33 +430,36 @@ function key_press_handler(true_event)
             state.overlay_keymap = null;
     }
 
-    ///XXX: context can override overlay.  is this right?
-    ///
-    /// consider: you hit C-u, thus enabling an overlay map.  then you hit `1'.
-    ///           There is a good case to be made that this character key should
-    ///           go to the gui control, not the overlay map.
-    ///
-    ///
-    if (!state.active_keymap) {
-
-        /* If the override_keymap_set is set, it is used instead of
-         * the keymap_set for the current buffer. */
-
-        // If we are not in the middle of a key sequence, context keymaps
-        // get a chance to take the key.
-        //
-        // Try the predicate of each context keymap until we find one that
-        // matches.
-        //
-        var kmset = state.override_keymap_set;
-        if (!kmset)
-            kmset = frame.buffers.current.keymap_set;
-
-        binding = kmset.lookup_key_binding(frame, event);
-    } else
+    if (!binding)
     {
-        // Use the active keymap
-        binding = lookup_key_binding(state.active_keymap, event);
+        ///XXX: context can override overlay.  is this right?
+        ///
+        /// consider: you hit C-u, thus enabling an overlay map.  then you hit `1'.
+        ///           There is a good case to be made that this character key should
+        ///           go to the gui control, not the overlay map.
+        ///
+        ///
+        if (!state.active_keymap) {
+
+            /* If the override_keymap_set is set, it is used instead of
+             * the keymap_set for the current buffer. */
+
+            // If we are not in the middle of a key sequence, context keymaps
+            // get a chance to take the key.
+            //
+            // Try the predicate of each context keymap until we find one that
+            // matches.
+            //
+            var kmset = state.override_keymap_set;
+            if (!kmset)
+                kmset = frame.buffers.current.keymap_set;
+
+            binding = kmset.lookup_key_binding(frame, event);
+        } else
+        {
+            // Use the active keymap
+            binding = lookup_key_binding(state.active_keymap, event);
+        }
     }
 
     // Should we stop this event from being processed by the gui?
