@@ -292,8 +292,8 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
             // Setup a context for the context-keymap system.
             this.numberedlinks_minibuffer_active = true;
             var frame = this;
-            this.readFromMiniBuffer (prompt, initVal, null, null, null, null,
-                                     function (s) {
+    this.minibuffer.read ({prompt: prompt, initial_value: initVal,
+                           callback: function (s) {
                                          callback_args.push (s);
                                          /* FIXME: numbered link toggling not yet working
                                          if (this.gTurnOffLinksAfter) {
@@ -304,6 +304,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
                                          this.numberedlinks_minibuffer_active = false;
                                          do_interactive.call (frame, iargs, callback, callback_args, given_args);
                                      },
+                           abort_callback:
                                      function () {
                                        /* FIXME: numbered link toggling not yet working */
                                        /*
@@ -314,7 +315,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
                                          */
                                          // unset keymap context
                                          this.numberedlinks_minibuffer_active = false;
-                                     });
+                                     }});
         }
 },
 
