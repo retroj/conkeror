@@ -407,6 +407,9 @@ minibuffer.prototype = {
     get _selection_end () { return this.input_element.selectionEnd; },
     get _input_text () { return this.input_element.value; },
     set _input_text (text) { this.input_element.value = text; },
+    get prompt () { return this.input_prompt_element.value; },
+    set prompt (s) { this.input_prompt_element.value = s; },
+
     _set_selection : function (start, end) {
         if (start == null)
             start = this._input_text.length;
@@ -456,9 +459,11 @@ minibuffer.prototype = {
         this._restore_state();
     },
 
-    pop_state : function () {
+    pop_state : function (restore_focus) {
+        if (restore_focus === undefined)
+            restore_focus = true;
         this.states.pop();
-        this._restore_state();
+        this._restore_state(restore_focus);
     },
 
     _input_mode_enabled : false,
@@ -508,7 +513,7 @@ minibuffer.prototype = {
         this.input_element.collapsed = true;
     },
 
-    _restore_state : function () {
+    _restore_state : function (restore_focus) {
         var s = this.current_state;
         if (s) {
             if (!this._input_mode_enabled)
@@ -520,9 +525,9 @@ minibuffer.prototype = {
             }
             this._keymap_set.default_keymap = s.keymap;
             this.frame.keyboard_state.override_keymap_set = this._keymap_set;
-            this.input_element.value = s.input;
-            this.input_prompt_element.value = s.prompt;
-            this.input_element.setSelectionRange(s.selection_start, s.selection_end);
+            this._input_text = s.input;
+            this.prompt = s.prompt;
+            this._set_selection(s.selection_start, s.selection_end);
         } else {
             if (this._input_mode_enabled)
             {
@@ -534,11 +539,13 @@ minibuffer.prototype = {
                     this._message_timer_ID = null;
                     this._showing_message = false;
                 }
-
-                if (this.saved_focused_element)
-                    set_focus_no_scroll(this.frame, this.saved_focused_element);
-                else if (this.saved_focused_window)
-                    set_focus_no_scroll(this.frame, this.saved_focused_window);
+                if (restore_focus)
+                {
+                    if (this.saved_focused_element)
+                        set_focus_no_scroll(this.frame, this.saved_focused_element);
+                    else if (this.saved_focused_window)
+                        set_focus_no_scroll(this.frame, this.saved_focused_window);
+                }
                 this.saved_focused_element = null;
                 this.saved_focused_window = null;
                 this.frame.keyboard_state.override_keymap_set = null;
@@ -552,6 +559,7 @@ minibuffer.prototype = {
         if (s)
         {
             s.input = this._input_text;
+            s.prompt = this.prompt;
             s.selection_start = this._selection_start;
             s.selection_end = this._selection_end;
         }

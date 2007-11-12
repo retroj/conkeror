@@ -30,314 +30,296 @@ the terms of any one of the MPL, the GPL or the LGPL.
 
 // isearch
 
-// FIXME: There is no reason to create a state as an Array, since we
-// only use it as an Object.  Also, we should use . syntax rather than
-// [] syntax.
-
-function createInitialFindState(window)
-{
-    var state = new Array();
-    state["screenx"] = window.gWin.scrollX;
-    state["screeny"] = window.gWin.scrollY;
-    state["search-str"] = "";
-    state["wrapped"] = false;
-    state["point"] = null;
-    state["range"] = window.document.createRange();
-    state["selection"] = null;
-    state["direction"] = true;
-    return state;
-}
-
-function addFindState(window, screenX, screenY, searchStr, wrapped, point, range, selection, direction)
-{
-    var state = new Array();
-    state["screenx"] = screenX;
-    state["screeny"] = screenY;
-    state["search-str"] = searchStr;
-    state["wrapped"] = wrapped;
-    state["point"] = point;
-    state["range"] = range;
-    state["selection"] = selection;
-    state["direction"] = direction;
-    window.gFindState.push(state);
-}
-
-function resumeFindState(window, state)
-{
-    var label = window.document.getElementById("input-prompt");
-
-    window.minibuffer.input.value = state["search-str"];
-    if (state["selection"])
-      setSelection(window, state["selection"]);
-    else
-      clearSelection(window);
-    window.gWin.scrollTo(state["screenx"], state["screeny"]);
-
-    label.value = (state["wrapped"] ? "Wrapped ":"") 
-	+ (state["range"] ? "":"Failing ") + "I-Search" + (state["direction"]? "": " backward") + ":";
-}
-
-function lastFindState(window)
-{
-    return window.gFindState[window.gFindState.length-1];
-}
-
-function focusFindBar(window)
-{
-    try {
-    window.gWin = window.document.commandDispatcher.focusedWindow;
-    window.gSelCtrl = getFocusedSelCtrl(window);
-    window.gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
-    window.gSelCtrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    } catch(e) {window.alert(e);}
-
-//     var bar = document.getElementById("find-toolbox");
-//     var field = document.getElementById("find-field");
-//     bar.hidden = false;
-//     field.focus();
-
-    // initialize our state list
-    var state = createInitialFindState(window);
-    window.gFindState = [];
-    window.gFindState.push(state);
-    window.isearch_active = true;
-    resumeFindState(window, state);
-}
-
-function focusFindBarBW(window)
-{
-    focusFindBar(window);
-    lastFindState()["direction"] = false;
-    resumeFindState(window, lastFindState());
-}
-
-
-function closeFindBar(window)
-{
-    window.gSelCtrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    window.isearch_active = false;
-    window.closeInput(false);
-}
-
-function getSelectionController(window)
-{
-//     var ds = window._content.frames[0].docShell;
-  var ds = window.getBrowser().docShell;
-//   var frame = gBrowser.docShell.presShell.getRootFrame();
-//     var ds = window._content.frames[0].docShell;
-
-  var display = ds.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsISelectionDisplay);
-  if (!display)
-    return null;
-  return display.QueryInterface(Components.interfaces.nsISelectionController);
-}
-
 // turn on the selection in all frames
-function getFocusedSelCtrl(window)
+function getFocusedSelCtrl(frame)
 {
-  var ds = window.getBrowser().docShell;
-  var dsEnum = ds.getDocShellEnumerator(Components.interfaces.nsIDocShellTreeItem.typeContent,
-                                        Components.interfaces.nsIDocShell.ENUMERATE_FORWARDS);
-  while (dsEnum.hasMoreElements()) {
-    ds = dsEnum.getNext().QueryInterface(Components.interfaces.nsIDocShell);
-    if (ds.hasFocus) 
-	{
-	    var display = ds.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsISelectionDisplay);
-	    if (!display)
-		return null;
-	    return display.QueryInterface(Components.interfaces.nsISelectionController);
-	}
-  }
+    var ds = frame.buffers.current.doc_shell;
+    var dsEnum = ds.getDocShellEnumerator(Components.interfaces.nsIDocShellTreeItem.typeContent,
+                                          Components.interfaces.nsIDocShell.ENUMERATE_FORWARDS);
+    while (dsEnum.hasMoreElements()) {
+        ds = dsEnum.getNext().QueryInterface(Components.interfaces.nsIDocShell);
+        if (ds.hasFocus) 
+        {
+            var display = ds.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+                .getInterface(Components.interfaces.nsISelectionDisplay);
+            if (!display)
+                return null;
+            return display.QueryInterface(Components.interfaces.nsISelectionController);
+        }
+    }
 
   // One last try
-  return window.getBrowser().docShell
+  return frame.buffers.current.doc_shell
       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsISelectionDisplay)
       .QueryInterface(Components.interfaces.nsISelectionController);
 }
 
-// Select the range and scroll it into view
-function clearSelection(window)
+
+function initial_isearch_state(window, forward)
 {
-    var selctrl = window.gSelCtrl;
-    var sel = selctrl.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    sel.removeAllRanges();
+    this.screenx = window.scrollX;
+    this.screeny = window.scrollY;
+    this.search_str = "";
+    this.wrapped = false;
+    this.point = null;
+    this.range = window.document.createRange();
+    this.selection = null;
+    this.direction = forward;
 }
 
-function setSelection(window, range)
+function isearch_session(frame, forward)
 {
-    try {
-	var selctrlcomp = Components.interfaces.nsISelectionController;
-	var selctrl = window.gSelCtrl;
-	var sel = selctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
-	sel.removeAllRanges();
-	sel.addRange(range.cloneRange());
+    this.states = [];
+    this.window = frame.document.commandDispatcher.focusedWindow;
+    this.sel_ctrl = getFocusedSelCtrl(frame);
+    this.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
+    this.sel_ctrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    this.states.push(new initial_isearch_state(this.window, forward));
+    this.frame = frame;
 
-	selctrl.scrollSelectionIntoView(selctrlcomp.SELECTION_NORMAL,
-					selctrlcomp.SELECTION_FOCUS_REGION,
-				     true);
-    } catch(e) {window.alert("setSelection: " + e);}
+    minibuffer_state.call(this, isearch_kmap, "");
 }
+isearch_session.prototype = {
+    constructor : isearch_session,
 
-// Highlight find matches and move selection to the first occurrence
-// starting from pt.
-function highlightFind(window, str, color, wrapped, dir, pt)
-{
-    try {
-	var doc = window.gWin.document;
-	var finder = Components.classes["@mozilla.org/embedcomp/rangefind;1"].createInstance()
-	    .QueryInterface(Components.interfaces.nsIFind);
-	var searchRange;
-	var startPt;
-	var endPt;
-	var body = doc.body;
+    get top () {
+        return this.states[this.states.length - 1];
+    },
+    _set_selection : function (range)
+    {
+        try {
+            const selctrlcomp = Components.interfaces.nsISelectionController;
+            var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
+            sel.removeAllRanges();
+            sel.addRange(range.cloneRange());
+            this.sel_ctrl.scrollSelectionIntoView(selctrlcomp.SELECTION_NORMAL,
+                                                  selctrlcomp.SELECTION_FOCUS_REGION,
+                                                  true);
+        } catch(e) {/*FIXME:figure out if/why this is needed*/ dumpln("setSelection: " + e);}
+    },
+    _clear_selection : function ()
+    {
+        const selctrlcomp = Components.interfaces.nsISelectionController;
+        var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
+        sel.removeAllRanges();
+    },
+    restore_state: function () {
+        var m = this.frame.minibuffer;
+        var s = this.top;
+        m._input_text = s.search_str;
+        if (s.selection)
+            this._set_selection(s.selection);
+        else
+            this._clear_selection();
+        this.window.scrollTo(s.screenx, s.screeny);
+        m.prompt = ((s.wrapped ? "Wrapped ":"")
+                    + (s.range ? "" : "Failing ")
+                    + "I-Search" + (s.direction? "": " backward") + ":");
+    },
+    _highlight_find : function (str, wrapped, dir, pt) {
+        try {
+            var doc = this.window.document;
+            var finder = (Components.classes["@mozilla.org/embedcomp/rangefind;1"].createInstance()
+                          .QueryInterface(Components.interfaces.nsIFind));
+            var searchRange;
+            var startPt;
+            var endPt;
+            var body = doc.body;
 
-	finder.findBackwards = !dir;
+            finder.findBackwards = !dir;
 
-	searchRange = doc.createRange();
-	startPt = doc.createRange();
-	endPt = doc.createRange();
+            searchRange = doc.createRange();
+            startPt = doc.createRange();
+            endPt = doc.createRange();
 
-	var count = body.childNodes.length;
+            var count = body.childNodes.length;
 
-	// Search range in the doc
-	searchRange.setStart(body,0);
-	searchRange.setEnd(body, count);
+            // Search range in the doc
+            searchRange.setStart(body,0);
+            searchRange.setEnd(body, count);
 
-	if (!dir) {
-	    if (pt == null) {
-		startPt.setStart(body, count);
-		startPt.setEnd(body, count);
-	    } else {
-		startPt.setStart(pt.startContainer, pt.startOffset);
-		startPt.setEnd(pt.startContainer, pt.startOffset);
-	    }
-	    endPt.setStart(body, 0);
-	    endPt.setEnd(body, 0);
-	} else {
-	    if (pt == null) {
-		startPt.setStart(body, 0);
-		startPt.setEnd(body, 0);
-	    } else {
-		startPt.setStart(pt.endContainer, pt.endOffset);
-		startPt.setEnd(pt.endContainer, pt.endOffset);
-	    }
-	    endPt.setStart(body, count);
-	    endPt.setEnd(body, count);
-	}
-	// search the doc
-	var retRange = null;
-	var selectionRange = null;
+            if (!dir) {
+                if (pt == null) {
+                    startPt.setStart(body, count);
+                    startPt.setEnd(body, count);
+                } else {
+                    startPt.setStart(pt.startContainer, pt.startOffset);
+                    startPt.setEnd(pt.startContainer, pt.startOffset);
+                }
+                endPt.setStart(body, 0);
+                endPt.setEnd(body, 0);
+            } else {
+                if (pt == null) {
+                    startPt.setStart(body, 0);
+                    startPt.setEnd(body, 0);
+                } else {
+                    startPt.setStart(pt.endContainer, pt.endOffset);
+                    startPt.setEnd(pt.endContainer, pt.endOffset);
+                }
+                endPt.setStart(body, count);
+                endPt.setEnd(body, count);
+            }
+            // search the doc
+            var retRange = null;
+            var selectionRange = null;
 
 
-	if (!wrapped) {
-	    do {
-		retRange = finder.Find(str, searchRange, startPt, endPt);
-		var keepSearching = false;
-		if (retRange) {
-		    var sc = retRange.startContainer;
-		    var ec = retRange.endContainer;
-		    var scp = sc.parentNode;
-		    var ecp = ec.parentNode;
-		    var sy1 = window.abs_point(scp).y;
-		    var ey2 = window.abs_point(ecp).y + ecp.offsetHeight;
+            if (!wrapped) {
+                do {
+                    retRange = finder.Find(str, searchRange, startPt, endPt);
+                    var keepSearching = false;
+                    if (retRange) {
+                        var sc = retRange.startContainer;
+                        var ec = retRange.endContainer;
+                        var scp = sc.parentNode;
+                        var ecp = ec.parentNode;
+                        var sy1 = abs_point(scp).y;
+                        var ey2 = abs_point(ecp).y + ecp.offsetHeight;
 
-		    startPt = retRange.startContainer.ownerDocument.createRange();
-		    if (!dir) {
-			startPt.setStart(retRange.startContainer, retRange.startOffset);
-			startPt.setEnd(retRange.startContainer, retRange.startOffset);
-		    } else {
-			startPt.setStart(retRange.endContainer, retRange.endOffset);
-			startPt.setEnd(retRange.endContainer, retRange.endOffset);
-		    }
-		    // We want to find a match that is completely
-		    // visible, otherwise the view will scroll just a
-		    // bit to fit the selection in completely.
-// 		    alert ("sy1: " + sy1 + " scry: " + gWin.scrollY);
-// 		    alert ("ey2: " + ey2 + " bot: " + (gWin.scrollY + gWin.innerHeight));
-		    keepSearching = (dir && sy1 < window.gWin.scrollY)
-			|| (!dir && ey2 >= window.gWin.scrollY + window.gWin.innerHeight);
-		}
-	    } while (retRange && keepSearching);
-	} else {
-	    retRange = finder.Find(str, searchRange, startPt, endPt);
-	}
+                        startPt = retRange.startContainer.ownerDocument.createRange();
+                        if (!dir) {
+                            startPt.setStart(retRange.startContainer, retRange.startOffset);
+                            startPt.setEnd(retRange.startContainer, retRange.startOffset);
+                        } else {
+                            startPt.setStart(retRange.endContainer, retRange.endOffset);
+                            startPt.setEnd(retRange.endContainer, retRange.endOffset);
+                        }
+                        // We want to find a match that is completely
+                        // visible, otherwise the view will scroll just a
+                        // bit to fit the selection in completely.
+                        keepSearching = (dir && sy1 < this.window.scrollY)
+                            || (!dir && ey2 >= this.window.scrollY + this.window.innerHeight);
+                    }
+                } while (retRange && keepSearching);
+            } else {
+                retRange = finder.Find(str, searchRange, startPt, endPt);
+            }
 
-	if (retRange) {
-      setSelection(window, retRange);
-	    selectionRange = retRange.cloneRange();
-	    // 	    highlightAllBut(str, retRange, color);
-	} else {
+            if (retRange) {
+                this._set_selection(retRange);
+                selectionRange = retRange.cloneRange();
+            } else {
 	    
-	}
+            }
 
-	return selectionRange;
-    } catch(e) { window.alert(e); }
-    return null;
-}
+            return selectionRange;
+        } catch(e) { /* FIXME: figure out why this is needed*/ this.frame.alert(e); }
+        return null;
+    },
 
-function clearHighlight(window)
-{
-    var win = window.content; 
-    var doc = win.document;
-    if (!doc)
-      return;
+    find : function (str, dir, pt) {
+        var s = this.top;
 
-    var elem = null;
-    while ((elem = doc.getElementById("__conkeror-findbar-search-id"))) {
-	var child = null;
-	var docfrag = doc.createDocumentFragment();
-	var next = elem.nextSibling;
-	var parent = elem.parentNode;
-	while((child = elem.firstChild)) {
-	    docfrag.appendChild(child);
-	}
-	parent.removeChild(elem);
-	parent.insertBefore(docfrag, next);
-    }
-}
+        // Should we wrap this time?
+        var wrapped = s.wrapped;
+        var point = pt;
+        if (s.wrapped == false && s.range == null && s.search-str == str && s.direction == dir) {
+            wrapped = true;
+            point = null;
+        }
 
-function focusLink(window)
-{
-    var sel = window.gSelCtrl.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    var node = sel.focusNode;
-    if (node == null)
-	return;
+        var match_range = this._highlight_find(str, wrapped, dir, point);
+
+        var new_state = {
+            screenx: this.window.scrollX, screeny: this.window.scrollY,
+            search_str: str, wrapped: wrapped, point: point,
+            range: match_range,
+            selection: match_range ? match_range : s.selection,
+            direction: dir
+        };
+        this.states.push(new_state);
+    },
+
+    focus_link : function ()
+    {
+        var sel = this.window.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+        if (!sel)
+            return;
+        var node = sel.focusNode;
+        if (node == null)
+            return;
     
-    do {
-	if (node.localName == "A") {
-	    if (node.hasAttributes && node.attributes.getNamedItem("href")) {
-		Components.lookupMethod(node, "focus").call(node);
-		return;
-	    }
-	}
-    } while ((node = node.parentNode));
-}
+        do {
+            if (node.localName == "A") {
+                if (node.hasAttributes && node.attributes.getNamedItem("href")) {
+                    /* FIXME: This shouldn't be needed anymore, due to
+                     * better xpc wrappers */
+                    Components.lookupMethod(node, "focus").call(node);
+                    return;
+                }
+            }
+        } while ((node = node.parentNode));
+    }
+};
 
-function find(window, str, dir, pt)
+function isearch_continue(frame, direction) {
+    var s = frame.minibuffer.current_state;
+    if (!s || s.constructor != isearch_session)
+        throw "Invalid minibuffer state";
+    if (s.states.length == 1 && frame.isearch_last_string)
+        s.find(frame.isearch_last_search, direction, s.top.point);
+    else
+        s.find(s.top.search_str, direction, s.top.range);
+    s.restore_state();
+}
+interactive("isearch-continue-forward", isearch_continue, ['current_frame', ['value', true]]);
+interactive("isearch-continue-backward", isearch_continue, ['current_frame', ['value', false]]);
+
+function isearch_start (frame, direction)
 {
-    var matchRange;
-    clearHighlight(window);
-
-    var lastState = lastFindState(window);
-
-    // Should we wrap this time?
-    var wrapped = lastState["wrapped"];
-    var point = pt;
-    if (lastState["wrapped"] == false 
-        && lastState["range"] == null
-        && lastState["search-str"] == str
-        && lastState["direction"] == dir) {
-      wrapped = true;
-      point = null;
-    }
-    matchRange = highlightFind(window, str, "lightblue", wrapped, dir, point);
-    if (matchRange == null) {
-      addFindState (window, window.gWin.scrollX, window.gWin.scrollY, str, wrapped, point,
-                    matchRange, lastFindState(window)["selection"], dir);
-    } else {
-      addFindState (window, window.gWin.scrollX, window.gWin.scrollY, str, wrapped,
-                    point, matchRange, matchRange, dir);
-    }
+    var s = new isearch_session(frame, direction);
+    frame.minibuffer.push_state(s);
+    s.restore_state();
 }
+interactive("isearch-forward", isearch_start, ['current_frame', ['value', true]]);
+interactive("isearch-backward", isearch_start, ['current_frame', ['value', false]]);
+
+function isearch_backspace (frame)
+{
+    var s = frame.minibuffer.current_state;
+    if (!s || s.constructor != isearch_session)
+        throw "Invalid minibuffer state";
+    if (s.states.length > 1)
+        s.states.pop();
+    s.restore_state();
+}
+interactive("isearch-backspace", isearch_backspace, ['current_frame']);
+
+function isearch_abort (frame)
+{
+    var s = frame.minibuffer.current_state;
+    if (!s || s.constructor != isearch_session)
+        throw "Invalid minibuffer state";
+    frame.minibuffer.pop_state();
+    s.window.scrollTo(s.states[0].screenx, s.states[0].screeny);
+    s._clear_selection();
+}
+interactive("isearch-abort", isearch_abort, ['current_frame']);
+
+
+function isearch_add_character (frame, event)
+{
+    var s = frame.minibuffer.current_state;
+    if (!s || s.constructor != isearch_session)
+        throw "Invalid minibuffer state";
+    var str = s.top.search_str;
+    str += String.fromCharCode(event.charCode);
+    s.find(str, s.top.direction, s.top.point);
+    s.restore_state();
+}
+interactive("isearch-add-character", isearch_add_character, ['current_frame', "e"]);
+
+function isearch_done (frame)
+{
+    var s = frame.minibuffer.current_state;
+    if (!s || s.constructor != isearch_session)
+        throw "Invalid minibuffer state";
+    s.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    frame.minibuffer.pop_state(false /* don't restore focus */);
+    frame.isearch_last_search = s.top.search_str;
+    s.focus_link();
+    s._clear_selection();
+}
+interactive("isearch-done", isearch_done, ['current_frame']);
 

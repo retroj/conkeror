@@ -233,3 +233,35 @@ function trim_whitespace (str)
     var tmp = new String (str);
     return tmp.replace (/^\s+/, "").replace (/\s+$/, "");
 }
+
+function abs_point (node)
+{
+    var orig = node;
+    var pt = {};
+    try {
+        pt.x = node.offsetLeft;
+        pt.y = node.offsetTop;
+        // find imagemap's coordinates
+        if (node.tagName == "AREA") {
+            var coords = node.getAttribute("coords").split(",");
+            pt.x += Number(coords[0]);
+            pt.y += Number(coords[1]);
+        }
+
+        node = node.offsetParent;
+        // Sometimes this fails, so just return what we got.
+
+        while (node.tagName != "BODY") {
+            pt.x += node.offsetLeft;
+            pt.y += node.offsetTop;
+            node = node.offsetParent;
+        }
+    } catch(e) {
+// 	node = orig;
+// 	while (node.tagName != "BODY") {
+// 	    alert("okay: " + node + " " + node.tagName + " " + pt.x + " " + pt.y);
+// 	    node = node.offsetParent;
+// 	}
+    }
+    return pt;
+}

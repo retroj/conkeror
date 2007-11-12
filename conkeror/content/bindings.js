@@ -49,28 +49,6 @@ var     frameset_kmap      = null;
 var universal_kmap = null;
 
 
-
-// XXX: these context predicates are a problem now that all windows will be
-//      coordinated by a single app-scope.  for example, what happens when you
-//      start a search in one window and switch to another before completing
-//      the search?
-function numberedlinks_kmap_predicate (window, element) {
-    return window.numberedlinks_minibuffer_active;
-}
-
-function isearch_kmap_predicate (window, element) {
-    return window.isearch_active;
-}
-
-// XXX: this predicate is not as safe a check as it used to be when it was
-//      done in window scope.  to-do: make it better.
-function minibuffer_kmap_predicate (window, element) {
-    try {
-        return element.baseURI == "chrome://conkeror/content/conkeror.xul" &&
-            element.className == 'textbox-input'; // minibuffer.input.inputField;
-    } catch (e) { return false; }
-}
-
 function input_kmap_predicate (window, element) {
     // Use the input keymap for any input tag that
     // isn't a radio button or checkbox.
@@ -108,10 +86,10 @@ function clearKmaps()
     top_kmap      	  = make_keymap();
     input_kmap            = make_context_keymap (input_kmap_predicate);
     textarea_kmap 	  = make_context_keymap (textarea_kmap_predicate);
-    minibuffer_kmap       = make_context_keymap (minibuffer_kmap_predicate);
+    minibuffer_kmap       = make_keymap();
     select_kmap   	  = make_keymap();
-    numberedlinks_kmap    = make_context_keymap (numberedlinks_kmap_predicate);
-    isearch_kmap          = make_context_keymap (isearch_kmap_predicate);
+    numberedlinks_kmap    = make_keymap();
+    isearch_kmap          = make_keymap();
     frameset_kmap         = make_keymap();
 
     top_esc_kmap   	  = make_keymap();
@@ -120,10 +98,7 @@ function clearKmaps()
 
     universal_kmap        = make_keymap();
 
-    context_kmaps = [numberedlinks_kmap,
-                     isearch_kmap,
-                     minibuffer_kmap,
-                     input_kmap,
+    context_kmaps = [input_kmap,
                      textarea_kmap];
 }
 
@@ -517,7 +492,7 @@ function init_minibuffer_keys () {
     // This must be at the end of minibuffer_kmap defs so it's matched last.
     define_key(minibuffer_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character");
 
-    minibuffer_kmap.parent = top_kmap;
+    //minibuffer_kmap.parent = top_kmap;
 }
 
 
@@ -537,13 +512,13 @@ function init_numberedlinks_keys () {
 function init_isearch_keys () {
     // isearch bindings
     //
-    define_key (isearch_kmap, kbd (KeyEvent.DOM_VK_BACK_SPACE,0), "isearch-backspace");
-    define_key (isearch_kmap, kbd ("r", MOD_CTRL), "isearch-backward");
-    define_key (isearch_kmap, kbd ("s", MOD_CTRL), "isearch-forward");
-    define_key (isearch_kmap, kbd ("g", MOD_CTRL), "isearch-abort");
-    define_key (isearch_kmap, kbd (KeyEvent.DOM_VK_ESCAPE, 0), "isearch-abort");
-    define_key (isearch_kmap, kbd (match_any_unmodified_key), "isearch-add-character");
-    define_key (isearch_kmap, kbd (match_any_key), "isearch-done");
+    define_key (isearch_kmap, "back_space", "isearch-backspace");
+    define_key (isearch_kmap, "C-r", "isearch-continue-backward");
+    define_key (isearch_kmap, "C-s", "isearch-continue-forward");
+    define_key (isearch_kmap, "C-g", "isearch-abort");
+    define_key (isearch_kmap, "escape", "isearch-abort");
+    define_key (isearch_kmap, kbd(match_any_unmodified_key), "isearch-add-character");
+    define_key (isearch_kmap, kbd(match_any_key), "isearch-done");
 }
 
 

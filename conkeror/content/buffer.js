@@ -39,6 +39,8 @@ function browser_buffer(frame, browser)
 }
 
 browser_buffer.prototype = {
+    constructor : browser_buffer.constructor,
+
     get content_window() {
         return this.element.contentWindow;
     },
@@ -72,6 +74,10 @@ browser_buffer.prototype = {
 
     get web_navigation () {
         return this.element.webNavigation;
+    },
+
+    get doc_shell () {
+        return this.element.docShell;
     },
 
     load_URI : function (URI_s) {
