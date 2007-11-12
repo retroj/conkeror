@@ -1,3 +1,4 @@
-content conkeror jar:conkeror.jar!/conkeror/content/
-locale conkeror en-US jar:conkeror.jar!/conkeror/locale/en-US/
-locale branding en-US jar:conkeror.jar!/conkeror/branding/
+content conkeror jar:conkeror.jar!/content/
+content conkeror-modules jar:conkeror.jar!/modules/
+locale conkeror en-US jar:conkeror.jar!/locale/en-US/
+locale branding en-US jar:conkeror.jar!/branding/

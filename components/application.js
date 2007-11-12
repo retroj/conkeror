@@ -1,64 +1,60 @@
+const Cc = Components.classes;
+const Ci = Components.interfaces;
 
-
-function get_chrome_contents (chrome_uri_s) {
-    try {
-        var op = Components.classes["@mozilla.org/network/io-service;1"]
-            .getService(Components.interfaces.nsIIOService)
-            .newChannel(chrome_uri_s, null, null)
-            .open();
-        var inputStream = Components.classes["@mozilla.org/scriptableinputstream;1"]
-            .createInstance(Components.interfaces.nsIScriptableInputStream);
-        inputStream.init (op);
-        var buf = "";
-        var len = null;
-        do {
-            len = inputStream.available(); // throws if not available
-            buf += inputStream.read (len);
-        } while (len != 0);
-        inputStream.close();
-        return buf;
-    } catch (e) {
-        inputStream.close();
-        dump ('error loading '+chrome_uri_s+"\n    "+e+"\n");
-    }
-}
-
-
-
+var subscriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
+    .getService(Components.interfaces.mozIJSSubScriptLoader);
 
 function application () {
     this.wrappedJSObject = this;
-    this.window_watcher = Components.classes["@mozilla.org/embedcomp/window-watcher;1"]
-        .getService(Components.interfaces.nsIWindowWatcher);
+    this.conkeror = this;
+    this.window_watcher = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
+    this.Cc = Cc;
+    this.Ci = Ci;
+    this.subscript_loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
+    this.preferences = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
     var conkeror = this;
-    conkeror.start_time = Date.now ();
+    this.modules_loaded = [];
+    function load_module (module_name) {
+        try {
+            conkeror.subscript_loader.loadSubScript("chrome://conkeror-modules/content/" + module_name,
+                                                conkeror);
+            conkeror.modules_loaded.push(module_name);
+        } catch (e) {
+            dump("Failed to load module: " + module_name + "\n" +
+                 e + "\n");
+        }
+    }
+    function require (module) {
+        if (conkeror.modules.indexOf(module) == -1)
+            load_module(module);
+    }
+    this.load_module = load_module;
+    this.require = require;
+
+    load_module("debug.js");
+    load_module("localfile.js");
+    load_module("utils.js");
+    load_module("keyboard.js");
+    load_module("buffer.js");
+    load_module("frame.js");
+    load_module("interactive.js");
+    load_module("daemon-mode.js");
+    load_module("mode-line.js");
+    load_module("save.js");
+
+    load_module("commands.js"); // depends: interactive.js
+    load_module("frameset.js"); // depends interactive.js
+    load_module("webjump.js"); // depends: interactive.js
+    load_module("minibuffer.js"); // depends: interactive.js
+
+    load_module("bindings.js"); // depends: keyboard.js
+
+    load_module("find.js");
+    load_module("numberedlinks.js");
+
+    this.start_time = Date.now ();
+
     conkeror.url_remoting_fn = conkeror.make_frame;
-
-    conkeror.preferences = Components.classes["@mozilla.org/preferences-service;1"]
-        .getService (Components.interfaces.nsIPrefBranch);
-
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/debug.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/localfile.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/utils.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/keyboard.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/buffer.js")); 
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/frame.js")); 
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/interactive.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/daemon-mode.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/mode-line.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/save.js"));
-
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/commands.js")); // depends: interactive.js
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/frameset.js")); // depends: interactive.js
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/webjump.js"));  // depends: interactive.js
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/minibuffer.js")); // depends: interactive.js
-
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/bindings.js")); // depends: keyboard.js
-
-    // FIXME: This is commented out because it currently does nothing except print numbering_resize messages
-    //eval.call (this, get_chrome_contents ("chrome://conkeror/content/numbering.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/find.js"));
-    eval.call (this, get_chrome_contents ("chrome://conkeror/content/numberedlinks.js"));
 
     conkeror.set_default_directory ();
 
@@ -70,6 +66,7 @@ function application () {
 application.prototype = {
 
 version: "$CONKEROR_VERSION$", // preprocessor variable
+
 start_time: null,
 window_watcher: null,
 preferences: null,

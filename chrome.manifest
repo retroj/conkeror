@@ -1,3 +1,4 @@
-content conkeror file:conkeror/content/
-locale conkeror en-US file:conkeror/conkeror/locale/en-US/
-locale branding en-US file:conkeror/conkeror/branding/
+content conkeror file:content/
+content conkeror-modules file:modules/
+locale conkeror en-US file:locale/en-US/
+locale branding en-US file:branding/

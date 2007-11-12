@@ -100,11 +100,9 @@ function copy_tree_sans_boring () {
     mkdir -p "$dest"
     O=$IFS
     IFS=$'\n'
-    ( cd "$src"; find . -name CVS -prune -or \( -type d -and \
-                                   \! -name '*[~#]' -print0 \) ) \
+    ( cd "$src"; find . -type d -and \! -name '*[~#]' -print0 ) \
         | ( cd "$dest"; xargs -0 mkdir -p )
-    files=($( cd "$src"; find . -name CVS -prune -or \( -type f -and \
-                \! -name '*[~#]' -print \) ))
+    files=($( cd "$src"; find . -type f -and \! -name '*[~#]' -print ))
     for file in "${files[@]}" ; do cp "$src/$file" "$dest/$file" ; done
     IFS=$O
 }
@@ -169,17 +167,9 @@ function diff_wrapper () {
 
 function do_target_jar () {
     echo -n Building JAR...
-    get_scratch
-    jarbuild="$SCRATCH/jar-build"
-    mkdir "$jarbuild"
-    cp -r conkeror "$jarbuild/conkeror"
-    pushd "$jarbuild" > /dev/null
-    FILES=($(find conkeror -name CVS -prune -or \( -type f -and \! -name '*[~#]' -print \)))
-    zip conkeror.jar "${FILES[@]}" > /dev/null
-    popd > /dev/null
-    mv "$jarbuild/conkeror.jar" .
+    FILES=($(find content branding locale modules -type f -and \! -name '*[~#]' -print ))
+    zip "conkeror.jar" "${FILES[@]}" > /dev/null
     echo ok
-    do_cleanup
 }
 
 
