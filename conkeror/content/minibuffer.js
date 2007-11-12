@@ -17,14 +17,14 @@ function exit_minibuffer(frame)
 
     var match = null;
     var val = trim_whitespace(m._input_text);
-    if (this.is_completion_minibuffer_state) {
+    if (s.is_completion_minibuffer_state) {
         if (val.length == 0 && s.default_match != null)
             val = s.default_match;
         match = find_complete_match(s.completions, val);
     }
 
     // Check if we are allowed to exit here
-    if (this.is_completion_minibuffer_state && !match && !s.allow_non_matches)
+    if (s.is_completion_minibuffer_state && !match && !s.allow_non_matches)
         return;
 
     if (s.history)
@@ -35,7 +35,7 @@ function exit_minibuffer(frame)
     }
     m.pop_state();
     if (s.callback) {
-        if (this.is_completion_minibuffer_state) {
+        if (s.is_completion_minibuffer_state) {
             if (s.allow_non_matches)
                 s.callback(match, val);
             else // match must be non-null because of previous check
@@ -45,7 +45,7 @@ function exit_minibuffer(frame)
             s.callback(val);
     }
 }
-interactive("exit-minibuffer", exit_minibuffer, ['current_frame', 'current_command']);
+interactive("exit-minibuffer", exit_minibuffer, ['current_frame']);
 
 function minibuffer_history_next (frame)
 {

@@ -507,13 +507,16 @@ function init_minibuffer_keys () {
 function init_numberedlinks_keys () {
     // numbered links bindings
     //
-    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_META), "numberedlinks-focus");
-    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,0), "numberedlinks-follow");
-    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_CTRL), "numberedlinks-follow-other-buffer");
-    define_key (numberedlinks_kmap, kbd (KeyEvent.DOM_VK_RETURN,MOD_CTRL + MOD_META),"numberedlinks-follow-other-frame");
-    define_key (numberedlinks_kmap, kbd ("v",MOD_CTRL), "numberedlinks-save");
+    define_key (numberedlinks_kmap, "M-return", "numberedlinks-focus");
+    define_key (numberedlinks_kmap, "return", "numberedlinks-follow");
+    define_key (numberedlinks_kmap, "C-return", "numberedlinks-follow-other-buffer");
+    define_key (numberedlinks_kmap, "C-M-return", "numberedlinks-follow-other-frame");
+    define_key (numberedlinks_kmap, "C-v", "numberedlinks-save");
+    define_key (numberedlinks_kmap, "C-g", "numberedlinks-abort");
+    define_key (numberedlinks_kmap, "escape", "numberedlinks-abort");
+    
     // we also want to consume TAB but ignore it.  there should be a general command for this.
-    numberedlinks_kmap.parent = minibuffer_kmap;
+    numberedlinks_kmap.parent = minibuffer_base_kmap;
 }
 
 

@@ -16,6 +16,7 @@ buffer.prototype = {
 /* If browser is null, create a new browser */
 function browser_buffer(frame, browser)
 {
+    this.is_browser_buffer = true;
     this.frame = frame;
     if (browser == null)
     {
@@ -78,6 +79,10 @@ browser_buffer.prototype = {
 
     get doc_shell () {
         return this.element.docShell;
+    },
+
+    get markup_document_viewer () {
+        return this.element.markup_document_viewer;
     },
 
     load_URI : function (URI_s) {

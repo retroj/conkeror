@@ -137,7 +137,8 @@ interactive("delete-frame", delete_frame, ['current_frame']);
 
 function open_url_in (frame, prefix, url)
 {
-    if (prefix == 1) {
+    var b = frame.buffers.current;
+    if (prefix == 1 && b.is_browser_buffer) {
         // Open in current buffer
         // FIXME: check to ensure that current buffer is a browser_buffer
         frame.buffers.current.load_URI(url);
@@ -227,7 +228,7 @@ interactive("jsconsole", open_url_in,
 
 function switch_to_buffer (frame, buffer)
 {
-    if (buffer)
+    if (buffer && !buffer.dead)
         frame.buffers.current = buffer;
 }
 interactive("switch-to-buffer", switch_to_buffer,
@@ -603,36 +604,35 @@ interactive("list-buffers", list_buffers, []);
 
 function text_reset (frame)
 {
-    try {
-        frame.getBrowser().markupDocumentViewer.textZoom = 1.0;
-        // We need to update the floaters
-        // numberedlinks_resize(window._content);
-    } catch(e) { alert(e); }
+    var b = frame.buffers.current;
+    if (!b.is_browser_buffer)
+        throw "Not in a browser buffer";
+    b.markup_document_viewer.textZoom = 1.0;
+    // We need to update the floaters
+    // numberedlinks_resize(window._content);
 }
 interactive("text-reset", text_reset, ['current_frame']);
 
-
 function text_reduce (frame, prefix)
 {
-    try {
-        frame.getBrowser().markupDocumentViewer.textZoom -= 0.25 * prefix;
-        // We need to update the floaters
-        // numberedlinks_resize(window._content);
-    } catch(e) { alert(e); }
+    var b = frame.buffers.current;
+    if (!b.is_browser_buffer)
+        throw "Not in a browser buffer";
+    b.markup_document_viewer.textZoom -= 0.25 * prefix;
+    // We need to update the floaters
+    // numberedlinks_resize(window._content);
 }
 interactive("text-reduce", text_reduce, ['current_frame', "p"]);
-
 
 function text_enlarge (frame, prefix)
 {
     try {
-        frame.getBrowser().markupDocumentViewer.textZoom += 0.25 * prefix;
-        // We need to update the floaters
-        // numberedlinks_resize(window._content);
-    } catch(e) { alert(e); }
+    var b = frame.buffers.current;
+    if (!b.is_browser_buffer)
+        throw "Not in a browser buffer";
+    b.markup_document_viewer.textZoom += 0.25 * prefix;
 }
 interactive("text-enlarge", text_enlarge, ['current_frame', "p"]);
-
 
 function eval_expression (frame)
 {

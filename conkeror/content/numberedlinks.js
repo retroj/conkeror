@@ -94,6 +94,8 @@ function get_href (node)
     }
 }
 
+
+const conkerorINumberingHelper = Components.interfaces.conkerorINumberingHelper;
 function get_numberedlink (window, number)
 {
     /* It is important to be careful here, since we are accessing an
@@ -113,88 +115,132 @@ function get_numberedlink (window, number)
     return null;
 }
 
-const conkerorINumberingHelper = Components.interfaces.conkerorINumberingHelper;
 
-function numberedlinks_do_link (frame, prefix, link, action)
+
+/* FIXME: this should support a prefix argument */
+function numberedlinks_minibuffer_state(prefix, initial_value)
 {
-    var window = frame;
-    // See if the number is a link.
-    var nl = get_numberedlink (window, link);
-    if (! nl) {
-        window.message ("No link with number '" + link + "'");
-        return;
-    }
+    this.is_numberedlinks_minibuffer_state = true;
+    this.prefix_argument = prefix;
+    if (initial_value == null)
+        initial_value = "";
+    basic_minibuffer_state.call(this, { prompt: "Link number:", initial_value: initial_value });
+    this.keymap = numberedlinks_kmap;
+}
 
-    // we have a node.  we must now produce some side-effect based on its type
-    // and the requested action.
-    //
-    var type = nl.type;
-    var href = get_href (nl.target_node);
+function numberedlinks_start(frame, prefix, initial_value)
+{
+    
+    frame.minibuffer.push_state(new numberedlinks_minibuffer_state(prefix, initial_value));
+}
 
-    if (type == conkerorINumberingHelper.TYPE_LINK) {
-        if (action == "numberedlinks-focus") {
-            nl.target_node.focus();
-        } else if (action == "numberedlinks-follow-other-buffer") {
-            window.newBrowser(href);
-        } else if (action == "numberedlinks-follow-other-frame") {
-          open_url_in (window, 5, href);
-        } else if (action == "numberedlinks-save") {
-            nl.target_node.focus();
-            call_interactively(window, "save-focused-link");
-        } else {
-            var img = nl.target_node.getElementsByTagName("IMG");
-            var evt = nl.document.createEvent('MouseEvents');
-            var x = 1;
-            var y = 1;
-            if (prefix == 1) {
-                if (nl.target_node.localName.toLowerCase() == "area") {
-                    var coords = nl.target_node.getAttribute("coords").split(",");
-                    x = Number(coords[0]);
-                    y = Number(coords[1]);
-                }
-                evt.initMouseEvent('click', true, true, nl.document.defaultView, 0, x, y, 0, 0, null, null, null, null, 0, null);
-                // Handle the annoying case where
-                // there's a link with an image inside
-                // it and the onclick is on the image
-                // not the A tag.
-                if (img.length > 0)
-                    img[0].dispatchEvent(evt);
-                else
-                    nl.target_node.dispatchEvent(evt);
-            } else {
-              open_url_in (window, prefix, nl.target_node.href);
+interactive("numberedlinks-1", numberedlinks_start, ['current_frame', "p", ['value', '1']]);
+interactive("numberedlinks-2", numberedlinks_start, ['current_frame', "p", ['value', '2']]);
+interactive("numberedlinks-3", numberedlinks_start, ['current_frame', "p", ['value', '3']]);
+interactive("numberedlinks-4", numberedlinks_start, ['current_frame', "p", ['value', '4']]);
+interactive("numberedlinks-5", numberedlinks_start, ['current_frame', "p", ['value', '5']]);
+interactive("numberedlinks-6", numberedlinks_start, ['current_frame', "p", ['value', '6']]);
+interactive("numberedlinks-7", numberedlinks_start, ['current_frame', "p", ['value', '7']]);
+interactive("numberedlinks-8", numberedlinks_start, ['current_frame', "p", ['value', '8']]);
+interactive("numberedlinks-9", numberedlinks_start, ['current_frame', "p", ['value', '9']]);
+interactive("goto-numbered-link", numberedlinks_start, ['current_frame', "p", ['value', null]]);
+
+function numberedlinks_interactive(command, func)
+{
+    interactive(command, function (frame) {
+            var s = frame.minibuffer.current_state;
+            if (!s || !s.is_numberedlinks_minibuffer_state)
+                throw "Invalid minibuffer state";
+            var link = frame.minibuffer._input_text;
+            frame.minibuffer.pop_state();
+            var nl = get_numberedlink (frame, link);
+            if (! nl) {
+                frame.minibuffer.message ("No link with number '" + link + "'");
+                return;
             }
-        }
-    } else if (type == conkerorINumberingHelper.TYPE_BUTTON) {
-        if (action == "numberedlinks-focus") {
-            nl.target_node.focus();
-        } else {
-            var evt = nl.document.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, nl.document.defaultView, 0, 0, 0, 0, 0, null, null, null, null, 0, null);
-            nl.target_node.dispatchEvent(evt);
-        }
-    } else {
-        nl.target_node.focus ();
+            func(frame, s.prefix_argument, nl);
+        }, ['current_frame']);
+}
+
+function numberedlinks_focus(frame, prefix, nl)
+{
+    nl.target_node.focus();
+}
+numberedlinks_interactive("numberedlinks-focus", numberedlinks_focus);
+
+function numberedlinks_generate_click(nl) {
+    var evt = nl.document.createEvent('MouseEvents');
+    var x = 1;
+    var y = 1;
+    if (nl.target_node.localName.toLowerCase() == "area") {
+        var coords = nl.target_node.getAttribute("coords").split(",");
+        x = Number(coords[0]);
+        y = Number(coords[1]);
+    }
+    evt.initMouseEvent('click', true, true, nl.document.defaultView, 0, x, y, 0, 0, null, null, null, null, 0, null);
+    var img = nl.target_node.getElementsByTagName("IMG");
+    // Handle the annoying case where
+    // there's a link with an image inside
+    // it and the onclick is on the image
+    // not the A tag.
+    if (img.length > 0)
+        img[0].dispatchEvent(evt);
+    else
+        nl.target_node.dispatchEvent(evt);
+}
+
+function numberedlinks_follow_other_buffer(frame, prefix, nl)
+{
+    if (nl.type == conkerorINumberingHelper.TYPE_LINK)
+        open_url_in(frame, 4, get_href (nl.target_node));
+    else if (nl.type == conkerorINumberingHelper.TYPE_BUTTON)
+        numberedlinks_generate_click(nl);
+    else
+        numberedlinks_focus(frame, prefix, nl);
+}
+numberedlinks_interactive("numberedlinks-follow-other-buffer", numberedlinks_follow_other_buffer);
+
+function numberedlinks_follow_other_frame(frame, prefix, nl)
+{
+    if (nl.type == conkerorINumberingHelper.TYPE_LINK)
+        open_url_in(frame, 5, get_href (nl.target_node));
+    else if (nl.type == conkerorINumberingHelper.TYPE_BUTTON)
+        numberedlinks_generate_click(nl);
+    else
+        numberedlinks_focus(frame, prefix, nl);
+}
+numberedlinks_interactive("numberedlinks-follow-other-frame", numberedlinks_follow_other_frame);
+
+function numberedlinks_follow(frame, prefix, nl)
+{
+    if (nl.type == conkerorINumberingHelper.TYPE_LINK)
+        open_url_in(frame, prefix, get_href (nl.target_node));
+    else if (nl.type == conkerorINumberingHelper.TYPE_BUTTON)
+        numberedlinks_generate_click(nl);
+    else
+        numberedlinks_focus(frame, prefix, nl);
+}
+numberedlinks_interactive("numberedlinks-follow", numberedlinks_follow);
+
+function numberedlinks_save(frame, prefix, nl)
+{
+    nl.target_node.focus();
+    if (nl.type == conkerorINumberingHelper.TYPE_LINK)
+    {
+        call_interactively(frame, "save-focused-link");
     }
 }
-interactive("numberedlinks-1", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "1"; }], "minibuffer_exit"]);
-interactive("numberedlinks-2", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "2"; }], "minibuffer_exit"]);
-interactive("numberedlinks-3", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "3"; }], "minibuffer_exit"]);
-interactive("numberedlinks-4", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "4"; }], "minibuffer_exit"]);
-interactive("numberedlinks-5", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "5"; }], "minibuffer_exit"]);
-interactive("numberedlinks-6", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "6"; }], "minibuffer_exit"]);
-interactive("numberedlinks-7", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "7"; }], "minibuffer_exit"]);
-interactive("numberedlinks-8", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "8"; }], "minibuffer_exit"]);
-interactive("numberedlinks-9", numberedlinks_do_link, ['current_frame', "p", ["link", null, function (a) { return "9"; }], "minibuffer_exit"]);
-interactive("goto-numbered-link", numberedlinks_do_link, ['current_frame', "p", "link", "minibuffer_exit"]);
+numberedlinks_interactive("numberedlinks-save", numberedlinks_save);
 
+function numberedlinks_abort(frame)
+{
+    var s = frame.minibuffer.current_state;
+    if (!s || !s.is_numberedlinks_minibuffer_state)
+        throw "Invalid minibuffer state";
+    frame.minibuffer.pop_state();
+}
 
-interactive("numberedlinks-focus", exit_minibuffer, ['current_frame', 'current_command']);
-interactive("numberedlinks-follow", exit_minibuffer, ['current_frame', 'current_command']);
-interactive("numberedlinks-follow-other-buffer", exit_minibuffer, ['current_frame', 'current_command']);
-interactive("numberedlinks-follow-other-frame", exit_minibuffer, ['current_frame', 'current_command']);
-interactive("numberedlinks-save", exit_minibuffer, ['current_frame', 'current_command']);
-
+interactive("numberedlinks-abort", numberedlinks_abort, ['current_frame']);
 
 function setVisibility (doc, link_state, img_state)
 {
