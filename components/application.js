@@ -14,11 +14,15 @@ function application () {
     this.preferences = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
     var conkeror = this;
     this.modules_loaded = [];
+    function provide (module) {
+        if (conkeror.loaded_modules.indexOf(module) == -1)
+            conkeror.loaded_modules.push(module);
+    }
     function load_module (module_name) {
         try {
             conkeror.subscript_loader.loadSubScript("chrome://conkeror-modules/content/" + module_name,
                                                 conkeror);
-            conkeror.modules_loaded.push(module_name);
+            provide(module_name);
         } catch (e) {
             dump("Failed to load module: " + module_name + "\n" +
                  e + "\n");
@@ -30,27 +34,28 @@ function application () {
     }
     this.load_module = load_module;
     this.require = require;
+    this.provide = provide;
 
-    load_module("debug.js");
-    load_module("localfile.js");
-    load_module("utils.js");
-    load_module("keyboard.js");
-    load_module("buffer.js");
-    load_module("frame.js");
-    load_module("interactive.js");
-    load_module("daemon-mode.js");
-    load_module("mode-line.js");
-    load_module("save.js");
+    require("debug.js");
+    require("localfile.js");
+    require("utils.js");
+    require("keyboard.js");
+    require("buffer.js");
+    require("frame.js");
+    require("interactive.js");
+    require("daemon-mode.js");
+    require("mode-line.js");
+    require("save.js");
 
-    load_module("commands.js"); // depends: interactive.js
-    load_module("frameset.js"); // depends interactive.js
-    load_module("webjump.js"); // depends: interactive.js
-    load_module("minibuffer.js"); // depends: interactive.js
+    require("commands.js"); // depends: interactive.js
+    require("frameset.js"); // depends interactive.js
+    require("webjump.js"); // depends: interactive.js
+    require("minibuffer.js"); // depends: interactive.js
 
-    load_module("bindings.js"); // depends: keyboard.js
+    require("bindings.js"); // depends: keyboard.js
 
-    load_module("find.js");
-    load_module("numberedlinks.js");
+    require("find.js");
+    require("numberedlinks.js");
 
     this.start_time = Date.now ();
 
