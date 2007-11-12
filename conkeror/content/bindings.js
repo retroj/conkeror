@@ -42,7 +42,9 @@ var 	numberedlinks_kmap = null;
 var     top_esc_kmap   	   = null;
 var     textarea_esc_kmap  = null;
 var     input_esc_kmap     = null;
-var     minibuffer_kmap    = null;
+var     minibuffer_base_kmap = null;
+var     minibuffer_kmap = null;
+var     minibuffer_completion_kmap = null;
 var     isearch_kmap       = null;
 var     frameset_kmap      = null;
 
@@ -86,7 +88,9 @@ function clearKmaps()
     top_kmap      	  = make_keymap();
     input_kmap            = make_context_keymap (input_kmap_predicate);
     textarea_kmap 	  = make_context_keymap (textarea_kmap_predicate);
+    minibuffer_base_kmap       = make_keymap();
     minibuffer_kmap       = make_keymap();
+    minibuffer_completion_kmap       = make_keymap();
     select_kmap   	  = make_keymap();
     numberedlinks_kmap    = make_keymap();
     isearch_kmap          = make_keymap();
@@ -458,41 +462,45 @@ function initKmaps()
 function init_minibuffer_keys () {
     // minibuffer bindings
     //
+
+    define_key(minibuffer_base_kmap, "C-a", "minibuffer-cmd_beginLine");
+    define_key(minibuffer_base_kmap, "C-e", "minibuffer-cmd_endLine");
+    define_key(minibuffer_base_kmap, "back_space", "minibuffer-cmd_deleteCharBackward");
+    define_key(minibuffer_base_kmap, "M-back_space", "minibuffer-cmd_deleteWordBackward");
+    define_key(minibuffer_base_kmap, "C-d", "minibuffer-cmd_deleteCharForward");
+    define_key(minibuffer_base_kmap, "M-d", "minibuffer-cmd_deleteWordForward");
+    define_key(minibuffer_base_kmap, "C-b", "minibuffer-cmd_charPrevious");
+    define_key(minibuffer_base_kmap, "M-b", "minibuffer-cmd_wordPrevious");
+    define_key(minibuffer_base_kmap, "C-f", "minibuffer-cmd_charNext");
+    define_key(minibuffer_base_kmap, "M-f", "minibuffer-cmd_wordNext");
+    define_key(minibuffer_base_kmap, "C-y", "minibuffer-cmd_paste");
+    define_key(minibuffer_base_kmap, "M-w", "minibuffer-cmd_copy");
+    define_key(minibuffer_base_kmap, "C-k", "minibuffer-cmd_deleteToEndOfLine");
+
+    define_key(minibuffer_base_kmap, "S-home", "minibuffer-cmd_selectBeginLine");
+    define_key(minibuffer_base_kmap, "S-end", "minibuffer-cmd_selectEndLine");
+    define_key(minibuffer_base_kmap, "C-back_space", "minibuffer-cmd_deleteWordBackward");
+    define_key(minibuffer_base_kmap, "C-S-left", "minibuffer-cmd_selectWordPrevious");
+    define_key(minibuffer_base_kmap, "C-S-right", "minibuffer-cmd_selectWordNext");
+
+    // Nasty keys
+    define_key(minibuffer_base_kmap, "C-r", "minibuffer-cmd_redo");
+
+    define_key(minibuffer_base_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character");
+
     define_key (minibuffer_kmap, "return", "exit-minibuffer");
     define_key (minibuffer_kmap, "M-p", "minibuffer-history-previous");
     define_key (minibuffer_kmap, "M-n", "minibuffer-history-next");
-    define_key (minibuffer_kmap, "escape", "minibuffer-abort");
     define_key (minibuffer_kmap, "C-g", "minibuffer-abort");
-    define_key (minibuffer_kmap, "tab", "minibuffer-complete");
-    define_key (minibuffer_kmap, "space", "minibuffer-accept-match");
+    define_key (minibuffer_kmap, "escape", "minibuffer-abort");
 
-    define_key(minibuffer_kmap, "C-a", "minibuffer-cmd_beginLine");
-    define_key(minibuffer_kmap, "C-e", "minibuffer-cmd_endLine");
-    define_key(minibuffer_kmap, "back_space", "minibuffer-cmd_deleteCharBackward");
-    define_key(minibuffer_kmap, "M-back_space", "minibuffer-cmd_deleteWordBackward");
-    define_key(minibuffer_kmap, "C-d", "minibuffer-cmd_deleteCharForward");
-    define_key(minibuffer_kmap, "M-d", "minibuffer-cmd_deleteWordForward");
-    define_key(minibuffer_kmap, "C-b", "minibuffer-cmd_charPrevious");
-    define_key(minibuffer_kmap, "M-b", "minibuffer-cmd_wordPrevious");
-    define_key(minibuffer_kmap, "C-f", "minibuffer-cmd_charNext");
-    define_key(minibuffer_kmap, "M-f", "minibuffer-cmd_wordNext");
-    define_key(minibuffer_kmap, "C-y", "minibuffer-cmd_paste");
-    define_key(minibuffer_kmap, "M-w", "minibuffer-cmd_copy");
-    define_key(minibuffer_kmap, "C-k", "minibuffer-cmd_deleteToEndOfLine");
+    define_key (minibuffer_completion_kmap, "tab", "minibuffer-complete");
+    define_key (minibuffer_completion_kmap, "space", "minibuffer-accept-match");
+    define_key (minibuffer_completion_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character-complete");
 
-    define_key(minibuffer_kmap, "S-home", "minibuffer-cmd_selectBeginLine");
-    define_key(minibuffer_kmap, "S-end", "minibuffer-cmd_selectEndLine");
-    define_key(minibuffer_kmap, "C-back_space", "minibuffer-cmd_deleteWordBackward");
-    define_key(minibuffer_kmap, "C-S-left", "minibuffer-cmd_selectWordPrevious");
-    define_key(minibuffer_kmap, "C-S-right", "minibuffer-cmd_selectWordNext");
+    minibuffer_completion_kmap.parent = minibuffer_kmap;
 
-    // Nasty keys
-    define_key(minibuffer_kmap, "C-r", "minibuffer-cmd_redo");
-
-    // This must be at the end of minibuffer_kmap defs so it's matched last.
-    define_key(minibuffer_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character");
-
-    //minibuffer_kmap.parent = top_kmap;
+    minibuffer_kmap.parent = minibuffer_base_kmap;
 }
 
 

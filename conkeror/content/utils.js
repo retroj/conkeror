@@ -80,7 +80,7 @@ string_hashmap.prototype = {
     get_put_default : function(s, default_value) {
         var result = this["-" + s];
         if (result === undefined)
-            return (this["-" + s] = value);
+            return (this["-" + s] = default_value);
         return result;
     },
 

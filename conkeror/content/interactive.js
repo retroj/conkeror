@@ -20,7 +20,7 @@ b: { async: function (spec, iargs, callback, callback_args, given_args) {
             var initindex = (2 in spec && spec[2] ?
                              spec[2].call (this, callback_args) : this.buffers.selected_index);
             var frame = this;
-            this.minibuffer.read({prompt: prompt, initial_value: bufs[initindex][0], history: "buffer",
+            this.minibuffer.read_with_completion({prompt: prompt, initial_value: bufs[initindex][0], history: "buffer",
                         completions: bufs,
                         select: true,
                         callback: function (s) {
@@ -417,7 +417,7 @@ url_or_webjump: { async: function (spec, iargs, callback, callback_args, given_a
             var hist = (3 in spec ? spec[3] : null);
             var completions = (4 in spec && spec[4] ? spec[4].call (this, callback_args) : []);
             var frame = this;
-            this.minibuffer.read({prompt: prompt, initial_value : initval, history: hist,
+            this.minibuffer.read_with_completion({prompt: prompt, initial_value : initval, history: hist,
                         completions : completions,
                         allow_non_matches : true,
                         callback : function (match, s) {

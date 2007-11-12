@@ -12,21 +12,19 @@ function exit_minibuffer(frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || s.constructor != basic_minibuffer_state)
+    if (!s || !s.is_text_entry_minibuffer_state)
         throw "Invalid minibuffer state";
-    //XXX: minibuffer.completions defaults to a 0 element array.  possible bug here.
-    
-    var completion_mode_p = (s.completions && s.completions.length > 0);
+
     var match = null;
     var val = trim_whitespace(m._input_text);
-    if (completion_mode_p) {
+    if (this.is_completion_minibuffer_state) {
         if (val.length == 0 && s.default_match != null)
             val = s.default_match;
         match = find_complete_match(s.completions, val);
     }
 
     // Check if we are allowed to exit here
-    if (completion_mode_p && !match && !s.allow_non_matches)
+    if (this.is_completion_minibuffer_state && !match && !s.allow_non_matches)
         return;
 
     if (s.history)
@@ -37,7 +35,7 @@ function exit_minibuffer(frame)
     }
     m.pop_state();
     if (s.callback) {
-        if (completion_mode_p) {
+        if (this.is_completion_minibuffer_state) {
             if (s.allow_non_matches)
                 s.callback(match, val);
             else // match must be non-null because of previous check
@@ -53,7 +51,7 @@ function minibuffer_history_next (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || s.constructor != basic_minibuffer_state)
+    if (!s || !s.is_text_entry_minibuffer_state)
         throw "Invalid minibuffer state";
     if (!s.history)
         return;
@@ -68,7 +66,7 @@ function minibuffer_history_previous (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || s.constructor != basic_minibuffer_state)
+    if (!s || !s.is_text_entry_minibuffer_state)
         throw "Invalid minibuffer state";
     if (!s.history)
         return;
@@ -83,7 +81,7 @@ function minibuffer_abort (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || s.constructor != basic_minibuffer_state)
+    if (!s || !s.is_text_entry_minibuffer_state)
         throw "Invalid minibuffer state";
     if (s.abort_callback)
         s.abort_callback();
@@ -119,10 +117,8 @@ function minibuffer_complete (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || s.constructor != basic_minibuffer_state)
+    if (!s || !s.is_completion_minibuffer_state)
         throw "Invalid minibuffer state";
-    if (!s.completions || s.completions.length == 0)
-        return;
     var str = m._input_text;
     var entered_text = str.substring(0, m._selection_start);
     var matches = get_completions(entered_text, s.completions);
@@ -163,12 +159,12 @@ function minibuffer_accept_match (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || s.constructor != basic_minibuffer_state)
+    if (!s || !s.is_completion_minibuffer_state)
         throw "Invalid minibuffer state";
     var sel_start = m._selection_start;
     var sel_end = m._selection_end;
     var str = m._input_text;
-    if (sel_start == sel_end || !s.completions) {
+    if (sel_start == sel_end) {
         m._input_text = str.substr(0, sel_start) + " " + str.substr(sel_end);
         m._set_selection(sel_start + 1, sel_start + 1);
     } else {
@@ -254,8 +250,9 @@ interactive("minibuffer-cmd_paste", do_N_times, [['value', minibuffer_do_command
 function minibuffer_insert_character(frame, n, event)
 {
     var m = frame.minibuffer;
-    if (!m._input_mode_enabled)
-        return;
+    var s = m.current_state;
+    if (!s || !s.is_basic_minibuffer_state)
+        throw "Invalid minibuffer state";
     m._ensure_input_area_showing();
     var val = m._input_text;
     var sel_start = m._selection_start;
@@ -268,11 +265,19 @@ function minibuffer_insert_character(frame, n, event)
     m._input_text = out;
     var new_sel = sel_end + n;
     m._set_selection(new_sel, new_sel);
+}
+interactive("minibuffer-insert-character", minibuffer_insert_character, ['current_frame', 'p', 'e']);
+
+function minibuffer_insert_character_complete(frame, n, event)
+{
+    var m = frame.minibuffer;
+    var s = m.current_state;
+    if (!s || !s.is_completion_minibuffer_state)
+        throw "Invalid minibuffer state";
+
+    minibuffer_insert_character(frame, n, event);
 
     // Check for completions
-    var s = m.current_state;
-    if (s.constructor != basic_minibuffer_state || !s.completions || s.completions.length == 0)
-        return;
 
     var entered_text = m._input_text.substring(0, m._selection_start);
     var matches = get_completions(entered_text, s.completions);
@@ -281,14 +286,71 @@ function minibuffer_insert_character(frame, n, event)
     m._input_text = matches[0][0];
     m._set_selection(entered_text.length);
 }
-interactive("minibuffer-insert-character", minibuffer_insert_character, ['current_frame', 'p', 'e']);
+interactive("minibuffer-insert-character-complete", minibuffer_insert_character_complete,
+            ['current_frame', 'p', 'e']);
 
-
-var minibuffer_history_data = new Object();
+var minibuffer_history_data = new string_hashmap();
 
 /* FIXME: These should possibly be saved to disk somewhere */
 /* USER PREFERENCE */
 var minibuffer_history_max_items = 100;
+
+/**
+ * The parameter `args' specifies the arguments.  In addition, the
+ * arguments for text_entry_minibuffer_state are also allowed.
+ *
+ * completions:       [required] specifies an array of possible completions
+ *
+ * allow_non_matches: [optional] if completions is non-null, setting
+ *                               this allows a non-match to be successfully entered; the callback
+ *                               with be called with the match as the first argument, and the true
+ *                               value as the second argument.
+ *
+ * default_match:     [optional] if completions is non-null, specifies a default
+ *                               match to use if the user entered a blank string.
+ *
+ * callback:          [optional] Called with the match as the first argument, and possibly with
+ *                               the true value as the second argument, depending on allow_non_matches.
+ *
+ */
+function completion_minibuffer_state(args) {
+    this.is_completion_minibuffer_state = true;
+    text_entry_minibuffer_state.call(this, args);
+    this.keymap = minibuffer_completion_kmap;
+    this.completions = args.completions.slice().sort(function (a,b) {
+            if (a[0] < b[0]) return -1;
+            else if (a[0] == b[0]) return 0;
+            else return 1;
+        });
+    this.allow_non_matches = args.allow_non_matches;
+    this.default_match = args.default_match;
+}
+
+
+/* The parameter `args' specifies the arguments.  In addition, the
+ * arguments for basic_minibuffer_state are also allowed.
+ *
+ * history:           [optional] specifies a string to identify the history list to use
+ *
+ * callback:          [optional] function called once the user successfully enters a value; it is 
+ *                               called with the value entered by the user.
+ *
+ * abort_callback:    [optional] called if the operaion is aborted
+ */
+function text_entry_minibuffer_state(args) {
+    this.is_text_entry_minibuffer_state = true;
+    basic_minibuffer_state.call(this, args);
+    this.keymap = minibuffer_kmap;
+
+    this.callback = args.callback;
+    this.abort_callback = args.abort_callback;
+    if (args.history)
+    {
+        this.history = minibuffer_history_data.get_put_default(args.history, []);
+        this.history_index = this.history.length;
+    }
+}
+
 
 /**
  * The parameter `args' is an object specifying the arguments for
@@ -300,30 +362,10 @@ var minibuffer_history_max_items = 100;
  * initial_value:     [optional] specifies the initial text
  *
  * select:            [optional] specifies to select the initial text if set to non-null
- *
- * history:           [optional] specifies a string to identify the history list to use
- *
- * completions:       [optional] specifies an array of possible completions; setting this
- *                               enables completion mode, which changes the behavior somewhat
- *
- * allow_non_matches: [optional] if completions is non-null, setting
- *                               this allows a non-match to be successfully entered; the callback
- *                               with be called with the match as the first argument, and the true
- *                               value as the second argument.
- *
- * default_match:     [optional] if completions is non-null, specifies a default
- *                               match to use if the user entered a blank string.
- *
- * callback:          [optional] function called once the user successfully enters a value;
- *                               if in completions mode, called with the match as the first argument,
- *                               and possibly with the true value as the second argument, depending
- *                               on allow_non_matches.   If not in completions mode, called with the
- *                               value entered.
- *
- * abort_callback:    [optional] called if the operaion is aborted
  */
 function basic_minibuffer_state(args)
 {
+    this.is_basic_minibuffer_state = true;
     var prompt = args.prompt;
     var initial_value = args.initial_value;
     if (!initial_value)
@@ -336,27 +378,7 @@ function basic_minibuffer_state(args)
     } else {
         sel_start = sel_end = initial_value.length;
     }
-    minibuffer_state.call(this, minibuffer_kmap, prompt, initial_value, sel_start, sel_end);
-    this.callback = args.callback;
-    this.abort_callback = args.abort_callback;
-    if (args.history)
-    {
-        this.history = minibuffer_history_data[args.history];
-        if (!this.history)
-            this.history = minibuffer_history_data[args.history] = [];
-        this.history_index = this.history.length;
-    }
-    if (args.completions && args.completions.length > 0) {
-        this.completions = args.completions.slice().sort(function (a,b) {
-                if (a[0] < b[0]) return -1;
-                else if (a[0] == b[0]) return 0;
-                else return 1;
-            });
-        this.allow_non_matches = args.allow_non_matches;
-        this.default_match = args.default_match;
-    }
-    else
-        this.completions = null;
+    minibuffer_state.call(this, minibuffer_base_kmap, prompt, initial_value, sel_start, sel_end);
 }
 
 function minibuffer_state(keymap, prompt, input, selection_start, selection_end)
@@ -569,7 +591,11 @@ minibuffer.prototype = {
     read : function (args) {
         /* FIXME: have policy for deciding whether to refuse a
          * recursive minibuffer operation */
-        this.push_state(new basic_minibuffer_state(args));
+        this.push_state(new text_entry_minibuffer_state(args));
+    },
+
+    read_with_completion : function (args) {
+        this.push_state(new completion_minibuffer_state(args));
     }
 };
 

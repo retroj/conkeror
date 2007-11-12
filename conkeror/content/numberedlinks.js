@@ -195,6 +195,7 @@ interactive("numberedlinks-follow-other-buffer", exit_minibuffer, ['current_fram
 interactive("numberedlinks-follow-other-frame", exit_minibuffer, ['current_frame', 'current_command']);
 interactive("numberedlinks-save", exit_minibuffer, ['current_frame', 'current_command']);
 
+
 function setVisibility (doc, link_state, img_state)
 {
     var nodes = doc.getElementsByTagName('SPAN');

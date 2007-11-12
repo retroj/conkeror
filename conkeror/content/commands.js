@@ -299,7 +299,7 @@ function meta_x (frame, prefix)
     for (i in conkeror.commands)
         matches.push([conkeror.commands[i][0],conkeror.commands[i][0]]);
 
-    frame.minibuffer.read({prompt: prompt + "M-x",
+    frame.minibuffer.read_with_completion({prompt: prompt + "M-x",
                 history: "commands",
                 completions: matches,
                 callback : function(c) {
