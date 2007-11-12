@@ -1,9 +1,7 @@
-
-function dumpln (str) {
-    dump (str+"\n");
-}
 add_hook (make_frame_hook, function () { this.dumpln = dumpln; });
 
+
+adsfadf;
 
 var MAX_DUMP_DEPTH = 1;
 function dump_obj_r(obj, name, indent, depth) {

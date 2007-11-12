@@ -13,49 +13,57 @@ function application () {
     this.subscript_loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
     this.preferences = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
     var conkeror = this;
-    this.modules_loaded = [];
-    function provide (module) {
-        if (conkeror.loaded_modules.indexOf(module) == -1)
-            conkeror.loaded_modules.push(module);
-    }
-    function load_module (module_name) {
-        try {
-            conkeror.subscript_loader.loadSubScript("chrome://conkeror-modules/content/" + module_name,
-                                                conkeror);
-            provide(module_name);
-        } catch (e) {
-            dump("Failed to load module: " + module_name + "\n" +
-                 e + "\n");
+    this.loaded_modules = [];
+    this.dump_error = function (e) {
+        if (e instanceof Error) {
+            this.dumpln(e.name + ": " + e.message);
+            this.dumpln(e.stack);
+        } else {
+            this.dumpln("Error: " + e);
         }
     }
-    function require (module) {
-        if (conkeror.modules.indexOf(module) == -1)
-            load_module(module);
+    this.provide = function(module) {
+        if (this.loaded_modules.indexOf(module) == -1)
+            this.loaded_modules.push(module);
     }
-    this.load_module = load_module;
-    this.require = require;
-    this.provide = provide;
+    this.load_module = function(module_name) {
+        try {
+            this.subscript_loader.loadSubScript("chrome://conkeror-modules/content/" + module_name,
+                                                this);
+            this.provide(module_name);
+        } catch (e) {
+            this.dumpln("Failed to load module: " + module_name);
+            this.dump_error(e);
+        }
+    }
+    this.require = function (module) {
+        if (this.loaded_modules.indexOf(module) == -1)
+            this.load_module(module);
+    }
+    this.dumpln = function (line) {
+        dump(line + "\n");
+    }
 
-    require("debug.js");
-    require("localfile.js");
-    require("utils.js");
-    require("keyboard.js");
-    require("buffer.js");
-    require("frame.js");
-    require("interactive.js");
-    require("daemon-mode.js");
-    require("mode-line.js");
-    require("save.js");
+    this.require("debug.js");
+    this.require("localfile.js");
+    this.require("utils.js");
+    this.require("keyboard.js");
+    this.require("buffer.js");
+    this.require("frame.js");
+    this.require("interactive.js");
+    this.require("daemon-mode.js");
+    this.require("mode-line.js");
+    this.require("save.js");
 
-    require("commands.js"); // depends: interactive.js
-    require("frameset.js"); // depends interactive.js
-    require("webjump.js"); // depends: interactive.js
-    require("minibuffer.js"); // depends: interactive.js
+    this.require("commands.js"); // depends: interactive.js
+    this.require("frameset.js"); // depends interactive.js
+    this.require("webjump.js"); // depends: interactive.js
+    this.require("minibuffer.js"); // depends: interactive.js
 
-    require("bindings.js"); // depends: keyboard.js
+    this.require("bindings.js"); // depends: keyboard.js
 
-    require("find.js");
-    require("numberedlinks.js");
+    this.require("find.js");
+    this.require("numberedlinks.js");
 
     this.start_time = Date.now ();
 
