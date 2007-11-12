@@ -543,7 +543,10 @@ function univ_arg_to_number(prefix)
 
 function go_up (frame, prefix)
 {
-    var loc = frame.getWebNavigation().currentURI.spec;
+    var b = frame.buffers.current;
+    if (!b.is_brower_buffer)
+        throw "Not in a browser buffer.";
+    var loc = b.current_URI;
     var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
     open_url_in (frame, prefix, up);
 }
