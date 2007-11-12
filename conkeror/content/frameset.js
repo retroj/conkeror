@@ -31,7 +31,7 @@ function next_frameset_frame (frame, prefix) {
     var frames = frameset_find_frames_r (frame.window.content.document, ["FRAME"]);
     if (frames.length == 0)
     {
-        frame.message ("no other frameset frame");
+        frame.minibuffer.message ("no other frameset frame");
         return;
     }
 
@@ -62,10 +62,10 @@ interactive("next-frameset-frame", next_frameset_frame, ['current_frame', 'p']);
 
 
 function next_iframe (frame, prefix) {
-    var frames = frame.window.content.document.getElementsByTagName ("IFRAME");
+    var frames = frame.content.document.getElementsByTagName ("IFRAME");
     if (frames.length == 0)
     {
-        frame.message ("no other iframe");
+        frame.minibuffer.message ("no other iframe");
         return;
     }
 
@@ -94,7 +94,7 @@ function next_iframe (frame, prefix) {
             next += frames.length;
 
         if (next == pnext) {
-            frame.message ("no other iframe visible");
+            frame.minibuffer.message ("no other iframe visible");
             return;
         }
 
@@ -112,7 +112,7 @@ interactive("next-iframe", next_iframe, ['current_frame', 'p']);
 
 function frameset_focus_top (frame) {
     frame.top.content.focus();
-    var box = frame.getBrowser().boxObject;
+    var box = frame.buffers.container.boxObject;
     frameset_notify.call (frame, box.screenX, box.screenY, "frameset top");
 }
 interactive("frameset-focus-top", frameset_focus_top, ['current_frame']);

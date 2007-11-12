@@ -351,13 +351,13 @@ N: { func: function (spec) {
 
 // p: Prefix arg converted to number.  Does not do I/O.
 p: { func: function (spec) {
-            return univ_arg_to_number(this.gPrefixArg);
+            return univ_arg_to_number(this.current_prefix_argument);
         }
 },
 
 // P: Prefix arg in raw form.  Does not do I/O.
 P: { func: function (spec) {
-            return this.gPrefixArg;
+            return this.current_prefix_argument;
         }
 },
 
@@ -491,7 +491,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
 
         if (! method in interactive_methods) {
             // prefix should get reset on failed interactive call.
-            this.gPrefixArg = null;
+            this.current_prefix_argument = null;
             this.minibuffer.message ("Failed: invalid interactive specifier: '"+iarg+"'");
             return;
         }
@@ -517,7 +517,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
         if (! 'async' in interactive_methods[method]) {
             // fail.  improperly defined interactive method.
             // prefix should get reset on failed interactive call.
-            this.gPrefixArg = null;
+            this.current_prefix_argument = null;
             this.minibuffer.message ("Failed: improperly defined interactive specifer: '"+iarg+"'");
         }
 
@@ -536,7 +536,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
         // always reset the prefix arg after collecting all
         // interactive data, in case it appears multiple times in the
         // interactive spec.
-        this.gPrefixArg = null;
+        this.current_prefix_argument = null;
         try {
             callback.call (this, callback_args);
         } catch (e) {
@@ -585,4 +585,3 @@ function interactive(name, fn, args)
     }
     conkeror.commands.push([name,fn,args]);
 }
-

@@ -124,7 +124,7 @@ function test_prefix_duplication () {
                      pfx1 == pfx2 && pfx1 == 1);
     }
     var fake_window = {
-        gPrefixArg: 1,
+        current_prefix_argument: 1,
         message: function (str) {dump (str + "\n");}
     };
     interactive ("test-prefix-duplication", inner, ['P', 'P']);

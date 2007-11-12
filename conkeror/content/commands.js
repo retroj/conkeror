@@ -307,7 +307,7 @@ function meta_x (frame, prefix)
                 // pass the prefix given to `meta_x'
                 // on to the command that the user
                 // typed into the minibuffer.
-                frame.gPrefixArg = prefix;
+                frame.current_prefix_argument = prefix;
                 call_interactively(frame, c);
             },
                 abort_callback : frame.abort});
@@ -456,59 +456,53 @@ function reinit (frame, fn)
 
 interactive ("reinit", reinit, ['current_frame', ['pref', 'conkeror.rcfile']]);
 
-function help_page (frame)
+function help_page (frame, prefix)
 {
-    frame.getWebNavigation().loadURI ("chrome://conkeror/content/help.html",
-                                      Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
-                                      null, null, null);
+    open_url_in(frame, prefix, "chrome://conkeror/content/help.html");
 }
-interactive("help-page", help_page, ['current_frame']);
+interactive("help-page", help_page, ['current_frame', 'p']);
 
 
-function tutorial_page (frame)
+function tutorial_page (frame, prefix)
 {
-    frame.getWebNavigation().loadURI("chrome://conkeror/content/tutorial.html",
-                                     Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
-                                     null, null, null);
+    open_url_in(frame, prefix, "chrome://conkeror/content/tutorial.html");
 }
 interactive("help-with-tutorial", tutorial_page, ['current_frame']);
 
 
 // universal argument code
 
-function universal_digit (frame, prefix)
+function universal_digit (frame, prefix, event)
 {
-    //XXX RetroJ: we should use an interactive code like "e" instead of
-    //            gCommandLastEvent
-    var ch = frame.gCommandLastEvent.charCode;
-    var digit = ch - 48;
+    var ch = event.charCode;
+    var digit = ch - 48; // 48 is the char code for '0'
     // Array means they typed only C-u's. Otherwise, add another digit
     // to our accumulating prefix arg.
     if (typeof prefix == "object") {
         if (prefix[0] < 0)
-            frame.gPrefixArg = 0 - digit;
+            frame.current_prefix_argument = 0 - digit;
         else
-            frame.gPrefixArg = digit;
+            frame.current_prefix_argument = digit;
     } else {
-        frame.gPrefixArg = prefix * 10 + digit;
+        frame.current_prefix_argument = prefix * 10 + digit;
     }
 }
-interactive("universal-digit", universal_digit,['current_frame', "P"]);
+interactive("universal-digit", universal_digit,['current_frame', "P", 'e']);
 
 
 function universal_negate (frame)
 {
-    if (typeof gPrefixArg == "object")
-        frame.gPrefixArg[0] = 0 - frame.gPrefixArg[0];
+    if (typeof frame.current_prefix_argument == "object")
+        frame.current_prefix_argument[0] = 0 - frame.current_prefix_argument[0];
     else
-        frame.gPrefixArg = 0 - frame.gPrefixArg;
+        frame.current_prefix_argument = 0 - frame.current_prefix_argument;
 }
 interactive("universal-negate", universal_negate,['current_frame']);
 
 
 function universal_argument (frame)
 {
-    frame.gPrefixArg = [4];
+    frame.current_prefix_argument = [4];
     frame.overlay_kmap = universal_kmap;
 }
 interactive("universal-argument", universal_argument,['current_frame']);
@@ -517,11 +511,11 @@ interactive("universal-argument", universal_argument,['current_frame']);
 function universal_argument_more (frame, prefix)
 {
     if (typeof prefix == "object")
-        frame.gPrefixArg = [prefix[0] * 4];
+        frame.current_prefix_argument = [prefix[0] * 4];
     else {
         // terminate the prefix arg
         ///XXX: is this reachable?
-        frame.gPrefixArg = prefix;
+        frame.current_prefix_argument = prefix;
         frame.overlay_kmap = null;
     }
 }
@@ -629,7 +623,6 @@ interactive("text-reduce", text_reduce, ['current_frame', "p"]);
 
 function text_enlarge (frame, prefix)
 {
-    try {
     var b = frame.buffers.current;
     if (!b.is_browser_buffer)
         throw "Not in a browser buffer";
