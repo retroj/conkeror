@@ -105,7 +105,7 @@ interactive("keyboard-quit", stop_loading, ['current_frame']);
 function reload (frame)
 {
     var b = frame.buffers.current;
-    if (b.constructor == browser_buffer)
+    if (b instanceof browser_buffer)
     {
         b.web_navigation.reload(Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE);
     }
@@ -702,22 +702,6 @@ function use_emacs_keys()
     conkeror.initKmaps();
 }
 interactive("use-emacs-keys", use_emacs_keys, []);
-
-
-function mode_line_mode(arg)
-{
-    var win = document.commandDispatcher.focusedWindow;
-    if (typeof arg == "number")
-        gModeLineMode = (arg > 0)? true: false;
-    else if (typeof arg == "object")
-        gModeLineMode = !gModeLineMode;
-
-    if (win) {
-        update_mode_line ();
-    }
-}
-interactive("mode-line-mode", mode_line_mode, ["P"]);
-
 
 function show_extension_manager () {
     return conkeror.window_watcher.openWindow (

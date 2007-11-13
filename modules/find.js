@@ -82,6 +82,7 @@ function isearch_session(frame, forward)
 }
 isearch_session.prototype = {
     constructor : isearch_session,
+    __proto__ : minibuffer_state.prototype, // inherit from minibuffer_state
 
     get top () {
         return this.states[this.states.length - 1];
@@ -255,7 +256,7 @@ isearch_session.prototype = {
 
 function isearch_continue(frame, direction) {
     var s = frame.minibuffer.current_state;
-    if (!s || s.constructor != isearch_session)
+    if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     if (s.states.length == 1 && frame.isearch_last_string)
         s.find(frame.isearch_last_search, direction, s.top.point);
@@ -278,7 +279,7 @@ interactive("isearch-backward", isearch_start, ['current_frame', ['value', false
 function isearch_backspace (frame)
 {
     var s = frame.minibuffer.current_state;
-    if (!s || s.constructor != isearch_session)
+    if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     if (s.states.length > 1)
         s.states.pop();
@@ -289,7 +290,7 @@ interactive("isearch-backspace", isearch_backspace, ['current_frame']);
 function isearch_abort (frame)
 {
     var s = frame.minibuffer.current_state;
-    if (!s || s.constructor != isearch_session)
+    if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     frame.minibuffer.pop_state();
     s.window.scrollTo(s.states[0].screenx, s.states[0].screeny);
@@ -301,7 +302,7 @@ interactive("isearch-abort", isearch_abort, ['current_frame']);
 function isearch_add_character (frame, event)
 {
     var s = frame.minibuffer.current_state;
-    if (!s || s.constructor != isearch_session)
+    if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     var str = s.top.search_str;
     str += String.fromCharCode(event.charCode);
@@ -313,7 +314,7 @@ interactive("isearch-add-character", isearch_add_character, ['current_frame', "e
 function isearch_done (frame)
 {
     var s = frame.minibuffer.current_state;
-    if (!s || s.constructor != isearch_session)
+    if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     s.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
     frame.minibuffer.pop_state(false /* don't restore focus */);

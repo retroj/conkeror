@@ -295,61 +295,25 @@ var minibuffer_history_data = new string_hashmap();
 /* USER PREFERENCE */
 var minibuffer_history_max_items = 100;
 
-/**
- * The parameter `args' specifies the arguments.  In addition, the
- * arguments for text_entry_minibuffer_state are also allowed.
- *
- * completions:       [required] specifies an array of possible completions
- *
- * allow_non_matches: [optional] if completions is non-null, setting
- *                               this allows a non-match to be successfully entered; the callback
- *                               with be called with the match as the first argument, and the true
- *                               value as the second argument.
- *
- * default_match:     [optional] if completions is non-null, specifies a default
- *                               match to use if the user entered a blank string.
- *
- * callback:          [optional] Called with the match as the first argument, and possibly with
- *                               the true value as the second argument, depending on allow_non_matches.
- *
- */
-function completion_minibuffer_state(args) {
-    this.is_completion_minibuffer_state = true;
-    text_entry_minibuffer_state.call(this, args);
-    this.keymap = minibuffer_completion_kmap;
-    this.completions = args.completions.slice().sort(function (a,b) {
-            if (a[0] < b[0]) return -1;
-            else if (a[0] == b[0]) return 0;
-            else return 1;
-        });
-    this.allow_non_matches = args.allow_non_matches;
-    this.default_match = args.default_match;
+
+function minibuffer_state(keymap, prompt, input, selection_start, selection_end)
+{
+    this.keymap = keymap;
+    this.prompt = prompt;
+    if (input)
+        this.input = input;
+    else
+        this.input = "";
+    if (selection_start)
+        this.selection_start = selection_start;
+    else
+        this.selection_start = 0;
+    if (selection_end)
+        this.selection_end = selection_end;
+    else
+        this.selection_end = this.selection_start;
 }
 
-
-/* The parameter `args' specifies the arguments.  In addition, the
- * arguments for basic_minibuffer_state are also allowed.
- *
- * history:           [optional] specifies a string to identify the history list to use
- *
- * callback:          [optional] function called once the user successfully enters a value; it is 
- *                               called with the value entered by the user.
- *
- * abort_callback:    [optional] called if the operaion is aborted
- */
-function text_entry_minibuffer_state(args) {
-    this.is_text_entry_minibuffer_state = true;
-    basic_minibuffer_state.call(this, args);
-    this.keymap = minibuffer_kmap;
-
-    this.callback = args.callback;
-    this.abort_callback = args.abort_callback;
-    if (args.history)
-    {
-        this.history = minibuffer_history_data.get_put_default(args.history, []);
-        this.history_index = this.history.length;
-    }
-}
 
 
 /**
@@ -380,24 +344,66 @@ function basic_minibuffer_state(args)
     }
     minibuffer_state.call(this, minibuffer_base_kmap, prompt, initial_value, sel_start, sel_end);
 }
+basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inherit from minibuffer_state
 
-function minibuffer_state(keymap, prompt, input, selection_start, selection_end)
-{
-    this.keymap = keymap;
-    this.prompt = prompt;
-    if (input)
-        this.input = input;
-    else
-        this.input = "";
-    if (selection_start)
-        this.selection_start = selection_start;
-    else
-        this.selection_start = 0;
-    if (selection_end)
-        this.selection_end = selection_end;
-    else
-        this.selection_end = this.selection_start;
+/* The parameter `args' specifies the arguments.  In addition, the
+ * arguments for basic_minibuffer_state are also allowed.
+ *
+ * history:           [optional] specifies a string to identify the history list to use
+ *
+ * callback:          [optional] function called once the user successfully enters a value; it is 
+ *                               called with the value entered by the user.
+ *
+ * abort_callback:    [optional] called if the operaion is aborted
+ */
+function text_entry_minibuffer_state(args) {
+    this.is_text_entry_minibuffer_state = true;
+    basic_minibuffer_state.call(this, args);
+    this.keymap = minibuffer_kmap;
+
+    this.callback = args.callback;
+    this.abort_callback = args.abort_callback;
+    if (args.history)
+    {
+        this.history = minibuffer_history_data.get_put_default(args.history, []);
+        this.history_index = this.history.length;
+    }
 }
+// inherit from basic_minibuffer_state
+text_entry_minibuffer_state.prototype.__proto__ = basic_minibuffer_state.prototype;
+
+/**
+ * The parameter `args' specifies the arguments.  In addition, the
+ * arguments for text_entry_minibuffer_state are also allowed.
+ *
+ * completions:       [required] specifies an array of possible completions
+ *
+ * allow_non_matches: [optional] if completions is non-null, setting
+ *                               this allows a non-match to be successfully entered; the callback
+ *                               with be called with the match as the first argument, and the true
+ *                               value as the second argument.
+ *
+ * default_match:     [optional] if completions is non-null, specifies a default
+ *                               match to use if the user entered a blank string.
+ *
+ * callback:          [optional] Called with the match as the first argument, and possibly with
+ *                               the true value as the second argument, depending on allow_non_matches.
+ *
+ */
+function completion_minibuffer_state(args) {
+    this.is_completion_minibuffer_state = true;
+    text_entry_minibuffer_state.call(this, args);
+    this.keymap = minibuffer_completion_kmap;
+    this.completions = args.completions.slice().sort(function (a,b) {
+            if (a[0] < b[0]) return -1;
+            else if (a[0] == b[0]) return 0;
+            else return 1;
+        });
+    this.allow_non_matches = args.allow_non_matches;
+    this.default_match = args.default_match;
+}
+// inherit from text_entry_minibuffer_state
+completion_minibuffer_state.prototype.__proto__ = text_entry_minibuffer_state.prototype;
 
 /* USER PREFERENCE */
 var minibuffer_input_mode_show_message_timeout = 1000;
@@ -424,7 +430,7 @@ function minibuffer (frame)
 }
 
 minibuffer.prototype = {
-
+    constructor : minibuffer.constructor,
     get _selection_start () { return this.input_element.selectionStart; },
     get _selection_end () { return this.input_element.selectionEnd; },
     get _input_text () { return this.input_element.value; },

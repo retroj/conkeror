@@ -166,6 +166,16 @@ function get_frame_by_tag(tag)
     return null;
 }
 
+function for_each_frame(func)
+{
+    var en = window_watcher.getWindowEnumerator ();
+    while (en.hasMoreElements ()) {
+        var w = en.getNext().QueryInterface (Ci.nsIDOMWindow);
+        if ('tag' in w)
+            func(w);
+    }
+}
+
 define_frame_local_hook("frame_initialize_early_hook");
 define_frame_local_hook("frame_initialize_hook");
 define_frame_local_hook("frame_initialize_late_hook");

@@ -24,12 +24,16 @@ define_buffer_local_hook("browser_buffer_progress_change_hook");
 define_buffer_local_hook("browser_buffer_location_change_hook");
 define_buffer_local_hook("browser_buffer_status_change_hook");
 define_buffer_local_hook("select_buffer_hook");
+define_buffer_local_hook("buffer_scroll_hook");
+define_buffer_local_hook("browser_buffer_focus_change_hook");
 
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
 define_current_buffer_hook("current_browser_buffer_finished_loading_hook", "browser_buffer_finished_loading_hook");
 define_current_buffer_hook("current_browser_buffer_progress_change_hook", "browser_buffer_progress_change_hook");
 define_current_buffer_hook("current_browser_buffer_location_change_hook", "browser_buffer_location_change_hook");
 define_current_buffer_hook("current_browser_buffer_status_change_hook", "browser_buffer_status_change_hook");
+define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
+define_current_buffer_hook("current_browser_buffer_focus_change_hook", "browser_buffer_focus_change_hook");
 
 function buffer()
 {}
@@ -43,6 +47,11 @@ buffer.prototype = {
     // get title ()   [must be defined by subclasses]
     // get name ()    [must be defined by subclasses]
     dead : false, /* This is set when the buffer is killed */
+
+    get scrollX () { return 0; },
+    get scrollY () { return 0; },
+    get scrollMaxX () { return 0; },
+    get scrollMaxY () { return 0; },
 };
 
 /* If browser is null, create a new browser */
@@ -52,9 +61,7 @@ function browser_buffer(frame, browser)
     this.frame = frame;
     if (browser == null)
     {
-        var document = this.frame.document;
-        browser = document.createElementNS("http://www.mozilla.org/keymaster/"
-                                           + "gatekeeper/there.is.only.xul", "browser");
+        browser = create_XUL(frame, "browser");
         browser.setAttribute("type", "content");
         browser.setAttribute("flex", "1");
         browser.setAttribute("usechromesheets",
@@ -68,6 +75,9 @@ function browser_buffer(frame, browser)
     var buffer = this;
     this.element.addEventListener("DOMTitleChanged", function (event) {
             buffer_title_change_hook.run(buffer);
+        }, false);
+    this.element.addEventListener("scroll", function (event) {
+            buffer_scroll_hook.run(buffer);
         }, false);
 }
 
@@ -85,6 +95,12 @@ browser_buffer.prototype = {
     get title() {
         return this.element.contentTitle;
     },
+
+    get scrollX () { return this.content_window.scrollX; },
+    get scrollY () { return this.content_window.scrollY; },
+    get scrollMaxX () { return this.content_window.scrollMaxX; },
+    get scrollMaxY () { return this.content_window.scrollMaxY; },
+
 
     /* Used to display the correct URI when the buffer opens initially
      * even before loading has progressed far enough for currentURI to
@@ -221,6 +237,32 @@ browser_buffer.prototype = {
         }
     },
 
+    child_element : function (element)
+    {
+        return (element && this.child_window(element.ownerDocument.defaultView));
+    },
+
+    child_window : function (win)
+    {
+        return (win && win.top == this.content_window);
+    },
+
+    focused_window : function ()
+    {
+        var win = this.frame.document.commandDispatcher.focusedWindow;
+        if (this.child_window(win))
+            return win;
+        return this.content_window;
+    },
+
+    focused_element : function ()
+    {
+        var element = this.frame.document.commandDispatcher.focusedElement;
+        if (this.child_element(element))
+            return element;
+        return null;
+    },
+
     do_command : function (command)
     {
         function attempt_command(element, command)
@@ -236,29 +278,20 @@ browser_buffer.prototype = {
             return false;
         }
 
-        var doc = this.frame.document;
-        var element = doc.commandDispatcher.focusedElement;
-        if (element) {
-            var win = element.ownerDocument.defaultView;
-            if (win && win.top == this.content_window)
-                if (attempt_command(element, command))
-                    return;
-        }
-        var win = doc.commandDispatcher.focusedWindow;
-        if (win && win.top == this.content_window)
-        {
-            do  {
-                if (attempt_command(win, command))
-                    return;
-                win = win.parent;
-            } while (win);
-        }
-        attempt_command(this.content_window, command);
+        var element = this.focused_element();
+        if (element && attempt_command(element, command))
+            return;
+        var win = this.focused_window();
+        do  {
+            if (attempt_command(win, command))
+                return;
+            win = win.parent;
+        } while (win);
     },
 
     /* Inherit from buffer */
 
-    prototype : buffer.prototype
+    __proto__ : buffer.prototype
 };
 
 
@@ -276,6 +309,8 @@ function buffer_container(frame)
 
 
 buffer_container.prototype = {
+    constructor : buffer_container.constructor,
+
     get current () {
         return this.container.selectedPanel.conkeror_buffer_object;
     },

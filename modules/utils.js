@@ -300,3 +300,9 @@ function set_default_directory(directory_s) {
 }
 
 set_default_directory();
+
+function create_XUL(frame, tag_name)
+{
+    return frame.document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+                                          tag_name);
+}

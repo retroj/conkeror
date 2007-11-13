@@ -127,6 +127,8 @@ function numberedlinks_minibuffer_state(prefix, initial_value)
     basic_minibuffer_state.call(this, { prompt: "Link number:", initial_value: initial_value });
     this.keymap = numberedlinks_kmap;
 }
+// inherit from basic_minibuffer_state
+numberedlinks_minibuffer_state.prototype.__proto__ = basic_minibuffer_state.prototype;
 
 function numberedlinks_start(frame, prefix, initial_value)
 {

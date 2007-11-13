@@ -540,6 +540,7 @@ function do_interactive (iargs, callback, callback_args, given_args)
         try {
             callback.call (this, callback_args);
         } catch (e) {
+            dump_error(e);
             this.minibuffer.message ('do_interactive <CALLBACK>: ' + e);
             dumpln ('do_interactive <CALLBACK>: ' + e);
         }

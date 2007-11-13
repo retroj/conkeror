@@ -27,9 +27,6 @@
                usechromesheets="chrome://conkeror/content/numbering.css,
                                 chrome://global/skin/xulscrollbars.css"/>
 	</deck>
-	<hbox class="mode-line">
-	  <label class="mode-line-label" value="" crop="right" flex="1"/>
-    </hbox>
     <hbox id="minibuffer-hbox">
       <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
       <label class="minibuffer" id="input-prompt" crop="left" value="" collapsed="true"/>
