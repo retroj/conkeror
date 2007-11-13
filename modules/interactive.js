@@ -55,11 +55,9 @@ C: { func: function (spec) {
 
 content_charset: { func: function (spec) {
             // -- Charset of content area of focusedWindow
-            var focusedWindow = this.document.commandDispatcher.focusedWindow;
-            if (focusedWindow == this.window)
-                focusedWindow = this.content;
+            var focusedWindow = this.buffers.current.focused_window();this.document.commandDispatcher.focusedWindow;
             if (focusedWindow)
-                return this.document.commandDispatcher.focusedWindow.document.characterSet;
+                return focusedWindow.document.characterSet;
             else
                 return null;
         }
@@ -67,9 +65,7 @@ content_charset: { func: function (spec) {
 
 content_selection: { func: function (spec) {
             // -- Selection of content area of focusedWindow
-            var focusedWindow = this.document.commandDispatcher.focusedWindow;
-            if (focusedWindow == this.window)
-                focusedWindow = this.content;
+            var focusedWindow = this.buffers.current.focused_window();
             return focusedWindow.getSelection ();
         }
 },
@@ -92,23 +88,18 @@ current_frame: { func: function (spec) {
 },
 
 current_frameset_frame: { func: function (spec) {
-            var w = this.document.commandDispatcher.focusedWindow;
-            if (w.top != this.content)
-                w = this.content;
-            return w;
+            return this.buffers.current.focused_window();
         }
 },
 
 current_frameset_frame_url: { func: function (spec) {
-            var w = this.document.commandDispatcher.focusedWindow;
-            if (w.top != this.content)
-                w = this.content;
+            var w = this.buffers.current.focused_window();
             return w.location.href;
         }
 },
 
 current_url: { func: function (spec) {
-            return this.getWebNavigation().currentURI.spec;
+            return this.buffers.current.current_URI.spec;
         }
 },
 

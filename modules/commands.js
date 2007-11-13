@@ -250,7 +250,7 @@ interactive("kill-buffer", kill_buffer, ['current_frame', ["b", function (a) { r
 function copy_location (frame, s)
 {
     writeToClipboard (s);
-    frame.message ("Copied '"+s+"'");
+    frame.minibuffer.message ("Copied '"+s+"'");
 }
 interactive("copy-current-url", copy_location, ['current_frame', 'current_url']);
 interactive("copy-link-location", copy_location, ['current_frame', 'focused_link_url']);
