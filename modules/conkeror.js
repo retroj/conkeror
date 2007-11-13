@@ -26,7 +26,7 @@ require("numberedlinks.js");
 
 require("rc.js");
 
-require("scroll-bars.js");
+//require("scroll-bars.js");
 
 var url_remoting_fn = make_frame;
 
