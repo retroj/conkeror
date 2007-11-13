@@ -1,260 +1,105 @@
 const Cc = Components.classes;
 const Ci = Components.interfaces;
-
-var subscriptLoader = Components.classes["@mozilla.org/moz/jssubscript-loader;1"]
-    .getService(Components.interfaces.mozIJSSubScriptLoader);
+const Cr = Components.results;
 
 function application () {
     this.wrappedJSObject = this;
     this.conkeror = this;
-    this.window_watcher = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
     this.Cc = Cc;
     this.Ci = Ci;
+    this.Cr = Cr;
     this.subscript_loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
     this.preferences = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
     var conkeror = this;
     this.loaded_modules = [];
+    this.loading_modules = [];
+    this.module_after_load_functions = new Object();
+    this.pending_loads = [];
     this.dump_error = function (e) {
         if (e instanceof Error) {
             this.dumpln(e.name + ": " + e.message);
-            this.dumpln(e.stack);
+            this.dumpln(e.fileName + ": " + e.lineNumber);
+            dump(e.stack);
         } else {
             this.dumpln("Error: " + e);
         }
+    }
+    this.loaded = function (module) {
+        return (this.loaded_modules.indexOf(module) != -1);
     }
     this.provide = function(module) {
         if (this.loaded_modules.indexOf(module) == -1)
             this.loaded_modules.push(module);
     }
     this.load_module = function(module_name) {
+        if (this.loading_modules.indexOf(module_name) != -1)
+            throw new Error("Circular module dependency detected: "
+                            + this.loading_modules.join(" -> ") + " -> " + module_name);
+        this.loading_modules.push(module_name);
         try {
             this.subscript_loader.loadSubScript("chrome://conkeror-modules/content/" + module_name,
                                                 this);
-            this.provide(module_name);
-        } catch (e) {
-            this.dumpln("Failed to load module: " + module_name);
-            this.dump_error(e);
+        } finally {
+            this.loading_modules.pop();
+        }
+        this.provide(module_name);
+        var funcs;
+        if ((funcs = this.module_after_load_functions[module_name]) != null)
+        {
+            for (var i = 0; i < funcs.length; ++i)
+                funcs[i]();
+            delete this.module_after_load_functions[module_name];
+        }
+        if (this.loading_modules.length == 0)
+        {
+            while (this.pending_loads.length > 0)
+            {
+                this.require(this.pending_loads.pop());
+            }
         }
     }
     this.require = function (module) {
-        if (this.loaded_modules.indexOf(module) == -1)
+        if (!this.loaded(module))
             this.load_module(module);
+    }
+    this.require_later = function (module) {
+        if (!this.loaded(module)
+            && this.pending_loads.indexOf(module) == -1)
+            this.pending_loads.push(module);
+    }
+    this.call_after_load = function (module, func) {
+        if (this.loaded(module))
+            func();
+        else
+        {
+            var funcs;
+            if (!(funcs = this.module_after_load_functions[module]))
+                funcs = this.module_after_load_functions[module] = [];
+            funcs.push(func);
+        }
     }
     this.dumpln = function (line) {
         dump(line + "\n");
     }
 
-    this.require("conkeror.js");
+    try {
+        this.require("conkeror.js");
+    } catch (e) {
+        this.dumpln("Error initializing.");
+        this.dump_error(e);
+    }
 
 }
 
 application.prototype = {
 
 version: "$CONKEROR_VERSION$", // preprocessor variable
-chrome: "chrome://conkeror/content/conkeror.xul",
 homepage: "chrome://conkeror/content/help.html",
-default_directory: null,
-url_remoting_fn: null,
-commands: [],
-
-encode_xpcom_structure: function (data)
-{
-    var ret = null;
-    if (typeof data == 'string') {
-        ret = Components.classes["@mozilla.org/supports-string;1"]
-            .createInstance(Components.interfaces.nsISupportsString);
-        ret.data = data;
-    } else if (typeof data == 'object') { // should be a check for array.
-        ret = Components.classes["@mozilla.org/array;1"]
-            .createInstance(Components.interfaces.nsIMutableArray);
-        for (var i = 0; i < data.length; i++) {
-            ret.appendElement (this.encode_xpcom_structure (data[i]), false);
-        }
-    } else {
-        throw 'make_xpcom_struct was given something other than String or Array';
-    }
-    return ret;
-},
-
-decode_xpcom_structure: function (data)
-{
-    function dostring (data) {
-        try {
-            var iface = data.QueryInterface (Components.interfaces.nsISupportsString);
-            return iface.data;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    var ret = dostring (data);
-    if (ret) { return ret; }
-    // it's not a string, so we will assume it is an array.
-    ret = [];
-    var en = data.QueryInterface (Components.interfaces.nsIArray).enumerate ();
-    while (en.hasMoreElements ()) {
-        ret.push (this.decode_xpcom_structure (en.getNext ()));
-    }
-    return ret;
-},
-
-
-// The simple case for find_url_new_buffer is to just load an url into
-// an existing frame.  However, find_url_new_buffer must also deal
-// with the case where it is called many times synchronously (as by a
-// command-line handler) when there is no active frame into which to
-// load urls.  We only want to make one frame, so we keep a queue of
-// urls to load, and put a function in `make_frame_after_hook' that
-// will load those urls.
-//
-find_url_new_buffer_queue: null,
-find_url_new_buffer: function (url, frame)
-{
-    function  find_url_new_buffer_internal () {
-        // get urls from queue
-        if (this.conkeror.find_url_new_buffer_queue) {
-            for (var i = 0; i < this.conkeror.find_url_new_buffer_queue.length; i++) {
-                this.conkeror.find_url_new_buffer (
-                    this.conkeror.find_url_new_buffer_queue[i],
-                    this);
-            }
-            // reset queue
-            this.conkeror.find_url_new_buffer_queue = null;
-        }
-    }
-
-    // window_watcher.activeWindow is the default frame, but it may be
-    // null, too.
-    //
-    if (frame == null) {
-        frame = this.window_watcher.activeWindow;
-    }
-    if (frame) {
-        return frame.newBrowser(url);
-    } else if (this.find_url_new_buffer_queue) {
-        // we are queueing
-        this.find_url_new_buffer_queue.push (url);
-    } else {
-        // establish a queue and make a frame
-        this.find_url_new_buffer_queue = [];
-        frame = this.make_frame (url);
-        this.add_hook.call(frame, "frame_initialize_late_hook", find_url_new_buffer_internal);
-        return frame;
-    }
-},
-
-get_frame_by_tag : function (tag)
-{
-    var en = this.window_watcher.getWindowEnumerator ();
-    while (en.hasMoreElements ()) {
-        var w = en.getNext().QueryInterface (Components.interfaces.nsIDOMWindow);
-        if ('tag' in w && w.tag == tag)
-            return w;
-    }
-    return null;
-},
-
-get_os: function ()
-{
-    // possible return values: 'Darwin', 'Linux', 'WINNT', ...
-    var appinfo = Components.classes['@mozilla.org/xre/app-info;1']
-        .createInstance (Components.interfaces.nsIXULRuntime);
-    return appinfo.OS;
-},
-
-set_default_directory : function (directory_s) {
-    function getenv (variable) {
-        var env = Components.classes['@mozilla.org/process/environment;1']
-            .createInstance (Components.interfaces.nsIEnvironment);
-        if (env.exists (variable))
-            return env.get(variable);
-        return null;
-    }
-
-    if (! directory_s)
-    {
-        directory_s = getenv ('HOME');
-    }
-
-    if (! directory_s &&
-        this.get_os() == "WINNT")
-    {
-        directory_s = getenv ('USERPROFILE') ||
-            getenv ('HOMEDRIVE') + getenv ('HOMEPATH');
-    }
-    this.default_directory = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    this.default_directory.initWithPath (directory_s);
-},
-
-/*
- * path_s: string path to load.  may be a file, a directory, or null.
- *   if it is a file, that file will be loaded.  if it is a directory,
- *   all `.js' files in that directory will be loaded.  if it is null,
- *   the preference `conkeror.rcfile' will be read for the default.
- */
-load_rc : function (path_s)
-{
-    // make `conkeror' object visible to the scope of the rc.
-    var conkeror = this;
-
-    function load_rc_file(file)
-    {
-        var fd = conkeror.fopen (file, "<");
-        var s = fd.read ();
-        fd.close ();
-        try {
-            eval.call (conkeror, s);
-        } catch (e) { dump (e + "\n");}
-    }
-
-    function load_rc_directory (file_o) {
-        var entries = file_o.directoryEntries;
-        var files = [];
-        while (entries.hasMoreElements ()) {
-            var entry = entries.getNext ();
-            entry.QueryInterface (Components.interfaces.nsIFile);
-            if (entry.leafName.match(/^[^.].*\.js$/i)) {
-                files.push(entry);
-            }
-        }
-        files.sort(function (a, b) {
-                if (a.leafName < b.leafName) {
-                    return -1;
-                } else if (a.leafName > b.leafName) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-        for (var i = 0; i < files.length; i++) {
-            load_rc_file(files[i]);
-        }
-    }
-
-    if (! path_s)
-    {
-        if (conkeror.preferences.prefHasUserValue ("conkeror.rcfile")) {
-            var rcfile = conkeror.preferences.getCharPref("conkeror.rcfile");
-            if (rcfile.length)
-                path_s = rcfile;
-        }
-    }
-
-    var file_o = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-    file_o.initWithPath(path_s);
-    if (file_o.isDirectory()) {
-        load_rc_directory (file_o);
-    } else {
-        load_rc_file (path_s);
-    }
-},
 
 // nsISupports
 QueryInterface: function (aIID) {
-        if (! aIID.equals (Components.interfaces.nsISupports))
-            throw Components.results.NS_ERROR_NO_INTERFACE;
+        if (! aIID.equals (Ci.nsISupports))
+            throw Cr.NS_ERROR_NO_INTERFACE;
         return this;
     }
 };
@@ -265,13 +110,12 @@ QueryInterface: function (aIID) {
 ///
 
 var application_factory = {
-createInstance: function (aOuter, aIID) {
+    createInstance: function (aOuter, aIID) {
         if (aOuter != null)
-            throw Components.results.NS_ERROR_NO_AGGREGATION;
+            throw Cr.NS_ERROR_NO_AGGREGATION;
         return (new application ()).QueryInterface (aIID);
     }
 };
-
 
 ///
 /// Module
@@ -282,35 +126,37 @@ const CLASS_NAME = "application";
 const CONTRACT_ID = "@conkeror.mozdev.org/application;1";
 
 var application_module = {
-_firstTime: true,
-registerSelf: function(aCompMgr, aFileSpec, aLocation, aType)
-{
-    if (this._firstTime) {
-        this._firstTime = false;
-        throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
-    };
-    aCompMgr = aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.registerFactoryLocation(CLASS_ID, CLASS_NAME, CONTRACT_ID, aFileSpec, aLocation, aType);
-},
 
-unregisterSelf: function(aCompMgr, aLocation, aType)
-{
-    aCompMgr = aCompMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
-    aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);
-},
+    _firstTime : true,
 
-getClassObject: function(aCompMgr, aCID, aIID)
-{
-    if (!aIID.equals(Components.interfaces.nsIFactory))
-        throw Components.results.NS_ERROR_NOT_IMPLEMENTED;
+    registerSelf: function(aCompMgr, aFileSpec, aLocation, aType)
+    {
+        if (this._firstTime) {
+            this._firstTime = false;
+            throw Cr.NS_ERROR_FACTORY_REGISTER_AGAIN;
+        };
+        aCompMgr = aCompMgr.QueryInterface(Ci.nsIComponentRegistrar);
+        aCompMgr.registerFactoryLocation(CLASS_ID, CLASS_NAME, CONTRACT_ID, aFileSpec, aLocation, aType);
+    },
+    
+    unregisterSelf: function(aCompMgr, aLocation, aType)
+    {
+        aCompMgr = aCompMgr.QueryInterface(Ci.nsIComponentRegistrar);
+        aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);
+    },
+    
+    getClassObject: function(aCompMgr, aCID, aIID)
+    {
+        if (!aIID.equals(Ci.nsIFactory))
+            throw Cr.NS_ERROR_NOT_IMPLEMENTED;
 
-    if (aCID.equals(CLASS_ID))
-        return application_factory;
-
-    throw Components.results.NS_ERROR_NO_INTERFACE;
-},
-
-canUnload: function(aCompMgr) { return true; }
+        if (aCID.equals(CLASS_ID))
+            return application_factory;
+        
+        throw Cr.NS_ERROR_NO_INTERFACE;
+    },
+    
+    canUnload: function(aCompMgr) { return true; }
 };
 
 /* The NSGetModule function is the magic entry point that XPCOM uses to find what XPCOM objects

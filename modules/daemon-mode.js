@@ -6,20 +6,20 @@
  */
 
 
-conkeror.daemon_mode_enabled = false;
+daemon_mode_enabled = false;
 
-conkeror.daemon_quit_exits = true;
+daemon_quit_exits = true;
 
-conkeror.daemon_quit_exits_p = function () {
-    return conkeror.daemon_quit_exits;
+function daemon_quit_exits_p () {
+    return daemon_quit_exits;
 }
 
-conkeror.daemon_quit_hook_fn = function () {
-    if (conkeror.daemon_quit_exits_p ())
-        conkeror.daemon_mode (-1);
+function daemon_quit_hook_fn () {
+    if (daemon_quit_exits_p ())
+        daemon_mode (-1);
 };
 
-conkeror.daemon_mode = function (arg)
+function daemon_mode (arg)
 {
     // null arg means toggle
     if (! arg)
@@ -28,23 +28,29 @@ conkeror.daemon_mode = function (arg)
         // disable if on.
         if (conkeror.daemon_mode_enabled) {
             conkeror.daemon_mode_enabled = false;
-            var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-                .getService(Components.interfaces.nsIAppStartup);
+            var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
+                .getService(Ci.nsIAppStartup);
             appStartup.exitLastWindowClosingSurvivalArea ();
-            conkeror.quit_hook = conkeror.quit_hook.filter (
-                function (x) {
-                    return x != conkeror.daemon_quit_hook_fn;
-                });
+            remove_hook("quit_hook", daemon_quit_hook_fn);
         }
     } else {
         // enable if off
-        if (conkeror.daemon_mode_enabled == false) {
-            conkeror.daemon_mode_enabled = true;
+        if (daemon_mode_enabled == false) {
+            daemon_mode_enabled = true;
             var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
                 .getService(Components.interfaces.nsIAppStartup);
             appStartup.enterLastWindowClosingSurvivalArea ();
-            conkeror.quit_hook.push (conkeror.daemon_quit_hook_fn);
+            add_hook("quit_hook", daemon_quit_hook_fn);
         }
     }
 }
 
+require_later("command-line.js");
+
+call_after_load("command-line.js", function () {
+        command_line_param_handler("daemon", true, function () {
+                daemon_mode(1);
+                var frame = make_frame();
+                frame.setTimeout(function() { frame.close(); }, 0);
+            });
+    });

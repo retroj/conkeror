@@ -1,4 +1,4 @@
-
+var commands = [];
 
 var interactive_methods = {
 a: { func: function (spec) {

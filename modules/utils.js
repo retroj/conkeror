@@ -38,6 +38,8 @@ function string_hashset() {
 }
 
 string_hashset.prototype = {
+    constructor : string_hashset,
+
     add : function(s) {
         this["-" + s] = true;
     },
@@ -62,6 +64,8 @@ function string_hashmap() {
 }
 
 string_hashmap.prototype = {
+    constructor : string_hashmap,
+
     put : function(s,value) {
         this["-" + s] = value;
     },
@@ -263,3 +267,38 @@ function abs_point (node)
     }
     return pt;
 }
+
+function get_os ()
+{
+    // possible return values: 'Darwin', 'Linux', 'WINNT', ...
+    var appinfo = Cc['@mozilla.org/xre/app-info;1'].createInstance (Ci.nsIXULRuntime);
+    return appinfo.OS;
+}
+
+var default_directory = null;
+
+function set_default_directory(directory_s) {
+    function getenv (variable) {
+        var env = Cc['@mozilla.org/process/environment;1'].createInstance(Ci.nsIEnvironment);
+        if (env.exists (variable))
+            return env.get(variable);
+        return null;
+    }
+
+    if (! directory_s)
+    {
+        if ( this.get_os() == "WINNT")
+        {
+            directory_s = getenv ('USERPROFILE') ||
+                getenv ('HOMEDRIVE') + getenv ('HOMEPATH');
+        }
+        else {
+            directory_s = getenv ('HOME');
+        }
+    }
+
+    default_directory = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+    default_directory.initWithPath (directory_s);
+}
+
+set_default_directory();

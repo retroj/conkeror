@@ -24,10 +24,9 @@ require("bindings.js"); // depends: keyboard.js
 require("find.js");
 require("numberedlinks.js");
 
+require("rc.js");
 
-url_remoting_fn = conkeror.make_frame;
-
-set_default_directory ();
+var url_remoting_fn = make_frame;
 
 init_webjumps ();
 
