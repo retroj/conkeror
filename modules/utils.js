@@ -45,7 +45,7 @@ string_hashset.prototype = {
     },
     
     contains : function(s) {
-        return !(this["-" + s] === undefined);
+        return (("-" + s) in this);
     },
 
     remove : function (s) {
@@ -71,21 +71,19 @@ string_hashmap.prototype = {
     },
     
     contains : function(s) {
-        return !(this["-" + s] === undefined);
+        return (("-" + s) in this);
     },
 
     get : function(s, default_value) {
-        var result = this["-" + s];
-        if (result === undefined)
-            return default_value;
-        return s;
+        if (this.contains(s))
+            return this["-" + s];
+        return default_value;
     },
 
     get_put_default : function(s, default_value) {
-        var result = this["-" + s];
-        if (result === undefined)
-            return (this["-" + s] = default_value);
-        return result;
+        if (this.contains(s))
+            return this["-" + s];
+        return (this["-" + s] = default_value);
     },
 
     remove : function (s) {
