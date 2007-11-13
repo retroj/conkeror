@@ -359,6 +359,13 @@ function initKmaps()
     define_key(top_kmap, kbd ("C-v"),"cmd_scrollPageDown");
     define_key(top_kmap, kbd ("C-p"),"cmd_scrollLineUp");
     define_key(top_kmap, kbd ("C-n"),"cmd_scrollLineDown");
+
+    define_key(top_kmap, kbd ("up"),"cmd_scrollLineUp");
+    define_key(top_kmap, kbd ("down"),"cmd_scrollLineDown");
+    define_key(top_kmap, kbd ("left"),"cmd_scrollLeft");
+    define_key(top_kmap, kbd ("right"),"cmd_scrollRight");
+
+
     define_key(top_kmap, kbd ("C-b"),"cmd_scrollLeft");
     define_key(top_kmap, kbd ("C-f"),"cmd_scrollRight");
     define_key(top_kmap, kbd ("C-a"),"beginning-of-line");
