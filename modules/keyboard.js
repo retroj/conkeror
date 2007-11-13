@@ -565,4 +565,4 @@ function keyboard_initialize_frame(frame)
     frame.addEventListener ("keypress", key_press_handler, true);
 }
 
-add_hook(frame_initialize_hook, keyboard_initialize_frame, true);
+add_hook("frame_initialize_hook", keyboard_initialize_frame);

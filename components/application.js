@@ -44,130 +44,18 @@ function application () {
         dump(line + "\n");
     }
 
-    this.require("debug.js");
-    this.require("localfile.js");
-    this.require("utils.js");
-    this.require("keyboard.js");
-    this.require("buffer.js");
-    this.require("frame.js");
-    this.require("interactive.js");
-    this.require("daemon-mode.js");
-    this.require("mode-line.js");
-    this.require("save.js");
+    this.require("conkeror.js");
 
-    this.require("commands.js"); // depends: interactive.js
-    this.require("frameset.js"); // depends interactive.js
-    this.require("webjump.js"); // depends: interactive.js
-    this.require("minibuffer.js"); // depends: interactive.js
-
-    this.require("bindings.js"); // depends: keyboard.js
-
-    this.require("find.js");
-    this.require("numberedlinks.js");
-
-    this.start_time = Date.now ();
-
-    conkeror.url_remoting_fn = conkeror.make_frame;
-
-    conkeror.set_default_directory ();
-
-    conkeror.init_webjumps ();
-
-    conkeror.init_window_title ();
 }
 
 application.prototype = {
 
 version: "$CONKEROR_VERSION$", // preprocessor variable
-
-start_time: null,
-window_watcher: null,
-preferences: null,
 chrome: "chrome://conkeror/content/conkeror.xul",
 homepage: "chrome://conkeror/content/help.html",
 default_directory: null,
 url_remoting_fn: null,
 commands: [],
-current_command: null,
-quit_hook: [],
-make_frame_hook: [],
-make_frame_after_hook: [],
-dom_content_loaded_hook: [],
-buffer_title_change_hook: [],
-browser_buffer_finished_loading_hook: [],
-browser_buffer_progress_change_hook: [],
-browser_buffer_location_change_hook: [],
-browser_buffer_status_change_hook: [],
-select_buffer_hook: [],
-frame_resize_hook: [],
-frame_initialize_early_hook: [],
-frame_initialize_hook: [],
-frame_initialize_late_hook: [],
-mode_line_enabled: true,
-
-add_hook: function (hook, func, append)
-{
-    if (hook.indexOf (func) != -1) return;
-    if (append)
-        hook.push (func);
-    else
-        hook.unshift (func);
-},
-
-run_hooks: function (hooks)
-{
-    var args = Array.prototype.slice.call(arguments, 1);
-    for (var i in hooks) {
-        try
-        {
-            hooks[i].apply (null, args);
-        } catch (e) {
-            dump ('run_hooks: '+e+"\n");
-        }
-    }
-},
-
-generate_new_frame_tag: function (tag)
-{
-    var existing = [];
-    var exact_match = false;
-    var en = this.window_watcher.getWindowEnumerator ();
-    if (tag == '') { tag = null; }
-    var re;
-    if (tag) {
-        re = new RegExp ("^" + tag + "<(\\d+)>$");
-    } else {
-        re = new RegExp ("^(\\d+)$");
-    }
-    while (en.hasMoreElements ()) {
-        var w = en.getNext().QueryInterface (Components.interfaces.nsIDOMWindow);
-        if ('tag' in w)  {
-            if (tag && w.tag == tag) {
-                exact_match = true;
-                continue;
-            }
-            var re_result = re.exec (w.tag);
-            if (re_result)
-                existing.push (re_result[1]);
-        }
-    }
-    if (tag && ! exact_match)
-        return tag;
-
-    existing.sort (function (a, b) { return a - b; });
-
-    var n = 1;
-    for (var i = 0; i < existing.length; i++) {
-        if (existing[i] < n) continue;
-        if (existing[i] == n) { n++; continue; }
-        break;
-    }
-    if (tag) {
-        return tag + "<" + n + ">";
-    } else {
-        return n;
-    }
-},
 
 encode_xpcom_structure: function (data)
 {
@@ -210,20 +98,6 @@ decode_xpcom_structure: function (data)
     return ret;
 },
 
-make_frame: function (url, tag)
-{
-    var open_args = ['conkeror'];
-    if (url) { open_args.push (['find'].concat (url)); }
-    if (tag) { open_args.push (['tag', tag]); }
-    open_args = this.encode_xpcom_structure (open_args);
-    var result = this.window_watcher.openWindow(null,
-                                                this.chrome,
-                                                null,
-                                                "resizable=yes,dialog=no",
-                                                open_args);
-    this.run_hooks (this.make_frame_hook, result);
-    return result;
-},
 
 // The simple case for find_url_new_buffer is to just load an url into
 // an existing frame.  However, find_url_new_buffer must also deal
@@ -263,8 +137,8 @@ find_url_new_buffer: function (url, frame)
     } else {
         // establish a queue and make a frame
         this.find_url_new_buffer_queue = [];
-        this.add_hook (this.make_frame_after_hook, find_url_new_buffer_internal);
         frame = this.make_frame (url);
+        this.add_hook.call(frame, "frame_initialize_late_hook", find_url_new_buffer_internal);
         return frame;
     }
 },
@@ -278,15 +152,6 @@ get_frame_by_tag : function (tag)
             return w;
     }
     return null;
-},
-
-quit : function ()
-{
-    this.run_hooks (this.quit_hook);
-    // this.daemon_mode (-1);
-    var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-        .getService(Components.interfaces.nsIAppStartup);
-    appStartup.quit(appStartup.eAttemptQuit);
 },
 
 get_os: function ()

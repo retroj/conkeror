@@ -1,0 +1,34 @@
+
+var start_time = Date.now ();
+
+require("hook.js");
+
+require("debug.js");
+require("localfile.js");
+require("utils.js");
+require("keyboard.js");
+require("buffer.js");
+require("frame.js");
+require("interactive.js");
+require("daemon-mode.js");
+require("mode-line.js");
+require("save.js");
+
+require("commands.js"); // depends: interactive.js
+require("frameset.js"); // depends interactive.js
+require("webjump.js"); // depends: interactive.js
+require("minibuffer.js"); // depends: interactive.js
+
+require("bindings.js"); // depends: keyboard.js
+
+require("find.js");
+require("numberedlinks.js");
+
+
+url_remoting_fn = conkeror.make_frame;
+
+set_default_directory ();
+
+init_webjumps ();
+
+init_window_title ();

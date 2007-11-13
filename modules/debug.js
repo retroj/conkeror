@@ -1,8 +1,3 @@
-add_hook (make_frame_hook, function () { this.dumpln = dumpln; });
-
-
-adsfadf;
-
 var MAX_DUMP_DEPTH = 1;
 function dump_obj_r(obj, name, indent, depth) {
     if (depth > MAX_DUMP_DEPTH) {
@@ -30,8 +25,6 @@ function dump_obj_r(obj, name, indent, depth) {
         return obj;
     }
 }
-add_hook (make_frame_hook, function () { this.dump_obj_r = dump_obj_r; });
-
 
 function dump_obj (obj, name) {
     if (typeof obj == "object") {
@@ -51,4 +44,3 @@ function dump_obj (obj, name) {
         return obj;
     }
 }
-add_hook (make_frame_hook, function () { this.dump_obj = dump_obj; });

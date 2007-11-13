@@ -28,10 +28,11 @@ the provisions above, a recipient may use your version of this file under
 the terms of any one of the MPL, the GPL or the LGPL.
 ***** END LICENSE BLOCK *****/
 
+define_hook("quit_hook");
 
 function quit ()
 {
-    run_hooks(quit_hook);
+    quit_hook.run();
     var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
         .getService(Components.interfaces.nsIAppStartup);
     appStartup.quit(appStartup.eAttemptQuit);

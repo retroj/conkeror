@@ -124,18 +124,16 @@ function init_window_title ()
 {
     title_format_fn = default_title_formatter;
 
-    add_hook(frame_initialize_late_hook, set_window_title, true);
-    add_hook(browser_buffer_location_change_hook,
+    add_hook("frame_initialize_late_hook", set_window_title);
+    add_hook("current_browser_buffer_location_change_hook",
              function (buffer) {
-                 if (buffer == buffer.frame.buffers.current)
-                     set_window_title(buffer.frame);
-             }, true);
-    add_hook(select_buffer_hook, function (buffer) { set_window_title(buffer.frame); }, true);
-    add_hook(buffer_title_change_hook,
+                 set_window_title(buffer.frame);
+             });
+    add_hook("select_buffer_hook", function (buffer) { set_window_title(buffer.frame); }, true);
+    add_hook("current_buffer_title_change_hook",
              function (buffer) {
-                 if (buffer == buffer.frame.buffers.current)
-                     set_window_title(buffer.frame);
-             }, true);
+                 set_window_title(buffer.frame);
+             });
 }
 ///
 

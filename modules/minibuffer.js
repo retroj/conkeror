@@ -604,4 +604,4 @@ function minibuffer_initialize_frame(frame)
     frame.minibuffer = new minibuffer(frame);
 }
 
-add_hook(frame_initialize_early_hook, minibuffer_initialize_frame, true);
+add_hook("frame_initialize_early_hook", minibuffer_initialize_frame);

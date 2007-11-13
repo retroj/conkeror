@@ -1,3 +1,35 @@
+function define_buffer_local_hook(hook_name)
+{
+    initialize_hook(hook_name).run = function (buffer) {
+        run_hooks(this, arguments);
+        run_hooks(buffer.frame[hook_name], arguments);
+        run_hooks(buffer, arguments);
+    }
+}
+
+function define_current_buffer_hook(hook_name, existing_hook)
+{
+    define_buffer_local_hook(hook_name);
+    add_hook(existing_hook, function (buffer) {
+            if (buffer != buffer.frame.buffers.current)
+                return;
+            var hook = conkeror[hook_name];
+            hook.run.apply(hook, Array.prototype.slice.call(arguments));
+        });
+}
+
+define_buffer_local_hook("buffer_title_change_hook");
+define_buffer_local_hook("browser_buffer_finished_loading_hook");
+define_buffer_local_hook("browser_buffer_progress_change_hook");
+define_buffer_local_hook("browser_buffer_location_change_hook");
+define_buffer_local_hook("browser_buffer_status_change_hook");
+define_buffer_local_hook("select_buffer_hook");
+
+define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
+define_current_buffer_hook("current_browser_buffer_finished_loading_hook", "browser_buffer_finished_loading_hook");
+define_current_buffer_hook("current_browser_buffer_progress_change_hook", "browser_buffer_progress_change_hook");
+define_current_buffer_hook("current_browser_buffer_location_change_hook", "browser_buffer_location_change_hook");
+define_current_buffer_hook("current_browser_buffer_status_change_hook", "browser_buffer_status_change_hook");
 
 function buffer()
 {}
@@ -35,7 +67,7 @@ function browser_buffer(frame, browser)
     this.element.addProgressListener(this);
     var buffer = this;
     this.element.addEventListener("DOMTitleChanged", function (event) {
-            run_hooks(buffer_title_change_hook, buffer);
+            buffer_title_change_hook.run(buffer);
         }, false);
 }
 
@@ -141,7 +173,7 @@ browser_buffer.prototype = {
         }
         if ((stateFlags & WPL.STATE_STOP) && (this._requests_finished == this._requests_started)) {
             this._requests_finished = this._requests_started = 0;
-            run_hooks(browser_buffer_finished_loading_hook, this);
+            browser_buffer_finished_loading_hook.run(this);
         }
     },
 
@@ -149,8 +181,7 @@ browser_buffer.prototype = {
        loading page. */
     onProgressChange: function(webProgress, request, curSelf, maxSelf,
                                curTotal, maxTotal) {
-        run_hooks(browser_buffer_progress_change_hook,
-                  this, request, curSelf, maxSelf, curTotal, maxTotal);
+        browser_buffer_progress_change_hook.run(this, request, curSelf, maxSelf, curTotal, maxTotal);
     },
 
     /* This method is called to indicate a change to the current location.
@@ -158,15 +189,14 @@ browser_buffer.prototype = {
     onLocationChange : function(webProgress, request, location) {
         /* Use the real location URI now */
         this._display_URI = null;
-        run_hooks(browser_buffer_location_change_hook,
-                  this, request, location);
+        browser_buffer_location_change_hook.run(this, request, location);
     },
 
     // This method is called to indicate a status changes for the currently
     // loading page.  The message is already formatted for display.
     // Status messages could be displayed in the minibuffer output area.
     onStatusChange: function(webProgress, request, status, msg) {
-        run_hooks(browser_buffer_status_change_hook, this, request, status, msg);
+        browser_buffer_status_change_hook.run(this, request, status, msg);
     },
 
     // This method is called when the security state of the browser changes.
@@ -277,7 +307,7 @@ buffer_container.prototype = {
         buffer.saved_focused_window = null;
 
         // Run hooks
-        run_hooks(select_buffer_hook, buffer);
+        select_buffer_hook.run(buffer);
     },
 
     get count () {
@@ -346,7 +376,7 @@ function buffer_initialize_frame_early(frame)
     frame.buffers = new buffer_container(frame);
 }
 
-add_hook(frame_initialize_early_hook, buffer_initialize_frame_early, true);
+add_hook("frame_initialize_early_hook", buffer_initialize_frame_early);
 
 function buffer_initialize_frame(frame)
 {
@@ -378,18 +408,14 @@ function buffer_initialize_frame(frame)
     }
 }
 
-add_hook(frame_initialize_hook, buffer_initialize_frame, true);
+add_hook("frame_initialize_hook", buffer_initialize_frame);
 
-add_hook(browser_buffer_finished_loading_hook,
+add_hook("current_browser_buffer_finished_loading_hook",
          function (buffer) {
-             if (buffer == buffer.frame.buffers.current) {
                  buffer.frame.minibuffer.show("Done");
-             }
          });
 
-add_hook(browser_buffer_status_change_hook,
+add_hook("current_browser_buffer_status_change_hook",
          function (buffer, request, status, msg) {
-             if (buffer == buffer.frame.buffers.current) {
-                 buffer.frame.minibuffer.show(msg);
-             }
+             buffer.frame.minibuffer.show(msg);
          });
