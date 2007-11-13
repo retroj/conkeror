@@ -71,7 +71,7 @@ function initial_isearch_state(window, forward)
 function isearch_session(frame, forward)
 {
     this.states = [];
-    this.window = frame.document.commandDispatcher.focusedWindow;
+    this.window = frame.buffers.current.focused_window();
     this.sel_ctrl = getFocusedSelCtrl(frame);
     this.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
     this.sel_ctrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
