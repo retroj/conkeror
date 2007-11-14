@@ -51,7 +51,7 @@ buffer.prototype = {
     get scrollX () { return 0; },
     get scrollY () { return 0; },
     get scrollMaxX () { return 0; },
-    get scrollMaxY () { return 0; },
+    get scrollMaxY () { return 0; }
 };
 
 /* If browser is null, create a new browser */
