@@ -153,6 +153,7 @@ function find_url_new_buffer(url, frame)
         add_hook.call(frame, "frame_initialize_late_hook", find_url_new_buffer_internal);
         return frame;
     }
+    return null;
 }
 
 function get_frame_by_tag(tag)
