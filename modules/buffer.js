@@ -397,6 +397,7 @@ buffer_container.prototype = {
         }
         this.container.removeChild(b.element);
         b.dead = true;
+        return true;
     },
 
     for_each : function (f) {
