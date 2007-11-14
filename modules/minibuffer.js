@@ -12,19 +12,19 @@ function exit_minibuffer(frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_text_entry_minibuffer_state)
+    if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
 
     var match = null;
     var val = trim_whitespace(m._input_text);
-    if (s.is_completion_minibuffer_state) {
+    if (s instanceof completion_minibuffer_state) {
         if (val.length == 0 && s.default_match != null)
             val = s.default_match;
         match = find_complete_match(s.completions, val);
     }
 
     // Check if we are allowed to exit here
-    if (s.is_completion_minibuffer_state && !match && !s.allow_non_matches)
+    if ((s instanceof completion_minibuffer_state) && !match && !s.allow_non_matches)
         return;
 
     if (s.history)
@@ -35,7 +35,7 @@ function exit_minibuffer(frame)
     }
     m.pop_state();
     if (s.callback) {
-        if (s.is_completion_minibuffer_state) {
+        if (s instanceof completion_minibuffer_state) {
             if (s.allow_non_matches)
                 s.callback(match, val);
             else // match must be non-null because of previous check
@@ -51,7 +51,7 @@ function minibuffer_history_next (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_text_entry_minibuffer_state)
+    if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
     if (!s.history)
         return;
@@ -66,7 +66,7 @@ function minibuffer_history_previous (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_text_entry_minibuffer_state)
+    if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
     if (!s.history)
         return;
@@ -81,7 +81,7 @@ function minibuffer_abort (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_text_entry_minibuffer_state)
+    if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
     if (s.abort_callback)
         s.abort_callback();
@@ -117,7 +117,7 @@ function minibuffer_complete (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_completion_minibuffer_state)
+    if (!(s instanceof completion_minibuffer_state))
         throw "Invalid minibuffer state";
     var str = m._input_text;
     var entered_text = str.substring(0, m._selection_start);
@@ -159,7 +159,7 @@ function minibuffer_accept_match (frame)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_completion_minibuffer_state)
+    if (!(s instanceof completion_minibuffer_state))
         throw "Invalid minibuffer state";
     var sel_start = m._selection_start;
     var sel_end = m._selection_end;
@@ -251,7 +251,7 @@ function minibuffer_insert_character(frame, n, event)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_basic_minibuffer_state)
+    if (!(s instanceof basic_minibuffer_state))
         throw "Invalid minibuffer state";
     m._ensure_input_area_showing();
     var val = m._input_text;
@@ -272,7 +272,7 @@ function minibuffer_insert_character_complete(frame, n, event)
 {
     var m = frame.minibuffer;
     var s = m.current_state;
-    if (!s || !s.is_completion_minibuffer_state)
+    if (!(s instanceof completion_minibuffer_state))
         throw "Invalid minibuffer state";
 
     minibuffer_insert_character(frame, n, event);
@@ -327,22 +327,21 @@ function minibuffer_state(keymap, prompt, input, selection_start, selection_end)
  *
  * select:            [optional] specifies to select the initial text if set to non-null
  */
-function basic_minibuffer_state(args)
+define_keywords("$prompt", "$initial_value", "$select");
+function basic_minibuffer_state()
 {
-    this.is_basic_minibuffer_state = true;
-    var prompt = args.prompt;
-    var initial_value = args.initial_value;
-    if (!initial_value)
-        initial_value = "";
+    keywords(arguments, $initial_value = "");
     var sel_start, sel_end;
-    if (args.select)
+    if (arguments.$select)
     {
         sel_start = 0;
-        sel_end = initial_value.length;
+        sel_end = arguments.$initial_value.length;
     } else {
-        sel_start = sel_end = initial_value.length;
+        sel_start = sel_end = arguments.$initial_value.length;
     }
-    minibuffer_state.call(this, minibuffer_base_kmap, prompt, initial_value, sel_start, sel_end);
+    minibuffer_state.call(this, minibuffer_base_kmap,
+                          arguments.$prompt, arguments.$initial_value,
+                          sel_start, sel_end);
 }
 basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inherit from minibuffer_state
 
@@ -356,16 +355,18 @@ basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inhe
  *
  * abort_callback:    [optional] called if the operaion is aborted
  */
-function text_entry_minibuffer_state(args) {
-    this.is_text_entry_minibuffer_state = true;
-    basic_minibuffer_state.call(this, args);
-    this.keymap = minibuffer_kmap;
+define_keywords("$callback", "$abort_callback", "$history");
+function text_entry_minibuffer_state() {
+    keywords(arguments);
 
-    this.callback = args.callback;
-    this.abort_callback = args.abort_callback;
-    if (args.history)
+    basic_minibuffer_state.call(this, forward_keywords(arguments));
+    this.keymap = minibuffer_kmap;
+    
+    this.callback = arguments.$callback;
+    this.abort_callback = arguments.$abort_callback;
+    if (arguments.$history)
     {
-        this.history = minibuffer_history_data.get_put_default(args.history, []);
+        this.history = minibuffer_history_data.get_put_default(arguments.$history, []);
         this.history_index = this.history.length;
     }
 }
@@ -390,17 +391,18 @@ text_entry_minibuffer_state.prototype.__proto__ = basic_minibuffer_state.prototy
  *                               the true value as the second argument, depending on allow_non_matches.
  *
  */
-function completion_minibuffer_state(args) {
-    this.is_completion_minibuffer_state = true;
-    text_entry_minibuffer_state.call(this, args);
+define_keywords("$completions", "$allow_non_matches", "$default_match");
+function completion_minibuffer_state() {
+    text_entry_minibuffer_state.call(this, forward_keywords(arguments));
+    keywords(arguments, $allow_non_matches = false);
     this.keymap = minibuffer_completion_kmap;
-    this.completions = args.completions.slice().sort(function (a,b) {
+    this.completions = arguments.$completions.slice().sort(function (a,b) {
             if (a[0] < b[0]) return -1;
             else if (a[0] == b[0]) return 0;
             else return 1;
         });
-    this.allow_non_matches = args.allow_non_matches;
-    this.default_match = args.default_match;
+    this.allow_non_matches = arguments.$allow_non_matches;
+    this.default_match = arguments.$default_match;
 }
 // inherit from text_entry_minibuffer_state
 completion_minibuffer_state.prototype.__proto__ = text_entry_minibuffer_state.prototype;
@@ -593,15 +595,15 @@ minibuffer.prototype = {
         }
     },
 
-    /*  See basic_minibuffer_state for a description of args */
-    read : function (args) {
+    /*  See basic_minibuffer_state for a description of arguments */
+    read : function () {
         /* FIXME: have policy for deciding whether to refuse a
          * recursive minibuffer operation */
-        this.push_state(new text_entry_minibuffer_state(args));
+        this.push_state(new text_entry_minibuffer_state(forward_keywords(arguments)));
     },
 
-    read_with_completion : function (args) {
-        this.push_state(new completion_minibuffer_state(args));
+    read_with_completion : function () {
+        this.push_state(new completion_minibuffer_state(forward_keywords(arguments)));
     }
 };
 

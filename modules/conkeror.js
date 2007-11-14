@@ -1,6 +1,8 @@
 
 var start_time = Date.now ();
 
+require("keywords.js");
+
 require("hook.js");
 
 require("debug.js");

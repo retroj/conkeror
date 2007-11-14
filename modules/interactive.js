@@ -20,13 +20,16 @@ b: { async: function (spec, iargs, callback, callback_args, given_args) {
             var initindex = (2 in spec && spec[2] ?
                              spec[2].call (this, callback_args) : this.buffers.selected_index);
             var frame = this;
-            this.minibuffer.read_with_completion({prompt: prompt, initial_value: bufs[initindex][0], history: "buffer",
-                        completions: bufs,
-                        select: true,
-                        callback: function (s) {
-                                         callback_args.push (s);
-                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
-                    }});
+            this.minibuffer.read_with_completion(
+                $prompt = prompt,
+                $initial_value = bufs[initindex][0],
+                $history = "buffer",
+                $completions = bufs,
+                $select,
+                $callback = function (s) {
+                    callback_args.push (s);
+                    do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                });
         },
      doc: "Name of existing buffer, defaulting to the current one.\n"+
      "Its optional arguments are:\n"+
@@ -124,17 +127,17 @@ f: { async: function (spec, iargs, callback, callback_args, given_args) {
             var initval = (2 in spec && spec[2] ? spec[2].call (this, callback_args) : default_directory.path);
             var hist = (3 in spec ? spec[3] : null);
             var frame = this;
-            this.minibuffer.read({
-                        prompt:        prompt,
-                        initial_value: initval,
-                        history: hist,
-                        callback: function (s) {
-                                         var f = Components.classes["@mozilla.org/file/local;1"]
-                                             .createInstance(Components.interfaces.nsILocalFile);
-                                         f.initWithPath (s);
-                                         callback_args.push (f);
-                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
-                    } });
+            this.minibuffer.read(
+                        $prompt = prompt,
+                        $initial_value = initval,
+                        $history = hist,
+                        $callback = function (s) {
+                            var f = Components.classes["@mozilla.org/file/local;1"]
+                                .createInstance(Components.interfaces.nsILocalFile);
+                            f.initWithPath (s);
+                            callback_args.push (f);
+                            do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                        });
         }
 },
 
@@ -144,17 +147,17 @@ F: { async: function (spec, iargs, callback, callback_args, given_args) {
             var initval = (2 in spec && spec[2] ? spec[2].call (this, callback_args) : default_directory.path);
             var hist = (3 in spec ? spec[3] : null);
             var frame = this;
-            this.minibuffer.read({
-                        prompt:        prompt,
-                        initial_value: initval,
-                        history: hist,
-                        callback: function (s) {
-                                         var f = Components.classes["@mozilla.org/file/local;1"]
-                                             .createInstance(Components.interfaces.nsILocalFile);
-                                         f.initWithPath (s);
-                                         callback_args.push (f);
-                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
-                    } });
+            this.minibuffer.read(
+                        $prompt =        prompt,
+                        $initial_value = initval,
+                        $history = hist,
+                        $callback = function (s) {
+                            var f = Components.classes["@mozilla.org/file/local;1"]
+                                .createInstance(Components.interfaces.nsILocalFile);
+                            f.initWithPath (s);
+                            callback_args.push (f);
+                            do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                        });
         }
 },
 
@@ -271,7 +274,7 @@ link: { async: function (spec, iargs, callback, callback_args, given_args) {
             // Setup a context for the context-keymap system.
             this.numberedlinks_minibuffer_active = true;
             var frame = this;
-    this.minibuffer.read ({prompt: prompt, initial_value: initVal,
+            this.minibuffer.read ({prompt: prompt, initial_value: initVal,
                            callback: function (s) {
                                          callback_args.push (s);
                                          /* FIXME: numbered link toggling not yet working
@@ -324,13 +327,12 @@ n: { async: function (spec, iargs, callback, callback_args, given_args) {
             if (1 in spec)
                 prompt = spec[1];
             var frame = this;
-            this.minibuffer.read
-            ({  prompt: prompt,
-                callback: function (s) {
+            this.minibuffer.read(
+                $prompt = prompt,
+                $callback = function (s) {
                     callback_args.push (s);
                     do_interactive.call (frame, iargs, callback, callback_args, given_args);
-                }
-            });
+                });
         }
 },
 
@@ -386,11 +388,12 @@ s: { async: function (spec, iargs, callback, callback_args, given_args) {
             if (1 in spec)
                 prompt = spec[1];
             var frame = this;
-            this.minibuffer.read({ prompt: prompt,
-                        callback:  function (s) {
-                                         callback_args.push (s);
-                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
-                    }});
+            this.minibuffer.read(
+                $prompt = prompt,
+                $callback = function (s) {
+                    callback_args.push (s);
+                    do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                });
         }
 },
 
@@ -408,15 +411,16 @@ url_or_webjump: { async: function (spec, iargs, callback, callback_args, given_a
             var hist = (3 in spec ? spec[3] : null);
             var completions = (4 in spec && spec[4] ? spec[4].call (this, callback_args) : []);
             var frame = this;
-            this.minibuffer.read_with_completion({prompt: prompt, initial_value : initval, history: hist,
-                        completions : completions,
-                        allow_non_matches : true,
-                        callback : function (match, s) {
-                                         if (s == "") // well-formedness check. (could be better!)
-                                             throw ("invalid url or webjump (\""+s+"\")");
-                                         callback_args.push (get_url_or_webjump (s));
-                                         do_interactive.call (frame, iargs, callback, callback_args, given_args);
-                    }});
+            this.minibuffer.read_with_completion(
+                $prompt = prompt, $initial_value = initval, $history = hist,
+                $completions = completions,
+                $allow_non_matches,
+                $callback = function (match, s) {
+                    if (s == "") // well-formedness check. (could be better!)
+                        throw ("invalid url or webjump (\""+s+"\")");
+                    callback_args.push (get_url_or_webjump (s));
+                    do_interactive.call (frame, iargs, callback, callback_args, given_args);
+                });
         }
 },
 

@@ -124,7 +124,7 @@ function numberedlinks_minibuffer_state(prefix, initial_value)
     this.prefix_argument = prefix;
     if (initial_value == null)
         initial_value = "";
-    basic_minibuffer_state.call(this, { prompt: "Link number:", initial_value: initial_value });
+    basic_minibuffer_state.call(this, $prompt = "Link number:", $initial_value = initial_value);
     this.keymap = numberedlinks_kmap;
 }
 // inherit from basic_minibuffer_state

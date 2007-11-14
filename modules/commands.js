@@ -301,17 +301,18 @@ function meta_x (frame, prefix)
     for (i in conkeror.commands)
         matches.push([conkeror.commands[i][0],conkeror.commands[i][0]]);
 
-    frame.minibuffer.read_with_completion({prompt: prompt + "M-x",
-                history: "commands",
-                completions: matches,
-                callback : function(c) {
-                // pass the prefix given to `meta_x'
-                // on to the command that the user
-                // typed into the minibuffer.
-                frame.current_prefix_argument = prefix;
-                call_interactively(frame, c);
-            },
-                abort_callback : frame.abort});
+    frame.minibuffer.read_with_completion(
+        $prompt = prompt + "M-x",
+        $history = "commands",
+        $completions = matches,
+        $callback = function(c) {
+            // pass the prefix given to `meta_x'
+            // on to the command that the user
+            // typed into the minibuffer.
+            frame.current_prefix_argument = prefix;
+            call_interactively(frame, c);
+        },
+        $abort_callback = frame.abort);
 }
 interactive("execute-extended-command", meta_x, ['current_frame', "P"]);
 
@@ -633,11 +634,11 @@ interactive("text-enlarge", text_enlarge, ['current_frame', "p"]);
 
 function eval_expression (frame)
 {
-    frame.minibuffer.read( {
-            prompt: "Eval:",
-            history: "eval-expression",
-            callback: function (s) { eval.call(frame, s); }
-        });
+    frame.minibuffer.read(
+            $prompt = "Eval:",
+            $history = "eval-expression",
+            $callback = function (s) { eval.call(frame, s); }
+        );
 }
 interactive("eval-expression", eval_expression, ['current_frame']);
 
