@@ -6,9 +6,9 @@
  */
 
 
-daemon_mode_enabled = false;
+var daemon_mode_enabled = false;
 
-daemon_quit_exits = true;
+var daemon_quit_exits = true;
 
 function daemon_quit_exits_p () {
     return daemon_quit_exits;
