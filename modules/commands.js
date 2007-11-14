@@ -404,6 +404,7 @@ function get_link_text()
     if (e && e.getAttribute("href")) {
         return e.getAttribute("href");
     }
+    return null;
 }
 
 
@@ -534,7 +535,8 @@ function univ_arg_to_number(prefix)
     else if (typeof prefix == "number")
         return prefix;
 
-    } catch(e) {alert("univ: " + e); return null;}
+    } catch(e) {alert("univ: " + e);}
+    return null;
 }
 
 function go_up (frame, prefix)

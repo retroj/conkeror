@@ -551,7 +551,7 @@ keyboard_state.prototype = {
 
     /* If this is non-null, it is used instead of the current buffer's
      * keymap_set. */
-    override_keymap_set : null,
+    override_keymap_set : null
 };
 
 

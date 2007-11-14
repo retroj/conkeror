@@ -2,8 +2,10 @@ function define_buffer_local_hook(hook_name)
 {
     initialize_hook(hook_name).run = function (buffer) {
         run_hooks(this, arguments);
-        run_hooks(buffer.frame[hook_name], arguments);
-        run_hooks(buffer, arguments);
+        if (hook_name in buffer.frame)
+            run_hooks(buffer.frame[hook_name], arguments);
+        if (hook_name in buffer)
+            run_hooks(buffer[hook_name], arguments);
     }
 }
 

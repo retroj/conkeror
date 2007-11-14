@@ -3,7 +3,8 @@ function define_frame_local_hook(hook_name)
 {
     initialize_hook(hook_name).run = function (frame) {
         run_hooks(this, arguments);
-        run_hooks(frame[hook_name], arguments);
+        if (hook_name in frame)
+            run_hooks(frame[hook_name], arguments);
     }
 }
 

@@ -166,6 +166,7 @@ function get_link_location (element)
         var loc = element.getAttribute("href");
         return makeURLAbsolute(element.baseURI, loc);
     }
+    return null;
 }
 
 

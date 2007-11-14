@@ -92,6 +92,7 @@ function get_href (node)
         var wrapper = new XPCNativeWrapper(node, "href", "getAttribute()");
         return wrapper.href;
     }
+    return null;
 }
 
 
