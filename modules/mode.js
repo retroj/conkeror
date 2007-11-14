@@ -1,4 +1,6 @@
 
+require("interactive.js");
+
 function define_global_mode(name, enable, disable)
 {
     var hyphen_name = name.replace("_","-","g");
