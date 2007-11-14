@@ -55,7 +55,7 @@ C: { func: function (spec) {
 
 content_charset: { func: function (spec) {
             // -- Charset of content area of focusedWindow
-            var focusedWindow = this.buffers.current.focused_window();this.document.commandDispatcher.focusedWindow;
+            var focusedWindow = this.buffers.current.focused_window();
             if (focusedWindow)
                 return focusedWindow.document.characterSet;
             else
