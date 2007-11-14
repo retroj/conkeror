@@ -298,7 +298,7 @@ function download_for_external_program(uri, doc, referrer_uri,
         onProgressChange: function() {return 0;},
         onStatusChange: function() {return 0;},
         onSecurityChange: function() {return 0;},
-        onLinkIconAvailable: function() {return 0;},
+        onLinkIconAvailable: function() {return 0;}
     };
 
     persist.saveURI(uri, cache_key, referrer_uri, post_data, null /* no extra headers */, fileURI);
