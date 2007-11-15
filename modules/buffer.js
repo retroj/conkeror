@@ -54,6 +54,9 @@ buffer.prototype = {
     get scrollY () { return 0; },
     get scrollMaxX () { return 0; },
     get scrollMaxY () { return 0; }
+
+    // get focused_window
+    // get focused_element
 };
 
 /* If browser is null, create a new browser */
@@ -132,7 +135,7 @@ browser_buffer.prototype = {
     },
 
     get markup_document_viewer () {
-        return this.element.markup_document_viewer;
+        return this.element.markupDocumentViewer;
     },
 
     load_URI : function (URI_s) {
@@ -457,3 +460,130 @@ add_hook("current_browser_buffer_status_change_hook",
          function (buffer, request, status, msg) {
              buffer.frame.minibuffer.show(msg);
          });
+
+I.current_buffer = interactive_method(
+    $doc = "Current buffer",
+    $sync = function (ctx, type) {
+        var buffer = ctx.frame.buffers.current;
+        if (type && !(buffer instanceof type))
+            throw new Error("Current buffer is of invalid type");
+        return buffer;
+    });
+
+I.current_buffer_window = interactive_method(
+    $sync = function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        return buffer.content_window;
+    });
+
+// This name should perhaps change
+I.current_buffer_document = interactive_method(
+    $sync = function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        return buffer.content_document;
+    });
+
+// This name should perhaps change
+I.active_document = I.current_buffer_document;
+
+I.current_frameset_frame = interactive_method(
+    $sync = function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        return buffer.focused_window();
+    });
+
+I.current_frameset_frame_url = interactive_method(
+    $sync = function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        return buffer.focused_window().location.href;
+    });
+
+// This name should probably change
+I.current_url = interactive_method(
+    $sync = function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        return buffer.current_URI.spec;
+    });
+
+
+I.focused_link_url = interactive_method(
+    $sync = function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        // -- Focused link element
+        ///JJF: check for errors or wrong element type.
+        return get_link_location (buffer.focused_element());
+    });
+
+define_keywords("$initial_index");
+I.b = interactive_method(
+    $async = function (ctx, cont) {
+        keywords(arguments, $prompt = "Buffer:",
+                 $initial_index = ctx.frame.buffers.selected_index,
+                 $history = "buffer");
+        var bufs = ctx.frame.buffers.unique_name_list;
+        ctx.frame.minibuffer.read_with_completion(
+            $prompt = arguments.$prompt,
+            $initial_value = bufs[arguments.$initial_index][0],
+            $history = arguments.$history,
+            $completions = bufs,
+            $select,
+            $callback = cont);
+    });
+
+
+I.content_charset = interactive_method(
+    $sync = function (ctx) {
+        // -- Charset of content area of focusedWindow
+        var focusedWindow = this.buffers.current.focused_window();
+        if (focusedWindow)
+            return focusedWindow.document.characterSet;
+        else
+            return null;
+    });
+
+I.content_selection = interactive_method(
+    $sync = function (ctx) {
+        // -- Selection of content area of focusedWindow
+        var focusedWindow = this.buffers.current.focused_window();
+        return focusedWindow.getSelection ();
+    });
+
+
+
+//RETROJ: this may be improperly named.  it can read either an url or a
+//        webjump from the minibuffer, but it will always return an url.
+I.url_or_webjump = interactive_method(
+    $async = function (ctx, cont) {
+        keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "");
+        var completions = arguments.$completions;
+        if (completions === undefined)
+        {
+            completions = [];
+            for (var x in gWebJumpLocations)
+                completions.push([x,x]);
+        }
+        ctx.frame.minibuffer.read_with_completion(
+            $prompt = arguments.$prompt,
+            $history = arguments.$history,
+            $completions = completions,
+            $initial_value = arguments.$initial_value,
+            $select,
+            $allow_non_matches,
+            $callback = function (match,s) {
+                if (s == "") // well-formedness check. (could be better!)
+                    throw ("invalid url or webjump (\""+s+"\")");
+                cont(get_url_or_webjump (s));
+            });
+    });

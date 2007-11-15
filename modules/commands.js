@@ -37,14 +37,14 @@ function quit ()
         .getService(Components.interfaces.nsIAppStartup);
     appStartup.quit(appStartup.eAttemptQuit);
 }
-interactive("quit", quit, []);
+interactive("quit", quit);
 
 
 function show_conkeror_version (frame)
 {
     frame.minibuffer.message (conkeror.version);
 }
-interactive ("conkeror-version", show_conkeror_version, ['current_frame']);
+interactive ("conkeror-version", show_conkeror_version, I.current_frame);
 
 
 function unfocus (frame)
@@ -58,7 +58,7 @@ function unfocus (frame)
     else
         frame.window.content.focus();
 }
-interactive("unfocus", unfocus, ['current_frame']);
+interactive("unfocus", unfocus, I.current_frame);
 
 
 function go_back (frame, prefix)
@@ -74,7 +74,7 @@ function go_back (frame, prefix)
         b.web_navigation.gotoIndex(idx);
     }
 }
-interactive("go-back", go_back, ['current_frame', "p"]);
+interactive("go-back", go_back, I.current_frame, I.p);
 
 
 function go_forward (frame, prefix)
@@ -89,7 +89,7 @@ function go_forward (frame, prefix)
         b.web_navigation.gotoIndex(idx);
     }
 }
-interactive("go-forward", go_forward, ['current_frame', "p"]);
+interactive("go-forward", go_forward, I.current_frame, I.p);
 
 
 function stop_loading (frame)
@@ -98,8 +98,8 @@ function stop_loading (frame)
     // Should be checking if type of buffer is browser_buffer
     b.web_navigation.stop (Components.interfaces.nsIWebNavigation.STOP_NETWORK);
 }
-interactive("stop-loading", stop_loading, ['current_frame']);
-interactive("keyboard-quit", stop_loading, ['current_frame']);
+interactive("stop-loading", stop_loading, I.current_frame);
+interactive("keyboard-quit", stop_loading, I.current_frame);
 
 
 function reload (frame)
@@ -110,30 +110,25 @@ function reload (frame)
         b.web_navigation.reload(Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE);
     }
 }
-interactive("revert-buffer", reload, ['current_frame']);
+interactive("revert-buffer", reload, I.current_frame);
 
 
 function scrollHorizComplete (frame, n)
 {
-    var w = frame.document.commandDispatcher.focusedWindow;
+    var w = frame.buffers.current.focused_window();
     w.scrollTo (n > 0 ? w.scrollMaxX : 0, w.scrollY);
 }
-interactive("beginning-of-line", scrollHorizComplete, ['current_frame', ['value', -1]]);
-interactive("end-of-line", scrollHorizComplete, ['current_frame', ['value', 1]]);
+interactive("beginning-of-line", scrollHorizComplete, I.current_frame, -1);
+interactive("end-of-line", scrollHorizComplete, I.current_frame, 1);
 
 
-interactive("make-frame-command", make_frame,
-            [['result',
-              function () {
-                  return conkeror.homepage;
-              }]]);
-
+interactive("make-frame-command", make_frame, I.bind(function(){return homepage;}));
 
 function delete_frame (frame)
 {
     frame.window.close();
 }
-interactive("delete-frame", delete_frame, ['current_frame']);
+interactive("delete-frame", delete_frame, I.current_frame);
 
 
 function open_url_in (frame, prefix, url)
@@ -157,74 +152,39 @@ function open_url_in (frame, prefix, url)
 interactive("follow-image", open_url_in, ['current_frame', 'p', 'image_url']);
 
 interactive("open-url", open_url_in,
-            ['current_frame',
-             'p',
-             ['url_or_webjump', // XXX: not good modularity on the part of webjump
-              function (args) { return open_url_in_prompt (args[1]); },// prompt
-              null, // initval
-              "url", // history
-              function (args) {
-                  var templs =[];
-                  for (var x in gWebJumpLocations)
-                      templs.push([x,x]);
-                  return templs; }]]); // completions
+            I.current_frame, I.p,
+            I.url_or_webjump($prompt = I.bind(open_url_in_prompt, I.p)));
 
 interactive("find-url-other-frame", open_url_in,
-            ['current_frame',
-             ['value', 16],
-             ['url_or_webjump',
-              function (args) { return open_url_in_prompt (args[1]); },// prompt
-              null, // initval
-              "url", // history
-              function (args) {
-                  var templs =[];
-                  for (var x in gWebJumpLocations)
-                      templs.push([x,x]);
-                  return templs; }]]);
+            I.current_frame, 16,
+            I.url_or_webjump($prompt = open_url_in_prompt(16)));
 
 interactive("find-alternate-url", open_url_in,
-            ['current_frame',
-             'p',
-             ['url_or_webjump',
-              function (args) { return open_url_in_prompt (args[1]); },// prompt
-              function (args) { return this.getWebNavigation().currentURI.spec; }, // initval
-              "url", // history
-              function (args) {
-                  var templs =[];
-                  for (var x in gWebJumpLocations)
-                      templs.push([x,x]);
-                  return templs; }]]);
+            I.current_frame, I.p,
+            I.url_or_webjump($prompt = I.bind(open_url_in_prompt, I.p),
+                             $initial_value = I.current_url));
 
 interactive("find-url", open_url_in,
-            ['current_frame',
-             ['value', 4],
-             ['url_or_webjump',
-              function (args) { return open_url_in_prompt (args[1]); },// prompt
-              null, // initval
-              "url", // history
-              function (args) {
-                  var templs =[];
-                  for (var x in gWebJumpLocations)
-                      templs.push([x,x]);
-                  return templs; }]]);
+            I.current_frame, 4,
+            I.url_or_webjump($prompt = open_url_in_prompt(4)));
 
 interactive("follow-link", open_url_in,
-            ['current_frame', ['value', 1], 'focused_link_url']);
+            I.current_frame, 1, I.focused_link_url);
 
 interactive("follow-link-in-new-buffer", open_url_in,
-            ['current_frame', ['value', 4], 'focused_link_url']);
+            I.current_frame, 4, I.focused_link_url);
 
 interactive("open-frameset-frame-in-current-buffer", open_url_in,
-            ['current_frame', ["value", 1],"current_frameset_frame_url"]);
+            I.current_frame, 1, I.current_frameset_frame_url);
 
 interactive("open-frameset-frame-in-new-buffer", open_url_in,
-            ['current_frame', ["value", 4],"current_frameset_frame_url"]);
+            I.current_frame, 4, I.current_frameset_frame_url);
 
 interactive("open-frameset-frame-in-new-frame", open_url_in,
-            ['current_frame', ["value", 16],"current_frameset_frame_url"]);
+            I.current_frame, 16, I.current_frameset_frame_url);
 
 interactive("jsconsole", open_url_in,
-            ['current_frame', "p", ["value", "chrome://global/content/console.xul"]]);
+            I.current_frame, I.p, "chrome://global/content/console.xul");
 
 
 function switch_to_buffer (frame, buffer)
@@ -233,29 +193,30 @@ function switch_to_buffer (frame, buffer)
         frame.buffers.current = buffer;
 }
 interactive("switch-to-buffer", switch_to_buffer,
-            ['current_frame',
-             ["b", function (a) { return "Switch to buffer: "; },
-              function (a) {
-                  return (this.buffers.selected_index + 1) % this.buffers.count;
-              }]]);
+            I.current_frame,
+            I.b($prompt = "Switch to buffer:",
+                $initial_index = I.bind(function(frame) {
+                        return (frame.buffers.selected_index + 1) % frame.buffers.count;
+                    }, I.current_frame)));
 
 function kill_buffer (frame, buffer)
 {
     if (buffer)
         frame.buffers.kill_buffer(buffer);
 }
-interactive("kill-buffer", kill_buffer, ['current_frame', ["b", function (a) { return "Kill buffer: "; }]]);
-
+interactive("kill-buffer", kill_buffer,
+            I.current_frame,
+            I.b($prompt = "Kill buffer:"));
 
 function copy_location (frame, s)
 {
     writeToClipboard (s);
     frame.minibuffer.message ("Copied '"+s+"'");
 }
-interactive("copy-current-url", copy_location, ['current_frame', 'current_url']);
-interactive("copy-link-location", copy_location, ['current_frame', 'focused_link_url']);
-interactive("copy-image-location", copy_location, ['current_frame', 'image_url']);
-interactive("copy-frameset-frame-location", copy_location, ['current_frame', 'current_frameset_frame_url']);
+interactive("copy-current-url", copy_location, I.current_frame, I.current_url);
+interactive("copy-link-location", copy_location, I.current_frame, I.focused_link_url);
+interactive("copy-image-location", copy_location, I.current_frame, I.image_url);
+interactive("copy-frameset-frame-location", copy_location, I.current_frame, I.current_frameset_frame_url);
 
 
 // Copy the contents of the X11 clipboard to ours. This is a cheap
@@ -270,121 +231,109 @@ function yankToClipboard (frame)
     gClipboardHelper.copyString(str);
     frame.message("Pulled '" + str + "'");
 }
-interactive("yank-to-clipboard", yankToClipboard, ['current_frame']);
+interactive("yank-to-clipboard", yankToClipboard, I.current_frame);
 
 
 function browser_next (frame)
 {
     frame.nextBrowser();
 }
-interactive("buffer-next", browser_next, ['current_frame']);
+interactive("buffer-next", browser_next, I.current_frame);
 
 
 function browser_prev (frame)
 {
     frame.prevBrowser();
 }
-interactive("buffer-previous", browser_prev, ['current_frame']);
+interactive("buffer-previous", browser_prev, I.current_frame);
 
 
-function meta_x (frame, prefix)
+function meta_x (frame, prefix, command)
 {
-    var prompt = "";
-    if (prefix == null)
-        prompt = "";
-    else if (typeof prefix == "object")
-        prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
-    else
-        prompt = prefix + " ";
-
-    var matches = [];
-    for (i in conkeror.commands)
-        matches.push([conkeror.commands[i][0],conkeror.commands[i][0]]);
-
-    frame.minibuffer.read_with_completion(
-        $prompt = prompt + "M-x",
-        $history = "commands",
-        $completions = matches,
-        $callback = function(c) {
-            // pass the prefix given to `meta_x'
-            // on to the command that the user
-            // typed into the minibuffer.
-            frame.current_prefix_argument = prefix;
-            call_interactively(frame, c);
-        },
-        $abort_callback = frame.abort);
+    frame.current_prefix_argument = prefix;
+    call_interactively(frame, command);
 }
-interactive("execute-extended-command", meta_x, ['current_frame', "P"]);
+interactive("execute-extended-command", meta_x,
+            I.current_frame, I.P,
+            I.C($prompt = I.bind(function (prefix) {
+                        var prompt = "";
+                        if (prefix == null)
+                            prompt = "";
+                        else if (typeof prefix == "object")
+                            prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
+                        else
+                            prompt = prefix + " ";
+                        return prompt + "M-x";
+                    }, I.P)));
 
 
 /// built in commands
 // see: http://www.xulplanet.com/tutorials/xultu/commandupdate.html
 
 // Performs a command on a browser buffer content area
-function goDoCommand (frame, command)
+function goDoCommand (buffer, command)
 {
     try {
-        // FIXME: There should be some check to ensure that the current buffer is a browser buffer
-        frame.buffers.current.do_command(command);
+        buffer.do_command(command);
     } catch (e) {
-        frame.minibuffer.message ("goDoCommand ("+command+"): "+e);
+        buffer.frame.minibuffer.message ("goDoCommand ("+command+"): "+e);
     }
 }
-interactive("cmd_beginLine", goDoCommand, ['current_frame', ['value', 'cmd_beginLine']]);
-interactive("cmd_copy", goDoCommand, ['current_frame', ['value', 'cmd_copy']]);
-interactive("cmd_copyOrDelete", goDoCommand, ['current_frame', ['value', 'cmd_copyOrDelete']]);
-interactive("cmd_cut", goDoCommand, ['current_frame', ['value', 'cmd_cut']]);
-interactive("cmd_cutOrDelete", goDoCommand, ['current_frame', ['value', 'cmd_cutOrDelete']]);
-interactive("cmd_deleteToBeginningOfLine", goDoCommand, ['current_frame', ['value', 'cmd_deleteToBeginningOfLine']]);
-interactive("cmd_deleteToEndOfLine", goDoCommand, ['current_frame', ['value', 'cmd_deleteToEndOfLine']]);
-interactive("cmd_endLine", goDoCommand, ['current_frame', ['value', 'cmd_endLine']]);
-interactive("cmd_moveTop", goDoCommand, ['current_frame', ['value', 'cmd_moveTop']]);
-interactive("cmd_moveBottom", goDoCommand, ['current_frame', ['value', 'cmd_moveBottom']]);
-interactive("cmd_selectAll", goDoCommand, ['current_frame', ['value', 'cmd_selectAll']]);
-interactive("cmd_selectBeginLine", goDoCommand, ['current_frame', ['value', 'cmd_selectBeginLine']]);
-interactive("cmd_selectBottom", goDoCommand, ['current_frame', ['value', 'cmd_selectBottom']]);
-interactive("cmd_selectEndLine", goDoCommand, ['current_frame', ['value', 'cmd_selectEndLine']]);
-interactive("cmd_selectTop", goDoCommand, ['current_frame', ['value', 'cmd_selectTop']]);
-interactive("cmd_scrollBeginLine", goDoCommand, ['current_frame', ['value', 'cmd_scrollBeginLine']]);
-interactive("cmd_scrollEndLine", goDoCommand, ['current_frame', ['value', 'cmd_scrollEndLine']]);
-interactive("cmd_scrollTop", goDoCommand, ['current_frame', ['value', 'cmd_scrollTop']]);
-interactive("cmd_scrollBottom", goDoCommand, ['current_frame', ['value', 'cmd_scrollBottom']]);
+interactive("cmd_beginLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_beginLine');
+interactive("cmd_copy", goDoCommand, I.current_buffer(browser_buffer), 'cmd_copy');
+interactive("cmd_copyOrDelete", goDoCommand, I.current_buffer(browser_buffer), 'cmd_copyOrDelete');
+interactive("cmd_cut", goDoCommand, I.current_buffer(browser_buffer), 'cmd_cut');
+interactive("cmd_cutOrDelete", goDoCommand, I.current_buffer(browser_buffer), 'cmd_cutOrDelete');
+interactive("cmd_deleteToBeginningOfLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_deleteToBeginningOfLine');
+interactive("cmd_deleteToEndOfLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_deleteToEndOfLine');
+interactive("cmd_endLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_endLine');
+interactive("cmd_moveTop", goDoCommand, I.current_buffer(browser_buffer), 'cmd_moveTop');
+interactive("cmd_moveBottom", goDoCommand, I.current_buffer(browser_buffer), 'cmd_moveBottom');
+interactive("cmd_selectAll", goDoCommand, I.current_buffer(browser_buffer), 'cmd_selectAll');
+interactive("cmd_selectBeginLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_selectBeginLine');
+interactive("cmd_selectBottom", goDoCommand, I.current_buffer(browser_buffer), 'cmd_selectBottom');
+interactive("cmd_selectEndLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_selectEndLine');
+interactive("cmd_selectTop", goDoCommand, I.current_buffer(browser_buffer), 'cmd_selectTop');
+interactive("cmd_scrollBeginLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_scrollBeginLine');
+interactive("cmd_scrollEndLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_scrollEndLine');
+interactive("cmd_scrollTop", goDoCommand, I.current_buffer(browser_buffer), 'cmd_scrollTop');
+interactive("cmd_scrollBottom", goDoCommand, I.current_buffer(browser_buffer), 'cmd_scrollBottom');
 
 
-function doCommandNTimes (frame, n, cmd)
+function doCommandNTimes (buffer, n, cmd)
 {
     for(i=0;i<n;i++)
-        goDoCommand (frame, cmd);
+        goDoCommand (buffer, cmd);
 }
-interactive("cmd_charNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_charNext']]);
-interactive("cmd_charPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_charPrevious']]);
-interactive("cmd_deleteCharBackward", doCommandNTimes, ['current_frame', "p", ['value','cmd_deleteCharBackward']]);
-interactive("cmd_deleteCharForward", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_deleteCharForward']]);
-interactive("cmd_deleteWordBackward", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_deleteWordBackward']]);
-interactive("cmd_deleteWordForward", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_deleteWordForward']]);
-interactive("cmd_lineNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_lineNext']]);
-interactive("cmd_linePrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_linePrevious']]);
-interactive("cmd_movePageDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_movePageDown']]);
-interactive("cmd_movePageUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_movePageUp']]);
-interactive("cmd_redo", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_redo']]);
-interactive("cmd_selectCharNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectCharNext']]);
-interactive("cmd_selectCharPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectCharPrevious']]);
-interactive("cmd_selectLineNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectLineNext']]);
-interactive("cmd_selectLinePrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectLinePrevious']]);
-interactive("cmd_selectPageDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectPageDown']]);
-interactive("cmd_selectPageUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectPageUp']]);
-interactive("cmd_selectWordNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectWordNext']]);
-interactive("cmd_selectWordPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_selectWordPrevious']]);
-interactive("cmd_undo", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_undo']]);
-interactive("cmd_wordNext", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_wordNext']]);
-interactive("cmd_wordPrevious", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_wordPrevious']]);
-interactive("cmd_scrollPageUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollPageUp']]);
-interactive("cmd_scrollPageDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollPageDown']]);
-interactive("cmd_scrollLineUp", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollLineUp']]);
-interactive("cmd_scrollLineDown", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollLineDown']]);
-interactive("cmd_scrollLeft", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollLeft']]);
-interactive("cmd_scrollRight", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_scrollRight']]);
-interactive("cmd_paste", doCommandNTimes, ['current_frame', "p", ['value', 'cmd_paste']]);
+interactive("cmd_charNext", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_charNext');
+interactive("cmd_charPrevious", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_charPrevious');
+interactive("cmd_deleteCharBackward", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_deleteCharBackward');
+interactive("cmd_deleteCharForward", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_deleteCharForward');
+interactive("cmd_deleteWordBackward", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_deleteWordBackward');
+interactive("cmd_deleteWordForward", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_deleteWordForward');
+interactive("cmd_lineNext", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_lineNext');
+interactive("cmd_linePrevious", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_linePrevious');
+interactive("cmd_movePageDown", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_movePageDown');
+interactive("cmd_movePageUp", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_movePageUp');
+interactive("cmd_redo", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_redo');
+interactive("cmd_selectCharNext", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectCharNext');
+interactive("cmd_selectCharPrevious", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectCharPrevious');
+interactive("cmd_selectLineNext", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectLineNext');
+interactive("cmd_selectLinePrevious", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectLinePrevious');
+interactive("cmd_selectPageDown", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectPageDown');
+interactive("cmd_selectPageUp", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectPageUp');
+interactive("cmd_selectWordNext", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectWordNext');
+interactive("cmd_selectWordPrevious", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_selectWordPrevious');
+interactive("cmd_undo", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_undo');
+interactive("cmd_wordNext", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_wordNext');
+interactive("cmd_wordPrevious", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_wordPrevious');
+interactive("cmd_scrollPageUp", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_scrollPageUp');
+interactive("cmd_scrollPageDown", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_scrollPageDown');
+interactive("cmd_scrollLineUp", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_scrollLineUp');
+interactive("cmd_scrollLineDown", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_scrollLineDown');
+interactive("cmd_scrollLeft", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_scrollLeft');
+interactive("cmd_scrollRight", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_scrollRight');
+interactive("cmd_paste", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_paste');
 
 
 function describe_bindings (frame)
@@ -395,7 +344,7 @@ function describe_bindings (frame)
     // Oh man. this is SO gross.
     frame.setTimeout(genAllBindings, 0, frame);
 }
-interactive("describe-bindings", describe_bindings, ['current_frame']);
+interactive("describe-bindings", describe_bindings, I.current_frame);
 
 
 function get_link_text()
@@ -457,20 +406,20 @@ function reinit (frame, fn)
   }
 }
 
-interactive ("reinit", reinit, ['current_frame', ['pref', 'conkeror.rcfile']]);
+interactive ("reinit", reinit, I.current_frame, I.pref("conkeror.rcfile"));
 
 function help_page (frame, prefix)
 {
     open_url_in(frame, prefix, "chrome://conkeror/content/help.html");
 }
-interactive("help-page", help_page, ['current_frame', 'p']);
+interactive("help-page", help_page, I.current_frame, I.p);
 
 
 function tutorial_page (frame, prefix)
 {
     open_url_in(frame, prefix, "chrome://conkeror/content/tutorial.html");
 }
-interactive("help-with-tutorial", tutorial_page, ['current_frame']);
+interactive("help-with-tutorial", tutorial_page, I.current_frame, I.p);
 
 
 // universal argument code
@@ -490,7 +439,7 @@ function universal_digit (frame, prefix, event)
         frame.current_prefix_argument = prefix * 10 + digit;
     }
 }
-interactive("universal-digit", universal_digit,['current_frame', "P", 'e']);
+interactive("universal-digit", universal_digit, I.current_frame, I.P, I.e);
 
 
 function universal_negate (frame)
@@ -500,15 +449,15 @@ function universal_negate (frame)
     else
         frame.current_prefix_argument = 0 - frame.current_prefix_argument;
 }
-interactive("universal-negate", universal_negate,['current_frame']);
+interactive("universal-negate", universal_negate,I.current_frame);
 
 
 function universal_argument (frame)
 {
     frame.current_prefix_argument = [4];
-    frame.overlay_kmap = universal_kmap;
+    frame.keyboard_state.overlay_keymap = universal_kmap;
 }
-interactive("universal-argument", universal_argument,['current_frame']);
+interactive("universal-argument", universal_argument,I.current_frame);
 
 
 function universal_argument_more (frame, prefix)
@@ -519,10 +468,10 @@ function universal_argument_more (frame, prefix)
         // terminate the prefix arg
         ///XXX: is this reachable?
         frame.current_prefix_argument = prefix;
-        frame.overlay_kmap = null;
+        frame.keyboard_state.overlay_keymap = null;
     }
 }
-interactive("universal-argument-more", universal_argument_more,['current_frame', "P"]);
+interactive("universal-argument-more", universal_argument_more, I.current_frame, I.P);
 
 
 function univ_arg_to_number(prefix)
@@ -539,16 +488,13 @@ function univ_arg_to_number(prefix)
     return null;
 }
 
-function go_up (frame, prefix)
+function go_up (b, prefix)
 {
-    var b = frame.buffers.current;
-    if (!b.is_brower_buffer)
-        throw "Not in a browser buffer.";
     var loc = b.current_URI;
     var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
     open_url_in (frame, prefix, up);
 }
-interactive("go-up", go_up, ['current_frame', "p"]);
+interactive("go-up", go_up, I.current_buffer(browser_buffer), I.p);
 
 
 // XXX: this whole thing is really hacky.  what *should* happen is that
@@ -603,46 +549,35 @@ function list_buffers () {
 interactive("list-buffers", list_buffers, []);
 
 
-function text_reset (frame)
+function text_reset (b)
 {
-    var b = frame.buffers.current;
-    if (!b.is_browser_buffer)
-        throw "Not in a browser buffer";
     b.markup_document_viewer.textZoom = 1.0;
     // We need to update the floaters
     // numberedlinks_resize(window._content);
 }
-interactive("text-reset", text_reset, ['current_frame']);
+interactive("text-reset", text_reset, I.current_buffer(browser_buffer));
 
-function text_reduce (frame, prefix)
+function text_reduce (b, prefix)
 {
-    var b = frame.buffers.current;
-    if (!b.is_browser_buffer)
-        throw "Not in a browser buffer";
+    conkeror.myblah = b;
     b.markup_document_viewer.textZoom -= 0.25 * prefix;
     // We need to update the floaters
     // numberedlinks_resize(window._content);
 }
-interactive("text-reduce", text_reduce, ['current_frame', "p"]);
+interactive("text-reduce", text_reduce, I.current_buffer(browser_buffer), I.p);
 
-function text_enlarge (frame, prefix)
+function text_enlarge (b, prefix)
 {
-    var b = frame.buffers.current;
-    if (!b.is_browser_buffer)
-        throw "Not in a browser buffer";
     b.markup_document_viewer.textZoom += 0.25 * prefix;
 }
-interactive("text-enlarge", text_enlarge, ['current_frame', "p"]);
+interactive("text-enlarge", text_enlarge, I.current_buffer(browser_buffer), I.p);
 
-function eval_expression (frame)
+function eval_expression (frame, s)
 {
-    frame.minibuffer.read(
-            $prompt = "Eval:",
-            $history = "eval-expression",
-            $callback = function (s) { eval.call(frame, s); }
-        );
+    eval.call(frame, s);
 }
-interactive("eval-expression", eval_expression, ['current_frame']);
+interactive("eval-expression", eval_expression,
+            I.current_frame, I.s($prompt = "Eval:", $history = "eval-expression"));
 
 
 // our little hack. Add a big blank chunk to the bottom of the
@@ -676,6 +611,7 @@ const scrolly_document_observer = {
     }
 };
 
+/*
 function toggle_eod_space()
 {
     var observerService = Components.classes["@mozilla.org/observer-service;1"]
@@ -688,15 +624,15 @@ function toggle_eod_space()
         scrolly_document_observer.enabled = true;
     }
 }
-interactive("toggle-eod-space", toggle_eod_space, []);
-
+interactive("toggle-eod-space", toggle_eod_space);
+*/
 
 // Enable Vi keybindings
 function use_vi_keys()
 {
     conkeror.initViKmaps();
 }
-interactive("use-vi-keys", use_vi_keys, []);
+interactive("use-vi-keys", use_vi_keys);
 
 
 // Enable Emacs keybindings
@@ -704,7 +640,7 @@ function use_emacs_keys()
 {
     conkeror.initKmaps();
 }
-interactive("use-emacs-keys", use_emacs_keys, []);
+interactive("use-emacs-keys", use_emacs_keys);
 
 function show_extension_manager () {
     return conkeror.window_watcher.openWindow (
@@ -714,14 +650,14 @@ function show_extension_manager () {
         "resizable=yes,dialog=no",
         null);
 }
-interactive("extensions", conkeror.show_extension_manager, []);
+interactive("extensions", show_extension_manager);
 
 
 function print_buffer (frame)
 {
     frame.window.content.print();
 }
-interactive("print-buffer", print_buffer, ['current_frame']);
+interactive("print-buffer", print_buffer, I.current_frame);
 
 
 function view_source (frame, win)
@@ -750,15 +686,14 @@ function view_source (frame, win)
     var url_s = win.location.href;
     if (url_s.substring (0,12) != "view-source:") {
         try {
-            var loadFlags = Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE;
-            frame.getWebNavigation().loadURI("view-source:"+url_s, loadFlags, null, null, null);
+            frame.buffers.current.load_URI("view-source:"+url_s);
         } catch(e) { dumpln (e); }
     } else {
-        frame.message ("already viewing source");
+        frame.minibuffer.message ("already viewing source");
     }
 }
-interactive("view-source", view_source, ['current_frame', 'current_buffer_window']);
-interactive("frameset-view-source", view_source, ['current_frame', 'current_frameset_frame']);
+interactive("view-source", view_source, I.current_frame, I.current_buffer_window);
+interactive("frameset-view-source", view_source, I.current_frame, I.current_frameset_frame);
 
 
 function view_partial_source (frame, charset, selection) {
@@ -767,7 +702,7 @@ function view_partial_source (frame, charset, selection) {
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, selection, 'selection');
 }
-interactive ('view-partial-source', view_partial_source, ['current_frame', 'content_charset', 'content_selection']);
+interactive ('view-partial-source', view_partial_source, I.current_frame, I.content_charset, I.content_selection);
 
 
 function  view_mathml_source (frame, charset, target) {
@@ -776,15 +711,12 @@ function  view_mathml_source (frame, charset, target) {
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, target, 'mathml');
 }
-interactive ('view-mathml-source', view_mathml_source, ['current_frame', 'content_charset', 'mathml_node']);
+interactive ('view-mathml-source', view_mathml_source, I.current_frame, I.content_charset, I.mathml_node);
 
 
 function show_charcode_mapping_tool()
 {
-    conkeror.window_watcher.openWindow(null,"chrome://conkeror/content/generate_mapping_table.html",
-                                       null,
-                                       "resizable=yes,dialog=no",
-                                       null);
+    make_chrome_frame("chrome://conkeror/content/generate_mapping_table.html");
 }
 
-interactive ("charcode-mapping-tool", show_charcode_mapping_tool, []);
+interactive ("charcode-mapping-tool", show_charcode_mapping_tool);

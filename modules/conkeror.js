@@ -6,12 +6,13 @@ require("keywords.js");
 require("hook.js");
 
 require("debug.js");
-require("localfile.js");
 require("utils.js");
+require("interactive.js");
+require("minibuffer.js"); // depends: interactive.js
+require("localfile.js");
 require("keyboard.js");
 require("buffer.js");
 require("frame.js");
-require("interactive.js");
 require("daemon-mode.js");
 require("mode-line.js");
 require("save.js");
@@ -19,7 +20,7 @@ require("save.js");
 require("commands.js"); // depends: interactive.js
 require("frameset.js"); // depends interactive.js
 require("webjump.js"); // depends: interactive.js
-require("minibuffer.js"); // depends: interactive.js
+
 
 require("bindings.js"); // depends: keyboard.js
 

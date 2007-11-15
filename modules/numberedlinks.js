@@ -133,20 +133,12 @@ numberedlinks_minibuffer_state.prototype.__proto__ = basic_minibuffer_state.prot
 
 function numberedlinks_start(frame, prefix, initial_value)
 {
-    
     frame.minibuffer.push_state(new numberedlinks_minibuffer_state(prefix, initial_value));
 }
 
-interactive("numberedlinks-1", numberedlinks_start, ['current_frame', "p", ['value', '1']]);
-interactive("numberedlinks-2", numberedlinks_start, ['current_frame', "p", ['value', '2']]);
-interactive("numberedlinks-3", numberedlinks_start, ['current_frame', "p", ['value', '3']]);
-interactive("numberedlinks-4", numberedlinks_start, ['current_frame', "p", ['value', '4']]);
-interactive("numberedlinks-5", numberedlinks_start, ['current_frame', "p", ['value', '5']]);
-interactive("numberedlinks-6", numberedlinks_start, ['current_frame', "p", ['value', '6']]);
-interactive("numberedlinks-7", numberedlinks_start, ['current_frame', "p", ['value', '7']]);
-interactive("numberedlinks-8", numberedlinks_start, ['current_frame', "p", ['value', '8']]);
-interactive("numberedlinks-9", numberedlinks_start, ['current_frame', "p", ['value', '9']]);
-interactive("goto-numbered-link", numberedlinks_start, ['current_frame', "p", ['value', null]]);
+for (var i = 1; i < 9; ++i)
+    interactive("numberedlinks-" + i, numberedlinks_start, I.current_frame, I.p, i.toString());
+interactive("goto-numbered-link", numberedlinks_start, I.current_frame, I.p);
 
 function numberedlinks_interactive(command, func)
 {
@@ -162,7 +154,7 @@ function numberedlinks_interactive(command, func)
                 return;
             }
             func(frame, s.prefix_argument, nl);
-        }, ['current_frame']);
+        }, I.current_frame);
 }
 
 function numberedlinks_focus(frame, prefix, nl)
@@ -243,7 +235,7 @@ function numberedlinks_abort(frame)
     frame.minibuffer.pop_state();
 }
 
-interactive("numberedlinks-abort", numberedlinks_abort, ['current_frame']);
+interactive("numberedlinks-abort", numberedlinks_abort, I.current_frame);
 
 function setVisibility (doc, link_state, img_state)
 {

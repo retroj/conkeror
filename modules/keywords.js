@@ -15,7 +15,7 @@ function _get_keyword_argument_setter(name) {
 }
 
 function _get_keyword_argument_getter(name) {
-    return function (value) { return new keyword_argument(name, value); }
+    return function () { return new keyword_argument(name, true); }
 }
 
 // This function must be called with all string arguments, all of
@@ -37,18 +37,6 @@ function forward_keywords(args)
     return new keyword_argument_forwarder(args);
 }
 
-function _process_keyword_arguments(out, args)
-{
-    for (var i = 0; i < args.length; ++i)
-    {
-        var arg = args[i];
-        if (arg instanceof keyword_argument)
-            out[arg.name] = arg.value;
-        else if (arg instanceof keyword_argument_forwarder)
-            _process_keyword_arguments(out, arg.args);
-    }
-}
-
 // This is called with a function's `arguments' variable.  Additional
 // default values can also be specified as subsequent arguments.
 function keywords(args)
@@ -59,5 +47,16 @@ function keywords(args)
         var arg = arguments[i];
         args[arg.name] = arg.value;
     }
-    _process_keyword_arguments(args, args);
+    function helper(in_args)
+    {
+        for (var i = 0; i < in_args.length; ++i)
+        {
+            var arg = in_args[i];
+            if (arg instanceof keyword_argument)
+                args[arg.name] = arg.value;
+            else if (arg instanceof keyword_argument_forwarder)
+                helper(arg.args);
+        }
+    }
+    helper(args);
 }

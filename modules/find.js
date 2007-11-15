@@ -264,8 +264,8 @@ function isearch_continue(frame, direction) {
         s.find(s.top.search_str, direction, s.top.range);
     s.restore_state();
 }
-interactive("isearch-continue-forward", isearch_continue, ['current_frame', ['value', true]]);
-interactive("isearch-continue-backward", isearch_continue, ['current_frame', ['value', false]]);
+interactive("isearch-continue-forward", isearch_continue, I.current_frame, true);
+interactive("isearch-continue-backward", isearch_continue, I.current_frame, false);
 
 function isearch_start (frame, direction)
 {
@@ -273,8 +273,8 @@ function isearch_start (frame, direction)
     frame.minibuffer.push_state(s);
     s.restore_state();
 }
-interactive("isearch-forward", isearch_start, ['current_frame', ['value', true]]);
-interactive("isearch-backward", isearch_start, ['current_frame', ['value', false]]);
+interactive("isearch-forward", isearch_start, I.current_frame, true);
+interactive("isearch-backward", isearch_start, I.current_frame, false);
 
 function isearch_backspace (frame)
 {
@@ -285,7 +285,7 @@ function isearch_backspace (frame)
         s.states.pop();
     s.restore_state();
 }
-interactive("isearch-backspace", isearch_backspace, ['current_frame']);
+interactive("isearch-backspace", isearch_backspace, I.current_frame);
 
 function isearch_abort (frame)
 {
@@ -296,7 +296,7 @@ function isearch_abort (frame)
     s.window.scrollTo(s.states[0].screenx, s.states[0].screeny);
     s._clear_selection();
 }
-interactive("isearch-abort", isearch_abort, ['current_frame']);
+interactive("isearch-abort", isearch_abort, I.current_frame);
 
 
 function isearch_add_character (frame, event)
@@ -309,7 +309,7 @@ function isearch_add_character (frame, event)
     s.find(str, s.top.direction, s.top.point);
     s.restore_state();
 }
-interactive("isearch-add-character", isearch_add_character, ['current_frame', "e"]);
+interactive("isearch-add-character", isearch_add_character, I.current_frame, I.e);
 
 function isearch_done (frame)
 {
@@ -322,5 +322,5 @@ function isearch_done (frame)
     s.focus_link();
     s._clear_selection();
 }
-interactive("isearch-done", isearch_done, ['current_frame']);
+interactive("isearch-done", isearch_done, I.current_frame);
 

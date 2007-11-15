@@ -611,13 +611,10 @@ function save_focused_link (url, dest_file_o)
         false);      // save_as_complete_p
 }
 interactive ("save-focused-link", save_focused_link,
-             ['focused_link_url',
-              ['F', function (a) { return "Save Link As: "; },
-               function (args) {
-                   return generate_save_path (args[0]).path;
-               },
-               "save"]]);
-
+             $$ = I.focused_link_url,
+             I.F($prompt = "Save Link As:",
+                 $initial_value = I.bind(function (u) { return generate_save_path(u).path; }, $$),
+                 $history = "save"));
 
 function save_image (url_o, dest_file_o)
 {
@@ -638,6 +635,8 @@ function save_image (url_o, dest_file_o)
         false,       // save_as_text_p
         false);      // save_as_complete_p
 }
+
+/* FIXME: Enable this when image numbering is back
 interactive ("save-image", save_image,
              ['image_url',
               ['F', function (a) { return "Save Image As: "; },
@@ -645,7 +644,7 @@ interactive ("save-image", save_image,
                    return generate_save_path (args[0]).path;
                },
                "save"]]);
-
+*/
 
 function save_page (document_o, dest_file_o)
 {
@@ -663,22 +662,25 @@ function save_page (document_o, dest_file_o)
         false,  // save_as_text_p
         false); // save_as_complete_p
 }
-interactive("save-page", save_page,
-            ['active_document',
-             ['F', function (a) { return "Save Page As: "; },
-              function (args) {
-                  var document_o = args[0];
-                  var url_o = makeURL (document_o.documentURI);
-                  var content_type_s = document_o.contentType;
-                  var content_disposition = get_document_content_disposition (document_o);
-                  return generate_save_path (
-                      url_o,
-                      document_o,
-                      content_type_s,
-                      content_disposition).path;
-              },
-              "save"]]);
 
+function generate_save_path_for_document(document_o, ext)
+{
+    var url_o = makeURL (document_o.documentURI);
+    var content_type_s = document_o.contentType;
+    var content_disposition = get_document_content_disposition (document_o);
+    return generate_save_path (
+        url_o,
+        document_o,
+        content_type_s,
+        content_disposition, ext).path;
+}
+
+
+interactive("save-page", save_page,
+            I.active_document,
+            I.F($prompt = "Save Page As:",
+                $history = "save",
+                $initial_value = I.bind(generate_save_path_for_document, I.active_document)));
 
 function save_page_as_text (document_o, dest_file_o)
 {
@@ -697,23 +699,12 @@ function save_page_as_text (document_o, dest_file_o)
         true,   // save_as_text_p
         false); // save_as_complete_p
 }
-interactive("save-page-as-text", save_page_as_text,
-            ['active_document',
-             ['F', function (a) { return "Save Page As: "; },
-              function (args) {
-                  var document_o = args[0];
-                  var url_o = makeURL (document_o.documentURI);
-                  var content_type_s = document_o.contentType;
-                  var content_disposition = get_document_content_disposition (document_o);
-                  return generate_save_path (
-                      url_o,
-                      document_o,
-                      content_type_s,
-                      content_disposition,
-                      'txt').path;
-              },
-              "save"]]);
 
+interactive("save-page-as-text", save_page_as_text,
+            I.active_document,
+            I.F($prompt = "Save Page As:",
+                $history = "save",
+                $initial_value = I.bind(generate_save_path_for_document, I.active_document, "txt")));
 
 function save_page_complete (document_o, dest_file_o, dest_data_dir_o)
 {
@@ -731,21 +722,12 @@ function save_page_complete (document_o, dest_file_o, dest_data_dir_o)
         false,  // save_as_text_p
         true);  // save_as_complete_p
 }
+
 interactive("save-page-complete", save_page_complete,
-            ['active_document',
-             ['F', function (a) { return "Save Page As: "; },
-              function (args) {
-                  var document_o = args[0];
-                  var url_o = makeURL (document_o.documentURI);
-                  var content_type_s = document_o.contentType;
-                  var content_disposition = get_document_content_disposition (document_o);
-                  return generate_save_path (
-                      url_o,
-                      document_o,
-                      content_type_s,
-                      content_disposition).path;
-              },
-              "save"],
-             ['F', function (a) { return "Data Directory: "; },
-              function (args) { return args[1].path + ".support"; },
-              "save"]]);
+            I.active_document,
+            $$ = I.F($prompt = "Save Page As:",
+                     $history = "save",
+                     $initial_value = I.bind(generate_save_path_for_document, I.active_document)),
+            I.F($prompt = "Data Directory:",
+                $history = "save",
+                $initial_value = I.bind(function (f) { return f.path + ".support"; }, $$)));
