@@ -340,3 +340,17 @@ I.f = interactive_method(
 
 // FIXME: eventually they will differ, when completion for files is added
 I.F = I.f;
+
+// FIXME: implement I.mathml_node once the numbering system is capable.
+I.mathml_node = interactive_method(
+    $doc = "MathML DOM node",
+    $sync = function (ctx, cont) {
+        return null;
+    });
+
+// FIXME: implement I.image_url once the numbering system is capable.
+I.image_url = interactive_method(
+    $doc = "Image URL",
+    $sync = function (ctx, cont) {
+        return null;
+    });
