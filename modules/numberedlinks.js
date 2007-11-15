@@ -136,7 +136,7 @@ function numberedlinks_start(frame, prefix, initial_value)
     frame.minibuffer.push_state(new numberedlinks_minibuffer_state(prefix, initial_value));
 }
 
-for (var i = 1; i < 9; ++i)
+for (var i = 1; i <= 9; ++i)
     interactive("numberedlinks-" + i, numberedlinks_start, I.current_frame, I.p, i.toString());
 interactive("goto-numbered-link", numberedlinks_start, I.current_frame, I.p);
 
