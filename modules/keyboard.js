@@ -343,16 +343,19 @@ function keymap_set ()
 }
 keymap_set.prototype =  {
     lookup_key_binding : function (frame, event) {
-        var focused_element = frame.document.commandDispatcher.focusedElement;
-        
+
         var binding = null;
-        for (var i in this.context_keymaps)
-        {
-            var km = this.context_keymaps[i];
-            if (km.predicate(frame, focused_element))
+
+        var focused_element = frame.buffers.current.focused_element();
+        if (focused_element) {
+            for (var i in this.context_keymaps)
             {
-                binding = lookup_key_binding(km, event);
-                break;
+                var km = this.context_keymaps[i];
+                if (km.predicate(frame, focused_element))
+                {
+                    binding = lookup_key_binding(km, event);
+                    break;
+                }
             }
         }
         if (!binding && this.default_keymap)
@@ -440,6 +443,8 @@ function key_press_handler(true_event)
         ///
         ///
         if (!state.active_keymap) {
+
+            //dumpln("Looking up key " + format_key_event(event) + " in regular keymap set");
 
             /* If the override_keymap_set is set, it is used instead of
              * the keymap_set for the current buffer. */

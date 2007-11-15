@@ -59,19 +59,19 @@ function input_kmap_predicate (window, element) {
         var tag = element.tagName.toLowerCase();
         var type = element.getAttribute ("type");
         if (type != null) {type = type.toLowerCase();}
-        return tag == "html:input" ||
-            (tag == "input" &&
-             type != "radio" &&
-             type != "checkbox" &&
-             type != "submit" &&
-             type != "reset");
+        return (tag == "html:input" ||
+                (tag == "input" &&
+                 type != "radio" &&
+                 type != "checkbox" &&
+                 type != "submit" &&
+                 type != "reset"));
     } catch (e) { return false; }
 }
 
 
 function textarea_kmap_predicate (window, element) {
     try {
-        return element.tagName == "TEXTAREA";
+        return (element.tagName == "TEXTAREA");
     } catch (e) { return false; }
 }
 
@@ -222,8 +222,6 @@ function initViKmaps()
     define_key(top_kmap, kbd (KeyEvent.DOM_VK_DOWN, MOD_SHIFT),"cmd_selectLineNext");
 
     define_key(top_kmap, kbd(KeyEvent.DOM_VK_RETURN, MOD_CTRL), "follow-link-in-new-buffer");
-
-    input_kmap.parent = top_kmap;
 
     // Input area keys - the same as for emacs
     define_key(input_kmap, kbd ("a",MOD_CTRL),"cmd_beginLine");
