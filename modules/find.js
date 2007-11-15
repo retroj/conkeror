@@ -215,7 +215,7 @@ isearch_session.prototype = {
         // Should we wrap this time?
         var wrapped = s.wrapped;
         var point = pt;
-        if (s.wrapped == false && s.range == null && s.search-str == str && s.direction == dir) {
+        if (s.wrapped == false && s.range == null && s.search_str == str && s.direction == dir) {
             wrapped = true;
             point = null;
         }
