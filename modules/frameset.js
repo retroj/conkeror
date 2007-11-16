@@ -1,14 +1,12 @@
 
-var notification_timer = null; // XXX: this should be a window variable.
-
-function frameset_notify (x, y, text) {
-    var notification = this.document.getElementById ("frameset-notification");
-    var notification_label = this.document.getElementById ("frameset-notification-label");
+function frameset_notify (frame, x, y, text) {
+    var notification = frame.document.getElementById ("frameset-notification");
+    var notification_label = frame.document.getElementById ("frameset-notification-label");
     notification_label.value = text;
-    notification.showPopup (this.document.getElementById ("content"),
+    notification.showPopup (frame.document.getElementById ("buffer-container"),
                             x, y, "popup");
-    this.clearTimeout (notification_timer);
-    notification_timer = this.setTimeout (
+    frame.clearTimeout (frame.notification_timer);
+    frame.notification_timer = frame.setTimeout (
         function () { notification.hidePopup (); },
         1000);
 }
@@ -28,14 +26,14 @@ function frameset_find_frames_r (doc, types) {
 
 
 function next_frameset_frame (frame, prefix) {
-    var frames = frameset_find_frames_r (frame.window.content.document, ["FRAME"]);
+    var frames = frameset_find_frames_r (frame.buffers.current.content_document, ["FRAME"]);
     if (frames.length == 0)
     {
         frame.minibuffer.message ("no other frameset frame");
         return;
     }
 
-    var w = frame.document.commandDispatcher.focusedWindow;
+    var w = frame.buffers.current.focused_window();
 
     var next = 0;
 
@@ -54,22 +52,22 @@ function next_frameset_frame (frame, prefix) {
 
     var box = frames[next].ownerDocument.getBoxObjectFor (frames[next]);
 
-    frameset_notify.call (frame, box.screenX, box.screenY,
+    frameset_notify (frame, box.screenX, box.screenY,
                           "frameset frame "+next);
 }
-interactive("next-frameset-frame", next_frameset_frame, ['current_frame', 'p']);
+interactive("next-frameset-frame", next_frameset_frame, I.current_frame, I.p);
 
 
 
 function next_iframe (frame, prefix) {
-    var frames = frame.content.document.getElementsByTagName ("IFRAME");
+    var frames = frame.buffers.current.content_document.getElementsByTagName ("IFRAME");
     if (frames.length == 0)
     {
         frame.minibuffer.message ("no other iframe");
         return;
     }
 
-    var current = frame.document.commandDispatcher.focusedWindow;
+    var current = frame.buffers.current.focused_window();
 
     var pnext = 0;
 
@@ -87,7 +85,7 @@ function next_iframe (frame, prefix) {
     var next = pnext;
     frames[next].contentWindow.focus();
 
-    while (frame.document.commandDispatcher.focusedWindow == current)
+    while (frame.buffers.content.focused_window() == current)
     {
         next = (next + (prefix < 0 ? -1 : 1)) % frames.length;
         if (next < 0)
@@ -101,27 +99,26 @@ function next_iframe (frame, prefix) {
         frames[next].contentWindow.focus();
     }
 
-    var box = frame.window.content.document.getBoxObjectFor (frames[next]);
+    var box = frame.buffers.current.content_document.getBoxObjectFor (frames[next]);
     frames[next].scrollIntoView (false);
 
-    frameset_notify.call (frame, box.screenX, box.screenY,
+    frameset_notify (frame, box.screenX, box.screenY,
                           "iframe "+next);
 }
-interactive("next-iframe", next_iframe, ['current_frame', 'p']);
+interactive("next-iframe", next_iframe, I.current_frame, I.p);
 
 
-function frameset_focus_top (frame) {
-    frame.top.content.focus();
-    var box = frame.buffers.container.boxObject;
-    frameset_notify.call (frame, box.screenX, box.screenY, "frameset top");
+function frameset_focus_top (b) {
+    b.content_window.focus();
+    var box = b.frame.buffers.container.boxObject;
+    frameset_notify (b.frame, box.screenX, box.screenY, "frameset top");
 }
-interactive("frameset-focus-top", frameset_focus_top, ['current_frame']);
+interactive("frameset-focus-top", frameset_focus_top, I.current_buffer(browser_buffer));
 
 
-function frameset_focus_up (frame) {
-    var parent = frame.document.commandDispatcher.focusedWindow.parent;
+function frameset_focus_up (b) {
+    var parent = b.focused_window().parent;
     parent.focus();
-    frameset_notify.call (frame, parent.screenX, parent.screenY, "frameset up");
+    frameset_notify (b.frame, parent.screenX, parent.screenY, "frameset up");
 }
-interactive("frameset-focus-up", frameset_focus_up, ['current_frame']);
-
+interactive("frameset-focus-up", frameset_focus_up, I.current_buffer(browser_buffer));
