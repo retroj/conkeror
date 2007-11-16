@@ -564,10 +564,10 @@ function keyboard_initialize_frame(frame)
 {
     frame.keyboard_state = new keyboard_state();
 
-    // FIXME: We should figure out what this capture flag really means
-    // and document it here.
-    frame.addEventListener ("keydown", key_down_handler, true);
-    frame.addEventListener ("keypress", key_press_handler, true);
+    frame.addEventListener ("keydown", key_down_handler, true /* capture */,
+                            false /* ignore untrusted events */);
+    frame.addEventListener ("keypress", key_press_handler, true /* capture */,
+                            false /* ignore untrusted events */);
 }
 
 add_hook("frame_initialize_hook", keyboard_initialize_frame);

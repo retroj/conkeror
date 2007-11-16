@@ -80,7 +80,7 @@ function browser_buffer(frame, browser)
     var buffer = this;
     this.element.addEventListener("DOMTitleChanged", function (event) {
             buffer_title_change_hook.run(buffer);
-        }, false);
+        }, true /* capture */, false /* ignore untrusted events */);
     this.element.addEventListener("scroll", function (event) {
             buffer_scroll_hook.run(buffer);
         }, true /* capture */, false /* ignore untrusted events */);
