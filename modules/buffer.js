@@ -83,7 +83,11 @@ function browser_buffer(frame, browser)
         }, false);
     this.element.addEventListener("scroll", function (event) {
             buffer_scroll_hook.run(buffer);
-        }, false);
+        }, true /* capture */, false /* ignore untrusted events */);
+
+    this.element.addEventListener("focus", function (event) {
+            browser_buffer_focus_change_hook.run(buffer);
+        }, true /* capture */, false /* ignore untrusted events */);
 }
 
 browser_buffer.prototype = {

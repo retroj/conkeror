@@ -153,6 +153,7 @@ function current_buffer_scroll_position_widget(frame) {
     this.add_hook("current_buffer_scroll_hook");
     this.add_hook("select_buffer_hook");
     this.add_hook("current_browser_buffer_location_change_hook");
+    this.add_hook("current_browser_buffer_focus_change_hook");
 }
 current_buffer_scroll_position_widget.prototype.__proto__ = text_widget.prototype;
 current_buffer_scroll_position_widget.prototype.update = function () {
