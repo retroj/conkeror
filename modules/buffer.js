@@ -430,15 +430,18 @@ function buffer_initialize_frame(frame)
     var tag = null;
     if ('arguments' in frame)
     {
+        var open_args = [];
         for (var i = 0; i < frame.arguments.length; i++) {
-            var open_args = conkeror.decode_xpcom_structure (frame.arguments[i]);
-            if (0 in open_args && open_args[0] == 'conkeror')
-            {
-                for (var j = 1; j < open_args.length; j++) {
-                    var op = open_args[j];
-                    if (op[0] == 'tag') { tag = op[1]; }
-                    else if (op[0] == 'find') { uris_to_load = op.slice(1).reverse(); }
-                }
+            var args = conkeror.decode_xpcom_structure (frame.arguments[i]);
+            open_args = open_args.concat([args]);
+
+        }
+        if (0 in open_args && open_args[0] == 'conkeror')
+        {
+            for (var j = 1; j < open_args.length; j++) {
+                var op = open_args[j];
+                if (op[0] == 'tag') { tag = op[1]; }
+                else if (op[0] == 'find') { uris_to_load = op.slice(1).reverse(); }
             }
         }
     }
