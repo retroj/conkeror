@@ -495,6 +495,7 @@ function init_minibuffer_keys () {
     define_key(minibuffer_base_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character");
 
     define_key (minibuffer_kmap, "return", "exit-minibuffer");
+    define_key (minibuffer_kmap, "C-m", "exit-minibuffer");
     define_key (minibuffer_kmap, "M-p", "minibuffer-history-previous");
     define_key (minibuffer_kmap, "M-n", "minibuffer-history-next");
     define_key (minibuffer_kmap, "C-g", "minibuffer-abort");
