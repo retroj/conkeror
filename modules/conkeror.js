@@ -13,6 +13,7 @@ require("localfile.js");
 require("keyboard.js");
 require("buffer.js");
 require("frame.js");
+require("popup.js");
 require("daemon-mode.js");
 require("mode-line.js");
 require("save.js");

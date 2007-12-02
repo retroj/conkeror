@@ -1,16 +1,44 @@
 
-function frameset_notify (frame, x, y, text) {
-    var notification = frame.document.getElementById ("frameset-notification");
-    var notification_label = frame.document.getElementById ("frameset-notification-label");
-    notification_label.value = text;
-    notification.showPopup (frame.document.getElementById ("buffer-container"),
-                            x, y, "popup");
-    frame.clearTimeout (frame.notification_timer);
-    frame.notification_timer = frame.setTimeout (
-        function () { notification.hidePopup (); },
-        1000);
+function close_frameset_notification_popup(frame)
+{
+    if (frame.frameset_notification_timer)
+    {
+        frame.clearTimeout (frame.frameset_notification_timer);
+        frame.frameset_notification_timer = null;
+        frame.frameset_notification_popup.hidePopup();
+    }
 }
 
+function frameset_initialize_frame(frame) {
+    var p = frame.popups.create();
+    p.setAttribute("id", "frameset-notification");
+    p.addEventListener("popuphidden", function () {
+            frame.clearTimeout (frame.frameset_notification_timer);
+            frame.frameset_notification_timer = null;
+        }, true /* capture */, false /* don't allow untrusted */);
+    frame.frameset_notification_popup = p;
+    var desc = create_XUL(frame, "label");
+    desc.setAttribute("id", "frameset-notification-label");
+    p.appendChild(desc);
+    frame.frameset_notification_label = desc;
+}
+
+add_hook("frame_initialize_hook", frameset_initialize_frame);
+
+add_hook("select_buffer_hook", function (buffer) { close_frameset_notification_popup(buffer.frame); });
+
+/* USER PREFERENCE */
+var frameset_notify_timeout = 1000;
+
+function frameset_notify (frame, x, y, text) {
+    frame.frameset_notification_label.setAttribute("value", text);
+    frame.popups.show_absolute(frame.frameset_notification_popup, x, y);
+    frame.frameset_notification_timer = frame.setTimeout (
+        function () {
+            frame.frameset_notification_timer = null;
+            frame.frameset_notification_popup.hidePopup();
+        }, frameset_notify_timeout);
+}
 
 function frameset_find_frames_r (doc, types) {
     var frames = [];

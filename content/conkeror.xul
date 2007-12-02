@@ -15,12 +15,6 @@
   <stringbundleset id="stringbundleset">
   </stringbundleset>
 
-  <popupset>
-    <popup id="frameset-notification">
-      <description id="frameset-notification-label"/>
-    </popup>
-  </popupset>
-
   <vbox flex="1">
     <deck flex="1" id="buffer-container">
 	  <browser flex="1" type="content-primary"
