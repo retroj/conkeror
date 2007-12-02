@@ -5,12 +5,12 @@ const Cr = Components.results;
 function application () {
     this.wrappedJSObject = this;
     this.conkeror = this;
+    var conkeror = this;
     this.Cc = Cc;
     this.Ci = Ci;
     this.Cr = Cr;
     this.subscript_loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
     this.preferences = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
-    var conkeror = this;
     this.loaded_modules = [];
     this.loading_modules = [];
     this.module_after_load_functions = new Object();
@@ -138,13 +138,13 @@ var application_module = {
         aCompMgr = aCompMgr.QueryInterface(Ci.nsIComponentRegistrar);
         aCompMgr.registerFactoryLocation(CLASS_ID, CLASS_NAME, CONTRACT_ID, aFileSpec, aLocation, aType);
     },
-    
+
     unregisterSelf: function(aCompMgr, aLocation, aType)
     {
         aCompMgr = aCompMgr.QueryInterface(Ci.nsIComponentRegistrar);
         aCompMgr.unregisterFactoryLocation(CLASS_ID, aLocation);
     },
-    
+
     getClassObject: function(aCompMgr, aCID, aIID)
     {
         if (!aIID.equals(Ci.nsIFactory))
@@ -152,10 +152,10 @@ var application_module = {
 
         if (aCID.equals(CLASS_ID))
             return application_factory;
-        
+
         throw Cr.NS_ERROR_NO_INTERFACE;
     },
-    
+
     canUnload: function(aCompMgr) { return true; }
 };
 
