@@ -185,29 +185,89 @@ interactive("minibuffer-insert-character-complete", minibuffer_insert_character_
 
 /* FIXME: Above this point is old junk */
 
-function all_word_completer(visit, get_string, get_description, get_value)
+/**
+ * Completions is either a visit function or an array.
+ */
+
+
+function apply_completion_string(str, m) {
+    m._set_selection();
+    m._input_text = str;
+}
+
+function all_word_completer(completions, get_string, get_description, get_value)
 {
+    var arr;
+    if (typeof(completions) == "function")
+    {
+        arr = [];
+        completions(function (x) { arr.push(x); });
+    } else
+        arr = completions;
     return function (input, pos) {
-        var data = [];
         var words = input.toLowerCase().split(" ");
-        visit(function (x) {
+        var data = arr.filter(function (x) {
                 var s = get_string(x);
                 var d = get_description(x);
                 for (var i = 0; i < words.length; ++i)
                 {
                     if (s.toLowerCase().indexOf(words[i]) == -1 && d.toLowerCase().indexOf(words[i]) == -1)
-                        return;
+                        return false;
                 }
-                data.push(x);
+                return true;
             });
         return { data: data,
                  get_string: get_string,
                  get_description : get_description,
-                 apply : function (x, m) {
-                     m._set_selection();
-                     m._input_text = get_string(x);
-                 },
+                 apply : function (x, m) { apply_completion_string(get_string(x), m); },
                  get_value : get_value
+               };
+    }
+}
+
+function prefix_completer(completions, get_string, get_description, get_value)
+{
+    var arr;
+    if (typeof(completions) == "function")
+    {
+        arr = [];
+        completions(function (x) { arr.push(x); });
+    } else
+        arr = completions.slice();
+    arr.sort(function (a,b) {
+            a = get_string(a);
+            b = get_string(b);
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
+            return 0;
+        });
+    return function (input, pos) {
+        var data = arr.filter(function (x) {
+                var s = get_string(x);
+                return s.length >= pos && s.substring(0,pos) == input;
+            });
+        var common_prefix = null;
+        if (data.length > 0)
+        {
+            var a = get_string(data[0]);
+            var b = get_string(data[data.length - 1]);
+            var lim = a.length < b.length ? a.length : b.length;
+            for (var i = 0; i < lim; ++i) {
+                if (a[i] != b[i])
+                    break;
+            }
+            common_prefix = a.substring(0,i);
+        }
+        
+        return { data: data,
+                get_string: get_string,
+                get_description : get_description,
+                apply : function (x, m) { apply_completion_string(get_string(x), m); },
+                get_value : get_value,
+                common_prefix : common_prefix,
+                apply_common_prefix : apply_completion_string
                };
     }
 }
