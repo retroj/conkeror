@@ -195,8 +195,8 @@ function switch_to_buffer (frame, buffer)
 interactive("switch-to-buffer", switch_to_buffer,
             I.current_frame,
             I.b($prompt = "Switch to buffer:",
-                $initial_index = I.bind(function(frame) {
-                        return (frame.buffers.selected_index + 1) % frame.buffers.count;
+                $default = I.bind(function(frame) {
+                        return frame.buffers.get_buffer((frame.buffers.selected_index + 1) % frame.buffers.count);
                     }, I.current_frame)));
 
 function kill_buffer (frame, buffer)

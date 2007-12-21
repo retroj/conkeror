@@ -537,19 +537,29 @@ I.focused_link_url = interactive_method(
         return get_link_location (buffer.focused_element());
     });
 
-define_keywords("$initial_index");
+define_keywords("$default");
 I.b = interactive_method(
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Buffer:",
-                 $initial_index = ctx.frame.buffers.selected_index,
+                 $default = ctx.frame.buffers.current,
                  $history = "buffer");
-        var bufs = ctx.frame.buffers.unique_name_list;
-        ctx.frame.minibuffer.read_with_completion(
+        var completer = all_word_completer(
+            function (visitor) { // visit
+                ctx.frame.buffers.for_each(visitor);
+            },
+            function (x) { // get_string
+                return x.name;
+            },
+            function (x) { // get_description
+                return x.title;
+            }
+            /* get_value = null */);
+        ctx.frame.minibuffer.read(
             $prompt = arguments.$prompt,
-            $initial_value = bufs[arguments.$initial_index][0],
             $history = arguments.$history,
-            $completions = bufs,
-            $select,
+            $completer = completer,
+            $match_required = true,
+            $default_completion = arguments.$default,
             $callback = cont);
     });
 

@@ -508,9 +508,10 @@ function init_minibuffer_keys () {
     define_key (minibuffer_kmap, "M-p", "minibuffer-history-previous");
     define_key (minibuffer_kmap, "M-n", "minibuffer-history-next");
     define_key (minibuffer_kmap, "C-g", "minibuffer-abort");
+    define_key (minibuffer_kmap, "tab", "minibuffer-complete");
     define_key (minibuffer_kmap, "escape", "minibuffer-abort");
 
-    define_key (minibuffer_completion_kmap, "tab", "minibuffer-complete");
+    define_key (minibuffer_completion_kmap, "tab", "minibuffer-complete-old");
     define_key (minibuffer_completion_kmap, "space", "minibuffer-accept-match");
     define_key (minibuffer_completion_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character-complete");
 

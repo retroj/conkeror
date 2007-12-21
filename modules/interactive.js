@@ -67,12 +67,28 @@ I.bind = function () {
     return new interactive_bind_spec(arguments);
 };
 
-// Arguments after handler are forwarded to the handler, after
-// processing according to interactive method specifications.
-function interactive(name, handler)
+/**
+ * First argument is the command name.
+ *
+ * This is optionally followed by a documentation string.
+ *
+ * This is followed by the command function.
+ *
+ * Remaining arguments specify interactive arguments.
+ */
+function interactive(name)
 {
-    var args = Array.prototype.slice.call(arguments, 2);
-    interactive_commands.put(name, { handler: handler, arguments: args });
+    var doc = null;
+    var handler;
+    var offset = 1;
+    if (typeof(arguments[1]) == "string")
+    {
+        doc = arguments[1];
+        offset = 2;
+    }
+    handler = arguments[offset++];
+    var args = Array.prototype.slice.call(arguments, offset);
+    interactive_commands.put(name, { name: name, handler: handler, doc: doc, arguments: args });
 }
 
 // Any additional arguments specify "given" arguments to the function.
@@ -312,14 +328,24 @@ I.C = interactive_method(
     $doc = "Name of a command",
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Command:", $history = "command");
-        var matches = [];
-        interactive_commands.for_each(function (key) {
-                matches.push([key,key]);
+        var completer = all_word_completer(
+            function (visitor) { // visit
+                interactive_commands.for_each_value(visitor);
+            },
+            function (x) { // get_string
+                return x.name;
+            },
+            function (x) { // get_description
+                return x.doc ? x.doc : "Hello";
+            },
+            function (x) { // get_value
+                return x.name;
             });
-        ctx.frame.minibuffer.read_with_completion($prompt = arguments.$prompt,
-                                                  $history = arguments.$history,
-                                                  $completions = matches,
-                                                  $callback = cont);
+        ctx.frame.minibuffer.read($prompt = arguments.$prompt,
+                                  $history = arguments.$history,
+                                  $completer = completer,
+                                  $match_required = true,
+                                  $callback = cont);
     });
 
 I.f = interactive_method(

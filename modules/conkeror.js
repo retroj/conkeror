@@ -9,6 +9,7 @@ require("debug.js");
 require("utils.js");
 require("interactive.js");
 require("minibuffer.js"); // depends: interactive.js
+require("minibuffer-completion.js");
 require("localfile.js");
 require("keyboard.js");
 require("buffer.js");
