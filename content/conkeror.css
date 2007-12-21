@@ -16,3 +16,20 @@
 window {
   background-color: white;
 }
+
+
+/* Completions display */
+tree.completions treechildren { border: none !important; }
+
+tree.completions treecol { -moz-binding: none !important; }
+tree.completions { border: none !important; margin: 0px !important; }
+
+tree.completions treechildren::-moz-tree-row { 
+  border: none;
+}
+
+tree.completions treechildren::-moz-tree-row(current) { 
+  background-color: blue;
+}
+
+tree.completions treechildren::-moz-tree-cell-text(current) { color: white !important; }

@@ -15,19 +15,13 @@
   <stringbundleset id="stringbundleset">
   </stringbundleset>
 
-  <popupset>
-    <popup id="frameset-notification">
-      <description id="frameset-notification-label"/>
-    </popup>
-  </popupset>
-
   <vbox flex="1">
     <deck flex="1" id="buffer-container">
 	  <browser flex="1" type="content-primary"
                usechromesheets="chrome://conkeror/content/numbering.css,
                                 chrome://global/skin/xulscrollbars.css"/>
 	</deck>
-    <hbox id="minibuffer-hbox">
+    <hbox id="minibuffer">
       <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
       <label class="minibuffer" id="input-prompt" crop="left" value="" collapsed="true"/>
       <textbox class="plain" id="input-field" flex="1" collapsed="true"/>

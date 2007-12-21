@@ -126,7 +126,7 @@ isearch_session.prototype = {
             var searchRange;
             var startPt;
             var endPt;
-            var body = doc.body;
+            var body = doc.documentElement;
 
             finder.findBackwards = !dir;
 
@@ -258,7 +258,7 @@ function isearch_continue(frame, direction) {
     var s = frame.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
-    if (s.states.length == 1 && frame.isearch_last_string)
+    if (s.states.length == 1 && frame.isearch_last_search)
         s.find(frame.isearch_last_search, direction, s.top.point);
     else
         s.find(s.top.search_str, direction, s.top.range);

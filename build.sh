@@ -179,6 +179,9 @@ function do_target_xulapp () {
     get_scratch
     mkdir -p "$SCRATCH/chrome"
     cp application.ini "$SCRATCH"
+    if [ -n "$CONKEROR_APP_NAME" ]; then
+        sed -i -e "s/Name=conkeror/Name=${CONKEROR_APP_NAME}/" "${SCRATCH}/application.ini"
+    fi
     mv conkeror.jar "$SCRATCH/chrome/"
     cp chrome.manifest.for-jar "$SCRATCH/chrome/chrome.manifest"
     copy_tree_sans_boring defaults "$SCRATCH/defaults"

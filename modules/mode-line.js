@@ -32,7 +32,8 @@ function mode_line(frame)
 {
     var element = create_XUL(frame, "hbox");
     element.setAttribute("class", "mode-line");
-    var insert_before = frame.document.getElementById("minibuffer-hbox");
+    /* FIXME: this will need to changed to be buffer-local */
+    var insert_before = frame.document.getElementById("minibuffer");
     insert_before.parentNode.insertBefore(element, insert_before);
     frame.mode_line = this;
     generic_element_widget_container.call(this, frame, element);

@@ -18,7 +18,7 @@ command_line_param_handler("e", false, function (expr) {
     });
 command_line_param_handler("chrome", true, function (uri) {
         try {
-            make_chrome_frame(param);
+            make_chrome_frame(uri);
         } catch (e) { dump_error(e); }
     });
 command_line_param_handler("q", false, function () {

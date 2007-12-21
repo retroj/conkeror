@@ -430,15 +430,22 @@ function buffer_initialize_frame(frame)
     var tag = null;
     if ('arguments' in frame)
     {
-        for (var i = 0; i < frame.arguments.length; i++) {
-            var open_args = conkeror.decode_xpcom_structure (frame.arguments[i]);
-            if (0 in open_args && open_args[0] == 'conkeror')
-            {
-                for (var j = 1; j < open_args.length; j++) {
-                    var op = open_args[j];
-                    if (op[0] == 'tag') { tag = op[1]; }
-                    else if (op[0] == 'find') { uris_to_load = op.slice(1).reverse(); }
-                }
+        var open_args;
+        if (frame.arguments.length == 1)
+            open_args = decode_xpcom_structure (frame.arguments[0]);
+        else {
+            open_args = [];
+            for (var i = 0; i < frame.arguments.length; i++) {
+                var args = decode_xpcom_structure(frame.arguments[i]);
+                open_args = open_args.concat([args]);
+            }
+        }
+        if (0 in open_args && open_args[0] == 'conkeror')
+        {
+            for (var j = 1; j < open_args.length; j++) {
+                var op = open_args[j];
+                if (op[0] == 'tag') { tag = op[1]; }
+                else if (op[0] == 'find') { uris_to_load = op.slice(1).reverse(); }
             }
         }
     }
@@ -530,19 +537,29 @@ I.focused_link_url = interactive_method(
         return get_link_location (buffer.focused_element());
     });
 
-define_keywords("$initial_index");
+define_keywords("$default");
 I.b = interactive_method(
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Buffer:",
-                 $initial_index = ctx.frame.buffers.selected_index,
+                 $default = ctx.frame.buffers.current,
                  $history = "buffer");
-        var bufs = ctx.frame.buffers.unique_name_list;
-        ctx.frame.minibuffer.read_with_completion(
+        var completer = all_word_completer(
+            function (visitor) { // visit
+                ctx.frame.buffers.for_each(visitor);
+            },
+            function (x) { // get_string
+                return x.name;
+            },
+            function (x) { // get_description
+                return x.title;
+            }
+            /* get_value = null */);
+        ctx.frame.minibuffer.read(
             $prompt = arguments.$prompt,
-            $initial_value = bufs[arguments.$initial_index][0],
             $history = arguments.$history,
-            $completions = bufs,
-            $select,
+            $completer = completer,
+            $match_required = true,
+            $default_completion = arguments.$default,
             $callback = cont);
     });
 

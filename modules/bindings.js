@@ -356,6 +356,8 @@ function initKmaps()
     define_key(top_kmap, kbd ("space"),"cmd_scrollPageDown");
     define_key(top_kmap, kbd ("M-v"),"cmd_scrollPageUp");
     define_key(top_kmap, kbd ("C-v"),"cmd_scrollPageDown");
+    define_key(top_kmap, kbd ("page_up"),"cmd_scrollPageUp");
+    define_key(top_kmap, kbd ("page_down"),"cmd_scrollPageDown");
     define_key(top_kmap, kbd ("C-p"),"cmd_scrollLineUp");
     define_key(top_kmap, kbd ("C-n"),"cmd_scrollLineDown");
 
@@ -408,8 +410,10 @@ function initKmaps()
     define_key(input_kmap, kbd ("d",MOD_CTRL),"cmd_deleteCharForward");
     define_key(input_kmap, kbd ("d",MOD_META),"cmd_deleteWordForward");
     define_key(input_kmap, kbd ("b",MOD_CTRL),"cmd_charPrevious");
+    define_key(input_kmap, "left", "cmd_charPrevious");
     define_key(input_kmap, kbd ("b",MOD_META),"cmd_wordPrevious");
     define_key(input_kmap, kbd ("f",MOD_CTRL),"cmd_charNext");
+    define_key(input_kmap, "right", "cmd_charNext");
     define_key(input_kmap, kbd ("f",MOD_META),"cmd_wordNext");
     define_key(input_kmap, kbd ("y",MOD_CTRL),"cmd_paste");
     define_key(input_kmap, kbd ("w",MOD_META),"cmd_copy");
@@ -433,11 +437,16 @@ function initKmaps()
 
     // textarea keys
     define_key(textarea_kmap, kbd ("n",MOD_CTRL),"cmd_lineNext");
+    define_key(textarea_kmap, "down", "cmd_lineNext");
     define_key(textarea_kmap, kbd ("p",MOD_CTRL),"cmd_linePrevious");
+    define_key(textarea_kmap, "up", "cmd_linePrevious");
     define_key(textarea_kmap, kbd ("<",MOD_META),"cmd_moveTop");
     define_key(textarea_kmap, kbd (">",MOD_META),"cmd_moveBottom");
     define_key(textarea_kmap, kbd ("v",MOD_META),"cmd_movePageUp");
+    define_key(textarea_kmap, "page_up", "cmd_movePageUp");
+
     define_key(textarea_kmap, kbd ("v",MOD_CTRL),"cmd_movePageDown");
+    define_key(textarea_kmap, "page_down", "cmd_movePageDown");
     define_key(textarea_kmap, kbd (" ",MOD_META),"yank-to-clipboard");
 
     // 101 keys
@@ -499,9 +508,10 @@ function init_minibuffer_keys () {
     define_key (minibuffer_kmap, "M-p", "minibuffer-history-previous");
     define_key (minibuffer_kmap, "M-n", "minibuffer-history-next");
     define_key (minibuffer_kmap, "C-g", "minibuffer-abort");
+    define_key (minibuffer_kmap, "tab", "minibuffer-complete");
     define_key (minibuffer_kmap, "escape", "minibuffer-abort");
 
-    define_key (minibuffer_completion_kmap, "tab", "minibuffer-complete");
+    define_key (minibuffer_completion_kmap, "tab", "minibuffer-complete-old");
     define_key (minibuffer_completion_kmap, "space", "minibuffer-accept-match");
     define_key (minibuffer_completion_kmap, kbd(match_any_unmodified_key), "minibuffer-insert-character-complete");
 

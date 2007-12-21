@@ -76,6 +76,8 @@ function decode_xpcom_structure(data)
 {
     function dostring (data) {
         try {
+            if (typeof(data) == "string")
+                return data;
             var iface = data.QueryInterface (Ci.nsISupportsString);
             return iface.data;
         } catch (e) {
