@@ -95,6 +95,13 @@ string_hashmap.prototype = {
             if (i[0] == "-")
                 f(i.slice(1), this[i]);
         }
+    },
+
+    for_each_value : function (f) {
+        for (var i in this) {
+            if (i[0] == "-")
+                f(this[i]);
+        }
     }
 };
 
