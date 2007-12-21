@@ -1,4 +1,4 @@
-@import url("chrome://communicator/skin/");
+@import url("chrome://global/skin/");
 
 .mode-line {
   border-left: 1px solid rgb(230,230,230);
@@ -22,7 +22,14 @@ window {
 tree.completions treechildren { border: none !important; }
 
 tree.completions treecol { -moz-binding: none !important; }
-tree.completions { border: none !important; margin: 0px !important; }
+tree.completions {
+  -moz-appearance: none !important;
+  border: 0px none !important;
+  margin: 0px !important;
+  border-top: 4px double #333333 !important;
+  background-color: #cccccc !important;
+  -moz-border-top-colors: -moz-initial !important;
+}
 
 tree.completions treechildren::-moz-tree-row { 
   border: none;
@@ -32,4 +39,11 @@ tree.completions treechildren::-moz-tree-row(current) {
   background-color: blue;
 }
 
-tree.completions treechildren::-moz-tree-cell-text(current) { color: white !important; }
+tree.completions treechildren::-moz-tree-cell-text(completion-description) {
+  color: green !important;
+  font-weight: bold !important;
+}
+
+tree.completions treechildren::-moz-tree-cell-text(current) {
+  color: white !important;
+}

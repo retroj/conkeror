@@ -328,7 +328,7 @@ I.C = interactive_method(
     $doc = "Name of a command",
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Command:", $history = "command");
-        var completer = all_word_completer(
+        var completer = prefix_completer(
             function (visitor) { // visit
                 interactive_commands.for_each_value(visitor);
             },
@@ -336,7 +336,7 @@ I.C = interactive_method(
                 return x.name;
             },
             function (x) { // get_description
-                return x.doc ? x.doc : "Hello";
+                return x.doc ? x.doc : "";
             },
             function (x) { // get_value
                 return x.name;

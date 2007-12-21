@@ -1,9 +1,9 @@
 @namespace url(http://www.w3.org/1999/xhtml);
-
+/*
 a, button, input, select, textarea {
   -moz-binding: url(chrome://conkeror/content/numbering.xml#binding) !important;
 }
-
+*/
 span.__conkeror_link_number {
   -moz-border-radius: 0.5em !important;
   border: 1px solid grey !important;

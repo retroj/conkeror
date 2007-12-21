@@ -106,6 +106,11 @@ function minibuffer_do_command(frame, command) {
             var c = e.controllers.getControllerForCommand(command);
             if (c && c.isCommandEnabled(command))
                 c.doCommand(command);
+            var s = m.current_state;
+            if ((s instanceof text_entry_minibuffer_state))
+            {
+                s.update_completions(frame);
+            }
         }
     } catch (e)
     {
@@ -295,6 +300,9 @@ function completions_tree_view(minibuffer_state)
 {
     this.minibuffer_state = minibuffer_state;
 }
+
+var atom_service = Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService);
+
 completions_tree_view.prototype = {
     get rowCount () {
         var c = this.minibuffer_state.completions;
@@ -315,7 +323,12 @@ completions_tree_view.prototype = {
     getLevel: function(row){ return 0; },
     getImageSrc: function(row,col){ return null; },
     getRowProperties: function(row,props){},
-    getCellProperties: function(row,col,props){},
+    getCellProperties: function(row,col,props){
+        if (col.index == 0)
+            props.AppendElement(atom_service.getAtom("completion-string"));
+        else
+            props.AppendElement(atom_service.getAtom("completion-description"));
+    },
     getColumnProperties: function(colid,col,props){}
 };
 
@@ -334,7 +347,7 @@ text_entry_minibuffer_state.prototype = {
                 tree.addEventListener("select", function () { s.completion_selected(frame); }, true, false);
                 tree.setAttribute("class", "completions");
 
-                tree.setAttribute("rows", "6");
+                tree.setAttribute("rows", "8");
 
                 tree.setAttribute("collapsed", "true");
 
@@ -369,6 +382,7 @@ text_entry_minibuffer_state.prototype = {
                     } else
                         i = 0;
                     this.completions_display_element.currentIndex = i;
+                    this.completions_display_element.treeBoxObject.ensureRowIsVisible(i);
                     this.completion_selected(frame); // This is a no-op, but it is done for consistency
                 }
             }
@@ -414,8 +428,12 @@ text_entry_minibuffer_state.prototype = {
                         else
                             i = 0;
                         this.completions_display_element.currentIndex = i;
-                    } else
+                        this.completions_display_element.treeBoxObject.scrollToRow(i);
+                    } else  {
                         this.completions_display_element.currentIndex = -1;
+                        this.completions_display_element.treeBoxObject.scrollToRow(0);
+                    }
+
                 } else {
                     this.completions_display_element.setAttribute("collapsed", "true");
                 }
@@ -461,14 +479,14 @@ function minibuffer_complete(frame)
         return;
     var e = s.completions_display_element;
     var new_index = -1;
-    if (e.currentIndex != -1)
-    {
-        new_index = (e.currentIndex + 1) % c.data.length;
-
-    } else if (c.common_prefix)
+    if (c.common_prefix)
     {
         c.apply_common_prefix(c.common_prefix, m);
         c.common_prefix = null;
+    } else if (e.currentIndex != -1)
+    {
+        new_index = (e.currentIndex + 1) % c.data.length;
+
     } else {
         new_index = 0;
     }
