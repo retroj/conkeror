@@ -27,7 +27,8 @@ require("webjump.js"); // depends: interactive.js
 require("bindings.js"); // depends: keyboard.js
 
 require("find.js");
-require("numberedlinks.js");
+//require("numberedlinks.js");
+require("hints.js");
 
 require("rc.js");
 

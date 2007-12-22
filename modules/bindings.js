@@ -48,6 +48,7 @@ var     minibuffer_kmap = null;
 var     minibuffer_completion_kmap = null;
 var     isearch_kmap       = null;
 var     frameset_kmap      = null;
+var semicolon_kmap = null;
 
 var universal_kmap = null;
 
@@ -87,6 +88,7 @@ function clearKmaps()
     five_kmap     	  = make_keymap();
     help_kmap     	  = make_keymap();
     top_kmap      	  = make_keymap();
+    semicolon_kmap =    make_keymap();
     input_kmap            = make_context_keymap (input_kmap_predicate);
     textarea_kmap 	  = make_context_keymap (textarea_kmap_predicate);
     minibuffer_base_kmap       = make_keymap();
@@ -315,7 +317,7 @@ function initKmaps()
     define_key(top_kmap, kbd ("h",MOD_CTRL), help_kmap);
     define_key(top_kmap, kbd ("x",MOD_CTRL), ctrlx_kmap);
     define_key(top_kmap, kbd ("c",MOD_CTRL), ctrlc_kmap); 
-    define_key(top_kmap, kbd ("f",0),        frameset_kmap);
+    //define_key(top_kmap, kbd ("f",0),        frameset_kmap);
 
     define_key(top_kmap, kbd ("u",0),"go-up");
     define_key(top_kmap, kbd ("C-u"), "universal-argument");
@@ -338,7 +340,6 @@ function initKmaps()
     define_key(top_kmap, kbd ("7",0),"numberedlinks-7");
     define_key(top_kmap, kbd ("8",0),"numberedlinks-8");
     define_key(top_kmap, kbd ("9",0),"numberedlinks-9");
-    define_key(top_kmap, kbd ("n",0),"goto-numbered-link");
     define_key(top_kmap, kbd ("i",0),"copy-numbered-image-location");
     define_key(top_kmap, kbd ("p",MOD_META),"buffer-previous");
     define_key(top_kmap, kbd ("n",MOD_META),"buffer-next");
@@ -453,7 +454,12 @@ function initKmaps()
     define_key (textarea_kmap, kbd (KeyEvent.DOM_VK_PAGE_UP,MOD_SHIFT), "cmd_selectPageUp");
     define_key (textarea_kmap, kbd (KeyEvent.DOM_VK_PAGE_DOWN,MOD_SHIFT), "cmd_selectPageDown");
 
+    define_key (semicolon_kmap, ";", "hinted-focus-element");
+    define_key (semicolon_kmap, "o", "hinted-follow-element");
+    define_key(top_kmap, "n", "hinted-focus-element");
+    define_key (top_kmap, "f", "hinted-focus-frame");
 
+    define_key (top_kmap,  ";", semicolon_kmap);
 
 
     init_minibuffer_keys ();

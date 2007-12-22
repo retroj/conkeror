@@ -388,7 +388,7 @@ function key_down_handler(event)
 }
 
 /* USER PREFERENCE */
-var keyboard_key_sequence_help_timeout = 2000;
+var keyboard_key_sequence_help_timeout = 0;
 
 function key_press_handler(true_event)
 {
