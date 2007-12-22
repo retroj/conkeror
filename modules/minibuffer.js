@@ -711,7 +711,7 @@ function minibuffer_initialize_frame(frame)
 add_hook("frame_initialize_early_hook", minibuffer_initialize_frame);
 
 /* Note: This is concise, but doesn't seem to be useful in practice,
- * because nothing can be done with the state alone.
+ * because nothing can be done with the state alone. */
 
 I.minibuffer_state = interactive_method(
     $doc = "Topmost minibuffer state",
@@ -721,4 +721,3 @@ I.minibuffer_state = interactive_method(
             throw new Error("Invalid minibuffer state.");
         return s;
     });
-*/

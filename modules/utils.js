@@ -309,8 +309,18 @@ function set_default_directory(directory_s) {
 
 set_default_directory();
 
+const XHTML_NS = "http://www.w3.org/1999/xhtml";
+const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
 function create_XUL(frame, tag_name)
 {
-    return frame.document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
-                                          tag_name);
+    return frame.document.createElementNS(XUL_NS, tag_name);
+}
+
+
+/* Used in calls to XPath evaluate */
+function xpath_lookup_namespace(prefix) {
+    if (prefix == "xhtml")
+        return XHTML_NS;
+    return null;
 }
