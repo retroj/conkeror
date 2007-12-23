@@ -4,8 +4,6 @@
  * Portions are derived from Vimperator (c) 2006-2007: Martin Stubenschrott <stubenschrott@gmx.net>
  */
 
-
-
 /* USER PREFERENCE */
 /* FIXME: figure out why this needs to have a bunch of duplication */
 var hint_xpath_expression =
@@ -24,9 +22,9 @@ var hint_background_color = "yellow";
  * buffer is a browser_buffer
  *
  */
-function hint_manager(buffer, xpath_expr)
+function hint_manager(window, xpath_expr)
 {
-    this.buffer = buffer;
+    this.window = window;
     this.hints = [];
     this.valid_hints = [];
     this.xpath_expr = xpath_expr;
@@ -45,7 +43,7 @@ hint_manager.prototype = {
      * stored in the hints array.
      */
     generate_hints : function () {
-        var topwin = this.buffer.content_window;
+        var topwin = this.window;
         var top_height = topwin.innerHeight;
         var top_width = topwin.innerWidth;
         var hints = this.hints;
@@ -130,7 +128,7 @@ hint_manager.prototype = {
     /* Updates valid_hints and also re-numbers and re-displays all hints. */
     update_valid_hints : function () {
         this.valid_hints = [];
-        var active_index = this.current_hint_number - 1;
+        var active_number = this.current_hint_number;
         
         var tokens = this.current_hint_string.split(" ");
         var rect, h, text, img_hint, doc, scrollX, scrollY;
@@ -178,17 +176,18 @@ hint_manager.prototype = {
                     h.img_hint = img_hint;
                     doc.documentElement.appendChild(img_hint);
                 }
-                this.buffer.frame.myblah = h;
                 h.img_hint.style.backgroundColor = (active_index == i) ?
                     active_img_hint_background_color : img_hint_background_color;
                 h.img_hint.style.display = "inline";
             }
 
+            var cur_number = this.valid_hints.length + 1;
+
             if (!h.img_hint)
-                h.elem.style.backgroundColor = (active_index == i) ?
+                h.elem.style.backgroundColor = (active_number == cur_number) ?
                     active_hint_background_color : hint_background_color;
             h.elem.style.color = "black";
-            var label = "" + (this.valid_hints.length + 1);
+            var label = "" + cur_number;
             if (h.elem.localName == "FRAME") {
                 label +=  " " + text;
             }
@@ -292,6 +291,7 @@ function hints_minibuffer_state()
     this.abort_callback = arguments.$abort_callback;
     this.auto_exit = arguments.$auto ? true : false;
     this.xpath_expr = arguments.$hint_xpath_expression;
+    this.auto_exit_timer_ID = null;
 }
 hints_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
@@ -300,7 +300,7 @@ hints_minibuffer_state.prototype = {
     typed_number : "",
     load : function (frame) {
         if (!this.manager)
-            this.manager = new hint_manager(frame.buffers.current, this.xpath_expr);
+            this.manager = new hint_manager(frame.buffers.current.content_window, this.xpath_expr);
         this.manager.update_valid_hints();
     },
     unload : function (frame) {
@@ -319,9 +319,13 @@ hints_minibuffer_state.prototype = {
     }
 };
 
+/* USER PREFERENCE */
+var hints_auto_exit_delay = 800;
+
 function hints_handle_character(frame, s, e) {
     /* Check for numbers */
     var ch = String.fromCharCode(e.charCode);
+    var auto_exit = false;
     /* TODO: implement number escaping */
     if (e.charCode >= 48 && e.charCode <= 57) {
         // Number entered
@@ -330,10 +334,7 @@ function hints_handle_character(frame, s, e) {
         var num = s.manager.current_hint_number;
         if (s.auto_exit && num > 0 && num <= s.manager.valid_hints.length
             && num * 10 > s.manager.valid_hints.length)
-        {
-            hints_exit(frame, s);
-            return;
-        }
+            auto_exit = true;
     } else {
         s.typed_number = "";
         s.typed_string += ch;
@@ -341,10 +342,14 @@ function hints_handle_character(frame, s, e) {
         s.manager_current_hint_number = 1;
         s.manager.update_valid_hints();
         if (s.auto_exit && s.manager.valid_hints.length == 1)
-        {
-            hints_exit(frame, s);
-            return;
+            auto_exit = true;
+    }
+    if (auto_exit) {
+        if (this.auto_exit_timer_ID) {
+            frame.clearTimeout(this.auto_exit_timer_ID);
         }
+        this.auto_exit_timer_ID = frame.setTimeout(function() { hints_exit(frame, s); },
+                                                   hints_auto_exit_delay);
     }
     s.update_minibuffer(frame);
 }
@@ -387,6 +392,10 @@ interactive("hints-previous", hints_next,
             I.bind(function (x) {return -x;}, I.p));
 
 function hints_abort(frame, s) {
+    if (this.auto_exit_timer_ID) {
+        frame.clearTimeout(this.auto_exit_timer_ID);
+        this.auto_exit_timer_ID = null;
+    }
     frame.minibuffer.pop_state();
     if (s.abort_callback)
         s.abort_callback();
@@ -397,6 +406,10 @@ interactive("hints-abort", hints_abort,
 
 function hints_exit(frame, s)
 {
+    if (this.auto_exit_timer_ID) {
+        frame.clearTimeout(this.auto_exit_timer_ID);
+        this.auto_exit_timer_ID = null;
+    }
     var cur = s.manager.current_hint_number - 1;
     if (cur >= 0 && cur < s.manager.valid_hints.length)
     {
@@ -491,3 +504,4 @@ interactive("hinted-focus-frame", element_focus,
                 $prompt = "Frame:",
                 $hint_xpath_expression = "//xhtml:frame | //xhtml:iframe | //iframe | //frame"
                 ));
+
