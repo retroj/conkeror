@@ -55,6 +55,7 @@ function browser_buffer(frame, browser)
                 browser_buffer_overlink_change_hook.run(buffer, "");
             }
         }, true, false);
+    browser_buffer_normal_input_mode(this);
 }
 
 browser_buffer.prototype = {
@@ -382,3 +383,63 @@ define_global_mode("overlink_mode",
                    });
 
 overlink_mode(true);
+
+function define_browser_buffer_input_mode(base_name, keymap_name) {
+    var name = "browser_buffer_" + base_name + "_input_mode";
+    this[name + "_enabled"] = false;
+    define_buffer_local_hook(name + "_enable_hook");
+    define_buffer_local_hook(name + "_disable_hook");
+    this[name] = function (buffer) {
+        if (this[name + "_enabled"])
+            return;
+        dumpln("Switching to " + base_name + " mode");
+        if (buffer.current_input_mode) {
+            this[buffer.current_input_mode + "_disable_hook"].run(buffer);
+            this[buffer.current_input_mode + "_enabled"] = false;
+        }
+        buffer.current_input_mode = name;
+        this[name + "_enabled"] = true;
+        buffer.keymap = this[keymap_name];
+        this[name + "_enable_hook"].run(buffer);
+    }
+    var hyphen_name = name.replace("_","-","g");
+    interactive(hyphen_name, this[name], I.current_buffer(browser_buffer));
+}
+
+define_browser_buffer_input_mode("normal", "browser_buffer_normal_keymap");
+
+// For SELECT elements
+define_browser_buffer_input_mode("select", "browser_buffer_select_keymap");
+
+// For text INPUT and TEXTAREA elements
+define_browser_buffer_input_mode("text", "browser_buffer_text_keymap");
+define_browser_buffer_input_mode("textarea", "browser_buffer_textarea_keymap");
+
+define_browser_buffer_input_mode("quote_next", "browser_buffer_quote_next_keymap");
+define_browser_buffer_input_mode("quote", "browser_buffer_quote_keymap");
+
+add_hook("browser_buffer_focus_change_hook", function (buffer) {
+        var elem = buffer.focused_element();
+        if (elem) {
+            switch (elem.localName) {
+                // FIXME: probably add a special radiobox/checkbox keymap as well
+            case "INPUT":
+                browser_buffer_text_input_mode(buffer);
+                return;
+            case "TEXTAREA":
+                browser_buffer_textarea_input_mode(buffer);
+                return;
+            case "SELECT":
+                browser_buffer_select_input_mode(buffer);
+                return;
+            }
+        }
+        browser_buffer_normal_input_mode(buffer);
+    });
+
+var browser_buffer_normal_keymap = null;
+var browser_buffer_select_keymap = null;
+var browser_buffer_text_keymap = null;
+var browser_buffer_textarea_keymap = null;
+var browser_buffer_quote_next_keymap = null;
+var browser_buffer_quote_keymap = null;

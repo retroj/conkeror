@@ -520,7 +520,6 @@ function minibuffer (frame)
     this.frame = frame;
     this.last_message = "";
     this.states = [];
-    this._keymap_set = new keymap_set();
 }
 
 minibuffer.prototype = {
@@ -648,8 +647,7 @@ minibuffer.prototype = {
                 this._input_mode_enabled = true;
                 this._switch_to_input_mode();
             }
-            this._keymap_set.default_keymap = s.keymap;
-            this.frame.keyboard_state.override_keymap_set = this._keymap_set;
+            this.frame.keyboard.override_keymap = s.keymap;
             this._input_text = s.input;
             this.prompt = s.prompt;
             this._set_selection(s.selection_start, s.selection_end);
@@ -673,8 +671,7 @@ minibuffer.prototype = {
                 }
                 this.saved_focused_element = null;
                 this.saved_focused_window = null;
-                this.frame.keyboard_state.override_keymap_set = null;
-                this._keymap_set.default_keymap = null;
+                this.frame.keyboard.override_keymap = null;
             }
         }
     },

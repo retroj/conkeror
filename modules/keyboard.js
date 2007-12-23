@@ -312,8 +312,10 @@ function define_key (kmap, key, cmd, fallthrough)
     }
 }
 
-function make_keymap ()
+define_keywords("$parent", "$help");
+function keymap ()
 {
+    keywords(arguments);
     /* For efficiency, a table indexed by the key code, and then by
      * the modifiers is used to lookup key bindings, rather than
      * looping through all bindings in the key map to find one.  The
@@ -322,47 +324,11 @@ function make_keymap ()
      * an array indexed by the result of get_modifiers (i.e. from 0 to 7).
      * As before, match_function-based bindings are stored as a simple
      * list, predicate_bindings. */
-    var k = { parent: null,
-              keycode_bindings : [],
-              predicate_bindings : [],
-              predicate: null };
-    return k;
+    this.parent = arguments.$parent;
+    this.keycode_bindings = [];
+    this.predicate_bindings = [];
+    this.help = arguments.$help;
 }
-
-function make_context_keymap (predicate)
-{
-    var k = make_keymap();
-    k.predicate = predicate;
-    return k;
-}
-
-function keymap_set ()
-{
-    this.context_keymaps = [];
-    this.default_keymap = null;
-}
-keymap_set.prototype =  {
-    lookup_key_binding : function (frame, event) {
-
-        var binding = null;
-
-        var focused_element = frame.buffers.current.focused_element();
-        if (focused_element) {
-            for (var i in this.context_keymaps)
-            {
-                var km = this.context_keymaps[i];
-                if (km.predicate(frame, focused_element))
-                {
-                    binding = lookup_key_binding(km, event);
-                    break;
-                }
-            }
-        }
-        if (!binding && this.default_keymap)
-            binding = lookup_key_binding(this.default_keymap, event);
-        return binding;
-    }
-};
 
 function copy_event(event)
 {
@@ -381,7 +347,7 @@ function key_down_handler(event)
     var frame = this;
     //window.dumpln("key down: " + conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
 
-    var state = frame.keyboard_state;
+    var state = frame.keyboard;
     state.last_key_down_event = copy_event(event);
     state.last_char_code = null;
     state.last_key_code = null;
@@ -394,7 +360,7 @@ function key_press_handler(true_event)
 {
     try{
     var frame = this;
-    var state = frame.keyboard_state;
+    var state = frame.keyboard;
 
     /* ASSERT(state.last_key_down_event != null); */
 
@@ -435,31 +401,15 @@ function key_press_handler(true_event)
 
     if (!binding)
     {
-        ///XXX: context can override overlay.  is this right?
-        ///
-        /// consider: you hit C-u, thus enabling an overlay map.  then you hit `1'.
-        ///           There is a good case to be made that this character key should
-        ///           go to the gui control, not the overlay map.
-        ///
-        ///
+        // Check if we are in the middle of a key sequence
         if (!state.active_keymap) {
 
             //dumpln("Looking up key " + format_key_event(event) + " in regular keymap set");
 
-            /* If the override_keymap_set is set, it is used instead of
-             * the keymap_set for the current buffer. */
-
-            // If we are not in the middle of a key sequence, context keymaps
-            // get a chance to take the key.
-            //
-            // Try the predicate of each context keymap until we find one that
-            // matches.
-            //
-            var kmset = state.override_keymap_set;
-            if (!kmset)
-                kmset = frame.buffers.current.keymap_set;
-
-            binding = kmset.lookup_key_binding(frame, event);
+            /* If the override_keymap is set, it is used instead of
+             * the keymap for the current buffer. */
+            var kmap = state.override_keymap || frame.buffers.current.keymap;
+            binding = lookup_key_binding(kmap, event);
         } else
         {
             // Use the active keymap
@@ -508,14 +458,15 @@ function key_press_handler(true_event)
     } else {
         // No binding was found.  If this is the universal abort_key, then
         // abort().
-        if (match_binding(abort_key, event))
-        {
+//        if (match_binding(abort_key, event))
+//        {
             /* FIXME: once we have abort implemented ...
             window.abort();
             */
-        }
+//        }
 
-        else if (state.active_keymap)
+//        else
+        if (state.active_keymap)
         {
             state.current_key_sequence.push(format_key_event(event));
             frame.minibuffer.message(state.current_key_sequence.join(" ") + " is undefined");
@@ -539,11 +490,11 @@ function key_press_handler(true_event)
     } catch(e) { dump("error: " + e + "\n");}
 }
 
-function keyboard_state()
+function keyboard()
 {
 }
 
-keyboard_state.prototype = {
+keyboard.prototype = {
     last_key_down_event : null,
     last_char_code : null,
     last_key_code : null,
@@ -555,14 +506,14 @@ keyboard_state.prototype = {
     overlay_keymap : null,
 
     /* If this is non-null, it is used instead of the current buffer's
-     * keymap_set. */
-    override_keymap_set : null
+     * keymap. */
+    override_keymap : null
 };
 
 
 function keyboard_initialize_frame(frame)
 {
-    frame.keyboard_state = new keyboard_state();
+    frame.keyboard = new keyboard();
 
     frame.addEventListener ("keydown", key_down_handler, true /* capture */,
                             false /* ignore untrusted events */);

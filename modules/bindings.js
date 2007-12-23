@@ -76,37 +76,37 @@ function textarea_kmap_predicate (window, element) {
     } catch (e) { return false; }
 }
 
-var context_kmaps = null;
-
-
 function clearKmaps()
 {
-    ctrlc_kmap    	  = make_keymap();
-    ctrlw_kmap    	  = make_keymap();
-    ctrlx_kmap    	  = make_keymap();
-    four_kmap     	  = make_keymap();
-    five_kmap     	  = make_keymap();
-    help_kmap     	  = make_keymap();
-    top_kmap      	  = make_keymap();
-    semicolon_kmap =    make_keymap();
-    input_kmap            = make_context_keymap (input_kmap_predicate);
-    textarea_kmap 	  = make_context_keymap (textarea_kmap_predicate);
-    minibuffer_base_kmap       = make_keymap();
-    minibuffer_kmap       = make_keymap();
-    minibuffer_completion_kmap       = make_keymap();
-    select_kmap   	  = make_keymap();
-    numberedlinks_kmap    = make_keymap();
-    isearch_kmap          = make_keymap();
-    frameset_kmap         = make_keymap();
+    ctrlc_kmap    	  = new keymap();
+    ctrlw_kmap    	  = new keymap();
+    ctrlx_kmap    	  = new keymap();
+    four_kmap     	  = new keymap();
+    five_kmap     	  = new keymap();
+    help_kmap     	  = new keymap();
+    top_kmap      	  = new keymap();
+    semicolon_kmap =    new keymap();
+    input_kmap            = new keymap ($parent = top_kmap);
+    textarea_kmap 	  = new keymap ($parent = top_kmap);
+    minibuffer_base_kmap       = new keymap();
+    minibuffer_kmap       = new keymap();
+    minibuffer_completion_kmap       = new keymap();
+    select_kmap   	  = new keymap();
+    numberedlinks_kmap    = new keymap();
+    isearch_kmap          = new keymap();
+    frameset_kmap         = new keymap();
 
-    top_esc_kmap   	  = make_keymap();
-    textarea_esc_kmap     = make_keymap();
-    input_esc_kmap        = make_keymap();
+    top_esc_kmap   	  = new keymap();
+    textarea_esc_kmap     = new keymap();
+    input_esc_kmap        = new keymap();
 
-    universal_kmap        = make_keymap();
+    universal_kmap        = new keymap();
 
-    context_kmaps = [input_kmap,
-                     textarea_kmap];
+
+    browser_buffer_normal_keymap = top_kmap;
+    browser_buffer_select_keymap = input_kmap;
+    browser_buffer_text_keymap = input_kmap;
+    browser_buffer_textarea_keymap = textarea_kmap;
 }
 
 // VI Keys for the heathens. Thanks to maxauthority on #conkeror for
@@ -347,7 +347,7 @@ function initKmaps()
     define_key(top_kmap, kbd ("C",0),"copy-link-location");
     define_key(top_kmap, kbd ("x",MOD_META),"execute-extended-command");
     define_key(top_kmap, kbd ("g",MOD_CTRL),"keyboard-quit");
-    define_key(top_kmap, kbd ( KeyEvent.DOM_VK_ESCAPE, 0),"unfocus");
+    define_key(top_kmap, "escape", "unfocus");
     define_key(top_kmap, kbd ( "equals", 0),"text-reset");
     define_key(top_kmap, kbd ( "S-equals", 0),"text-enlarge");
     define_key(top_kmap, kbd ( "subtract", 0),"text-reduce");
@@ -471,12 +471,6 @@ function initKmaps()
     init_frameset_keys ();
 
     init_universal_arg_keys ();
-
-    var browser_kmset = new keymap_set();
-    browser_kmset.default_keymap = top_kmap;
-    browser_kmset.context_keymaps = context_kmaps;
-
-    browser_buffer.prototype.keymap_set = browser_kmset;
 }
 
 
