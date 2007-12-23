@@ -255,7 +255,7 @@ var hint_keymap = null;
 
 function initialize_hint_keymap()
 {
-    hint_keymap = make_keymap();
+    hint_keymap = new keymap();
     define_key(hint_keymap, kbd(match_any_unmodified_key), "hints-handle-character");
     define_key(hint_keymap, "back_space", "hints-backspace");
     define_key(hint_keymap, "tab", "hints-next");

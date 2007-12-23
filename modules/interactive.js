@@ -103,7 +103,7 @@ function call_interactively(frame, command)
     var ctx = { frame: frame,
                 prefix_argument: frame.current_prefix_argument,
                 command: command,
-                event: frame.keyboard_state.last_command_event };
+                event: frame.keyboard.last_command_event };
     frame.current_prefix_argument = null; // reset prefix argument
 
 

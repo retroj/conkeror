@@ -457,7 +457,7 @@ interactive("universal-negate", universal_negate,I.current_frame);
 function universal_argument (frame)
 {
     frame.current_prefix_argument = [4];
-    frame.keyboard_state.overlay_keymap = universal_kmap;
+    frame.keyboard.overlay_keymap = universal_kmap;
 }
 interactive("universal-argument", universal_argument,I.current_frame);
 
@@ -470,7 +470,7 @@ function universal_argument_more (frame, prefix)
         // terminate the prefix arg
         ///XXX: is this reachable?
         frame.current_prefix_argument = prefix;
-        frame.keyboard_state.overlay_keymap = null;
+        frame.keyboard.overlay_keymap = null;
     }
 }
 interactive("universal-argument-more", universal_argument_more, I.current_frame, I.P);
