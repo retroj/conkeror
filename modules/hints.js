@@ -176,7 +176,7 @@ hint_manager.prototype = {
                     h.img_hint = img_hint;
                     doc.documentElement.appendChild(img_hint);
                 }
-                h.img_hint.style.backgroundColor = (active_index == i) ?
+                h.img_hint.style.backgroundColor = (active_number == i) ?
                     active_img_hint_background_color : img_hint_background_color;
                 h.img_hint.style.display = "inline";
             }
