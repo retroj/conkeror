@@ -386,20 +386,20 @@ overlink_mode(true);
 
 function define_browser_buffer_input_mode(base_name, keymap_name) {
     var name = "browser_buffer_" + base_name + "_input_mode";
-    this[name + "_enabled"] = false;
+    buffer[name + "_enabled"] = false;
     define_buffer_local_hook(name + "_enable_hook");
     define_buffer_local_hook(name + "_disable_hook");
     this[name] = function (buffer) {
-        if (this[name + "_enabled"])
+        if (buffer[name + "_enabled"])
             return;
         if (buffer.current_input_mode) {
-            this[buffer.current_input_mode + "_disable_hook"].run(buffer);
-            this[buffer.current_input_mode + "_enabled"] = false;
+            conkeror[buffer.current_input_mode + "_disable_hook"].run(buffer);
+            buffer[buffer.current_input_mode + "_enabled"] = false;
         }
         buffer.current_input_mode = name;
-        this[name + "_enabled"] = true;
+        buffer[name + "_enabled"] = true;
         buffer.keymap = this[keymap_name];
-        this[name + "_enable_hook"].run(buffer);
+        conkeror[name + "_enable_hook"].run(buffer);
     }
     var hyphen_name = name.replace("_","-","g");
     interactive(hyphen_name, this[name], I.current_buffer(browser_buffer));

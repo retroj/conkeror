@@ -487,7 +487,7 @@ function key_press_handler(true_event)
         state.active_keymap = null;
     }
 
-    } catch(e) { dump("error: " + e + "\n");}
+    } catch(e) { dump_error(e);}
 }
 
 function keyboard()
