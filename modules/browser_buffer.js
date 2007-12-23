@@ -392,7 +392,6 @@ function define_browser_buffer_input_mode(base_name, keymap_name) {
     this[name] = function (buffer) {
         if (this[name + "_enabled"])
             return;
-        dumpln("Switching to " + base_name + " mode");
         if (buffer.current_input_mode) {
             this[buffer.current_input_mode + "_disable_hook"].run(buffer);
             this[buffer.current_input_mode + "_enabled"] = false;
