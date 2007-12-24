@@ -49,6 +49,7 @@ function browser_element_follow(buffer, elem, prefix)
 
     switch (elemTagName) {
     case "FRAME": case "IFRAME":
+        elem.contentWindow.focus();
         return;
     case "IMG":
         var src = elem.src;
