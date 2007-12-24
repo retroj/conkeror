@@ -1,6 +1,10 @@
 function browser_element_focus(buffer, elem)
 {
     var elemTagName = elem.localName;
+    if (!elemTagName) {
+        elem.focus();
+        return;
+    }
     var x = 0;
     var y = 0;
     switch (elemTagName) {
@@ -38,6 +42,8 @@ function browser_element_follow(buffer, elem, prefix)
     
     var elemTagName = elem.localName;
     elem.focus();
+    if (!elemTagName)
+        return;
 
     var x = 1, y = 1;
 
@@ -121,6 +127,7 @@ var hints_default_object_classes = {
     focus: "frames",
     save: "links",
     copy: "links",
+    view_source: "frames",
     def: "links"
 };
 
@@ -160,7 +167,8 @@ function hinted_element_with_prompt(action, action_name, default_class, prompter
                         action_name : 
                         action_name + " (" + cls + ")";
                     return prompter(prefix, base);
-                }, I.hints_object_class(action), I.p),
+                }, $$9 = I.hints_object_class(action), I.p),
+            $object_class = $$9,
             $hint_xpath_expression = I.hints_xpath_expression(action));
     } else {
         if (prompter == null)
@@ -171,7 +179,8 @@ function hinted_element_with_prompt(action, action_name, default_class, prompter
                         action_name : 
                         action_name + " (" + cls + ")";
                     return base + "" + prompter + ":";
-                }, I.hints_object_class(action)),
+                }, $$9 = I.hints_object_class(action)),
+            $object_class = $$9,
             $hint_xpath_expression = I.hints_xpath_expression(action));
     }
 }
@@ -231,8 +240,21 @@ interactive("browser-element-copy", browser_element_copy,
             hinted_element_with_prompt("copy", "Copy", "links", null));
 
 var view_source_external_editor = null, view_source_function = null;
-function view_source(frame, win, prefix)
+function browser_element_view_source(frame, elem, prefix)
 {
+    var win = null;
+    if (elem.localName) {
+        var matched = false;
+        switch (elem.localName) {
+        case "FRAME": case "IFRAME":
+            win = elem.contentWindow;
+            matched = true;
+            break;
+        }
+        if (!matched)
+            throw new Error("Invalid browser element");
+    } else
+        win = elem;
     win.focus();
     if (view_source_external_editor || view_source_function)
     {
@@ -265,7 +287,7 @@ function view_source(frame, win, prefix)
     }
 }
 
-interactive("view-source", view_source,
+interactive("browser-element-view-source", browser_element_view_source,
             I.current_frame,
-            I.hinted_frame($prompt = "View source:"),
+            hinted_element_with_prompt("view_source", "View source", "frames", open_url_in_prompt),
             I.p);

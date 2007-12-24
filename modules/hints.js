@@ -468,41 +468,31 @@ var hints_xpath_expressions = {
             "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
             "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
             "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
-            "//xhtml:button | //xhtml:select"}
+            "//xhtml:button | //xhtml:select"},
+    mathml: {def: ""}
 };
 
+define_keywords("$object_class");
 I.hinted_element = interactive_method(
     $doc = "DOM element chosen using the hints system",
     $async = function (ctx, cont) {
         keywords(arguments);
+        // FIXME: clean this up and replace with proper object class declaration
+        var object_class = arguments.$object_class;
+        if (object_class == "frames") {
+            var buf = ctx.frame.buffers.current;
+            if (!(buf instanceof browser_buffer))
+                throw new Error("Current buffer is of invalid type");
+            var doc = buf.content_document;
+            if (doc.getElementsByTagName("FRAME").length == 0 &&
+                doc.getElementsByTagName("IFRAME").length == 0)
+            {
+                // only one frame (the top-level one), no need to use the hints system
+                cont(buf.content_window);
+                return;
+            }
+        }
         var s = new hints_minibuffer_state(ctx.frame.buffers.current,
                                            forward_keywords(arguments), $callback = cont);
-        ctx.frame.minibuffer.push_state(s);
-    });
-
-
-I.hinted_frame = interactive_method(
-    $async = function (ctx, cont) {
-        keywords(arguments);
-        var buf = ctx.frame.buffers.current;
-        if (!(buf instanceof browser_buffer))
-            throw new Error("Current buffer is of invalid type");
-        var doc = buf.content_document;
-        if (doc.getElementsByTagName("FRAME").length == 0 &&
-            doc.getElementsByTagName("IFRAME").length == 0)
-        {
-            // only one frame (the top-level one), no need to use the hints system
-            cont(buf.content_window);
-            return;
-        }
-        var s = new hints_minibuffer_state(
-            ctx.frame.buffers.current,
-            forward_keywords(arguments),
-            $callback = function (x) {
-                if (x.localName)
-                    cont(x.contentWindow);
-                else cont(x);
-            },
-            $hint_xpath_expression = hints_xpath_expressions.frames.def);
         ctx.frame.minibuffer.push_state(s);
     });
