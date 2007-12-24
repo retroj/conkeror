@@ -22,9 +22,6 @@ function browser_buffer(frame, browser)
         browser = create_XUL(frame, "browser");
         browser.setAttribute("type", "content");
         browser.setAttribute("flex", "1");
-        browser.setAttribute("usechromesheets",
-                             "chrome://conkeror/content/numbering.css, "
-                             + "chrome://global/skin/xulscrollbars.css");
         this.frame.buffers.container.appendChild(browser);
     }
     this.element = browser;

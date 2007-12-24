@@ -10,6 +10,26 @@ var active_hint_background_color = "#88FF00";
 var hint_background_color = "yellow";
 
 /**
+ * Register hints style sheet
+ */
+const hints_stylesheet = "chrome://conkeror/content/hints.css";
+function hints_register_stylesheet()
+{
+    var uri = makeURL(hints_stylesheet);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+}
+
+function hints_unregister_stylesheet()
+{
+    var uri = makeURL(hints_stylesheet);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    if (sss.sheetRegistered(uri, sss.USER_SHEET))
+        ss.unregisterSheet(uri, sss.USER_SHEET);
+}
+hints_register_stylesheet();
+
+/**
  * buffer is a browser_buffer
  *
  */

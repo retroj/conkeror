@@ -17,9 +17,7 @@
 
   <vbox flex="1">
     <deck flex="1" id="buffer-container">
-	  <browser flex="1" type="content-primary"
-               usechromesheets="chrome://conkeror/content/numbering.css,
-                                chrome://global/skin/xulscrollbars.css"/>
+	  <browser flex="1" type="content-primary"/>
 	</deck>
     <hbox id="minibuffer">
       <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
