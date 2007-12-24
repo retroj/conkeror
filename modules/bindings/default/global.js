@@ -10,6 +10,8 @@ bind_universal_argument(default_global_keymap, "C-u");
 
 define_key(default_global_keymap, "M-S-;","eval-expression");
 
+define_key(default_global_keymap, "C-x C-c", "quit");
+
 define_key(default_global_keymap, "C-x b", "switch-to-buffer");
 define_key(default_global_keymap, "C-x k", "kill-buffer");
 define_key(default_global_keymap, "C-x 5 f", "find-url-other-buffer");

@@ -590,6 +590,28 @@ function generate_save_path (url, aDocument, aContentType, aContentDisposition, 
  *  COMMANDS
  */
 
+function browser_element_save (elem, url, dest_file_o)
+{
+    /* FIXME :  use referrer */
+    try {
+        url.QueryInterface (Components.interfaces.nsIURI);
+    } catch (e) {
+        url = makeURL (url);
+    }
+    download_uri_internal (
+        url,
+        null,        // document_o
+        dest_file_o,
+        null,        // dest_data_dir_o
+        null,        // referrer_o
+        null,        // post_data_o
+        null,        // content_type_s
+        true,        // should_bypass_cache_p
+        false,       // save_as_text_p
+        false);      // save_as_complete_p
+}
+
+
 
 function save_focused_link (url, dest_file_o)
 {
