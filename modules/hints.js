@@ -4,15 +4,6 @@
  * Portions are derived from Vimperator (c) 2006-2007: Martin Stubenschrott <stubenschrott@gmx.net>
  */
 
-/* USER PREFERENCE */
-/* FIXME: figure out why this needs to have a bunch of duplication */
-var hint_xpath_expression =
-    "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-    "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
-    "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-    "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
-    "//xhtml:button | //xhtml:select";
-
 var active_img_hint_background_color = "#88FF00";
 var img_hint_background_color = "yellow";
 var active_hint_background_color = "#88FF00";
@@ -155,13 +146,21 @@ hint_manager.prototype = {
                     continue outer;
                 }
             }
+            var cur_number = this.valid_hints.length + 1;
             h.visible = true;
 
+            var img_elem = null;
+
             if (text.length == 0 && h.elem.firstChild && h.elem.firstChild.localName == "IMG")
+                img_elem = h.elem.firstChild;
+            else if (h.elem.localName == "IMG")
+                img_elem = h.elem;
+
+            if (img_elem)
             {
                 if (!h.img_hint)
                 {
-                    rect = h.elem.firstChild.getBoundingClientRect();
+                    rect = img_elem.getBoundingClientRect();
                     if (!rect)
                         continue;
                     doc = h.elem.ownerDocument;
@@ -176,12 +175,12 @@ hint_manager.prototype = {
                     h.img_hint = img_hint;
                     doc.documentElement.appendChild(img_hint);
                 }
-                h.img_hint.style.backgroundColor = (active_number == i) ?
+                var bgcolor = (active_number == cur_number) ? 
                     active_img_hint_background_color : img_hint_background_color;
+                h.img_hint.style.backgroundColor = bgcolor;
                 h.img_hint.style.display = "inline";
             }
 
-            var cur_number = this.valid_hints.length + 1;
 
             if (!h.img_hint)
                 h.elem.style.backgroundColor = (active_number == cur_number) ?
@@ -205,17 +204,19 @@ hint_manager.prototype = {
         if (old_index >= 1 && old_index <= vh.length)
         {
             var h = vh[old_index - 1];
-            h.elem.style.backgroundColor = hint_background_color;
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = img_hint_background_color;
+            else
+                h.elem.style.backgroundColor = hint_background_color;
         }
         this.current_hint_number = index;
         if (index >= 1 && index <= vh.length)
         {
             var h = vh[index - 1];
-            h.elem.style.backgroundColor = active_hint_background_color;
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = active_img_hint_background_color;
+            else
+                h.elem.style.backgroundColor = active_hint_background_color;
         }
     },
 
@@ -256,21 +257,6 @@ var hint_keymap = null;
 function initialize_hint_keymap()
 {
     hint_keymap = new keymap();
-    define_key(hint_keymap, kbd(match_any_unmodified_key), "hints-handle-character");
-    define_key(hint_keymap, "back_space", "hints-backspace");
-    define_key(hint_keymap, "tab", "hints-next");
-    define_key(hint_keymap, "right", "hints-next");
-    define_key(hint_keymap, "down", "hints-next");
-    define_key(hint_keymap, "S-tab", "hints-previous");
-    define_key(hint_keymap, "left", "hints-previous");
-    define_key(hint_keymap, "up", "hints-previous");
-    define_key(hint_keymap, "escape", "hints-abort");
-    define_key(hint_keymap, "C-g", "hints-abort");
-    define_key(hint_keymap, "return", "hints-exit");
-
-    // FIXME: this should probably be some better more general
-    // property, i.e. catch_all or something.
-    define_key(hint_keymap, kbd(match_any_key), null);
 }
 initialize_hint_keymap();
 
@@ -284,7 +270,7 @@ initialize_hint_keymap();
 define_keywords("$keymap", "$auto", "$callback", "$abort_callback", "$hint_xpath_expression");
 function hints_minibuffer_state()
 {
-    keywords(arguments, $keymap = hint_keymap, $hint_xpath_expression = hint_xpath_expression, $auto);
+    keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, $prompt = arguments.$prompt);
     this.keymap = arguments.$keymap;
     this.callback = arguments.$callback;
@@ -320,7 +306,7 @@ hints_minibuffer_state.prototype = {
 };
 
 /* USER PREFERENCE */
-var hints_auto_exit_delay = 800;
+var hints_auto_exit_delay = 500;
 
 function hints_handle_character(frame, s, e) {
     /* Check for numbers */
@@ -357,6 +343,10 @@ interactive("hints-handle-character", hints_handle_character,
             I.current_frame, I.minibuffer_state(hints_minibuffer_state), I.e);
 
 function hints_backspace(frame, s) {
+    if (this.auto_exit_timer_ID) {
+        frame.clearTimeout(this.auto_exit_timer_ID);
+        this.auto_exit_timer_ID = null;
+    }
     if (s.typed_number.length > 0) {
         s.typed_number = s.typed_number.substring(0, s.typed_number.length - 1);
         var num = s.typed_number.length > 0 ? parseInt(s.typed_number) : 1;
@@ -373,6 +363,10 @@ interactive("hints-backspace", hints_backspace,
             I.current_frame, I.minibuffer_state(hints_minibuffer_state));
 
 function hints_next(frame, s, count) {
+    if (this.auto_exit_timer_ID) {
+        frame.clearTimeout(this.auto_exit_timer_ID);
+        this.auto_exit_timer_ID = null;
+    }
     s.typed_number = "";
     var cur = s.manager.current_hint_number - 1;
     var vh = s.manager.valid_hints;
@@ -493,10 +487,47 @@ function element_follow(buffer, elem)
     elem.dispatchEvent(evt);
 }
 
+/* USER PREFERENCE */
+/* FIXME: figure out why this needs to have a bunch of duplication */
+var hints_xpath_expressions = {
+    images: {def: "//img | //xhtml:img"},
+    frames: {def: "//iframe | //frame | //xhtml:iframe | //xhtml:frame"},
+    links: {def:
+            "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+            "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
+            "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+            "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
+            "//xhtml:button | //xhtml:select"}
+};
+
+var hints_default_object_classes = {
+    follow: "links",
+    focus: "frames",
+    save: "links",
+    def: "links"
+};
+
+I.hints_xpath_expression = interactive_method(
+    $sync = function (ctx, action_name) {
+        var cls =
+            ctx.hints_object_class ||
+            hints_default_object_classes[action_name] ||
+            hints_default_object_classes["def"];
+        var db = hints_xpath_expressions[cls];
+        return db[action_name] || db["def"];
+    }
+    );
+
+function hints_object_class_selector(name) {
+    return function (ctx, active_keymap, overlay_keymap) {
+        ctx.hints_object_class = name;
+    }
+}
+
 interactive("hinted-follow-element", element_follow,
-            I.current_buffer, I.hinted_element($prompt = "Follow:"));
-
-
+            I.current_buffer,
+            I.hinted_element($prompt = "Follow:",
+                             $hint_xpath_expression = I.hints_xpath_expression));
 
 interactive("hinted-focus-frame", element_focus,
             I.current_buffer,
@@ -504,4 +535,3 @@ interactive("hinted-focus-frame", element_focus,
                 $prompt = "Frame:",
                 $hint_xpath_expression = "//xhtml:frame | //xhtml:iframe | //iframe | //frame"
                 ));
-

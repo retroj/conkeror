@@ -102,6 +102,12 @@ function format_key_press(code, modifiers)
     return out;
 }
 
+function format_key_spec(key) {
+    if (key.match_function)
+        return "<match-function>";
+    return format_key_press(key.keyCode, key.modifiers);
+}
+
 function format_key_event(event)
 {
     return format_key_press(event.keyCode, get_modifiers(event));
@@ -251,65 +257,120 @@ function kbd (spec, mods)
 
 // bind key to either the keymap or command in the keymap, kmap
 define_keywords("$fallthrough", "$hook");
-function define_key (kmap, key, cmd)
+function define_key(kmap, keys, cmd)
 {
     keywords(arguments);
     var args = arguments;
-    // Allow the user to specify a string as a key
-    if (typeof key == "string")
-        key = kbd(key);
+    
+    if (typeof(keys) == "string" && keys.length > 1)
+        keys = keys.split(" ");
+    if (!(keys instanceof Array))
+        keys = [keys];
 
-    /* Replace `bind' with the binding specified by (cmd, fallthrough) */
-    function replace_binding(bind)
-    {
-        if (typeof cmd == "string" || typeof cmd == "function")
+    var new_command = null, new_keymap = null;
+    if (typeof(cmd) == "string")
+        new_command = cmd;
+    else if (cmd instanceof keymap)
+        new_keymap = cmd;
+    else if (cmd != null)
+        throw new Error("Invalid `cmd' argument: " + cmd);
+
+    var parent_kmap = kmap.parent;
+
+outer:
+    for (var i = 0; i < keys.length; ++i) {
+        var key = keys[i];
+        var final_binding = (i == keys.length - 1);
+
+        if (typeof key == "string")
+            key = kbd(key);
+        else if (typeof key == "function")
+            key = kbd(key);
+
+        /* Replace `bind' with the binding specified by (cmd, fallthrough) */
+        function replace_binding(bind)
         {
-            bind.command = cmd;
-            bind.keymap = null;
-        } else {
-            bind.command = null;
-            bind.keymap = cmd;
-        }
-        bind.fallthrough = args.$falllthrough;
-        bind.hook = args.$hook;
-    }
-
-    function make_binding()
-    {
-        var bind = { key: key };
-        replace_binding(bind);
-        return bind;
-    }
-
-    // Check if the specified binding is already present in the kmap
-    if (key.match_function)
-    {
-        var pred_binds = kmap.predicate_bindings;
-        for (var i = 0; i < pred_binds.length; i++)
-        {
-            var cur_bind = pred_binds[i];
-            if (cur_bind.key.match_function == key.match_function)
-            {
-                replace_binding(cur_bind);
-                return;
+            if (final_binding) {
+                bind.command = new_command;
+                bind.keymap = new_keymap;
+                bind.fallthrough = args.$falllthrough;
+                bind.hook = args.$hook;
+            } else {
+                if (!bind.keymap)
+                    throw new Error("Key sequence has a non-keymap in prefix");
+                kmap = bind.keymap;
             }
         }
-        // Not already present, must be added
-        pred_binds.push(make_binding());
-    } else
-    {
-        // This is a binding by keycode: look it up in the table
-        var keycode_binds = kmap.keycode_bindings;
-        var arr = keycode_binds[key.keyCode];
-        if (arr && arr[key.modifiers])
+
+        function make_binding()
         {
-            replace_binding(arr[key.modifiers]);
-            return;
-        } else if (!arr)
-        {
-            arr = (keycode_binds[key.keyCode] = []);
+            if (final_binding) {
+                return {key: key, fallthrough: args.$fallthrough, hook: args.$hook,
+                        command: new_command, keymap: new_keymap };
+            }
+            else
+            {
+                // Check for a corresponding binding a parent
+                kmap = new keymap($parent = parent_kmap);
+                return {key: key, keymap: kmap};
+            }
         }
-        arr[key.modifiers] = make_binding();
+
+        // Check if the specified binding is already present in the kmap
+        if (key.match_function)
+        {
+            var pred_binds = kmap.predicate_bindings;
+            for (var i = 0; i < pred_binds.length; i++)
+            {
+                var cur_bind = pred_binds[i];
+                if (cur_bind.key.match_function == key.match_function)
+                {
+                    replace_binding(cur_bind);
+                    continue outer;
+                }
+            }
+
+            if (!final_binding && parent_kmap) {
+                var parent_pred_binds = parent_kmap.predicate_bindings;
+                parent_kmap = null;
+                for (var i = 0; i < parent_pred_binds.length; i++)
+                {
+                    var cur_bind = parent_pred_binds[i];
+                    if (cur_bind.key.match_function == key.match_function && cur_bind.keymap)
+                    {
+                        parent_kmap = cur_bind.keymap;
+                        break;
+                    }
+                }
+            }
+            // Not already present, must be added
+            pred_binds.push(make_binding());
+        } else
+        {
+            // This is a binding by keycode: look it up in the table
+            var keycode_binds = kmap.keycode_bindings;
+            var arr = keycode_binds[key.keyCode];
+
+            if (arr && arr[key.modifiers])
+            {
+                replace_binding(arr[key.modifiers]);
+                continue outer;
+            }
+
+            if (!final_binding && parent_kmap) {
+                var p_keycode_binds = parent_kmap.keycode_bindings;
+                parent_kmap = null;
+                var p_arr = p_keycode_binds[key.keyCode];
+                var p_bind;
+                if (p_arr && (p_bind = p_arr[key.modifiers]) != null && p_bind.keymap)
+                    parent_kmap = p_bind.keymap;
+            }
+
+            if (!arr)
+                arr = (keycode_binds[key.keyCode] = []);
+
+            arr[key.modifiers] = make_binding();
+        }
     }
 }
 

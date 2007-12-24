@@ -23,14 +23,15 @@ require("commands.js"); // depends: interactive.js
 require("frameset.js"); // depends interactive.js
 require("webjump.js"); // depends: interactive.js
 
-
 require("bindings.js"); // depends: keyboard.js
 
 require("find.js");
 //require("numberedlinks.js");
 require("hints.js");
 
+
 require("rc.js");
+require("bindings/default/bindings.js");
 
 //require("scroll-bars.js");
 

@@ -140,14 +140,16 @@ function open_url_in (frame, prefix, url)
         // Open in current buffer
         // FIXME: check to ensure that current buffer is a browser_buffer
         frame.buffers.current.load_URI(url);
+        return frame;
     } else if (prefix <= 4) {
         // Open in new buffer
         var buffer = new browser_buffer(frame);
         buffer.load_URI(url);
         frame.buffers.current = buffer;
+        return frame;
     } else {
         // Open in new frame
-      make_frame(url);
+      return make_frame(url);
     }
 }
 
@@ -337,15 +339,12 @@ interactive("cmd_scrollRight", doCommandNTimes, I.current_buffer(browser_buffer)
 interactive("cmd_paste", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_paste');
 
 
-function describe_bindings (frame)
+function describe_bindings (frame, prefix)
 {
-    frame.getWebNavigation().loadURI("about:blank",
-                                     Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
-                                     null, null, null);
-    // Oh man. this is SO gross.
-    frame.setTimeout(genAllBindings, 0, frame);
+    var new_frame = open_url_in(frame, prefix, "about:blank");
+    new_frame.setTimeout(genAllBindings, 0, new_frame);
 }
-interactive("describe-bindings", describe_bindings, I.current_frame);
+interactive("describe-bindings", describe_bindings, I.current_frame, I.p);
 
 
 function get_link_text()
