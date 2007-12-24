@@ -461,18 +461,25 @@ function element_follow(buffer, elem)
 {
     var elemTagName = elem.localName;
     elem.focus();
-    if (elemTagName == "FRAME" || elemTagName == "IFRAME")
-        return;
 
     var x = 1, y = 1;
-    // for imagemap
-    if (elemTagName == "area")
-    {
+
+    switch (elemTagName) {
+    case "FRAME": case "IFRAME":
+        return;
+    case "IMG":
+        var src = elem.src;
+        if (src)
+            buffer.focused_window().location.href = src;
+        return;
+    case "AREA":
+        // image map
         var coords = elem.getAttribute("coords").split(",");
         x = Number(coords[0]) + 1;
         y = Number(coords[1]) + 1;
+        break;
     }
-    
+
     var doc = elem.ownerDocument;
     var view = doc.defaultView;
 
