@@ -13,18 +13,23 @@ var hint_background_color = "yellow";
  * buffer is a browser_buffer
  *
  */
-function hint_manager(window, xpath_expr)
+function hint_manager(window, xpath_expr, focused_window, focused_element)
 {
     this.window = window;
     this.hints = [];
     this.valid_hints = [];
     this.xpath_expr = xpath_expr;
+    this.focused_window = focused_window;
+    this.focused_element = focused_element;
+    this.last_selected_hint = null;
+
+    // Generate
     this.generate_hints();
 }
 
 hint_manager.prototype = {
     current_hint_string : "",
-    current_hint_number : 1,
+    current_hint_number : -1,
 
     /**
      * Create an initially hidden hint span element absolutely
@@ -39,6 +44,9 @@ hint_manager.prototype = {
         var top_width = topwin.innerWidth;
         var hints = this.hints;
         var xpath_expr = this.xpath_expr;
+        var focused_window_hint = null, focused_element_hint = null;
+        var focused_window = this.focused_window;
+        var focused_element = this.focused_element;
         function helper(window, offsetX, offsetY) {
             var win_height = window.height;
             var win_width = window.width;
@@ -88,13 +96,19 @@ hint_manager.prototype = {
                 node.style.top = (rect.top + scrollY) + "px";
                 fragment.appendChild(node);
 
-                hints.push({text: text,
+                var hint = {text: text,
                             elem: elem,
                             hint: node,
                             img_hint: null,
                             saved_color: elem.style.color,
                             saved_bgcolor: elem.style.backgroundColor,
-                            visible : false});
+                            visible : false};
+                hints.push(hint);
+
+                if (elem == focused_element)
+                    focused_element_hint = hint;
+                else if ((tagname == "FRAME" || tagname == "IFRAME") && elem.contentWindow == focused_window)
+                    focused_window_hint = hint;
             }
             doc.documentElement.appendChild(fragment);
 
@@ -114,6 +128,7 @@ hint_manager.prototype = {
             }
         }
         helper(topwin, 0, 0);
+        this.last_selected_hint = focused_element_hint || focused_window_hint;
     },
 
     /* Updates valid_hints and also re-numbers and re-displays all hints. */
@@ -146,8 +161,12 @@ hint_manager.prototype = {
                     continue outer;
                 }
             }
+
             var cur_number = this.valid_hints.length + 1;
             h.visible = true;
+
+            if (h == this.last_selected_hint && active_number == -1)
+                this.current_hint_number = active_number = cur_number;
 
             var img_elem = null;
 
@@ -194,6 +213,9 @@ hint_manager.prototype = {
             h.hint.style.display = "inline";
             this.valid_hints.push(h);
         }
+
+        if (active_number == -1)
+            this.select_hint(1);
     },
 
     select_hint : function (index) {
@@ -217,6 +239,7 @@ hint_manager.prototype = {
                 h.img_hint.style.backgroundColor = active_img_hint_background_color;
             else
                 h.elem.style.backgroundColor = active_hint_background_color;
+            this.last_selected_hint = h;
         }
     },
 
@@ -268,7 +291,7 @@ initialize_hint_keymap();
  * $abort_callback
  */
 define_keywords("$keymap", "$auto", "$callback", "$abort_callback", "$hint_xpath_expression", "$multiple");
-function hints_minibuffer_state()
+function hints_minibuffer_state(buffer)
 {
     keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, $prompt = arguments.$prompt);
@@ -279,6 +302,8 @@ function hints_minibuffer_state()
     this.xpath_expr = arguments.$hint_xpath_expression;
     this.auto_exit_timer_ID = null;
     this.multiple = arguments.$multiple;
+    this.focused_element = buffer.focused_element();
+    this.focused_window = buffer.focused_window();
 }
 hints_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
@@ -286,8 +311,11 @@ hints_minibuffer_state.prototype = {
     typed_string : "",
     typed_number : "",
     load : function (frame) {
-        if (!this.manager)
-            this.manager = new hint_manager(frame.buffers.current.content_window, this.xpath_expr);
+        if (!this.manager) {
+            var buf = frame.buffers.current;
+            this.manager = new hint_manager(buf.content_window, this.xpath_expr,
+                                            this.focused_window, this.focused_element);
+        }
         this.manager.update_valid_hints();
     },
     unload : function (frame) {
@@ -334,7 +362,7 @@ function hints_handle_character(frame, s, e) {
         s.typed_number = "";
         s.typed_string += ch;
         s.manager.current_hint_string = s.typed_string;
-        s.manager_current_hint_number = 1;
+        s.manager.current_hint_number = -1;
         s.manager.update_valid_hints();
         if (s.auto_exit && s.manager.valid_hints.length == 1)
             auto_exit = true;
@@ -363,7 +391,7 @@ function hints_backspace(frame, s) {
     } else if (s.typed_string.length > 0) {
         s.typed_string = s.typed_string.substring(0, s.typed_string.length - 1);
         s.manager.current_hint_string = s.typed_string;
-        s.manager_current_hint_number = 1;
+        s.manager_current_hint_number = -1;
         s.manager.update_valid_hints();
     }
     s.update_minibuffer(frame);
@@ -429,10 +457,52 @@ function hints_exit(frame, s)
 interactive("hints-exit", hints_exit,
             I.current_frame, I.minibuffer_state(hints_minibuffer_state));
 
+
+/* USER PREFERENCE */
+/* FIXME: figure out why this needs to have a bunch of duplication */
+var hints_xpath_expressions = {
+    images: {def: "//img | //xhtml:img"},
+    frames: {def: "//iframe | //frame | //xhtml:iframe | //xhtml:frame"},
+    links: {def:
+            "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+            "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
+            "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+            "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
+            "//xhtml:button | //xhtml:select"}
+};
+
 I.hinted_element = interactive_method(
     $doc = "DOM element chosen using the hints system",
     $async = function (ctx, cont) {
         keywords(arguments);
-        var s = new hints_minibuffer_state(forward_keywords(arguments), $callback = cont);
+        var s = new hints_minibuffer_state(ctx.frame.buffers.current,
+                                           forward_keywords(arguments), $callback = cont);
+        ctx.frame.minibuffer.push_state(s);
+    });
+
+
+I.hinted_frame = interactive_method(
+    $async = function (ctx, cont) {
+        keywords(arguments);
+        var buf = ctx.frame.buffers.current;
+        if (!(buf instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        var doc = buf.content_document;
+        if (doc.getElementsByTagName("FRAME").length == 0 &&
+            doc.getElementsByTagName("IFRAME").length == 0)
+        {
+            // only one frame (the top-level one), no need to use the hints system
+            cont(buf.content_window);
+            return;
+        }
+        var s = new hints_minibuffer_state(
+            ctx.frame.buffers.current,
+            forward_keywords(arguments),
+            $callback = function (x) {
+                if (x.localName)
+                    cont(x.contentWindow);
+                else cont(x);
+            },
+            $hint_xpath_expression = hints_xpath_expressions.frames.def);
         ctx.frame.minibuffer.push_state(s);
     });

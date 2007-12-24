@@ -23,3 +23,5 @@ function bind_element_operations(keymap) {
 
 bind_element_operations(browser_buffer_normal_keymap);
 bind_element_operations(browser_elements_keymap);
+
+define_key(browser_buffer_normal_keymap, "back_slash", "view-source");

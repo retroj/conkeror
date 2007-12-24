@@ -596,42 +596,6 @@ function print_buffer (frame)
 interactive("print-buffer", print_buffer, I.current_frame);
 
 
-function view_source (frame, win)
-{
-    if (conkeror.view_source_external_editor || conkeror.view_source_function)
-    {
-        download_for_external_program
-            (null, win.document, null,
-             function (file, is_temp_file) {
-                 if (conkeror.view_source_external_editor)
-                 {
-                     var editorFile = Components.classes["@mozilla.org/file/local;1"]
-                         .createInstance(Components.interfaces.nsILocalFile);
-                     editorFile.initWithPath(conkeror.view_source_external_editor);
-                     var process = Components.classes['@mozilla.org/process/util;1']
-                         .createInstance(Components.interfaces.nsIProcess);
-                     process.init(editorFile);
-                     process.run(false, [file.path], 1);
-                 } else
-                 {
-                     conkeror.view_source_function(file, is_temp_file);
-                 }
-             });
-        return;
-    }
-    var url_s = win.location.href;
-    if (url_s.substring (0,12) != "view-source:") {
-        try {
-            frame.buffers.current.load_URI("view-source:"+url_s);
-        } catch(e) { dumpln (e); }
-    } else {
-        frame.minibuffer.message ("already viewing source");
-    }
-}
-interactive("view-source", view_source, I.current_frame, I.current_buffer_window);
-interactive("frameset-view-source", view_source, I.current_frame, I.current_frameset_frame);
-
-
 function view_partial_source (frame, charset, selection) {
     if (charset) { charset = "charset=" + charset; }
     frame.window.openDialog("chrome://global/content/viewPartialSource.xul",

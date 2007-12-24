@@ -115,19 +115,6 @@ function browser_element_follow_top(buffer, elem)
         open_url_in(buffer.frame, 1 /* current buffer */, url);
 }
 
-/* USER PREFERENCE */
-/* FIXME: figure out why this needs to have a bunch of duplication */
-var hints_xpath_expressions = {
-    images: {def: "//img | //xhtml:img"},
-    frames: {def: "//iframe | //frame | //xhtml:iframe | //xhtml:frame"},
-    links: {def:
-            "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-            "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
-            "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-            "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
-            "//xhtml:button | //xhtml:select"}
-};
-
 var hints_default_object_classes = {
     follow: "links",
     follow_top: "frames",
@@ -242,3 +229,42 @@ function browser_element_copy(buffer, elem)
 interactive("browser-element-copy", browser_element_copy,
             I.current_buffer,
             hinted_element_with_prompt("copy", "Copy", "links", null));
+
+var view_source_external_editor = null, view_source_function = null;
+function view_source(frame, win, prefix)
+{
+    if (view_source_external_editor || view_source_function)
+    {
+        download_for_external_program
+            (null, win.document, null,
+             function (file, is_temp_file) {
+                 if (view_source_external_editor)
+                 {
+                     var editorFile = Components.classes["@mozilla.org/file/local;1"]
+                         .createInstance(Components.interfaces.nsILocalFile);
+                     editorFile.initWithPath(view_source_external_editor);
+                     var process = Components.classes['@mozilla.org/process/util;1']
+                         .createInstance(Components.interfaces.nsIProcess);
+                     process.init(editorFile);
+                     process.run(false, [file.path], 1);
+                 } else
+                 {
+                     view_source_function(file, is_temp_file);
+                 }
+             });
+        return;
+    }
+    var url_s = win.location.href;
+    if (url_s.substring (0,12) != "view-source:") {
+        try {
+            open_url_in(frame, "view-source:" + url_s, prefix);
+        } catch(e) { dump_error(e); }
+    } else {
+        frame.minibuffer.message ("Already viewing source");
+    }
+}
+
+interactive("view-source", view_source,
+            I.current_frame,
+            I.hinted_frame($prompt = "View source:"),
+            I.p);
