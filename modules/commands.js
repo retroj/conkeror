@@ -648,11 +648,3 @@ function  view_mathml_source (frame, charset, target) {
                             null, charset, target, 'mathml');
 }
 interactive ('view-mathml-source', view_mathml_source, I.current_frame, I.content_charset, I.mathml_node);
-
-
-function show_charcode_mapping_tool()
-{
-    make_chrome_frame("chrome://conkeror/content/generate_mapping_table.html");
-}
-
-interactive ("charcode-mapping-tool", show_charcode_mapping_tool);
