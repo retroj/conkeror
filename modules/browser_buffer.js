@@ -435,10 +435,3 @@ add_hook("browser_buffer_focus_change_hook", function (buffer) {
         }
         browser_buffer_normal_input_mode(buffer);
     });
-
-var browser_buffer_normal_keymap = null;
-var browser_buffer_select_keymap = null;
-var browser_buffer_text_keymap = null;
-var browser_buffer_textarea_keymap = null;
-var browser_buffer_quote_next_keymap = null;
-var browser_buffer_quote_keymap = null;

@@ -587,11 +587,11 @@ function genBindingsHelper(window, doc, kmap, prefix)
     } catch(e) {window.alert(e);}
 }
 
-function genAllBindings(window, kmap)
+function genAllBindings(window)
 {
-  genBindings(window, top_kmap, "Top Level");
-  genBindings(window, input_kmap, "Text Box");
-  genBindings(window, textarea_kmap, "Text Area");
+  genBindings(window, browser_buffer_normal_keymap, "Top Level");
+  genBindings(window, browser_buffer_text_keymap, "Text Box");
+  genBindings(window, browser_buffer_textarea_keymap, "Text Area");
 }
 
 function genBindings(window, kmap, name)

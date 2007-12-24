@@ -245,7 +245,7 @@ function basic_minibuffer_state()
     } else {
         sel_start = sel_end = arguments.$initial_value.length;
     }
-    minibuffer_state.call(this, minibuffer_base_kmap,
+    minibuffer_state.call(this, minibuffer_base_keymap,
                           arguments.$prompt, arguments.$initial_value,
                           sel_start, sel_end);
 }
@@ -272,7 +272,7 @@ function text_entry_minibuffer_state() {
     keywords(arguments);
 
     basic_minibuffer_state.call(this, forward_keywords(arguments));
-    this.keymap = minibuffer_kmap;
+    this.keymap = minibuffer_keymap;
     
     this.callback = arguments.$callback;
     this.abort_callback = arguments.$abort_callback;
@@ -312,6 +312,8 @@ completions_tree_view.prototype = {
     },
     getCellText : function(row,column){
         var c = this.minibuffer_state.completions;
+        if (row >= c.data.length)
+            return null;
         if (column.index == 0)
             return c.get_string(c.data[row]);
         return c.get_description(c.data[row]);
