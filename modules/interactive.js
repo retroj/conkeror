@@ -92,20 +92,16 @@ function interactive(name)
 }
 
 // Any additional arguments specify "given" arguments to the function.
-function call_interactively(frame, command)
+function call_interactively(ctx, command)
 {
     var cmd = interactive_commands.get(command);
+    var frame = ctx.frame;
     if (!cmd)
     {
         frame.minibuffer.message("Invalid command: " + command);
         return;
     }
-    var ctx = { frame: frame,
-                prefix_argument: frame.current_prefix_argument,
-                command: command,
-                event: frame.keyboard.last_command_event };
-    frame.current_prefix_argument = null; // reset prefix argument
-
+    ctx.command = command;
 
     function join_argument_lists(args1, args2)
     {
