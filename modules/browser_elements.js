@@ -233,6 +233,7 @@ interactive("browser-element-copy", browser_element_copy,
 var view_source_external_editor = null, view_source_function = null;
 function view_source(frame, win, prefix)
 {
+    win.focus();
     if (view_source_external_editor || view_source_function)
     {
         download_for_external_program
