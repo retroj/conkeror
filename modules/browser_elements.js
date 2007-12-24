@@ -71,8 +71,8 @@ function browser_element_follow(buffer, elem, prefix)
     elem.dispatchEvent(evt);
 }
 
-function element_get_url(elem) {
-    if (elem instanceof Window)
+function element_get_url(buffer, elem) {
+    if (elem == buffer.content_window)
         return elem.location.href;
     var name = null;
     switch (elem.localName) {
@@ -94,7 +94,7 @@ function element_get_url(elem) {
 function browser_element_follow_other_buffer(buffer, elem)
 {
     elem.focus();
-    var url = element_get_url(elem);
+    var url = element_get_url(buffer, elem);
     if (url != null)
         open_url_in(buffer.frame, 4 /* other buffer */, url);
 }
@@ -102,7 +102,7 @@ function browser_element_follow_other_buffer(buffer, elem)
 function browser_element_follow_other_frame(buffer, elem)
 {
     elem.focus();
-    var url = element_get_url(elem);
+    var url = element_get_url(buffer, elem);
     if (url != null)
         open_url_in(buffer.frame, 5 /* other frame */, url);
 }
@@ -110,7 +110,7 @@ function browser_element_follow_other_frame(buffer, elem)
 function browser_element_follow_top(buffer, elem)
 {
     elem.focus();
-    var url = element_get_url(elem);
+    var url = element_get_url(buffer, elem);
     if (url != null)
         open_url_in(buffer.frame, 1 /* current buffer */, url);
 }
@@ -203,7 +203,7 @@ interactive("browser-element-follow-other-frame", browser_element_follow_other_f
 
 interactive("browser-element-follow-top", browser_element_follow_top,
             I.current_buffer,
-            hinted_element_with_prompt("follow", "Follow", "frames", " in top frame"));
+            hinted_element_with_prompt("follow_top", "Follow", "frames", " in top frame"));
 
 interactive("browser-element-focus", browser_element_focus,
             I.current_buffer,
@@ -211,7 +211,7 @@ interactive("browser-element-focus", browser_element_focus,
 
 interactive("browser-element-save", browser_element_save,
             $$ = hinted_element_with_prompt("save", "Save", "links", null),
-            $$1 = I.bind(element_get_url, $$),
+            $$1 = I.bind(element_get_url, I.current_buffer, $$),
             I.F($prompt = "Save as:",
                 $initial_value = I.bind(function (u) { return generate_save_path(u).path; }, $$1),
                 $history = "save"));

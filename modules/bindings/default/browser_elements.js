@@ -16,7 +16,7 @@ function bind_element_operations(keymap) {
     define_key(keymap, "f", "browser-element-follow");
     define_key(keymap, "F", "browser-element-follow-other-buffer");
     define_key(keymap, ";", "browser-element-focus");
-    define_key(keymap, "t", "browser-element-show-top");
+    define_key(keymap, "t", "browser-element-follow-top");
     define_key(keymap, "s", "browser-element-save");
     define_key(keymap, "c", "browser-element-copy");
 }
