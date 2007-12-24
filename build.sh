@@ -266,7 +266,7 @@ function do_target_etags () {
     fi
     ETAGSDIR="${ETAGSDIR%/}/TAGS"
     echo -n "Building $ETAGSDIR ..."
-    etags -o "$ETAGSDIR" conkeror/content/*.js
+    etags -o "$ETAGSDIR" $(find -name \*.js -and \! -name '*[~#]*')
     echo ok
 }
 
