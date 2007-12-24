@@ -133,6 +133,7 @@ var hints_default_object_classes = {
     follow_top: "frames",
     focus: "frames",
     save: "links",
+    copy: "links",
     def: "links"
 };
 
@@ -215,3 +216,29 @@ interactive("browser-element-save", browser_element_save,
             I.F($prompt = "Save as:",
                 $initial_value = I.bind(function (u) { return generate_save_path(u).path; }, $$1),
                 $history = "save"));
+
+function browser_element_copy(buffer, elem)
+{
+    var text = element_get_url(buffer, elem);
+    if (text == null) {
+        switch (elem.localName) {
+        case "INPUT":
+        case "TEXTAREA":
+            text = elem.value;
+            break;
+        case "SELECT":
+            if (elem.selectedIndex >= 0)
+                text = elem.item(elem.selectedIndex).text;
+            break;
+        }
+    }
+    if (text == null)
+        text = elem.textContent;
+    writeToClipboard (text);
+    buffer.frame.minibuffer.message ("Copied: " + text);
+}
+
+
+interactive("browser-element-copy", browser_element_copy,
+            I.current_buffer,
+            hinted_element_with_prompt("copy", "Copy", "links", null));
