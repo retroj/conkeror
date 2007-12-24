@@ -250,8 +250,11 @@ function kbd (spec, mods)
 }
 
 // bind key to either the keymap or command in the keymap, kmap
-function define_key (kmap, key, cmd, fallthrough)
+define_keywords("$fallthrough", "$hook");
+function define_key (kmap, key, cmd)
 {
+    keywords(arguments);
+    var args = arguments;
     // Allow the user to specify a string as a key
     if (typeof key == "string")
         key = kbd(key);
@@ -267,16 +270,14 @@ function define_key (kmap, key, cmd, fallthrough)
             bind.command = null;
             bind.keymap = cmd;
         }
-        bind.fallthrough = fallthrough;
+        bind.fallthrough = args.$falllthrough;
+        bind.hook = args.$hook;
     }
 
     function make_binding()
     {
-        var bind = { key: key, fallthrough: fallthrough };
-        if (typeof cmd == "string" || typeof cmd == "function")
-            bind.command = cmd;
-        else
-            bind.keymap = cmd;
+        var bind = { key: key };
+        replace_binding(bind);
         return bind;
     }
 
@@ -359,134 +360,109 @@ var keyboard_key_sequence_help_timeout = 0;
 function key_press_handler(true_event)
 {
     try{
-    var frame = this;
-    var state = frame.keyboard;
+        var frame = this;
+        var state = frame.keyboard;
 
-    /* ASSERT(state.last_key_down_event != null); */
+        /* ASSERT(state.last_key_down_event != null); */
 
-    var event = state.last_key_down_event;
-    event.charCode = true_event.charCode;
+        var event = state.last_key_down_event;
+        event.charCode = true_event.charCode;
 
-    // If the true_event includes a keyCode, we can just use that
-    if (true_event.keyCode)
-        event.keyCode = true_event.keyCode;
+        // If the true_event includes a keyCode, we can just use that
+        if (true_event.keyCode)
+            event.keyCode = true_event.keyCode;
 
-    else if (state.last_char_code != null
-        && (state.last_char_code != true_event.charCode
-            || state.last_key_code != true_event.keyCode))
-    {
-        /* Mozilla failed to give us a key down event; use hack to get a keyCode anyway */
-        event.keyCode = charcode_to_keycode[true_event.charCode];
-        //window.dumpln("bug turned up: fake keyCode: " + event.keyCode);
-    }
-    state.last_char_code = true_event.charCode;
-    state.last_key_code = true_event.keyCode;
-
-    /* Clear minibuffer message */
-    frame.minibuffer.clear();    
-
-    var binding = null;
-    var done = true;
-
-    state.last_command_event = event;
-
-    if (state.overlay_keymap != null)
-    {
-        binding = lookup_key_binding(state.overlay_keymap, event);
-
-        // Disengage overlay keymap if it didn't match this time
-        if (!binding)
-            state.overlay_keymap = null;
-    }
-
-    if (!binding)
-    {
-        // Check if we are in the middle of a key sequence
-        if (!state.active_keymap) {
-
-            //dumpln("Looking up key " + format_key_event(event) + " in regular keymap set");
-
-            /* If the override_keymap is set, it is used instead of
-             * the keymap for the current buffer. */
-            var kmap = state.override_keymap || frame.buffers.current.keymap;
-            binding = lookup_key_binding(kmap, event);
-        } else
+        else if (state.last_char_code != null
+                 && (state.last_char_code != true_event.charCode
+                     || state.last_key_code != true_event.keyCode))
         {
-            // Use the active keymap
-            binding = lookup_key_binding(state.active_keymap, event);
+            /* Mozilla failed to give us a key down event; use hack to get a keyCode anyway */
+            event.keyCode = charcode_to_keycode[true_event.charCode];
+            dumpln("bug turned up: fake keyCode: " + event.keyCode);
         }
-    }
+        state.last_char_code = true_event.charCode;
+        state.last_key_code = true_event.keyCode;
 
-    // Should we stop this event from being processed by the gui?
-    //
-    // 1) we have a binding, and the binding's fallthrough property is not
-    //    true.
-    //
-    // 2) we are in the middle of a key sequence, and we need to say that
-    //    the key sequence given has no command.
-    //
-    if ((binding && !binding.fallthrough) || state.active_keymap)
-    {
-        true_event.preventDefault();
-        true_event.stopPropagation();
-    }
+        /* Clear minibuffer message */
+        frame.minibuffer.clear();    
 
-    // Finally, process the binding.
-    if (binding) {
-        if (binding.keymap) {
-            state.active_keymap = binding.keymap;
-            if (!state.current_key_sequence)
-                state.current_key_sequence = [];
-            state.current_key_sequence.push(format_key_event(event));
+        var binding = null;
+        var done = true;
 
-            if (!state.help_displayed)
-            {
-                state.help_timer_ID = frame.setTimeout(function () {
-                        frame.minibuffer.show(state.current_key_sequence.join(" "));
-                        state.help_displayed = true;
-                        state.help_timer_ID = null;
-                    }, keyboard_key_sequence_help_timeout);
+        var ctx;
+        if (!state.current_context)
+            ctx = state.current_context = { frame: frame, key_sequence: [] };
+        else
+            ctx = state.current_context;
+
+        ctx.event = event;
+
+        var active_keymap =
+            state.active_keymap ||
+            state.override_keymap ||
+            frame.buffers.current.keymap;
+        var overlay_keymap = ctx.overlay_keymap;
+
+        binding =
+            lookup_key_binding(active_keymap, event) ||
+            (overlay_keymap && lookup_key_binding(overlay_keymap, event));
+
+        ctx.overlay_keymap = null;
+
+        // Should we stop this event from being processed by the gui?
+        //
+        // 1) we have a binding, and the binding's fallthrough property is not
+        //    true.
+        //
+        // 2) we are in the middle of a key sequence, and we need to say that
+        //    the key sequence given has no command.
+        //
+        if ((binding && !binding.fallthrough) || state.active_keymap)
+        {
+            true_event.preventDefault();
+            true_event.stopPropagation();
+        }
+
+        // Finally, process the binding.
+        ctx.key_sequence.push(format_key_event(event));
+        if (binding) {
+            if (binding.keymap) {
+                if (binding.hook)
+                    binding.hook.call(null, ctx, active_keymap, overlay_keymap);
+                state.active_keymap = binding.keymap;
+                if (!state.help_displayed)
+                {
+                    state.help_timer_ID = frame.setTimeout(function () {
+                            frame.minibuffer.show(ctx.key_sequence.join(" "));
+                            state.help_displayed = true;
+                            state.help_timer_ID = null;
+                        }, keyboard_key_sequence_help_timeout);
+                }
+                else
+                    frame.minibuffer.show(ctx.key_sequence.join(" "));
+
+                // We're going for another round
+                done = false;
+            } else if (binding.command) {
+                call_interactively(ctx, binding.command);
             }
-            else
-                frame.minibuffer.show(state.current_key_sequence.join(" "));
-
-            // We're going for another round
-            done = false;
-        } else if (binding.command) {
-            call_interactively(frame, binding.command);
+        } else {
+            if (state.active_keymap)
+                frame.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");
         }
-    } else {
-        // No binding was found.  If this is the universal abort_key, then
-        // abort().
-//        if (match_binding(abort_key, event))
-//        {
-            /* FIXME: once we have abort implemented ...
-            window.abort();
-            */
-//        }
 
-//        else
-        if (state.active_keymap)
+        // Clean up if we're done
+        if (done)
         {
-            state.current_key_sequence.push(format_key_event(event));
-            frame.minibuffer.message(state.current_key_sequence.join(" ") + " is undefined");
+            if (state.help_timer_ID != null)
+            {
+                frame.clearTimeout(state.help_timer_ID);
+                state.help_timer_ID = null;
+            }
+            state.help_displayed = false;
+            state.active_keymap = null;
+            state.current_context = null;
         }
-
-    }
-
-    // Clean up if we're done
-    if (done)
-    {
-        if (state.help_timer_ID != null)
-        {
-            frame.clearTimeout(state.help_timer_ID);
-            state.help_timer_ID = null;
-        }
-        state.help_displayed = false;
-        state.current_key_sequence = null;
-        state.active_keymap = null;
-    }
-
     } catch(e) { dump_error(e);}
 }
 
@@ -498,12 +474,10 @@ keyboard.prototype = {
     last_key_down_event : null,
     last_char_code : null,
     last_key_code : null,
-    current_key_sequence : null,
+    current_context : null,
+    active_keymap : null,
     help_timer_ID : null,
     help_displayed : false,
-    last_command_event : null,
-    active_keymap : null,
-    overlay_keymap : null,
 
     /* If this is non-null, it is used instead of the current buffer's
      * keymap. */

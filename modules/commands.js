@@ -252,8 +252,7 @@ interactive("buffer-previous", browser_prev, I.current_frame);
 
 function meta_x (frame, prefix, command)
 {
-    frame.current_prefix_argument = prefix;
-    call_interactively(frame, command);
+    call_interactively({frame: frame, prefix_argument: prefix}, command);
 }
 interactive("execute-extended-command", meta_x,
             I.current_frame, I.P,
@@ -423,59 +422,6 @@ function tutorial_page (frame, prefix)
 }
 interactive("help-with-tutorial", tutorial_page, I.current_frame, I.p);
 
-
-// universal argument code
-
-function universal_digit (frame, prefix, event)
-{
-    var ch = event.charCode;
-    var digit = ch - 48; // 48 is the char code for '0'
-    // Array means they typed only C-u's. Otherwise, add another digit
-    // to our accumulating prefix arg.
-    if (typeof prefix == "object") {
-        if (prefix[0] < 0)
-            frame.current_prefix_argument = 0 - digit;
-        else
-            frame.current_prefix_argument = digit;
-    } else {
-        frame.current_prefix_argument = prefix * 10 + digit;
-    }
-}
-interactive("universal-digit", universal_digit, I.current_frame, I.P, I.e);
-
-
-function universal_negate (frame)
-{
-    if (typeof frame.current_prefix_argument == "object")
-        frame.current_prefix_argument[0] = 0 - frame.current_prefix_argument[0];
-    else
-        frame.current_prefix_argument = 0 - frame.current_prefix_argument;
-}
-interactive("universal-negate", universal_negate,I.current_frame);
-
-
-function universal_argument (frame)
-{
-    frame.current_prefix_argument = [4];
-    frame.keyboard.overlay_keymap = universal_kmap;
-}
-interactive("universal-argument", universal_argument,I.current_frame);
-
-
-function universal_argument_more (frame, prefix)
-{
-    if (typeof prefix == "object")
-        frame.current_prefix_argument = [prefix[0] * 4];
-    else {
-        // terminate the prefix arg
-        ///XXX: is this reachable?
-        frame.current_prefix_argument = prefix;
-        frame.keyboard.overlay_keymap = null;
-    }
-}
-interactive("universal-argument-more", universal_argument_more, I.current_frame, I.P);
-
-
 function univ_arg_to_number(prefix)
 {
     try {
@@ -492,7 +438,7 @@ function univ_arg_to_number(prefix)
 
 function go_up (b, prefix)
 {
-    var loc = b.current_URI;
+    var loc = b.display_URI_string;
     var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
     open_url_in (frame, prefix, up);
 }

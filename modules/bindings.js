@@ -50,8 +50,7 @@ var     isearch_kmap       = null;
 var     frameset_kmap      = null;
 var semicolon_kmap = null;
 
-var universal_kmap = null;
-
+require("bindings/default/universal_argument.js");
 
 function input_kmap_predicate (window, element) {
     // Use the input keymap for any input tag that
@@ -99,9 +98,6 @@ function clearKmaps()
     top_esc_kmap   	  = new keymap();
     textarea_esc_kmap     = new keymap();
     input_esc_kmap        = new keymap();
-
-    universal_kmap        = new keymap();
-
 
     browser_buffer_normal_keymap = top_kmap;
     browser_buffer_select_keymap = input_kmap;
@@ -169,7 +165,7 @@ function initViKmaps()
     define_key(top_kmap, kbd ("comma",0),"goto-numbered-link");
     define_key(top_kmap, kbd ("period",0),"copy-numbered-image-location");
     define_key(top_kmap, kbd ("u",0),"buffer-previous");
-    define_key(top_kmap, kbd ("u", MOD_CTRL), "universal-argument");
+    bind_universal_argument(top_kmap, "C-u");
     define_key(top_kmap, kbd ("i",0),"buffer-next");
     define_key(top_kmap, kbd ("p",MOD_CTRL),"buffer-previous");
     define_key(top_kmap, kbd ("n",MOD_CTRL),"buffer-next");
@@ -252,7 +248,7 @@ function initViKmaps()
     define_key(input_kmap, kbd ("r",MOD_CTRL),"cmd_redo");
 
     // This must be at the end of input_kmap defs so it's matched last.
-    define_key(input_kmap, kbd (match_any_unmodified_key), null, true);
+    define_key(input_kmap, kbd (match_any_unmodified_key), null, $fallthrough);
 
     textarea_kmap.parent = input_kmap;
 
@@ -278,8 +274,6 @@ function initViKmaps()
     init_isearch_keys ();
 
     init_frameset_keys ();
-
-    init_universal_arg_keys ();
 }
 
 
@@ -320,7 +314,7 @@ function initKmaps()
     //define_key(top_kmap, kbd ("f",0),        frameset_kmap);
 
     define_key(top_kmap, kbd ("u",0),"go-up");
-    define_key(top_kmap, kbd ("C-u"), "universal-argument");
+    bind_universal_argument(top_kmap, "C-u");
     define_key(top_kmap, kbd (" ",MOD_META),"yank-to-clipboard");
     define_key(top_kmap, kbd ("g",0),"open-url");
     define_key(top_kmap, kbd ("l",MOD_META),"toggle-numbered-links");
@@ -432,7 +426,7 @@ function initKmaps()
     define_key(input_kmap, kbd ("r",MOD_CTRL),"cmd_redo");
 
     // This must be at the end of input_kmap defs so it's matched last.
-    define_key(input_kmap, kbd (match_any_unmodified_key), null, true);
+    define_key(input_kmap, kbd (match_any_unmodified_key), null, $fallthrough);
 
     textarea_kmap.parent = input_kmap;
 
@@ -469,8 +463,6 @@ function initKmaps()
     init_isearch_keys ();
 
     init_frameset_keys ();
-
-    init_universal_arg_keys ();
 }
 
 
@@ -478,6 +470,7 @@ function init_minibuffer_keys () {
     // minibuffer bindings
     //
 
+    bind_universal_argument(minibuffer_base_kmap, "C-u");
     define_key(minibuffer_base_kmap, "C-a", "minibuffer-cmd_beginLine");
     define_key(minibuffer_base_kmap, "C-e", "minibuffer-cmd_endLine");
     define_key(minibuffer_base_kmap, "back_space", "minibuffer-cmd_deleteCharBackward");
@@ -560,23 +553,6 @@ function init_frameset_keys () {
     define_key(frameset_kmap, kbd ("t", 0), "frameset-focus-top");
     define_key(frameset_kmap, kbd ("u", 0), "frameset-focus-up");
     define_key(frameset_kmap, kbd ("back_slash", 0), "frameset-view-source");
-}
-
-
-function init_universal_arg_keys ()
-{
-    define_key(universal_kmap, kbd ("u", MOD_CTRL), "universal-argument-more");
-    define_key(universal_kmap, kbd ("1", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("2", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("3", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("4", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("5", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("6", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("7", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("8", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("9", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("0", 0), "universal-digit");
-    define_key(universal_kmap, kbd ("subtract", 0), "universal-negate");
 }
 
 /* FIXME: All of this genBindings stuff should operate on a particular
