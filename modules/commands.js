@@ -212,17 +212,6 @@ interactive("kill-buffer", kill_buffer,
             I.current_frame,
             I.b($prompt = "Kill buffer:"));
 
-function copy_location (frame, s)
-{
-    writeToClipboard (s);
-    frame.minibuffer.message ("Copied '"+s+"'");
-}
-interactive("copy-current-url", copy_location, I.current_frame, I.current_url);
-interactive("copy-link-location", copy_location, I.current_frame, I.focused_link_url);
-interactive("copy-image-location", copy_location, I.current_frame, I.image_url);
-interactive("copy-frameset-frame-location", copy_location, I.current_frame, I.current_frameset_frame_url);
-
-
 // Copy the contents of the X11 clipboard to ours. This is a cheap
 // hack because it seems impossible to just always yank from the X11
 // clipboard. So you have to manually pull it.

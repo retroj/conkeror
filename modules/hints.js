@@ -267,7 +267,7 @@ initialize_hint_keymap();
  * $callback
  * $abort_callback
  */
-define_keywords("$keymap", "$auto", "$callback", "$abort_callback", "$hint_xpath_expression");
+define_keywords("$keymap", "$auto", "$callback", "$abort_callback", "$hint_xpath_expression", "$multiple");
 function hints_minibuffer_state()
 {
     keywords(arguments, $keymap = hint_keymap, $auto);
@@ -278,6 +278,7 @@ function hints_minibuffer_state()
     this.auto_exit = arguments.$auto ? true : false;
     this.xpath_expr = arguments.$hint_xpath_expression;
     this.auto_exit_timer_ID = null;
+    this.multiple = arguments.$multiple;
 }
 hints_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
@@ -318,9 +319,17 @@ function hints_handle_character(frame, s, e) {
         s.typed_number += ch;
         s.manager.select_hint(parseInt(s.typed_number));
         var num = s.manager.current_hint_number;
-        if (s.auto_exit && num > 0 && num <= s.manager.valid_hints.length
-            && num * 10 > s.manager.valid_hints.length)
-            auto_exit = true;
+        if (s.auto_exit) {
+            if (num > 0 && num <= s.manager.valid_hints.length && num * 10 > s.manager.valid_hints.length)
+                auto_exit = true;
+            if (num == 0) {
+                if (!s.multiple) {
+                    hints_exit(frame, s);
+                    return;
+                }
+                auto_exit = true;
+            }
+        }
     } else {
         s.typed_number = "";
         s.typed_string += ch;
@@ -404,10 +413,13 @@ function hints_exit(frame, s)
         frame.clearTimeout(this.auto_exit_timer_ID);
         this.auto_exit_timer_ID = null;
     }
-    var cur = s.manager.current_hint_number - 1;
-    if (cur >= 0 && cur < s.manager.valid_hints.length)
-    {
-        var elem = s.manager.valid_hints[cur].elem;
+    var cur = s.manager.current_hint_number;
+    var elem = null;
+    if (cur > 0 && cur <= s.manager.valid_hints.length)
+        elem = s.manager.valid_hints[cur - 1].elem;
+    else if (cur == 0)
+        elem = frame.buffers.current.content_window;
+    if (elem) {
         frame.minibuffer.pop_state();
         if (s.callback)
             s.callback(elem);
