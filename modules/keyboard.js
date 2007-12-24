@@ -3,54 +3,6 @@ var KeyEvent = Components.interfaces.nsIDOMKeyEvent;
 
 var keycode_to_name = [];
 var name_to_keycode = new Object();
-var charcode_to_keycode = [];
-
-
-/* This function is a hack to map charCodes to key codes. */
-function generate_charcode_to_keycode_table()
-{
-    // Check if the user preferences contain a mapping table already
-    var data = null;
-    try {
-        data = conkeror.preferences.getCharPref("conkeror.charCodeMappingData");
-    } catch (e) { }
-    if (data)
-    {
-        var entries = data.split(",");
-        for (var i = 0; i < entries.length; i += 2)
-        {
-            var num1 = parseInt(entries[i]);
-            if (num1 != entries[i])
-                continue;
-            var num2 = parseInt(entries[i+1]);
-            if (num2 != entries[i+1])
-                continue;
-            charcode_to_keycode[num1] = num2;
-        }
-        return;
-    }
-
-    // Add the letters and digits as a default, since they are sure to
-    // be correct.
-    var code_a = 'a'.charCodeAt(0);
-    var code_z = 'z'.charCodeAt(0);
-
-    var code_A = 'A'.charCodeAt(0);
-    var code_Z = 'Z'.charCodeAt(0);
-
-    var code_0 = '0'.charCodeAt(0);
-    var code_9 = '9'.charCodeAt(0);
-
-    for (var i = code_a; i <= code_z; ++i)
-        charcode_to_keycode[i] = i - code_a + code_A;
-
-    for (var i = code_A; i <= code_Z; ++i)
-        charcode_to_keycode[i] = i;
-
-    for (var i = code_0; i <= code_9; ++i)
-        charcode_to_keycode[i] = i;
-}
-
 
 /* Generate keyCode to string  and string to keyCode mapping tables.  */
 function generate_key_tables()
@@ -67,7 +19,6 @@ function generate_key_tables()
             name_to_keycode[name] = code;
         }
     }
-    generate_charcode_to_keycode_table();
 }
 
 generate_key_tables();
@@ -433,17 +384,6 @@ function key_press_handler(true_event)
         if (true_event.keyCode)
             event.keyCode = true_event.keyCode;
 
-        else if (state.last_char_code != null
-                 && (state.last_char_code != true_event.charCode
-                     || state.last_key_code != true_event.keyCode))
-        {
-            /* Mozilla failed to give us a key down event; use hack to get a keyCode anyway */
-            event.keyCode = charcode_to_keycode[true_event.charCode];
-            dumpln("bug turned up: fake keyCode: " + event.keyCode);
-        }
-        state.last_char_code = true_event.charCode;
-        state.last_key_code = true_event.keyCode;
-
         /* Clear minibuffer message */
         frame.minibuffer.clear();    
 
@@ -533,8 +473,6 @@ function keyboard()
 
 keyboard.prototype = {
     last_key_down_event : null,
-    last_char_code : null,
-    last_key_code : null,
     current_context : null,
     active_keymap : null,
     help_timer_ID : null,

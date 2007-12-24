@@ -166,8 +166,10 @@ function call_interactively(ctx, command)
         try {
             do {
                 var top = state[state.length - 1];
-                //dumpln("at level " + state.length +", args.length: " + top.args.length
-                //       +", out_args.length: " + top.out_args.length);
+                /*
+                dumpln("at level " + state.length +", args.length: " + top.args.length
+                       +", out_args.length: " + top.out_args.length);
+                */
 
                 // Check if we are done with this level
                 if  (top.args.length == top.out_args.length)
@@ -221,11 +223,14 @@ function call_interactively(ctx, command)
                     {
                         if (!(spec.name in variable_values))
                             throw new Error("Invalid interactive variable reference: " + spec.name);
-                        arg = spec = variable_values[spec.name];
+                        spec = variable_values[spec.name];
                     }
 
                     // Just a normal value
-
+                    if (arg instanceof keyword_argument)
+                        arg = new keyword_argument(arg.name, spec);
+                    else
+                        arg = spec;
                     top.out_args.push(arg);
                     if (variable)
                         variable_values[variable] = spec;
@@ -362,17 +367,3 @@ I.f = interactive_method(
 
 // FIXME: eventually they will differ, when completion for files is added
 I.F = I.f;
-
-// FIXME: implement I.mathml_node once the numbering system is capable.
-I.mathml_node = interactive_method(
-    $doc = "MathML DOM node",
-    $sync = function (ctx, cont) {
-        return null;
-    });
-
-// FIXME: implement I.image_url once the numbering system is capable.
-I.image_url = interactive_method(
-    $doc = "Image URL",
-    $sync = function (ctx, cont) {
-        return null;
-    });
