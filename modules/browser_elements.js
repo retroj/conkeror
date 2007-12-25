@@ -241,7 +241,7 @@ interactive("browser-element-copy", browser_element_copy,
             hinted_element_with_prompt("copy", "Copy", "links", null));
 
 var view_source_external_editor = null, view_source_function = null;
-function browser_element_view_source(frame, elem, prefix)
+function browser_element_view_source(frame, elem, charset, prefix)
 {
     var win = null;
     if (elem.localName) {
@@ -251,11 +251,17 @@ function browser_element_view_source(frame, elem, prefix)
             win = elem.contentWindow;
             matched = true;
             break;
+        case "math":
+            matched = 'math';
+            break;
         }
         if (!matched)
             throw new Error("Invalid browser element");
     } else
         win = elem;
+    if (matched == 'math') {
+        return view_mathml_source (frame, charset, elem);
+    }
     win.focus();
     if (view_source_external_editor || view_source_function)
     {
@@ -291,4 +297,5 @@ function browser_element_view_source(frame, elem, prefix)
 interactive("browser-element-view-source", browser_element_view_source,
             I.current_frame,
             hinted_element_with_prompt("view_source", "View source", "frames", open_url_in_prompt),
+            I.content_charset,
             I.p);

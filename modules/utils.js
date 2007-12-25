@@ -311,6 +311,7 @@ set_default_directory();
 
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+const MATHML_NS = "http://www.w3.org/1998/Math/MathML";
 
 function create_XUL(frame, tag_name)
 {
@@ -322,5 +323,7 @@ function create_XUL(frame, tag_name)
 function xpath_lookup_namespace(prefix) {
     if (prefix == "xhtml")
         return XHTML_NS;
+    if (prefix == "m")
+        return MATHML_NS;
     return null;
 }

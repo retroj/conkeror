@@ -21,6 +21,9 @@ define_key(browser_buffer_normal_keymap, "S-8 n", browser_elements_keymap,
 define_key(browser_buffer_normal_keymap, "S-8 m", browser_elements_keymap,
            $hook = hints_object_class_selector("frames"));
 
+define_key(browser_buffer_normal_keymap, "S-8 M", browser_elements_keymap,
+           $hook = hints_object_class_selector("mathml"));
+
 
 function bind_element_operations(keymap) {
     define_key(keymap, "f", "browser-element-follow");

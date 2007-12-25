@@ -84,7 +84,7 @@ hint_manager.prototype = {
             var res = doc.evaluate(xpath_expr, doc, xpath_lookup_namespace,
                                    window.XPathResult.UNORDERED_NODE_ITERATOR_TYPE,
                                    null /* existing results */);
-            
+
             var base_node = doc.createElementNS(XHTML_NS, "span");
             base_node.className = "__conkeror_hint";
 
@@ -120,9 +120,11 @@ hint_manager.prototype = {
                             elem: elem,
                             hint: node,
                             img_hint: null,
-                            saved_color: elem.style.color,
-                            saved_bgcolor: elem.style.backgroundColor,
                             visible : false};
+                if (elem.style) {
+                    hint.saved_color = elem.style.color;
+                    hint.saved_bgcolor = elem.style.backgroundColor;
+                }
                 hints.push(hint);
 
                 if (elem == focused_element)
@@ -155,7 +157,7 @@ hint_manager.prototype = {
     update_valid_hints : function () {
         this.valid_hints = [];
         var active_number = this.current_hint_number;
-        
+
         var tokens = this.current_hint_string.split(" ");
         var rect, h, text, img_hint, doc, scrollX, scrollY;
         var hints = this.hints;
@@ -175,8 +177,10 @@ hint_manager.prototype = {
                         h.hint.style.display = "none";
                         if (h.img_hint)
                             h.img_hint.style.display = "none";
-                        h.elem.style.backgroundColor = h.saved_bgcolor;
-                        h.elem.style.color = h.saved_color;
+                        if (h.saved_bgcolor)
+                            h.elem.style.backgroundColor = h.saved_bgcolor;
+                        if (h.saved_color)
+                            h.elem.style.color = h.saved_color;
                     }
                     continue outer;
                 }
@@ -221,10 +225,11 @@ hint_manager.prototype = {
             }
 
 
-            if (!h.img_hint)
+            if (!h.img_hint && h.elem.style)
                 h.elem.style.backgroundColor = (active_number == cur_number) ?
                     active_hint_background_color : hint_background_color;
-            h.elem.style.color = "black";
+            if (h.elem.style)
+                h.elem.style.color = "black";
             var label = "" + cur_number;
             if (h.elem.localName == "FRAME") {
                 label +=  " " + text;
@@ -248,7 +253,7 @@ hint_manager.prototype = {
             var h = vh[old_index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = img_hint_background_color;
-            else
+            else if (h.elem.style)
                 h.elem.style.backgroundColor = hint_background_color;
         }
         this.current_hint_number = index;
@@ -257,7 +262,7 @@ hint_manager.prototype = {
             var h = vh[index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = active_img_hint_background_color;
-            else
+            else if (h.elem.style)
                 h.elem.style.backgroundColor = active_hint_background_color;
             this.last_selected_hint = h;
         }
@@ -269,8 +274,11 @@ hint_manager.prototype = {
             var h = this.hints[i];
             if (h.visible) {
                 h.visible = false;
-                h.elem.style.color = h.saved_color;
-                h.elem.style.backgroundColor = h.saved_bgcolor;
+                if (h.elem.style)
+                {
+                    h.elem.style.color = h.saved_color;
+                    h.elem.style.backgroundColor = h.saved_bgcolor;
+                }
                 if (h.img_hint)
                     h.img_hint.style.display = "none";
                 h.hint.style.display = "none";
@@ -282,7 +290,7 @@ hint_manager.prototype = {
         for (var i = 0; i < this.hints.length; ++i)
         {
             var h = this.hints[i];
-            if (h.visible) {
+            if (h.visible && h.elem.style) {
                 h.elem.style.color = h.saved_color;
                 h.elem.style.backgroundColor = h.saved_bgcolor;
             }
@@ -489,7 +497,7 @@ var hints_xpath_expressions = {
             "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
             "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
             "//xhtml:button | //xhtml:select"},
-    mathml: {def: ""}
+    mathml: {def: "//m:math"}
 };
 
 define_keywords("$object_class");
