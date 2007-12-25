@@ -263,15 +263,6 @@ I.b = interactive_method(
     });
 
 
-I.content_charset = interactive_method(
-    $sync = function (ctx) {
-        // -- Charset of content area of focusedWindow
-        var focusedWindow = this.buffers.current.focused_window();
-        if (focusedWindow)
-            return focusedWindow.document.characterSet;
-        else
-            return null;
-    });
 
 I.content_selection = interactive_method(
     $sync = function (ctx) {

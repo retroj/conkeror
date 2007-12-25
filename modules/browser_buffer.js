@@ -364,6 +364,19 @@ I.focused_link_url = interactive_method(
         return get_link_location (buffer.focused_element());
     });
 
+I.content_charset = interactive_method(
+    $sync = function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        // -- Charset of content area of focusedWindow
+        var focusedWindow = buffer.focused_window();
+        if (focusedWindow)
+            return focusedWindow.document.characterSet;
+        else
+            return null;
+    });
+
 function overlink_update_status(buffer, text) {
     if (text.length > 0)
         buffer.frame.minibuffer.show("Link: " + text);
