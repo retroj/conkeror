@@ -98,15 +98,15 @@ hint_manager.prototype = {
                 rect = elem.getClientRects()[0];
                 if (!rect)
                     continue;
-                var tagname = elem.localName;
-                if (tagname == "INPUT" || tagname == "TEXTAREA")
+                var tagname = elem.localName.toLowerCase();
+                if (tagname == "input" || tagname == "textarea")
                     text = elem.value.toLowerCase();
-                else if (tagname == "SELECT") {
+                else if (tagname == "select") {
                     if (elem.selectedIndex >= 0)
                         text = elem.item(elem.selectedIndex).text.toLowerCase();
                     else
                         text = "";
-                } else if (tagname == "FRAME") {
+                } else if (tagname == "frame") {
                     text = elem.name ? elem.name : "";
                 } else
                     text = elem.textContent.toLowerCase();
@@ -129,13 +129,13 @@ hint_manager.prototype = {
 
                 if (elem == focused_element)
                     focused_element_hint = hint;
-                else if ((tagname == "FRAME" || tagname == "IFRAME") && elem.contentWindow == focused_window)
+                else if ((tagname == "frame" || tagname == "iframe") && elem.contentWindow == focused_window)
                     focused_window_hint = hint;
             }
             doc.documentElement.appendChild(fragment);
 
             /* Recurse into any IFRAME or FRAME elements */
-            var frametag = "FRAME";
+            var frametag = "frame";
             while (true) {
                 var frames = doc.getElementsByTagName(frametag);
                 for (var i = 0; i < frames.length; ++i)
@@ -146,7 +146,7 @@ hint_manager.prototype = {
                         continue;
                     helper(elem.contentWindow, offsetX + rect.left, offsetY + rect.top);
                 }
-                if (frametag == "FRAME") frametag = "IFRAME"; else break;
+                if (frametag == "frame") frametag = "iframe"; else break;
             }
         }
         helper(topwin, 0, 0);
@@ -231,7 +231,7 @@ hint_manager.prototype = {
             if (h.elem.style)
                 h.elem.style.color = "black";
             var label = "" + cur_number;
-            if (h.elem.localName == "FRAME") {
+            if (h.elem.localName.toLowerCase() == "frame") {
                 label +=  " " + text;
             }
             h.hint.textContent = label;
@@ -512,8 +512,8 @@ I.hinted_element = interactive_method(
             if (!(buf instanceof browser_buffer))
                 throw new Error("Current buffer is of invalid type");
             var doc = buf.content_document;
-            if (doc.getElementsByTagName("FRAME").length == 0 &&
-                doc.getElementsByTagName("IFRAME").length == 0)
+            if (doc.getElementsByTagName("frame").length == 0 &&
+                doc.getElementsByTagName("iframe").length == 0)
             {
                 // only one frame (the top-level one), no need to use the hints system
                 cont(buf.content_window);

@@ -430,15 +430,22 @@ define_browser_buffer_input_mode("quote", "browser_buffer_quote_keymap");
 add_hook("browser_buffer_focus_change_hook", function (buffer) {
         var elem = buffer.focused_element();
         if (elem) {
-            switch (elem.localName) {
+            switch (elem.localName.toLowerCase()) {
                 // FIXME: probably add a special radiobox/checkbox keymap as well
-            case "INPUT":
-                browser_buffer_text_input_mode(buffer);
+            case "input":
+                var type = elem.getAttribute("type");
+                if (type != null) type = type.toLowerCase();
+                if (type != "radio" &&
+                    type != "radio" &&
+                    type != "checkbox" &&
+                    type != "submit" &&
+                    type != "reset")
+                    browser_buffer_text_input_mode(buffer);
                 return;
-            case "TEXTAREA":
+            case "textarea":
                 browser_buffer_textarea_input_mode(buffer);
                 return;
-            case "SELECT":
+            case "select":
                 browser_buffer_select_input_mode(buffer);
                 return;
             }

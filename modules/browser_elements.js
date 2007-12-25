@@ -6,14 +6,15 @@ function browser_element_focus(buffer, elem)
     if (!elemTagName) {
         elem.focus();
         return;
-    }
+    } else
+        elemTagName = elemTagName.toLowerCase();
     var x = 0;
     var y = 0;
     switch (elemTagName) {
-    case "FRAME": case "IFRAME":
+    case "frame": case "iframe":
         elem.contentWindow.focus();
         return false;
-    case "AREA":
+    case "area":
         var coords = elem.getAttribute("coords").split(",");
         x = Number(coords[0]);
         y = Number(coords[1]);
@@ -46,19 +47,21 @@ function browser_element_follow(buffer, elem, prefix)
     elem.focus();
     if (!elemTagName)
         return;
+    else
+        elemTagName = elemTagName.toLowerCase();
 
     var x = 1, y = 1;
 
     switch (elemTagName) {
-    case "FRAME": case "IFRAME":
+    case "frame": case "iframe":
         browser_element_follow_top (buffer, elem);
         return;
-    case "IMG":
+    case "img":
         var src = elem.src;
         if (src)
             src.ownerDocument.defaultView.location.href = src;
         return;
-    case "AREA":
+    case "area":
         // image map
         var coords = elem.getAttribute("coords").split(",");
         x = Number(coords[0]) + 1;
@@ -81,17 +84,17 @@ function browser_element_follow(buffer, elem, prefix)
 }
 
 function element_get_url(buffer, elem) {
-    if (elem == buffer.content_window)
+    if (!elem.localName)
         return elem.location.href;
     var name = null;
-    switch (elem.localName) {
-    case "FRAME": case "IFRAME":
+    switch (elem.localName.toLowerCase()) {
+    case "frame": case "iframe":
         name = elem.contentWindow.location.href;
         break;
-    case "IMG":
+    case "img":
         name = elem.src;
         break;
-    case "A":
+    case "a":
         name = elem.href;
         break;
     }
@@ -248,22 +251,19 @@ function browser_element_view_source(frame, elem, charset, prefix)
     var win = null;
     if (elem.localName) {
         var matched = false;
-        switch (elem.localName) {
-        case "FRAME": case "IFRAME":
+        switch (elem.localName.toLowerCase()) {
+        case "frame": case "iframe":
             win = elem.contentWindow;
             matched = true;
             break;
         case "math":
-            matched = 'math';
-            break;
+            view_mathml_source (frame, charset, elem);
+            return;
         }
         if (!matched)
             throw new Error("Invalid browser element");
     } else
         win = elem;
-    if (matched == 'math') {
-        return view_mathml_source (frame, charset, elem);
-    }
     win.focus();
     if (view_source_external_editor || view_source_function)
     {
