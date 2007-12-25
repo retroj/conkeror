@@ -39,7 +39,7 @@ function browser_element_follow(buffer, elem, prefix)
         browser_element_follow_other_buffer(buffer, elem);
         return;
     }
-    
+
     var elemTagName = elem.localName;
     elem.focus();
     if (!elemTagName)
@@ -49,7 +49,7 @@ function browser_element_follow(buffer, elem, prefix)
 
     switch (elemTagName) {
     case "FRAME": case "IFRAME":
-        elem.contentWindow.focus();
+        browser_element_follow_top (buffer, elem);
         return;
     case "IMG":
         var src = elem.src;
