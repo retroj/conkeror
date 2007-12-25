@@ -259,8 +259,10 @@ browser_buffer.prototype = {
         do  {
             if (attempt_command(win, command))
                 return;
+            if (!win.parent || win == win.parent)
+                break;
             win = win.parent;
-        } while (win);
+        } while (true);
     },
 
     /* Inherit from buffer */
@@ -399,7 +401,7 @@ function define_browser_buffer_input_mode(base_name, keymap_name) {
     buffer[name + "_enabled"] = false;
     define_buffer_local_hook(name + "_enable_hook");
     define_buffer_local_hook(name + "_disable_hook");
-    this[name] = function (buffer) {
+    conkeror[name] = function (buffer) {
         if (buffer[name + "_enabled"])
             return;
         if (buffer.current_input_mode) {
@@ -408,11 +410,11 @@ function define_browser_buffer_input_mode(base_name, keymap_name) {
         }
         buffer.current_input_mode = name;
         buffer[name + "_enabled"] = true;
-        buffer.keymap = this[keymap_name];
+        buffer.keymap = conkeror[keymap_name];
         conkeror[name + "_enable_hook"].run(buffer);
     }
     var hyphen_name = name.replace("_","-","g");
-    interactive(hyphen_name, this[name], I.current_buffer(browser_buffer));
+    interactive(hyphen_name, conkeror[name], I.current_buffer(browser_buffer));
 }
 
 define_browser_buffer_input_mode("normal", "browser_buffer_normal_keymap");
@@ -428,27 +430,32 @@ define_browser_buffer_input_mode("quote_next", "browser_buffer_quote_next_keymap
 define_browser_buffer_input_mode("quote", "browser_buffer_quote_keymap");
 
 add_hook("browser_buffer_focus_change_hook", function (buffer) {
-        var elem = buffer.focused_element();
-        if (elem) {
-            switch (elem.localName.toLowerCase()) {
-                // FIXME: probably add a special radiobox/checkbox keymap as well
-            case "input":
-                var type = elem.getAttribute("type");
-                if (type != null) type = type.toLowerCase();
-                if (type != "radio" &&
-                    type != "radio" &&
-                    type != "checkbox" &&
-                    type != "submit" &&
-                    type != "reset")
-                    browser_buffer_text_input_mode(buffer);
-                return;
-            case "textarea":
-                browser_buffer_textarea_input_mode(buffer);
-                return;
-            case "select":
-                browser_buffer_select_input_mode(buffer);
-                return;
+        if (buffer.browser_buffer_text_input_mode_enabled ||
+            buffer.browser_buffer_textarea_input_mode_enabled ||
+            buffer.browser_buffer_select_input_mode_enabled ||
+            buffer.browser_buffer_normal_input_mode_enabled) {
+            var elem = buffer.focused_element();
+            if (elem) {
+                switch (elem.localName.toLowerCase()) {
+                    // FIXME: probably add a special radiobox/checkbox keymap as well
+                case "input":
+                    var type = elem.getAttribute("type");
+                    if (type != null) type = type.toLowerCase();
+                    if (type != "radio" &&
+                        type != "radio" &&
+                        type != "checkbox" &&
+                        type != "submit" &&
+                        type != "reset")
+                        browser_buffer_text_input_mode(buffer);
+                    return;
+                case "textarea":
+                    browser_buffer_textarea_input_mode(buffer);
+                    return;
+                case "select":
+                    browser_buffer_select_input_mode(buffer);
+                    return;
+                }
             }
+            browser_buffer_normal_input_mode(buffer);
         }
-        browser_buffer_normal_input_mode(buffer);
     });
