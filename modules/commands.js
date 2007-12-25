@@ -410,18 +410,17 @@ function tutorial_page (frame, prefix)
 }
 interactive("help-with-tutorial", tutorial_page, I.current_frame, I.p);
 
-function univ_arg_to_number(prefix)
+function univ_arg_to_number(prefix, default_value)
 {
-    try {
-    if (prefix == null)
-        return 1;
+    if (prefix == null) {
+        if (default_value == null)
+            return 1;
+        else
+            return default_value;
+    }
     if (typeof prefix == "object")
         return prefix[0];
-    else if (typeof prefix == "number")
-        return prefix;
-
-    } catch(e) {alert("univ: " + e);}
-    return null;
+    return prefix;
 }
 
 function go_up (b, prefix)

@@ -266,8 +266,8 @@ function call_interactively(ctx, command)
 
 I.p = interactive_method(
     $doc = "Prefix argument converted to a number",
-    $sync = function (ctx) {
-        return univ_arg_to_number(ctx.prefix_argument);
+    $sync = function (ctx, default_value) {
+        return univ_arg_to_number(ctx.prefix_argument, default_value);
     });
 
 I.P = interactive_method(
