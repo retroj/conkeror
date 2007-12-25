@@ -149,7 +149,9 @@ buffer_container.prototype = {
             index = (index + 1) % count;
             this.current = this.get_buffer(index);
         }
+        var new_selected = this.current.element;
         this.container.removeChild(b.element);
+        this.container.selectedPanel = new_selected;
         b.dead = true;
         return true;
     },
