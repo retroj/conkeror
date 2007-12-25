@@ -1,3 +1,5 @@
+require("hints.js");
+
 function browser_element_focus(buffer, elem)
 {
     var elemTagName = elem.localName;

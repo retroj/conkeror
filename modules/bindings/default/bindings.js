@@ -10,3 +10,4 @@ load_module("bindings/default/hints.js");
 load_module("bindings/default/isearch.js");
 
 load_module("bindings/default/browser_elements.js");
+load_module("bindings/default/browser_zoom.js");

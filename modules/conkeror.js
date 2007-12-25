@@ -23,6 +23,9 @@ require("commands.js"); // depends: interactive.js
 require("frameset.js"); // depends interactive.js
 require("webjump.js"); // depends: interactive.js
 
+require("browser_zoom.js");
+require("browser_elements.js");
+
 require("bindings.js"); // depends: keyboard.js
 
 require("find.js");
