@@ -327,3 +327,9 @@ function xpath_lookup_namespace(prefix) {
         return MATHML_NS;
     return null;
 }
+
+function method_caller(obj, func) {
+    return function () {
+        func.apply(obj, arguments);
+    }
+}

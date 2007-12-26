@@ -9,12 +9,13 @@ function add_hook(hook_name, func, prepend, avoid_duplicates)
     var hook = this[hook_name];
 
     if (avoid_duplicates && hook.indexOf(func) != -1)
-        return;
+        return func;
 
     if (prepend)
         hook.unshift(func);
     else
         hook.push(func);
+    return func;
 }
 
 /**

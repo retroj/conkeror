@@ -98,11 +98,6 @@ function clearKmaps()
     top_esc_kmap   	  = new keymap();
     textarea_esc_kmap     = new keymap();
     input_esc_kmap        = new keymap();
-
-    browser_buffer_normal_keymap = top_kmap;
-    browser_buffer_select_keymap = input_kmap;
-    browser_buffer_text_keymap = input_kmap;
-    browser_buffer_textarea_keymap = textarea_kmap;
 }
 
 // VI Keys for the heathens. Thanks to maxauthority on #conkeror for

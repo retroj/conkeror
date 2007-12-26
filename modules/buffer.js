@@ -13,7 +13,7 @@ function define_current_buffer_hook(hook_name, existing_hook)
 {
     define_buffer_local_hook(hook_name);
     add_hook(existing_hook, function (buffer) {
-            if (buffer != buffer.frame.buffers.current)
+            if (!buffer.frame.buffers || buffer != buffer.frame.buffers.current)
                 return;
             var hook = conkeror[hook_name];
             hook.run.apply(hook, Array.prototype.slice.call(arguments));

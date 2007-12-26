@@ -506,9 +506,10 @@ var minibuffer_input_mode_show_message_timeout = 1000;
 
 function minibuffer (frame)
 {
-    this.output_element = frame.document.getElementById("minibuffer-output");
-    this.input_prompt_element = frame.document.getElementById("input-prompt");
-    this.input_element = frame.document.getElementById("input-field");
+    this.element = frame.document.getElementById("minibuffer");
+    this.output_element = frame.document.getElementById("minibuffer-message");
+    this.input_prompt_element = frame.document.getElementById("minibuffer-prompt");
+    this.input_element = frame.document.getElementById("minibuffer-input");
     var m = this;
     this.input_element.inputField.addEventListener("blur", function() {
             if (m._input_mode_enabled && !m._showing_message)
@@ -627,16 +628,12 @@ minibuffer.prototype = {
     },
 
     _switch_to_input_mode : function () {
-        this.output_element.collapsed = true;
-        this.input_prompt_element.collapsed = false;
-        this.input_element.collapsed = false;
+        this.element.setAttribute("minibuffermode", "input");
         this.input_element.focus();
     },
 
     _switch_to_message_mode : function () {
-        this.output_element.collapsed = false;
-        this.input_prompt_element.collapsed = true;
-        this.input_element.collapsed = true;
+        this.element.setAttribute("minibuffermode", "message");
     },
 
     _restore_state : function (restore_focus) {

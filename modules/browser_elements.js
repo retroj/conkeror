@@ -13,7 +13,7 @@ function browser_element_focus(buffer, elem)
     switch (elemTagName) {
     case "frame": case "iframe":
         elem.contentWindow.focus();
-        return false;
+        return;
     case "area":
         var coords = elem.getAttribute("coords").split(",");
         x = Number(coords[0]);

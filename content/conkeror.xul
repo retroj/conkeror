@@ -19,10 +19,10 @@
     <deck flex="1" id="buffer-container">
 	  <browser flex="1" type="content-primary"/>
 	</deck>
-    <hbox id="minibuffer">
-      <label class="minibuffer" id="minibuffer-output" flex="1" crop="right" value=""/>
-      <label class="minibuffer" id="input-prompt" crop="left" value="" collapsed="true"/>
-      <textbox class="plain" id="input-field" flex="1" collapsed="true"/>
+    <hbox id="minibuffer" minibuffermode="message">
+      <label class="minibuffer" id="minibuffer-message" flex="1" crop="right" value=""/>
+      <label class="minibuffer" id="minibuffer-prompt" crop="left" value=""/>
+      <textbox class="plain" id="minibuffer-input" flex="1"/>
     </hbox>
   </vbox>
 </window>
