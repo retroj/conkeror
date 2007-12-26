@@ -177,10 +177,10 @@ hint_manager.prototype = {
                         h.hint.style.display = "none";
                         if (h.img_hint)
                             h.img_hint.style.display = "none";
-                        if (h.saved_bgcolor)
+                        if (h.saved_color != null) {
                             h.elem.style.backgroundColor = h.saved_bgcolor;
-                        if (h.saved_color)
                             h.elem.style.color = h.saved_color;
+                        }
                     }
                     continue outer;
                 }
@@ -194,9 +194,9 @@ hint_manager.prototype = {
 
             var img_elem = null;
 
-            if (text.length == 0 && h.elem.firstChild && h.elem.firstChild.localName == "IMG")
+            if (text.length == 0 && h.elem.firstChild && h.elem.firstChild.localName.toLowerCase() == "img")
                 img_elem = h.elem.firstChild;
-            else if (h.elem.localName == "IMG")
+            else if (h.elem.localName.toLowerCase() == "img")
                 img_elem = h.elem;
 
             if (img_elem)
@@ -204,32 +204,36 @@ hint_manager.prototype = {
                 if (!h.img_hint)
                 {
                     rect = img_elem.getBoundingClientRect();
-                    if (!rect)
-                        continue;
-                    doc = h.elem.ownerDocument;
-                    scrollX = doc.defaultView.scrollX;
-                    scrollY = doc.defaultView.scrollY;
-                    img_hint = doc.createElementNS(XHTML_NS, "span");
-                    img_hint.className = "__conkeror_img_hint";
-                    img_hint.style.left = (rect.left + scrollX) + "px";
-                    img_hint.style.top = (rect.top + scrollY) + "px";
-                    img_hint.style.width = (rect.right - rect.left) + "px";
-                    img_hint.style.height = (rect.bottom - rect.top) + "px";
-                    h.img_hint = img_hint;
-                    doc.documentElement.appendChild(img_hint);
+                    if (rect) {
+                        doc = h.elem.ownerDocument;
+                        scrollX = doc.defaultView.scrollX;
+                        scrollY = doc.defaultView.scrollY;
+                        img_hint = doc.createElementNS(XHTML_NS, "span");
+                        img_hint.className = "__conkeror_img_hint";
+                        img_hint.style.left = (rect.left + scrollX) + "px";
+                        img_hint.style.top = (rect.top + scrollY) + "px";
+                        img_hint.style.width = (rect.right - rect.left) + "px";
+                        img_hint.style.height = (rect.bottom - rect.top) + "px";
+                        h.img_hint = img_hint;
+                        doc.documentElement.appendChild(img_hint);
+                    } else
+                        img_elem = null;
                 }
-                var bgcolor = (active_number == cur_number) ? 
-                    active_img_hint_background_color : img_hint_background_color;
-                h.img_hint.style.backgroundColor = bgcolor;
-                h.img_hint.style.display = "inline";
+                if (img_elem) {
+                    var bgcolor = (active_number == cur_number) ? 
+                        active_img_hint_background_color : img_hint_background_color;
+                    h.img_hint.style.backgroundColor = bgcolor;
+                    h.img_hint.style.display = "inline";
+                }
             }
-
 
             if (!h.img_hint && h.elem.style)
                 h.elem.style.backgroundColor = (active_number == cur_number) ?
                     active_hint_background_color : hint_background_color;
+
             if (h.elem.style)
                 h.elem.style.color = "black";
+
             var label = "" + cur_number;
             if (h.elem.localName.toLowerCase() == "frame") {
                 label +=  " " + text;
@@ -253,7 +257,7 @@ hint_manager.prototype = {
             var h = vh[old_index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = img_hint_background_color;
-            else if (h.elem.style)
+            if (h.elem.style)
                 h.elem.style.backgroundColor = hint_background_color;
         }
         this.current_hint_number = index;
@@ -262,7 +266,7 @@ hint_manager.prototype = {
             var h = vh[index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = active_img_hint_background_color;
-            else if (h.elem.style)
+            if (h.elem.style)
                 h.elem.style.backgroundColor = active_hint_background_color;
             this.last_selected_hint = h;
         }
@@ -274,7 +278,7 @@ hint_manager.prototype = {
             var h = this.hints[i];
             if (h.visible) {
                 h.visible = false;
-                if (h.elem.style)
+                if (h.saved_color != null)
                 {
                     h.elem.style.color = h.saved_color;
                     h.elem.style.backgroundColor = h.saved_bgcolor;
@@ -290,7 +294,7 @@ hint_manager.prototype = {
         for (var i = 0; i < this.hints.length; ++i)
         {
             var h = this.hints[i];
-            if (h.visible && h.elem.style) {
+            if (h.visible && h.saved_color != null) {
                 h.elem.style.color = h.saved_color;
                 h.elem.style.backgroundColor = h.saved_bgcolor;
             }
