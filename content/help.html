@@ -59,15 +59,49 @@
    In the tables below, alternate key bindings are separated with commas.
 </p>
 
+
 <h3>Browsing</h3>
 <table border="1">
-<tr><td>g, C-x C-f</td><td>open new URL</td></tr>
-<tr><td>B, l</td><td>Go Back</td></tr>
-<tr><td>F</td><td>Go Forward</td></tr>
-<tr><td>r</td><td>Reload</td></tr>
-<tr><td>C-g</td><td>Stop</td></tr>
-<tr><td>C-h i</td><td>Show this page.</td></tr>
-<tr><td>C-h t</td><td>Show the Conkeror tutorial.</td></tr>
+  <tr>
+    <td><b>key</b></td>
+    <td><b>M-x command</b></td>
+    <td><b>meaning</b></td>
+  </tr>
+  <tr>
+    <td>C-x C-f, g</td>
+    <td>find-url</td>
+    <td>open new URL</td>
+  </tr>
+  <tr>
+    <td>B</td>
+    <td>go-back</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>F</td>
+    <td>go-forward</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>r</td>
+    <td>revert-buffer</td>
+    <td>reload</td>
+  </tr>
+  <tr>
+    <td>C-g</td>
+    <td>abort</td>
+    <td>stop</td>
+  </tr>
+  <tr>
+    <td>C-h i</td>
+    <td>help-page</td>
+    <td>Show this page.</td>
+  </tr>
+  <tr>
+    <td>C-h t</td>
+    <td>tutorial</td>
+    <td>Show the Conkeror tutorial.</td>
+  </tr>
 </table>
 
 <h3>Movement</h3>
@@ -84,8 +118,6 @@
 <tr><td>M-&gt;</td><td>End of document</td></tr>
 <tr><td>C-s</td><td>Open i-search forward</td></tr>
 <tr><td>C-r</td><td>Open i-search backward</td></tr>
-<tr><td>f</td><td>cycle through the document's frames. The background
-will flash red to indicate the focused frame.</td></tr>
 </table>
 
 <h3>I-Search</h3>
@@ -97,27 +129,6 @@ will flash red to indicate the focused frame.</td></tr>
 <tr><td>any modifier plus a key, enter or tab</td><td>close i-search</td></tr>
 </table>
 
-<h3>Numbered Links</h3>
-<p>You will notice each href link and form input has a number (gray
-background) floating on top of it. if you type the number and press
-enter, the href will be followed, form button clicked, or form field
-focused. If you press M-RET, the link will be focused. C-RET and the
-link will be opened in a new buffer.</p>
-
-<p>Often the floating numbers get in the way of the content, so they can
-be toggled with M-l. When invisible, either typing a number or
-pressing the 'n' key will show them for the duration of the
-command.
-</p>
-
-<h3>Numbered Images</h3>
-<p>To copy the location of an image, press 'i'. For each image, a
-number (pink background) will appear at its corner. Type the number
-and the image location will be copied to the clipboard. </p>
-
-<p>Note the image numbers disappear after the command is finished. To
-toggle the image numbers, press C-M-l.
-</p>
 
 <h3>Web Jump</h3>
 <p> In firefox this is the bookmark keyword feature. You type the
