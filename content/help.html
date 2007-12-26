@@ -1,71 +1,100 @@
-<html>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Conkeror User Manual</title>
+<script type="text/javascript">
+<!-- <![CDATA[
+
+    var gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
+        .getService(Components.interfaces.nsIPrefBranch);
+
+    function set_pref()
+    {
+        gPrefService.setCharPref("conkeror.rcfile", document.getElementById("pref").value);
+        window.alert("RC File Set.");
+    }
+
+    function fill_rc_pref_box () {
+        var pref;
+
+        if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
+            pref = "";
+        } else {
+            pref = gPrefService.getCharPref("conkeror.rcfile");
+        }
+
+        var el = document.getElementById ("pref");
+        el.value = pref;
+    }
+
+// ]]> -->
+</script>
 </head>
-<body>
+<body onload="fill_rc_pref_box()">
 <h1>Conkeror User Manual</h1>
 
 <h2>Introduction</h2>
 
-<p>Conkeror is being built to emulate <a
-href="http://www.gnu.org/software/emacs">Emacs</a> as much as
-possible. You'll notice many of the key bindings are the
-same.</p>
+<p>
+  Conkeror is a Mozilla-based web browser whose design is inspired and
+  guided by <a href="http://www.gnu.org/software/emacs">GNU Emacs</a>.
+</p>
 
-<h2>What's New?</h2>
-<p>See the <a href="NEWS">NEWS</a> file for user visible changes between
-versions. There is also a <a href="ChangeLog">ChangeLog</a> that
-tracks changes to source files.
 
-<h2>Some common key bindings</h2>
-<p>I'm using the emacs style key notation. C means control, M means
-Meta (or alt). As an example, holding down control and meta and then pressing the
-t key would be written C-M-t.</p>
+<h2>Overview of the Keys</h2>
+
+<p>
+   Conkeror uses Emacs-style key notation.  A sequence of keys is
+   separated by spaces, and key modifiers are indicated with
+   single-letter prefixes, with the prefixes and the key separated by
+   hyphens.  The most common prefixes are C for control, M for meta
+   and alt (following the Emacs convention), and S for shift.  For
+   example, the notation `C-M-t' means hold down control and meta and
+   press t.
+</p>
+
+<p>
+   In the tables below, alternate key bindings are separated with commas.
+</p>
 
 <h3>Browsing</h3>
-<table border=1>
-<TR><TD>g</TD><TD>open new URL</TD></TR>
-<TR><TD>B, l</TD><TD>Go Back</TD></TR>
-<TR><TD>F</TD><TD>Go Forward</TD></TR>
-<TR><TD>R</TD><TD>Reload</TD></TR>
-<TR><TD>C-g</TD><TD>Stop</TD></TR>
-<TR><TD>c</TD><TD>Copy current URL to the clipboard</TD></TR>
-<TR><TD>M-SPC</TD><TD>Copy the X11 cut buffer to mozilla's
-clipboard. This is a cheap hack because I can't figure out how to
-override the mozilla past function.</TD></TR>
-<TR><TD>C-x r b</TD><TD>jump to bookmark</TD></TR>
-<TR><TD>C-x r l</TD><TD>list all bookmarks</TD></TR>
-<TR><TD>C-x r m</TD><TD>bookmark current URL</TD></TR>
-<TR><TD>C-h b</TD><TD>List all key bindings</TD></TR>
-<TR><TD>C-h i</TD><TD>Show this page.</TD></TR>
-<TR><TD>C-h t</TD><TD>Show the Conkeror tutorial.</TD></TR>
+<table border="1">
+<tr><td>g, C-x C-f</td><td>open new URL</td></tr>
+<tr><td>B, l</td><td>Go Back</td></tr>
+<tr><td>F</td><td>Go Forward</td></tr>
+<tr><td>r</td><td>Reload</td></tr>
+<tr><td>C-g</td><td>Stop</td></tr>
+<tr><td>C-h i</td><td>Show this page.</td></tr>
+<tr><td>C-h t</td><td>Show the Conkeror tutorial.</td></tr>
 </table>
 
 <h3>Movement</h3>
-<table border=1>
-<TR><TD>C-a</TD><TD>beginning of line</TD></TR>
-<TR><TD>C-e</TD><TD>end of line</TD></TR>
-<TR><TD>C-f</TD><TD>Forward a column</TD></TR>
-<TR><TD>C-b</TD><TD>backward a column</TD></TR>
-<TR><TD>C-n</TD><TD>Forward a line</TD></TR>
-<TR><TD>C-p</TD><TD>backward a line</TD></TR>
-<TR><TD>C-v</TD><TD>Page down</TD></TR>
-<TR><TD>M-v</TD><TD>Page up</TD></TR>
-<TR><TD>M-&lt;</TD><TD>Beginning of document</TD></TR>
-<TR><TD>M-&gt;</TD><TD>End of document</TD></TR>
-<TR><TD>C-s</TD><TD>Open i-search forward</TD></TR>
-<TR><TD>C-r</TD><TD>Open i-search backward</TD></TR>
-<TR><TD>f</TD><TD>cycle through the document's frames. The background
-will flash red to indicate the focused frame.</TD></TR>
+<table border="1">
+<tr><td>C-a</td><td>beginning of line</td></tr>
+<tr><td>C-e</td><td>end of line</td></tr>
+<tr><td>C-f</td><td>Forward a column</td></tr>
+<tr><td>C-b</td><td>backward a column</td></tr>
+<tr><td>C-n</td><td>Forward a line</td></tr>
+<tr><td>C-p</td><td>backward a line</td></tr>
+<tr><td>C-v</td><td>Page down</td></tr>
+<tr><td>M-v</td><td>Page up</td></tr>
+<tr><td>M-&lt;</td><td>Beginning of document</td></tr>
+<tr><td>M-&gt;</td><td>End of document</td></tr>
+<tr><td>C-s</td><td>Open i-search forward</td></tr>
+<tr><td>C-r</td><td>Open i-search backward</td></tr>
+<tr><td>f</td><td>cycle through the document's frames. The background
+will flash red to indicate the focused frame.</td></tr>
 </table>
 
 <h3>I-Search</h3>
-<table border=1>
-<TR><TD>C-s</TD><TD>search forward</TD></TR>
-<TR><TD>C-r</TD><TD>search backward</TD></TR>
-<TR><TD>C-g</TD><TD>quit i-search (jump back to where i-search started)</TD></TR>
-<TR><TD>backspace</TD><TD>undo search</TD></TR>
-<TR><TD>any modifier plus a key, enter or tab</TD><TD>close i-search</TD></TR>
+<table border="1">
+<tr><td>C-s</td><td>search forward</td></tr>
+<tr><td>C-r</td><td>search backward</td></tr>
+<tr><td>C-g</td><td>quit i-search (jump back to where i-search started)</td></tr>
+<tr><td>backspace</td><td>undo search</td></tr>
+<tr><td>any modifier plus a key, enter or tab</td><td>close i-search</td></tr>
 </table>
 
 <h3>Numbered Links</h3>
@@ -98,213 +127,187 @@ text.</p>
 
 <p>Conkeror also has this feature, but it's seperate from
 bookmarks. Here are the built in web jumps:</p>
-<p><table border=1>
-<TR><TD>google<TD>Search with google</TD>
-<TR><TD>image<TD>Search google images</TD>
-<TR><TD>wikipedia<TD>Search wikipedia.org</TD>
-<TR><TD>slang<TD>Search urbandictionary.com</TD>
-<TR><TD>dictionary<TD>Search dictionary.reference.com</TD>
-<TR><TD>scholar<TD>search google scholar</TD>
-<TR><TD>clusty<TD>search the internet with clusty</TD>
-<TR><TD>xulplanet<TD>search xulplanet.com</TD>
-<TR><TD>bugzilla<TD>search the mozilla bug database</TD>
-<TR><TD>clhs<TD>search the Common Lisp Hyper Spec</TD>
-<TR><TD>emacswiki<TD>search the emacswiki</TD>
-<TR><TD>cliki<TD>search the Common Lisp wiki</TD>
-<TR><TD>ratpoisonwiki<TD>search the ratpoison wiki</TD>
-<TR><TD>stumpwmwiki<TD>search the StumpWM wiki</TD>
-<TR><TD>savannah<TD>search savannah.gnu.org</TD>
-<TR><TD>sourceforge<TD>search sourceforge.net</TD>
-<TR><TD>freshmeat<TD>search freshmeat.net</TD>
-<TR><TD>slashdot<TD>search slashdot.com</TD>
-<TR><TD>kuro5hin<TD>search kuro5hin.com</TD>
-<TR><TD>sheldonbrown<TD>Search sheldonbrown.com</TD>
 
+<table border="1">
+<tr><td>google</td><td>Search with google</td></tr>
+<tr><td>image</td><td>Search google images</td></tr>
+<tr><td>wikipedia</td><td>Search wikipedia.org</td></tr>
+<tr><td>slang</td><td>Search urbandictionary.com</td></tr>
+<tr><td>dictionary</td><td>Search dictionary.reference.com</td></tr>
+<tr><td>scholar</td><td>search google scholar</td></tr>
+<tr><td>clusty</td><td>search the internet with clusty</td></tr>
+<tr><td>xulplanet</td><td>search xulplanet.com</td></tr>
+<tr><td>bugzilla</td><td>search the mozilla bug database</td></tr>
+<tr><td>clhs</td><td>search the Common Lisp Hyper Spec</td></tr>
+<tr><td>emacswiki</td><td>search the emacswiki</td></tr>
+<tr><td>cliki</td><td>search the Common Lisp wiki</td></tr>
+<tr><td>ratpoisonwiki</td><td>search the ratpoison wiki</td></tr>
+<tr><td>stumpwmwiki</td><td>search the StumpWM wiki</td></tr>
+<tr><td>savannah</td><td>search savannah.gnu.org</td></tr>
+<tr><td>sourceforge</td><td>search sourceforge.net</td></tr>
+<tr><td>freshmeat</td><td>search freshmeat.net</td></tr>
+<tr><td>slashdot</td><td>search slashdot.com</td></tr>
+<tr><td>kuro5hin</td><td>search kuro5hin.com</td></tr>
+<tr><td>sheldonbrown</td><td>Search sheldonbrown.com</td></tr>
 </table>
+
+<p>
+  delicious webjumps can be added by putting the following in your rc file:
 </p>
-<p>delicious webjumps can be added by putting the following in your rc file:
 
 <pre>
 add_delicious_webjumps ("myusername");
 </pre>
 
-this will create the following webjumps:
-
-<table border=1>
-<TR><TD>adelicious<TD>Add a delicious bookmark.</TD>
-<TR><TD>delicious<TD>View your delicious bookmarks</TD>
-<TR><TD>sdelicious<TD>Search your delicious bookmarks</TD>
-<TR><TD>sadelicious<TD>Search all delicious bookmarks</TD>
-</table>
+<p>
+  this will create the following webjumps:
 </p>
 
-<h3>Vi Bindings</h3>
-<p>There are also Vi bindings available. enable them by putting
-<pre>
-use_vi_keys();
-</pre>
-in your .conkerorrc file. or use <code>M-x use-vi-keys RET</code> to
-enable them for the session. <code>: use-emacs-keys RET</code>
-switches back.</p>
+<table border="1">
+<tr><td>adelicious</td><td>Add a delicious bookmark.</td></tr>
+<tr><td>delicious</td><td>View your delicious bookmarks</td></tr>
+<tr><td>sdelicious</td><td>Search your delicious bookmarks</td></tr>
+<tr><td>sadelicious</td><td>Search all delicious bookmarks</td></tr>
+</table>
+
 
 <h3>Buffer Management</h3>
-<table border=1>
-<TR><TD>C-u g</TD><TD>Open an URL in a new buffer</TD></TR>
-<TR><TD>C-x b</TD><TD>Select a buffer based on it's name.</TD></TR>
-<TR><TD>M-p</TD><TD>previous buffer</TD></TR>
-<TR><TD>M-n</TD><TD>Next bufer</TD></TR>
-<TR><TD>C-x k</TD><TD>kill buffer</TD></TR>
-<TR><TD>C-x 5 C-f, C-u C-u g</TD><TD>Open an URL in a new frame</TD></TR>
-<TR><TD>C-x 5 0</TD><TD>Close the current frame (all buffers in the
-frame are lost, at this point)</TD></TR>
-<TR><TD>C-x C-c</TD><TD>Quit conkeror</TD></TR>
+<table border="1">
+<tr><td>C-u g</td><td>Open an URL in a new buffer</td></tr>
+<tr><td>C-x b</td><td>Select a buffer based on it's name.</td></tr>
+<tr><td>M-p</td><td>previous buffer</td></tr>
+<tr><td>M-n</td><td>Next bufer</td></tr>
+<tr><td>C-x k</td><td>kill buffer</td></tr>
+<tr><td>C-x 5 C-f, C-u C-u g</td><td>Open an URL in a new frame</td></tr>
+<tr><td>C-x 5 0</td><td>Close the current frame (all buffers in the
+frame are lost, at this point)</td></tr>
+<tr><td>C-x C-c</td><td>Quit conkeror</td></tr>
 </table>
-</p>
 
-<h2>Conkeror As the Default Chrome</h2>
-
-<p>Windows opened by web pages (popup, etc) will open as a Mozilla
-Navigator window, not Conkeror. This is generally a Bad Thing. Press
-the <strong>Set Chrome</strong> button to use Conkeror, instead.
-
-<FORM>
-<script>
-  var gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
-                           .getService(Components.interfaces.nsIPrefBranch);
-
-  function reset_chrome()
-  {
-    gPrefService.clearUserPref("browser.chromeURL");
-    window.alert("Reset Chrome.");
-  }
-  function set_chrome()
-  {
-    gPrefService.setCharPref("browser.chromeURL", "chrome://conkeror/content");
-    window.alert("Set Chrome to chrome://conkeror/content");
-  }
-document.write("<INPUT type=\"button\" value=\"Set Chrome\" onclick=\"set_chrome();\">");
-document.write("<INPUT type=\"button\" value=\"Reset Chrome\" onclick=\"reset_chrome();\">");
-</script>
-</FORM></p>
 
 <h2>Conkeror RC File</h2>
-<p> If you want to add a key binding, a new command, or some other
-customization then you need to create your rc file. The rc file is
-just a javascript file that will get evaluated on startup. Conkeror
-checks the "conkeror.rcfile" preference and if it exists, loads it and
-evaluates it. Use the following form to set your rc file. You'll have
-to restart conkeror to load the rc file. Here's an example value. It's what I use:
+<p>
+  If you want to add a key binding, a new command, or some other
+  customization then you need to create your rc file. The rc file is
+  just a javascript file that will get evaluated on startup. Conkeror
+  checks the "conkeror.rcfile" preference and if it exists, loads it
+  and evaluates it. Use the following form to set your rc file. You'll
+  have to restart conkeror to load the rc file. Here's an example
+  value. It's what I use:
+</p>
 <pre>
 /home/sabetts/.conkerorrc
 </pre>
-It must be an absolute path and must be a file.
+<p>
+  It must be an absolute path and must be a file.
 </p>
 
-<FORM>
-<script>
-  function set_pref()
-  {
-    gPrefService.setCharPref("conkeror.rcfile", document.getElementById("pref").value);
-    window.alert("RC File Set.");
-  }
-  var pref;
-  if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
-    pref = "";
-  } else {
-    pref = gPrefService.getCharPref("conkeror.rcfile");
-  }
+<form action="get">
+  <p>
+    <input id="pref" value="" />
+    <input type="button" value="Set RC File" onclick="set_pref();" />
+  </p>
+</form>
 
-document.write("<INPUT id=\"pref\" value=\"" + pref + "\">");
-document.write("<INPUT type=\"button\" value=\"Set RC File\" onclick=\"set_pref();\">");
-
-</script>
-</FORM>
-
-<P>Here are three common customizations:</P>
-<UL>
-<LI>To add a new web jump:
+<p>Here are three common customizations:</p>
+<ul>
+<li>To add a new web jump:
 <pre>
 add_webjump("keyword", "url");
-</pre></LI>
-<LI>To add a new command:
+</pre></li>
+<li>To add a new command:
 <pre>
 add_command("command-name", function_name, []);
 </pre>
 The 3rd argument is much like the interactive function in
 emacs. Currently only "p" and "P" work. See bindings.js in the source
 code for examples of how it works.
-</LI>
+</li>
 
-<LI>To add a new key binding:
+<li>To add a new key binding:
 <pre>
 define_key(ctrlx_kmap, kbd("c", MOD_META), "command-name");
 </pre>
 This binds C-x M-c to execute "command-name". Take a look at
 bindings.js for the builtin keymaps and key bindings.
-</LI>
-</UL>
+</li>
+</ul>
 
 <h2>Universal Argument</h2>
 
-<p>Conkeror support the universal argument, C-u. It's a prefix binding
-that changes how a command behaves. In Conkeror, C-u has two main
-effects. The first effect is that the command will be executed
-multiple times. For example, typing the following:
+<p>
+  Conkeror support the universal argument, C-u. It's a prefix binding
+  that changes how a command behaves. In Conkeror, C-u has two main
+  effects. The first effect is that the command will be executed
+  multiple times. For example, typing the following:
+</p>
 <pre>
 C-u C-n
 </pre>
-will cause conkeror to scroll down 4 lines.
+<p>
+  will cause conkeror to scroll down 4 lines.
+</p>
 <pre>
 C-u 12 C-n
 </pre>
-will cause conkeror to scroll down 12 lines.
+<p>
+  will cause conkeror to scroll down 12 lines.
+</p>
 
-<p>The second effect is to open in a new buffer or a new window.
+<p>
+  The second effect is to open in a new buffer or a new window.
+</p>
 <pre>
 C-u g conkeror.mozdev.org RET
 </pre>
-This opens the conkeror project web page in a new buffer.
+<p>
+  This opens the conkeror project web page in a new buffer.
+</p>
 <pre>
 C-u C-u n 12 RET
 </pre>
-This opens link number 12 in a new window.
+<p>
+  This opens link number 12 in a new window.
+</p>
 
-<p>There are some commands where the effect is ambiguous. Does
-<code>C-u B</code> go back four pages in the history or does it go
-back one and open the result in a new buffer? I am working on adding a
-second universal argument that would allow you to do both.
+<p>
+  There are some commands where the effect is ambiguous. Does
+  <code>C-u B</code> go back four pages in the history or does it go
+  back one and open the result in a new buffer? I am working on adding
+  a second universal argument that would allow you to do both.
+</p>
 
 <h2>toggle-eod-space</h2>
 
-<p><code>toggle-eod-space</code> is a slightly ugly hack that should
-help you read articles more smoothly. Imagine you're reading an
-article. You start reading the beginning. Your eyes get to the bottom
-of the screen, so you press Space to page down. You continue until
-near the end of the article. You press Space to read the last part and
-your browser only scrolls down part of a page, leaving where you left
-off somwhere in the middle of the screen and not at the top where you
-expected it. You spend the next couple seconds searching for where you
-left off. <code>toggle-eod-space</code> adds 1 page of blank space to
-the end of the web page, so your last page down is a full one. Note,
-<code>toggle-eod-space</code> turns the feature on (or off) but the
-space won't be added to (or removed from) the current page. It affects
-the subsequently loaded pages.
+<p>
+  <code>toggle-eod-space</code> is a slightly ugly hack that should
+  help you read articles more smoothly. Imagine you're reading an
+  article. You start reading the beginning. Your eyes get to the
+  bottom of the screen, so you press Space to page down. You continue
+  until near the end of the article. You press Space to read the last
+  part and your browser only scrolls down part of a page, leaving
+  where you left off somwhere in the middle of the screen and not at
+  the top where you expected it. You spend the next couple seconds
+  searching for where you left off. <code>toggle-eod-space</code> adds
+  1 page of blank space to the end of the web page, so your last page
+  down is a full one. Note, <code>toggle-eod-space</code> turns the
+  feature on (or off) but the space won't be added to (or removed
+  from) the current page. It affects the subsequently loaded pages.
+</p>
 
 <h2>Ad Blocking</h2>
-<p>Conkeror can block images, scripts, etc originating from servers
-that match one of conkeror's adblock patterns. To add a pattern
-use <code>M-x adblock-add-pattern</code>. The pattern is a regular
-expression.</p>
+<p>
+  Conkeror can block images, scripts, etc originating from servers
+  that match one of conkeror's adblock patterns. To add a pattern use
+  <code>M-x adblock-add-pattern</code>. The pattern is a regular
+  expression.
+</p>
 
-<h2>Contributors</h2>
-<p>Take a look at who has <a href="contributors">contributed improvements</a> to Conkeror. If someone is missing please let me know!
 
 <h2>Conkeror Resources</h2>
-<p>
-<UL>
-<LI><a href="http://conkeror.mozdev.org">Conkeror homepage</a></LI>
-</UL>
-</p>
+<ul>
+<li><a href="http://conkeror.mozdev.org">Conkeror homepage</a></li>
+</ul>
 
 </body>
 </html>
