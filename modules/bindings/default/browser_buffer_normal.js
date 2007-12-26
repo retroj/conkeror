@@ -44,9 +44,9 @@ define_key(browser_buffer_normal_keymap, "S-down", "cmd_selectLineNext");
 // URL
 define_key(browser_buffer_normal_keymap, "C-x C-f", "find-url"); 
 define_key(browser_buffer_normal_keymap, "u", "go-up");
-define_key(browser_buffer_normal_keymap, "B", "go-back");
-define_key(browser_buffer_normal_keymap, "F", "go-forward");
+define_key(browser_buffer_normal_keymap, "h", "go-forward");
 define_key(browser_buffer_normal_keymap, "l", "go-back");
+define_key(browser_buffer_normal_keymap, "r", "revert-buffer");
 define_key(browser_buffer_normal_keymap, "g", "open-url");
 
 
