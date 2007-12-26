@@ -427,7 +427,7 @@ function go_up (b, prefix)
 {
     var loc = b.display_URI_string;
     var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
-    open_url_in (frame, prefix, up);
+    open_url_in (b.frame, prefix, up);
 }
 interactive("go-up", go_up, I.current_buffer(browser_buffer), I.p);
 
@@ -610,4 +610,3 @@ function  view_mathml_source (frame, charset, target) {
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, target, 'mathml');
 }
-interactive ('view-mathml-source', view_mathml_source, I.current_frame, I.content_charset, I.mathml_node);
