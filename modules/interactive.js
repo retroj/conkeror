@@ -91,6 +91,12 @@ function interactive(name)
     interactive_commands.put(name, { name: name, handler: handler, doc: doc, arguments: args });
 }
 
+function interactive_error(str) {
+    var e = new Error(str);
+    e.is_interactive_error = true;
+    return e;
+}
+
 // Any additional arguments specify "given" arguments to the function.
 function call_interactively(ctx, command)
 {
@@ -237,10 +243,12 @@ function call_interactively(ctx, command)
                 }
             } while (true);
         } catch (e) {
-            // FIXME: should do better printing of certain errors,
-            // and also possibly dump to console.
-            frame.minibuffer.message("call_interactively: "  + e);
-            dump_error(e);
+            if (e.is_interactive_error) {
+                frame.minibuffer.message("" + e);
+            } else {
+                frame.minibuffer.message("call_interactively: "  + e);
+                dump_error(e);
+            }
         }
     }
 
