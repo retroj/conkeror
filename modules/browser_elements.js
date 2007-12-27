@@ -29,7 +29,7 @@ function browser_element_focus(buffer, elem)
 
 function browser_element_follow(buffer, target, elem)
 {
-    elem.focus();
+    set_focus_no_scroll(buffer.frame, elem);
 
     var load_spec = null;
     var current_frame = null;
@@ -38,7 +38,8 @@ function browser_element_follow(buffer, target, elem)
         current_frame = elem;
         no_click = true;
     } else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
-             elem instanceof Ci.nsIDOMHTMLIFrameElement) {
+               elem instanceof Ci.nsIDOMHTMLIFrameElement ||
+               elem instanceof Ci.nsIDOMHTMLLinkElement) {
         no_click = true;
     } else if (elem instanceof Ci.nsIDOMHTMLImageElement) {
         if (!elem.hasAttribute("onmousedown") && !elem.hasAttribute("onclick"))
