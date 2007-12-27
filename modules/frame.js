@@ -54,48 +54,6 @@ function generate_new_frame_tag(tag)
     }
 }
 
-
-function encode_xpcom_structure(data)
-{
-    var ret = null;
-    if (typeof data == 'string') {
-        ret = Cc["@mozilla.org/supports-string;1"].createInstance(Ci.nsISupportsString);
-        ret.data = data;
-    } else if (typeof data == 'object') { // should be a check for array.
-        ret = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
-        for (var i = 0; i < data.length; i++) {
-            ret.appendElement (this.encode_xpcom_structure (data[i]), false);
-        }
-    } else {
-        throw new Error('make_xpcom_struct was given something other than String or Array');
-    }
-    return ret;
-}
-
-function decode_xpcom_structure(data)
-{
-    function dostring (data) {
-        try {
-            if (typeof(data) == "string")
-                return data;
-            var iface = data.QueryInterface (Ci.nsISupportsString);
-            return iface.data;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    var ret = dostring (data);
-    if (ret) { return ret; }
-    // it's not a string, so we will assume it is an array.
-    ret = [];
-    var en = data.QueryInterface (Ci.nsIArray).enumerate ();
-    while (en.hasMoreElements ()) {
-        ret.push (decode_xpcom_structure (en.getNext ()));
-    }
-    return ret;
-}
-
 function make_chrome_frame(chrome_URI, args)
 {
     return window_watcher.openWindow(null, chrome_URI, null,
@@ -104,13 +62,16 @@ function make_chrome_frame(chrome_URI, args)
 
 var conkeror_chrome_URI = "chrome://conkeror/content/conkeror.xul";
 
-function make_frame (url, tag)
+function make_frame (load_spec, tag)
 {
-    var open_args = ['conkeror'];
-    if (url) { open_args.push (['find'].concat (url)); }
-    if (tag) { open_args.push (['tag', tag]); }
-    open_args = encode_xpcom_structure (open_args);
-    var result = make_chrome_frame(conkeror_chrome_URI, open_args);
+    var result = make_chrome_frame(conkeror_chrome_URI, null);
+    if (tag != null)
+        result.tag_arg = tag;
+    if (load_spec != null) {
+        add_hook.call(result, "frame_initialize_hook", function () {
+                apply_load_spec(result.buffers.current, load_spec);
+            });
+    }
     make_frame_hook.run(result);
     return result;
 }
@@ -187,7 +148,23 @@ define_frame_local_hook("frame_initialize_late_hook");
 function frame_initialize(frame)
 {
     frame.conkeror = conkeror;
+
+    // Set tag
+    var tag = null;
+    if (frame.tag_arg) {
+        tag = frame.tag_arg;
+        delete frame.tag_arg;
+    }
+    frame.tag = generate_new_frame_tag(tag);
+
     frame_initialize_early_hook.run(frame);
+    frame.initialize_early_hook = null; // used only once
+
     frame_initialize_hook.run(frame);
-    frame.setTimeout(function(){frame_initialize_late_hook.run(frame);},0);
+    frame.initialize_hook = null; // used only once
+
+    frame.setTimeout(function(){
+            frame_initialize_late_hook.run(frame);
+            frame.frame_initialize_late_hook = null; // used only once
+        },0);
 }

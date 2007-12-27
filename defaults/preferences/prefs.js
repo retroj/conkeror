@@ -20,3 +20,5 @@ pref("dom.disable_window_status_change",          true);
 pref("dom.disable_window_move_resize",            true);
 // prevent JS from monkeying with window focus, etc
 pref("dom.disable_window_flip",                   true);
+
+pref("dom.popup_allowed_events", "change click dblclick mouseup reset submit keypress");

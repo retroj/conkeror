@@ -177,15 +177,19 @@ function download_uri_internal (url_o, document_o,
     }
 }
 
+function get_web_navigation_for_window(win) {
+    var ifr = win.QueryInterface(Ci.nsIInterfaceRequestor);
+    return ifr.getInterface(Ci.nsIWebNavigation);
+}
+
 function get_SHEntry_for_document(doc)
 {
     try
     {
-        var win = uri.defaultView;
-        var ifr = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-        var webNav = ifr.getInterface(nsIWebNavigation);
-        var pageLoader = webNav.QueryInterface(Components.interfaces.nsIWebPageDescriptor);
-        var desc = pageLoader.currentDescriptor.QueryInterface(Components.interfaces.nsISHEntry);
+        var win = doc.defaultView;
+        var webNav = get_web_navigation_for_window(win);
+        var pageLoader = webNav.QueryInterface(Ci.nsIWebPageDescriptor);
+        var desc = pageLoader.currentDescriptor.QueryInterface(Ci.nsISHEntry);
         return desc;
     } catch (e) { return null; }
 }

@@ -1,3 +1,5 @@
+require_later("browser_input.js");
+
 define_buffer_local_hook("browser_buffer_finished_loading_hook");
 define_buffer_local_hook("browser_buffer_progress_change_hook");
 define_buffer_local_hook("browser_buffer_location_change_hook");
@@ -52,9 +54,17 @@ function browser_buffer(frame, browser)
                 browser_buffer_overlink_change_hook.run(buffer, "");
             }
         }, true, false);
+
+    /* FIXME: Add a handler for blocked popups, and also PopupWindow event */
+    /*
+    this.element.addEventListener("DOMPopupBlocked", function (event) {
+            dumpln("PopupWindow: " + event);
+        }, true, false);
+    */
+
     browser_buffer_normal_input_mode(this);
 }
-
+define_keywords("$referrer", "$post_data", "$load_flags");
 browser_buffer.prototype = {
     constructor : browser_buffer.constructor,
 
@@ -107,12 +117,8 @@ browser_buffer.prototype = {
         return this.element.markupDocumentViewer;
     },
 
-    load_URI : function (URI_s) {
-        this._display_URI = URI_s;
-        this.web_navigation.loadURI(URI_s, Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE,
-                                    null /* referrer */,
-                                    null /* post data */,
-                                    null /* headers */);
+    load : function (load_spec) {
+        apply_load_spec(this, load_spec);
     },
 
     on_switch_to : function () {
@@ -396,4 +402,192 @@ define_global_mode("overlink_mode",
 
 overlink_mode(true);
 
-require_later("browser_input.js");
+
+/* open/follow targets */
+const OPEN_CURRENT_BUFFER = 0; // only valid for open if the current
+                               // buffer is a browser_buffer; for
+                               // follow, equivalent to
+                               // FOLLOW_TOP_FRAME.
+const OPEN_NEW_BUFFER = 1;
+const OPEN_NEW_BUFFER_BACKGROUND = 2;
+const OPEN_NEW_WINDOW = 3;
+
+const FOLLOW_DEFAULT = 4; // for open, implies OPEN_CURRENT_BUFFER
+const FOLLOW_CURRENT_FRAME = 5; // for open, implies OPEN_CURRENT_BUFFER
+const FOLLOW_TOP_FRAME = 6; // for open, implies OPEN_CURRENT_BUFFER
+
+var TARGET_PROMPTS = [" in current buffer",
+                      " in new buffer",
+                      " in new buffer (background)",
+                      " in new window",
+                      "",
+                      " in current frame",
+                      " in top frame"];
+
+var TARGET_NAMES = ["current buffer",
+                    "new buffer",
+                    "new buffer (background)",
+                    "new window",
+                    "default",
+                    "current frame",
+                    "top frame"];
+
+
+function browse_target_prompt(target, prefix) {
+    if (prefix == null)
+        prefix = "Open URL";
+    return prefix + TARGET_PROMPTS[target] + ":";
+}
+
+function document_load_spec(doc) {
+    var sh_entry = get_SHEntry_for_document(doc);
+    var result = {url: doc.location.href};
+    if (sh_entry != null) {
+        result.cache_key = sh_entry;
+        result.referrer = sh_entry.referrerURI;
+        result.post_data = sh_entry.postData;
+    }
+    return result;
+}
+
+/* Target can be either a browser_buffer or an nsIWebNavigation */
+function apply_load_spec(target, load_spec) {
+    var url, flags, referrer, post_data;
+    if (typeof(load_spec) == "string") {
+        url = load_spec;
+        flags = null;
+        referrer = null;
+        post_data = null;
+    } else {
+        url = load_spec.url;
+        flags = load_spec.flags;
+        referrer = load_spec.referrer;
+        post_data = load_spec.post_data;
+    }
+    if (flags == null)
+        flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
+    if (target instanceof browser_buffer) {
+        target._display_URI = url;
+        target = target.web_navigation;
+    }
+    target.loadURI(url, flags, referrer, post_data, null /* headers */);
+}
+
+function open_in_browser(buffer, target, load_spec)
+{
+    switch (target) {
+    case OPEN_CURRENT_BUFFER:
+    case FOLLOW_DEFAULT:
+    case FOLLOW_CURRENT_FRAME:
+    case FOLLOW_TOP_FRAME:
+        if (buffer instanceof browser_buffer)  {
+            apply_load_spec(buffer, load_spec);
+            break;
+        }
+        // If the current buffer is not a browser_buffer, use a new buffer.
+    case OPEN_NEW_BUFFER:
+        buffer = new browser_buffer(buffer.frame);
+        apply_load_spec(buffer, load_spec);
+        buffer.frame.buffers.current = buffer;
+        break;
+    case OPEN_NEW_BUFFER_BACKGROUND:
+        buffer = new browser_buffer(buffer.frame);
+        apply_load_spec(buffer, load_spec);
+        break;
+    case OPEN_NEW_WINDOW:
+        make_frame(load_spec);
+        break;
+    default:
+        throw new Error("Invalid target: " + target);
+    }
+}
+
+var default_browse_targets = {};
+default_browse_targets["open"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
+
+I.browse_target = interactive_method(
+    $sync = function (ctx, action) {
+        var prefix = ctx.prefix_argument;
+        var targets = default_browse_targets[action];
+        if (prefix == null || typeof(prefix) != "object")
+            return targets[0];
+        var num = prefix[0];
+        var index = 0;
+        while (num >= 4 && index < targets.length) {
+            num = num / 4;
+            index++;
+        }
+        return targets[index];
+    });
+
+interactive("open-url", open_in_browser,
+            I.current_buffer, $$ = I.browse_target("open"),
+            I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$)));
+
+interactive("find-alternate-url", open_in_browser,
+            I.current_buffer, $$ = I.browse_target("open"),
+            I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$),
+                             $initial_value = I.current_url));
+
+interactive("find-url", open_in_browser,
+            I.current_buffer, OPEN_NEW_BUFFER,
+            I.url_or_webjump($prompt = browse_target_prompt(OPEN_NEW_BUFFER)));
+
+
+/**
+ * browserDOMWindow: intercept window opening
+ */
+function initialize_browser_dom_window(frame) {
+    frame.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
+        new browser_dom_window(frame);
+}
+
+/* USER PREFERENCE */
+/* This will generally be OPEN_NEW_BUFFER, OPEN_NEW_BUFFER_BACKGROUND, or OPEN_NEW_WINDOW */
+var browser_default_open_target = OPEN_NEW_BUFFER;
+
+function browser_dom_window(frame) {
+    this.frame = frame;
+    this.next_target = null;
+}
+browser_dom_window.prototype = {
+    QueryInterface : function (aIID) {
+        if (aIID.equals(Ci.nsIBrowserDOMWindow) ||
+            aIID.equals(Ci.nsISupports))
+            return this;
+        throw Components.results.NS_NOINTERFACE;
+    },
+    openURI : function(aURI, aOpener, aWhere, aContext) {
+        // Reference: http://www.xulplanet.com/references/xpcomref/ifaces/nsIBrowserDOMWindow.html
+        var target = this.next_target;
+        if (target == null || target == FOLLOW_DEFAULT)
+            target = browser_default_open_target;
+        this.next_target = null;
+        switch (browser_default_open_target) {
+        case OPEN_CURRENT_BUFFER:
+        case FOLLOW_TOP_FRAME:
+            return aOpener.top;
+        case FOLLOW_CURRENT_FRAME:
+            return aOpener;n
+        case OPEN_NEW_BUFFER:
+            var buffer = new browser_buffer(this.frame);
+            this.frame.buffers.current = buffer;
+            return buffer.content_window;
+        case OPEN_NEW_BUFFER_BACKGROUND:
+            var buffer = new browser_buffer(this.frame);
+            return buffer.content_window;
+        case OPEN_NEW_WINDOW:
+        default: /* shouldn't be needed */
+
+            /* We don't call make_frame here, because that will result
+             * in the URL being loaded as the top-level document,
+             * instead of within a browser buffer.  Instead, we can
+             * rely on Mozilla using browser.chromeURL. */
+            return null;
+        }
+    }
+};
+
+add_hook("frame_initialize_early_hook", initialize_browser_dom_window);

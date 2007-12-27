@@ -74,29 +74,46 @@ buffer_container.prototype = {
         if (old_value == buffer)
             return;
 
+        this._switch_away_from(this.current);
+        this._switch_to(buffer);
+
+        // Run hooks
+        select_buffer_hook.run(buffer);
+    },
+
+    _switch_away_from : function (old_value) {
         // Save focus state
         old_value.saved_focused_window = this.frame.document.commandDispatcher.focusedWindow;
         old_value.saved_focused_element = this.frame.document.commandDispatcher.focusedElement;
 
         if (old_value.on_switch_away)
             old_value.on_switch_away();
+    },
 
+    _switch_to : function (buffer) {
         // Select new buffer in the XUL deck
         this.container.selectedPanel = buffer.element;
 
         if (buffer.on_switch_to)
             buffer.on_switch_to();
 
+        /**
+         * This next focus call seems to be needed to avoid focus
+         * somehow getting lost (and the keypress handler therefore
+         * not getting called at all) when killing buffers.
+         */
+        this.frame.focus();
+
         // Restore focus state
         if (buffer.saved_focused_element)
             set_focus_no_scroll(this.frame, buffer.saved_focused_element);
         else if (buffer.saved_focused_window)
             set_focus_no_scroll(this.frame, buffer.saved_focused_window);
+        else
+            buffer.content_window.focus();
+
         buffer.saved_focused_element = null;
         buffer.saved_focused_window = null;
-
-        // Run hooks
-        select_buffer_hook.run(buffer);
     },
 
     get count () {
@@ -143,15 +160,20 @@ buffer_container.prototype = {
         if (count <= 1)
             return false;
         // TODO: call hook here
+        var new_buffer = this.current;
+        var changed = false;
         if (b == this.current)
         {
             var index = this.selected_index;
             index = (index + 1) % count;
-            this.current = this.get_buffer(index);
+            new_buffer = this.get_buffer(index);
+            changed = true;
         }
-        var new_selected = this.current.element;
+        this._switch_away_from(this.current);
         this.container.removeChild(b.element);
-        this.container.selectedPanel = new_selected;
+        this._switch_to(new_buffer);
+        if (changed)
+            select_buffer_hook.run(new_buffer);
         b.dead = true;
         return true;
     },
@@ -169,45 +191,6 @@ function buffer_initialize_frame_early(frame)
 }
 
 add_hook("frame_initialize_early_hook", buffer_initialize_frame_early);
-
-function buffer_initialize_frame(frame)
-{
-    // FIXME: This should probably not be done in this file
-    var uris_to_load = [];
-    var tag = null;
-    if ('arguments' in frame)
-    {
-        var open_args;
-        if (frame.arguments.length == 1)
-            open_args = decode_xpcom_structure (frame.arguments[0]);
-        else {
-            open_args = [];
-            for (var i = 0; i < frame.arguments.length; i++) {
-                var args = decode_xpcom_structure(frame.arguments[i]);
-                open_args = open_args.concat([args]);
-            }
-        }
-        if (0 in open_args && open_args[0] == 'conkeror')
-        {
-            for (var j = 1; j < open_args.length; j++) {
-                var op = open_args[j];
-                if (op[0] == 'tag') { tag = op[1]; }
-                else if (op[0] == 'find') { uris_to_load = op.slice(1).reverse(); }
-            }
-        }
-    }
-    frame.tag = generate_new_frame_tag(tag);
-
-    if (0 in uris_to_load)
-        frame.buffers.current.load_URI(uris_to_load[0]);
-    for (var i = 1; i < uris_to_load.length; i++) {
-        var b = new browser_buffer(frame);
-        b.load_URI(uris_to_load[i]);
-        frame.buffers.current = b;
-    }
-}
-
-add_hook("frame_initialize_hook", buffer_initialize_frame);
 
 I.current_buffer = interactive_method(
     $doc = "Current buffer",

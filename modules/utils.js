@@ -274,11 +274,14 @@ function abs_point (node)
     return pt;
 }
 
+var xul_app_info = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
+var xul_runtime = Cc['@mozilla.org/xre/app-info;1'].getService(Ci.nsIXULRuntime);
+
+
 function get_os ()
 {
     // possible return values: 'Darwin', 'Linux', 'WINNT', ...
-    var appinfo = Cc['@mozilla.org/xre/app-info;1'].createInstance (Ci.nsIXULRuntime);
-    return appinfo.OS;
+    return xul_runtime.OS;
 }
 
 var default_directory = null;
@@ -312,6 +315,7 @@ set_default_directory();
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const MATHML_NS = "http://www.w3.org/1998/Math/MathML";
+const XLINK_NS = "http://www.w3.org/1999/xlink";
 
 function create_XUL(frame, tag_name)
 {

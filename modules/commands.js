@@ -153,39 +153,12 @@ function open_url_in (frame, prefix, url)
     }
 }
 
-interactive("follow-image", open_url_in, ['current_frame', 'p', 'image_url']);
-
-interactive("open-url", open_url_in,
-            I.current_frame, I.p,
-            I.url_or_webjump($prompt = I.bind(open_url_in_prompt, I.p)));
-
 interactive("find-url-other-frame", open_url_in,
             I.current_frame, 16,
             I.url_or_webjump($prompt = open_url_in_prompt(16)));
 
-interactive("find-alternate-url", open_url_in,
-            I.current_frame, I.p,
-            I.url_or_webjump($prompt = I.bind(open_url_in_prompt, I.p),
-                             $initial_value = I.current_url));
-
-interactive("find-url", open_url_in,
-            I.current_frame, 4,
-            I.url_or_webjump($prompt = open_url_in_prompt(4)));
-
 interactive("follow-link", open_url_in,
             I.current_frame, 1, I.focused_link_url);
-
-interactive("follow-link-in-new-buffer", open_url_in,
-            I.current_frame, 4, I.focused_link_url);
-
-interactive("open-frameset-frame-in-current-buffer", open_url_in,
-            I.current_frame, 1, I.current_frameset_frame_url);
-
-interactive("open-frameset-frame-in-new-buffer", open_url_in,
-            I.current_frame, 4, I.current_frameset_frame_url);
-
-interactive("open-frameset-frame-in-new-frame", open_url_in,
-            I.current_frame, 16, I.current_frameset_frame_url);
 
 interactive("jsconsole", open_url_in,
             I.current_frame, I.p, "chrome://global/content/console.xul");

@@ -2,26 +2,22 @@ require("hints.js");
 
 function browser_element_focus(buffer, elem)
 {
-    var elemTagName = elem.localName;
-    if (!elemTagName) {
-        elem.focus();
+    elem.focus();
+    if (elem instanceof Ci.nsIDOMWindow) {
         return;
-    } else
-        elemTagName = elemTagName.toLowerCase();
+    }
+    // If it is not a window, it must be an HTML element
     var x = 0;
     var y = 0;
-    switch (elemTagName) {
-    case "frame": case "iframe":
+    if (elem instanceof Ci.nsIDOMHTMLFrameElement || elem instanceof Ci.nsIDOMHTMLIFrameElement) {
         elem.contentWindow.focus();
         return;
-    case "area":
+    }
+    if (elem instanceof Ci.nsIDOMHTMLAreaElement) {
         var coords = elem.getAttribute("coords").split(",");
         x = Number(coords[0]);
         y = Number(coords[1]);
-        break;
     }
-
-    elem.focus();
 
     var doc = elem.ownerDocument;
     var evt = doc.createEvent("MouseEvents");
@@ -31,49 +27,91 @@ function browser_element_focus(buffer, elem)
     elem.dispatchEvent(evt);
 }
 
-function browser_element_follow(buffer, elem, prefix)
+function browser_element_follow(buffer, target, elem)
 {
-    if (prefix > 4)
-    {
-        browser_element_follow_other_frame(buffer, elem);
-        return;
-    } else if (prefix > 1)
-    {
-        browser_element_follow_other_buffer(buffer, elem);
+    elem.focus();
+
+    var load_spec = null;
+    var current_frame = null;
+    var no_click = false;
+    if (elem instanceof Ci.nsIDOMWindow) {
+        current_frame = elem;
+        no_click = true;
+    } else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
+             elem instanceof Ci.nsIDOMHTMLIFrameElement) {
+        no_click = true;
+    } else if (elem instanceof Ci.nsIDOMHTMLImageElement) {
+        if (!elem.hasAttribute("onmousedown") && !elem.hasAttribute("onclick"))
+            no_click = true;
+    }
+
+    if (target == FOLLOW_DEFAULT && !no_click) {
+        var x = 1, y = 1;
+        if (elem instanceof Ci.nsIDOMHTMLAreaElement) {
+            var coords = elem.getAttribute("coords").split(",");
+            if (coords.length >= 2) {
+                x = Number(coords[0]) + 1;
+                y = Number(coords[1]) + 1;
+            }
+        }
+        browser_follow_link_with_click(buffer, elem, x, y);
         return;
     }
 
-    var elemTagName = elem.localName;
-    elem.focus();
-    if (!elemTagName)
+    var load_spec = element_get_load_spec(elem);
+    if (load_spec == null) {
+        throw interactive_error("Element has no associated URL");
         return;
-    else
-        elemTagName = elemTagName.toLowerCase();
+    }
 
-    var x = 1, y = 1;
+    if (load_spec.url.match(/^\s*javascript:/)) {
+        // This URL won't work
+        throw interactive_error("Can't load javascript URL");
+    }
 
-    switch (elemTagName) {
-    case "frame": case "iframe":
-        browser_element_follow_top (buffer, elem);
+    var target_obj = null;
+    switch (target) {
+    case OPEN_NEW_WINDOW:
+        make_frame(load_spec);
         return;
-    case "img":
-        var src = elem.src;
-        if (src)
-            src.ownerDocument.defaultView.location.href = src;
-        return;
-    case "area":
-        // image map
-        var coords = elem.getAttribute("coords").split(",");
-        x = Number(coords[0]) + 1;
-        y = Number(coords[1]) + 1;
+
+    case FOLLOW_CURRENT_FRAME:
+        if (current_frame == null) {
+            if (elem.ownerDocument)
+                current_frame = elem.ownerDocument.defaultView;
+            else
+                current_frame = buffer.content_window;
+        }
+        if (current_frame != buffer.content_window) {
+            target_obj = get_web_navigation_for_window(current_frame);
+            apply_load_spec(target_obj, load_spec);
+            break;
+        }
+    case FOLLOW_DEFAULT:
+    case FOLLOW_TOP_FRAME:
+    case OPEN_CURRENT_BUFFER:
+        buffer.load(load_spec);
+        break;
+    case OPEN_NEW_BUFFER:
+        target_obj = new browser_buffer(buffer.frame);
+        target_obj.load(load_spec);
+        buffer.frame.buffers.current = target_obj;
+        break;
+    case OPEN_NEW_BUFFER_BACKGROUND:
+        target_obj = new browser_buffer(buffer.frame);
+        target_obj.load(load_spec);
         break;
     }
+}
 
+/**
+ * Follow a link-like element by generating fake mouse events.
+ */
+function browser_follow_link_with_click(buffer, elem, x, y) {
     var doc = elem.ownerDocument;
     var view = doc.defaultView;
 
     var evt = doc.createEvent("MouseEvents");
-    /* FIXME: maybe use modifiers to indicate new tab/new window etc. behavior */
     evt.initMouseEvent("mousedown", true, true, view, 1, x, y, 0, 0, /*ctrl*/ 0, /*event.altKey*/0,
                        /*event.shiftKey*/ 0, /*event.metaKey*/ 0, 0, null);
     elem.dispatchEvent(evt);
@@ -83,48 +121,108 @@ function browser_element_follow(buffer, elem, prefix)
     elem.dispatchEvent(evt);
 }
 
-function element_get_url(buffer, elem) {
-    if (!elem.localName)
-        return elem.location.href;
-    var name = null;
-    switch (elem.localName.toLowerCase()) {
-    case "frame": case "iframe":
-        name = elem.contentWindow.location.href;
-        break;
-    case "img":
-        name = elem.src;
-        break;
-    case "a":
-        name = elem.href;
-        break;
+function element_get_url(elem) {
+    var url = null;
+
+    if (elem instanceof Ci.nsIDOMWindow)
+        url = elem.location.href;
+
+    if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
+        elem instanceof Ci.nsIDOMHTMLIFrameElement)
+        url = elem.contentWindow.location.href;
+
+    else if (elem instanceof Ci.nsIDOMHTMLImageElement)
+        url = elem.src;
+
+    else if (elem instanceof Ci.nsIDOMHTMLAnchorElement ||
+             elem instanceof Ci.nsIDOMHTMLAreaElement ||
+             elem instanceof Ci.nsIDOMHTMLLinkElement) {
+        if (target.hasAttribute("href"))
+            url = elem.href;
+        else
+            return null; // nothing can be done
+    } else {
+        var node = elem;
+        while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
+            node = node.parentNode;
+        if (node && !node.hasAttribute("href"))
+            node = null;
+        else
+            url = node.href;
+        if (!node) {
+            // Try simple XLink
+            node = elem;
+            while (node) {
+                if (node.nodeType == Ci.nsIDOMNode.ELEMENT_NODE) {
+                    href = linkNode.getAttributeNS(XLINK_NS, "href");
+                    break;
+                }
+                node = node.parentNode;
+            }
+            if (href)
+                href = makeURLAbsolute(node.baseURI, href);
+        }
     }
-    if (name && name.length == 0)
-        name = null;
-    return name;
+    if (url && url.length == 0)
+        url = null;
+    return url;
 }
 
-function browser_element_follow_other_buffer(buffer, elem)
-{
-    elem.focus();
-    var url = element_get_url(buffer, elem);
-    if (url != null)
-        open_url_in(buffer.frame, 4 /* other buffer */, url);
-}
+function element_get_load_spec(elem) {
+    var load_spec = null;
 
-function browser_element_follow_other_frame(buffer, elem)
-{
-    elem.focus();
-    var url = element_get_url(buffer, elem);
-    if (url != null)
-        open_url_in(buffer.frame, 5 /* other frame */, url);
-}
 
-function browser_element_follow_top(buffer, elem)
-{
-    elem.focus();
-    var url = element_get_url(buffer, elem);
-    if (url != null)
-        open_url_in(buffer.frame, 1 /* current buffer */, url);
+    if (elem instanceof Ci.nsIDOMWindow)
+        load_spec = document_load_spec(elem.document);
+
+    else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
+             elem instanceof Ci.nsIDOMHTMLIFrameElement)
+        load_spec = document_load_spec(elem.contentDocument);
+
+    else {
+        var url = null;
+
+        if (elem instanceof Ci.nsIDOMHTMLAnchorElement ||
+            elem instanceof Ci.nsIDOMHTMLAreaElement ||
+            elem instanceof Ci.nsIDOMHTMLLinkElement) {
+            if (!elem.hasAttribute("href"))
+                return null; // nothing can be done, as no nesting within these elements is allowed
+            url = elem.href;
+        }
+        else if (elem instanceof Ci.nsIDOMHTMLImageElement) {
+            url = elem.src;
+        }
+        else {
+            var node = elem;
+            while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
+                node = node.parentNode;
+            if (node && !node.hasAttribute("href"))
+                node = null;
+            else
+                url = node.href;
+            if (!node) {
+                // Try simple XLink
+                node = elem;
+                while (node) {
+                    if (node.nodeType == Ci.nsIDOMNode.ELEMENT_NODE) {
+                        url = linkNode.getAttributeNS(XLINK_NS, "href");
+                        break;
+                    }
+                    node = node.parentNode;
+                }
+                if (url)
+                    url = makeURLAbsolute(node.baseURI, url);
+            }
+        }
+        if (url && url.length > 0) {
+            var referrer = null;
+            try {
+                referrer = makeURL(elem.ownerDocument.location.href);
+            } catch (e) {}
+            load_spec = {url: url, referrer: referrer};
+        }
+    }
+    return load_spec;
 }
 
 var hints_default_object_classes = {
@@ -164,49 +262,43 @@ function hints_object_class_selector(name) {
     }
 }
 
-function hinted_element_with_prompt(action, action_name, default_class, prompter)
+function hinted_element_with_prompt(action, action_name, default_class, target_var)
 {
-    if (prompter != null && typeof(prompter) == "function") {
-        return I.hinted_element(
-            $prompt = I.bind(function (cls,prefix) {
-                    var base = (cls == default_class) ?
-                        action_name : 
-                        action_name + " (" + cls + ")";
-                    return prompter(prefix, base);
-                }, $$9 = I.hints_object_class(action), I.p),
-            $object_class = $$9,
-            $hint_xpath_expression = I.hints_xpath_expression(action));
+    var prompt;
+    if (target_var != null) {
+        prompt = I.bind(
+            function (cls,target) {
+                var base = action_name + TARGET_PROMPTS[target];
+                if (cls != default_class)
+                    base += " (" + cls + ")";
+                return base + ":";
+            },
+            $$9 = I.hints_object_class(action),
+            target_var);
     } else {
-        if (prompter == null)
-            prompter = "";
-        return I.hinted_element(
-            $prompt = I.bind(function (cls) {
-                    var base = (cls == default_class) ?
-                        action_name : 
-                        action_name + " (" + cls + ")";
-                    return base + "" + prompter + ":";
-                }, $$9 = I.hints_object_class(action)),
-            $object_class = $$9,
-            $hint_xpath_expression = I.hints_xpath_expression(action));
+        prompt = I.bind(
+            function (cls) {
+                var base = (cls == default_class) ?
+                    action_name :
+                    action_name + " (" + cls + ")";
+                return base + ":";
+            },
+            $$9 = I.hints_object_class(action));
     }
+    return I.hinted_element($prompt = prompt,
+                            $object_class = $$9,
+                            $hint_xpath_expression = I.hints_xpath_expression(action));
 }
 
 interactive("browser-element-follow", browser_element_follow,
             I.current_buffer,
-            hinted_element_with_prompt("follow", "Follow", "links", open_url_in_prompt),
-            I.p);
+            $$ = I.browse_target("follow"),
+            hinted_element_with_prompt("follow", "Follow", "links", $$));
 
-interactive("browser-element-follow-other-buffer", browser_element_follow_other_buffer,
+interactive("browser-element-follow-top", browser_element_follow,
             I.current_buffer,
-            hinted_element_with_prompt("follow", "Follow", "links", " in new buffer"));
-
-interactive("browser-element-follow-other-frame", browser_element_follow_other_frame,
-            I.current_buffer,
-            hinted_element_with_prompt("follow", "Follow", "links", " in new frame"));
-
-interactive("browser-element-follow-top", browser_element_follow_top,
-            I.current_buffer,
-            hinted_element_with_prompt("follow_top", "Follow", "frames", " in top frame"));
+            $$ = I.browse_target("follow-top"),
+            hinted_element_with_prompt("follow_top", "Follow", "frames", $$));
 
 interactive("browser-element-focus", browser_element_focus,
             I.current_buffer,
@@ -214,14 +306,14 @@ interactive("browser-element-focus", browser_element_focus,
 
 interactive("browser-element-save", browser_element_save,
             $$ = hinted_element_with_prompt("save", "Save", "links", null),
-            $$1 = I.bind(element_get_url, I.current_buffer, $$),
+            $$1 = I.bind(element_get_url, $$),
             I.F($prompt = "Save as:",
                 $initial_value = I.bind(function (u) { return generate_save_path(u).path; }, $$1),
                 $history = "save"));
 
 function browser_element_copy(buffer, elem)
 {
-    var text = element_get_url(buffer, elem);
+    var text = element_get_url(elem);
     if (text == null) {
         switch (elem.localName) {
         case "INPUT":
@@ -246,9 +338,10 @@ interactive("browser-element-copy", browser_element_copy,
             hinted_element_with_prompt("copy", "Copy", "links", null));
 
 var view_source_external_editor = null, view_source_function = null;
-function browser_element_view_source(frame, elem, charset, prefix)
+function browser_element_view_source(buffer, target, elem, charset)
 {
     var win = null;
+    var frame = buffer.frame;
     if (elem.localName) {
         var matched = false;
         switch (elem.localName.toLowerCase()) {
@@ -289,7 +382,7 @@ function browser_element_view_source(frame, elem, charset, prefix)
     var url_s = win.location.href;
     if (url_s.substring (0,12) != "view-source:") {
         try {
-            open_url_in(frame, "view-source:" + url_s, prefix);
+            open_in_browser(buffer, target, "view-source:" + url_s);
         } catch(e) { dump_error(e); }
     } else {
         frame.minibuffer.message ("Already viewing source");
@@ -297,7 +390,7 @@ function browser_element_view_source(frame, elem, charset, prefix)
 }
 
 interactive("browser-element-view-source", browser_element_view_source,
-            I.current_frame,
-            hinted_element_with_prompt("view_source", "View source", "frames", open_url_in_prompt),
-            I.content_charset,
-            I.p);
+            I.current_buffer(browser_buffer),
+            $$ = I.browse_target("follow"),
+            hinted_element_with_prompt("view_source", "View source", "frames", $$),
+            I.content_charset);

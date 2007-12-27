@@ -98,15 +98,14 @@ hint_manager.prototype = {
                 rect = elem.getClientRects()[0];
                 if (!rect)
                     continue;
-                var tagname = elem.localName.toLowerCase();
-                if (tagname == "input" || tagname == "textarea")
+                if (elem instanceof Ci.nsIDOMHTMLInputElement || elem instanceof Ci.nsIDOMHTMLTextAreaElement)
                     text = elem.value.toLowerCase();
-                else if (tagname == "select") {
+                else if (elem instanceof Ci.nsIDOMHTMLSelectElement) {
                     if (elem.selectedIndex >= 0)
                         text = elem.item(elem.selectedIndex).text.toLowerCase();
                     else
                         text = "";
-                } else if (tagname == "frame") {
+                } else if (elem instanceof Ci.nsIDOMHTMLFrameElement) {
                     text = elem.name ? elem.name : "";
                 } else
                     text = elem.textContent.toLowerCase();
@@ -129,7 +128,9 @@ hint_manager.prototype = {
 
                 if (elem == focused_element)
                     focused_element_hint = hint;
-                else if ((tagname == "frame" || tagname == "iframe") && elem.contentWindow == focused_window)
+                else if ((elem instanceof Ci.nsIDOMHTMLFrameElement ||
+                          elem instanceof Ci.nsIDOMHTMLIFrameElement) &&
+                         elem.contentWindow == focused_window)
                     focused_window_hint = hint;
             }
             doc.documentElement.appendChild(fragment);
@@ -194,9 +195,10 @@ hint_manager.prototype = {
 
             var img_elem = null;
 
-            if (text.length == 0 && h.elem.firstChild && h.elem.firstChild.localName.toLowerCase() == "img")
+            if (text.length == 0 && h.elem.firstChild &&
+                h.elem.firstChild instanceof Ci.nsIDOMHTMLImageElement)
                 img_elem = h.elem.firstChild;
-            else if (h.elem.localName.toLowerCase() == "img")
+            else if (h.elem instanceof Ci.nsIDOMHTMLImageElement)
                 img_elem = h.elem;
 
             if (img_elem)
@@ -235,7 +237,7 @@ hint_manager.prototype = {
                 h.elem.style.color = "black";
 
             var label = "" + cur_number;
-            if (h.elem.localName.toLowerCase() == "frame") {
+            if (h.elem instanceof Ci.nsIDOMHTMLFrameElement) {
                 label +=  " " + text;
             }
             h.hint.textContent = label;

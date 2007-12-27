@@ -27,7 +27,6 @@ define_key(browser_buffer_normal_keymap, "S-8 M", browser_elements_keymap,
 
 function bind_element_operations(keymap) {
     define_key(keymap, "f", "browser-element-follow");
-    define_key(keymap, "F", "browser-element-follow-other-buffer");
     define_key(keymap, ";", "browser-element-focus");
     define_key(keymap, "t", "browser-element-follow-top");
     define_key(keymap, "s", "browser-element-save");
