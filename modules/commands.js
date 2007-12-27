@@ -227,19 +227,17 @@ function yankToClipboard (frame)
 interactive("yank-to-clipboard", yankToClipboard, I.current_frame);
 
 
-function browser_next (frame)
+function buffer_next (frame, count)
 {
-    frame.nextBrowser();
+    var index = frame.buffers.selected_index;
+    var total = frame.buffers.count;
+    index = (index + count) % total;
+    if (index < 0)
+        index += total;
+    frame.buffers.current = frame.buffers.get_buffer(index);
 }
-interactive("buffer-next", browser_next, I.current_frame);
-
-
-function browser_prev (frame)
-{
-    frame.prevBrowser();
-}
-interactive("buffer-previous", browser_prev, I.current_frame);
-
+interactive("buffer-next", buffer_next, I.current_frame, I.p);
+interactive("buffer-previous", buffer_next, I.current_frame, I.bind(function (x) {return -x;}, I.p));
 
 function meta_x (frame, prefix, command)
 {

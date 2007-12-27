@@ -24,3 +24,6 @@ define_key(default_help_keymap, "i", "help-page");
 define_key(default_help_keymap,"t", "help-with-tutorial");
 
 define_key(default_global_keymap, "M-x", "execute-extended-command");
+
+define_key(default_global_keymap, "M-p", "buffer-previous");
+define_key(default_global_keymap, "M-n", "buffer-next");
