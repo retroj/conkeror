@@ -15,12 +15,12 @@
 
 <p>
   The first thing you need to know about Conkeror is how to read key
-  notation.  Each key combination is written as a hyphen-separated
-  list of modifiers and key.  The codes for the common modifiers are
-  as follows: <code>C</code> means Control; <code>M</code> means Meta
-  or Alt; and <code>S</code> means Shift.  Therefore the key
-  combination <code>C-M-f</code> means to hold down Control and Meta
-  and press <code>f</code>.
+  notation.  Each key combination is written as a hyphenated list of
+  modifiers and key.  The codes for the common modifiers are as
+  follows: <code>C</code> means Control; <code>M</code> means Meta or
+  Alt; and <code>S</code> means Shift.  Therefore the key combination
+  <code>C-M-f</code> means to hold down Control and Meta and press
+  <code>f</code>.
 </p>
 
 <p>
@@ -41,7 +41,72 @@
   The key sequence to exit conkeror is <code>C-x C-c</code>.
 </p>
 
+<p>
+  <code>Space</code> and <code>Backspace</code> scroll a page down and
+  a page up, respectfully.
+</p>
 
+
+<h3>Hinting</h3>
+
+<p>
+  The system for interacting with the elements of a document is called
+  the hinting system.  With the hinting system, you can do things like
+  follow hyperlinks, copy URLs, focus form fields, and more.  Let's
+  use the hinting system to follow a hyperlink.  You will receive
+  instructions about how to return here after you follow the
+  hyperlink.  Scroll so that following numbered list and the hyperlink
+  after it are both visible.
+</p>
+
+<ol>
+  <li>Press <code>f</code>.  (mnemonic: follow)</li>
+  <li>The hyperlink should be hilighted, with a number on the left
+  side.  Type that number.</li>
+</ol>
+
+
+<a href="chrome://conkeror/content/back-forward.html">This is a
+hyperlink.</a>
+
+<p>
+  As a matter of fact, in addition to following links by number, you
+  can also follow them by a substring of the link text.  You could
+  follow the link above by typing <code>f t h i s</code>.  When more
+  than one link with similar text is in view, hinting will narrow down
+  the choices as you type.  You can always specify the one you want by
+  disambiguating the sequence with the hint number.
+</p>
+
+<p>
+  But hinting is for more than just hyperlinks.  Conkeror provides
+  several <em>hint classes</em> for operating on different types of
+  elements.  The hint class is specified by typing the corresponding
+  key sequence of the class before the key sequence of the command.
+  It was not necessary to specify a hint class for following the
+  hyperlink above because links are the default hint class for the
+  follow command.  The following table lists the most common hint
+  classes.
+</p>
+
+<table>
+  <tr><td><em>key</em></td><td><em>hint class</em></td><td><em>mnemonic</em></td></tr>
+  <tr><td><code>n</code></td><td>links and form elements</td><td>liNk</td></tr>
+  <tr><td><code>i</code></td><td>images</td><td>Image</td></tr>
+  <tr><td><code>m</code></td><td>frameset frames and top window</td><td>fraMe</td></tr>
+  <tr><td><code>* M</code></td><td>MathML nodes</td><td>Math</td></tr>
+</table>
+
+<p>
+  The <code>c</code> key is bound to a command to copy an URL to the
+  clipboard.  Its default hint class is links.  To copy the URL of the
+  page you are currently browsing, you use the frameset link class.
+  The top level window with or without a frameset is always number 0
+  (zero).  On this tutorial page, you can type <code>m c</code> to
+  copy the current URL.  You do not need to type 0 because this is not
+  a frameset document.  If this were a frameset document, you would
+  type <code>m c 0</code>.
+</p>
 
 <h3>COPYING</h3>
 
