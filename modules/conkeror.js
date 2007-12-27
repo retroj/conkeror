@@ -25,6 +25,7 @@ require("webjump.js"); // depends: interactive.js
 
 require("browser_zoom.js");
 require("browser_elements.js");
+require("browser_follow_relationship.js");
 
 require("bindings.js"); // depends: keyboard.js
 
