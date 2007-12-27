@@ -106,7 +106,7 @@ function find_url_new_buffer(url, frame)
     }
     if (frame) {
         frame.buffers.current = new browser_buffer(frame);
-        frame.buffers.current.load_URI(url);
+        frame.buffers.current.load(url);
     } else if (this.find_url_new_buffer_queue) {
         // we are queueing
         find_url_new_buffer_queue.push (url);
