@@ -206,20 +206,6 @@ function get_document_content_disposition (document_o)
 }
 
 
-function open_url_in_prompt(prefix, str)
-{
-    if (str == null)
-        str = "Find URL";
-    if (prefix == 1) {
-        return str + ":";
-    } else if (prefix <= 4) {
-        return str + " in new buffer:";
-    } else {
-        return str + " in new frame:";
-    }
-}
-
-
 function set_focus_no_scroll(frame, element)
 {
     frame.document.commandDispatcher.suppressFocusScroll = true;

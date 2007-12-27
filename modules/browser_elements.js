@@ -127,7 +127,7 @@ function element_get_url(elem) {
     if (elem instanceof Ci.nsIDOMWindow)
         url = elem.location.href;
 
-    if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
+    else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
         elem instanceof Ci.nsIDOMHTMLIFrameElement)
         url = elem.contentWindow.location.href;
 
@@ -147,21 +147,20 @@ function element_get_url(elem) {
             node = node.parentNode;
         if (node && !node.hasAttribute("href"))
             node = null;
-        else
-            url = node.href;
         if (!node) {
             // Try simple XLink
             node = elem;
             while (node) {
                 if (node.nodeType == Ci.nsIDOMNode.ELEMENT_NODE) {
-                    href = linkNode.getAttributeNS(XLINK_NS, "href");
+                    url = linkNode.getAttributeNS(XLINK_NS, "href");
                     break;
                 }
                 node = node.parentNode;
             }
-            if (href)
-                href = makeURLAbsolute(node.baseURI, href);
-        }
+            if (url)
+                url = makeURLAbsolute(node.baseURI, url);
+        } else
+            url = node.href;
     }
     if (url && url.length == 0)
         url = null;

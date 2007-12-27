@@ -92,23 +92,6 @@ function getWebJump(value)
     } catch(e) {alert(e); return null;}
 }
 
-function doWebJump(prefix, match, value)
-{
-    var url = getWebJump(value);
-    open_url_in(prefix,url);
-}
-
-function web_jump(prefix)
-{
-    var templs =[];
-    for (var x in gWebJumpLocations)
-        templs.push([x,x]);
-    readFromMiniBuffer (open_url_in_prompt(prefix, "Web Jump"), null, "webjump", templs, 
-                        true, null, function(m,v) {doWebJump(prefix,m,v);});
-}
-interactive("web-jump", web_jump, ["p"]);
-
-
 function get_url_or_webjump(input)
 {
     var url = getWebJump(input);

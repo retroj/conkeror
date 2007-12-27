@@ -113,6 +113,7 @@ function reload (frame)
     }
 }
 interactive("revert-buffer", reload, I.current_frame);
+interactive("reload", reload, I.current_frame);
 
 
 function scrollHorizComplete (frame, n)
@@ -132,37 +133,9 @@ function delete_frame (frame)
 }
 interactive("delete-frame", delete_frame, I.current_frame);
 
-
-function open_url_in (frame, prefix, url)
-{
-    var b = frame.buffers.current;
-    if (prefix == 1 && b.is_browser_buffer) {
-        // Open in current buffer
-        // FIXME: check to ensure that current buffer is a browser_buffer
-        frame.buffers.current.load_URI(url);
-        return frame;
-    } else if (prefix <= 4) {
-        // Open in new buffer
-        var buffer = new browser_buffer(frame);
-        buffer.load_URI(url);
-        frame.buffers.current = buffer;
-        return frame;
-    } else {
-        // Open in new frame
-      return make_frame(url);
-    }
-}
-
-interactive("find-url-other-frame", open_url_in,
-            I.current_frame, 16,
-            I.url_or_webjump($prompt = open_url_in_prompt(16)));
-
-interactive("follow-link", open_url_in,
-            I.current_frame, 1, I.focused_link_url);
-
-interactive("jsconsole", open_url_in,
-            I.current_frame, I.p, "chrome://global/content/console.xul");
-
+interactive("jsconsole", open_in_browser,
+            I.current_buffer, I.browse_target("jsconsole"),
+            "chrome://global/content/console.xul");
 
 function switch_to_buffer (frame, buffer)
 {
@@ -298,14 +271,14 @@ interactive("cmd_scrollLeft", doCommandNTimes, I.current_buffer(browser_buffer),
 interactive("cmd_scrollRight", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_scrollRight');
 interactive("cmd_paste", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_paste');
 
-
+/*
 function describe_bindings (frame, prefix)
 {
     var new_frame = open_url_in(frame, prefix, "about:blank");
     new_frame.setTimeout(genAllBindings, 0, new_frame);
 }
 interactive("describe-bindings", describe_bindings, I.current_frame, I.p);
-
+*/
 
 function get_link_text()
 {
@@ -368,18 +341,16 @@ function reinit (frame, fn)
 
 interactive ("reinit", reinit, I.current_frame, I.pref("conkeror.rcfile"));
 
-function help_page (frame, prefix)
-{
-    open_url_in(frame, prefix, "chrome://conkeror/content/help.html");
-}
-interactive("help-page", help_page, I.current_frame, I.p);
+interactive("help-page", open_in_browser,
+            I.current_buffer,
+            I.browse_target("open"),
+            "chrome://conkeror/content/help.html");
 
+interactive("help-with-tutorial", open_in_browser,
+            I.current_buffer,
+            I.browse_target("open"),
+            "chrome://conkeror/content/tutorial.html");
 
-function tutorial_page (frame, prefix)
-{
-    open_url_in(frame, prefix, "chrome://conkeror/content/tutorial.html");
-}
-interactive("help-with-tutorial", tutorial_page, I.current_frame, I.p);
 
 function univ_arg_to_number(prefix, default_value)
 {

@@ -507,7 +507,8 @@ default_browse_targets["open"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW
 default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
 default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-default_browse_targets["go-up"] = "follow";
+default_browse_targets["go-up"] = "open";
+default_browse_targets["jsconsole"] = "find-url";
 
 I.browse_target = interactive_method(
     $sync = function (ctx, action) {
