@@ -506,11 +506,15 @@ var default_browse_targets = {};
 default_browse_targets["open"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
+default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+default_browse_targets["go-up"] = "follow";
 
 I.browse_target = interactive_method(
     $sync = function (ctx, action) {
         var prefix = ctx.prefix_argument;
-        var targets = default_browse_targets[action];
+        var targets = action;
+        while (typeof(targets) == "string")
+            targets = default_browse_targets[targets];
         if (prefix == null || typeof(prefix) != "object")
             return targets[0];
         var num = prefix[0];
@@ -532,9 +536,19 @@ interactive("find-alternate-url", open_in_browser,
                              $initial_value = I.current_url));
 
 interactive("find-url", open_in_browser,
-            I.current_buffer, OPEN_NEW_BUFFER,
-            I.url_or_webjump($prompt = browse_target_prompt(OPEN_NEW_BUFFER)));
+            I.current_buffer, $$ = I.browse_target("find-url"),
+            I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$)));
 
+
+function go_up (b, target)
+{
+    var loc = b.display_URI_string;
+    var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
+    open_in_browser(b, target, up);
+}
+interactive("go-up", go_up,
+            I.current_buffer(browser_buffer),
+            I.browse_target("go-up"));
 
 /**
  * browserDOMWindow: intercept window opening
