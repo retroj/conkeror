@@ -74,7 +74,8 @@ function go_back (frame, prefix)
         if (idx < 0)
             idx = 0;
         b.web_navigation.gotoIndex(idx);
-    }
+    } else
+        throw interactive_error("Can't go back");
 }
 interactive("go-back", go_back, I.current_frame, I.p);
 
@@ -89,7 +90,8 @@ function go_forward (frame, prefix)
         var idx = hist.index + prefix;
         if (idx >= hist.count) idx = hist.count-1;
         b.web_navigation.gotoIndex(idx);
-    }
+    } else
+        throw interactive_error("Can't go forward");
 }
 interactive("go-forward", go_forward, I.current_frame, I.p);
 
