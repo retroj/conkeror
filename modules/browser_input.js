@@ -38,15 +38,17 @@ define_browser_buffer_input_mode("quote_next", "browser_buffer_quote_next_keymap
 define_browser_buffer_input_mode("quote", "browser_buffer_quote_keymap");
 
 add_hook("browser_buffer_focus_change_hook", function (buffer) {
-        if (buffer.browser_buffer_text_input_mode_enabled ||
+        var form_input_mode_enabled =
+            buffer.browser_buffer_text_input_mode_enabled ||
             buffer.browser_buffer_textarea_input_mode_enabled ||
-            buffer.browser_buffer_select_input_mode_enabled ||
-            buffer.browser_buffer_normal_input_mode_enabled) {
+            buffer.browser_buffer_select_input_mode_enabled;
+
+        if (form_input_mode_enabled || buffer.browser_buffer_normal_input_mode_enabled) {
             var elem = buffer.focused_element();
+
             if (elem) {
-                switch (elem.localName.toLowerCase()) {
-                    // FIXME: probably add a special radiobox/checkbox keymap as well
-                case "input":
+                var input_mode_function = null;
+                if (elem instanceof Ci.nsIDOMHTMLInputElement) {
                     var type = elem.getAttribute("type");
                     if (type != null) type = type.toLowerCase();
                     if (type != "radio" &&
@@ -54,13 +56,24 @@ add_hook("browser_buffer_focus_change_hook", function (buffer) {
                         type != "checkbox" &&
                         type != "submit" &&
                         type != "reset")
-                        browser_buffer_text_input_mode(buffer);
-                    return;
-                case "textarea":
-                    browser_buffer_textarea_input_mode(buffer);
-                    return;
-                case "select":
-                    browser_buffer_select_input_mode(buffer);
+                        input_mode_function = browser_buffer_text_input_mode;
+                }
+                else if (elem instanceof Ci.nsIDOMHTMLTextAreaElement)
+                    input_mode_function = browser_buffer_textarea_input_mode;
+
+                else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
+                    input_mode_function = browser_buffer_select_input_mode;
+
+                if (input_mode_function) {
+                    if (browser_prevent_automatic_form_focus_mode_enabled &&
+                        !form_input_mode_enabled &&
+                        (buffer.last_user_input_received == null ||
+                         (Date.now() - buffer.last_user_input_received)
+                         > browser_automatic_form_focus_window_duration)) {
+                        // Automatic focus attempt blocked
+                        elem.blur();
+                    } else
+                        input_mode_function(buffer);
                     return;
                 }
             }
@@ -145,3 +158,12 @@ define_global_mode("browser_input_minibuffer_status_mode",
                    });
 browser_input_minibuffer_status_mode(true);
 
+/* USER PREFERENCE */
+// Milliseconds
+var browser_automatic_form_focus_window_duration = 20;
+
+define_global_mode("browser_prevent_automatic_form_focus_mode",
+                   function () {}, // enable
+                   function () {} // disable
+                   );
+browser_prevent_automatic_form_focus_mode(true);

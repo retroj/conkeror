@@ -1,8 +1,21 @@
 require("hints.js");
 
+/**
+ * This is a simple wrapper function that sets focus to elem, and
+ * bypasses the automatic focus prevention system, which might
+ * otherwise prevent this from happening.
+ */
+function browser_set_element_focus(buffer, elem, prevent_scroll) {
+    buffer.last_user_input_received = Date.now();
+    if (prevent_scroll)
+        set_focus_no_scroll(buffer.frame, elem);
+    else
+        elem.focus();
+}
+
 function browser_element_focus(buffer, elem)
 {
-    elem.focus();
+    browser_set_element_focus(buffer, elem);
     if (elem instanceof Ci.nsIDOMWindow) {
         return;
     }
@@ -29,7 +42,7 @@ function browser_element_focus(buffer, elem)
 
 function browser_element_follow(buffer, target, elem)
 {
-    set_focus_no_scroll(buffer.frame, elem);
+    browser_set_element_focus(buffer, elem, true /* no scroll */);
 
     var load_spec = null;
     var current_frame = null;
@@ -343,18 +356,17 @@ function browser_element_view_source(buffer, target, elem, charset)
     var win = null;
     var frame = buffer.frame;
     if (elem.localName) {
-        var matched = false;
         switch (elem.localName.toLowerCase()) {
         case "frame": case "iframe":
             win = elem.contentWindow;
-            matched = true;
             break;
         case "math":
             view_mathml_source (frame, charset, elem);
             return;
-        }
+        default:
         if (!matched)
             throw new Error("Invalid browser element");
+        }
     } else
         win = elem;
     win.focus();

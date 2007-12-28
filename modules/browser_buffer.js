@@ -17,7 +17,6 @@ define_current_buffer_hook("current_browser_buffer_overlink_change_hook", "brows
 /* If browser is null, create a new browser */
 function browser_buffer(frame, browser)
 {
-    this.is_browser_buffer = true;
     this.frame = frame;
     if (browser == null)
     {
@@ -38,7 +37,7 @@ function browser_buffer(frame, browser)
         }, true /* capture */, false /* ignore untrusted events */);
 
     this.element.addEventListener("focus", function (event) {
-            browser_buffer_focus_change_hook.run(buffer);
+            browser_buffer_focus_change_hook.run(buffer, event);
         }, true /* capture */, false /* ignore untrusted events */);
 
     this.element.addEventListener("mouseover", function (event) {
@@ -54,6 +53,16 @@ function browser_buffer(frame, browser)
                 browser_buffer_overlink_change_hook.run(buffer, "");
             }
         }, true, false);
+
+    this.element.addEventListener("mousedown", function (event) {
+            buffer.last_user_input_received = Date.now();
+        }, true, false);
+
+    this.element.addEventListener("keypress", function (event) {
+            buffer.last_user_input_received = Date.now();
+        }, true, false);
+
+    buffer.last_user_input_received = null;
 
     /* FIXME: Add a handler for blocked popups, and also PopupWindow event */
     /*
@@ -162,6 +171,10 @@ browser_buffer.prototype = {
         */
         if (stateFlags & WPL.STATE_IS_REQUEST) {
             if (stateFlags & WPL.STATE_START) {
+                if (this._requests_started == 0)  {
+                    // Reset the time at which the last user input was received for the page
+                    this.last_user_input_received = 0;
+                }
                 this._requests_started++;
             } else if (stateFlags & WPL.STATE_STOP) {
                 this._requests_finished++;
