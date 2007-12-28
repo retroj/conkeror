@@ -27,7 +27,7 @@ require("browser_zoom.js");
 require("browser_elements.js");
 require("browser_follow_relationship.js");
 
-require("bindings.js"); // depends: keyboard.js
+//require("bindings.js"); // depends: keyboard.js
 
 require("find.js");
 //require("numberedlinks.js");

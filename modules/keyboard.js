@@ -384,6 +384,10 @@ function key_press_handler(true_event)
         if (true_event.keyCode)
             event.keyCode = true_event.keyCode;
 
+        /* Filter out events from keys like the Windows/Super/Hyper key */
+        if (event.keyCode == 0)
+            return;
+
         /* Clear minibuffer message */
         frame.minibuffer.clear();    
 
@@ -418,7 +422,7 @@ function key_press_handler(true_event)
         // 2) we are in the middle of a key sequence, and we need to say that
         //    the key sequence given has no command.
         //
-        if ((binding && !binding.fallthrough) || state.active_keymap)
+        if (!binding || !binding.fallthrough)
         {
             true_event.preventDefault();
             true_event.stopPropagation();
@@ -448,8 +452,7 @@ function key_press_handler(true_event)
                 call_interactively(ctx, binding.command);
             }
         } else {
-            if (state.active_keymap)
-                frame.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");
+            frame.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");
         }
 
         // Clean up if we're done

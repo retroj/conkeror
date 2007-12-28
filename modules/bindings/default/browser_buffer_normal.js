@@ -67,3 +67,5 @@ define_key(browser_buffer_normal_keymap, "C-M-q", "browser-buffer-quote-input-mo
 
 define_key(browser_buffer_normal_keymap, "open_bracket open_bracket", "browser-follow-next");
 define_key(browser_buffer_normal_keymap, "close_bracket close_bracket", "browser-follow-previous");
+
+define_key(browser_buffer_normal_keymap, "return", null, $fallthrough);
