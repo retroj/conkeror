@@ -78,7 +78,7 @@ function isearch_session(frame, forward)
     this.states.push(new initial_isearch_state(this.window, forward));
     this.frame = frame;
 
-    minibuffer_state.call(this, isearch_kmap, "");
+    minibuffer_state.call(this, isearch_keymap, "");
 }
 isearch_session.prototype = {
     constructor : isearch_session,
