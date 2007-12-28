@@ -69,3 +69,7 @@ define_key(browser_buffer_normal_keymap, "open_bracket open_bracket", "browser-f
 define_key(browser_buffer_normal_keymap, "close_bracket close_bracket", "browser-follow-previous");
 
 define_key(browser_buffer_normal_keymap, "return", null, $fallthrough);
+
+define_key(browser_buffer_normal_keymap, "tab", "browser-focus-next-form-field");
+
+define_key(browser_buffer_normal_keymap, "S-tab", "browser-focus-previous-form-field");

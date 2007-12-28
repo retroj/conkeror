@@ -82,7 +82,7 @@ hint_manager.prototype = {
 
             var doc = window.document;
             var res = doc.evaluate(xpath_expr, doc, xpath_lookup_namespace,
-                                   window.XPathResult.UNORDERED_NODE_ITERATOR_TYPE,
+                                   Ci.nsIDOMXPathResult.UNORDERED_NODE_ITERATOR_TYPE,
                                    null /* existing results */);
 
             var base_node = doc.createElementNS(XHTML_NS, "span");

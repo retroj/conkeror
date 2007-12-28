@@ -52,7 +52,6 @@ add_hook("browser_buffer_focus_change_hook", function (buffer) {
                     var type = elem.getAttribute("type");
                     if (type != null) type = type.toLowerCase();
                     if (type != "radio" &&
-                        type != "radio" &&
                         type != "checkbox" &&
                         type != "submit" &&
                         type != "reset")
@@ -167,3 +166,90 @@ define_global_mode("browser_prevent_automatic_form_focus_mode",
                    function () {} // disable
                    );
 browser_prevent_automatic_form_focus_mode(true);
+
+var browser_form_field_xpath_expression =
+    "//input[" + (
+//        "translate(@type,'RADIO','radio')!='radio' and " +
+//        "translate(@type,'CHECKBOX','checkbox')!='checkbox' and " +
+        "translate(@type,'HIDEN','hiden')!='hidden'"
+//        "translate(@type,'SUBMIT','submit')!='submit' and " +
+//        "translate(@type,'REST','rest')!='reset'"
+        ) +  "] | " +
+    "//xhtml:input[" + (
+//        "translate(@type,'RADIO','radio')!='radio' and " +
+//        "translate(@type,'CHECKBOX','checkbox')!='checkbox' and " +
+        "translate(@type,'HIDEN','hiden')!='hidden'"
+//        "translate(@type,'SUBMIT','submit')!='submit' and " +
+//        "translate(@type,'REST','rest')!='reset'"
+        ) +  "] |" +
+    "//select | //xhtml:select" +
+    "//textarea | //xhtml:textarea";
+
+function browser_focus_next_form_field(buffer, count, xpath_expr) {
+    var focused_elem = buffer.focused_element();
+    if (count == 0)
+        return; // invalid count
+
+    function helper(win, skip_win) {
+        if (win == skip_win)
+            return null;
+        var doc = win.document;
+        var res = doc.evaluate(xpath_expr, doc, xpath_lookup_namespace,
+                               Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+                               null /* existing results */);
+        var length = res.snapshotLength;
+        if (length > 0) {
+            var index = null;
+            if (focused_elem != null) {
+                for (var i = 0; i < length; ++i) {
+                    if (res.snapshotItem(i) == focused_elem) {
+                        index = i;
+                        break;
+                    }
+                }
+            }
+            if (index == null) {
+                if (count > 0)
+                    index = count - 1;
+                else
+                    index = -count;
+            }
+            else
+                index = index + count;
+            index = index % length;
+            if (index < 0)
+                index += length;
+
+            return res.snapshotItem(index);
+        }
+
+        // Recurse on sub-frames
+        for (var i = 0; i < win.frames.length; ++i) {
+            var elem = helper(win.frames[i], skip_win);
+            if (elem)
+                return elem;
+        }
+        return null;
+    }
+
+    var focused_win = buffer.focused_window();
+    var elem = helper(focused_win, null);
+    if (!elem)
+        elem = helper(buffer.content_window, focused_win);
+    if (elem) {
+        browser_element_focus(buffer, elem);
+    } else
+        throw interactive_error("No form field found");
+}
+
+interactive("browser-focus-next-form-field",
+            browser_focus_next_form_field,
+            I.current_buffer(browser_buffer),
+            I.p,
+            browser_form_field_xpath_expression);
+
+interactive("browser-focus-previous-form-field",
+            browser_focus_next_form_field,
+            I.current_buffer(browser_buffer),
+            I.bind(function (x) {return -x;}, I.p),
+            browser_form_field_xpath_expression);
