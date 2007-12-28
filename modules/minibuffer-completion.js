@@ -47,7 +47,7 @@ define_keywords("$completions", "$allow_non_matches", "$default_match");
 function completion_minibuffer_state() {
     text_entry_minibuffer_state.call(this, forward_keywords(arguments));
     keywords(arguments, $allow_non_matches = false);
-    this.keymap = minibuffer_completion_kmap;
+    this.keymap = minibuffer_completion_keymap;
     this.completions = arguments.$completions.slice().sort(function (a,b) {
             if (a[0] < b[0]) return -1;
             else if (a[0] == b[0]) return 0;
