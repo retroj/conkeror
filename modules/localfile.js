@@ -16,7 +16,7 @@ const MODE_EXCL     = 0x80;
 
 // XXX: is is necessary to fully qualify fopen as conkeror.fopen?
 //
-conkeror.fopen = function (path, mode, perms, tmp)
+function fopen(path, mode, perms, tmp)
 {
     return new LocalFile(path, mode, perms, tmp);
 }
@@ -92,8 +92,7 @@ function LocalFile(file, mode, perms, tmp)
 }
 
 
-LocalFile.prototype.write =
-function fo_write(buf)
+LocalFile.prototype.write = function(buf)
 {
     if (!("outputStream" in this))
         throw "file not open for writing.";
@@ -101,8 +100,7 @@ function fo_write(buf)
     return this.outputStream.write(buf, buf.length);
 }
 
-LocalFile.prototype.read =
-function fo_read(max)
+LocalFile.prototype.read = function(max)
 {
     if (!("inputStream" in this))
         throw "file not open for reading.";
@@ -118,8 +116,7 @@ function fo_read(max)
     return rv;
 }
 
-LocalFile.prototype.close =
-function fo_close()
+LocalFile.prototype.close = function()
 {
     if ("outputStream" in this)
         this.outputStream.close();
@@ -127,8 +124,7 @@ function fo_close()
         this.inputStream.close();
 }
 
-LocalFile.prototype.flush =
-function fo_close()
+LocalFile.prototype.flush = function()
 {
     return this.outputStream.flush();
 }
