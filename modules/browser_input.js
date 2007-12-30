@@ -253,3 +253,60 @@ interactive("browser-focus-previous-form-field",
             I.current_buffer(browser_buffer),
             I.bind(function (x) {return -x;}, I.p),
             browser_form_field_xpath_expression);
+
+/* USER PREFERENCE */
+var editor_program = "emacs";
+
+function edit_field_in_external_editor(buffer, elem) {
+    if (elem instanceof Ci.nsIDOMHTMLInputElement) {
+        var type = elem.getAttribute("type");
+        if (type != null)
+            type = type.toLowerCase();
+        if (type == "hidden" || type == "checkbox" || type == "radio")
+            throw interactive_error("Element is not a text field.");
+    } else if (!(elem instanceof Ci.nsIDOMHTMLTextAreaElement))
+        throw interactive_error("Element is not a text field.");
+
+    var file = file_locator.get("TmpD", Ci.nsIFile);
+    var name = elem.getAttribute("name") || "";
+    name = name.replace(/[^a-zA-Z0-9\-_]/g, "");
+    if (name.length == 0)
+        name = "text";
+    name += ".txt";
+    file.append(name);
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+
+    // Write to file
+    try {
+        write_text_file(file, elem.value);
+    } catch (e) {
+        file.remove(false);
+        throw e;
+    }
+
+    var old_readonly = elem.getAttribute("readonly");
+    elem.setAttribute("readonly", "true");
+    // FIXME: decide if we should do this
+    //var oldBg = elem.style.backgroundColor;
+    //elem.style.backgroundColor = "#bbbbbb";
+    function cleanup() {
+        if (old_readonly)
+            elem.setAttribute("readonly", old_readonly);
+        else
+            elem.removeAttribute("readonly");
+        file.remove(false);
+    }
+    spawn_process(editor_program, [file.path], function () {
+            try {
+                elem.value = read_text_file(file);
+            } catch (e) {
+            }
+            // FIXME: flash the textbox?
+            cleanup();
+        },
+        cleanup);
+}
+interactive("edit-current-field-in-external-editor",
+            edit_field_in_external_editor,
+            I.current_buffer(browser_buffer),
+            I.focused_element);

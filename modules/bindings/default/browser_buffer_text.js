@@ -35,5 +35,7 @@ define_key(browser_buffer_text_keymap, "C-y", "cmd_paste");
 define_key(browser_buffer_text_keymap, "C-w", "cmd_cut");
 define_key(browser_buffer_text_keymap, "S-delete", "cmd_cut");
 
+define_key(browser_buffer_text_keymap, "C-i", "edit-current-field-in-external-editor");
+
 // This must be at the end of browser_buffer_text_keymap defs so it's matched last.
 define_key(browser_buffer_text_keymap, match_any_unmodified_key, null, $fallthrough);

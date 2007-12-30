@@ -381,6 +381,14 @@ I.current_url = interactive_method(
         return buffer.current_URI.spec;
     });
 
+I.focused_element = interactive_method(
+    $sync =  function (ctx) {
+        var buffer = ctx.frame.buffers.current;
+        if (!(buffer instanceof browser_buffer))
+            throw new Error("Current buffer is of invalid type");
+        return buffer.focused_element();
+    });
+
 
 I.focused_link_url = interactive_method(
     $sync = function (ctx) {

@@ -339,3 +339,5 @@ function get_buffer_from_content_window(frame, win) {
     }
     return null;
 }
+
+var file_locator = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);

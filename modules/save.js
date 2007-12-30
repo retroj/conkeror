@@ -254,8 +254,6 @@ function download_for_external_program(uri, doc, referrer_uri,
     }
 
     var filename = generate_filename_for_url(uri, doc, content_type, content_disposition, null);
-    var file_locator = Components.classes["@mozilla.org/file/directory_service;1"]
-        .getService(Components.interfaces.nsIProperties);
     var file = file_locator.get("TmpD", Components.interfaces.nsIFile);
     file.append(filename);
     // Create the file now to ensure that no exploits are possible
