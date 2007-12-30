@@ -27,8 +27,14 @@ define_buffer_local_hook("buffer_scroll_hook");
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
 define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 
-function buffer()
-{}
+function buffer(context_buffer)
+{
+    if (context_buffer != null)
+        this.cwd = context_buffer.cwd;
+
+    else
+        this.cwd = default_directory.path;
+}
 
 buffer.prototype = {
     /* Saved focus state */
@@ -45,8 +51,8 @@ buffer.prototype = {
     get scrollMaxX () { return 0; },
     get scrollMaxY () { return 0; }
 
-    // get focused_window
-    // get focused_element
+    // focused_window()
+    // focused_element()
 };
 
 
@@ -58,9 +64,12 @@ function buffer_container(frame)
     /* FIXME: Once we support alternative XUL files that have an
      * initial buffer that is not a browser buffer, this needs to be
      * fixed. */
-    new browser_buffer(frame, this.container.firstChild);
+    var buffer = new browser_buffer(frame, $element = this.container.firstChild);
+    if (frame.cwd_arg != null) {
+        buffer.cwd = frame.cwd_arg;
+        delete frame.cwd_arg;
+    }
 }
-
 
 buffer_container.prototype = {
     constructor : buffer_container.constructor,
@@ -109,8 +118,6 @@ buffer_container.prototype = {
             set_focus_no_scroll(this.frame, buffer.saved_focused_element);
         else if (buffer.saved_focused_window)
             set_focus_no_scroll(this.frame, buffer.saved_focused_window);
-        else
-            buffer.content_window.focus();
 
         buffer.saved_focused_element = null;
         buffer.saved_focused_window = null;
@@ -197,29 +204,9 @@ I.current_buffer = interactive_method(
     $sync = function (ctx, type) {
         var buffer = ctx.frame.buffers.current;
         if (type && !(buffer instanceof type))
-            throw new Error("Current buffer is of invalid type");
+            throw interactive_error("Current buffer is of invalid type");
         return buffer;
     });
-
-I.current_buffer_window = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
-        if (!(buffer instanceof browser_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.content_window;
-    });
-
-// This name should perhaps change
-I.current_buffer_document = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
-        if (!(buffer instanceof browser_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.content_document;
-    });
-
-// This name should perhaps change
-I.active_document = I.current_buffer_document;
 
 define_keywords("$default");
 I.b = interactive_method(
@@ -228,16 +215,16 @@ I.b = interactive_method(
                  $default = ctx.frame.buffers.current,
                  $history = "buffer");
         var completer = all_word_completer(
-            function (visitor) { // visit
+            $completions = function (visitor) {
                 ctx.frame.buffers.for_each(visitor);
             },
-            function (x) { // get_string
+            $get_string = function (x) {
                 return x.name;
             },
-            function (x) { // get_description
+            $get_description = function (x) {
                 return x.title;
-            }
-            /* get_value = null */);
+            },
+            $complete_blank);
         ctx.frame.minibuffer.read(
             $prompt = arguments.$prompt,
             $history = arguments.$history,
@@ -247,13 +234,92 @@ I.b = interactive_method(
             $callback = cont);
     });
 
-
-
-I.content_selection = interactive_method(
+I.cwd = interactive_method(
     $sync = function (ctx) {
-        // -- Selection of content area of focusedWindow
-        var focusedWindow = this.buffers.current.focused_window();
-        return focusedWindow.getSelection ();
+        return ctx.frame.buffers.current.cwd;
     });
+
+function buffer_next (frame, count)
+{
+    var index = frame.buffers.selected_index;
+    var total = frame.buffers.count;
+    index = (index + count) % total;
+    if (index < 0)
+        index += total;
+    frame.buffers.current = frame.buffers.get_buffer(index);
+}
+interactive("buffer-next",
+            "Switch to the next buffer.",
+            buffer_next, I.current_frame, I.p);
+interactive("buffer-previous",
+            "Switch to the previous buffer.",
+            buffer_next, I.current_frame, I.bind(function (x) {return -x;}, I.p));
+
+
+function switch_to_buffer (frame, buffer)
+{
+    if (buffer && !buffer.dead)
+        frame.buffers.current = buffer;
+}
+interactive("switch-to-buffer",
+            "Switch to a buffer specified in the minibuffer.",
+            switch_to_buffer,
+            I.current_frame,
+            I.b($prompt = "Switch to buffer:",
+                $default = I.bind(function(frame) {
+                        return frame.buffers.get_buffer((frame.buffers.selected_index + 1) % frame.buffers.count);
+                    }, I.current_frame)));
+
+/* USER PREFERENCE */
+/* If this is set to true, kill-buffer can kill the last remaining
+ * buffer, and close the window. */
+var can_kill_last_buffer = false;
+
+function kill_buffer(buffer)
+{
+    if (!buffer)
+        return;
+    var buffers = buffer.frame.buffers;
+    if (buffers.count == 1 && buffer == buffers.current) {
+        if (can_kill_last_buffer) {
+            delete_frame(buffer.frame);
+            return;
+        }
+        else
+            throw interactive_error("Can't kill last buffer.");
+    }
+    buffers.kill_buffer(buffer);
+}
+interactive("kill-buffer",
+            "Kill a buffer specified in the minibuffer.\n" +
+            "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
+            "buffer in a window will cause the window to be closed.",
+            kill_buffer,
+            I.b($prompt = "Kill buffer:"));
+
+interactive("kill-current-buffer",
+            "Kill the current buffer.\n" +
+            "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
+            "buffer in a window will cause the window to be closed.",
+            kill_buffer, I.current_buffer);
+
+function change_directory(buffer, dir) {
+    buffer.cwd = dir;
+}
+interactive("change-current-directory",
+            "Change the current directory of the selected buffer.",
+            change_directory,
+            I.current_buffer,
+            I.bind(function (x) { return x.path; },
+                   I.f($prompt = "New current directory:",
+                       $initial_value = I.cwd)));
+
+
+interactive("shell-command",
+            shell_command,
+            $$ = I.cwd,
+            I.shell_command($prompt = I.bind(function (cwd) {
+                        return "Shell command [" + cwd + "]:";
+                    }, $$)));
 
 require_later("browser_buffer.js");

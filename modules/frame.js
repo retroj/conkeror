@@ -62,16 +62,22 @@ function make_chrome_frame(chrome_URI, args)
 
 var conkeror_chrome_URI = "chrome://conkeror/content/conkeror.xul";
 
-function make_frame (load_spec, tag)
+define_keywords("$load", "$tag", "$cwd");
+function make_frame ()
 {
+    keywords(arguments);
     var result = make_chrome_frame(conkeror_chrome_URI, null);
-    if (tag != null)
-        result.tag_arg = tag;
+    result.make_frame_used = true;
+    if (arguments.$tag)
+        result.tag_arg = arguments.$tag;
+    var load_spec = arguments.$load;
     if (load_spec != null) {
         add_hook.call(result, "frame_initialize_hook", function () {
                 apply_load_spec(result.buffers.current, load_spec);
             });
     }
+    if (arguments.$cwd != null)
+        result.cwd_arg = arguments.$cwd;
     make_frame_hook.run(result);
     return result;
 }
@@ -85,13 +91,14 @@ function make_frame (load_spec, tag)
 // will load those urls.
 //
 var find_url_new_buffer_queue =  null;
-function find_url_new_buffer(url, frame)
+function find_url_new_buffer(url, frame, cwd)
 {
     function  find_url_new_buffer_internal (frame) {
         // get urls from queue
         if (find_url_new_buffer_queue) {
             for (var i = 0; i < find_url_new_buffer_queue.length; i++) {
-                find_url_new_buffer (find_url_new_buffer_queue[i], frame);
+                var o = find_url_new_buffer_queue[i];
+                find_url_new_buffer (o[0], frame, o[1]);
             }
             // reset queue
             find_url_new_buffer_queue = null;
@@ -106,14 +113,15 @@ function find_url_new_buffer(url, frame)
     }
     if (frame) {
         frame.buffers.current = new browser_buffer(frame);
+        frame.buffers.current.cwd = cwd;
         frame.buffers.current.load(url);
     } else if (this.find_url_new_buffer_queue) {
         // we are queueing
-        find_url_new_buffer_queue.push (url);
+        find_url_new_buffer_queue.push ([url, cwd]);
     } else {
         // establish a queue and make a frame
         find_url_new_buffer_queue = [];
-        frame = make_frame (url);
+        frame = make_frame ($load = url, $cwd = cwd);
         add_hook.call(frame, "frame_initialize_late_hook", find_url_new_buffer_internal);
         return frame;
     }
@@ -145,9 +153,38 @@ define_frame_local_hook("frame_initialize_early_hook");
 define_frame_local_hook("frame_initialize_hook");
 define_frame_local_hook("frame_initialize_late_hook");
 
+var frame_extra_argument_list = [];
+var frame_extra_argument_max_delay = 100; /* USER PREFERENCE */
+
+function frame_handle_extra_arguments(frame) {
+    /* Handle frame arguments */
+    var cur_time = Date.now();
+    var i;
+    for (i = 0; i < frame_extra_argument_list.length; ++i) {
+        var a = frame_extra_argument_list[i];
+        if (a.time > cur_time - frame_extra_argument_max_delay) {
+            delete a.time;
+            for (j in a)
+                frame[j] = a[j];
+            i++;
+            break;
+        }
+    }
+    frame_extra_argument_list = frame_extra_argument_list.slice(i);
+}
+
+function frame_set_extra_arguments(args) {
+    args.time = Date.now();
+    frame_extra_argument_list.push(args);
+}
+
 function frame_initialize(frame)
 {
     frame.conkeror = conkeror;
+    if (!frame.make_frame_used)
+        frame_handle_extra_arguments(frame);
+    else
+        delete frame.make_frame_used;
 
     // Set tag
     var tag = null;

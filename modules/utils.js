@@ -272,17 +272,17 @@ function get_os ()
 
 var default_directory = null;
 
-function set_default_directory(directory_s) {
-    function getenv (variable) {
-        var env = Cc['@mozilla.org/process/environment;1'].createInstance(Ci.nsIEnvironment);
-        if (env.exists (variable))
-            return env.get(variable);
-        return null;
-    }
+var env = Cc['@mozilla.org/process/environment;1'].getService(Ci.nsIEnvironment);
+function getenv (variable) {
+    if (env.exists (variable))
+        return env.get(variable);
+    return null;
+}
 
+function set_default_directory(directory_s) {
     if (! directory_s)
     {
-        if ( this.get_os() == "WINNT")
+        if ( get_os() == "WINNT")
         {
             directory_s = getenv ('USERPROFILE') ||
                 getenv ('HOMEDRIVE') + getenv ('HOMEPATH');
@@ -322,4 +322,20 @@ function method_caller(obj, func) {
     return function () {
         func.apply(obj, arguments);
     }
+}
+
+function shell_quote(str) {
+    var s = str.replace("\"", "\\\"", "g");
+    s = s.replace("$", "\$", "g");
+    return s;
+}
+
+function get_buffer_from_content_window(frame, win) {
+    var count = frame.buffers.count;
+    for (var i = 0; i < count; ++i) {
+        var b = frame.buffers.get_buffer(i);
+        if (b instanceof browser_buffer && b.content_window == win)
+            return b;
+    }
+    return null;
 }

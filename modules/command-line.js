@@ -1,5 +1,15 @@
 var command_line_handlers = [];
 
+var url_remoting_fn = load_url_in_new_frame;
+
+function load_url_in_new_frame(url, ctx) {
+    make_frame($load = url, $cwd = ctx.cwd);
+}
+
+function load_url_in_new_buffer(url, ctx) {
+    find_url_new_buffer(url, null, ctx.cwd);
+}
+
 function command_line_handler(name, suppress_default, handler)
 {
     command_line_handlers[name] = { suppress_default: suppress_default, func: handler };
@@ -24,6 +34,11 @@ command_line_param_handler("chrome", true, function (uri) {
 command_line_param_handler("q", false, function () {
         dumpln ("w: -q may only be used as the first argument.");
     });
+
+command_line_param_handler("cwd", false, function (dir, ctx) {
+        ctx.cwd = dir;
+    });
+
 
 function handle_command_line(cmdline)
 {
@@ -50,6 +65,8 @@ function handle_command_line(cmdline)
             dumpln ("w: attempt to suppress load_rc in remote invocation");
         }
 
+        var ctx = {}; // command-line processing context
+
         for (; i < cmdline.length; ++i)
         {
             var arg = cmdline.getArgument(i);
@@ -67,9 +84,9 @@ function handle_command_line(cmdline)
                                 continue;
                             }
                             var param = cmdline.getArgument (i);
-                            handler.func(param);
+                            handler.func(param, ctx);
                         } else {
-                            handler.func();
+                            handler.func(ctx);
                         }
                     }
                     continue;
@@ -81,7 +98,7 @@ function handle_command_line(cmdline)
             // user-configurable remoting function on it.
             //
             suppress_default = true;
-            url_remoting_fn (arg);
+            url_remoting_fn (arg, ctx);
         }
 
         // we are greedy and handle all command line arguments.  remove
@@ -97,10 +114,11 @@ function handle_command_line(cmdline)
         // (e.g. -batch or -daemon)
         //
         if (! suppress_default) {
-            make_frame(homepage);
+            url_remoting_fn(homepage, ctx);
         }
     } catch (e) {
         dumpln("Error processing command line.");
         dump_error(e);
     }
 }
+

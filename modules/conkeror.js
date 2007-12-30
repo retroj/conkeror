@@ -11,6 +11,9 @@ require("interactive.js");
 require("minibuffer.js"); // depends: interactive.js
 require("minibuffer-completion.js");
 require("localfile.js");
+require("thread.js");
+require("process.js");
+require("mime.js");
 require("keyboard.js");
 require("buffer.js");
 require("frame.js");
@@ -38,8 +41,6 @@ require("rc.js");
 require("bindings/default/bindings.js");
 
 //require("scroll-bars.js");
-
-var url_remoting_fn = make_frame;
 
 init_webjumps ();
 

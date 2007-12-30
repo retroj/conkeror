@@ -46,7 +46,7 @@ define_key(browser_buffer_normal_keymap, "u", "go-up");
 define_key(browser_buffer_normal_keymap, "F", "go-forward");
 define_key(browser_buffer_normal_keymap, "B", "go-back");
 define_key(browser_buffer_normal_keymap, "l", "go-back");
-define_key(browser_buffer_normal_keymap, "r", "revert-buffer");
+define_key(browser_buffer_normal_keymap, "r", "reload");
 define_key(browser_buffer_normal_keymap, "g", "open-url");
 define_key(browser_buffer_normal_keymap, "C-x C-v", "find-alternate-url");
 
@@ -55,7 +55,7 @@ define_key(browser_buffer_normal_keymap, "C-x C-v", "find-alternate-url");
 define_key(browser_buffer_normal_keymap, "C-s", "isearch-forward");
 define_key(browser_buffer_normal_keymap, "C-r", "isearch-backward");
 
-define_key(browser_buffer_normal_keymap, "C-g", "keyboard-quit");
+define_key(browser_buffer_normal_keymap, "C-g", "stop-loading");
 
 
 define_key(browser_buffer_normal_keymap, "C-return", "follow-link-in-new-buffer");

@@ -29,3 +29,5 @@ define_key(default_global_keymap, "M-p", "buffer-previous");
 define_key(default_global_keymap, "M-n", "buffer-next");
 
 define_key(default_global_keymap, "C-x C-f", "find-url");
+
+define_key(default_global_keymap, "M-S-1", "shell-command");

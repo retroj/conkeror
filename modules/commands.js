@@ -35,130 +35,56 @@ define_hook("quit_hook");
 function quit ()
 {
     quit_hook.run();
-    var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-        .getService(Components.interfaces.nsIAppStartup);
+    var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
+        .getService(Ci.nsIAppStartup);
     appStartup.quit(appStartup.eAttemptQuit);
 }
-interactive("quit", quit);
+interactive("quit",
+            "Quit Conkeror",
+            quit);
 
 
 function show_conkeror_version (frame)
 {
     frame.minibuffer.message (conkeror.version);
 }
-interactive ("conkeror-version", show_conkeror_version, I.current_frame);
+interactive ("conkeror-version",
+             "Show version information for Conkeror.",
+             show_conkeror_version, I.current_frame);
 
-
-function unfocus (frame)
+/* FIXME: maybe this should be supported for non-browser buffers */
+function scrollHorizComplete (buffer, n)
 {
-    if (frame.document.commandDispatcher.focusedElement)
-        frame.document.commandDispatcher.focusedElement.blur();
-    else if (frame.document.commandDispatcher.focusedWindow)
-    {
-        // null op
-    }
-    else
-        frame.window.content.focus();
-}
-interactive("unfocus", unfocus, I.current_frame);
-
-
-function go_back (frame, prefix)
-{
-    var b = frame.buffers.current;
-    // Should be checking if type of buffer is browser_buffer
-    if (b.web_navigation.canGoBack)
-    {
-        var hist = b.web_navigation.sessionHistory;
-        var idx = hist.index - prefix;
-        if (idx < 0)
-            idx = 0;
-        b.web_navigation.gotoIndex(idx);
-    } else
-        throw interactive_error("Can't go back");
-}
-interactive("go-back", go_back, I.current_frame, I.p);
-
-
-function go_forward (frame, prefix)
-{
-    var b = frame.buffers.current;
-    // Should be checking if type of buffer is browser_buffer
-    if (b.web_navigation.canGoForward)
-    {
-        var hist = b.web_navigation.sessionHistory;
-        var idx = hist.index + prefix;
-        if (idx >= hist.count) idx = hist.count-1;
-        b.web_navigation.gotoIndex(idx);
-    } else
-        throw interactive_error("Can't go forward");
-}
-interactive("go-forward", go_forward, I.current_frame, I.p);
-
-
-function stop_loading (frame)
-{
-    var b = frame.buffers.current;
-    // Should be checking if type of buffer is browser_buffer
-    b.web_navigation.stop (Components.interfaces.nsIWebNavigation.STOP_NETWORK);
-}
-interactive("stop-loading", stop_loading, I.current_frame);
-interactive("keyboard-quit", stop_loading, I.current_frame);
-
-
-function reload (frame)
-{
-    var b = frame.buffers.current;
-    if (b instanceof browser_buffer)
-    {
-        b.web_navigation.reload(Components.interfaces.nsIWebNavigation.LOAD_FLAGS_NONE);
-    }
-}
-interactive("revert-buffer", reload, I.current_frame);
-interactive("reload", reload, I.current_frame);
-
-
-function scrollHorizComplete (frame, n)
-{
-    var w = frame.buffers.current.focused_window();
+    var w = buffer.focused_window();
     w.scrollTo (n > 0 ? w.scrollMaxX : 0, w.scrollY);
 }
-interactive("beginning-of-line", scrollHorizComplete, I.current_frame, -1);
-interactive("end-of-line", scrollHorizComplete, I.current_frame, 1);
+interactive("beginning-of-line",
+            "Scroll the current frame all the way to the left.",
+            scrollHorizComplete, I.current_buffer(browser_buffer), -1);
 
+interactive("end-of-line",
+            "Scroll the current frame all the way to the right.",
+            scrollHorizComplete, I.current_buffer(browser_buffer), 1);
 
-interactive("make-frame-command", make_frame, I.bind(function(){return homepage;}));
+interactive("make-frame-command",
+            "Make a new frame.",
+            make_frame,
+            $load = I.bind(function(){return homepage;}),
+            $cwd = I.cwd);
 
 function delete_frame (frame)
 {
     frame.window.close();
 }
-interactive("delete-frame", delete_frame, I.current_frame);
+interactive("delete-frame",
+            "Delete the current frame.",
+            delete_frame, I.current_frame);
 
-interactive("jsconsole", open_in_browser,
+interactive("jsconsole",
+            "Open the JavaScript console.",
+            open_in_browser,
             I.current_buffer, I.browse_target("jsconsole"),
             "chrome://global/content/console.xul");
-
-function switch_to_buffer (frame, buffer)
-{
-    if (buffer && !buffer.dead)
-        frame.buffers.current = buffer;
-}
-interactive("switch-to-buffer", switch_to_buffer,
-            I.current_frame,
-            I.b($prompt = "Switch to buffer:",
-                $default = I.bind(function(frame) {
-                        return frame.buffers.get_buffer((frame.buffers.selected_index + 1) % frame.buffers.count);
-                    }, I.current_frame)));
-
-function kill_buffer (frame, buffer)
-{
-    if (buffer)
-        frame.buffers.kill_buffer(buffer);
-}
-interactive("kill-buffer", kill_buffer,
-            I.current_frame,
-            I.b($prompt = "Kill buffer:"));
 
 // Copy the contents of the X11 clipboard to ours. This is a cheap
 // hack because it seems impossible to just always yank from the X11
@@ -174,24 +100,13 @@ function yankToClipboard (frame)
 }
 interactive("yank-to-clipboard", yankToClipboard, I.current_frame);
 
-
-function buffer_next (frame, count)
-{
-    var index = frame.buffers.selected_index;
-    var total = frame.buffers.count;
-    index = (index + count) % total;
-    if (index < 0)
-        index += total;
-    frame.buffers.current = frame.buffers.get_buffer(index);
-}
-interactive("buffer-next", buffer_next, I.current_frame, I.p);
-interactive("buffer-previous", buffer_next, I.current_frame, I.bind(function (x) {return -x;}, I.p));
-
 function meta_x (frame, prefix, command)
 {
     call_interactively({frame: frame, prefix_argument: prefix}, command);
 }
-interactive("execute-extended-command", meta_x,
+interactive("execute-extended-command",
+            "Execute a Conkeror command specified in the minibuffer.",
+            meta_x,
             I.current_frame, I.P,
             I.C($prompt = I.bind(function (prefix) {
                         var prompt = "";
@@ -329,7 +244,9 @@ function copy_email_address (loc)
 interactive("copy-email-address", copy_email_address, ['focused_link_url']);
 
 
-interactive("source", function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
+interactive("source",
+            "Load a JavaScript file.",
+            function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 
 function reinit (frame, fn)
 {
@@ -341,14 +258,20 @@ function reinit (frame, fn)
   }
 }
 
-interactive ("reinit", reinit, I.current_frame, I.pref("conkeror.rcfile"));
+interactive ("reinit",
+             "Reload the Conkeror rc file.",
+             reinit, I.current_frame, I.pref("conkeror.rcfile"));
 
-interactive("help-page", open_in_browser,
+interactive("help-page",
+            "Open the Conkeror help page.",
+            open_in_browser,
             I.current_buffer,
             I.browse_target("open"),
             "chrome://conkeror/content/help.html");
 
-interactive("help-with-tutorial", open_in_browser,
+interactive("help-with-tutorial",
+            "Open the Conkeror tutorial.",
+            open_in_browser,
             I.current_buffer,
             I.browse_target("open"),
             "chrome://conkeror/content/tutorial.html");
@@ -371,7 +294,9 @@ function eval_expression (frame, s)
 {
     eval.call(frame, s);
 }
-interactive("eval-expression", eval_expression,
+interactive("eval-expression",
+            "Evaluate JavaScript statements.",
+            eval_expression,
             I.current_frame, I.s($prompt = "Eval:", $history = "eval-expression"));
 
 
@@ -422,21 +347,6 @@ function toggle_eod_space()
 interactive("toggle-eod-space", toggle_eod_space);
 */
 
-// Enable Vi keybindings
-function use_vi_keys()
-{
-    conkeror.initViKmaps();
-}
-interactive("use-vi-keys", use_vi_keys);
-
-
-// Enable Emacs keybindings
-function use_emacs_keys()
-{
-    conkeror.initKmaps();
-}
-interactive("use-emacs-keys", use_emacs_keys);
-
 function show_extension_manager () {
     return conkeror.window_watcher.openWindow (
         null,
@@ -445,15 +355,17 @@ function show_extension_manager () {
         "resizable=yes,dialog=no",
         null);
 }
-interactive("extensions", show_extension_manager);
+interactive("extensions",
+            "Open the extensions manager in a new window.",
+            show_extension_manager);
 
-
-function print_buffer (frame)
+function print_buffer(buffer)
 {
-    frame.window.content.print();
+    buffer.content_window.print();
 }
-interactive("print-buffer", print_buffer, I.current_frame);
-
+interactive("print-buffer",
+            "Print the currently loaded page.",
+            print_buffer, I.current_buffer(browser_buffer));
 
 function view_partial_source (frame, charset, selection) {
     if (charset) { charset = "charset=" + charset; }

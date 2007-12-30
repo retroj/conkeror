@@ -88,7 +88,15 @@ function interactive(name)
     }
     handler = arguments[offset++];
     var args = Array.prototype.slice.call(arguments, offset);
-    interactive_commands.put(name, { name: name, handler: handler, doc: doc, arguments: args });
+    var shortdoc = null;
+    if (doc != null) {
+        var idx = doc.indexOf("\n");
+        if (idx >= 0)
+            shortdoc = doc.substring(0,idx);
+        else
+            shortdoc = doc;
+    }
+    interactive_commands.put(name, { name: name, handler: handler, doc: doc, shortdoc: shortdoc, arguments: args });
 }
 
 function interactive_error(str) {
@@ -305,17 +313,18 @@ I.e = interactive_method(
 I.s = interactive_method(
     $doc = "Read a string from the minibuffer",
     $async = function (ctx, cont) {
-        keywords(arguments, $prompt = "String:", $history = "string");
-        ctx.frame.minibuffer.read($prompt = arguments.$prompt, $callback = cont,
-                                  $history = arguments.$history);
+        keywords(arguments);
+        ctx.frame.minibuffer.read($prompt = "String:", $history = "string",
+                                  forward_keywords(arguments),
+                                  $callback = cont);
     });
 
 I.n = interactive_method(
     $doc = "Read a number from the minibuffer",
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Number:", $history = "number");
-        ctx.frame.minibuffer.read($prompt = arguments.$prompt, $callback = cont,
-                                  $history = arguments.$history);
+        ctx.frame.minibuffer.read($prompt = "Number:", $history = "number",
+                                  $callback = cont);
     });
 
 I.pref = interactive_method(
@@ -338,16 +347,16 @@ I.C = interactive_method(
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Command:", $history = "command");
         var completer = prefix_completer(
-            function (visitor) { // visit
+            $completions = function (visitor) {
                 interactive_commands.for_each_value(visitor);
             },
-            function (x) { // get_string
+            $get_string = function (x) {
                 return x.name;
             },
-            function (x) { // get_description
-                return x.doc ? x.doc : "";
+            $get_description = function (x) {
+                return x.shortdoc || "";
             },
-            function (x) { // get_value
+            $get_value = function (x) {
                 return x.name;
             });
         ctx.frame.minibuffer.read($prompt = arguments.$prompt,

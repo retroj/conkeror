@@ -195,8 +195,15 @@ function apply_completion_string(str, m) {
     m._input_text = str;
 }
 
-function all_word_completer(completions, get_string, get_description, get_value)
+define_keywords("$completions", "$get_string", "$get_description", "$get_value", "$complete_blank");
+function all_word_completer()
 {
+    keywords(arguments);
+    var completions = arguments.$completions;
+    var get_string = arguments.$get_string;
+    var get_description = arguments.$get_description;
+    var get_value = arguments.$get_value;
+    var complete_blank = arguments.$complete_blank;
     var arr;
     if (typeof(completions) == "function")
     {
@@ -205,17 +212,22 @@ function all_word_completer(completions, get_string, get_description, get_value)
     } else
         arr = completions;
     return function (input, pos) {
-        var words = input.toLowerCase().split(" ");
-        var data = arr.filter(function (x) {
-                var s = get_string(x);
-                var d = get_description(x);
-                for (var i = 0; i < words.length; ++i)
-                {
-                    if (s.toLowerCase().indexOf(words[i]) == -1 && d.toLowerCase().indexOf(words[i]) == -1)
-                        return false;
-                }
-                return true;
-            });
+        var data;
+        if (input.length == 0 && !complete_blank)
+            data = [];
+        else {
+            var words = input.toLowerCase().split(" ");
+            data = arr.filter(function (x) {
+                    var s = get_string(x);
+                    var d = get_description(x);
+                    for (var i = 0; i < words.length; ++i)
+                    {
+                        if (s.toLowerCase().indexOf(words[i]) == -1 && d.toLowerCase().indexOf(words[i]) == -1)
+                            return false;
+                    }
+                    return true;
+                });
+        }
         return { data: data,
                  get_string: get_string,
                  get_description : get_description,
@@ -225,8 +237,19 @@ function all_word_completer(completions, get_string, get_description, get_value)
     }
 }
 
-function prefix_completer(completions, get_string, get_description, get_value)
+function apply_prefix_completion_string(x, pos, str, m) {
+    m._input_text = x + str.substring(pos);
+    m._set_selection(x.length, x.length);
+}
+
+function prefix_completer()
 {
+    keywords(arguments);
+    var completions = arguments.$completions;
+    var get_string = arguments.$get_string;
+    var get_description = arguments.$get_description;
+    var get_value = arguments.$get_value;
+    var complete_blank = arguments.$complete_blank;
     var arr;
     if (typeof(completions) == "function")
     {
@@ -244,30 +267,36 @@ function prefix_completer(completions, get_string, get_description, get_value)
             return 0;
         });
     return function (input, pos) {
-        var data = arr.filter(function (x) {
-                var s = get_string(x);
-                return s.length >= pos && s.substring(0,pos) == input;
-            });
+        var data;
         var common_prefix = null;
-        if (data.length > 0)
-        {
-            var a = get_string(data[0]);
-            var b = get_string(data[data.length - 1]);
-            var lim = a.length < b.length ? a.length : b.length;
-            for (var i = 0; i < lim; ++i) {
-                if (a[i] != b[i])
-                    break;
+        if (pos == 0 && !complete_blank)
+            data = [];
+        else {
+            var input_prefix = input.substring(0,pos);
+            data = arr.filter(function (x) {
+                    var s = get_string(x);
+                    return s.length >= pos && s.substring(0,pos) == input_prefix;
+                });
+            if (data.length > 0)
+            {
+                var a = get_string(data[0]);
+                var b = get_string(data[data.length - 1]);
+                var lim = a.length < b.length ? a.length : b.length;
+                for (var i = 0; i < lim; ++i) {
+                    if (a[i] != b[i])
+                        break;
+                }
+                if (i > pos)
+                    common_prefix = a.substring(0,i);
             }
-            common_prefix = a.substring(0,i);
         }
-        
         return { data: data,
                 get_string: get_string,
                 get_description : get_description,
-                apply : function (x, m) { apply_completion_string(get_string(x), m); },
+                apply : function (x, m) { apply_prefix_completion_string(get_string(x), pos, input, m); },
                 get_value : get_value,
                 common_prefix : common_prefix,
-                apply_common_prefix : apply_completion_string
+                apply_common_prefix : function (x, m) { apply_prefix_completion_string(x, pos, input, m); }
                };
     }
 }

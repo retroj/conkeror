@@ -15,9 +15,16 @@ define_current_buffer_hook("current_browser_buffer_focus_change_hook", "browser_
 define_current_buffer_hook("current_browser_buffer_overlink_change_hook", "browser_buffer_overlink_change_hook");
 
 /* If browser is null, create a new browser */
-function browser_buffer(frame, browser)
+define_keywords("$context", "$element");
+function browser_buffer(frame)
 {
+    keywords(arguments);
+    var browser = arguments.$element;
+    var context_buffer = arguments.$context;
+    conkeror.buffer.call(this, context_buffer);
+
     this.frame = frame;
+
     if (browser == null)
     {
         browser = create_XUL(frame, "browser");
@@ -398,6 +405,14 @@ I.content_charset = interactive_method(
             return null;
     });
 
+
+I.content_selection = interactive_method(
+    $sync = function (ctx) {
+        // -- Selection of content area of focusedWindow
+        var focusedWindow = this.buffers.current.focused_window();
+        return focusedWindow.getSelection ();
+    });
+
 function overlink_update_status(buffer, text) {
     if (text.length > 0)
         buffer.frame.minibuffer.show("Link: " + text);
@@ -499,16 +514,16 @@ function open_in_browser(buffer, target, load_spec)
         }
         // If the current buffer is not a browser_buffer, use a new buffer.
     case OPEN_NEW_BUFFER:
-        buffer = new browser_buffer(buffer.frame);
+        buffer = new browser_buffer(buffer.frame, $context = buffer);
         apply_load_spec(buffer, load_spec);
         buffer.frame.buffers.current = buffer;
         break;
     case OPEN_NEW_BUFFER_BACKGROUND:
-        buffer = new browser_buffer(buffer.frame);
+        buffer = new browser_buffer(buffer.frame, $context = buffer);
         apply_load_spec(buffer, load_spec);
         break;
     case OPEN_NEW_WINDOW:
-        make_frame(load_spec);
+        make_frame($load = load_spec, $cwd = buffer.cwd);
         break;
     default:
         throw new Error("Invalid target: " + target);
@@ -540,16 +555,22 @@ I.browse_target = interactive_method(
         return targets[index];
     });
 
-interactive("open-url", open_in_browser,
+interactive("open-url",
+            "Open a URL, reusing the current buffer by default",
+            open_in_browser,
             I.current_buffer, $$ = I.browse_target("open"),
             I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$)));
 
-interactive("find-alternate-url", open_in_browser,
+interactive("find-alternate-url",
+            "Edit the current URL in the minibuffer",
+            open_in_browser,
             I.current_buffer, $$ = I.browse_target("open"),
             I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$),
                              $initial_value = I.current_url));
 
-interactive("find-url", open_in_browser,
+interactive("find-url",
+            "Open a URL in a new buffer",
+            open_in_browser,
             I.current_buffer, $$ = I.browse_target("find-url"),
             I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$)));
 
@@ -560,9 +581,83 @@ function go_up (b, target)
     var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
     open_in_browser(b, target, up);
 }
-interactive("go-up", go_up,
+interactive("go-up",
+            "Go to the parent directory of the current URL",
+            go_up,
             I.current_buffer(browser_buffer),
             I.browse_target("go-up"));
+
+
+function go_back (b, prefix)
+{
+    if (prefix < 0)
+        go_forward(b, -prefix);
+
+    if (b.web_navigation.canGoBack)
+    {
+        var hist = b.web_navigation.sessionHistory;
+        var idx = hist.index - prefix;
+        if (idx < 0)
+            idx = 0;
+        b.web_navigation.gotoIndex(idx);
+    } else
+        throw interactive_error("Can't go back");
+}
+interactive("go-back",
+            "Go back in the session hisory for the current buffer.",
+            go_back, I.current_buffer(browser_buffer), I.p);
+
+
+function go_forward (b, prefix)
+{
+    if (prefix < 0)
+        go_back(b, -prefix);
+
+    if (b.web_navigation.canGoForward)
+    {
+        var hist = b.web_navigation.sessionHistory;
+        var idx = hist.index + prefix;
+        if (idx >= hist.count) idx = hist.count-1;
+        b.web_navigation.gotoIndex(idx);
+    } else
+        throw interactive_error("Can't go forward");
+}
+interactive("go-forward",
+            "Go back in the session hisory for the current buffer.",
+            go_forward, I.current_buffer(browser_buffer), I.p);
+
+function stop_loading (b)
+{
+    b.web_navigation.stop(Ci.nsIWebNavigation.STOP_NETWORK);
+}
+interactive("stop-loading",
+            "Stop loading the current document.",
+            stop_loading, I.current_buffer(browser_buffer));
+
+function reload (b, bypass_cache)
+{
+    var flags = bypass_cache != null ?
+        Ci.nsIWebNavigation.LOAD_FLAGS_NONE : Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
+    b.web_navigation.reload(flags);
+}
+interactive("reload",
+            "Reload the current document.\n" +
+            "If a prefix argument is specified, the cache is bypassed.",
+            reload, I.current_buffer(browser_buffer), I.P);
+
+function unfocus(buffer)
+{
+    var elem = buffer.focused_element();
+    if (elem) {
+        elem.blur();
+        return;
+    }
+    var win = buffer.focused_window();
+    if (win != buffer.content_window)
+        return;
+    buffer.content_window.focus();
+}
+interactive("unfocus", unfocus, I.current_buffer(browser_buffer));
 
 /**
  * browserDOMWindow: intercept window opening
@@ -593,18 +688,22 @@ browser_dom_window.prototype = {
         if (target == null || target == FOLLOW_DEFAULT)
             target = browser_default_open_target;
         this.next_target = null;
+
+        /* Determine the opener buffer */
+        var opener_buffer = get_buffer_from_content_window(this.frame, aOpener.top);
+
         switch (browser_default_open_target) {
         case OPEN_CURRENT_BUFFER:
         case FOLLOW_TOP_FRAME:
             return aOpener.top;
         case FOLLOW_CURRENT_FRAME:
-            return aOpener;n
+            return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new browser_buffer(this.frame);
+            var buffer = new browser_buffer(this.frame, $context = opener_buffer);
             this.frame.buffers.current = buffer;
             return buffer.content_window;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new browser_buffer(this.frame);
+            var buffer = new browser_buffer(this.frame, $context = opener_buffer);
             return buffer.content_window;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */
@@ -613,6 +712,10 @@ browser_dom_window.prototype = {
              * in the URL being loaded as the top-level document,
              * instead of within a browser buffer.  Instead, we can
              * rely on Mozilla using browser.chromeURL. */
+            var extra_args = {};
+            if (opener_buffer != null)
+                extra_args.cwd_arg = opener_buffer.cwd;
+            frame_set_extra_arguments(extra_args);
             return null;
         }
     }

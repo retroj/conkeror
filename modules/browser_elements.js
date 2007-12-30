@@ -86,7 +86,7 @@ function browser_element_follow(buffer, target, elem)
     var target_obj = null;
     switch (target) {
     case OPEN_NEW_WINDOW:
-        make_frame(load_spec);
+        make_frame(load_spec, $cwd = buffer.cwd);
         return;
 
     case FOLLOW_CURRENT_FRAME:
@@ -107,12 +107,12 @@ function browser_element_follow(buffer, target, elem)
         buffer.load(load_spec);
         break;
     case OPEN_NEW_BUFFER:
-        target_obj = new browser_buffer(buffer.frame);
+        target_obj = new browser_buffer(buffer.frame, $context = buffer);
         target_obj.load(load_spec);
         buffer.frame.buffers.current = target_obj;
         break;
     case OPEN_NEW_BUFFER_BACKGROUND:
-        target_obj = new browser_buffer(buffer.frame);
+        target_obj = new browser_buffer(buffer.frame, $context = buffer);
         target_obj.load(load_spec);
         break;
     }
@@ -151,7 +151,7 @@ function element_get_url(elem) {
     else if (elem instanceof Ci.nsIDOMHTMLAnchorElement ||
              elem instanceof Ci.nsIDOMHTMLAreaElement ||
              elem instanceof Ci.nsIDOMHTMLLinkElement) {
-        if (target.hasAttribute("href"))
+        if (elem.hasAttribute("href"))
             url = elem.href;
         else
             return null; // nothing can be done
@@ -377,13 +377,11 @@ function browser_element_view_source(buffer, target, elem, charset)
              function (file, is_temp_file) {
                  if (view_source_external_editor)
                  {
-                     var editorFile = Components.classes["@mozilla.org/file/local;1"]
-                         .createInstance(Components.interfaces.nsILocalFile);
-                     editorFile.initWithPath(view_source_external_editor);
-                     var process = Components.classes['@mozilla.org/process/util;1']
-                         .createInstance(Components.interfaces.nsIProcess);
-                     process.init(editorFile);
-                     process.run(false, [file.path], 1);
+                     function cont() {
+                         if (is_temp_file)
+                             file.remove(false /* not recursive */);
+                     }
+                     spawn_process(view_source_external_editor, [file.path], cont, cont);
                  } else
                  {
                      view_source_function(file, is_temp_file);
@@ -406,3 +404,98 @@ interactive("browser-element-view-source", browser_element_view_source,
             $$ = I.browse_target("follow"),
             hinted_element_with_prompt("view_source", "View source", "frames", $$),
             I.content_charset);
+
+define_keywords("$command", "$argument", "$callback");
+function shell_command_with_argument(cwd) {
+    keywords(arguments);
+    var cmdline = arguments.$command;
+    var cont = arguments.$callback;
+    var argument = arguments.$argument;
+    if (!cmdline.match("{}")) {
+        cmdline = cmdline + " \"" + shell_quote(argument) + "\"";
+    } else {
+        cmdline = cmdline.replace("{}", "\"" + shell_quote(argument) + "\"");
+    }
+    shell_command(cwd, cmdline, cont, cont /*, function (exit_code) {
+            if (exit_code == 0)
+                buffer.frame.minibuffer.message("Shell command exited normally.");
+            else
+                buffer.frame.minibuffer.message("Shell command exited with status " + exit_code + ".");
+                }*/);
+}
+
+function element_get_default_shell_command(elem) {
+    var doc = null;
+    if (elem instanceof Ci.nsIDOMWindow) {
+        doc = elem.document;
+    } else if (elem instanceof Ci.nsIDOMHTMLFrameElement || elem instanceof Ci.nsIDOMHTMLIFrameElement) {
+        doc = elem.contentDocument;
+    }
+    var mime_type;
+    if (doc != null) {
+        mime_type = doc.contentType;
+    } else {
+        var url = element_get_url(elem);
+        if (url == null)
+            throw interactive_error("Unable to obtain URL from element");
+        mime_type = mime_type_from_url(url);
+        if (mime_type == null)
+            mime_type = "application/octet-stream";
+    }
+    var handler = get_external_handler_for_mime_type(mime_type);
+    return handler;
+}
+
+interactive("browser-element-shell-command-on-url",
+            shell_command_with_argument,
+            $$1 = I.cwd,
+            $argument = I.bind(function (elem) {
+                    var url = element_get_url(elem);
+                    if (url == null)
+                        throw interactive_error("Unable to obtain URL from element");
+                    return url;
+                }, $$ = hinted_element_with_prompt("shell-command-url",
+                                                   "URL shell command target", "links")),
+            $command = I.shell_command(
+                $prompt = I.bind(function (cwd) {
+                        return "Shell command for URL [" + cwd + "]:";
+                    }, $$1),
+                $initial_value = I.bind(element_get_default_shell_command, $$)));
+
+function browser_element_shell_command(buffer, elem, command) {
+    var doc = null;
+    var url = null;
+    if (elem instanceof Ci.nsIDOMWindow) {
+        doc = elem.document;
+    } else if (elem instanceof Ci.nsIDOMHTMLFrameElement || elem instanceof Ci.nsIDOMHTMLIFrameElement) {
+        doc = elem.contentDocument;
+    }
+    if (doc == null) {
+        var url = element_get_url(elem);
+        if (url == null)
+            throw interactive_error("Unable to obtain URL from element");
+    }
+    download_for_external_program
+        (url, doc, null,
+         function (file, is_temp_file) {
+            shell_command_with_argument(
+                buffer.cwd,
+                $command = command,
+                $argument = file.path,
+                $callback = function () {
+                    if (is_temp_file)
+                        file.remove(false);
+                });
+        });
+}
+
+interactive("browser-element-shell-command",
+            browser_element_shell_command,
+            I.current_buffer(browser_buffer),
+            $$ = hinted_element_with_prompt("shell-command-url",
+                                            "Shell command target", "links"),
+            I.shell_command(
+                $prompt = I.bind(function (cwd) {
+                        return "Shell command [" + cwd + "]:";
+                    }, I.cwd),
+                $initial_value = I.bind(element_get_default_shell_command, $$)));

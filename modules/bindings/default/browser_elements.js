@@ -32,6 +32,8 @@ function bind_element_operations(keymap) {
     define_key(keymap, "s", "browser-element-save");
     define_key(keymap, "c", "browser-element-copy");
     define_key(keymap, "back_slash", "browser-element-view-source");
+    define_key(keymap, "x", "browser-element-shell-command");
+    define_key(keymap, "X", "browser-element-shell-command-on-url");
 }
 
 bind_element_operations(browser_buffer_normal_keymap);
