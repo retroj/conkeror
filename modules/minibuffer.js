@@ -316,7 +316,9 @@ completions_tree_view.prototype = {
             return null;
         if (column.index == 0)
             return c.get_string(c.data[row]);
-        return c.get_description(c.data[row]);
+        if (c.get_description)
+            return c.get_description(c.data[row]);
+        return "";
     },
     setTree : function(treebox){ this.treebox = treebox; },
     isContainer: function(row){ return false; },
@@ -371,7 +373,7 @@ text_entry_minibuffer_state.prototype = {
                 this.completions_display_element = tree;
             }
 
-            if (this.completions) {
+            if (this.completions && this.completions.data.length > 0) {
                 this.completions_display_element.setAttribute("collapsed", "false");
                 if (this.match_required && this.completions_display_element.currentIndex == -1)
                 {
@@ -416,7 +418,7 @@ text_entry_minibuffer_state.prototype = {
             {
                 if (this.completions && this.completions.data.length > 0)
                 {
-                    this.completions_display_element.treeBoxObject.invalidate();
+                    this.completions_display_element.view = this.completions_display_element.view;
                     this.completions_display_element.setAttribute("collapsed", "false");
                     if (this.match_required)
                     {
@@ -477,7 +479,7 @@ function minibuffer_complete(frame)
 
     /* FIXME: handle "select one of the choices" behavior */
     var c = s.completions;
-    if (!c)
+    if (!c || c.data.length == 0)
         return;
     var e = s.completions_display_element;
     var new_index = -1;
