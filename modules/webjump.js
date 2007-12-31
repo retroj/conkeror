@@ -55,7 +55,7 @@ function webjump_build_url(template, subs)
     if (b == -1)
         return template;
     else
-        return template.substr(0,b) + subs + template.substring(a);
+        return template.substr(0,b) + encodeURIComponent(subs) + template.substring(a);
 }
 
 function get_partial_match(hash, part)
