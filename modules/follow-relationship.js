@@ -1,4 +1,4 @@
-require("browser_elements.js");
+require("element.js");
 
 const RELATIONSHIP_NEXT = 0;
 const RELATIONSHIP_PREVIOUS = 1;

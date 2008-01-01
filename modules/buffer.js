@@ -280,19 +280,14 @@ buffer_container.prototype = {
     }
 };
 
-function create_initial_content_buffer(window, element, config) {
-    try {
-        new content_buffer(window, $element = element, $configuration = config);
-    } catch (e) { 
-        dump_error(e);
-    }
-}
-
-/* USER PREFERENCE */
-var default_initial_buffer_creator;
-
 function buffer_initialize_window_early(window)
 {
+    /**
+     * Use content_buffer by default to handle an unusual case where
+     * browser.chromeURI is used perhaps.  In general this default
+     * should not be needed.
+     */
+
     var create_initial_buffer
         = window.args.initial_buffer_creator || buffer_creator(content_buffer);
     window.buffers = new buffer_container(window, create_initial_buffer);
@@ -542,4 +537,4 @@ interactive("shell-command",
                         return "Shell command [" + cwd + "]:";
                     }, $$)));
 
-require_later("content_buffer.js");
+require_later("content-buffer.js");

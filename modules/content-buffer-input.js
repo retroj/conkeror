@@ -1,4 +1,4 @@
-require("content_buffer.js");
+require("content-buffer.js");
 
 define_buffer_local_hook("content_buffer_input_mode_change_hook");
 define_current_buffer_hook("current_content_buffer_input_mode_change_hook", "content_buffer_input_mode_change_hook");

@@ -1,4 +1,4 @@
-require("browser_elements.js");
+require("element.js");
 
 var browser_elements_keymap = new keymap();
 bind_universal_argument(browser_elements_keymap, "C-u");

@@ -39,6 +39,11 @@ function application () {
         try {
             this.subscript_loader.loadSubScript("chrome://conkeror-modules/content/" + module_name,
                                                 this);
+        } catch (e) {
+            if (!(e instanceof Error) &&
+                String(e) == "ContentLength not available (not a local URL?)")
+                throw new Error("Module not found: " + module_name);
+            throw e;
         } finally {
             this.loading_modules.pop();
         }

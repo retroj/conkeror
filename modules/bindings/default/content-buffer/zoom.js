@@ -1,5 +1,5 @@
 
-require("bindings/default/content_buffer_normal.js");
+require("bindings/default/content-buffer/normal.js");
 
 define_key(content_buffer_normal_keymap, "S-equals", "zoom-in-text");
 define_key(content_buffer_normal_keymap, "equals", "zoom-reset-text");

@@ -1,4 +1,4 @@
-require("bindings/default/content_buffer_text.js");
+require("bindings/default/content-buffer/text.js");
 
 var content_buffer_textarea_keymap = new keymap($parent = content_buffer_text_keymap);
 

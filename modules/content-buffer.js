@@ -1,4 +1,4 @@
-require_later("browser_input.js");
+require_later("content-buffer-input.js");
 
 define_buffer_local_hook("content_buffer_finished_loading_hook");
 define_buffer_local_hook("content_buffer_progress_change_hook");
@@ -548,5 +548,3 @@ browser_dom_window.prototype = {
 };
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
-
-default_initial_buffer_creator = buffer_creator(content_buffer);
