@@ -30,16 +30,16 @@ function hints_unregister_stylesheet()
 hints_register_stylesheet();
 
 /**
- * buffer is a browser_buffer
+ * buffer is a content_buffer
  *
  */
-function hint_manager(window, xpath_expr, focused_window, focused_element)
+function hint_manager(window, xpath_expr, focused_frame, focused_element)
 {
     this.window = window;
     this.hints = [];
     this.valid_hints = [];
     this.xpath_expr = xpath_expr;
-    this.focused_window = focused_window;
+    this.focused_frame = focused_frame;
     this.focused_element = focused_element;
     this.last_selected_hint = null;
 
@@ -64,8 +64,8 @@ hint_manager.prototype = {
         var top_width = topwin.innerWidth;
         var hints = this.hints;
         var xpath_expr = this.xpath_expr;
-        var focused_window_hint = null, focused_element_hint = null;
-        var focused_window = this.focused_window;
+        var focused_frame_hint = null, focused_element_hint = null;
+        var focused_frame = this.focused_frame;
         var focused_element = this.focused_element;
         function helper(window, offsetX, offsetY) {
             var win_height = window.height;
@@ -130,8 +130,8 @@ hint_manager.prototype = {
                     focused_element_hint = hint;
                 else if ((elem instanceof Ci.nsIDOMHTMLFrameElement ||
                           elem instanceof Ci.nsIDOMHTMLIFrameElement) &&
-                         elem.contentWindow == focused_window)
-                    focused_window_hint = hint;
+                         elem.contentWindow == focused_frame)
+                    focused_frame_hint = hint;
             }
             doc.documentElement.appendChild(fragment);
 
@@ -151,7 +151,7 @@ hint_manager.prototype = {
             }
         }
         helper(topwin, 0, 0);
-        this.last_selected_hint = focused_element_hint || focused_window_hint;
+        this.last_selected_hint = focused_element_hint || focused_frame_hint;
     },
 
     /* Updates valid_hints and also re-numbers and re-displays all hints. */
@@ -336,8 +336,8 @@ function hints_minibuffer_state(buffer)
     this.xpath_expr = arguments.$hint_xpath_expression;
     this.auto_exit_timer_ID = null;
     this.multiple = arguments.$multiple;
-    this.focused_element = buffer.focused_element();
-    this.focused_window = buffer.focused_window();
+    this.focused_element = buffer.focused_element;
+    this.focused_frame = buffer.focused_frame;
 }
 hints_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
@@ -347,8 +347,8 @@ hints_minibuffer_state.prototype = {
     load : function (window) {
         if (!this.manager) {
             var buf = window.buffers.current;
-            this.manager = new hint_manager(buf.content_window, this.xpath_expr,
-                                            this.focused_window, this.focused_element);
+            this.manager = new hint_manager(buf.top_frame, this.xpath_expr,
+                                            this.focused_frame, this.focused_element);
         }
         this.manager.update_valid_hints();
     },
@@ -480,7 +480,7 @@ function hints_exit(window, s)
     if (cur > 0 && cur <= s.manager.valid_hints.length)
         elem = s.manager.valid_hints[cur - 1].elem;
     else if (cur == 0)
-        elem = window.buffers.current.content_window;
+        elem = window.buffers.current.top_frame;
     if (elem) {
         window.minibuffer.pop_state();
         if (s.callback)
@@ -515,14 +515,14 @@ I.hinted_element = interactive_method(
         var object_class = arguments.$object_class;
         if (object_class == "frames") {
             var buf = ctx.window.buffers.current;
-            if (!(buf instanceof browser_buffer))
+            if (!(buf instanceof content_buffer))
                 throw new Error("Current buffer is of invalid type");
             var doc = buf.content_document;
             if (doc.getElementsByTagName("frame").length == 0 &&
                 doc.getElementsByTagName("iframe").length == 0)
             {
                 // only one frame (the top-level one), no need to use the hints system
-                cont(buf.content_window);
+                cont(buf.top_frame);
                 return;
             }
         }

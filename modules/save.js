@@ -1,4 +1,4 @@
-
+require("content_buffer.js");
 
 /*
  * download_uri_internal

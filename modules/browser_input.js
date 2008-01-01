@@ -1,10 +1,10 @@
-require("browser_buffer.js");
+require("content_buffer.js");
 
-define_buffer_local_hook("browser_buffer_input_mode_change_hook");
-define_current_buffer_hook("current_browser_buffer_input_mode_change_hook", "browser_buffer_input_mode_change_hook");
+define_buffer_local_hook("content_buffer_input_mode_change_hook");
+define_current_buffer_hook("current_content_buffer_input_mode_change_hook", "content_buffer_input_mode_change_hook");
 
-function define_browser_buffer_input_mode(base_name, keymap_name) {
-    var name = "browser_buffer_" + base_name + "_input_mode";
+function define_content_buffer_input_mode(base_name, keymap_name) {
+    var name = "content_buffer_" + base_name + "_input_mode";
     buffer[name + "_enabled"] = false;
     define_buffer_local_hook(name + "_enable_hook");
     define_buffer_local_hook(name + "_disable_hook");
@@ -19,32 +19,32 @@ function define_browser_buffer_input_mode(base_name, keymap_name) {
         buffer[name + "_enabled"] = true;
         buffer.keymap = conkeror[keymap_name];
         conkeror[name + "_enable_hook"].run(buffer);
-        browser_buffer_input_mode_change_hook.run(buffer);
+        content_buffer_input_mode_change_hook.run(buffer);
     }
     var hyphen_name = name.replace("_","-","g");
-    interactive(hyphen_name, conkeror[name], I.current_buffer(browser_buffer));
+    interactive(hyphen_name, conkeror[name], I.current_buffer(content_buffer));
 }
 
-define_browser_buffer_input_mode("normal", "browser_buffer_normal_keymap");
+define_content_buffer_input_mode("normal", "content_buffer_normal_keymap");
 
 // For SELECT elements
-define_browser_buffer_input_mode("select", "browser_buffer_select_keymap");
+define_content_buffer_input_mode("select", "content_buffer_select_keymap");
 
 // For text INPUT and TEXTAREA elements
-define_browser_buffer_input_mode("text", "browser_buffer_text_keymap");
-define_browser_buffer_input_mode("textarea", "browser_buffer_textarea_keymap");
+define_content_buffer_input_mode("text", "content_buffer_text_keymap");
+define_content_buffer_input_mode("textarea", "content_buffer_textarea_keymap");
 
-define_browser_buffer_input_mode("quote_next", "browser_buffer_quote_next_keymap");
-define_browser_buffer_input_mode("quote", "browser_buffer_quote_keymap");
+define_content_buffer_input_mode("quote_next", "content_buffer_quote_next_keymap");
+define_content_buffer_input_mode("quote", "content_buffer_quote_keymap");
 
-add_hook("browser_buffer_focus_change_hook", function (buffer) {
+add_hook("content_buffer_focus_change_hook", function (buffer) {
         var form_input_mode_enabled =
-            buffer.browser_buffer_text_input_mode_enabled ||
-            buffer.browser_buffer_textarea_input_mode_enabled ||
-            buffer.browser_buffer_select_input_mode_enabled;
+            buffer.content_buffer_text_input_mode_enabled ||
+            buffer.content_buffer_textarea_input_mode_enabled ||
+            buffer.content_buffer_select_input_mode_enabled;
 
-        if (form_input_mode_enabled || buffer.browser_buffer_normal_input_mode_enabled) {
-            var elem = buffer.focused_element();
+        if (form_input_mode_enabled || buffer.content_buffer_normal_input_mode_enabled) {
+            var elem = buffer.focused_element;
 
             if (elem) {
                 var input_mode_function = null;
@@ -55,13 +55,13 @@ add_hook("browser_buffer_focus_change_hook", function (buffer) {
                         type != "checkbox" &&
                         type != "submit" &&
                         type != "reset")
-                        input_mode_function = browser_buffer_text_input_mode;
+                        input_mode_function = content_buffer_text_input_mode;
                 }
                 else if (elem instanceof Ci.nsIDOMHTMLTextAreaElement)
-                    input_mode_function = browser_buffer_textarea_input_mode;
+                    input_mode_function = content_buffer_textarea_input_mode;
 
                 else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
-                    input_mode_function = browser_buffer_select_input_mode;
+                    input_mode_function = content_buffer_select_input_mode;
 
                 if (input_mode_function) {
                     if (browser_prevent_automatic_form_focus_mode_enabled &&
@@ -76,7 +76,7 @@ add_hook("browser_buffer_focus_change_hook", function (buffer) {
                     return;
                 }
             }
-            browser_buffer_normal_input_mode(buffer);
+            content_buffer_normal_input_mode(buffer);
         }
     });
 
@@ -90,32 +90,32 @@ function browser_input_minibuffer_status(window) {
     insert_before.parentNode.insertBefore(element, insert_before);
     this.element = element;
     this.select_buffer_hook_func = add_hook.call(window, "select_buffer_hook", method_caller(this, this.update));
-    this.mode_change_hook_func = add_hook.call(window, "current_browser_buffer_input_mode_change_hook",
+    this.mode_change_hook_func = add_hook.call(window, "current_content_buffer_input_mode_change_hook",
                                                method_caller(this, this.update));
     this.update();
 }
 browser_input_minibuffer_status.prototype = {
     update : function () {
         var buf = this.window.buffers.current;
-        if (buf.browser_buffer_normal_input_mode_enabled) {
+        if (buf.content_buffer_normal_input_mode_enabled) {
             this.element.collapsed = true;
             this.window.minibuffer.element.className = "";
         } else {
             var name = "";
             var className = null;
-            if (buf.browser_buffer_text_input_mode_enabled) {
+            if (buf.content_buffer_text_input_mode_enabled) {
                 name = "[TEXT INPUT]";
                 className = "text";
-            } else if (buf.browser_buffer_textarea_input_mode_enabled) {
+            } else if (buf.content_buffer_textarea_input_mode_enabled) {
                 name = "[TEXTAREA INPUT]";
                 className = "textarea";
-            } else if (buf.browser_buffer_select_input_mode_enabled) {
+            } else if (buf.content_buffer_select_input_mode_enabled) {
                 name = "[SELECT INPUT]";
                 className = "select";
-            } else if (buf.browser_buffer_quote_next_input_mode_enabled) {
+            } else if (buf.content_buffer_quote_next_input_mode_enabled) {
                 name = "[PASS THROUGH (next)]";
                 className = "quote-next";
-            } else if (buf.browser_buffer_quote_input_mode_enabled) {
+            } else if (buf.content_buffer_quote_input_mode_enabled) {
                 name = "[PASS THROUGH]";
                 className = "quote";
             } else /* error */;
@@ -127,7 +127,7 @@ browser_input_minibuffer_status.prototype = {
     },
     uninstall : function () {
         remove_hook.call(window, "select_buffer_hook", this.select_buffer_hook_func);
-        remove_hook.call(window, "current_browser_buffer_input_mode_change_hook",
+        remove_hook.call(window, "current_content_buffer_input_mode_change_hook",
                          method_caller(this, this.update), this.mode_change_hook_func);
         this.element.parentNode.removeChild(this.element);
     }
@@ -186,7 +186,7 @@ var browser_form_field_xpath_expression =
     "//textarea | //xhtml:textarea";
 
 function browser_focus_next_form_field(buffer, count, xpath_expr) {
-    var focused_elem = buffer.focused_element();
+    var focused_elem = buffer.focused_element;
     if (count == 0)
         return; // invalid count
 
@@ -232,10 +232,10 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
         return null;
     }
 
-    var focused_win = buffer.focused_window();
+    var focused_win = buffer.focused_frame;
     var elem = helper(focused_win, null);
     if (!elem)
-        elem = helper(buffer.content_window, focused_win);
+        elem = helper(buffer.top_frame, focused_win);
     if (elem) {
         browser_element_focus(buffer, elem);
     } else
@@ -244,13 +244,13 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
 
 interactive("browser-focus-next-form-field",
             browser_focus_next_form_field,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             I.p,
             browser_form_field_xpath_expression);
 
 interactive("browser-focus-previous-form-field",
             browser_focus_next_form_field,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             I.bind(function (x) {return -x;}, I.p),
             browser_form_field_xpath_expression);
 
@@ -308,5 +308,5 @@ function edit_field_in_external_editor(buffer, elem) {
 }
 interactive("edit-current-field-in-external-editor",
             edit_field_in_external_editor,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             I.focused_element);

@@ -1,71 +1,59 @@
 require_later("browser_input.js");
 
-define_buffer_local_hook("browser_buffer_finished_loading_hook");
-define_buffer_local_hook("browser_buffer_progress_change_hook");
-define_buffer_local_hook("browser_buffer_location_change_hook");
-define_buffer_local_hook("browser_buffer_status_change_hook");
-define_buffer_local_hook("browser_buffer_focus_change_hook");
-define_buffer_local_hook("browser_buffer_overlink_change_hook");
+define_buffer_local_hook("content_buffer_finished_loading_hook");
+define_buffer_local_hook("content_buffer_progress_change_hook");
+define_buffer_local_hook("content_buffer_location_change_hook");
+define_buffer_local_hook("content_buffer_status_change_hook");
+define_buffer_local_hook("content_buffer_focus_change_hook");
+define_buffer_local_hook("content_buffer_overlink_change_hook");
 
-define_current_buffer_hook("current_browser_buffer_finished_loading_hook", "browser_buffer_finished_loading_hook");
-define_current_buffer_hook("current_browser_buffer_progress_change_hook", "browser_buffer_progress_change_hook");
-define_current_buffer_hook("current_browser_buffer_location_change_hook", "browser_buffer_location_change_hook");
-define_current_buffer_hook("current_browser_buffer_status_change_hook", "browser_buffer_status_change_hook");
-define_current_buffer_hook("current_browser_buffer_focus_change_hook", "browser_buffer_focus_change_hook");
-define_current_buffer_hook("current_browser_buffer_overlink_change_hook", "browser_buffer_overlink_change_hook");
+define_current_buffer_hook("current_content_buffer_finished_loading_hook", "content_buffer_finished_loading_hook");
+define_current_buffer_hook("current_content_buffer_progress_change_hook", "content_buffer_progress_change_hook");
+define_current_buffer_hook("current_content_buffer_location_change_hook", "content_buffer_location_change_hook");
+define_current_buffer_hook("current_content_buffer_status_change_hook", "content_buffer_status_change_hook");
+define_current_buffer_hook("current_content_buffer_focus_change_hook", "content_buffer_focus_change_hook");
+define_current_buffer_hook("current_content_buffer_overlink_change_hook", "content_buffer_overlink_change_hook");
 
 /* If browser is null, create a new browser */
-define_keywords("$context", "$element");
-function browser_buffer(window)
+define_keywords("$load");
+function content_buffer(window, element)
 {
     keywords(arguments);
-    var browser = arguments.$element;
-    var context_buffer = arguments.$context;
-    conkeror.buffer.call(this, context_buffer);
+    conkeror.buffer.call(this, window, element, forward_keywords(arguments));
 
-    this.window = window;
-
-    if (browser == null)
-    {
-        browser = create_XUL(window, "browser");
-        browser.setAttribute("type", "content");
-        browser.setAttribute("flex", "1");
-        this.window.buffers.container.appendChild(browser);
-    }
-    this.element = browser;
-    this.element.conkeror_buffer_object = this;
-    this.element.addProgressListener(this);
+    this.browser.addProgressListener(this);
     var buffer = this;
-    this.element.addEventListener("DOMTitleChanged", function (event) {
+    this.browser.addEventListener("DOMTitleChanged", function (event) {
             buffer_title_change_hook.run(buffer);
         }, true /* capture */, false /* ignore untrusted events */);
-    this.element.addEventListener("scroll", function (event) {
+
+    this.browser.addEventListener("scroll", function (event) {
             buffer_scroll_hook.run(buffer);
         }, true /* capture */, false /* ignore untrusted events */);
 
-    this.element.addEventListener("focus", function (event) {
-            browser_buffer_focus_change_hook.run(buffer, event);
+    this.browser.addEventListener("focus", function (event) {
+            content_buffer_focus_change_hook.run(buffer, event);
         }, true /* capture */, false /* ignore untrusted events */);
 
-    this.element.addEventListener("mouseover", function (event) {
+    this.browser.addEventListener("mouseover", function (event) {
             if (event.target instanceof Ci.nsIDOMHTMLAnchorElement) {
-                browser_buffer_overlink_change_hook.run(buffer, event.target.href);
+                content_buffer_overlink_change_hook.run(buffer, event.target.href);
                 buffer.current_overlink = event.target;
             }
         }, true, false);
 
-    this.element.addEventListener("mouseout", function (event) {
+    this.browser.addEventListener("mouseout", function (event) {
             if (buffer.current_overlink == event.target) {
                 buffer.current_overlink = null;
-                browser_buffer_overlink_change_hook.run(buffer, "");
+                content_buffer_overlink_change_hook.run(buffer, "");
             }
         }, true, false);
 
-    this.element.addEventListener("mousedown", function (event) {
+    this.browser.addEventListener("mousedown", function (event) {
             buffer.last_user_input_received = Date.now();
         }, true, false);
 
-    this.element.addEventListener("keypress", function (event) {
+    this.browser.addEventListener("keypress", function (event) {
             buffer.last_user_input_received = Date.now();
         }, true, false);
 
@@ -73,33 +61,24 @@ function browser_buffer(window)
 
     /* FIXME: Add a handler for blocked popups, and also PopupWindow event */
     /*
-    this.element.addEventListener("DOMPopupBlocked", function (event) {
+    this.browser.addEventListener("DOMPopupBlocked", function (event) {
             dumpln("PopupWindow: " + event);
         }, true, false);
     */
 
-    browser_buffer_normal_input_mode(this);
+    content_buffer_normal_input_mode(this);
+
+    var load_spec = arguments.$load;
+    if (load_spec)
+        this.load(load_spec);
 }
-define_keywords("$referrer", "$post_data", "$load_flags");
-browser_buffer.prototype = {
-    constructor : browser_buffer.constructor,
+content_buffer.prototype = {
+    constructor : content_buffer,
 
-    get content_window() {
-        return this.element.contentWindow;
-    },
-
-    get content_document() {
-        return this.element.contentDocument;
-    },
-
-    get title() {
-        return this.element.contentTitle;
-    },
-
-    get scrollX () { return this.content_window.scrollX; },
-    get scrollY () { return this.content_window.scrollY; },
-    get scrollMaxX () { return this.content_window.scrollMaxX; },
-    get scrollMaxY () { return this.content_window.scrollMaxY; },
+    get scrollX () { return this.top_frame.scrollX; },
+    get scrollY () { return this.top_frame.scrollY; },
+    get scrollMaxX () { return this.top_frame.scrollMaxX; },
+    get scrollMaxY () { return this.top_frame.scrollMaxY; },
 
 
     /* Used to display the correct URI when the buffer opens initially
@@ -107,42 +86,17 @@ browser_buffer.prototype = {
      * contain the correct URI. */
     _display_URI : null,
 
-    get current_URI () {
-        return this.element.currentURI;
-    },
-
     get display_URI_string () {
         if (this._display_URI)
             return this._display_URI;
         return this.current_URI.spec;
     },
 
-    get name () {
-        return this.display_URI_string;
-    },
-
-    get web_navigation () {
-        return this.element.webNavigation;
-    },
-
-    get doc_shell () {
-        return this.element.docShell;
-    },
-
-    get markup_document_viewer () {
-        return this.element.markupDocumentViewer;
-    },
+    get title() { return this.browser.contentTitle; },
+    get description() { return this.browser.display_URI_string; },
 
     load : function (load_spec) {
         apply_load_spec(this, load_spec);
-    },
-
-    on_switch_to : function () {
-        this.element.setAttribute("type", "content-primary");
-    },
-
-    on_switch_away : function () {
-        this.element.setAttribute("type", "content");
     },
 
     _requests_started: 0,
@@ -189,7 +143,7 @@ browser_buffer.prototype = {
         }
         if ((stateFlags & WPL.STATE_STOP) && (this._requests_finished == this._requests_started)) {
             this._requests_finished = this._requests_started = 0;
-            browser_buffer_finished_loading_hook.run(this);
+            content_buffer_finished_loading_hook.run(this);
         }
     },
 
@@ -197,7 +151,7 @@ browser_buffer.prototype = {
        loading page. */
     onProgressChange: function(webProgress, request, curSelf, maxSelf,
                                curTotal, maxTotal) {
-        browser_buffer_progress_change_hook.run(this, request, curSelf, maxSelf, curTotal, maxTotal);
+        content_buffer_progress_change_hook.run(this, request, curSelf, maxSelf, curTotal, maxTotal);
     },
 
     /* This method is called to indicate a change to the current location.
@@ -205,14 +159,14 @@ browser_buffer.prototype = {
     onLocationChange : function(webProgress, request, location) {
         /* Use the real location URI now */
         this._display_URI = null;
-        browser_buffer_location_change_hook.run(this, request, location);
+        content_buffer_location_change_hook.run(this, request, location);
     },
 
     // This method is called to indicate a status changes for the currently
     // loading page.  The message is already formatted for display.
     // Status messages could be displayed in the minibuffer output area.
     onStatusChange: function(webProgress, request, status, msg) {
-        browser_buffer_status_change_hook.run(this, request, status, msg);
+        content_buffer_status_change_hook.run(this, request, status, msg);
     },
 
     // This method is called when the security state of the browser changes.
@@ -237,72 +191,18 @@ browser_buffer.prototype = {
         }
     },
 
-    child_element : function (element)
-    {
-        return (element && this.child_window(element.ownerDocument.defaultView));
-    },
-
-    child_window : function (win)
-    {
-        return (win && win.top == this.content_window);
-    },
-
-    focused_window : function ()
-    {
-        var win = this.window.document.commandDispatcher.focusedWindow;
-        if (this.child_window(win))
-            return win;
-        return this.content_window;
-    },
-
-    focused_element : function ()
-    {
-        var element = this.window.document.commandDispatcher.focusedElement;
-        if (this.child_element(element))
-            return element;
-        return null;
-    },
-
-    do_command : function (command)
-    {
-        function attempt_command(element, command)
-        {
-            var controller;
-            if (element.controllers
-                && (controller = element.controllers.getControllerForCommand(command)) != null
-                && controller.isCommandEnabled(command))
-            {
-                controller.doCommand(command);
-                return true;
-            }
-            return false;
-        }
-
-        var element = this.focused_element();
-        if (element && attempt_command(element, command))
-            return;
-        var win = this.focused_window();
-        do  {
-            if (attempt_command(win, command))
-                return;
-            if (!win.parent || win == win.parent)
-                break;
-            win = win.parent;
-        } while (true);
-    },
-
     /* Inherit from buffer */
 
     __proto__ : buffer.prototype
 };
 
 
-add_hook("current_browser_buffer_finished_loading_hook",
+add_hook("current_content_buffer_finished_loading_hook",
          function (buffer) {
                  buffer.window.minibuffer.show("Done");
          });
 
-add_hook("current_browser_buffer_status_change_hook",
+add_hook("current_content_buffer_status_change_hook",
          function (buffer, request, status, msg) {
              buffer.window.minibuffer.show(msg);
          });
@@ -335,78 +235,40 @@ I.url_or_webjump = interactive_method(
             });
     });
 
-
-I.current_buffer_window = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.content_window;
-    });
-
-// This name should perhaps change
-I.current_buffer_document = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.content_document;
-    });
-
-// This name should perhaps change
-I.active_document = I.current_buffer_document;
-
-I.current_frame = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.focused_window();
-    });
-
 I.current_frame_url = interactive_method(
     $sync = function (ctx) {
         var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
+        if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
-        return buffer.focused_window().location.href;
+        return buffer.focused_frame.location.href;
     });
 
 // This name should probably change
 I.current_url = interactive_method(
     $sync = function (ctx) {
         var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
+        if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.current_URI.spec;
     });
 
-I.focused_element = interactive_method(
-    $sync =  function (ctx) {
-        var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.focused_element();
-    });
-
-
 I.focused_link_url = interactive_method(
     $sync = function (ctx) {
         var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
+        if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
         // -- Focused link element
         ///JJF: check for errors or wrong element type.
-        return get_link_location (buffer.focused_element());
+        return get_link_location (buffer.focused_element);
     });
 
 I.content_charset = interactive_method(
     $sync = function (ctx) {
         var buffer = ctx.window.buffers.current;
-        if (!(buffer instanceof browser_buffer))
+        if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
         // -- Charset of content area of focusedWindow
-        var focusedWindow = buffer.focused_window();
+        var focusedWindow = buffer.focused_frame;
         if (focusedWindow)
             return focusedWindow.document.characterSet;
         else
@@ -417,7 +279,7 @@ I.content_charset = interactive_method(
 I.content_selection = interactive_method(
     $sync = function (ctx) {
         // -- Selection of content area of focusedWindow
-        var focusedWindow = this.buffers.current.focused_window();
+        var focusedWindow = this.buffers.current.focused_frame;
         return focusedWindow.getSelection ();
     });
 
@@ -430,50 +292,14 @@ function overlink_update_status(buffer, text) {
 
 define_global_mode("overlink_mode",
                    function () {
-                       add_hook("current_browser_buffer_overlink_change_hook", overlink_update_status);
+                       add_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
                    },
                    function () {
-                       remove_hook("current_browser_buffer_overlink_change_hook", overlink_update_status);
+                       remove_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
                    });
 
 overlink_mode(true);
 
-
-/* open/follow targets */
-const OPEN_CURRENT_BUFFER = 0; // only valid for open if the current
-                               // buffer is a browser_buffer; for
-                               // follow, equivalent to
-                               // FOLLOW_TOP_FRAME.
-const OPEN_NEW_BUFFER = 1;
-const OPEN_NEW_BUFFER_BACKGROUND = 2;
-const OPEN_NEW_WINDOW = 3;
-
-const FOLLOW_DEFAULT = 4; // for open, implies OPEN_CURRENT_BUFFER
-const FOLLOW_CURRENT_FRAME = 5; // for open, implies OPEN_CURRENT_BUFFER
-const FOLLOW_TOP_FRAME = 6; // for open, implies OPEN_CURRENT_BUFFER
-
-var TARGET_PROMPTS = [" in current buffer",
-                      " in new buffer",
-                      " in new buffer (background)",
-                      " in new window",
-                      "",
-                      " in current frame",
-                      " in top frame"];
-
-var TARGET_NAMES = ["current buffer",
-                    "new buffer",
-                    "new buffer (background)",
-                    "new window",
-                    "default",
-                    "current frame",
-                    "top frame"];
-
-
-function browse_target_prompt(target, prefix) {
-    if (prefix == null)
-        prefix = "Open URL";
-    return prefix + TARGET_PROMPTS[target] + ":";
-}
 
 function document_load_spec(doc) {
     var sh_entry = get_SHEntry_for_document(doc);
@@ -486,7 +312,7 @@ function document_load_spec(doc) {
     return result;
 }
 
-/* Target can be either a browser_buffer or an nsIWebNavigation */
+/* Target can be either a content_buffer or an nsIWebNavigation */
 function apply_load_spec(target, load_spec) {
     var url, flags, referrer, post_data;
     if (typeof(load_spec) == "string") {
@@ -502,7 +328,7 @@ function apply_load_spec(target, load_spec) {
     }
     if (flags == null)
         flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
-    if (target instanceof browser_buffer) {
+    if (target instanceof content_buffer) {
         target._display_URI = url;
         target = target.web_navigation;
     }
@@ -516,25 +342,19 @@ function open_in_browser(buffer, target, load_spec)
     case FOLLOW_DEFAULT:
     case FOLLOW_CURRENT_FRAME:
     case FOLLOW_TOP_FRAME:
-        if (buffer instanceof browser_buffer)  {
+        if (buffer instanceof content_buffer)  {
             apply_load_spec(buffer, load_spec);
             break;
         }
-        // If the current buffer is not a browser_buffer, use a new buffer.
-    case OPEN_NEW_BUFFER:
-        buffer = new browser_buffer(buffer.window, $context = buffer);
-        apply_load_spec(buffer, load_spec);
-        buffer.window.buffers.current = buffer;
-        break;
-    case OPEN_NEW_BUFFER_BACKGROUND:
-        buffer = new browser_buffer(buffer.window, $context = buffer);
-        apply_load_spec(buffer, load_spec);
-        break;
-    case OPEN_NEW_WINDOW:
-        make_window($load = load_spec, $cwd = buffer.cwd);
-        break;
+        target = OPEN_NEW_BUFFER;
+        // If the current buffer is not a content_buffer, use a new buffer.
     default:
-        throw new Error("Invalid target: " + target);
+        create_buffer(buffer.window,
+                      buffer_creator(content_buffer,
+                                     $load = load_spec,
+                                     $configuration = buffer.configuration),
+                      target);
+        break;
     }
 }
 
@@ -592,7 +412,7 @@ function go_up (b, target)
 interactive("go-up",
             "Go to the parent directory of the current URL",
             go_up,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             I.browse_target("go-up"));
 
 
@@ -613,7 +433,7 @@ function go_back (b, prefix)
 }
 interactive("go-back",
             "Go back in the session hisory for the current buffer.",
-            go_back, I.current_buffer(browser_buffer), I.p);
+            go_back, I.current_buffer(content_buffer), I.p);
 
 
 function go_forward (b, prefix)
@@ -632,7 +452,7 @@ function go_forward (b, prefix)
 }
 interactive("go-forward",
             "Go back in the session hisory for the current buffer.",
-            go_forward, I.current_buffer(browser_buffer), I.p);
+            go_forward, I.current_buffer(content_buffer), I.p);
 
 function stop_loading (b)
 {
@@ -640,7 +460,7 @@ function stop_loading (b)
 }
 interactive("stop-loading",
             "Stop loading the current document.",
-            stop_loading, I.current_buffer(browser_buffer));
+            stop_loading, I.current_buffer(content_buffer));
 
 function reload (b, bypass_cache)
 {
@@ -651,7 +471,7 @@ function reload (b, bypass_cache)
 interactive("reload",
             "Reload the current document.\n" +
             "If a prefix argument is specified, the cache is bypassed.",
-            reload, I.current_buffer(browser_buffer), I.P);
+            reload, I.current_buffer(content_buffer), I.P);
 
 function unfocus(buffer)
 {
@@ -660,18 +480,18 @@ function unfocus(buffer)
         elem.blur();
         return;
     }
-    var win = buffer.focused_window();
-    if (win != buffer.content_window)
+    var win = buffer.focused_frame;
+    if (win != buffer.top_frame)
         return;
-    buffer.content_window.focus();
+    buffer.top_frame.focus();
 }
-interactive("unfocus", unfocus, I.current_buffer(browser_buffer));
+interactive("unfocus", unfocus, I.current_buffer(content_buffer));
 
 /**
  * browserDOMWindow: intercept window opening
  */
 function initialize_browser_dom_window(window) {
-    window.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
+    window.QueryInterface(Ci.nsIDOMChromeWindow).browserDOMWindow =
         new browser_dom_window(window);
 }
 
@@ -699,6 +519,7 @@ browser_dom_window.prototype = {
 
         /* Determine the opener buffer */
         var opener_buffer = get_buffer_from_frame(this.window, aOpener.top);
+        var config = opener_buffer ? opener_buffer.configuration : null;
 
         switch (browser_default_open_target) {
         case OPEN_CURRENT_BUFFER:
@@ -707,12 +528,12 @@ browser_dom_window.prototype = {
         case FOLLOW_CURRENT_FRAME:
             return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new browser_buffer(this.window, $context = opener_buffer);
+            var buffer = new content_buffer(this.window, $configuration = config);
             this.window.buffers.current = buffer;
-            return buffer.content_window;
+            return buffer.top_frame;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new browser_buffer(this.window, $context = opener_buffer);
-            return buffer.content_window;
+            var buffer = new content_buffer(this.window, $configuration = config);
+            return buffer.top_frame;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */
 
@@ -720,13 +541,12 @@ browser_dom_window.prototype = {
              * in the URL being loaded as the top-level document,
              * instead of within a browser buffer.  Instead, we can
              * rely on Mozilla using browser.chromeURL. */
-            var extra_args = {};
-            if (opener_buffer != null)
-                extra_args.cwd_arg = opener_buffer.cwd;
-            window_set_extra_arguments(extra_args);
+            window_set_extra_arguments({initial_buffer_configuration: config});
             return null;
         }
     }
 };
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
+
+default_initial_buffer_creator = buffer_creator(content_buffer);

@@ -545,7 +545,7 @@ minibuffer.prototype = {
     },
 
     /* Saved focus state */
-    saved_focused_window : null,
+    saved_focused_frame : null,
     saved_focused_element : null,
 
     /* This method will display the specified string in the
@@ -643,7 +643,7 @@ minibuffer.prototype = {
         if (s) {
             if (!this._input_mode_enabled)
             {
-                this.saved_focused_window = this.window.document.commandDispatcher.focusedWindow;
+                this.saved_focused_frame = this.window.document.commandDispatcher.focusedWindow;
                 this.saved_focused_element = this.window.document.commandDispatcher.focusedElement;
                 this._input_mode_enabled = true;
                 this._switch_to_input_mode();
@@ -667,11 +667,11 @@ minibuffer.prototype = {
                 {
                     if (this.saved_focused_element)
                         set_focus_no_scroll(this.window, this.saved_focused_element);
-                    else if (this.saved_focused_window)
-                        set_focus_no_scroll(this.window, this.saved_focused_window);
+                    else if (this.saved_focused_frame)
+                        set_focus_no_scroll(this.window, this.saved_focused_frame);
                 }
                 this.saved_focused_element = null;
-                this.saved_focused_window = null;
+                this.saved_focused_frame = null;
                 this.window.keyboard.override_keymap = null;
             }
         }

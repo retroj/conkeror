@@ -1,4 +1,5 @@
 require("hints.js");
+require("save.js");
 
 /**
  * This is a simple wrapper function that sets focus to elem, and
@@ -85,18 +86,14 @@ function browser_element_follow(buffer, target, elem)
 
     var target_obj = null;
     switch (target) {
-    case OPEN_NEW_WINDOW:
-        make_window(load_spec, $cwd = buffer.cwd);
-        return;
-
     case FOLLOW_CURRENT_FRAME:
         if (current_frame == null) {
             if (elem.ownerDocument)
                 current_frame = elem.ownerDocument.defaultView;
             else
-                current_frame = buffer.content_window;
+                current_frame = buffer.top_frame;
         }
-        if (current_frame != buffer.content_window) {
+        if (current_frame != buffer.top_frame) {
             target_obj = get_web_navigation_for_window(current_frame);
             apply_load_spec(target_obj, load_spec);
             break;
@@ -106,15 +103,14 @@ function browser_element_follow(buffer, target, elem)
     case OPEN_CURRENT_BUFFER:
         buffer.load(load_spec);
         break;
+    case OPEN_NEW_WINDOW:
     case OPEN_NEW_BUFFER:
-        target_obj = new browser_buffer(buffer.window, $context = buffer);
-        target_obj.load(load_spec);
-        buffer.window.buffers.current = target_obj;
-        break;
     case OPEN_NEW_BUFFER_BACKGROUND:
-        target_obj = new browser_buffer(buffer.window, $context = buffer);
-        target_obj.load(load_spec);
-        break;
+        create_buffer(buffer.window,
+                      buffer_creator(content_buffer,
+                                     $load = load_spec,
+                                     $configuration = buffer.configuration),
+                      target);
     }
 }
 
@@ -400,7 +396,7 @@ function browser_element_view_source(buffer, target, elem, charset)
 }
 
 interactive("browser-element-view-source", browser_element_view_source,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             $$ = I.browse_target("follow"),
             hinted_element_with_prompt("view_source", "View source", "frames", $$),
             I.content_charset);
@@ -491,7 +487,7 @@ function browser_element_shell_command(buffer, elem, command) {
 
 interactive("browser-element-shell-command",
             browser_element_shell_command,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             $$ = hinted_element_with_prompt("shell-command-url",
                                             "Shell command target", "links"),
             I.shell_command(

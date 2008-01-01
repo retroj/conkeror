@@ -584,9 +584,9 @@ function genBindingsHelper(window, doc, kmap, prefix)
 
 function genAllBindings(window)
 {
-  genBindings(window, browser_buffer_normal_keymap, "Top Level");
-  genBindings(window, browser_buffer_text_keymap, "Text Box");
-  genBindings(window, browser_buffer_textarea_keymap, "Text Area");
+  genBindings(window, content_buffer_normal_keymap, "Top Level");
+  genBindings(window, content_buffer_text_keymap, "Text Box");
+  genBindings(window, content_buffer_textarea_keymap, "Text Area");
 }
 
 function genBindings(window, kmap, name)

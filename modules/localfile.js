@@ -138,7 +138,7 @@ function read_text_file(file, charset)
     var ifstream = Cc["@mozilla.org/network/file-input-stream;1"].createInstance(Ci.nsIFileInputStream);
     var icstream = Cc["@mozilla.org/intl/converter-input-stream;1"].createInstance(Ci.nsIConverterInputStream);
 
-    var charset = charset || "UTF-8";
+    charset = charset || "UTF-8";
 /*
     if (typeof file == "string")
         file = this.getFile(file);

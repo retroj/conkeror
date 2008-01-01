@@ -134,7 +134,7 @@ function init_window_title ()
     title_format_fn = default_title_formatter;
 
     add_hook("window_initialize_late_hook", set_window_title);
-    add_hook("current_browser_buffer_location_change_hook",
+    add_hook("current_content_buffer_location_change_hook",
              function (buffer) {
                  set_window_title(buffer.window);
              });
@@ -334,7 +334,7 @@ function get_buffer_from_frame(window, frame) {
     var count = window.buffers.count;
     for (var i = 0; i < count; ++i) {
         var b = window.buffers.get_buffer(i);
-        if (b instanceof browser_buffer && b.content_window == frame)
+        if (b instanceof content_buffer && b.top_frame == frame)
             return b;
     }
     return null;

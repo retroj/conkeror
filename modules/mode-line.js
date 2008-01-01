@@ -140,7 +140,7 @@ define_global_mode("mode_line_mode",
 function current_buffer_name_widget(window) {
     this.name = "current-buffer-name-widget";
     text_widget.call(this, window);
-    this.add_hook("current_browser_buffer_location_change_hook");
+    this.add_hook("current_content_buffer_location_change_hook");
     this.add_hook("select_buffer_hook");
 }
 current_buffer_name_widget.prototype.__proto__ = text_widget.prototype;
@@ -153,16 +153,16 @@ function current_buffer_scroll_position_widget(window) {
     text_widget.call(this, window);
     this.add_hook("current_buffer_scroll_hook");
     this.add_hook("select_buffer_hook");
-    this.add_hook("current_browser_buffer_location_change_hook");
-    this.add_hook("current_browser_buffer_focus_change_hook");
+    this.add_hook("current_content_buffer_location_change_hook");
+    this.add_hook("current_content_buffer_focus_change_hook");
 }
 current_buffer_scroll_position_widget.prototype.__proto__ = text_widget.prototype;
 current_buffer_scroll_position_widget.prototype.update = function () {
     var b = this.window.buffers.current;
     var scrollX, scrollY, scrollMaxX, scrollMaxY;
-    if (b instanceof browser_buffer)
+    if (b instanceof content_buffer)
     {
-        var w = b.focused_window();
+        var w = b.focused_frame();
         scrollX = w.scrollX;
         scrollY = w.scrollY;
         scrollMaxX = w.scrollMaxX;

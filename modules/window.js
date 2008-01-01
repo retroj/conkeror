@@ -62,70 +62,16 @@ function make_chrome_window(chrome_URI, args)
 
 var conkeror_chrome_URI = "chrome://conkeror/content/conkeror.xul";
 
-define_keywords("$load", "$tag", "$cwd");
-function make_window ()
+define_keywords("$tag", "$initial_buffer_creator");
+function make_window(initial_buffer_creator, tag)
 {
     keywords(arguments);
+    var args = { tag: tag,
+                 initial_buffer_creator: initial_buffer_creator };
     var result = make_chrome_window(conkeror_chrome_URI, null);
-    result.make_window_used = true;
-    if (arguments.$tag)
-        result.tag_arg = arguments.$tag;
-    var load_spec = arguments.$load;
-    if (load_spec != null) {
-        add_hook.call(result, "window_initialize_hook", function () {
-                apply_load_spec(result.buffers.current, load_spec);
-            });
-    }
-    if (arguments.$cwd != null)
-        result.cwd_arg = arguments.$cwd;
+    result.args = args;
     make_window_hook.run(result);
     return result;
-}
-
-// The simple case for find_url_new_buffer is to just load an url into
-// an existing window.  However, find_url_new_buffer must also deal
-// with the case where it is called many times synchronously (as by a
-// command-line handler) when there is no active window into which to
-// load urls.  We only want to make one window, so we keep a queue of
-// urls to load, and put a function in `make_window_after_hook' that
-// will load those urls.
-//
-var find_url_new_buffer_queue =  null;
-function find_url_new_buffer(url, window, cwd)
-{
-    function  find_url_new_buffer_internal (window) {
-        // get urls from queue
-        if (find_url_new_buffer_queue) {
-            for (var i = 0; i < find_url_new_buffer_queue.length; i++) {
-                var o = find_url_new_buffer_queue[i];
-                find_url_new_buffer (o[0], window, o[1]);
-            }
-            // reset queue
-            find_url_new_buffer_queue = null;
-        }
-    }
-
-    // window_watcher.activeWindow is the default window, but it may be
-    // null, too.
-    //
-    if (window == null) {
-        window = window_watcher.activeWindow;
-    }
-    if (window) {
-        window.buffers.current = new browser_buffer(window);
-        window.buffers.current.cwd = cwd;
-        window.buffers.current.load(url);
-    } else if (this.find_url_new_buffer_queue) {
-        // we are queueing
-        find_url_new_buffer_queue.push ([url, cwd]);
-    } else {
-        // establish a queue and make a window
-        find_url_new_buffer_queue = [];
-        window = make_window ($load = url, $cwd = cwd);
-        add_hook.call(window, "window_initialize_late_hook", find_url_new_buffer_internal);
-        return window;
-    }
-    return null;
 }
 
 function get_window_by_tag(tag)
@@ -139,12 +85,13 @@ function get_window_by_tag(tag)
     return null;
 }
 
+/* FIXME: decide if this should include not-fully-initialized windows  */
 function for_each_window(func)
 {
     var en = window_watcher.getWindowEnumerator ();
     while (en.hasMoreElements ()) {
         var w = en.getNext().QueryInterface (Ci.nsIDOMWindow);
-        if ('tag' in w)
+        if ('conkeror' in w)
             func(w);
     }
 }
@@ -156,21 +103,28 @@ define_window_local_hook("window_initialize_late_hook");
 var window_extra_argument_list = [];
 var window_extra_argument_max_delay = 100; /* USER PREFERENCE */
 
-function window_handle_extra_arguments(window) {
-    /* Handle window arguments */
+function window_setup_args(window) {
+    if (window.args != null)
+        return;
+
     var cur_time = Date.now();
     var i;
+    var result = null;
     for (i = 0; i < window_extra_argument_list.length; ++i) {
         var a = window_extra_argument_list[i];
         if (a.time > cur_time - window_extra_argument_max_delay) {
             delete a.time;
-            for (j in a)
-                window[j] = a[j];
+            result = a;
             i++;
             break;
         }
     }
     window_extra_argument_list = window_extra_argument_list.slice(i);
+
+    if (result == null)
+        window.args = {};
+    else
+        window.args = result;
 }
 
 function window_set_extra_arguments(args) {
@@ -181,27 +135,21 @@ function window_set_extra_arguments(args) {
 function window_initialize(window)
 {
     window.conkeror = conkeror;
-    if (!window.make_window_used)
-        window_handle_extra_arguments(window);
-    else
-        delete window.make_window_used;
+
+    window_setup_args(window);
 
     // Set tag
-    var tag = null;
-    if (window.tag_arg) {
-        tag = window.tag_arg;
-        delete window.tag_arg;
-    }
-    window.tag = generate_new_window_tag(tag);
+    window.tag = generate_new_window_tag(window.args.tag);
 
     window_initialize_early_hook.run(window);
-    window.initialize_early_hook = null; // used only once
+    delete window.initialize_early_hook; // used only once
 
     window_initialize_hook.run(window);
-    window.initialize_hook = null; // used only once
+    delete window.initialize_hook; // used only once
 
     window.setTimeout(function(){
             window_initialize_late_hook.run(window);
-            window.window_initialize_late_hook = null; // used only once
+            delete window.window_initialize_late_hook; // used only once
+            delete window.args; // get rid of args
         },0);
 }

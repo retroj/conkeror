@@ -21,24 +21,65 @@ function define_current_buffer_hook(hook_name, existing_hook)
 }
 
 define_buffer_local_hook("buffer_title_change_hook");
+define_buffer_local_hook("buffer_description_change_hook");
 define_buffer_local_hook("select_buffer_hook");
 define_buffer_local_hook("buffer_scroll_hook");
+define_buffer_local_hook("buffer_dom_content_loaded_hook");
 
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
+define_current_buffer_hook("current_buffer_description_change_hook", "buffer_description_change_hook");
 define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 
-function buffer(context_buffer)
-{
-    if (context_buffer != null)
-        this.cwd = context_buffer.cwd;
-
-    else
+function buffer_configuration(existing_configuration) {
+    if (existing_configuration != null) {
+        this.cwd = existing_configuration.cwd;
+    }
+    else {
         this.cwd = default_directory.path;
+    }
+}
+
+define_keywords("$configuration", "$element");
+function buffer_creator(type) {
+    var args = forward_keywords(arguments);
+    return function (window, element) {
+        return new type(window, element, args);
+    }
+}
+
+function buffer(window, element)
+{
+    keywords(arguments);
+    this.window = window;
+    this.configuration = new buffer_configuration(arguments.$configuration);
+    if (element == null)
+    {
+        element = create_XUL(window, "vbox");
+        element.setAttribute("flex", "1");
+        var browser = create_XUL(window, "browser");
+        browser.setAttribute("type", "content");
+        browser.setAttribute("flex", "1");
+        element.appendChild(browser);
+        this.window.buffers.container.appendChild(element);
+    }
+    this.element = element;
+    this.browser = element.firstChild;
+    this.element.conkeror_buffer_object = this;
+
+    var buffer = this;
+
+    this.browser.addEventListener("scroll", function (event) {
+            buffer_scroll_hook.run(buffer);
+        }, true /* capture */, false /* ignore untrusted events */);
+
+    this.browser.addEventListener("DOMContentLoaded", function (event) {
+            buffer_dom_content_loaded_hook.run(buffer);
+        }, true /* capture */, false /*ignore untrusted events */);
 }
 
 buffer.prototype = {
     /* Saved focus state */
-    saved_focused_window : null,
+    saved_focused_frame : null,
     saved_focused_element : null,
     on_switch_to : null,
     on_switch_away : null,
@@ -46,33 +87,82 @@ buffer.prototype = {
     // get name ()    [must be defined by subclasses]
     dead : false, /* This is set when the buffer is killed */
 
-    get scrollX () { return 0; },
-    get scrollY () { return 0; },
-    get scrollMaxX () { return 0; },
-    get scrollMaxY () { return 0; }
+    /* General accessors */
+    get cwd () { return this.configuration.cwd; },
 
-    // focused_window()
-    // focused_element()
+    /* Browser accessors */
+    get top_frame () { return this.browser.contentWindow; },
+    get top_document () { return this.browser.contentDocument; },
+    get web_navigation () { return this.browser.webNavigation; },
+    get doc_shell () { return this.browser.docShell; },
+    get markup_document_viewer () { return this.browser.markupDocumentViewer; },
+    get current_URI () { return this.browser.currentURI; },
+
+    is_child_element : function (element)
+    {
+        return (element && this.is_child_frame(element.ownerDocument.defaultView));
+    },
+
+    is_child_frame : function (frame)
+    {
+        return (frame && frame.top == this.top_frame);
+    },
+
+    get focused_frame () {
+        var frame = this.window.document.commandDispatcher.focusedWindow;
+        var top = this.top_frame;
+        if (this.is_child_frame(frame))
+            return frame;
+        return this.top_frame;
+    },
+
+    get focused_element () {
+        var element = this.window.document.commandDispatcher.focusedElement;
+        if (this.is_child_element(element))
+            return element;
+        return null;
+    },
+
+    do_command : function (command)
+    {
+        function attempt_command(element, command)
+        {
+            var controller;
+            if (element.controllers
+                && (controller = element.controllers.getControllerForCommand(command)) != null
+                && controller.isCommandEnabled(command))
+            {
+                controller.doCommand(command);
+                return true;
+            }
+            return false;
+        }
+
+        var element = this.focused_element;
+        if (element && attempt_command(element, command))
+            return;
+        var win = this.focused_frame;
+        do  {
+            if (attempt_command(win, command))
+                return;
+            if (!win.parent || win == win.parent)
+                break;
+            win = win.parent;
+        } while (true);
+    }
 };
 
 
-function buffer_container(window)
+function buffer_container(window, create_initial_buffer)
 {
     this.window = window;
     this.container = window.document.getElementById("buffer-container");
 
-    /* FIXME: Once we support alternative XUL files that have an
-     * initial buffer that is not a browser buffer, this needs to be
-     * fixed. */
-    var buffer = new browser_buffer(window, $element = this.container.firstChild);
-    if (window.cwd_arg != null) {
-        buffer.cwd = window.cwd_arg;
-        delete window.cwd_arg;
-    }
+    create_initial_buffer(window, this.container.firstChild);
 }
 
 buffer_container.prototype = {
-    constructor : buffer_container.constructor,
+    constructor : buffer_container,
 
     get current () {
         return this.container.selectedPanel.conkeror_buffer_object;
@@ -92,19 +182,17 @@ buffer_container.prototype = {
 
     _switch_away_from : function (old_value) {
         // Save focus state
-        old_value.saved_focused_window = this.window.document.commandDispatcher.focusedWindow;
-        old_value.saved_focused_element = this.window.document.commandDispatcher.focusedElement;
+        old_value.saved_focused_frame = old_value.focused_frame;
+        old_value.saved_focused_element = old_value.focused_element;
 
-        if (old_value.on_switch_away)
-            old_value.on_switch_away();
+        old_value.browser.setAttribute("type", "content");
     },
 
     _switch_to : function (buffer) {
         // Select new buffer in the XUL deck
         this.container.selectedPanel = buffer.element;
 
-        if (buffer.on_switch_to)
-            buffer.on_switch_to();
+        buffer.browser.setAttribute("type", "content-primary");
 
         /**
          * This next focus call seems to be needed to avoid focus
@@ -116,11 +204,11 @@ buffer_container.prototype = {
         // Restore focus state
         if (buffer.saved_focused_element)
             set_focus_no_scroll(this.window, buffer.saved_focused_element);
-        else if (buffer.saved_focused_window)
-            set_focus_no_scroll(this.window, buffer.saved_focused_window);
+        else if (buffer.saved_focused_frame)
+            set_focus_no_scroll(this.window, buffer.saved_focused_frame);
 
         buffer.saved_focused_element = null;
-        buffer.saved_focused_window = null;
+        buffer.saved_focused_frame = null;
     },
 
     get count () {
@@ -192,12 +280,114 @@ buffer_container.prototype = {
     }
 };
 
+function create_initial_content_buffer(window, element, config) {
+    try {
+        new content_buffer(window, $element = element, $configuration = config);
+    } catch (e) { 
+        dump_error(e);
+    }
+}
+
+/* USER PREFERENCE */
+var default_initial_buffer_creator;
+
 function buffer_initialize_window_early(window)
 {
-    window.buffers = new buffer_container(window);
+    var create_initial_buffer
+        = window.args.initial_buffer_creator || buffer_creator(content_buffer);
+    window.buffers = new buffer_container(window, create_initial_buffer);
 }
 
 add_hook("window_initialize_early_hook", buffer_initialize_window_early);
+
+
+/* open/follow targets */
+const OPEN_CURRENT_BUFFER = 0; // only valid for open if the current
+                               // buffer is a content_buffer; for
+                               // follow, equivalent to
+                               // FOLLOW_TOP_FRAME.
+const OPEN_NEW_BUFFER = 1;
+const OPEN_NEW_BUFFER_BACKGROUND = 2;
+const OPEN_NEW_WINDOW = 3;
+
+const FOLLOW_DEFAULT = 4; // for open, implies OPEN_CURRENT_BUFFER
+const FOLLOW_CURRENT_FRAME = 5; // for open, implies OPEN_CURRENT_BUFFER
+const FOLLOW_TOP_FRAME = 6; // for open, implies OPEN_CURRENT_BUFFER
+
+var TARGET_PROMPTS = [" in current buffer",
+                      " in new buffer",
+                      " in new buffer (background)",
+                      " in new window",
+                      "",
+                      " in current frame",
+                      " in top frame"];
+
+var TARGET_NAMES = ["current buffer",
+                    "new buffer",
+                    "new buffer (background)",
+                    "new window",
+                    "default",
+                    "current frame",
+                    "top frame"];
+
+
+function browse_target_prompt(target, prefix) {
+    if (prefix == null)
+        prefix = "Open URL";
+    return prefix + TARGET_PROMPTS[target] + ":";
+}
+
+
+function create_buffer(window, creator, target) {
+    switch (target) {
+    case OPEN_NEW_BUFFER:
+        window.buffers.current = creator(window, null);
+        break;
+    case OPEN_NEW_BUFFER_BACKGROUND:
+        creator(window, null);
+        break;
+    case OPEN_NEW_WINDOW:
+        make_window(creator);
+        break;
+    default:
+        throw new Error("invalid target");
+    }
+}
+
+var queued_buffer_creators = null;
+function _process_queued_buffer_creators(window) {
+    for (var i = 0; i < queued_buffer_creators.length; ++i) {
+        var x = queued_buffer_creators[i];
+        create_buffer(window, x[0], x[1]);
+    }
+    queued_buffer_creators = null;
+}
+function create_buffer_in_current_window(creator, target) {
+    if (target == OPEN_NEW_WINDOW)
+        throw new Error("invalid target");
+    var window = window_watcher.activeWindow;
+    if (window) {
+        if (!("conkeror" in window)) {
+            window = null;
+            var en = window_watcher.getWindowEnumerator ();
+            while (en.hasMoreElements ()) {
+                var w = en.getNext().QueryInterface (Ci.nsIDOMWindow);
+                if ('conkeror' in w) {
+                    window = w;
+                    break;
+                }
+            }
+        }
+        if (window != null)
+            create_buffer(window, creator, target);
+    } else if (queued_buffer_creators != null) {
+        queued_buffer_creators.push([creator,target]);
+    } else {
+        queued_buffer_creators = [];
+        window = make_window(creator);
+        add_hook.call(window, "window_initialize_late_hook", _process_queued_buffer_creators);
+    }
+}
 
 I.current_buffer = interactive_method(
     $doc = "Current buffer",
@@ -207,6 +397,31 @@ I.current_buffer = interactive_method(
             throw interactive_error("Current buffer is of invalid type");
         return buffer;
     });
+
+
+I.focused_element = interactive_method(
+    $sync =  function (ctx) {
+        return ctx.window.buffers.current.focused_element;
+    });
+
+I.current_frame = interactive_method(
+    $sync = function (ctx) {
+        return ctx.window.buffers.current.focused_frame;
+    });
+
+I.top_frame = interactive_method(
+    $sync = function (ctx) {
+        return ctx.window.buffers.current.top_frame;
+    });
+
+// This name should perhaps change
+I.top_document = interactive_method(
+    $sync = function (ctx) {
+        return ctx.window.buffers.current.top_document;
+    });
+
+// This name should perhaps change
+I.active_document = I.top_document;
 
 define_keywords("$default");
 I.b = interactive_method(
@@ -237,6 +452,11 @@ I.b = interactive_method(
 I.cwd = interactive_method(
     $sync = function (ctx) {
         return ctx.window.buffers.current.cwd;
+    });
+
+I.buffer_configuration = interactive_method(
+    $sync = function (ctx) {
+        return ctx.window.buffers.current.configuration;
     });
 
 function buffer_next (window, count)
@@ -304,7 +524,7 @@ interactive("kill-current-buffer",
             kill_buffer, I.current_buffer);
 
 function change_directory(buffer, dir) {
-    buffer.cwd = dir;
+    buffer.configuration.cwd = dir;
 }
 interactive("change-current-directory",
             "Change the current directory of the selected buffer.",
@@ -322,4 +542,4 @@ interactive("shell-command",
                         return "Shell command [" + cwd + "]:";
                     }, $$)));
 
-require_later("browser_buffer.js");
+require_later("content_buffer.js");

@@ -77,7 +77,7 @@ function browser_follow_relationship(buffer, relationship, target) {
         return null;
     }
 
-    var elem = helper(buffer.content_window);
+    var elem = helper(buffer.top_frame);
     if (!elem)
         throw interactive_error("No \"" + browser_relationship_rel_name[relationship]
                                 + "\" link found");
@@ -87,11 +87,11 @@ function browser_follow_relationship(buffer, relationship, target) {
 default_browse_targets["follow-relationship"] = "follow";
 
 interactive("browser-follow-next", browser_follow_relationship,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             RELATIONSHIP_NEXT,
             I.browse_target("follow-relationship"));
 
 interactive("browser-follow-previous", browser_follow_relationship,
-            I.current_buffer(browser_buffer),
+            I.current_buffer(content_buffer),
             RELATIONSHIP_PREVIOUS,
             I.browse_target("follow-relationship"));

@@ -3,11 +3,12 @@ var command_line_handlers = [];
 var url_remoting_fn = load_url_in_new_window;
 
 function load_url_in_new_window(url, ctx) {
-    make_window($load = url, $cwd = ctx.cwd);
+    make_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config));
 }
 
 function load_url_in_new_buffer(url, ctx) {
-    find_url_new_buffer(url, null, ctx.cwd);
+    create_buffer_in_current_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config),
+                                    OPEN_NEW_BUFFER_BACKGROUND);
 }
 
 function command_line_handler(name, suppress_default, handler)
@@ -36,7 +37,9 @@ command_line_param_handler("q", false, function () {
     });
 
 command_line_param_handler("cwd", false, function (dir, ctx) {
-        ctx.cwd = dir;
+        if (ctx.config == null)
+            ctx.config = {};
+        ctx.config.cwd = dir;
     });
 
 
