@@ -16,21 +16,21 @@ define_current_buffer_hook("current_browser_buffer_overlink_change_hook", "brows
 
 /* If browser is null, create a new browser */
 define_keywords("$context", "$element");
-function browser_buffer(frame)
+function browser_buffer(window)
 {
     keywords(arguments);
     var browser = arguments.$element;
     var context_buffer = arguments.$context;
     conkeror.buffer.call(this, context_buffer);
 
-    this.frame = frame;
+    this.window = window;
 
     if (browser == null)
     {
-        browser = create_XUL(frame, "browser");
+        browser = create_XUL(window, "browser");
         browser.setAttribute("type", "content");
         browser.setAttribute("flex", "1");
-        this.frame.buffers.container.appendChild(browser);
+        this.window.buffers.container.appendChild(browser);
     }
     this.element = browser;
     this.element.conkeror_buffer_object = this;
@@ -48,7 +48,7 @@ function browser_buffer(frame)
         }, true /* capture */, false /* ignore untrusted events */);
 
     this.element.addEventListener("mouseover", function (event) {
-            if (event.target instanceof frame.HTMLAnchorElement) {
+            if (event.target instanceof Ci.nsIDOMHTMLAnchorElement) {
                 browser_buffer_overlink_change_hook.run(buffer, event.target.href);
                 buffer.current_overlink = event.target;
             }
@@ -249,7 +249,7 @@ browser_buffer.prototype = {
 
     focused_window : function ()
     {
-        var win = this.frame.document.commandDispatcher.focusedWindow;
+        var win = this.window.document.commandDispatcher.focusedWindow;
         if (this.child_window(win))
             return win;
         return this.content_window;
@@ -257,7 +257,7 @@ browser_buffer.prototype = {
 
     focused_element : function ()
     {
-        var element = this.frame.document.commandDispatcher.focusedElement;
+        var element = this.window.document.commandDispatcher.focusedElement;
         if (this.child_element(element))
             return element;
         return null;
@@ -299,12 +299,12 @@ browser_buffer.prototype = {
 
 add_hook("current_browser_buffer_finished_loading_hook",
          function (buffer) {
-                 buffer.frame.minibuffer.show("Done");
+                 buffer.window.minibuffer.show("Done");
          });
 
 add_hook("current_browser_buffer_status_change_hook",
          function (buffer, request, status, msg) {
-             buffer.frame.minibuffer.show(msg);
+             buffer.window.minibuffer.show(msg);
          });
 
 
@@ -321,7 +321,7 @@ I.url_or_webjump = interactive_method(
             for (var x in gWebJumpLocations)
                 completions.push([x,x]);
         }
-        ctx.frame.minibuffer.read_with_completion(
+        ctx.window.minibuffer.read_with_completion(
             $prompt = arguments.$prompt,
             $history = arguments.$history,
             $completions = completions,
@@ -338,7 +338,7 @@ I.url_or_webjump = interactive_method(
 
 I.current_buffer_window = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.content_window;
@@ -347,7 +347,7 @@ I.current_buffer_window = interactive_method(
 // This name should perhaps change
 I.current_buffer_document = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.content_document;
@@ -356,17 +356,17 @@ I.current_buffer_document = interactive_method(
 // This name should perhaps change
 I.active_document = I.current_buffer_document;
 
-I.current_frameset_frame = interactive_method(
+I.current_frame = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.focused_window();
     });
 
-I.current_frameset_frame_url = interactive_method(
+I.current_frame_url = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.focused_window().location.href;
@@ -375,7 +375,7 @@ I.current_frameset_frame_url = interactive_method(
 // This name should probably change
 I.current_url = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.current_URI.spec;
@@ -383,7 +383,7 @@ I.current_url = interactive_method(
 
 I.focused_element = interactive_method(
     $sync =  function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.focused_element();
@@ -392,7 +392,7 @@ I.focused_element = interactive_method(
 
 I.focused_link_url = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         // -- Focused link element
@@ -402,7 +402,7 @@ I.focused_link_url = interactive_method(
 
 I.content_charset = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (!(buffer instanceof browser_buffer))
             throw new Error("Current buffer is of invalid type");
         // -- Charset of content area of focusedWindow
@@ -423,9 +423,9 @@ I.content_selection = interactive_method(
 
 function overlink_update_status(buffer, text) {
     if (text.length > 0)
-        buffer.frame.minibuffer.show("Link: " + text);
+        buffer.window.minibuffer.show("Link: " + text);
     else
-        buffer.frame.minibuffer.show("");
+        buffer.window.minibuffer.show("");
 }
 
 define_global_mode("overlink_mode",
@@ -522,16 +522,16 @@ function open_in_browser(buffer, target, load_spec)
         }
         // If the current buffer is not a browser_buffer, use a new buffer.
     case OPEN_NEW_BUFFER:
-        buffer = new browser_buffer(buffer.frame, $context = buffer);
+        buffer = new browser_buffer(buffer.window, $context = buffer);
         apply_load_spec(buffer, load_spec);
-        buffer.frame.buffers.current = buffer;
+        buffer.window.buffers.current = buffer;
         break;
     case OPEN_NEW_BUFFER_BACKGROUND:
-        buffer = new browser_buffer(buffer.frame, $context = buffer);
+        buffer = new browser_buffer(buffer.window, $context = buffer);
         apply_load_spec(buffer, load_spec);
         break;
     case OPEN_NEW_WINDOW:
-        make_frame($load = load_spec, $cwd = buffer.cwd);
+        make_window($load = load_spec, $cwd = buffer.cwd);
         break;
     default:
         throw new Error("Invalid target: " + target);
@@ -670,17 +670,17 @@ interactive("unfocus", unfocus, I.current_buffer(browser_buffer));
 /**
  * browserDOMWindow: intercept window opening
  */
-function initialize_browser_dom_window(frame) {
-    frame.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
-        new browser_dom_window(frame);
+function initialize_browser_dom_window(window) {
+    window.QueryInterface(Components.interfaces.nsIDOMChromeWindow).browserDOMWindow =
+        new browser_dom_window(window);
 }
 
 /* USER PREFERENCE */
 /* This will generally be OPEN_NEW_BUFFER, OPEN_NEW_BUFFER_BACKGROUND, or OPEN_NEW_WINDOW */
 var browser_default_open_target = OPEN_NEW_BUFFER;
 
-function browser_dom_window(frame) {
-    this.frame = frame;
+function browser_dom_window(window) {
+    this.window = window;
     this.next_target = null;
 }
 browser_dom_window.prototype = {
@@ -698,7 +698,7 @@ browser_dom_window.prototype = {
         this.next_target = null;
 
         /* Determine the opener buffer */
-        var opener_buffer = get_buffer_from_content_window(this.frame, aOpener.top);
+        var opener_buffer = get_buffer_from_frame(this.window, aOpener.top);
 
         switch (browser_default_open_target) {
         case OPEN_CURRENT_BUFFER:
@@ -707,26 +707,26 @@ browser_dom_window.prototype = {
         case FOLLOW_CURRENT_FRAME:
             return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new browser_buffer(this.frame, $context = opener_buffer);
-            this.frame.buffers.current = buffer;
+            var buffer = new browser_buffer(this.window, $context = opener_buffer);
+            this.window.buffers.current = buffer;
             return buffer.content_window;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new browser_buffer(this.frame, $context = opener_buffer);
+            var buffer = new browser_buffer(this.window, $context = opener_buffer);
             return buffer.content_window;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */
 
-            /* We don't call make_frame here, because that will result
+            /* We don't call make_window here, because that will result
              * in the URL being loaded as the top-level document,
              * instead of within a browser buffer.  Instead, we can
              * rely on Mozilla using browser.chromeURL. */
             var extra_args = {};
             if (opener_buffer != null)
                 extra_args.cwd_arg = opener_buffer.cwd;
-            frame_set_extra_arguments(extra_args);
+            window_set_extra_arguments(extra_args);
             return null;
         }
     }
 };
 
-add_hook("frame_initialize_early_hook", initialize_browser_dom_window);
+add_hook("window_initialize_early_hook", initialize_browser_dom_window);

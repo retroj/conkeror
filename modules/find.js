@@ -31,9 +31,9 @@ the terms of any one of the MPL, the GPL or the LGPL.
 // isearch
 
 // turn on the selection in all frames
-function getFocusedSelCtrl(frame)
+function getFocusedSelCtrl(window)
 {
-    var ds = frame.buffers.current.doc_shell;
+    var ds = window.buffers.current.doc_shell;
     var dsEnum = ds.getDocShellEnumerator(Components.interfaces.nsIDocShellTreeItem.typeContent,
                                           Components.interfaces.nsIDocShell.ENUMERATE_FORWARDS);
     while (dsEnum.hasMoreElements()) {
@@ -49,34 +49,34 @@ function getFocusedSelCtrl(frame)
     }
 
   // One last try
-  return frame.buffers.current.doc_shell
+  return window.buffers.current.doc_shell
       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsISelectionDisplay)
       .QueryInterface(Components.interfaces.nsISelectionController);
 }
 
 
-function initial_isearch_state(window, forward)
+function initial_isearch_state(frame, forward)
 {
-    this.screenx = window.scrollX;
-    this.screeny = window.scrollY;
+    this.screenx = frame.scrollX;
+    this.screeny = frame.scrollY;
     this.search_str = "";
     this.wrapped = false;
     this.point = null;
-    this.range = window.document.createRange();
+    this.range = frame.document.createRange();
     this.selection = null;
     this.direction = forward;
 }
 
-function isearch_session(frame, forward)
+function isearch_session(window, forward)
 {
     this.states = [];
-    this.window = frame.buffers.current.focused_window();
-    this.sel_ctrl = getFocusedSelCtrl(frame);
+    this.frame = window.buffers.current.focused_window();
+    this.sel_ctrl = getFocusedSelCtrl(window);
     this.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
     this.sel_ctrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    this.states.push(new initial_isearch_state(this.window, forward));
-    this.frame = frame;
+    this.states.push(new initial_isearch_state(this.frame, forward));
+    this.window = window;
 
     minibuffer_state.call(this, isearch_keymap, "");
 }
@@ -106,21 +106,21 @@ isearch_session.prototype = {
         sel.removeAllRanges();
     },
     restore_state: function () {
-        var m = this.frame.minibuffer;
+        var m = this.window.minibuffer;
         var s = this.top;
         m._input_text = s.search_str;
         if (s.selection)
             this._set_selection(s.selection);
         else
             this._clear_selection();
-        this.window.scrollTo(s.screenx, s.screeny);
+        this.frame.scrollTo(s.screenx, s.screeny);
         m.prompt = ((s.wrapped ? "Wrapped ":"")
                     + (s.range ? "" : "Failing ")
                     + "I-Search" + (s.direction? "": " backward") + ":");
     },
     _highlight_find : function (str, wrapped, dir, pt) {
         try {
-            var doc = this.window.document;
+            var doc = this.frame.document;
             var finder = (Components.classes["@mozilla.org/embedcomp/rangefind;1"].createInstance()
                           .QueryInterface(Components.interfaces.nsIFind));
             var searchRange;
@@ -189,8 +189,8 @@ isearch_session.prototype = {
                         // We want to find a match that is completely
                         // visible, otherwise the view will scroll just a
                         // bit to fit the selection in completely.
-                        keepSearching = (dir && sy1 < this.window.scrollY)
-                            || (!dir && ey2 >= this.window.scrollY + this.window.innerHeight);
+                        keepSearching = (dir && sy1 < this.frame.scrollY)
+                            || (!dir && ey2 >= this.frame.scrollY + this.frame.innerHeight);
                     }
                 } while (retRange && keepSearching);
             } else {
@@ -205,7 +205,7 @@ isearch_session.prototype = {
             }
 
             return selectionRange;
-        } catch(e) { /* FIXME: figure out why this is needed*/ this.frame.alert(e); }
+        } catch(e) { /* FIXME: figure out why this is needed*/ this.window.alert(e); }
         return null;
     },
 
@@ -223,7 +223,7 @@ isearch_session.prototype = {
         var match_range = this._highlight_find(str, wrapped, dir, point);
 
         var new_state = {
-            screenx: this.window.scrollX, screeny: this.window.scrollY,
+            screenx: this.frame.scrollX, screeny: this.frame.scrollY,
             search_str: str, wrapped: wrapped, point: point,
             range: match_range,
             selection: match_range ? match_range : s.selection,
@@ -234,7 +234,7 @@ isearch_session.prototype = {
 
     focus_link : function ()
     {
-        var sel = this.window.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+        var sel = this.frame.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
         if (!sel)
             return;
         var node = sel.focusNode;
@@ -254,54 +254,54 @@ isearch_session.prototype = {
     }
 };
 
-function isearch_continue(frame, direction) {
-    var s = frame.minibuffer.current_state;
+function isearch_continue(window, direction) {
+    var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
-    if (s.states.length == 1 && frame.isearch_last_search)
-        s.find(frame.isearch_last_search, direction, s.top.point);
+    if (s.states.length == 1 && window.isearch_last_search)
+        s.find(window.isearch_last_search, direction, s.top.point);
     else
         s.find(s.top.search_str, direction, s.top.range);
     s.restore_state();
 }
-interactive("isearch-continue-forward", isearch_continue, I.current_frame, true);
-interactive("isearch-continue-backward", isearch_continue, I.current_frame, false);
+interactive("isearch-continue-forward", isearch_continue, I.current_window, true);
+interactive("isearch-continue-backward", isearch_continue, I.current_window, false);
 
-function isearch_start (frame, direction)
+function isearch_start (window, direction)
 {
-    var s = new isearch_session(frame, direction);
-    frame.minibuffer.push_state(s);
+    var s = new isearch_session(window, direction);
+    window.minibuffer.push_state(s);
     s.restore_state();
 }
-interactive("isearch-forward", isearch_start, I.current_frame, true);
-interactive("isearch-backward", isearch_start, I.current_frame, false);
+interactive("isearch-forward", isearch_start, I.current_window, true);
+interactive("isearch-backward", isearch_start, I.current_window, false);
 
-function isearch_backspace (frame)
+function isearch_backspace (window)
 {
-    var s = frame.minibuffer.current_state;
+    var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     if (s.states.length > 1)
         s.states.pop();
     s.restore_state();
 }
-interactive("isearch-backspace", isearch_backspace, I.current_frame);
+interactive("isearch-backspace", isearch_backspace, I.current_window);
 
-function isearch_abort (frame)
+function isearch_abort (window)
 {
-    var s = frame.minibuffer.current_state;
+    var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
-    frame.minibuffer.pop_state();
-    s.window.scrollTo(s.states[0].screenx, s.states[0].screeny);
+    window.minibuffer.pop_state();
+    s.frame.scrollTo(s.states[0].screenx, s.states[0].screeny);
     s._clear_selection();
 }
-interactive("isearch-abort", isearch_abort, I.current_frame);
+interactive("isearch-abort", isearch_abort, I.current_window);
 
 
-function isearch_add_character (frame, event)
+function isearch_add_character (window, event)
 {
-    var s = frame.minibuffer.current_state;
+    var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     var str = s.top.search_str;
@@ -309,18 +309,18 @@ function isearch_add_character (frame, event)
     s.find(str, s.top.direction, s.top.point);
     s.restore_state();
 }
-interactive("isearch-add-character", isearch_add_character, I.current_frame, I.e);
+interactive("isearch-add-character", isearch_add_character, I.current_window, I.e);
 
-function isearch_done (frame)
+function isearch_done (window)
 {
-    var s = frame.minibuffer.current_state;
+    var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     s.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    frame.minibuffer.pop_state(false /* don't restore focus */);
-    frame.isearch_last_search = s.top.search_str;
+    window.minibuffer.pop_state(false /* don't restore focus */);
+    window.isearch_last_search = s.top.search_str;
     s.focus_link();
     s._clear_selection();
 }
-interactive("isearch-done", isearch_done, I.current_frame);
+interactive("isearch-done", isearch_done, I.current_window);
 

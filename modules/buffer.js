@@ -2,8 +2,8 @@ function define_buffer_local_hook(hook_name)
 {
     initialize_hook(hook_name).run = function (buffer) {
         run_hooks(this, arguments);
-        if (hook_name in buffer.frame)
-            run_hooks(buffer.frame[hook_name], arguments);
+        if (hook_name in buffer.window)
+            run_hooks(buffer.window[hook_name], arguments);
         if (hook_name in buffer)
             run_hooks(buffer[hook_name], arguments);
     }
@@ -13,7 +13,7 @@ function define_current_buffer_hook(hook_name, existing_hook)
 {
     define_buffer_local_hook(hook_name);
     add_hook(existing_hook, function (buffer) {
-            if (!buffer.frame.buffers || buffer != buffer.frame.buffers.current)
+            if (!buffer.window.buffers || buffer != buffer.window.buffers.current)
                 return;
             var hook = conkeror[hook_name];
             hook.run.apply(hook, Array.prototype.slice.call(arguments));
@@ -56,18 +56,18 @@ buffer.prototype = {
 };
 
 
-function buffer_container(frame)
+function buffer_container(window)
 {
-    this.frame = frame;
-    this.container = frame.document.getElementById("buffer-container");
+    this.window = window;
+    this.container = window.document.getElementById("buffer-container");
 
     /* FIXME: Once we support alternative XUL files that have an
      * initial buffer that is not a browser buffer, this needs to be
      * fixed. */
-    var buffer = new browser_buffer(frame, $element = this.container.firstChild);
-    if (frame.cwd_arg != null) {
-        buffer.cwd = frame.cwd_arg;
-        delete frame.cwd_arg;
+    var buffer = new browser_buffer(window, $element = this.container.firstChild);
+    if (window.cwd_arg != null) {
+        buffer.cwd = window.cwd_arg;
+        delete window.cwd_arg;
     }
 }
 
@@ -92,8 +92,8 @@ buffer_container.prototype = {
 
     _switch_away_from : function (old_value) {
         // Save focus state
-        old_value.saved_focused_window = this.frame.document.commandDispatcher.focusedWindow;
-        old_value.saved_focused_element = this.frame.document.commandDispatcher.focusedElement;
+        old_value.saved_focused_window = this.window.document.commandDispatcher.focusedWindow;
+        old_value.saved_focused_element = this.window.document.commandDispatcher.focusedElement;
 
         if (old_value.on_switch_away)
             old_value.on_switch_away();
@@ -111,13 +111,13 @@ buffer_container.prototype = {
          * somehow getting lost (and the keypress handler therefore
          * not getting called at all) when killing buffers.
          */
-        this.frame.focus();
+        this.window.focus();
 
         // Restore focus state
         if (buffer.saved_focused_element)
-            set_focus_no_scroll(this.frame, buffer.saved_focused_element);
+            set_focus_no_scroll(this.window, buffer.saved_focused_element);
         else if (buffer.saved_focused_window)
-            set_focus_no_scroll(this.frame, buffer.saved_focused_window);
+            set_focus_no_scroll(this.window, buffer.saved_focused_window);
 
         buffer.saved_focused_element = null;
         buffer.saved_focused_window = null;
@@ -192,17 +192,17 @@ buffer_container.prototype = {
     }
 };
 
-function buffer_initialize_frame_early(frame)
+function buffer_initialize_window_early(window)
 {
-    frame.buffers = new buffer_container(frame);
+    window.buffers = new buffer_container(window);
 }
 
-add_hook("frame_initialize_early_hook", buffer_initialize_frame_early);
+add_hook("window_initialize_early_hook", buffer_initialize_window_early);
 
 I.current_buffer = interactive_method(
     $doc = "Current buffer",
     $sync = function (ctx, type) {
-        var buffer = ctx.frame.buffers.current;
+        var buffer = ctx.window.buffers.current;
         if (type && !(buffer instanceof type))
             throw interactive_error("Current buffer is of invalid type");
         return buffer;
@@ -212,11 +212,11 @@ define_keywords("$default");
 I.b = interactive_method(
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Buffer:",
-                 $default = ctx.frame.buffers.current,
+                 $default = ctx.window.buffers.current,
                  $history = "buffer");
         var completer = all_word_completer(
             $completions = function (visitor) {
-                ctx.frame.buffers.for_each(visitor);
+                ctx.window.buffers.for_each(visitor);
             },
             $get_string = function (x) {
                 return x.name;
@@ -225,7 +225,7 @@ I.b = interactive_method(
                 return x.title;
             },
             $complete_blank);
-        ctx.frame.minibuffer.read(
+        ctx.window.minibuffer.read(
             $prompt = arguments.$prompt,
             $history = arguments.$history,
             $completer = completer,
@@ -236,39 +236,39 @@ I.b = interactive_method(
 
 I.cwd = interactive_method(
     $sync = function (ctx) {
-        return ctx.frame.buffers.current.cwd;
+        return ctx.window.buffers.current.cwd;
     });
 
-function buffer_next (frame, count)
+function buffer_next (window, count)
 {
-    var index = frame.buffers.selected_index;
-    var total = frame.buffers.count;
+    var index = window.buffers.selected_index;
+    var total = window.buffers.count;
     index = (index + count) % total;
     if (index < 0)
         index += total;
-    frame.buffers.current = frame.buffers.get_buffer(index);
+    window.buffers.current = window.buffers.get_buffer(index);
 }
 interactive("buffer-next",
             "Switch to the next buffer.",
-            buffer_next, I.current_frame, I.p);
+            buffer_next, I.current_window, I.p);
 interactive("buffer-previous",
             "Switch to the previous buffer.",
-            buffer_next, I.current_frame, I.bind(function (x) {return -x;}, I.p));
+            buffer_next, I.current_window, I.bind(function (x) {return -x;}, I.p));
 
 
-function switch_to_buffer (frame, buffer)
+function switch_to_buffer (window, buffer)
 {
     if (buffer && !buffer.dead)
-        frame.buffers.current = buffer;
+        window.buffers.current = buffer;
 }
 interactive("switch-to-buffer",
             "Switch to a buffer specified in the minibuffer.",
             switch_to_buffer,
-            I.current_frame,
+            I.current_window,
             I.b($prompt = "Switch to buffer:",
-                $default = I.bind(function(frame) {
-                        return frame.buffers.get_buffer((frame.buffers.selected_index + 1) % frame.buffers.count);
-                    }, I.current_frame)));
+                $default = I.bind(function(window) {
+                        return window.buffers.get_buffer((window.buffers.selected_index + 1) % window.buffers.count);
+                    }, I.current_window)));
 
 /* USER PREFERENCE */
 /* If this is set to true, kill-buffer can kill the last remaining
@@ -279,10 +279,10 @@ function kill_buffer(buffer)
 {
     if (!buffer)
         return;
-    var buffers = buffer.frame.buffers;
+    var buffers = buffer.window.buffers;
     if (buffers.count == 1 && buffer == buffers.current) {
         if (can_kill_last_buffer) {
-            delete_frame(buffer.frame);
+            delete_window(buffer.window);
             return;
         }
         else

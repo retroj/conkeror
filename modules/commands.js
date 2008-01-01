@@ -44,13 +44,13 @@ interactive("quit",
             quit);
 
 
-function show_conkeror_version (frame)
+function show_conkeror_version (window)
 {
-    frame.minibuffer.message (conkeror.version);
+    window.minibuffer.message (conkeror.version);
 }
 interactive ("conkeror-version",
              "Show version information for Conkeror.",
-             show_conkeror_version, I.current_frame);
+             show_conkeror_version, I.current_window);
 
 /* FIXME: maybe this should be supported for non-browser buffers */
 function scrollHorizComplete (buffer, n)
@@ -59,26 +59,26 @@ function scrollHorizComplete (buffer, n)
     w.scrollTo (n > 0 ? w.scrollMaxX : 0, w.scrollY);
 }
 interactive("beginning-of-line",
-            "Scroll the current frame all the way to the left.",
+            "Scroll the current window all the way to the left.",
             scrollHorizComplete, I.current_buffer(browser_buffer), -1);
 
 interactive("end-of-line",
             "Scroll the current frame all the way to the right.",
             scrollHorizComplete, I.current_buffer(browser_buffer), 1);
 
-interactive("make-frame-command",
-            "Make a new frame.",
-            make_frame,
+interactive("make-window-command",
+            "Make a new window.",
+            make_window,
             $load = I.bind(function(){return homepage;}),
             $cwd = I.cwd);
 
-function delete_frame (frame)
+function delete_window (window)
 {
-    frame.window.close();
+    window.window.close();
 }
-interactive("delete-frame",
-            "Delete the current frame.",
-            delete_frame, I.current_frame);
+interactive("delete-window",
+            "Delete the current window.",
+            delete_window, I.current_window);
 
 interactive("jsconsole",
             "Open the JavaScript console.",
@@ -89,25 +89,25 @@ interactive("jsconsole",
 // Copy the contents of the X11 clipboard to ours. This is a cheap
 // hack because it seems impossible to just always yank from the X11
 // clipboard. So you have to manually pull it.
-function yankToClipboard (frame)
+function yankToClipboard (window)
 {
     var str = readFromClipboard();
     var clipid = Components.interfaces.nsIClipboard;
     const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
         .getService(Components.interfaces.nsIClipboardHelper);
     gClipboardHelper.copyString(str);
-    frame.message("Pulled '" + str + "'");
+    window.message("Pulled '" + str + "'");
 }
-interactive("yank-to-clipboard", yankToClipboard, I.current_frame);
+interactive("yank-to-clipboard", yankToClipboard, I.current_window);
 
-function meta_x (frame, prefix, command)
+function meta_x (window, prefix, command)
 {
-    call_interactively({frame: frame, prefix_argument: prefix}, command);
+    call_interactively({window: window, prefix_argument: prefix}, command);
 }
 interactive("execute-extended-command",
             "Execute a Conkeror command specified in the minibuffer.",
             meta_x,
-            I.current_frame, I.P,
+            I.current_window, I.P,
             I.C($prompt = I.bind(function (prefix) {
                         var prompt = "";
                         if (prefix == null)
@@ -129,7 +129,7 @@ function goDoCommand (buffer, command)
     try {
         buffer.do_command(command);
     } catch (e) {
-        buffer.frame.minibuffer.message ("goDoCommand ("+command+"): "+e);
+        buffer.window.minibuffer.message ("goDoCommand ("+command+"): "+e);
     }
 }
 interactive("cmd_beginLine", goDoCommand, I.current_buffer(browser_buffer), 'cmd_beginLine');
@@ -189,12 +189,12 @@ interactive("cmd_scrollRight", doCommandNTimes, I.current_buffer(browser_buffer)
 interactive("cmd_paste", doCommandNTimes, I.current_buffer(browser_buffer), I.p, 'cmd_paste');
 
 /*
-function describe_bindings (frame, prefix)
+function describe_bindings (window, prefix)
 {
-    var new_frame = open_url_in(frame, prefix, "about:blank");
-    new_frame.setTimeout(genAllBindings, 0, new_frame);
+    var new_window = open_url_in(window, prefix, "about:blank");
+    new_window.setTimeout(genAllBindings, 0, new_window);
 }
-interactive("describe-bindings", describe_bindings, I.current_frame, I.p);
+interactive("describe-bindings", describe_bindings, I.current_window, I.p);
 */
 
 function get_link_text()
@@ -248,19 +248,19 @@ interactive("source",
             "Load a JavaScript file.",
             function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 
-function reinit (frame, fn)
+function reinit (window, fn)
 {
   try {
     load_rc (fn);
-    frame.message ("loaded \""+fn+"\"");
+    window.message ("loaded \""+fn+"\"");
   } catch (e) {
-    frame.message ("failed to load \""+fn+"\"");
+    window.message ("failed to load \""+fn+"\"");
   }
 }
 
 interactive ("reinit",
              "Reload the Conkeror rc file.",
-             reinit, I.current_frame, I.pref("conkeror.rcfile"));
+             reinit, I.current_window, I.pref("conkeror.rcfile"));
 
 interactive("help-page",
             "Open the Conkeror help page.",
@@ -290,14 +290,14 @@ function univ_arg_to_number(prefix, default_value)
     return prefix;
 }
 
-function eval_expression (frame, s)
+function eval_expression (window, s)
 {
-    eval.call(frame, s);
+    eval.call(window, s);
 }
 interactive("eval-expression",
             "Evaluate JavaScript statements.",
             eval_expression,
-            I.current_frame, I.s($prompt = "Eval:", $history = "eval-expression"));
+            I.current_window, I.s($prompt = "Eval:", $history = "eval-expression"));
 
 
 // our little hack. Add a big blank chunk to the bottom of the
@@ -367,18 +367,18 @@ interactive("print-buffer",
             "Print the currently loaded page.",
             print_buffer, I.current_buffer(browser_buffer));
 
-function view_partial_source (frame, charset, selection) {
+function view_partial_source (window, charset, selection) {
     if (charset) { charset = "charset=" + charset; }
-    frame.window.openDialog("chrome://global/content/viewPartialSource.xul",
+    window.window.openDialog("chrome://global/content/viewPartialSource.xul",
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, selection, 'selection');
 }
-interactive ('view-partial-source', view_partial_source, I.current_frame, I.content_charset, I.content_selection);
+interactive ('view-partial-source', view_partial_source, I.current_window, I.content_charset, I.content_selection);
 
 
-function  view_mathml_source (frame, charset, target) {
+function  view_mathml_source (window, charset, target) {
     if (charset) { charset = "charset=" + charset; }
-    frame.window.openDialog("chrome://global/content/viewPartialSource.xul",
+    window.window.openDialog("chrome://global/content/viewPartialSource.xul",
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, target, 'mathml');
 }

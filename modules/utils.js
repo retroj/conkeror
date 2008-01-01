@@ -112,9 +112,9 @@ string_hashmap.prototype = {
  * page_title, returns: "Page title - Conkeror".  Otherwise, it
  * returns just: "Conkeror".
  */
-function default_title_formatter (frame)
+function default_title_formatter (window)
 {
-    var page_title = frame.buffers.current.title;
+    var page_title = window.buffers.current.title;
 
     if (page_title && page_title.length > 0)
         return page_title + " - Conkeror";
@@ -124,24 +124,24 @@ function default_title_formatter (frame)
 
 var title_format_fn = null;
 
-function set_window_title (frame)
+function set_window_title (window)
 {
-    frame.document.title = title_format_fn(frame);
+    window.document.title = title_format_fn(window);
 }
 
 function init_window_title ()
 {
     title_format_fn = default_title_formatter;
 
-    add_hook("frame_initialize_late_hook", set_window_title);
+    add_hook("window_initialize_late_hook", set_window_title);
     add_hook("current_browser_buffer_location_change_hook",
              function (buffer) {
-                 set_window_title(buffer.frame);
+                 set_window_title(buffer.window);
              });
-    add_hook("select_buffer_hook", function (buffer) { set_window_title(buffer.frame); }, true);
+    add_hook("select_buffer_hook", function (buffer) { set_window_title(buffer.window); }, true);
     add_hook("current_buffer_title_change_hook",
              function (buffer) {
-                 set_window_title(buffer.frame);
+                 set_window_title(buffer.window);
              });
 }
 ///
@@ -206,11 +206,11 @@ function get_document_content_disposition (document_o)
 }
 
 
-function set_focus_no_scroll(frame, element)
+function set_focus_no_scroll(window, element)
 {
-    frame.document.commandDispatcher.suppressFocusScroll = true;
+    window.document.commandDispatcher.suppressFocusScroll = true;
     element.focus();
-    frame.document.commandDispatcher.suppressFocusScroll = false;
+    window.document.commandDispatcher.suppressFocusScroll = false;
 }
 
 
@@ -303,9 +303,9 @@ const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const MATHML_NS = "http://www.w3.org/1998/Math/MathML";
 const XLINK_NS = "http://www.w3.org/1999/xlink";
 
-function create_XUL(frame, tag_name)
+function create_XUL(window, tag_name)
 {
-    return frame.document.createElementNS(XUL_NS, tag_name);
+    return window.document.createElementNS(XUL_NS, tag_name);
 }
 
 
@@ -330,11 +330,11 @@ function shell_quote(str) {
     return s;
 }
 
-function get_buffer_from_content_window(frame, win) {
-    var count = frame.buffers.count;
+function get_buffer_from_frame(window, frame) {
+    var count = window.buffers.count;
     for (var i = 0; i < count; ++i) {
-        var b = frame.buffers.get_buffer(i);
-        if (b instanceof browser_buffer && b.content_window == win)
+        var b = window.buffers.get_buffer(i);
+        if (b instanceof browser_buffer && b.content_window == frame)
             return b;
     }
     return null;

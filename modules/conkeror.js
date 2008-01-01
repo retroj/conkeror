@@ -16,14 +16,13 @@ require("process.js");
 require("mime.js");
 require("keyboard.js");
 require("buffer.js");
-require("frame.js");
+require("window.js");
 require("popup.js");
 require("daemon-mode.js");
 require("mode-line.js");
 require("save.js");
 
 require("commands.js"); // depends: interactive.js
-require("frameset.js"); // depends interactive.js
 require("webjump.js"); // depends: interactive.js
 
 require("browser_zoom.js");

@@ -15,8 +15,8 @@ define_key(default_global_keymap, "C-x C-c", "quit");
 define_key(default_global_keymap, "C-x b", "switch-to-buffer");
 define_key(default_global_keymap, "C-x k", "kill-buffer");
 define_key(default_global_keymap, "C-x 5 f", "find-url-other-buffer");
-define_key(default_global_keymap, "C-x 5 2", "make-frame-command");
-define_key(default_global_keymap, "C-x 5 0", "delete-frame");
+define_key(default_global_keymap, "C-x 5 2", "make-window-command");
+define_key(default_global_keymap, "C-x 5 0", "delete-window");
 
 define_key(default_global_keymap, "C-h", default_help_keymap);
 define_key(default_help_keymap, "b", "describe-bindings");

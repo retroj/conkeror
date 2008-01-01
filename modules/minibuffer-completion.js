@@ -70,9 +70,9 @@ function find_complete_match(matches, val)
 }
 
 
-function minibuffer_complete_old (frame)
+function minibuffer_complete_old (window)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof completion_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -109,12 +109,12 @@ function minibuffer_complete_old (frame)
         m._set_selection(lcp);
     }
 }
-interactive("minibuffer-complete-old", minibuffer_complete_old, I.current_frame);
+interactive("minibuffer-complete-old", minibuffer_complete_old, I.current_window);
 
 
-function minibuffer_accept_match (frame)
+function minibuffer_accept_match (window)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof completion_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -132,7 +132,7 @@ function minibuffer_accept_match (frame)
         m._set_selection();
     }
 }
-interactive("minibuffer-accept-match", minibuffer_accept_match, I.current_frame);
+interactive("minibuffer-accept-match", minibuffer_accept_match, I.current_window);
 
 
 /* FIXME: Change this to use a binary search */
@@ -159,14 +159,14 @@ function find_longest_common_prefix(matches)
     return Math.min(a.length,b.length);
 }
 
-function minibuffer_insert_character_complete(frame, n, event)
+function minibuffer_insert_character_complete(window, n, event)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof completion_minibuffer_state))
         throw "Invalid minibuffer state";
 
-    minibuffer_insert_character(frame, n, event);
+    minibuffer_insert_character(window, n, event);
 
     // Check for completions
 
@@ -178,7 +178,7 @@ function minibuffer_insert_character_complete(frame, n, event)
     m._set_selection(entered_text.length);
 }
 interactive("minibuffer-insert-character-complete", minibuffer_insert_character_complete,
-            I.current_frame, I.p, I.e);
+            I.current_window, I.p, I.e);
 
 
 

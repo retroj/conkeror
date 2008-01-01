@@ -80,26 +80,26 @@ add_hook("browser_buffer_focus_change_hook", function (buffer) {
         }
     });
 
-function browser_input_minibuffer_status(frame) {
-    this.frame = frame;
-    var element = create_XUL(frame, "label");
+function browser_input_minibuffer_status(window) {
+    this.window = window;
+    var element = create_XUL(window, "label");
     element.setAttribute("id", "minibuffer-input-status");
     element.collapsed = true;
     element.setAttribute("class", "minibuffer");
-    var insert_before = frame.document.getElementById("minibuffer-prompt");
+    var insert_before = window.document.getElementById("minibuffer-prompt");
     insert_before.parentNode.insertBefore(element, insert_before);
     this.element = element;
-    this.select_buffer_hook_func = add_hook.call(frame, "select_buffer_hook", method_caller(this, this.update));
-    this.mode_change_hook_func = add_hook.call(frame, "current_browser_buffer_input_mode_change_hook",
+    this.select_buffer_hook_func = add_hook.call(window, "select_buffer_hook", method_caller(this, this.update));
+    this.mode_change_hook_func = add_hook.call(window, "current_browser_buffer_input_mode_change_hook",
                                                method_caller(this, this.update));
     this.update();
 }
 browser_input_minibuffer_status.prototype = {
     update : function () {
-        var buf = this.frame.buffers.current;
+        var buf = this.window.buffers.current;
         if (buf.browser_buffer_normal_input_mode_enabled) {
             this.element.collapsed = true;
-            this.frame.minibuffer.element.className = "";
+            this.window.minibuffer.element.className = "";
         } else {
             var name = "";
             var className = null;
@@ -122,38 +122,38 @@ browser_input_minibuffer_status.prototype = {
 
             this.element.value = name;
             this.element.collapsed = false;
-            this.frame.minibuffer.element.className = "minibuffer-" + className + "-input-mode";
+            this.window.minibuffer.element.className = "minibuffer-" + className + "-input-mode";
         }
     },
     uninstall : function () {
-        remove_hook.call(frame, "select_buffer_hook", this.select_buffer_hook_func);
-        remove_hook.call(frame, "current_browser_buffer_input_mode_change_hook",
+        remove_hook.call(window, "select_buffer_hook", this.select_buffer_hook_func);
+        remove_hook.call(window, "current_browser_buffer_input_mode_change_hook",
                          method_caller(this, this.update), this.mode_change_hook_func);
         this.element.parentNode.removeChild(this.element);
     }
 };
 
-function browser_input_minibuffer_status_install(frame) {
-    if (frame.browser_input_minibuffer_status)
-        throw new Error("browser input minibuffer status already initialized for frame");
-    frame.browser_input_minibuffer_status = new browser_input_minibuffer_status(frame);
+function browser_input_minibuffer_status_install(window) {
+    if (window.browser_input_minibuffer_status)
+        throw new Error("browser input minibuffer status already initialized for window");
+    window.browser_input_minibuffer_status = new browser_input_minibuffer_status(window);
 }
 
-function browser_input_minibuffer_status_uninstall(frame) {
-    if (frame.browser_input_minibuffer_status)
+function browser_input_minibuffer_status_uninstall(window) {
+    if (window.browser_input_minibuffer_status)
         return;
-    frame.browser_input_minibuffer_status.uninstall();
-    delete frame.browser_input_minibuffer_status;
+    window.browser_input_minibuffer_status.uninstall();
+    delete window.browser_input_minibuffer_status;
 }
 
 define_global_mode("browser_input_minibuffer_status_mode",
                    function () { // enable
-                       add_hook("frame_initialize_hook", browser_input_minibuffer_status_install);
-                       for_each_frame(browser_input_minibuffer_status_install);
+                       add_hook("window_initialize_hook", browser_input_minibuffer_status_install);
+                       for_each_window(browser_input_minibuffer_status_install);
                    },
                    function () { // disable
-                       remove_hook("frame_initialize_hook", browser_input_minibuffer_status_install);
-                       for_each_frame(browser_input_minibuffer_status_uninstall);
+                       remove_hook("window_initialize_hook", browser_input_minibuffer_status_install);
+                       for_each_window(browser_input_minibuffer_status_uninstall);
                    });
 browser_input_minibuffer_status_mode(true);
 

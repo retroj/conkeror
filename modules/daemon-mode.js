@@ -37,7 +37,7 @@ require_later("command-line.js");
 call_after_load("command-line.js", function () {
         command_line_param_handler("daemon", true, function () {
                 daemon_mode(true);
-                var frame = make_frame();
-                frame.setTimeout(function() { frame.close(); }, 0);
+                var window = make_window();
+                window.setTimeout(function() { window.close(); }, 0);
             });
     });

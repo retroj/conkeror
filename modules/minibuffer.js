@@ -1,7 +1,7 @@
 
-function exit_minibuffer(frame)
+function exit_minibuffer(window)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -52,11 +52,11 @@ function exit_minibuffer(frame)
             s.callback(val);
     }
 }
-interactive("exit-minibuffer", exit_minibuffer, I.current_frame);
+interactive("exit-minibuffer", exit_minibuffer, I.current_window);
 
-function minibuffer_history_next (frame)
+function minibuffer_history_next (window)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -67,11 +67,11 @@ function minibuffer_history_next (frame)
     m._input_text = s.history[s.history_index];
     m._set_selection();
 }
-interactive("minibuffer-history-next", minibuffer_history_next, I.current_frame);
+interactive("minibuffer-history-next", minibuffer_history_next, I.current_window);
 
-function minibuffer_history_previous (frame)
+function minibuffer_history_previous (window)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -82,11 +82,11 @@ function minibuffer_history_previous (frame)
     m._input_text = s.history[s.history_index];
     m._set_selection();
 }
-interactive("minibuffer-history-previous", minibuffer_history_previous, I.current_frame);
+interactive("minibuffer-history-previous", minibuffer_history_previous, I.current_window);
 
-function minibuffer_abort (frame)
+function minibuffer_abort (window)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -94,11 +94,11 @@ function minibuffer_abort (frame)
         s.abort_callback();
     m.pop_state();
 }
-interactive("minibuffer-abort", minibuffer_abort, I.current_frame);
+interactive("minibuffer-abort", minibuffer_abort, I.current_window);
 
-function minibuffer_do_command(frame, command) {
+function minibuffer_do_command(window, command) {
     try {
-        var m = frame.minibuffer;
+        var m = window.minibuffer;
         if (m._input_mode_enabled)
         {
             m._ensure_input_area_showing();
@@ -109,7 +109,7 @@ function minibuffer_do_command(frame, command) {
             var s = m.current_state;
             if ((s instanceof text_entry_minibuffer_state))
             {
-                s.update_completions(frame);
+                s.update_completions(window);
             }
         }
     } catch (e)
@@ -119,59 +119,59 @@ function minibuffer_do_command(frame, command) {
 }
 
 /* FIXME: These should all be defined more compactly using a loop */
-interactive("minibuffer-cmd_beginLine", minibuffer_do_command, I.current_frame, 'cmd_beginLine');
-interactive("minibuffer-cmd_copy", minibuffer_do_command, I.current_frame, 'cmd_copy');
-interactive("minibuffer-cmd_copyOrDelete", minibuffer_do_command, I.current_frame, 'cmd_copyOrDelete');
-interactive("minibuffer-cmd_cut", minibuffer_do_command, I.current_frame, 'cmd_cut');
-interactive("minibuffer-cmd_cutOrDelete", minibuffer_do_command, I.current_frame, 'cmd_cutOrDelete');
-interactive("minibuffer-cmd_deleteToBeginningOfLine", minibuffer_do_command, I.current_frame, 'cmd_deleteToBeginningOfLine');
-interactive("minibuffer-cmd_deleteToEndOfLine", minibuffer_do_command, I.current_frame, 'cmd_deleteToEndOfLine');
-interactive("minibuffer-cmd_endLine", minibuffer_do_command, I.current_frame, 'cmd_endLine');
-interactive("minibuffer-cmd_moveTop", minibuffer_do_command, I.current_frame, 'cmd_moveTop');
-interactive("minibuffer-cmd_moveBottom", minibuffer_do_command, I.current_frame, 'cmd_moveBottom');
-interactive("minibuffer-cmd_selectAll", minibuffer_do_command, I.current_frame, 'cmd_selectAll');
-interactive("minibuffer-cmd_selectBeginLine", minibuffer_do_command, I.current_frame, 'cmd_selectBeginLine');
-interactive("minibuffer-cmd_selectBottom", minibuffer_do_command, I.current_frame, 'cmd_selectBottom');
-interactive("minibuffer-cmd_selectEndLine", minibuffer_do_command, I.current_frame, 'cmd_selectEndLine');
-interactive("minibuffer-cmd_selectTop", minibuffer_do_command, I.current_frame, 'cmd_selectTop');
-interactive("minibuffer-cmd_scrollBeginLine", minibuffer_do_command, I.current_frame, 'cmd_scrollBeginLine');
-interactive("minibuffer-cmd_scrollEndLine", minibuffer_do_command, I.current_frame, 'cmd_scrollEndLine');
-interactive("minibuffer-cmd_scrollTop", minibuffer_do_command, I.current_frame, 'cmd_scrollTop');
-interactive("minibuffer-cmd_scrollBottom", minibuffer_do_command, I.current_frame, 'cmd_scrollBottom');
+interactive("minibuffer-cmd_beginLine", minibuffer_do_command, I.current_window, 'cmd_beginLine');
+interactive("minibuffer-cmd_copy", minibuffer_do_command, I.current_window, 'cmd_copy');
+interactive("minibuffer-cmd_copyOrDelete", minibuffer_do_command, I.current_window, 'cmd_copyOrDelete');
+interactive("minibuffer-cmd_cut", minibuffer_do_command, I.current_window, 'cmd_cut');
+interactive("minibuffer-cmd_cutOrDelete", minibuffer_do_command, I.current_window, 'cmd_cutOrDelete');
+interactive("minibuffer-cmd_deleteToBeginningOfLine", minibuffer_do_command, I.current_window, 'cmd_deleteToBeginningOfLine');
+interactive("minibuffer-cmd_deleteToEndOfLine", minibuffer_do_command, I.current_window, 'cmd_deleteToEndOfLine');
+interactive("minibuffer-cmd_endLine", minibuffer_do_command, I.current_window, 'cmd_endLine');
+interactive("minibuffer-cmd_moveTop", minibuffer_do_command, I.current_window, 'cmd_moveTop');
+interactive("minibuffer-cmd_moveBottom", minibuffer_do_command, I.current_window, 'cmd_moveBottom');
+interactive("minibuffer-cmd_selectAll", minibuffer_do_command, I.current_window, 'cmd_selectAll');
+interactive("minibuffer-cmd_selectBeginLine", minibuffer_do_command, I.current_window, 'cmd_selectBeginLine');
+interactive("minibuffer-cmd_selectBottom", minibuffer_do_command, I.current_window, 'cmd_selectBottom');
+interactive("minibuffer-cmd_selectEndLine", minibuffer_do_command, I.current_window, 'cmd_selectEndLine');
+interactive("minibuffer-cmd_selectTop", minibuffer_do_command, I.current_window, 'cmd_selectTop');
+interactive("minibuffer-cmd_scrollBeginLine", minibuffer_do_command, I.current_window, 'cmd_scrollBeginLine');
+interactive("minibuffer-cmd_scrollEndLine", minibuffer_do_command, I.current_window, 'cmd_scrollEndLine');
+interactive("minibuffer-cmd_scrollTop", minibuffer_do_command, I.current_window, 'cmd_scrollTop');
+interactive("minibuffer-cmd_scrollBottom", minibuffer_do_command, I.current_window, 'cmd_scrollBottom');
 
-interactive("minibuffer-cmd_charNext", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_charNext');
-interactive("minibuffer-cmd_charPrevious", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_charPrevious');
-interactive("minibuffer-cmd_deleteCharBackward", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_deleteCharBackward');
-interactive("minibuffer-cmd_deleteCharForward", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_deleteCharForward');
-interactive("minibuffer-cmd_deleteWordBackward", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_deleteWordBackward');
-interactive("minibuffer-cmd_deleteWordForward", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_deleteWordForward');
-interactive("minibuffer-cmd_lineNext", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_lineNext');
-interactive("minibuffer-cmd_linePrevious", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_linePrevious');
-interactive("minibuffer-cmd_movePageDown", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_movePageDown');
-interactive("minibuffer-cmd_movePageUp", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_movePageUp');
-interactive("minibuffer-cmd_redo", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_redo');
-interactive("minibuffer-cmd_selectCharNext", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectCharNext');
-interactive("minibuffer-cmd_selectCharPrevious", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectCharPrevious');
-interactive("minibuffer-cmd_selectLineNext", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectLineNext');
-interactive("minibuffer-cmd_selectLinePrevious", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectLinePrevious');
-interactive("minibuffer-cmd_selectPageDown", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectPageDown');
-interactive("minibuffer-cmd_selectPageUp", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectPageUp');
-interactive("minibuffer-cmd_selectWordNext", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectWordNext');
-interactive("minibuffer-cmd_selectWordPrevious", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_selectWordPrevious');
-interactive("minibuffer-cmd_undo", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_undo');
-interactive("minibuffer-cmd_wordNext", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_wordNext');
-interactive("minibuffer-cmd_wordPrevious", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_wordPrevious');
-interactive("minibuffer-cmd_scrollPageUp", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_scrollPageUp');
-interactive("minibuffer-cmd_scrollPageDown", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_scrollPageDown');
-interactive("minibuffer-cmd_scrollLineUp", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_scrollLineUp');
-interactive("minibuffer-cmd_scrollLineDown", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_scrollLineDown');
-interactive("minibuffer-cmd_scrollLeft", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_scrollLeft');
-interactive("minibuffer-cmd_scrollRight", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_scrollRight');
-interactive("minibuffer-cmd_paste", do_N_times, minibuffer_do_command, I.p, I.current_frame, 'cmd_paste');
+interactive("minibuffer-cmd_charNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_charNext');
+interactive("minibuffer-cmd_charPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_charPrevious');
+interactive("minibuffer-cmd_deleteCharBackward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteCharBackward');
+interactive("minibuffer-cmd_deleteCharForward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteCharForward');
+interactive("minibuffer-cmd_deleteWordBackward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteWordBackward');
+interactive("minibuffer-cmd_deleteWordForward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteWordForward');
+interactive("minibuffer-cmd_lineNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_lineNext');
+interactive("minibuffer-cmd_linePrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_linePrevious');
+interactive("minibuffer-cmd_movePageDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_movePageDown');
+interactive("minibuffer-cmd_movePageUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_movePageUp');
+interactive("minibuffer-cmd_redo", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_redo');
+interactive("minibuffer-cmd_selectCharNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectCharNext');
+interactive("minibuffer-cmd_selectCharPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectCharPrevious');
+interactive("minibuffer-cmd_selectLineNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectLineNext');
+interactive("minibuffer-cmd_selectLinePrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectLinePrevious');
+interactive("minibuffer-cmd_selectPageDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectPageDown');
+interactive("minibuffer-cmd_selectPageUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectPageUp');
+interactive("minibuffer-cmd_selectWordNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectWordNext');
+interactive("minibuffer-cmd_selectWordPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectWordPrevious');
+interactive("minibuffer-cmd_undo", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_undo');
+interactive("minibuffer-cmd_wordNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_wordNext');
+interactive("minibuffer-cmd_wordPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_wordPrevious');
+interactive("minibuffer-cmd_scrollPageUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollPageUp');
+interactive("minibuffer-cmd_scrollPageDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollPageDown');
+interactive("minibuffer-cmd_scrollLineUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollLineUp');
+interactive("minibuffer-cmd_scrollLineDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollLineDown');
+interactive("minibuffer-cmd_scrollLeft", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollLeft');
+interactive("minibuffer-cmd_scrollRight", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollRight');
+interactive("minibuffer-cmd_paste", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_paste');
 
-function minibuffer_insert_character(frame, n, event)
+function minibuffer_insert_character(window, n, event)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof basic_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -189,10 +189,10 @@ function minibuffer_insert_character(frame, n, event)
     m._set_selection(new_sel, new_sel);
 
     if (s instanceof text_entry_minibuffer_state)
-        s.update_completions(frame);
+        s.update_completions(window);
 }
 interactive("minibuffer-insert-character", minibuffer_insert_character,
-            I.current_frame, I.p, I.e);
+            I.current_window, I.p, I.e);
 
 var minibuffer_history_data = new string_hashmap();
 
@@ -339,16 +339,16 @@ completions_tree_view.prototype = {
 // inherit from basic_minibuffer_state
 text_entry_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
-    load : function (frame) {
+    load : function (window) {
 
         if (this.completer) {
             // Create completion display element if needed
             if (!this.completion_element)
             {
-                var insert_before = frame.document.getElementById("minibuffer");
-                var tree = create_XUL(frame, "tree");
+                var insert_before = window.document.getElementById("minibuffer");
+                var tree = create_XUL(window, "tree");
                 var s = this;
-                tree.addEventListener("select", function () { s.completion_selected(frame); }, true, false);
+                tree.addEventListener("select", function () { s.completion_selected(window); }, true, false);
                 tree.setAttribute("class", "completions");
 
                 tree.setAttribute("rows", "8");
@@ -358,15 +358,15 @@ text_entry_minibuffer_state.prototype = {
                 tree.setAttribute("hidecolumnpicker", "true");
                 tree.setAttribute("hideheader", "true");
 
-                var treecols = create_XUL(frame, "treecols");
+                var treecols = create_XUL(window, "treecols");
                 tree.appendChild(treecols);
-                var treecol = create_XUL(frame, "treecol");
+                var treecol = create_XUL(window, "treecol");
                 treecol.setAttribute("flex", "1");
                 treecols.appendChild(treecol);
-                treecol = create_XUL(frame, "treecol");
+                treecol = create_XUL(window, "treecol");
                 treecol.setAttribute("flex", "1");
                 treecols.appendChild(treecol);
-                tree.appendChild(create_XUL(frame, "treechildren"));
+                tree.appendChild(create_XUL(window, "treechildren"));
 
                 insert_before.parentNode.insertBefore(tree, insert_before);
                 tree.view = new completions_tree_view(this);
@@ -387,18 +387,18 @@ text_entry_minibuffer_state.prototype = {
                         i = 0;
                     this.completions_display_element.currentIndex = i;
                     this.completions_display_element.treeBoxObject.ensureRowIsVisible(i);
-                    this.completion_selected(frame); // This is a no-op, but it is done for consistency
+                    this.completion_selected(window); // This is a no-op, but it is done for consistency
                 }
             }
         }
     },
 
-    unload : function (frame) {
+    unload : function (window) {
         if (this.completions_display_element)
             this.completions_display_element.setAttribute("collapsed", "true");
     },
 
-    destroy : function (frame) {
+    destroy : function (window) {
         var el = this.completions_display_element;
         if (el)
         {
@@ -408,10 +408,10 @@ text_entry_minibuffer_state.prototype = {
     },
 
     /* FIXME: this should perhaps be called "handle_state_change" or something */
-    update_completions : function (frame) {
+    update_completions : function (window) {
         /* FIXME: need to use delay */
         if (this.completer) {
-            var m = frame.minibuffer;
+            var m = window.minibuffer;
             this.completions = this.completer(m._input_text, m._selection_start);
 
             if (m.current_state == this)
@@ -445,7 +445,7 @@ text_entry_minibuffer_state.prototype = {
         }
     },
 
-    completion_selected : function (frame) {
+    completion_selected : function (window) {
         /**
          * When a completion is selected, apply it to the input text
          * if a match is not "required"; otherwise, the completion is
@@ -453,7 +453,7 @@ text_entry_minibuffer_state.prototype = {
          */
         if (this.completions_valid && !this.match_required)
         {
-            var m = frame.minibuffer;
+            var m = window.minibuffer;
             var c = this.completions;
 
             var sel_c = c.data[this.completions_display_element.currentIndex];
@@ -462,9 +462,9 @@ text_entry_minibuffer_state.prototype = {
     }
 };
 
-function minibuffer_complete(frame)
+function minibuffer_complete(window)
 {
-    var m = frame.minibuffer;
+    var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
@@ -498,31 +498,31 @@ function minibuffer_complete(frame)
     {
         e.currentIndex = new_index;
         s.completions_display_element.treeBoxObject.ensureRowIsVisible(new_index);
-        s.completion_selected(frame);
+        s.completion_selected(window);
     }
 }
-interactive("minibuffer-complete", minibuffer_complete, I.current_frame);
+interactive("minibuffer-complete", minibuffer_complete, I.current_window);
 
 /* USER PREFERENCE */
 var minibuffer_input_mode_show_message_timeout = 1000;
 
-function minibuffer (frame)
+function minibuffer (window)
 {
-    this.element = frame.document.getElementById("minibuffer");
-    this.output_element = frame.document.getElementById("minibuffer-message");
-    this.input_prompt_element = frame.document.getElementById("minibuffer-prompt");
-    this.input_element = frame.document.getElementById("minibuffer-input");
+    this.element = window.document.getElementById("minibuffer");
+    this.output_element = window.document.getElementById("minibuffer-message");
+    this.input_prompt_element = window.document.getElementById("minibuffer-prompt");
+    this.input_element = window.document.getElementById("minibuffer-input");
     var m = this;
     this.input_element.inputField.addEventListener("blur", function() {
             if (m._input_mode_enabled && !m._showing_message)
             {
-                frame.setTimeout(
+                window.setTimeout(
                     function(){
                         m.input_element.focus();
                     }, 0);
             }
         }, false);
-    this.frame = frame;
+    this.window = window;
     this.last_message = "";
     this.states = [];
 }
@@ -584,7 +584,7 @@ minibuffer.prototype = {
         this._save_state();
         this.states.push(state);
         this._restore_state();
-        state.load(this.frame);
+        state.load(this.window);
     },
 
     pop_state : function (restore_focus) {
@@ -608,7 +608,7 @@ minibuffer.prototype = {
     _ensure_input_area_showing : function () {
         if (this._showing_message)
         {
-            this.frame.clearTimeout(this._message_timer_ID);
+            this.window.clearTimeout(this._message_timer_ID);
             this._message_timer_ID = null;
             this._showing_message = false;
             this._switch_to_input_mode();
@@ -618,13 +618,13 @@ minibuffer.prototype = {
     /* This must only be called if _input_mode_enabled is true */
     _ensure_message_area_showing : function () {
         if (this._showing_message)
-            this.frame.clearTimeout(this._message_timer_ID);
+            this.window.clearTimeout(this._message_timer_ID);
         else {
             this._showing_message = true;
             this._switch_to_message_mode();
         }
         var obj = this;
-        this._message_timer_ID = this.frame.setTimeout(function(){
+        this._message_timer_ID = this.window.setTimeout(function(){
                 obj._ensure_input_area_showing();
             }, minibuffer_input_mode_show_message_timeout);
     },
@@ -643,12 +643,12 @@ minibuffer.prototype = {
         if (s) {
             if (!this._input_mode_enabled)
             {
-                this.saved_focused_window = this.frame.document.commandDispatcher.focusedWindow;
-                this.saved_focused_element = this.frame.document.commandDispatcher.focusedElement;
+                this.saved_focused_window = this.window.document.commandDispatcher.focusedWindow;
+                this.saved_focused_element = this.window.document.commandDispatcher.focusedElement;
                 this._input_mode_enabled = true;
                 this._switch_to_input_mode();
             }
-            this.frame.keyboard.override_keymap = s.keymap;
+            this.window.keyboard.override_keymap = s.keymap;
             this._input_text = s.input;
             this.prompt = s.prompt;
             this._set_selection(s.selection_start, s.selection_end);
@@ -659,20 +659,20 @@ minibuffer.prototype = {
                 if (!this._showing_message)
                     this._switch_to_message_mode();
                 else {
-                    this.frame.clearTimeout(this._message_timer_ID);
+                    this.window.clearTimeout(this._message_timer_ID);
                     this._message_timer_ID = null;
                     this._showing_message = false;
                 }
                 if (restore_focus)
                 {
                     if (this.saved_focused_element)
-                        set_focus_no_scroll(this.frame, this.saved_focused_element);
+                        set_focus_no_scroll(this.window, this.saved_focused_element);
                     else if (this.saved_focused_window)
-                        set_focus_no_scroll(this.frame, this.saved_focused_window);
+                        set_focus_no_scroll(this.window, this.saved_focused_window);
                 }
                 this.saved_focused_element = null;
                 this.saved_focused_window = null;
-                this.frame.keyboard.override_keymap = null;
+                this.window.keyboard.override_keymap = null;
             }
         }
     },
@@ -685,7 +685,7 @@ minibuffer.prototype = {
             s.prompt = this.prompt;
             s.selection_start = this._selection_start;
             s.selection_end = this._selection_end;
-            s.unload(this.frame);
+            s.unload(this.window);
         }
     },
 
@@ -701,12 +701,12 @@ minibuffer.prototype = {
     }
 };
 
-function minibuffer_initialize_frame(frame)
+function minibuffer_initialize_window(window)
 {
-    frame.minibuffer = new minibuffer(frame);
+    window.minibuffer = new minibuffer(window);
 }
 
-add_hook("frame_initialize_early_hook", minibuffer_initialize_frame);
+add_hook("window_initialize_early_hook", minibuffer_initialize_window);
 
 /* Note: This is concise, but doesn't seem to be useful in practice,
  * because nothing can be done with the state alone. */
@@ -714,7 +714,7 @@ add_hook("frame_initialize_early_hook", minibuffer_initialize_frame);
 I.minibuffer_state = interactive_method(
     $doc = "Topmost minibuffer state",
     $sync = function (ctx, type) {
-        var s = ctx.frame.minibuffer.current_state;
+        var s = ctx.window.minibuffer.current_state;
         if (!s || (type && !(s instanceof type)))
             throw new Error("Invalid minibuffer state.");
         return s;

@@ -177,8 +177,8 @@ function download_uri_internal (url_o, document_o,
     }
 }
 
-function get_web_navigation_for_window(win) {
-    var ifr = win.QueryInterface(Ci.nsIInterfaceRequestor);
+function get_web_navigation_for_frame(frame) {
+    var ifr = frame.QueryInterface(Ci.nsIInterfaceRequestor);
     return ifr.getInterface(Ci.nsIWebNavigation);
 }
 
@@ -186,8 +186,8 @@ function get_SHEntry_for_document(doc)
 {
     try
     {
-        var win = doc.defaultView;
-        var webNav = get_web_navigation_for_window(win);
+        var frame = doc.defaultView;
+        var webNav = get_web_navigation_for_frame(frame);
         var pageLoader = webNav.QueryInterface(Ci.nsIWebPageDescriptor);
         var desc = pageLoader.currentDescriptor.QueryInterface(Ci.nsISHEntry);
         return desc;

@@ -344,34 +344,34 @@ hints_minibuffer_state.prototype = {
     manager : null,
     typed_string : "",
     typed_number : "",
-    load : function (frame) {
+    load : function (window) {
         if (!this.manager) {
-            var buf = frame.buffers.current;
+            var buf = window.buffers.current;
             this.manager = new hint_manager(buf.content_window, this.xpath_expr,
                                             this.focused_window, this.focused_element);
         }
         this.manager.update_valid_hints();
     },
-    unload : function (frame) {
+    unload : function (window) {
         this.manager.hide_hints();
     },
     destroy : function () {
         this.manager.remove();
     },
-    update_minibuffer : function (frame) {
+    update_minibuffer : function (window) {
         var str = this.typed_string;
         if (this.typed_number.length > 0) {
             str += " #" + this.typed_number;
         }
-        frame.minibuffer._input_text = str;
-        frame.minibuffer._set_selection();
+        window.minibuffer._input_text = str;
+        window.minibuffer._set_selection();
     }
 };
 
 /* USER PREFERENCE */
 var hints_auto_exit_delay = 500;
 
-function hints_handle_character(frame, s, e) {
+function hints_handle_character(window, s, e) {
     /* Check for numbers */
     var ch = String.fromCharCode(e.charCode);
     var auto_exit = false;
@@ -386,7 +386,7 @@ function hints_handle_character(frame, s, e) {
                 auto_exit = true;
             if (num == 0) {
                 if (!s.multiple) {
-                    hints_exit(frame, s);
+                    hints_exit(window, s);
                     return;
                 }
                 auto_exit = true;
@@ -403,19 +403,19 @@ function hints_handle_character(frame, s, e) {
     }
     if (auto_exit) {
         if (this.auto_exit_timer_ID) {
-            frame.clearTimeout(this.auto_exit_timer_ID);
+            window.clearTimeout(this.auto_exit_timer_ID);
         }
-        this.auto_exit_timer_ID = frame.setTimeout(function() { hints_exit(frame, s); },
+        this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
                                                    hints_auto_exit_delay);
     }
-    s.update_minibuffer(frame);
+    s.update_minibuffer(window);
 }
 interactive("hints-handle-character", hints_handle_character,
-            I.current_frame, I.minibuffer_state(hints_minibuffer_state), I.e);
+            I.current_window, I.minibuffer_state(hints_minibuffer_state), I.e);
 
-function hints_backspace(frame, s) {
+function hints_backspace(window, s) {
     if (this.auto_exit_timer_ID) {
-        frame.clearTimeout(this.auto_exit_timer_ID);
+        window.clearTimeout(this.auto_exit_timer_ID);
         this.auto_exit_timer_ID = null;
     }
     if (s.typed_number.length > 0) {
@@ -428,14 +428,14 @@ function hints_backspace(frame, s) {
         s.manager_current_hint_number = -1;
         s.manager.update_valid_hints();
     }
-    s.update_minibuffer(frame);
+    s.update_minibuffer(window);
 }
 interactive("hints-backspace", hints_backspace,
-            I.current_frame, I.minibuffer_state(hints_minibuffer_state));
+            I.current_window, I.minibuffer_state(hints_minibuffer_state));
 
-function hints_next(frame, s, count) {
+function hints_next(window, s, count) {
     if (this.auto_exit_timer_ID) {
-        frame.clearTimeout(this.auto_exit_timer_ID);
+        window.clearTimeout(this.auto_exit_timer_ID);
         this.auto_exit_timer_ID = null;
     }
     s.typed_number = "";
@@ -447,32 +447,32 @@ function hints_next(frame, s, count) {
             cur += vh.length;
         s.manager.select_hint(cur + 1);
     }
-    s.update_minibuffer(frame);
+    s.update_minibuffer(window);
 }
 interactive("hints-next", hints_next,
-            I.current_frame, I.minibuffer_state(hints_minibuffer_state), I.p);
+            I.current_window, I.minibuffer_state(hints_minibuffer_state), I.p);
 
 interactive("hints-previous", hints_next,
-            I.current_frame, I.minibuffer_state(hints_minibuffer_state),
+            I.current_window, I.minibuffer_state(hints_minibuffer_state),
             I.bind(function (x) {return -x;}, I.p));
 
-function hints_abort(frame, s) {
+function hints_abort(window, s) {
     if (this.auto_exit_timer_ID) {
-        frame.clearTimeout(this.auto_exit_timer_ID);
+        window.clearTimeout(this.auto_exit_timer_ID);
         this.auto_exit_timer_ID = null;
     }
-    frame.minibuffer.pop_state();
+    window.minibuffer.pop_state();
     if (s.abort_callback)
         s.abort_callback();
 }
 
 interactive("hints-abort", hints_abort,
-            I.current_frame, I.minibuffer_state(hints_minibuffer_state));
+            I.current_window, I.minibuffer_state(hints_minibuffer_state));
 
-function hints_exit(frame, s)
+function hints_exit(window, s)
 {
     if (this.auto_exit_timer_ID) {
-        frame.clearTimeout(this.auto_exit_timer_ID);
+        window.clearTimeout(this.auto_exit_timer_ID);
         this.auto_exit_timer_ID = null;
     }
     var cur = s.manager.current_hint_number;
@@ -480,16 +480,16 @@ function hints_exit(frame, s)
     if (cur > 0 && cur <= s.manager.valid_hints.length)
         elem = s.manager.valid_hints[cur - 1].elem;
     else if (cur == 0)
-        elem = frame.buffers.current.content_window;
+        elem = window.buffers.current.content_window;
     if (elem) {
-        frame.minibuffer.pop_state();
+        window.minibuffer.pop_state();
         if (s.callback)
             s.callback(elem);
     }
 }
 
 interactive("hints-exit", hints_exit,
-            I.current_frame, I.minibuffer_state(hints_minibuffer_state));
+            I.current_window, I.minibuffer_state(hints_minibuffer_state));
 
 
 /* USER PREFERENCE */
@@ -514,7 +514,7 @@ I.hinted_element = interactive_method(
         // FIXME: clean this up and replace with proper object class declaration
         var object_class = arguments.$object_class;
         if (object_class == "frames") {
-            var buf = ctx.frame.buffers.current;
+            var buf = ctx.window.buffers.current;
             if (!(buf instanceof browser_buffer))
                 throw new Error("Current buffer is of invalid type");
             var doc = buf.content_document;
@@ -526,7 +526,7 @@ I.hinted_element = interactive_method(
                 return;
             }
         }
-        var s = new hints_minibuffer_state(ctx.frame.buffers.current,
+        var s = new hints_minibuffer_state(ctx.window.buffers.current,
                                            forward_keywords(arguments), $callback = cont);
-        ctx.frame.minibuffer.push_state(s);
+        ctx.window.minibuffer.push_state(s);
     });

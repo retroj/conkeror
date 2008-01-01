@@ -109,10 +109,10 @@ function interactive_error(str) {
 function call_interactively(ctx, command)
 {
     var cmd = interactive_commands.get(command);
-    var frame = ctx.frame;
+    var window = ctx.window;
     if (!cmd)
     {
-        frame.minibuffer.message("Invalid command: " + command);
+        window.minibuffer.message("Invalid command: " + command);
         return;
     }
     ctx.command = command;
@@ -252,9 +252,9 @@ function call_interactively(ctx, command)
             } while (true);
         } catch (e) {
             if (e.is_interactive_error) {
-                frame.minibuffer.message("" + e);
+                window.minibuffer.message("" + e);
             } else {
-                frame.minibuffer.message("call_interactively: "  + e);
+                window.minibuffer.message("call_interactively: "  + e);
                 dump_error(e);
             }
         }
@@ -292,10 +292,10 @@ I.P = interactive_method(
         return ctx.prefix_argument;
     });
 
-I.current_frame = interactive_method(
-    $doc = "Current frame",
+I.current_window = interactive_method(
+    $doc = "Current window",
     $sync = function (ctx) {
-        return ctx.frame;
+        return ctx.window;
     });
 
 I.current_command = interactive_method(
@@ -314,7 +314,7 @@ I.s = interactive_method(
     $doc = "Read a string from the minibuffer",
     $async = function (ctx, cont) {
         keywords(arguments);
-        ctx.frame.minibuffer.read($prompt = "String:", $history = "string",
+        ctx.window.minibuffer.read($prompt = "String:", $history = "string",
                                   forward_keywords(arguments),
                                   $callback = cont);
     });
@@ -323,7 +323,7 @@ I.n = interactive_method(
     $doc = "Read a number from the minibuffer",
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Number:", $history = "number");
-        ctx.frame.minibuffer.read($prompt = "Number:", $history = "number",
+        ctx.window.minibuffer.read($prompt = "Number:", $history = "number",
                                   $callback = cont);
     });
 
@@ -359,7 +359,7 @@ I.C = interactive_method(
             $get_value = function (x) {
                 return x.name;
             });
-        ctx.frame.minibuffer.read($prompt = arguments.$prompt,
+        ctx.window.minibuffer.read($prompt = arguments.$prompt,
                                   $history = arguments.$history,
                                   $completer = completer,
                                   $match_required = true,
@@ -371,7 +371,7 @@ I.f = interactive_method(
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "File:", $initial_value = default_directory.path,
                  $history = "file");
-        ctx.frame.minibuffer.read(
+        ctx.window.minibuffer.read(
             $prompt = arguments.$prompt,
             $initial_value = arguments.$initial_value,
             $history = arguments.$history,

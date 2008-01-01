@@ -1,9 +1,9 @@
 var command_line_handlers = [];
 
-var url_remoting_fn = load_url_in_new_frame;
+var url_remoting_fn = load_url_in_new_window;
 
-function load_url_in_new_frame(url, ctx) {
-    make_frame($load = url, $cwd = ctx.cwd);
+function load_url_in_new_window(url, ctx) {
+    make_window($load = url, $cwd = ctx.cwd);
 }
 
 function load_url_in_new_buffer(url, ctx) {
@@ -28,7 +28,7 @@ command_line_param_handler("e", false, function (expr) {
     });
 command_line_param_handler("chrome", true, function (uri) {
         try {
-            make_chrome_frame(uri);
+            make_chrome_window(uri);
         } catch (e) { dump_error(e); }
     });
 command_line_param_handler("q", false, function () {
@@ -94,7 +94,7 @@ function handle_command_line(cmdline)
             }
 
             // something other than a switch was passed on the command
-            // line.  suppress the default frame, and call the
+            // line.  suppress the default window, and call the
             // user-configurable remoting function on it.
             //
             suppress_default = true;
@@ -110,7 +110,7 @@ function handle_command_line(cmdline)
         }
 
         // no args were found for url_remoting_fn, and no switches
-        // explicitly suppressed the creation of a default frame
+        // explicitly suppressed the creation of a default window
         // (e.g. -batch or -daemon)
         //
         if (! suppress_default) {

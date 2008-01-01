@@ -1,15 +1,15 @@
 require("mode.js");
 
-define_frame_local_hook("mode_line_hook");
+define_window_local_hook("mode_line_hook");
 
-function generic_element_widget_container(frame, container)
+function generic_element_widget_container(window, container)
 {
-    this.frame = frame;
+    this.window = window;
     this.container = container;
 }
 generic_element_widget_container.prototype = {
     add_text_widget : function (widget, flex, align, class_name) {
-        var element = create_XUL(this.frame, "label");
+        var element = create_XUL(this.window, "label");
         if (flex != null)
             element.setAttribute("flex", flex);
         if (align != null)
@@ -28,22 +28,22 @@ generic_element_widget_container.prototype = {
     }
 };
 
-function mode_line(frame)
+function mode_line(window)
 {
-    var element = create_XUL(frame, "hbox");
+    var element = create_XUL(window, "hbox");
     element.setAttribute("class", "mode-line");
     /* FIXME: this will need to changed to be buffer-local */
-    var insert_before = frame.document.getElementById("minibuffer");
+    var insert_before = window.document.getElementById("minibuffer");
     insert_before.parentNode.insertBefore(element, insert_before);
-    frame.mode_line = this;
-    generic_element_widget_container.call(this, frame, element);
-    mode_line_hook.run(frame, this);
+    window.mode_line = this;
+    generic_element_widget_container.call(this, window, element);
+    mode_line_hook.run(window, this);
 }
 mode_line.prototype = {
     __proto__: generic_element_widget_container.prototype,
 
     remove: function () {
-        this.container.parentNode.removeChild(this.frame.mode_line.container);
+        this.container.parentNode.removeChild(this.window.mode_line.container);
         this.__proto__.__proto__.destroy.call(this);
     }
 };
@@ -76,18 +76,18 @@ generic_widget_element.prototype = {
 };
 
 
-function text_widget(frame)
+function text_widget(window)
 {
-    this.frame_hooks = [];
-    this.frame = frame;
+    this.window_hooks = [];
+    this.window = window;
 }
 text_widget.prototype = {
     add_hook : function (hook_name, handler)
     {
         var obj = this;
         if (handler == null) handler = function () { obj.update(); }
-        add_hook.call(this.frame, hook_name, handler);
-        this.frame_hooks.push(handler);
+        add_hook.call(this.window, hook_name, handler);
+        this.window_hooks.push(handler);
     },
 
     view : null,
@@ -102,8 +102,8 @@ text_widget.prototype = {
 
     destroy : function ()
     {
-        for (var i = 0; i < this.frame_hooks.length; ++i)
-            remove_hook.call(this.frame, this.frame_hooks[i]);
+        for (var i = 0; i < this.window_hooks.length; ++i)
+            remove_hook.call(this.window, this.window_hooks[i]);
     },
 
     remove : function ()
@@ -112,45 +112,45 @@ text_widget.prototype = {
     }
 };
 
-function mode_line_install(frame)
+function mode_line_install(window)
 {
-    if (frame.mode_line)
-        throw new Error("mode line already initialized for frame");
-    frame.mode_line = new mode_line(frame);
+    if (window.mode_line)
+        throw new Error("mode line already initialized for window");
+    window.mode_line = new mode_line(window);
 }
 
-function mode_line_uninstall(frame)
+function mode_line_uninstall(window)
 {
-    if (!frame.mode_line)
-        throw new Error("mode line not initialized for frame");
-    frame.mode_line.remove();
-    delete frame.mode_line;
+    if (!window.mode_line)
+        throw new Error("mode line not initialized for window");
+    window.mode_line.remove();
+    delete window.mode_line;
 }
 
 define_global_mode("mode_line_mode",
                    function () { // enable
-                       add_hook("frame_initialize_early_hook", mode_line_install);
-                       for_each_frame(mode_line_install);
+                       add_hook("window_initialize_early_hook", mode_line_install);
+                       for_each_window(mode_line_install);
                    },
                    function () { // disable
-                       remove_hook("frame_initialize_early_hook", mode_line_install);
-                       for_each_frame(mode_line_uninstall);
+                       remove_hook("window_initialize_early_hook", mode_line_install);
+                       for_each_window(mode_line_uninstall);
                    });
 
-function current_buffer_name_widget(frame) {
+function current_buffer_name_widget(window) {
     this.name = "current-buffer-name-widget";
-    text_widget.call(this, frame);
+    text_widget.call(this, window);
     this.add_hook("current_browser_buffer_location_change_hook");
     this.add_hook("select_buffer_hook");
 }
 current_buffer_name_widget.prototype.__proto__ = text_widget.prototype;
 current_buffer_name_widget.prototype.update = function () {
-    this.view.text = this.frame.buffers.current.name;
+    this.view.text = this.window.buffers.current.name;
 };
 
-function current_buffer_scroll_position_widget(frame) {
+function current_buffer_scroll_position_widget(window) {
     this.name = "current-buffer-scroll-position-widget";
-    text_widget.call(this, frame);
+    text_widget.call(this, window);
     this.add_hook("current_buffer_scroll_hook");
     this.add_hook("select_buffer_hook");
     this.add_hook("current_browser_buffer_location_change_hook");
@@ -158,7 +158,7 @@ function current_buffer_scroll_position_widget(frame) {
 }
 current_buffer_scroll_position_widget.prototype.__proto__ = text_widget.prototype;
 current_buffer_scroll_position_widget.prototype.update = function () {
-    var b = this.frame.buffers.current;
+    var b = this.window.buffers.current;
     var scrollX, scrollY, scrollMaxX, scrollMaxY;
     if (b instanceof browser_buffer)
     {
@@ -179,12 +179,12 @@ current_buffer_scroll_position_widget.prototype.update = function () {
     this.view.text = "(" + x + ", " + y + ")";
 };
 
-function clock_widget(frame)
+function clock_widget(window)
 {
     this.name = "clock-widget";
-    text_widget.call(this, frame);
+    text_widget.call(this, window);
     var obj = this;
-    this.timer_ID = frame.setInterval(function () { obj.update(); }, 60000);
+    this.timer_ID = window.setInterval(function () { obj.update(); }, 60000);
 }
 clock_widget.prototype.__proto__ = text_widget.prototype;
 clock_widget.prototype.update = function () {
@@ -194,11 +194,11 @@ clock_widget.prototype.update = function () {
     this.view.text = (hours<10 ? "0" + hours:hours) + ":" + (mins<10 ?"0" +mins:mins);
 };
 clock_widget.prototype.destroy = function () {
-    this.frame.clearTimeout(this.timer_ID);
+    this.window.clearTimeout(this.timer_ID);
 };
 
 function mode_line_adder(widget_constructor) {
-    return function (frame) { frame.mode_line.add_text_widget(new widget_constructor(frame)); }
+    return function (window) { window.mode_line.add_text_widget(new widget_constructor(window)); }
 }
 
 add_hook("mode_line_hook", mode_line_adder(current_buffer_name_widget));

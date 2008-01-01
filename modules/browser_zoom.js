@@ -13,7 +13,7 @@ function browser_zoom_set(buffer, full_zoom, value) {
     if (value > zoom_levels[zoom_levels.length - 1])
         value = zoom_levels[zoom_levels.length - 1];
     buffer.markup_document_viewer[full_zoom ? "fullZoom" : "textZoom"] = value / 100.0;
-    buffer.frame.minibuffer.message((full_zoom ? "Full" : "Text") + " zoom: " + value + "%");
+    buffer.window.minibuffer.message((full_zoom ? "Full" : "Text") + " zoom: " + value + "%");
 }
 
 function browser_zoom_change(buffer, full_zoom, count) {

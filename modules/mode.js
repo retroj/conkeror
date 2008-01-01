@@ -25,8 +25,8 @@ function define_global_mode(name, enable, disable)
         }
     };
     this[name] = func;
-    interactive(hyphen_name, function (frame, arg) {
+    interactive(hyphen_name, function (window, arg) {
             func(arg && univ_arg_to_number(arg));
-            frame.minibuffer.message(hyphen_name + (conkeror[state] ? " enabled" : " disabled"));
-        }, I.current_frame, I.P);
+            window.minibuffer.message(hyphen_name + (conkeror[state] ? " enabled" : " disabled"));
+        }, I.current_window, I.P);
 }

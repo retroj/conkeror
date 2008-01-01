@@ -8,7 +8,7 @@ require("hints.js");
 function browser_set_element_focus(buffer, elem, prevent_scroll) {
     buffer.last_user_input_received = Date.now();
     if (prevent_scroll)
-        set_focus_no_scroll(buffer.frame, elem);
+        set_focus_no_scroll(buffer.window, elem);
     else
         elem.focus();
 }
@@ -86,7 +86,7 @@ function browser_element_follow(buffer, target, elem)
     var target_obj = null;
     switch (target) {
     case OPEN_NEW_WINDOW:
-        make_frame(load_spec, $cwd = buffer.cwd);
+        make_window(load_spec, $cwd = buffer.cwd);
         return;
 
     case FOLLOW_CURRENT_FRAME:
@@ -107,12 +107,12 @@ function browser_element_follow(buffer, target, elem)
         buffer.load(load_spec);
         break;
     case OPEN_NEW_BUFFER:
-        target_obj = new browser_buffer(buffer.frame, $context = buffer);
+        target_obj = new browser_buffer(buffer.window, $context = buffer);
         target_obj.load(load_spec);
-        buffer.frame.buffers.current = target_obj;
+        buffer.window.buffers.current = target_obj;
         break;
     case OPEN_NEW_BUFFER_BACKGROUND:
-        target_obj = new browser_buffer(buffer.frame, $context = buffer);
+        target_obj = new browser_buffer(buffer.window, $context = buffer);
         target_obj.load(load_spec);
         break;
     }
@@ -342,7 +342,7 @@ function browser_element_copy(buffer, elem)
     if (text == null)
         text = elem.textContent;
     writeToClipboard (text);
-    buffer.frame.minibuffer.message ("Copied: " + text);
+    buffer.window.minibuffer.message ("Copied: " + text);
 }
 
 
@@ -354,14 +354,14 @@ var view_source_external_editor = null, view_source_function = null;
 function browser_element_view_source(buffer, target, elem, charset)
 {
     var win = null;
-    var frame = buffer.frame;
+    var window = buffer.window;
     if (elem.localName) {
         switch (elem.localName.toLowerCase()) {
         case "frame": case "iframe":
             win = elem.contentWindow;
             break;
         case "math":
-            view_mathml_source (frame, charset, elem);
+            view_mathml_source (window, charset, elem);
             return;
         default:
         if (!matched)
@@ -395,7 +395,7 @@ function browser_element_view_source(buffer, target, elem, charset)
             open_in_browser(buffer, target, "view-source:" + url_s);
         } catch(e) { dump_error(e); }
     } else {
-        frame.minibuffer.message ("Already viewing source");
+        window.minibuffer.message ("Already viewing source");
     }
 }
 
@@ -418,9 +418,9 @@ function shell_command_with_argument(cwd) {
     }
     shell_command(cwd, cmdline, cont, cont /*, function (exit_code) {
             if (exit_code == 0)
-                buffer.frame.minibuffer.message("Shell command exited normally.");
+                buffer.window.minibuffer.message("Shell command exited normally.");
             else
-                buffer.frame.minibuffer.message("Shell command exited with status " + exit_code + ".");
+                buffer.window.minibuffer.message("Shell command exited with status " + exit_code + ".");
                 }*/);
 }
 

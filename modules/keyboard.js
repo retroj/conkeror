@@ -357,10 +357,10 @@ function copy_event(event)
 
 function key_down_handler(event)
 {
-    var frame = this;
+    var window = this;
     //window.dumpln("key down: " + conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
 
-    var state = frame.keyboard;
+    var state = window.keyboard;
     state.last_key_down_event = copy_event(event);
     state.last_char_code = null;
     state.last_key_code = null;
@@ -372,8 +372,8 @@ var keyboard_key_sequence_help_timeout = 0;
 function key_press_handler(true_event)
 {
     try{
-        var frame = this;
-        var state = frame.keyboard;
+        var window = this;
+        var state = window.keyboard;
 
         /* ASSERT(state.last_key_down_event != null); */
 
@@ -389,14 +389,14 @@ function key_press_handler(true_event)
             return;
 
         /* Clear minibuffer message */
-        frame.minibuffer.clear();    
+        window.minibuffer.clear();    
 
         var binding = null;
         var done = true;
 
         var ctx;
         if (!state.current_context)
-            ctx = state.current_context = { frame: frame, key_sequence: [] };
+            ctx = state.current_context = { window: window, key_sequence: [] };
         else
             ctx = state.current_context;
 
@@ -405,7 +405,7 @@ function key_press_handler(true_event)
         var active_keymap =
             state.active_keymap ||
             state.override_keymap ||
-            frame.buffers.current.keymap;
+            window.buffers.current.keymap;
         var overlay_keymap = ctx.overlay_keymap;
 
         binding =
@@ -437,14 +437,14 @@ function key_press_handler(true_event)
                 state.active_keymap = binding.keymap;
                 if (!state.help_displayed)
                 {
-                    state.help_timer_ID = frame.setTimeout(function () {
-                            frame.minibuffer.show(ctx.key_sequence.join(" "));
+                    state.help_timer_ID = window.setTimeout(function () {
+                            window.minibuffer.show(ctx.key_sequence.join(" "));
                             state.help_displayed = true;
                             state.help_timer_ID = null;
                         }, keyboard_key_sequence_help_timeout);
                 }
                 else
-                    frame.minibuffer.show(ctx.key_sequence.join(" "));
+                    window.minibuffer.show(ctx.key_sequence.join(" "));
 
                 // We're going for another round
                 done = false;
@@ -452,7 +452,7 @@ function key_press_handler(true_event)
                 call_interactively(ctx, binding.command);
             }
         } else {
-            frame.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");
+            window.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");
         }
 
         // Clean up if we're done
@@ -460,7 +460,7 @@ function key_press_handler(true_event)
         {
             if (state.help_timer_ID != null)
             {
-                frame.clearTimeout(state.help_timer_ID);
+                window.clearTimeout(state.help_timer_ID);
                 state.help_timer_ID = null;
             }
             state.help_displayed = false;
@@ -487,14 +487,14 @@ keyboard.prototype = {
 };
 
 
-function keyboard_initialize_frame(frame)
+function keyboard_initialize_window(window)
 {
-    frame.keyboard = new keyboard();
+    window.keyboard = new keyboard();
 
-    frame.addEventListener ("keydown", key_down_handler, true /* capture */,
+    window.addEventListener ("keydown", key_down_handler, true /* capture */,
                             false /* ignore untrusted events */);
-    frame.addEventListener ("keypress", key_press_handler, true /* capture */,
+    window.addEventListener ("keypress", key_press_handler, true /* capture */,
                             false /* ignore untrusted events */);
 }
 
-add_hook("frame_initialize_hook", keyboard_initialize_frame);
+add_hook("window_initialize_hook", keyboard_initialize_window);
