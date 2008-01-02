@@ -103,7 +103,7 @@ function interactive(name)
                 doc: doc,
                 shortdoc: shortdoc,
                 arguments: args,
-                ref: get_caller_source_code_ref() };
+                source_code_reference: get_caller_source_code_reference() };
 
     interactive_commands.put(name, cmd);
 }

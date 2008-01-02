@@ -1,5 +1,4 @@
 require("bindings/default/global.js");
-require("bindings/default/basic-commands.js");
 
 var help_buffer_keymap = new keymap($parent = default_global_keymap);
 

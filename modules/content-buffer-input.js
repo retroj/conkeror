@@ -182,8 +182,9 @@ var browser_form_field_xpath_expression =
 //        "translate(@type,'SUBMIT','submit')!='submit' and " +
 //        "translate(@type,'REST','rest')!='reset'"
         ) +  "] |" +
-    "//select | //xhtml:select" +
-    "//textarea | //xhtml:textarea";
+    "//select | //xhtml:select | " +
+    "//textarea | //xhtml:textarea | " +
+    "//textbox | //xul:textbox";
 
 function browser_focus_next_form_field(buffer, count, xpath_expr) {
     var focused_elem = buffer.focused_element;
@@ -253,9 +254,6 @@ interactive("browser-focus-previous-form-field",
             I.current_buffer(content_buffer),
             I.bind(function (x) {return -x;}, I.p),
             browser_form_field_xpath_expression);
-
-/* USER PREFERENCE */
-var editor_program = "emacs";
 
 function edit_field_in_external_editor(buffer, elem) {
     if (elem instanceof Ci.nsIDOMHTMLInputElement) {

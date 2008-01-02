@@ -96,7 +96,7 @@ help_document_generator.prototype = {
             var para = paras[i];
             if (para.length == 0)
                 continue;
-            
+
             var p = this.element("p", f);
 
             var regexp = /`([a-zA-Z0-9_\-$]+)\'/;
@@ -148,7 +148,7 @@ describe_bindings_buffer.prototype = {
     },
 
     title : "Key bindings",
-    
+
     description : "*bindings*",
 
     generate : function () {
@@ -167,7 +167,7 @@ describe_bindings_buffer.prototype = {
             var tr = d.createElementNS(XHTML_NS, "tr");
             tr.setAttribute("class", (i % 2 == 0) ? "even" : "odd");
             var seq_td = d.createElementNS(XHTML_NS, "td");
-            seq_td.setAttribute("class", "key");
+            seq_td.setAttribute("class", "key-binding");
             seq_td.textContent = bind.seq;
             tr.appendChild(seq_td);
             var command_td = d.createElementNS(XHTML_NS,"td");
@@ -223,7 +223,7 @@ function describe_command_buffer(window, element) {
     this.bindings = arguments.$bindings;
     this.command = arguments.$command;
     this.cmd = interactive_commands.get(this.command);
-    this.source_code_ref = this.cmd.ref;
+    this.source_code_reference = this.cmd.source_code_reference;
 }
 
 describe_command_buffer.prototype = {
@@ -233,17 +233,14 @@ describe_command_buffer.prototype = {
     },
 
     get title() { return "Command help: " + this.command; },
-    
+
     description : "*help*",
 
     generate : function () {
         var d = this.top_document;
 
-        var list = this.binding_list;
-        delete this.binding_list;
-
         var g = new help_document_generator(d);
-        
+
         g.add_help_stylesheet();
         d.body.setAttribute("class", "describe-command");
 
@@ -252,9 +249,9 @@ describe_command_buffer.prototype = {
         p = g.element("p", d.body);
         g.command_reference(this.command, p);
         var cmd = interactive_commands.get(this.command);
-        if (cmd.ref)  {
+        if (cmd.source_code_reference)  {
             g.text(" is an interactive command in ", p);
-            g.source_code_reference(cmd.ref, p);
+            g.source_code_reference(cmd.source_code_reference, p);
             g.text(".", p);
         } else {
             g.text(" is an interactive command.", p);
@@ -295,10 +292,119 @@ interactive("describe-command", describe_command,
 default_browse_targets["describe-command"] = "find-url";
 
 
+
+
+
+
 function view_referenced_source_code(buffer) {
-    if (buffer.source_code_ref == null)
+    if (buffer.source_code_reference == null)
         throw interactive_error("Command not valid in current buffer.");
-    buffer.source_code_ref.open_in_editor();
+    buffer.source_code_reference.open_in_editor();
 }
 interactive("view-referenced-source-code", view_referenced_source_code,
             I.current_buffer);
+
+
+
+
+
+define_keywords("$binding", "$other_bindings", "$key_sequence");
+function describe_key_buffer(window, element) {
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.key_sequence = arguments.$key_sequence;
+    this.bindings = arguments.$other_bindings;
+    this.bind = arguments.$binding;
+    this.source_code_reference = this.bind.source_code_reference;
+}
+
+describe_key_buffer.prototype = {
+
+    get keymap() {
+        return help_buffer_keymap;
+    },
+
+    get title() { return "Key help: " + this.key_sequence; },
+
+    description : "*help*",
+
+    generate : function () {
+        var d = this.top_document;
+
+        var g = new help_document_generator(d);
+
+        g.add_help_stylesheet();
+        d.body.setAttribute("class", "describe-key");
+
+        var p;
+
+        p = g.element("p", d.body);
+        g.key_binding(this.key_sequence, p);
+        g.text(" is bound to the command ", p);
+        var command = this.bind.command;
+        if (command == null)
+            g.command_name("[pass through]", p);
+        else
+            g.command_reference(command, p);
+        if (this.source_code_reference) {
+            g.text(" in ", p);
+            g.source_code_reference(this.source_code_reference, p);
+        }
+        g.text(".", p);
+
+        if (command != null) {
+            p = g.element("p", d.body);
+            g.command_reference(command, p);
+            var cmd = interactive_commands.get(command);
+            if (cmd.source_code_reference)  {
+                g.text(" is an interactive command in ", p);
+                g.source_code_reference(cmd.source_code_reference, p);
+                g.text(".", p);
+            } else {
+                g.text(" is an interactive command.", p);
+            }
+
+            if (this.bindings.length > 0) {
+                p = g.element("p", d.body);
+                g.text("It is bound to ", p);
+                for (var i = 0; i < this.bindings.length; ++i) {
+                    if (i != 0)
+                        g.text(", ", p);
+                    g.key_binding(this.bindings[i], p);
+                }
+                g.text(".", p);
+            }
+
+            if (cmd.doc != null)
+                g.help_text(cmd.doc, d.body);
+        }
+    },
+
+    __proto__: special_buffer.prototype
+};
+
+
+function describe_key(buffer, key_info, target) {
+    var bindings;
+    var seq = key_info[0];
+    var bind = key_info[1];
+
+    if (bind.command)
+        bindings = find_command_in_keymap(buffer, bind.command);
+    else
+        bindings = [];
+
+    create_buffer(buffer.window,
+                  buffer_creator(describe_key_buffer,
+                                 $configuration = buffer.configuration,
+                                 $key_sequence = seq.join(" "),
+                                 $other_bindings = bindings,
+                                 $binding = bind),
+                  target);
+}
+interactive("describe-key", describe_key,
+            $$ = I.current_buffer,
+            I.key_binding($prompt = "Describe key:",
+                          $buffer = $$),
+            I.browse_target("describe-key"));
+default_browse_targets["describe-key"] = "find-url";

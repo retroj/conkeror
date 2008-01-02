@@ -315,6 +315,8 @@ function xpath_lookup_namespace(prefix) {
         return XHTML_NS;
     if (prefix == "m")
         return MATHML_NS;
+    if (prefix == "xul")
+        return XUL_NS;
     return null;
 }
 
@@ -344,11 +346,11 @@ var file_locator = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsI
 
 var conkeror_source_code_path = null;
 
-function source_code_ref(uri, line_number) {
+function source_code_reference(uri, line_number) {
     this.uri = uri;
     this.line_number = line_number;
 }
-source_code_ref.prototype = {
+source_code_reference.prototype = {
     get module_name () {
         if (this.uri.indexOf(module_uri_prefix) == 0)
             return this.uri.substring(module_uri_prefix.length);
@@ -376,13 +378,13 @@ source_code_ref.prototype = {
     }
 };
 
-function get_caller_source_code_ref() {
+function get_caller_source_code_reference() {
     var s = Error().stack;
     var regexp = /.*\n.*\n.*\n[^@]*@(.*):([0-9]*)$/m;
     var match = regexp.exec(s);
     if (match.index != 0)
         return null;
-    return new source_code_ref(match[1], match[2]);
+    return new source_code_reference(match[1], match[2]);
 }
 
 require_later("external-editor.js");

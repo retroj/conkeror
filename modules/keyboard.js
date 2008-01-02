@@ -38,6 +38,7 @@ function generate_key_tables()
     map(KeyEvent.DOM_VK_SUBTRACT, "-");
     map(KeyEvent.DOM_VK_PAGE_DOWN, "pgdn");
     map(KeyEvent.DOM_VK_PAGE_UP, "pgup");
+    map(KeyEvent.DOM_VK_EQUALS, "=");
 
 
     /* Add additional shifted keycodes for improved display */
@@ -258,6 +259,9 @@ define_keywords("$fallthrough", "$hook");
 function define_key(kmap, keys, cmd)
 {
     keywords(arguments);
+
+    var ref = get_caller_source_code_reference();
+
     var args = arguments;
     
     if (typeof(keys) == "string" && keys.length > 1)
@@ -293,6 +297,7 @@ outer:
                 bind.keymap = new_keymap;
                 bind.fallthrough = args.$falllthrough;
                 bind.hook = args.$hook;
+                bind.source_code_reference = ref;
             } else {
                 if (!bind.keymap)
                     throw new Error("Key sequence has a non-keymap in prefix");
@@ -304,13 +309,15 @@ outer:
         {
             if (final_binding) {
                 return {key: key, fallthrough: args.$fallthrough, hook: args.$hook,
-                        command: new_command, keymap: new_keymap };
+                        command: new_command, keymap: new_keymap,
+                        source_code_reference: ref};
             }
             else
             {
                 // Check for a corresponding binding a parent
                 kmap = new keymap($parent = parent_kmap);
-                return {key: key, keymap: kmap};
+                return {key: key, keymap: kmap,
+                        source_code_reference: ref};
             }
         }
 
@@ -613,3 +620,68 @@ function find_command_in_keymap(keymap_or_buffer, command) {
         });
     return list;
 }
+
+var key_binding_reader_keymap = new keymap();
+define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
+
+define_keywords("$buffer", "$keymap", "$callback", "$failure_callback");
+function key_binding_reader() {
+    keywords(arguments, $prompt = "Describe key:");
+
+    if (arguments.$keymap)
+        this.target_keymap = arguments.$keymap;
+    else {
+        var buffer = arguments.$buffer;
+        var window = buffer.window;
+        this.target_keymap = window.keyboard.override_keymap || buffer.keymap;
+    }
+
+    this.callback = arguments.$callback;
+    this.failure_callback = arguments.$failure_callback;
+
+    this.key_sequence = [];
+    
+    minibuffer_state.call(this, key_binding_reader_keymap, arguments.$prompt);
+}
+key_binding_reader.prototype.__proto__ = minibuffer_state.prototype;
+
+function read_key_binding_key(window, state, event) {
+    var binding = lookup_key_binding(state.target_keymap, event);
+
+    state.key_sequence.push(format_key_event(event));
+
+    if (binding == null) {
+        window.minibuffer.pop_state();
+        if (state.failure_callback)
+            state.failure_callback(state.key_sequence);
+        else
+            window.minibuffer.message(state.key_sequence.join(" ") + " is undefined");
+        return;
+    }
+
+    if (binding.keymap) {
+        window.minibuffer._ensure_input_area_showing();
+        window.minibuffer._input_text = state.key_sequence.join(" ") + " ";
+        state.target_keymap = binding.keymap;
+        return;
+    }
+
+    window.minibuffer.pop_state();
+
+    if (state.callback)
+        state.callback(state.key_sequence, binding);
+}
+interactive("read-key-binding-key", read_key_binding_key,
+            I.current_window,
+            I.minibuffer_state(key_binding_reader),
+            I.e);
+
+I.key_binding = interactive_method(
+    $async = function (ctx, cont) {
+        keywords(arguments);
+        var s = new key_binding_reader(forward_keywords(arguments),
+                                       $callback = function (seq, bind) {
+                                           cont([seq,bind]);
+                                       });
+        ctx.window.minibuffer.push_state(s);
+    });

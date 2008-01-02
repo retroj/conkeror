@@ -16,6 +16,11 @@ function browser_set_element_focus(buffer, elem, prevent_scroll) {
 
 function browser_element_focus(buffer, elem)
 {
+    if (elem instanceof Ci.nsIDOMXULTextBoxElement)  {
+        // Focus the input field instead
+        elem = elem.wrappedJSObject.inputField;
+    }
+
     browser_set_element_focus(buffer, elem);
     if (elem instanceof Ci.nsIDOMWindow) {
         return;
