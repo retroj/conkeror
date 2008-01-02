@@ -39,6 +39,8 @@ require("find.js");
 //require("numberedlinks.js");
 require("hints.js");
 
+require("help.js");
+
 
 require("rc.js");
 require("bindings/default/bindings.js");

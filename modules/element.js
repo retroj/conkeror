@@ -349,27 +349,15 @@ interactive("browser-element-copy", browser_element_copy,
 var view_source_external_editor = null, view_source_function = null;
 function browser_element_view_source(buffer, target, elem, charset)
 {
-    var win = null;
-    var window = buffer.window;
-    if (elem.localName) {
-        switch (elem.localName.toLowerCase()) {
-        case "frame": case "iframe":
-            win = elem.contentWindow;
-            break;
-        case "math":
-            view_mathml_source (window, charset, elem);
-            return;
-        default:
-        if (!matched)
-            throw new Error("Invalid browser element");
-        }
-    } else
-        win = elem;
-    win.focus();
     if (view_source_external_editor || view_source_function)
     {
+        var load_spec = element_get_load_spec(elem);
+        if (load_spec == null) {
+            throw interactive_error("Element has no associated URL");
+            return;
+        }
         download_for_external_program
-            (null, win.document, null,
+            (load_spec,
              function (file, is_temp_file) {
                  if (view_source_external_editor)
                  {
@@ -385,6 +373,24 @@ function browser_element_view_source(buffer, target, elem, charset)
              });
         return;
     }
+
+    var win = null;
+    var window = buffer.window;
+    if (elem.localName) {
+        switch (elem.localName.toLowerCase()) {
+        case "frame": case "iframe":
+            win = elem.contentWindow;
+            break;
+        case "math":
+            view_mathml_source (window, charset, elem);
+            return;
+        default:
+            throw new Error("Invalid browser element");
+        }
+    } else
+        win = elem;
+    win.focus();
+
     var url_s = win.location.href;
     if (url_s.substring (0,12) != "view-source:") {
         try {
@@ -459,20 +465,13 @@ interactive("browser-element-shell-command-on-url",
                 $initial_value = I.bind(element_get_default_shell_command, $$)));
 
 function browser_element_shell_command(buffer, elem, command) {
-    var doc = null;
-    var url = null;
-    if (elem instanceof Ci.nsIDOMWindow) {
-        doc = elem.document;
-    } else if (elem instanceof Ci.nsIDOMHTMLFrameElement || elem instanceof Ci.nsIDOMHTMLIFrameElement) {
-        doc = elem.contentDocument;
-    }
-    if (doc == null) {
-        var url = element_get_url(elem);
-        if (url == null)
-            throw interactive_error("Unable to obtain URL from element");
+    var load_spec = element_get_load_spec(elem);
+    if (load_spec == null) {
+        throw interactive_error("Element has no associated URL");
+        return;
     }
     download_for_external_program
-        (url, doc, null,
+        (load_spec,
          function (file, is_temp_file) {
             shell_command_with_argument(
                 buffer.cwd,

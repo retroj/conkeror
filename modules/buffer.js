@@ -25,6 +25,7 @@ define_buffer_local_hook("buffer_description_change_hook");
 define_buffer_local_hook("select_buffer_hook");
 define_buffer_local_hook("buffer_scroll_hook");
 define_buffer_local_hook("buffer_dom_content_loaded_hook");
+define_buffer_local_hook("buffer_loaded_hook");
 
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
 define_current_buffer_hook("current_buffer_description_change_hook", "buffer_description_change_hook");
@@ -74,6 +75,10 @@ function buffer(window, element)
 
     this.browser.addEventListener("DOMContentLoaded", function (event) {
             buffer_dom_content_loaded_hook.run(buffer);
+        }, true /* capture */, false /*ignore untrusted events */);
+
+    this.browser.addEventListener("load", function (event) {
+            buffer_loaded_hook.run(buffer);
         }, true /* capture */, false /*ignore untrusted events */);
 }
 
@@ -333,6 +338,28 @@ function browse_target_prompt(target, prefix) {
 }
 
 
+var default_browse_targets = {};
+default_browse_targets["open"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
+
+I.browse_target = interactive_method(
+    $sync = function (ctx, action) {
+        var prefix = ctx.prefix_argument;
+        var targets = action;
+        while (typeof(targets) == "string")
+            targets = default_browse_targets[targets];
+        if (prefix == null || typeof(prefix) != "object")
+            return targets[0];
+        var num = prefix[0];
+        var index = 0;
+        while (num >= 4 && index < targets.length) {
+            num = num / 4;
+            index++;
+        }
+        return targets[index];
+    });
+
 function create_buffer(window, creator, target) {
     switch (target) {
     case OPEN_NEW_BUFFER:
@@ -429,7 +456,7 @@ I.b = interactive_method(
                 ctx.window.buffers.for_each(visitor);
             },
             $get_string = function (x) {
-                return x.name;
+                return x.description;
             },
             $get_description = function (x) {
                 return x.title;
@@ -488,7 +515,7 @@ interactive("switch-to-buffer",
 /* USER PREFERENCE */
 /* If this is set to true, kill-buffer can kill the last remaining
  * buffer, and close the window. */
-var can_kill_last_buffer = false;
+var can_kill_last_buffer = true;
 
 function kill_buffer(buffer)
 {
@@ -536,5 +563,20 @@ interactive("shell-command",
             I.shell_command($prompt = I.bind(function (cwd) {
                         return "Shell command [" + cwd + "]:";
                     }, $$)));
+
+
+function unfocus(buffer)
+{
+    var elem = buffer.focused_element;
+    if (elem) {
+        elem.blur();
+        return;
+    }
+    var win = buffer.focused_frame;
+    if (win != buffer.top_frame)
+        return;
+    buffer.top_frame.focus();
+}
+interactive("unfocus", unfocus, I.current_buffer);
 
 require_later("content-buffer.js");

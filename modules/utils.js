@@ -179,16 +179,16 @@ function get_link_location (element)
 
 function makeURL(aURL)
 {
-  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                .getService(Components.interfaces.nsIIOService);
-  return ioService.newURI(aURL, null, null);
+    var ioService = Cc["@mozilla.org/network/io-service;1"]
+        .getService(Ci.nsIIOService);
+    return ioService.newURI(aURL, null, null);
 }
 
 function makeFileURL(aFile)
 {
-  var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-                .getService(Components.interfaces.nsIIOService);
-  return ioService.newFileURI(aFile);
+    var ioService = Cc["@mozilla.org/network/io-service;1"]
+        .getService(Ci.nsIIOService);
+    return ioService.newFileURI(aFile);
 }
 
 
@@ -341,3 +341,48 @@ function get_buffer_from_frame(window, frame) {
 }
 
 var file_locator = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
+
+var conkeror_source_code_path = null;
+
+function source_code_ref(uri, line_number) {
+    this.uri = uri;
+    this.line_number = line_number;
+}
+source_code_ref.prototype = {
+    get module_name () {
+        if (this.uri.indexOf(module_uri_prefix) == 0)
+            return this.uri.substring(module_uri_prefix.length);
+        return null;
+    },
+
+    get file_name () {
+        var file_uri_prefix = "file://";
+        if (this.uri.indexOf(file_uri_prefix) == 0)
+            return this.uri.substring(file_uri_prefix.length);
+        return null;
+    },
+
+    get best_uri () {
+        if (conkeror_source_code_path != null) {
+            var module_name = this.module_name;
+            if (module_name != null)
+                return "file://" + conkeror_source_code_path + "/modules/" + module_name;
+        }
+        return this.uri;
+    },
+
+    open_in_editor : function() {
+        view_with_external_editor(this.best_uri, this.line_number);
+    }
+};
+
+function get_caller_source_code_ref() {
+    var s = Error().stack;
+    var regexp = /.*\n.*\n.*\n[^@]*@(.*):([0-9]*)$/m;
+    var match = regexp.exec(s);
+    if (match.index != 0)
+        return null;
+    return new source_code_ref(match[1], match[2]);
+}
+
+require_later("external-editor.js");

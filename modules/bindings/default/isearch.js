@@ -1,5 +1,8 @@
+require("bindings/default/global.js");
 
 var isearch_keymap = new keymap();
+
+define_key(isearch_keymap, "C-h", default_help_keymap);
 
 define_key(isearch_keymap, "back_space",    "isearch-backspace");
 define_key(isearch_keymap, "C-r",           "isearch-continue-backward");

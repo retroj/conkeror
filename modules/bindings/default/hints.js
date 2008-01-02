@@ -1,4 +1,8 @@
+require("bindings/default/global.js");
+
 var hint_keymap = new keymap();
+
+define_key(hint_keymap, "C-h", default_help_keymap);
 
 define_key(hint_keymap, kbd(match_any_unmodified_key), "hints-handle-character");
 define_key(hint_keymap, "back_space", "hints-backspace");

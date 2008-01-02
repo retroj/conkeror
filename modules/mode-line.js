@@ -145,7 +145,7 @@ function current_buffer_name_widget(window) {
 }
 current_buffer_name_widget.prototype.__proto__ = text_widget.prototype;
 current_buffer_name_widget.prototype.update = function () {
-    this.view.text = this.window.buffers.current.name;
+    this.view.text = this.window.buffers.current.description;
 };
 
 function current_buffer_scroll_position_widget(window) {
@@ -162,7 +162,7 @@ current_buffer_scroll_position_widget.prototype.update = function () {
     var scrollX, scrollY, scrollMaxX, scrollMaxY;
     if (b instanceof content_buffer)
     {
-        var w = b.focused_frame();
+        var w = b.focused_frame;
         scrollX = w.scrollX;
         scrollY = w.scrollY;
         scrollMaxX = w.scrollMaxX;

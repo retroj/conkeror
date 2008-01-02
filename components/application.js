@@ -9,6 +9,7 @@ function application () {
     this.Cc = Cc;
     this.Ci = Ci;
     this.Cr = Cr;
+    this.module_uri_prefix = "chrome://conkeror-modules/content/";
     this.subscript_loader = Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader);
     this.preferences = Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch);
     this.loaded_modules = [];
@@ -37,7 +38,7 @@ function application () {
                             + this.loading_modules.join(" -> ") + " -> " + module_name);
         this.loading_modules.push(module_name);
         try {
-            this.subscript_loader.loadSubScript("chrome://conkeror-modules/content/" + module_name,
+            this.subscript_loader.loadSubScript(this.module_uri_prefix + module_name,
                                                 this);
         } catch (e) {
             if (!(e instanceof Error) &&

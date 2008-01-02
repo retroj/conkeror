@@ -50,41 +50,41 @@ function browser_zoom_change(buffer, full_zoom, count) {
 }
 
 interactive("zoom-in-text", browser_zoom_change,
-            I.current_buffer(content_buffer), false /* not full zoom */,
+            I.current_buffer, false /* not full zoom */,
             I.p);
 
 interactive("zoom-out-text", browser_zoom_change,
-            I.current_buffer(content_buffer), false /* not full zoom */,
+            I.current_buffer, false /* not full zoom */,
             I.bind(function (x) { return -x; }, I.p));
 
 interactive("zoom-in-text-more", browser_zoom_change,
-            I.current_buffer(content_buffer), false /* not full zoom */,
+            I.current_buffer, false /* not full zoom */,
             I.bind(function (x) { return x * 3; }, I.p));
 
 interactive("zoom-out-text-more", browser_zoom_change,
-            I.current_buffer(content_buffer), false /* not full zoom */,
+            I.current_buffer, false /* not full zoom */,
             I.bind(function (x) { return -x * 3; }, I.p));
 
 interactive("zoom-reset-text", browser_zoom_set,
-            I.current_buffer(content_buffer), false /* not full zoom */,
+            I.current_buffer, false /* not full zoom */,
             I.p(100));
 
 interactive("zoom-in-full", browser_zoom_change,
-            I.current_buffer(content_buffer), true /* full zoom */,
+            I.current_buffer, true /* full zoom */,
             I.p);
 
 interactive("zoom-out-full", browser_zoom_change,
-            I.current_buffer(content_buffer), true /* full zoom */,
+            I.current_buffer, true /* full zoom */,
             I.bind(function (x) { return -x; }, I.p));
 
 interactive("zoom-reset-full", browser_zoom_set,
-            I.current_buffer(content_buffer), true /* full zoom */,
+            I.current_buffer, true /* full zoom */,
             I.p(100));
 
 interactive("zoom-in-full-more", browser_zoom_change,
-            I.current_buffer(content_buffer), true /* full zoom */,
+            I.current_buffer, true /* full zoom */,
             I.bind(function (x) { return x * 3; }, I.p));
 
 interactive("zoom-out-full-more", browser_zoom_change,
-            I.current_buffer(content_buffer), true /* full zoom */,
+            I.current_buffer, true /* full zoom */,
             I.bind(function (x) { return -x * 3; }, I.p));

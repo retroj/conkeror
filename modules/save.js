@@ -211,22 +211,27 @@ function get_SHEntry_for_document(doc)
  *
  * If the uri is invalid, this function may throw an exception.
  */
-function download_for_external_program(uri, doc, referrer_uri,
+function download_for_external_program(load_spec,
                                        success_callback, failure_callback)
 {
     var cache_key = null;
     var post_data = null;
     var content_type = null;
     var content_disposition = null;
-    if (doc)
-    {
-        uri = makeURL(doc.documentURI);
-    } else
-    {
-        try {
-            uri.QueryInterface (Components.interfaces.nsIURI);
-        } catch (e) {
-            uri = makeURL (uri);
+    var uri = null;
+    var doc = null;
+    var referrer_uri = null;
+    if (typeof(load_spec) == "string") {
+        uri = makeURL(load_spec);
+    } else {
+        uri = makeURL(load_spec.url);
+        referrer_uri = load_spec.referrer;
+        post_data = load_spec.post_data;
+        cache_key = load_spec.cache_key;
+        if (load_spec.doc) {
+            doc = load_spec.doc;
+            content_disposition = get_document_content_disposition(doc);
+            content_type = doc.contentType;
         }
     }
 
@@ -238,30 +243,15 @@ function download_for_external_program(uri, doc, referrer_uri,
         return;
     }
 
-    if (doc)
-    {
-        var sh_entry = get_SHEntry_for_document(doc);
-        if (sh_entry != null)
-        {
-            cache_key = sh_entry;
-            post_data = sh_entry.postData;
-            if (!referrer_uri)
-                referrer_uri = sh_entry.referrerURI;
-        }
-
-        content_type = doc.contentType;
-        content_disposition = get_document_content_disposition(doc);
-    }
-
     var filename = generate_filename_for_url(uri, doc, content_type, content_disposition, null);
-    var file = file_locator.get("TmpD", Components.interfaces.nsIFile);
+    var file = file_locator.get("TmpD", Ci.nsIFile);
     file.append(filename);
     // Create the file now to ensure that no exploits are possible
-    file.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0600);
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
     var fileURI = makeFileURL(file);
     const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
 
-    var persist = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
         .createInstance(nsIWBP);
 
     persist.persistFlags
@@ -272,11 +262,11 @@ function download_for_external_program(uri, doc, referrer_uri,
 
     persist.progressListener = {
         QueryInterface: function(aIID) {
-            if (aIID.equals(Components.interfaces.nsIWebProgressListener) ||
-                aIID.equals(Components.interfaces.nsISupportsWeakReference) ||
-                aIID.equals(Components.interfaces.nsISupports))
+            if (aIID.equals(Ci.nsIWebProgressListener) ||
+                aIID.equals(Ci.nsISupportsWeakReference) ||
+                aIID.equals(Ci.nsISupports))
                 return this;
-            throw Components.results.NS_NOINTERFACE;
+            throw Cr.NS_NOINTERFACE;
         },
         onStateChange: function(aProgress, aRequest, aFlag, aStatus) {
             if ((aFlag & Components.interfaces.nsIWebProgressListener.STATE_STOP))

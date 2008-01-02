@@ -93,7 +93,7 @@ content_buffer.prototype = {
     },
 
     get title() { return this.browser.contentTitle; },
-    get description() { return this.browser.display_URI_string; },
+    get description () { return this.display_URI_string; },
 
     load : function (load_spec) {
         apply_load_spec(this, load_spec);
@@ -304,6 +304,7 @@ overlink_mode(true);
 function document_load_spec(doc) {
     var sh_entry = get_SHEntry_for_document(doc);
     var result = {url: doc.location.href};
+    result.document = doc;
     if (sh_entry != null) {
         result.cache_key = sh_entry;
         result.referrer = sh_entry.referrerURI;
@@ -358,31 +359,6 @@ function open_in_browser(buffer, target, load_spec)
     }
 }
 
-var default_browse_targets = {};
-default_browse_targets["open"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
-default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-default_browse_targets["go-up"] = "open";
-default_browse_targets["jsconsole"] = "find-url";
-
-I.browse_target = interactive_method(
-    $sync = function (ctx, action) {
-        var prefix = ctx.prefix_argument;
-        var targets = action;
-        while (typeof(targets) == "string")
-            targets = default_browse_targets[targets];
-        if (prefix == null || typeof(prefix) != "object")
-            return targets[0];
-        var num = prefix[0];
-        var index = 0;
-        while (num >= 4 && index < targets.length) {
-            num = num / 4;
-            index++;
-        }
-        return targets[index];
-    });
-
 interactive("open-url",
             "Open a URL, reusing the current buffer by default",
             open_in_browser,
@@ -401,6 +377,7 @@ interactive("find-url",
             open_in_browser,
             I.current_buffer, $$ = I.browse_target("find-url"),
             I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$)));
+default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 
 function go_up (b, target)
@@ -414,6 +391,7 @@ interactive("go-up",
             go_up,
             I.current_buffer(content_buffer),
             I.browse_target("go-up"));
+default_browse_targets["go-up"] = "open";
 
 
 function go_back (b, prefix)
@@ -472,20 +450,6 @@ interactive("reload",
             "Reload the current document.\n" +
             "If a prefix argument is specified, the cache is bypassed.",
             reload, I.current_buffer(content_buffer), I.P);
-
-function unfocus(buffer)
-{
-    var elem = buffer.focused_element();
-    if (elem) {
-        elem.blur();
-        return;
-    }
-    var win = buffer.focused_frame;
-    if (win != buffer.top_frame)
-        return;
-    buffer.top_frame.focus();
-}
-interactive("unfocus", unfocus, I.current_buffer(content_buffer));
 
 /**
  * browserDOMWindow: intercept window opening

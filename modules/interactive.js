@@ -1,3 +1,5 @@
+require("utils.js");
+
 function interactive_variable(name, value)
 {
     this.name = name;
@@ -96,7 +98,14 @@ function interactive(name)
         else
             shortdoc = doc;
     }
-    interactive_commands.put(name, { name: name, handler: handler, doc: doc, shortdoc: shortdoc, arguments: args });
+    var cmd = { name: name,
+                handler: handler,
+                doc: doc,
+                shortdoc: shortdoc,
+                arguments: args,
+                ref: get_caller_source_code_ref() };
+
+    interactive_commands.put(name, cmd);
 }
 
 function interactive_error(str) {

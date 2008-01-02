@@ -20,8 +20,10 @@ define_key(default_global_keymap, "C-x 5 0", "delete-window");
 
 define_key(default_global_keymap, "C-h", default_help_keymap);
 define_key(default_help_keymap, "b", "describe-bindings");
+define_key(default_help_keymap, "f", "describe-command");
 define_key(default_help_keymap, "i", "help-page");
-define_key(default_help_keymap,"t", "help-with-tutorial");
+define_key(default_help_keymap, "t", "help-with-tutorial");
+define_key(default_help_keymap, "w", "where-is");
 
 define_key(default_global_keymap, "M-x", "execute-extended-command");
 
@@ -31,3 +33,7 @@ define_key(default_global_keymap, "M-n", "buffer-next");
 define_key(default_global_keymap, "C-x C-f", "find-url");
 
 define_key(default_global_keymap, "M-S-1", "shell-command");
+
+// I-search
+define_key(default_global_keymap, "C-s", "isearch-forward");
+define_key(default_global_keymap, "C-r", "isearch-backward");

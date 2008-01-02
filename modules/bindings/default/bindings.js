@@ -13,3 +13,5 @@ load_module("bindings/default/isearch.js");
 
 load_module("bindings/default/content-buffer/element.js");
 load_module("bindings/default/content-buffer/zoom.js");
+
+load_module("bindings/default/help-buffer.js");

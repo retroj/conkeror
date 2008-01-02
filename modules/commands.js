@@ -60,11 +60,11 @@ function scrollHorizComplete (buffer, n)
 }
 interactive("beginning-of-line",
             "Scroll the current window all the way to the left.",
-            scrollHorizComplete, I.current_buffer(content_buffer), -1);
+            scrollHorizComplete, I.current_buffer, -1);
 
 interactive("end-of-line",
             "Scroll the current frame all the way to the right.",
-            scrollHorizComplete, I.current_buffer(content_buffer), 1);
+            scrollHorizComplete, I.current_buffer, 1);
 
 interactive("make-window",
             "Make a new window.",
@@ -86,6 +86,7 @@ interactive("jsconsole",
             open_in_browser,
             I.current_buffer, I.browse_target("jsconsole"),
             "chrome://global/content/console.xul");
+default_browse_targets["jsconsole"] = "find-url";
 
 // Copy the contents of the X11 clipboard to ours. This is a cheap
 // hack because it seems impossible to just always yank from the X11
@@ -134,25 +135,25 @@ function goDoCommand (buffer, command)
         buffer.window.minibuffer.message ("goDoCommand ("+command+"): "+e);
     }
 }
-interactive("cmd_beginLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_beginLine');
-interactive("cmd_copy", goDoCommand, I.current_buffer(content_buffer), 'cmd_copy');
-interactive("cmd_copyOrDelete", goDoCommand, I.current_buffer(content_buffer), 'cmd_copyOrDelete');
-interactive("cmd_cut", goDoCommand, I.current_buffer(content_buffer), 'cmd_cut');
-interactive("cmd_cutOrDelete", goDoCommand, I.current_buffer(content_buffer), 'cmd_cutOrDelete');
-interactive("cmd_deleteToBeginningOfLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_deleteToBeginningOfLine');
-interactive("cmd_deleteToEndOfLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_deleteToEndOfLine');
-interactive("cmd_endLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_endLine');
-interactive("cmd_moveTop", goDoCommand, I.current_buffer(content_buffer), 'cmd_moveTop');
-interactive("cmd_moveBottom", goDoCommand, I.current_buffer(content_buffer), 'cmd_moveBottom');
-interactive("cmd_selectAll", goDoCommand, I.current_buffer(content_buffer), 'cmd_selectAll');
-interactive("cmd_selectBeginLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_selectBeginLine');
-interactive("cmd_selectBottom", goDoCommand, I.current_buffer(content_buffer), 'cmd_selectBottom');
-interactive("cmd_selectEndLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_selectEndLine');
-interactive("cmd_selectTop", goDoCommand, I.current_buffer(content_buffer), 'cmd_selectTop');
-interactive("cmd_scrollBeginLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_scrollBeginLine');
-interactive("cmd_scrollEndLine", goDoCommand, I.current_buffer(content_buffer), 'cmd_scrollEndLine');
-interactive("cmd_scrollTop", goDoCommand, I.current_buffer(content_buffer), 'cmd_scrollTop');
-interactive("cmd_scrollBottom", goDoCommand, I.current_buffer(content_buffer), 'cmd_scrollBottom');
+interactive("cmd_beginLine", goDoCommand, I.current_buffer, 'cmd_beginLine');
+interactive("cmd_copy", goDoCommand, I.current_buffer, 'cmd_copy');
+interactive("cmd_copyOrDelete", goDoCommand, I.current_buffer, 'cmd_copyOrDelete');
+interactive("cmd_cut", goDoCommand, I.current_buffer, 'cmd_cut');
+interactive("cmd_cutOrDelete", goDoCommand, I.current_buffer, 'cmd_cutOrDelete');
+interactive("cmd_deleteToBeginningOfLine", goDoCommand, I.current_buffer, 'cmd_deleteToBeginningOfLine');
+interactive("cmd_deleteToEndOfLine", goDoCommand, I.current_buffer, 'cmd_deleteToEndOfLine');
+interactive("cmd_endLine", goDoCommand, I.current_buffer, 'cmd_endLine');
+interactive("cmd_moveTop", goDoCommand, I.current_buffer, 'cmd_moveTop');
+interactive("cmd_moveBottom", goDoCommand, I.current_buffer, 'cmd_moveBottom');
+interactive("cmd_selectAll", goDoCommand, I.current_buffer, 'cmd_selectAll');
+interactive("cmd_selectBeginLine", goDoCommand, I.current_buffer, 'cmd_selectBeginLine');
+interactive("cmd_selectBottom", goDoCommand, I.current_buffer, 'cmd_selectBottom');
+interactive("cmd_selectEndLine", goDoCommand, I.current_buffer, 'cmd_selectEndLine');
+interactive("cmd_selectTop", goDoCommand, I.current_buffer, 'cmd_selectTop');
+interactive("cmd_scrollBeginLine", goDoCommand, I.current_buffer, 'cmd_scrollBeginLine');
+interactive("cmd_scrollEndLine", goDoCommand, I.current_buffer, 'cmd_scrollEndLine');
+interactive("cmd_scrollTop", goDoCommand, I.current_buffer, 'cmd_scrollTop');
+interactive("cmd_scrollBottom", goDoCommand, I.current_buffer, 'cmd_scrollBottom');
 
 
 function doCommandNTimes (buffer, n, cmd)
@@ -160,35 +161,35 @@ function doCommandNTimes (buffer, n, cmd)
     for(i=0;i<n;i++)
         goDoCommand (buffer, cmd);
 }
-interactive("cmd_charNext", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_charNext');
-interactive("cmd_charPrevious", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_charPrevious');
-interactive("cmd_deleteCharBackward", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_deleteCharBackward');
-interactive("cmd_deleteCharForward", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_deleteCharForward');
-interactive("cmd_deleteWordBackward", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_deleteWordBackward');
-interactive("cmd_deleteWordForward", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_deleteWordForward');
-interactive("cmd_lineNext", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_lineNext');
-interactive("cmd_linePrevious", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_linePrevious');
-interactive("cmd_movePageDown", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_movePageDown');
-interactive("cmd_movePageUp", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_movePageUp');
-interactive("cmd_redo", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_redo');
-interactive("cmd_selectCharNext", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectCharNext');
-interactive("cmd_selectCharPrevious", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectCharPrevious');
-interactive("cmd_selectLineNext", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectLineNext');
-interactive("cmd_selectLinePrevious", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectLinePrevious');
-interactive("cmd_selectPageDown", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectPageDown');
-interactive("cmd_selectPageUp", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectPageUp');
-interactive("cmd_selectWordNext", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectWordNext');
-interactive("cmd_selectWordPrevious", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_selectWordPrevious');
-interactive("cmd_undo", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_undo');
-interactive("cmd_wordNext", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_wordNext');
-interactive("cmd_wordPrevious", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_wordPrevious');
-interactive("cmd_scrollPageUp", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_scrollPageUp');
-interactive("cmd_scrollPageDown", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_scrollPageDown');
-interactive("cmd_scrollLineUp", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_scrollLineUp');
-interactive("cmd_scrollLineDown", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_scrollLineDown');
-interactive("cmd_scrollLeft", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_scrollLeft');
-interactive("cmd_scrollRight", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_scrollRight');
-interactive("cmd_paste", doCommandNTimes, I.current_buffer(content_buffer), I.p, 'cmd_paste');
+interactive("cmd_charNext", doCommandNTimes, I.current_buffer, I.p, 'cmd_charNext');
+interactive("cmd_charPrevious", doCommandNTimes, I.current_buffer, I.p, 'cmd_charPrevious');
+interactive("cmd_deleteCharBackward", doCommandNTimes, I.current_buffer, I.p, 'cmd_deleteCharBackward');
+interactive("cmd_deleteCharForward", doCommandNTimes, I.current_buffer, I.p, 'cmd_deleteCharForward');
+interactive("cmd_deleteWordBackward", doCommandNTimes, I.current_buffer, I.p, 'cmd_deleteWordBackward');
+interactive("cmd_deleteWordForward", doCommandNTimes, I.current_buffer, I.p, 'cmd_deleteWordForward');
+interactive("cmd_lineNext", doCommandNTimes, I.current_buffer, I.p, 'cmd_lineNext');
+interactive("cmd_linePrevious", doCommandNTimes, I.current_buffer, I.p, 'cmd_linePrevious');
+interactive("cmd_movePageDown", doCommandNTimes, I.current_buffer, I.p, 'cmd_movePageDown');
+interactive("cmd_movePageUp", doCommandNTimes, I.current_buffer, I.p, 'cmd_movePageUp');
+interactive("cmd_redo", doCommandNTimes, I.current_buffer, I.p, 'cmd_redo');
+interactive("cmd_selectCharNext", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectCharNext');
+interactive("cmd_selectCharPrevious", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectCharPrevious');
+interactive("cmd_selectLineNext", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectLineNext');
+interactive("cmd_selectLinePrevious", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectLinePrevious');
+interactive("cmd_selectPageDown", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectPageDown');
+interactive("cmd_selectPageUp", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectPageUp');
+interactive("cmd_selectWordNext", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectWordNext');
+interactive("cmd_selectWordPrevious", doCommandNTimes, I.current_buffer, I.p, 'cmd_selectWordPrevious');
+interactive("cmd_undo", doCommandNTimes, I.current_buffer, I.p, 'cmd_undo');
+interactive("cmd_wordNext", doCommandNTimes, I.current_buffer, I.p, 'cmd_wordNext');
+interactive("cmd_wordPrevious", doCommandNTimes, I.current_buffer, I.p, 'cmd_wordPrevious');
+interactive("cmd_scrollPageUp", doCommandNTimes, I.current_buffer, I.p, 'cmd_scrollPageUp');
+interactive("cmd_scrollPageDown", doCommandNTimes, I.current_buffer, I.p, 'cmd_scrollPageDown');
+interactive("cmd_scrollLineUp", doCommandNTimes, I.current_buffer, I.p, 'cmd_scrollLineUp');
+interactive("cmd_scrollLineDown", doCommandNTimes, I.current_buffer, I.p, 'cmd_scrollLineDown');
+interactive("cmd_scrollLeft", doCommandNTimes, I.current_buffer, I.p, 'cmd_scrollLeft');
+interactive("cmd_scrollRight", doCommandNTimes, I.current_buffer, I.p, 'cmd_scrollRight');
+interactive("cmd_paste", doCommandNTimes, I.current_buffer, I.p, 'cmd_paste');
 
 /*
 function describe_bindings (window, prefix)

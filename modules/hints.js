@@ -517,7 +517,7 @@ I.hinted_element = interactive_method(
             var buf = ctx.window.buffers.current;
             if (!(buf instanceof content_buffer))
                 throw new Error("Current buffer is of invalid type");
-            var doc = buf.content_document;
+            var doc = buf.top_document;
             if (doc.getElementsByTagName("frame").length == 0 &&
                 doc.getElementsByTagName("iframe").length == 0)
             {

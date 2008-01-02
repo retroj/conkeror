@@ -1,0 +1,35 @@
+body {
+  background-color: #eeeeee;
+}
+
+body.describe-bindings {
+  padding: 0px;
+  margin: 0px;
+}
+
+.describe-bindings table { border-collapse: collapse; margin: 0px; width: 100%; }
+
+.describe-bindings td {
+  border: 1px solid #999;
+  padding-left: .3em;
+  padding-right: .3em;
+  margin: 0px;
+  white-space: nowrap;
+}
+
+.describe-bindings tr.even { background-color: #dddddd; }
+
+
+.source-code-reference {
+  font-family: monospace;
+}
+
+.command {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.key-binding {
+  font-family: monospace;
+  font-weight: bold;
+}

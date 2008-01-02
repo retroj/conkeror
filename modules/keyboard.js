@@ -1,12 +1,19 @@
 
-var KeyEvent = Components.interfaces.nsIDOMKeyEvent;
 
 var keycode_to_name = [];
 var name_to_keycode = new Object();
+var shifted_keycode_to_name = [];
+var name_to_shifted_keycode = [];
 
 /* Generate keyCode to string  and string to keyCode mapping tables.  */
 function generate_key_tables()
 {
+    var KeyEvent = Ci.nsIDOMKeyEvent;
+    function map(code, name) {
+        keycode_to_name[code] = name;
+        name_to_keycode[name] = code;
+    }
+
     var prefix = "DOM_VK_";
     for (i in KeyEvent)
     {
@@ -19,6 +26,48 @@ function generate_key_tables()
             name_to_keycode[name] = code;
         }
     }
+
+    /* Add additional mappings for improved display */
+    map(KeyEvent.DOM_VK_BACK_SLASH, "\\");
+    map(KeyEvent.DOM_VK_OPEN_BRACKET, "[");
+    map(KeyEvent.DOM_VK_CLOSE_BRACKET, "]");
+    map(KeyEvent.DOM_VK_SEMICOLON, ";");
+    map(KeyEvent.DOM_VK_COMMA, ",");
+    map(KeyEvent.DOM_VK_PERIOD, ".");
+    map(KeyEvent.DOM_VK_SLASH, "/");
+    map(KeyEvent.DOM_VK_SUBTRACT, "-");
+    map(KeyEvent.DOM_VK_PAGE_DOWN, "pgdn");
+    map(KeyEvent.DOM_VK_PAGE_UP, "pgup");
+
+
+    /* Add additional shifted keycodes for improved display */
+    function smap(code, name) {
+        shifted_keycode_to_name[code] = name;
+        name_to_shifted_keycode[name] = code;
+    }
+
+    for (var i = 0; i < 26; ++i) {
+        var code = KeyEvent.DOM_VK_A + i;
+        var name = String.fromCharCode(i + "A".charCodeAt(0));
+        smap(code, name);
+    }
+    smap(KeyEvent.DOM_VK_SEMICOLON, ":");
+    smap(KeyEvent.DOM_VK_1, "!");
+    smap(KeyEvent.DOM_VK_2, "@");
+    smap(KeyEvent.DOM_VK_3, "#");
+    smap(KeyEvent.DOM_VK_4, "$");
+    smap(KeyEvent.DOM_VK_5, "%");
+    smap(KeyEvent.DOM_VK_6, "^");
+    smap(KeyEvent.DOM_VK_7, "&");
+    smap(KeyEvent.DOM_VK_8, "*");
+    smap(KeyEvent.DOM_VK_9, "(");
+    smap(KeyEvent.DOM_VK_0, ")");
+    smap(KeyEvent.DOM_VK_EQUALS, "+");
+    smap(KeyEvent.DOM_VK_SUBTRACT, "_");
+    smap(KeyEvent.DOM_VK_COMMA, "<");
+    smap(KeyEvent.DOM_VK_PERIOD, ">");
+    smap(KeyEvent.DOM_VK_SLASH, "?");
+
 }
 
 generate_key_tables();
@@ -35,9 +84,14 @@ var modifier_names = ["C", "M", "S"];
 
 function format_key_press(code, modifiers)
 {
-    if (code  == 0)
+    if (code == 0)
         return "<invalid>";
-    var name = keycode_to_name[code];
+    var name;
+    if ((modifiers & MOD_SHIFT) && (code in shifted_keycode_to_name))  {
+        name = shifted_keycode_to_name[code];
+        modifiers &= ~MOD_SHIFT;
+    } else
+        name = keycode_to_name[code];
     if (!name)
         name = String.fromCharCode(code);
     var out = "";
@@ -54,8 +108,13 @@ function format_key_press(code, modifiers)
 }
 
 function format_key_spec(key) {
-    if (key.match_function)
+    if (key.match_function) {
+        if (key.match_function == match_any_key)
+            return "<any-key>";
+        if (key.match_function == match_any_unmodified_key)
+            return "<any-unmodified-key>";
         return "<match-function>";
+    }
     return format_key_press(key.keyCode, key.modifiers);
 }
 
@@ -64,7 +123,11 @@ function format_key_event(event)
     return format_key_press(event.keyCode, get_modifiers(event));
 }
 
-
+function format_binding_sequence(seq) {
+    return seq.map(function (x) {
+            return format_key_spec(x.key);
+        }).join(" ");
+}
 
 // Key Matching Functions.  These are functions that may be passed to kbd
 // in place of key code or char code.  They take an event object as their
@@ -167,29 +230,13 @@ function kbd (spec, mods)
         // Attempt to lookup keycode
         var name = parts[parts.length - 1];
         var code = null;
-        if (name.length == 1)
-        {
-            code = name.charCodeAt(0);
-            var A_code = 'A'.charCodeAt(0);
-            var Z_code = 'Z'.charCodeAt(0);
-            var a_code = 'a'.charCodeAt(0);
-            var z_code = 'z'.charCodeAt(0);
-            if (code >= A_code && code <= Z_code)
-            {
-                // Automatically handle capital letters to mean S-letter.
-                parsed_modifiers |= MOD_SHIFT;
-            }
-            else if (code >= a_code && code <= z_code)
-            {
-                // Lowercase letters must be mapped to uppercase
-                // codes, since that is how key codes are defined.
-                code = code + A_code - a_code;
-            }
-        } else {
-            if (!(name in name_to_keycode))
-                throw "Invalid key specification: " + spec;
-            code = name_to_keycode[name.toLowerCase()];
-        }
+        if (name in name_to_keycode)
+            code = name_to_keycode[name];
+        else if (name in name_to_shifted_keycode) {
+            code = name_to_shifted_keycode[name];
+            parsed_modifiers |= MOD_SHIFT;
+        } else
+            throw "Invalid key specification: " + spec;
         key.keyCode = code;
         if (mods)
             parsed_modifiers |= mods;
@@ -498,3 +545,71 @@ function keyboard_initialize_window(window)
 }
 
 add_hook("window_initialize_hook", keyboard_initialize_window);
+
+function for_each_key_binding(keymap_or_buffer, callback) {
+    var keymap;
+    if (keymap_or_buffer instanceof conkeror.buffer) {
+        var buffer = keymap_or_buffer;
+        var window = buffer.window;
+        keymap = window.keyboard.override_keymap || buffer.keymap;
+    } else {
+        keymap = keymap_or_buffer;
+    }
+    var keymap_stack = [keymap];
+    var binding_stack = [];
+    function helper2(bind) {
+        binding_stack.push(bind);
+        callback(binding_stack);
+        if (bind.keymap && keymap_stack.indexOf(bind.keymap) == -1) {
+            keymap_stack.push(bind.keymap);
+            helper();
+            keymap_stack.pop();
+        }
+        binding_stack.pop();
+    }
+    function helper() {
+        var modifier_keys_masked = false;
+        var keycode_masks = [];
+        while (true) {
+            var keymap = keymap_stack[keymap_stack.length - 1];
+            for (var i in keymap.keycode_bindings) {
+                var b = keymap.keycode_bindings[i];
+                if (!(i in keycode_masks))
+                    keycode_masks[i] = [];
+                for (var j in b) {
+                    if (modifier_keys_masked && j != 0)
+                        continue;
+                    if (!keycode_masks[i][j]) {
+                        helper2(b[j]);
+                        keycode_masks[i][j] = true;
+                    }
+                }
+            }
+            for (var i in  keymap.predicate_bindings) {
+                var bind = keymap.predicate_bindings[i];
+                helper2(bind);
+                var p = bind.key.match_function;
+                if (p == match_any_key)
+                    return;
+                if (p == match_any_unmodified_key)
+                    modifier_keys_masked = true;
+            }
+            if (keymap.parent)
+                keymap_stack[keymap_stack.length - 1] = keymap.parent;
+            else
+                break;
+        }
+    }
+    helper();
+}
+
+function find_command_in_keymap(keymap_or_buffer, command) {
+    var list = [];
+
+    for_each_key_binding(keymap_or_buffer, function (bind_seq) {
+            var bind = bind_seq[bind_seq.length - 1];
+            if (bind.command == command)
+                list.push(format_binding_sequence(bind_seq));
+        });
+    return list;
+}
