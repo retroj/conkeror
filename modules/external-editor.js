@@ -28,14 +28,14 @@ function open_file_with_external_editor(file) {
     if (arguments.$temporary)
         shell_command(
             default_directory.path, cmd,
-            function () {
+            function (x) {
                 if (callback)
-                    callback();
+                    callback(x);
                 cont();
             },
-            function () {
+            function (x) {
                 if (failure_callback)
-                    failure_callback();
+                    failure_callback(x);
                 cont();
             });
     else
