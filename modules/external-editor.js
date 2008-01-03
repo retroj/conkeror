@@ -6,7 +6,6 @@ var editor_shell_command = getenv("EDITOR") || "emacs";
 var run_external_editor_function = null;
 
 define_keyword("$temporary", "$line", "$callback", "$failure_callback");
-
 function open_file_with_external_editor(file) {
     keywords(arguments);
     if (run_external_editor_function) {
@@ -42,6 +41,33 @@ function open_file_with_external_editor(file) {
         shell_command(default_directory.path, cmd, callback, failure_callback);
 }
 
+function create_external_editor_launcher(program, args) {
+    return function (file) {
+        keywords(arguments);
+        var arr = args.slice();
+        var callback = arguments.$callback;
+        var failure_callback = arguments.$failure_callback;
+        arr.push(file.path);
+        function cont() {
+            file.remove(false);
+        }
+        if (arguments.$temporary)
+            spawn_process(
+                program, arr,
+                function (x) {
+                    if (callback)
+                        callback(x);
+                    cont();
+                },
+                function (x) {
+                    if (failure_callback)
+                        failure_callback(x);
+                    cont();
+                });
+        else
+            spawn_process(program, arr, callback, failure_callback);
+    };
+}
 
 function open_with_external_editor(load_spec) {
     var args = arguments;

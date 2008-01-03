@@ -3,7 +3,7 @@ require("interactive.js");
 
 const WINDOWS = (get_os() == "WINNT");
 const POSIX = !WINDOWS;
-const PATH = getenv("PATH").split(!POSIX ? ":" : ";"); 
+const PATH = getenv("PATH").split(POSIX ? ":" : ";"); 
 const path_component_regexp = POSIX ? /^[^/]+$/ : /^[^/\\]+$/;
 
 function get_file_in_path(name) {
@@ -34,7 +34,7 @@ function spawn_process_sync(program, args, blocking) {
     var process = Cc["@mozilla.org/process/util;1"].createInstance(Ci.nsIProcess);
     var file = get_file_in_path(program);
     if (!file)
-        return null;
+        throw new Error("invalid executable: " + program);
     process.init(file);
     return process.run(!!blocking, args, args.length);
 }
@@ -65,8 +65,6 @@ function shell_command(cwd, cmd, success_cont, error_cont) {
             full_cmd += cwd.substring(0,2) + " && ";
         }
         full_cmd += "cd \"" + shell_quote(cwd) + "\" && " + cmd;
-
-        dumpln("full_cmd: " + full_cmd);
 
         /* Need to convert the single command-line into a list of
          * arguments that will then get converted back into a
