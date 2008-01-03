@@ -294,7 +294,9 @@ function edit_field_in_external_editor(buffer, elem) {
             elem.removeAttribute("readonly");
         file.remove(false);
     }
-    spawn_process(editor_program, [file.path], function () {
+    open_file_with_external_editor(
+        file,
+        $callback = function () {
             try {
                 elem.value = read_text_file(file);
             } catch (e) {
@@ -302,7 +304,7 @@ function edit_field_in_external_editor(buffer, elem) {
             // FIXME: flash the textbox?
             cleanup();
         },
-        cleanup);
+        $failure_callback = cleanup);
 }
 interactive("edit-current-field-in-external-editor",
             edit_field_in_external_editor,

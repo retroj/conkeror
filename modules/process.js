@@ -58,9 +58,9 @@ function shell_command(cwd, cmd, success_cont, error_cont) {
                       success_cont, error_cont);
         return;
     } else {
-        /* FIXME: Need to set current directory */
+        var full_cmd = "cd \"" + shell_quote(cwd) + "\" && " + cmd;
         spawn_process("cmd.exe",
-                      ["/C", command],
+                      ["/C", full_cmd],
                       success_cont, error_cont);
     }
 }
@@ -98,3 +98,24 @@ I.shell_command = interactive_method(
         minibuffer_read_shell_command(ctx.window.minibuffer, forward_keywords(arguments),
                                       $callback = cont);
     });
+
+
+define_keywords("$command", "$argument", "$callback", "$failure_callback");
+function shell_command_with_argument(cwd) {
+    keywords(arguments);
+    var cmdline = arguments.$command;
+    var cont = arguments.$callback;
+    var failure_cont = arguments.$failure_callback;
+    var argument = arguments.$argument;
+    if (!cmdline.match("{}")) {
+        cmdline = cmdline + " \"" + shell_quote(argument) + "\"";
+    } else {
+        cmdline = cmdline.replace("{}", "\"" + shell_quote(argument) + "\"");
+    }
+    shell_command(cwd, cmdline, cont, failure_callback /*, function (exit_code) {
+            if (exit_code == 0)
+                buffer.window.minibuffer.message("Shell command exited normally.");
+            else
+                buffer.window.minibuffer.message("Shell command exited with status " + exit_code + ".");
+                }*/);
+}

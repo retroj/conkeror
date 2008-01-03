@@ -351,30 +351,24 @@ interactive("browser-element-copy", browser_element_copy,
             I.current_buffer,
             hinted_element_with_prompt("copy", "Copy", "links", null));
 
-var view_source_external_editor = null, view_source_function = null;
+var view_source_use_external_editor = false, view_source_function = null;
 function browser_element_view_source(buffer, target, elem, charset)
 {
-    if (view_source_external_editor || view_source_function)
+    if (view_source_use_external_editor || view_source_function)
     {
         var load_spec = element_get_load_spec(elem);
         if (load_spec == null) {
             throw interactive_error("Element has no associated URL");
             return;
         }
+
         download_for_external_program
             (load_spec,
              function (file, is_temp_file) {
-                 if (view_source_external_editor)
-                 {
-                     function cont() {
-                         if (is_temp_file)
-                             file.remove(false /* not recursive */);
-                     }
-                     spawn_process(view_source_external_editor, [file.path], cont, cont);
-                 } else
-                 {
-                     view_source_function(file, is_temp_file);
-                 }
+                if (view_source_use_external_editor)
+                    open_file_with_external_editor(file, $temporary = is_temp_file);
+                else
+                    view_source_function(file, is_temp_file);
              });
         return;
     }
@@ -411,25 +405,6 @@ interactive("browser-element-view-source", browser_element_view_source,
             $$ = I.browse_target("follow"),
             hinted_element_with_prompt("view_source", "View source", "frames", $$),
             I.content_charset);
-
-define_keywords("$command", "$argument", "$callback");
-function shell_command_with_argument(cwd) {
-    keywords(arguments);
-    var cmdline = arguments.$command;
-    var cont = arguments.$callback;
-    var argument = arguments.$argument;
-    if (!cmdline.match("{}")) {
-        cmdline = cmdline + " \"" + shell_quote(argument) + "\"";
-    } else {
-        cmdline = cmdline.replace("{}", "\"" + shell_quote(argument) + "\"");
-    }
-    shell_command(cwd, cmdline, cont, cont /*, function (exit_code) {
-            if (exit_code == 0)
-                buffer.window.minibuffer.message("Shell command exited normally.");
-            else
-                buffer.window.minibuffer.message("Shell command exited with status " + exit_code + ".");
-                }*/);
-}
 
 function element_get_default_shell_command(elem) {
     var doc = null;
