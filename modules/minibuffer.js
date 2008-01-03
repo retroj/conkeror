@@ -773,8 +773,7 @@ function minibuffer_read_command(m) {
         $get_value = function (x) {
             return x.name;
         });
-    return m.read($prompt = arguments.$prompt,
-                  $history = arguments.$history,
+    return m.read(forward_keywords(arguments),
                   $completer = completer,
                   $match_required = true);
 }
