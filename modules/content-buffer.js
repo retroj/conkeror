@@ -475,6 +475,7 @@ browser_dom_window.prototype = {
         throw Components.results.NS_NOINTERFACE;
     },
     openURI : function(aURI, aOpener, aWhere, aContext) {
+
         // Reference: http://www.xulplanet.com/references/xpcomref/ifaces/nsIBrowserDOMWindow.html
         var target = this.next_target;
         if (target == null || target == FOLLOW_DEFAULT)
@@ -492,11 +493,11 @@ browser_dom_window.prototype = {
         case FOLLOW_CURRENT_FRAME:
             return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new content_buffer(this.window, $configuration = config);
+            var buffer = new content_buffer(this.window, null /* element */, $configuration = config);
             this.window.buffers.current = buffer;
             return buffer.top_frame;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new content_buffer(this.window, $configuration = config);
+            var buffer = new content_buffer(this.window, null /* element */, $configuration = config);
             return buffer.top_frame;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */

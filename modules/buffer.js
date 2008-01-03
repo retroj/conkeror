@@ -50,7 +50,7 @@ function buffer_creator(type) {
 
 function buffer(window, element)
 {
-    keywords(arguments);
+    keywords(arguments, $configuration = null);
     this.window = window;
     this.configuration = new buffer_configuration(arguments.$configuration);
     if (element == null)

@@ -151,7 +151,10 @@ function window_initialize(window)
     window_setup_args(window);
 
     // Set tag
-    window.tag = generate_new_window_tag(window.args.tag);
+    var tag = null;
+    if ('tag' in window.args)
+        tag = window.args.tag;
+    window.tag = generate_new_window_tag(tag);
 
     window_initialize_early_hook.run(window);
     delete window.initialize_early_hook; // used only once
