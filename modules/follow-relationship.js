@@ -4,7 +4,8 @@ const RELATIONSHIP_NEXT = 0;
 const RELATIONSHIP_PREVIOUS = 1;
 
 var browser_relationship_rel_name = ["next", "previous"];
-var browser_relationship_rev_name = ["previous", "next"];
+var browser_relationship_rel_regexp = ["next", "prev|previous"];
+var browser_relationship_rev_regexp = ["prev|previous", "next"];
 
 /* USER PREFERENCE */
 var browser_relationship_patterns = [];
@@ -25,8 +26,8 @@ browser_relationship_patterns[RELATIONSHIP_PREVIOUS] =
 
 function document_get_element_by_relationship(doc, relationship) {
     var patterns = browser_relationship_patterns[relationship];
-    var rel_name = new RegExp(browser_relationship_rel_name[relationship], "i");
-    var rev_name = new RegExp(browser_relationship_rev_name[relationship], "i");
+    var rel_name = new RegExp(browser_relationship_rel_regexp[relationship], "i");
+    var rev_name = new RegExp(browser_relationship_rev_regexp[relationship], "i");
     
     var elems = doc.getElementsByTagName("link");
     // links have higher priority than normal <a> hrefs
