@@ -3,7 +3,7 @@ require("interactive.js");
 
 const POSIX = (get_os() != "WINNT");
 const PATH = getenv("PATH").split(POSIX ? ":" : ";"); 
-const path_component_regexp = POSIX ? /^[^/]+$/ : /^[^/\\]$/;
+const path_component_regexp = POSIX ? /^[^/]+$/ : /^[^/\\]+$/;
 
 function get_file_in_path(name) {
     var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
