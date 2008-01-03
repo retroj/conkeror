@@ -368,7 +368,7 @@ function browser_element_view_source(buffer, target, elem, charset)
                 if (view_source_use_external_editor)
                     open_file_with_external_editor(file, $temporary = is_temp_file);
                 else
-                    view_source_function(file, is_temp_file);
+                    view_source_function(file, $temporary = is_temp_file);
              });
         return;
     }
