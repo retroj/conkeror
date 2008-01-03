@@ -13,6 +13,7 @@ define_key(minibuffer_base_keymap, "C-e", "minibuffer-cmd_endLine");
 define_key(minibuffer_base_keymap, "back_space", "minibuffer-cmd_deleteCharBackward");
 define_key(minibuffer_base_keymap, "M-back_space", "minibuffer-cmd_deleteWordBackward");
 define_key(minibuffer_base_keymap, "C-d", "minibuffer-cmd_deleteCharForward");
+define_key(minibuffer_base_keymap, "delete", "minibuffer-cmd_deleteCharForward");
 define_key(minibuffer_base_keymap, "M-d", "minibuffer-cmd_deleteWordForward");
 define_key(minibuffer_base_keymap, "C-b", "minibuffer-cmd_charPrevious");
 define_key(minibuffer_base_keymap, "M-b", "minibuffer-cmd_wordPrevious");
