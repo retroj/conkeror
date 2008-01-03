@@ -83,7 +83,7 @@ help_document_generator.prototype = {
 
             var p = this.element("p", f);
 
-            var regexp = /`([a-zA-Z0-9_\-$]+)\'/;
+            var regexp = /`([a-zA-Z0-9_\-$]+)\'/g;
 
             var match;
             var last_index = 0;
