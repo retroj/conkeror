@@ -56,16 +56,14 @@ function generate_new_window_tag(tag)
 
 function make_chrome_window(chrome_URI, args)
 {
-    return window_watcher.openWindow(null, chrome_URI, null,
-                                     "resizeable=yes,dialog=no", args);
+    return window_watcher.openWindow(null, chrome_URI, "_blank",
+                                     "chrome,dialog=no,all,resizable", args);
 }
 
 var conkeror_chrome_URI = "chrome://conkeror/content/conkeror.xul";
 
-define_keywords("$tag", "$initial_buffer_creator");
 function make_window(initial_buffer_creator, tag)
 {
-    keywords(arguments);
     var args = { tag: tag,
                  initial_buffer_creator: initial_buffer_creator };
     var result = make_chrome_window(conkeror_chrome_URI, null);
