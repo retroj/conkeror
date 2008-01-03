@@ -1,8 +1,9 @@
 require("thread.js");
 require("interactive.js");
 
-const POSIX = (get_os() != "WINNT");
-const PATH = getenv("PATH").split(POSIX ? ":" : ";"); 
+const WINDOWS = (get_os() == "WINNT");
+const POSIX = !WINDOWS;
+const PATH = getenv("PATH").split(!POSIX ? ":" : ";"); 
 const path_component_regexp = POSIX ? /^[^/]+$/ : /^[^/\\]+$/;
 
 function get_file_in_path(name) {
@@ -58,9 +59,41 @@ function shell_command(cwd, cmd, success_cont, error_cont) {
                       success_cont, error_cont);
         return;
     } else {
-        var full_cmd = "cd \"" + shell_quote(cwd) + "\" && " + cmd;
-        spawn_process("cmd.exe",
-                      ["/C", full_cmd],
+
+        var full_cmd = "";
+        if (cwd.match(/[a-z]:/i)) {
+            full_cmd += cwd.substring(0,2) + " && ";
+        }
+        full_cmd += "cd \"" + shell_quote(cwd) + "\" && " + cmd;
+
+        dumpln("full_cmd: " + full_cmd);
+
+        /* Need to convert the single command-line into a list of
+         * arguments that will then get converted back into a
+         * command-line by Mozilla. */
+        var out = ["/C"];
+        var cur_arg = "";
+        var quoting = false;
+        for (var i = 0; i < full_cmd.length; ++i) {
+            var ch = full_cmd[i];
+            if (ch == " ") {
+                if (quoting) {
+                    cur_arg += ch;
+                } else {
+                    out.push(cur_arg);
+                    cur_arg = "";
+                }
+                continue;
+            }
+            if (ch == "\"") {
+                quoting = !quoting;
+                continue;
+            }
+            cur_arg += ch;
+        }
+        if (cur_arg.length > 0)
+            out.push(cur_arg);
+        spawn_process("cmd.exe", out,
                       success_cont, error_cont);
     }
 }
