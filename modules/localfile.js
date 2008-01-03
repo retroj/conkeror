@@ -193,3 +193,10 @@ function write_text_file(file, buf)
     ocstream.close();
     ofstream.close();
 }
+
+
+function get_file(path) {
+    var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+    f.initWithPath(path);
+    return f;
+}

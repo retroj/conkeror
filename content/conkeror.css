@@ -43,7 +43,7 @@ tree.completions {
   border: 0px none !important;
   margin: 0px !important;
   border-top: 4px double #333333 !important;
-  background-color: #cccccc !important;
+  background-color: #dcdad5 !important;
   -moz-border-top-colors: -moz-initial !important;
 }
 
@@ -62,4 +62,13 @@ tree.completions treechildren::-moz-tree-cell-text(completion-description) {
 
 tree.completions treechildren::-moz-tree-cell-text(current) {
   color: white !important;
+}
+
+.download-panel {
+  border-top: 4px double #333333;
+  background-color: #dcdad5;
+}
+
+.download-panel .downloading-label, .download-panel .mime-type-label {
+  font-weight: bold;
 }

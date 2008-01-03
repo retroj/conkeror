@@ -12,8 +12,8 @@ define_key(hint_keymap, "down", "hints-next");
 define_key(hint_keymap, "S-tab", "hints-previous");
 define_key(hint_keymap, "left", "hints-previous");
 define_key(hint_keymap, "up", "hints-previous");
-define_key(hint_keymap, "escape", "hints-abort");
-define_key(hint_keymap, "C-g", "hints-abort");
+define_key(hint_keymap, "escape", "minibuffer-abort");
+define_key(hint_keymap, "C-g", "minibuffer-abort");
 define_key(hint_keymap, "return", "hints-exit");
 
 // FIXME: this should probably be some better more general

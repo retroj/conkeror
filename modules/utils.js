@@ -332,11 +332,25 @@ function shell_quote(str) {
     return s;
 }
 
+function get_window_from_frame(frame) {
+    try {
+        var window = frame.QueryInterface(Ci.nsIInterfaceRequestor)
+            .getInterface(Ci.nsIWebNavigation)
+            .QueryInterface(Ci.nsIDocShellTreeItem)
+            .rootTreeItem
+            .QueryInterface(Ci.nsIInterfaceRequestor)
+            .getInterface(Ci.nsIDOMWindow).wrappedJSObject;
+        return window;
+    } catch (e) {
+        return null;
+    }
+}
+
 function get_buffer_from_frame(window, frame) {
     var count = window.buffers.count;
     for (var i = 0; i < count; ++i) {
         var b = window.buffers.get_buffer(i);
-        if (b instanceof content_buffer && b.top_frame == frame)
+        if (b.top_frame == frame)
             return b;
     }
     return null;
@@ -388,3 +402,28 @@ function get_caller_source_code_reference() {
 }
 
 require_later("external-editor.js");
+
+function dom_generator(document, ns) {
+    this.document = document;
+    this.ns = ns;
+}
+dom_generator.prototype = {
+    element : function(tag, parent) {
+        var node = this.document.createElementNS(this.ns, tag);
+        var i = 1;
+        if (parent != null && (parent instanceof Ci.nsIDOMNode)) {
+            parent.appendChild(node);
+            i = 2;
+        }
+        for (; i < arguments.length; i += 2)
+            node.setAttribute(arguments[i], arguments[i+1]);
+        return node;
+    },
+
+    text : function(str, parent) {
+        var node = this.document.createTextNode(str);
+        if (parent)
+            parent.appendChild(node);
+        return node;
+    }
+};

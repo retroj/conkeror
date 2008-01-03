@@ -237,7 +237,7 @@ I.url_or_webjump = interactive_method(
 
 I.current_frame_url = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.window.buffers.current;
+        var buffer = ctx.buffer;
         if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.focused_frame.location.href;
@@ -246,7 +246,7 @@ I.current_frame_url = interactive_method(
 // This name should probably change
 I.current_url = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.window.buffers.current;
+        var buffer = ctx.buffer;
         if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
         return buffer.current_URI.spec;
@@ -254,7 +254,7 @@ I.current_url = interactive_method(
 
 I.focused_link_url = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.window.buffers.current;
+        var buffer = ctx.buffer;
         if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
         // -- Focused link element
@@ -264,7 +264,7 @@ I.focused_link_url = interactive_method(
 
 I.content_charset = interactive_method(
     $sync = function (ctx) {
-        var buffer = ctx.window.buffers.current;
+        var buffer = ctx.buffer;
         if (!(buffer instanceof content_buffer))
             throw new Error("Current buffer is of invalid type");
         // -- Charset of content area of focusedWindow

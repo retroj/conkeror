@@ -96,6 +96,20 @@ function for_each_window(func)
     }
 }
 
+function get_recent_conkeror_window()
+{
+    var window = window_watcher.activeWindow;
+    if (window && ("conkeror" in window))
+        return window;
+    var en = window_watcher.getWindowEnumerator ();
+    while (en.hasMoreElements ()) {
+        window = en.getNext().QueryInterface (Ci.nsIDOMWindow);
+        if ('conkeror' in window)
+            return window;
+    }
+    return null;
+}
+
 define_window_local_hook("window_initialize_early_hook");
 define_window_local_hook("window_initialize_hook");
 define_window_local_hook("window_initialize_late_hook");

@@ -87,12 +87,14 @@ function get_shell_command_completer() {
                             $get_string = function (x) { return x; });
 }
 
+function minibuffer_read_shell_command(m) {
+    keywords(arguments, $prompt = "Shell command", $history = "shell-command");
+    return m.read(forward_keywords(arguments),
+                  $completer = get_shell_command_completer());
+}
+
 I.shell_command = interactive_method(
     $async = function (ctx, cont) {
-        keywords(arguments);
-        ctx.frame.minibuffer.read($prompt = "Shell command:",
-                                  $history = "shell-command",
-                                  forward_keywords(arguments),
-                                  $callback = cont,
-                                  $completer = get_shell_command_completer());
+        minibuffer_read_shell_command(ctx.window.minibuffer, forward_keywords(arguments),
+                                      $callback = cont);
     });

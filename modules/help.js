@@ -24,26 +24,13 @@ function where_is_command(buffer, command) {
 interactive("where-is", where_is_command, I.current_buffer, I.C($prompt = "Where is command:"));
 
 function help_document_generator(document) {
-    this.document = document;
+    dom_generator.call(this, document, XHTML_NS);
 }
 help_document_generator.prototype = {
-    element : function(tag, parent) {
-        var node = this.document.createElementNS(XHTML_NS, tag);
-        if (parent)
-            parent.appendChild(node);
-        return node;
-    },
-
-    text : function(str, parent) {
-        var node = this.document.createTextNode(str);
-        if (parent)
-            parent.appendChild(node);
-        return node;
-    },
+    __proto__: dom_generator.prototype,
 
     key_binding : function(str, parent) {
-        var node = this.element("span");
-        node.setAttribute("class", "key-binding");
+        var node = this.element("span", "class", "key-binding");
         this.text(str, node);
         if (parent)
             parent.appendChild(node);
@@ -54,9 +41,9 @@ help_document_generator.prototype = {
         var f = this.document.createDocumentFragment();
         var module_name = ref.module_name;
         //f.appendChild(this.text(module_name != null ? "module " : "file "));
-        var x = this.element("a");
-        x.setAttribute("class", "source-code-reference");
-        x.setAttribute("href", "javascript:");
+        var x = this.element("a",
+                             "class", "source-code-reference",
+                             "href", "javascript:");
         x.addEventListener("click", function (event) {
                 ref.open_in_editor();
                 event.preventDefault();
@@ -70,8 +57,7 @@ help_document_generator.prototype = {
     },
 
     command_name : function(name, parent) {
-        var node = this.element("span");
-        node.setAttribute("class", "command");
+        var node = this.element("span", "class", "command");
         this.text(name, node);
         if (parent)
             parent.appendChild(node);
@@ -79,9 +65,7 @@ help_document_generator.prototype = {
     },
 
     command_reference : function(name, parent) {
-        var node = this.element("a");
-        node.setAttribute("class", "command");
-        node.setAttribute("href", "#");
+        var node = this.element("a", "class", "command", "href", "#");
         /* FIXME: make this work */
         this.text(name, node);
         if (parent)

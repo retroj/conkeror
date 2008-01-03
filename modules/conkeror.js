@@ -19,8 +19,7 @@ require("window.js");
 require("popup.js");
 require("daemon-mode.js");
 require("mode-line.js");
-
-
+require("download-manager.js");
 
 
 require("commands.js"); // depends: interactive.js

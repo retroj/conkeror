@@ -353,9 +353,17 @@ hints_minibuffer_state.prototype = {
         this.manager.update_valid_hints();
     },
     unload : function (window) {
+        if (this.auto_exit_timer_ID) {
+            window.clearTimeout(this.auto_exit_timer_ID);
+            this.auto_exit_timer_ID = null;
+        }
         this.manager.hide_hints();
     },
     destroy : function () {
+        if (this.auto_exit_timer_ID) {
+            window.clearTimeout(this.auto_exit_timer_ID);
+            this.auto_exit_timer_ID = null;
+        }
         this.manager.remove();
     },
     update_minibuffer : function (window) {
@@ -455,19 +463,6 @@ interactive("hints-next", hints_next,
 interactive("hints-previous", hints_next,
             I.current_window, I.minibuffer_state(hints_minibuffer_state),
             I.bind(function (x) {return -x;}, I.p));
-
-function hints_abort(window, s) {
-    if (this.auto_exit_timer_ID) {
-        window.clearTimeout(this.auto_exit_timer_ID);
-        this.auto_exit_timer_ID = null;
-    }
-    window.minibuffer.pop_state();
-    if (s.abort_callback)
-        s.abort_callback();
-}
-
-interactive("hints-abort", hints_abort,
-            I.current_window, I.minibuffer_state(hints_minibuffer_state));
 
 function hints_exit(window, s)
 {

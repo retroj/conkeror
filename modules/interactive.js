@@ -114,74 +114,89 @@ function interactive_error(str) {
     return e;
 }
 
+function join_argument_lists(args1, args2)
+{
+    if (args1.length == 0)
+        return args2;
+    var positional_args = [];
+    var keyword_args = [];
+    var keywords_seen = new Object();
+
+    // First process the given arguments (args1)
+    for (var i = 0; i < args1.length; ++i)
+    {
+        var arg = args1[i];
+        if (arg instanceof keyword_argument)
+        {
+            keywords_seen[arg.name] = keyword_args.length;
+            keyword_args.push(arg);
+        } else
+            positional_args[i] = arg;
+    }
+
+    // Process the argument list specified in the command definition (args2)
+    for (var i = 0; i < args2.length; ++i)
+    {
+        var arg = args2[i];
+        var actual_arg = arg;
+        if (arg instanceof interactive_variable)
+            actual_arg = arg.value;
+        if (actual_arg instanceof keyword_argument)
+        {
+            if (actual_arg.name in keywords_seen)
+            {
+                if (arg != actual_arg)
+                {
+                    var j = keywords_seen[actual_arg.name];
+                    keyword_args[j] = new interactive_variable(arg.name, keyword_args[j]);
+                }
+            } else
+                keyword_args.push(arg);
+        } else 
+        {
+            if (positional_args[i] === undefined)
+                positional_args[i] = arg;
+            else if (actual_arg != arg)
+                positional_args[i] = new interactive_variable(arg.name, positional_args[i]);
+        }
+    }
+    return positional_args.concat(keyword_args);
+}
+
+
 // Any additional arguments specify "given" arguments to the function.
 function call_interactively(ctx, command)
 {
-    var cmd = interactive_commands.get(command);
+    var handler;
+    var top_args;
+
+    if (ctx.buffer == null)
+        ctx.buffer = ctx.window.buffers.current;
+    else if (ctx.window == null)
+        ctx.window = ctx.buffer.window;
+
     var window = ctx.window;
-    if (!cmd)
-    {
-        window.minibuffer.message("Invalid command: " + command);
-        return;
-    }
-    ctx.command = command;
 
-    function join_argument_lists(args1, args2)
-    {
-        if (args1.length == 0)
-            return args2;
-        var positional_args = [];
-        var keyword_args = [];
-        var keywords_seen = new Object();
+    var explicit_args = Array.prototype.slice.call(arguments, 2);
 
-        // First process the given arguments (args1)
-        for (var i = 0; i < args1.length; ++i)
+    if (typeof(cmd) == "function") {
+        handler = command;
+        top_args = explicit_args;
+    } else {
+        var cmd = interactive_commands.get(command);
+        if (!cmd)
         {
-            var arg = args1[i];
-            if (arg instanceof keyword_argument)
-            {
-                keywords_seen[arg.name] = keyword_args.length;
-                keyword_args.push(arg);
-            } else
-                positional_args[i] = arg;
+            window.minibuffer.message("Invalid command: " + command);
+            return;
         }
-
-        // Process the argument list specified in the command definition (args2)
-        for (var i = 0; i < args2.length; ++i)
-        {
-            var arg = args2[i];
-            var actual_arg = arg;
-            if (arg instanceof interactive_variable)
-                actual_arg = arg.value;
-            if (actual_arg instanceof keyword_argument)
-            {
-                if (actual_arg.name in keywords_seen)
-                {
-                    if (arg != actual_arg)
-                    {
-                        var j = keywords_seen[actual_arg.name];
-                        keyword_args[j] = new interactive_variable(arg.name, keyword_args[j]);
-                    }
-                } else
-                    keyword_args.push(arg);
-            } else 
-            {
-                if (positional_args[i] === undefined)
-                    positional_args[i] = arg;
-                else if (actual_arg != arg)
-                    positional_args[i] = new interactive_variable(arg.name, positional_args[i]);
-            }
-        }
-        return positional_args.concat(keyword_args);
+        ctx.command = command;
+        top_args = join_argument_lists(explicit_args, cmd.arguments);
+        handler = cmd.handler;
     }
-
-
-    var top_args = join_argument_lists(Array.prototype.slice.call(arguments, 2),
-                                       cmd.arguments);
 
     var variable_values = new Object();
 
-    var state = [{args: top_args, out_args: [], handler: cmd.handler}];
+    var state = [{args: top_args, out_args: [], handler: handler}];
     var next_variable = null;
 
     function process_next()
@@ -354,25 +369,9 @@ I.pref = interactive_method(
 I.C = interactive_method(
     $doc = "Name of a command",
     $async = function (ctx, cont) {
-        keywords(arguments, $prompt = "Command:", $history = "command");
-        var completer = prefix_completer(
-            $completions = function (visitor) {
-                interactive_commands.for_each_value(visitor);
-            },
-            $get_string = function (x) {
-                return x.name;
-            },
-            $get_description = function (x) {
-                return x.shortdoc || "";
-            },
-            $get_value = function (x) {
-                return x.name;
-            });
-        ctx.window.minibuffer.read($prompt = arguments.$prompt,
-                                  $history = arguments.$history,
-                                  $completer = completer,
-                                  $match_required = true,
-                                  $callback = cont);
+        minibuffer_read_command(ctx.window.minibuffer,
+                                forward_keywords(arguments),
+                                $callback = cont);
     });
 
 I.f = interactive_method(

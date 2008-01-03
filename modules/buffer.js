@@ -387,21 +387,9 @@ function _process_queued_buffer_creators(window) {
 function create_buffer_in_current_window(creator, target) {
     if (target == OPEN_NEW_WINDOW)
         throw new Error("invalid target");
-    var window = window_watcher.activeWindow;
+    var window = get_recent_conkeror_window();
     if (window) {
-        if (!("conkeror" in window)) {
-            window = null;
-            var en = window_watcher.getWindowEnumerator ();
-            while (en.hasMoreElements ()) {
-                var w = en.getNext().QueryInterface (Ci.nsIDOMWindow);
-                if ('conkeror' in w) {
-                    window = w;
-                    break;
-                }
-            }
-        }
-        if (window != null)
-            create_buffer(window, creator, target);
+        create_buffer(window, creator, target);
     } else if (queued_buffer_creators != null) {
         queued_buffer_creators.push([creator,target]);
     } else {
@@ -414,32 +402,31 @@ function create_buffer_in_current_window(creator, target) {
 I.current_buffer = interactive_method(
     $doc = "Current buffer",
     $sync = function (ctx, type) {
-        var buffer = ctx.window.buffers.current;
-        if (type && !(buffer instanceof type))
+        if (type && !(ctx.buffer instanceof type))
             throw interactive_error("Current buffer is of invalid type");
-        return buffer;
+        return ctx.buffer;
     });
 
 
 I.focused_element = interactive_method(
     $sync =  function (ctx) {
-        return ctx.window.buffers.current.focused_element;
+        return ctx.buffer.focused_element;
     });
 
 I.current_frame = interactive_method(
     $sync = function (ctx) {
-        return ctx.window.buffers.current.focused_frame;
+        return ctx.buffer.focused_frame;
     });
 
 I.top_frame = interactive_method(
     $sync = function (ctx) {
-        return ctx.window.buffers.current.top_frame;
+        return ctx.buffer.top_frame;
     });
 
 // This name should perhaps change
 I.top_document = interactive_method(
     $sync = function (ctx) {
-        return ctx.window.buffers.current.top_document;
+        return ctx.buffer.top_document;
     });
 
 // This name should perhaps change
@@ -449,7 +436,7 @@ define_keywords("$default");
 I.b = interactive_method(
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "Buffer:",
-                 $default = ctx.window.buffers.current,
+                 $default = ctx.buffer,
                  $history = "buffer");
         var completer = all_word_completer(
             $completions = function (visitor) {
@@ -473,12 +460,12 @@ I.b = interactive_method(
 
 I.cwd = interactive_method(
     $sync = function (ctx) {
-        return ctx.window.buffers.current.cwd;
+        return ctx.buffer.cwd;
     });
 
 I.buffer_configuration = interactive_method(
     $sync = function (ctx) {
-        return ctx.window.buffers.current.configuration;
+        return ctx.buffer.configuration;
     });
 
 function buffer_next (window, count)

@@ -6,7 +6,11 @@ function exit_minibuffer(window)
     if (!(s instanceof text_entry_minibuffer_state))
         throw "Invalid minibuffer state";
 
-    var val = trim_whitespace(m._input_text);
+    var val = m._input_text;
+
+    if (s.validator && !s.validator(val, m))
+        return;
+
     var match = null;
 
     /* FIXME: this is only for old completion junk */
@@ -84,15 +88,18 @@ function minibuffer_history_previous (window)
 }
 interactive("minibuffer-history-previous", minibuffer_history_previous, I.current_window);
 
+/* This should only be used for minibuffer states where it makes
+ * sense.  In particular, it should not be used if additional cleanup
+ * must be done. */
 function minibuffer_abort (window)
 {
     var m = window.minibuffer;
     var s = m.current_state;
-    if (!(s instanceof text_entry_minibuffer_state))
+    if (!(s instanceof minibuffer_state))
         throw "Invalid minibuffer state";
+    m.pop_state();
     if (s.abort_callback)
         s.abort_callback();
-    m.pop_state();
 }
 interactive("minibuffer-abort", minibuffer_abort, I.current_window);
 
@@ -267,7 +274,9 @@ basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inhe
  *
  * default_completion  only used if match_required is set to true
  */
-define_keywords("$callback", "$abort_callback", "$history", "$completer", "$match_required", "$default_completion");
+define_keywords("$callback", "$abort_callback", "$history", "$completer",
+                "$match_required", "$default_completion",
+                "$validator");
 function text_entry_minibuffer_state() {
     keywords(arguments);
 
@@ -294,6 +303,8 @@ function text_entry_minibuffer_state() {
     this.match_required  = arguments.$match_required ? true : false;
     if (this.match_required)
         this.default_completion = arguments.$default_completion;
+
+    this.validator = arguments.$validator;
 }
 
 function completions_tree_view(minibuffer_state)
@@ -345,7 +356,6 @@ text_entry_minibuffer_state.prototype = {
             // Create completion display element if needed
             if (!this.completion_element)
             {
-                var insert_before = window.document.getElementById("minibuffer");
                 var tree = create_XUL(window, "tree");
                 var s = this;
                 tree.addEventListener("select", function () { s.completion_selected(window); }, true, false);
@@ -368,7 +378,7 @@ text_entry_minibuffer_state.prototype = {
                 treecols.appendChild(treecol);
                 tree.appendChild(create_XUL(window, "treechildren"));
 
-                insert_before.parentNode.insertBefore(tree, insert_before);
+                window.minibuffer.insert_before(tree);
                 tree.view = new completions_tree_view(this);
                 this.completions_display_element = tree;
             }
@@ -503,6 +513,10 @@ function minibuffer_complete(window)
 }
 interactive("minibuffer-complete", minibuffer_complete, I.current_window);
 
+function or_string(options) {
+    return options.slice(0,options.length-1).join(", ") + " or " + options[options.length - 1];
+}
+
 /* USER PREFERENCE */
 var minibuffer_input_mode_show_message_timeout = 1000;
 
@@ -595,6 +609,15 @@ minibuffer.prototype = {
         this._restore_state(restore_focus);
     },
 
+    remove_state : function (state, restore_focus) {
+        if (restore_focus === undefined)
+            restore_focus = true;
+        var i = this.states.indexOf(state);
+        state.destroy();
+        this.states.splice(i, 1);
+        this._restore_state(restore_focus);
+    },
+
     _input_mode_enabled : false,
 
     /* If _input_mode_enabled is true, this is set to indicate that
@@ -648,7 +671,7 @@ minibuffer.prototype = {
                 this._input_mode_enabled = true;
                 this._switch_to_input_mode();
             }
-            this.window.keyboard.override_keymap = s.keymap;
+            this.window.keyboard.set_override_keymap(s.keymap);
             this._input_text = s.input;
             this.prompt = s.prompt;
             this._set_selection(s.selection_start, s.selection_end);
@@ -672,7 +695,7 @@ minibuffer.prototype = {
                 }
                 this.saved_focused_element = null;
                 this.saved_focused_frame = null;
-                this.window.keyboard.override_keymap = null;
+                this.window.keyboard.set_override_keymap(null);
             }
         }
     },
@@ -693,11 +716,19 @@ minibuffer.prototype = {
     read : function () {
         /* FIXME: have policy for deciding whether to refuse a
          * recursive minibuffer operation */
-        this.push_state(new text_entry_minibuffer_state(forward_keywords(arguments)));
+        var s = new text_entry_minibuffer_state(forward_keywords(arguments));
+        this.push_state(s);
+        return s;
     },
 
     read_with_completion : function () {
-        this.push_state(new completion_minibuffer_state(forward_keywords(arguments)));
+        var s = new completion_minibuffer_state(forward_keywords(arguments));
+        this.push_state(s);
+        return s;
+    },
+
+    insert_before : function (element) {
+        this.element.parentNode.insertBefore(element, this.element);
     }
 };
 
@@ -719,3 +750,83 @@ I.minibuffer_state = interactive_method(
             throw new Error("Invalid minibuffer state.");
         return s;
     });
+
+function minibuffer_read_command(m) {
+    keywords(arguments, $prompt = "Command:", $history = "command");
+    var completer = prefix_completer(
+        $completions = function (visitor) {
+            interactive_commands.for_each_value(visitor);
+        },
+        $get_string = function (x) {
+            return x.name;
+        },
+        $get_description = function (x) {
+            return x.shortdoc || "";
+        },
+        $get_value = function (x) {
+            return x.name;
+        });
+    return m.read($prompt = arguments.$prompt,
+                  $history = arguments.$history,
+                  $completer = completer,
+                  $match_required = true);
+}
+
+
+define_keywords("$options");
+function explicit_options_minibuffer_state() {
+    keywords(arguments);
+    var options = arguments.$options;
+    var options_string = or_string(options);
+    text_entry_minibuffer_state.call(
+        this, forward_keywords(arguments),
+        $prompt = arguments.$prompt + " (" + options_string + ")",
+        $validator = function (x, m) {
+            if (options.indexOf(x) == -1) {
+                m.message("Please answer " + options_string + ".");
+                m._input_text = "";
+                m._set_selection();
+                return false;
+            }
+            return true;
+        });
+}
+explicit_options_minibuffer_state.prototype.__proto__ = text_entry_minibuffer_state.prototype;
+
+function yes_or_no_minibuffer_state() {
+    keywords(arguments);
+    var callback = arguments.$callback;
+    explicit_options_minibuffer_state.call(
+        this, forward_keywords(arguments),
+        $options = ["yes", "no"],
+        $callback = function (x) {
+            callback(x == "yes");
+        });
+}
+yes_or_no_minibuffer_state.prototype.__proto__ = explicit_options_minibuffer_state.prototype;
+
+function single_character_options_minibuffer_state() {
+    keywords(arguments);
+    this.callback = arguments.$callback;
+    this.abort_callback = arguments.$abort_callback;
+    this.options = arguments.$options;
+    minibuffer_state.call(this, single_character_options_minibuffer_keymap, arguments.$prompt);
+}
+single_character_options_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype;
+
+function single_character_options_enter_character(window, s, event) {
+    var ch = String.fromCharCode(event.charCode);
+    if (s.options.indexOf(ch) != -1) {
+        window.minibuffer.pop_state();
+        s.callback(ch);
+        return;
+    }
+    var str = "Please answer " + or_string(s.options) + ".";
+    window.minibuffer.message(str);
+}
+
+interactive("single-character-options-enter-character",
+            single_character_options_enter_character,
+            I.current_window,
+            I.minibuffer_state(single_character_options_minibuffer_state),
+            I.e);

@@ -19,8 +19,15 @@ function application () {
     this.dump_error = function (e) {
         if (e instanceof Error) {
             this.dumpln(e.name + ": " + e.message);
-            this.dumpln(e.fileName + ": " + e.lineNumber);
+            this.dumpln(e.fileName + ":" + e.lineNumber);
             dump(e.stack);
+        } else if (e instanceof Ci.nsIException) {
+            this.dumpln(e.name + ": " + e.message);
+            var stack_frame = e.location;
+            while (stack_frame) {
+                this.dumpln(stack_frame.name + "()@" + stack_frame.filename + ":" + stack_frame.lineNumber);
+                stack_frame = stack_frame.caller;
+            }
         } else {
             this.dumpln("Error: " + e);
         }

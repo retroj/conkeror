@@ -58,3 +58,15 @@ define_key (minibuffer_completion_keymap, "space", "minibuffer-accept-match");
 define_key (minibuffer_completion_keymap, match_any_unmodified_key, "minibuffer-insert-character-complete");
 
 // }}}
+
+// {{{ single_character_options_minibuffer_keymap
+var single_character_options_minibuffer_keymap = new keymap();
+
+bind_universal_argument(single_character_options_minibuffer_keymap, "C-u");
+define_key(single_character_options_minibuffer_keymap, "C-h", default_help_keymap);
+define_key(single_character_options_minibuffer_keymap, "C-g", "minibuffer-abort");
+define_key(single_character_options_minibuffer_keymap, match_any_unmodified_key,
+           "single-character-options-enter-character");
+define_key(single_character_options_minibuffer_keymap, "escape", "minibuffer-abort");
+
+// }}}

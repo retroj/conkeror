@@ -524,8 +524,9 @@ function key_press_handler(true_event)
     } catch(e) { dump_error(e);}
 }
 
-function keyboard()
+function keyboard(window)
 {
+    this.window = window;
 }
 
 keyboard.prototype = {
@@ -537,13 +538,25 @@ keyboard.prototype = {
 
     /* If this is non-null, it is used instead of the current buffer's
      * keymap. */
-    override_keymap : null
+    override_keymap : null,
+
+    set_override_keymap : function (keymap) {
+        /* Clear out any in-progress key sequence. */
+        this.active_keymap = null;
+        this.current_context = null;
+        if (this.help_timer_ID != null)
+        {
+            this.window.clearTimeout(this.help_timer_ID);
+            this.help_timer_ID = null;
+        }
+        this.override_keymap = keymap;
+    }
 };
 
 
 function keyboard_initialize_window(window)
 {
-    window.keyboard = new keyboard();
+    window.keyboard = new keyboard(window);
 
     window.addEventListener ("keydown", key_down_handler, true /* capture */,
                             false /* ignore untrusted events */);
