@@ -353,7 +353,7 @@ I.browse_target = interactive_method(
             return targets[0];
         var num = prefix[0];
         var index = 0;
-        while (num >= 4 && index < targets.length) {
+        while (num >= 4 && index + 1 < targets.length) {
             num = num / 4;
             index++;
         }
