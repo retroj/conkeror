@@ -45,6 +45,11 @@ define_key (minibuffer_keymap, "M-p", "minibuffer-history-previous");
 define_key (minibuffer_keymap, "M-n", "minibuffer-history-next");
 define_key (minibuffer_keymap, "C-g", "minibuffer-abort");
 define_key (minibuffer_keymap, "tab", "minibuffer-complete");
+define_key (minibuffer_keymap, "S-tab", "minibuffer-complete-previous");
+
+define_key (minibuffer_keymap, "down", "minibuffer-complete");
+define_key (minibuffer_keymap, "up", "minibuffer-complete-previous");
+
 define_key (minibuffer_keymap, "escape", "minibuffer-abort");
 
 // }}}

@@ -472,7 +472,7 @@ text_entry_minibuffer_state.prototype = {
     }
 };
 
-function minibuffer_complete(window)
+function minibuffer_complete(window, count)
 {
     var m = window.minibuffer;
     var s = m.current_state;
@@ -493,17 +493,22 @@ function minibuffer_complete(window)
         return;
     var e = s.completions_display_element;
     var new_index = -1;
-    if (c.common_prefix)
+
+    if (count == 1 && c.common_prefix)
     {
         c.apply_common_prefix(c.common_prefix, m);
         c.common_prefix = null;
     } else if (e.currentIndex != -1)
     {
-        new_index = (e.currentIndex + 1) % c.data.length;
-
+        new_index = (e.currentIndex + count) % c.data.length;
+        if (new_index < 0)
+            new_index += c.data.length;
     } else {
-        new_index = 0;
+        new_index = count % c.data.length;
+        if (new_index < 0)
+            new_index += c.data.length;
     }
+
     if (new_index != -1)
     {
         e.currentIndex = new_index;
@@ -511,7 +516,9 @@ function minibuffer_complete(window)
         s.completion_selected(window);
     }
 }
-interactive("minibuffer-complete", minibuffer_complete, I.current_window);
+interactive("minibuffer-complete", minibuffer_complete, I.current_window, I.p);
+interactive("minibuffer-complete-previous", minibuffer_complete, I.current_window,
+            I.bind(function (x) { return -x; }, I.p));
 
 function or_string(options) {
     return options.slice(0,options.length-1).join(", ") + " or " + options[options.length - 1];
