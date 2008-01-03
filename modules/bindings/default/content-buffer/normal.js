@@ -23,8 +23,8 @@ define_key(content_buffer_normal_keymap, "C-return", "follow-link-in-new-buffer"
 
 define_key(content_buffer_normal_keymap, "escape", "unfocus");
 
-define_key(content_buffer_normal_keymap, "C-q", "browser-buffer-quote-next-input-mode");
-define_key(content_buffer_normal_keymap, "C-M-q", "browser-buffer-quote-input-mode");
+define_key(content_buffer_normal_keymap, "C-q", "content-buffer-quote-next-input-mode");
+define_key(content_buffer_normal_keymap, "C-M-q", "content-buffer-quote-input-mode");
 
 define_key(content_buffer_normal_keymap, "close_bracket close_bracket", "browser-follow-next");
 define_key(content_buffer_normal_keymap, "open_bracket open_bracket", "browser-follow-previous");
