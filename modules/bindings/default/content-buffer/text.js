@@ -7,6 +7,7 @@ define_key(content_buffer_text_keymap, "C-e", "cmd_endLine");
 define_key(content_buffer_text_keymap, "back_space", "cmd_deleteCharBackward");
 define_key(content_buffer_text_keymap, "M-back_space", "cmd_deleteWordBackward");
 define_key(content_buffer_text_keymap, "C-d", "cmd_deleteCharForward");
+define_key(content_buffer_text_keymap, "delete", "cmd_deleteCharForward");
 define_key(content_buffer_text_keymap, "M-d", "cmd_deleteWordForward");
 define_key(content_buffer_text_keymap, "C-b", "cmd_charPrevious");
 define_key(content_buffer_text_keymap, "left", "cmd_charPrevious");
