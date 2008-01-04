@@ -103,13 +103,7 @@ content_buffer.prototype = {
     _requests_finished: 0,
 
     /* nsIWebProgressListener */
-    QueryInterface: function(iid) {
-        if (iid.equals(Components.interfaces.nsIWebProgressListener) ||
-            iid.equals(Components.interfaces.nsISupportsWeakReference) ||
-            iid.equals(Components.interfaces.nsISupports))
-            return this;
-        throw Components.results.NS_ERROR_NO_INTERFACE;
-    },
+    QueryInterface: generate_QI(Ci.nsIWebProgressListener, Ci.nsISupportsWeakReference),
 
     // This method is called to indicate state changes.
     onStateChange: function(webProgress, request, stateFlags, status) {
@@ -466,12 +460,8 @@ function browser_dom_window(window) {
     this.next_target = null;
 }
 browser_dom_window.prototype = {
-    QueryInterface : function (aIID) {
-        if (aIID.equals(Ci.nsIBrowserDOMWindow) ||
-            aIID.equals(Ci.nsISupports))
-            return this;
-        throw Components.results.NS_NOINTERFACE;
-    },
+    QueryInterface: generate_QI(Ci.nsIBrowserDOMWindow),
+
     openURI : function(aURI, aOpener, aWhere, aContext) {
 
         // Reference: http://www.xulplanet.com/references/xpcomref/ifaces/nsIBrowserDOMWindow.html

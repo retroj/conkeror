@@ -5,13 +5,8 @@ function thread_callback(run_function) {
     this.run_function = run_function;
 }
 thread_callback.prototype = {
-    QueryInterface : function (iid) {
-        if (iid.equals(Ci.nsIRunnable) ||
-            iid.equals(Ci.nsISupports))
-            return this;
-        return Cr.NS_ERROR_NO_INTERFACE;
-    },
-    run : function () {
+    QueryInterface: generate_QI(Ci.nsIRunnable),
+    run: function () {
         this.run_function.call(null);
     }
 };

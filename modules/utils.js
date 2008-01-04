@@ -342,6 +342,7 @@ function get_window_from_frame(frame) {
             .getInterface(Ci.nsIDOMWindow).wrappedJSObject;
         return window;
     } catch (e) {
+        //dump_error(e);
         return null;
     }
 }
@@ -427,3 +428,21 @@ dom_generator.prototype = {
         return node;
     }
 };
+
+/**
+ * Generates a QueryInterface function suitable for an implemenation
+ * of an XPCOM interface.  Unlike XPCOMUtils, this uses the Function
+ * constructor to generate a slightly more efficient version.  The
+ * arguments can be either Strings or elements of
+ * Components.interfaces.
+ */
+function generate_QI() {
+    var args = Array.prototype.slice.call(arguments).map(String).concat(["nsISupports"]);
+    var fstr = "if(" +
+        Array.prototype.map.call(args,
+                                 function (x)
+                                     "iid.equals(Components.interfaces." + x + ")")
+        .join("||") +
+        ") return this; throw Components.results.NS_ERROR_NO_INTERFACE;";
+    return new Function("iid", fstr);
+}

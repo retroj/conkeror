@@ -1,9 +1,23 @@
 // Register the Conkeror download_helper
 
+const classID = Components.ID("{74FCB100-B972-11DC-95FF-0800200C9A66}");
+const classDescription = "Unknown Content Type Dialog";
+const contractID = "@mozilla.org/helperapplauncherdialog;1";
 
-// This Component's module implementation.  All the code below is used to get this
-// component registered and accessible via XPCOM.
 var module = {
+
+    /* This firstTime trick is used to delay the registration.  This
+     * is needed to ensure it overrides the built-in component for the
+     * same contractID (the built-in nsHelperAppDlg.js being
+     * overridden uses this as well, and as a result we have to). */
+
+    /* http://dietrich.ganx4.com/blog/?p=221#comment-14 */
+    /* https://bugzilla.mozilla.org/show_bug.cgi?id=253125 */
+    /* https://bugzilla.mozilla.org/show_bug.cgi?id=253136 */
+
+    /* We can't use XPCOMUtils because that doesn't provide this delay
+     * trick. */
+
     firstTime: true,
 
     // registerSelf: Register this component.
@@ -14,9 +28,9 @@ var module = {
         }
         compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
 
-        compMgr.registerFactoryLocation( this.cid,
-                                         "Unknown Content Type Dialog",
-                                         this.contractId,
+        compMgr.registerFactoryLocation( classID,
+                                         classDescription,
+                                         contractID,
                                          fileSpec,
                                          location,
                                          type );
@@ -24,7 +38,7 @@ var module = {
 
     // getClassObject: Return this component's factory object.
     getClassObject: function (compMgr, cid, iid) {
-        if (!cid.equals(this.cid)) {
+        if (!cid.equals(classID)) {
             throw Components.results.NS_ERROR_NO_INTERFACE;
         }
 
@@ -35,34 +49,21 @@ var module = {
         return this.factory;
     },
 
-    /* CID for this class */
-    cid: Components.ID("{74FCB100-B972-11DC-95FF-0800200C9A66}"),
-
-    /* Contract ID for this class */
-    contractId: "@mozilla.org/helperapplauncherdialog;1",
-
     /* factory object */
     factory: {
-        // createInstance: Return a new nsProgressDialog object.
         createInstance: function (outer, iid) {
             if (outer != null)
                 throw Components.results.NS_ERROR_NO_AGGREGATION;
 
-            var conkeror = Components.classes["@conkeror.mozdev.org/application;1"]
-            .getService ()
-            .wrappedJSObject;
-
+            /* Return an instance of the Conkeror-scope download_helper object. */
+            var conkeror = Components.classes["@conkeror.mozdev.org/application;1"].getService().wrappedJSObject;
             return (new conkeror.download_helper()).QueryInterface(iid);
         }
     },
 
-    // canUnload: n/a (returns true)
-    canUnload: function(compMgr) {
-        return true;
-    }
+    canUnload: function(compMgr) { return true; },
 };
 
-// NSGetModule: Return the nsIModule object.
 function NSGetModule(compMgr, fileSpec) {
     return module;
 }

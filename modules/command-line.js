@@ -24,10 +24,10 @@ function command_line_param_handler(name, suppress_default, handler)
 }
 
 command_line_handler("batch", true);
-command_line_param_handler("e", false, function (expr) {
+command_line_param_handler("e", false, function (expr, ctx) {
         eval(expr);
     });
-command_line_param_handler("chrome", true, function (uri) {
+command_line_param_handler("chrome", true, function (uri, ctx) {
         try {
             make_chrome_window(uri);
         } catch (e) { dump_error(e); }

@@ -261,13 +261,8 @@ function download_for_external_program(load_spec,
         | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
 
     persist.progressListener = {
-        QueryInterface: function(aIID) {
-            if (aIID.equals(Ci.nsIWebProgressListener) ||
-                aIID.equals(Ci.nsISupportsWeakReference) ||
-                aIID.equals(Ci.nsISupports))
-                return this;
-            throw Cr.NS_NOINTERFACE;
-        },
+        QueryInterface: generate_QI(Ci.nsIWebProgressListener, Ci.nsISupportsWeakReference),
+
         onStateChange: function(aProgress, aRequest, aFlag, aStatus) {
             if ((aFlag & Components.interfaces.nsIWebProgressListener.STATE_STOP))
             {
@@ -549,7 +544,7 @@ function generate_filename_for_url (url, aDocument, aContentType, aContentDispos
     // If file_ext_s is still blank, and url is a web link (http or
     // https), make the extension `.html'.
     if (! file_ext_s && !aDocument && !aContentType && (/^http(s?)/i.test(url.scheme))) {
-        file_ext_s = ".html";
+        file_ext_s = "html";
         file_base_name_s = file_name_s;
     } else {
         file_ext_s = getDefaultExtension(file_name_s, url, aContentType);
