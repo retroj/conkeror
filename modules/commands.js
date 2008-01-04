@@ -293,9 +293,17 @@ function univ_arg_to_number(prefix, default_value)
     return prefix;
 }
 
-function eval_expression (window, s)
+function eval_expression(window, s)
 {
-    eval.call(window, s);
+    // eval in the global scope.
+
+    // In addition, the following variables are available:
+    // var window;
+    var buffer = window.buffers.current;
+    var result = eval(s);
+    if (result !== undefined) {
+        window.minibuffer.message(String(result));
+    }
 }
 interactive("eval-expression",
             "Evaluate JavaScript statements.",
