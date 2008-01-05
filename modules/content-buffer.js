@@ -382,9 +382,7 @@ default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 function go_up (b, target)
 {
-    var loc = b.display_URI_string;
-    var up = loc.replace (/(.*\/)[^\/]+\/?$/, "$1");
-    open_in_browser(b, target, up);
+    open_in_browser(b, target, b.current_URI.resolve (".."));
 }
 interactive("go-up",
             "Go to the parent directory of the current URL",
