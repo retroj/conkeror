@@ -29,6 +29,10 @@
   color: black;
 }
 
+.mode-line label.current-buffer-name-widget {
+  -moz-box-flex: 1;
+}
+
 window {
   background-color: white;
 }

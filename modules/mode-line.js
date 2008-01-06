@@ -7,8 +7,14 @@ function generic_element_widget_container(window, container)
     this.window = window;
     this.container = container;
 }
+define_keywords("$flex", "$align", "$class", "$crop");
 generic_element_widget_container.prototype = {
-    add_text_widget : function (widget, flex, align, class_name) {
+    add_text_widget : function (widget) {
+        keywords(arguments);
+        var flex = arguments.$flex;
+        var class_name = arguments.$class;
+        var align = arguments.$align;
+        var crop = arguments.$crop;
         var element = create_XUL(this.window, "label");
         if (flex != null)
             element.setAttribute("flex", flex);
@@ -17,6 +23,9 @@ generic_element_widget_container.prototype = {
         if (class_name == null)
             class_name = widget.name;
         element.setAttribute("class", class_name);
+        if (crop == null)
+            crop = widget.crop;
+        element.setAttribute("crop", crop);
         element.conkeror_widget = new generic_widget_element(element, widget);
         this.container.appendChild(element);
         return element.conkeror_widget;
@@ -140,6 +149,7 @@ define_global_mode("mode_line_mode",
 function current_buffer_name_widget(window) {
     this.name = "current-buffer-name-widget";
     text_widget.call(this, window);
+    this.crop = "end";
     this.add_hook("current_content_buffer_location_change_hook");
     this.add_hook("select_buffer_hook");
 }
