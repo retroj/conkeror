@@ -463,3 +463,90 @@ function generate_QI() {
         ") return this; throw Components.results.NS_ERROR_NO_INTERFACE;";
     return new Function("iid", fstr);
 }
+
+function set_branch_pref(branch, name, value) {
+    if (typeof(value) == "string") {
+        branch.setCharPref(name, value);
+    } else if (typeof(alue) == "number") {
+        branch.setIntPref(name, value);
+    } else if (typeof(value) == "boolean") {
+        branch.setBoolPref(name, value);
+    }
+}
+
+function default_pref(name, value) {
+    var branch = preferences.getDefaultBranch(null);
+    set_branch_pref(branch, name, value);
+}
+
+function user_pref(name, value) {
+    var branch = preferences.getBranch(null);
+    set_branch_pref(branch, name, value);
+}
+
+function pref_is_locked(name, value) {
+    var branch = preferences.getBranch(null);
+    return branch.prefIsLocked(name);
+}
+
+function lock_pref(name, value) {
+    var branch = preferences.getBranch(null);
+    if (branch.prefIsLocked(name))
+        branch.unlockPref(name);
+    default_pref(name, value);
+    branch.lockPref(name);
+}
+
+function unlock_pref(name) {
+    var branch = preferences.getBranch(null);
+    branch.unlockPref(name);
+}
+
+function get_branch_pref(branch, name) {
+    switch (branch.getPrefType(name)) {
+    case branch.PREF_STRING:
+        return branch.getCharPref(name);
+    case branch.PREF_INT:
+        return branch.getIntPref(name);
+    case branch.PREF_BOOL:
+        return branch.getBoolPref(name);
+    default:
+        return null;
+    }
+}
+
+function get_pref(name) {
+    var branch = preferences.getBranch(null);
+    return get_branch_pref(branch, name);
+}
+
+function get_default_pref(name) {
+    var branch = preferences.getDefaultBranch(null);
+    return get_branch_pref(branch, name);
+}
+
+function clear_pref(name) {
+    var branch = preferences.getBranch(null);
+    return branch.clearUserPref(name);
+}
+
+function clear_default_pref(name) {
+    var branch = preferences.getDefaultBranch(null);
+    return branch.clearUserPref(name);
+}
+
+function pref_has_user_value(name) {
+    var branch = preferences.getBranch(null);
+    return branch.prefHasUserValue(name);
+}
+
+function pref_has_default_value(name) {
+    var branch = preferences.getDefaultBranch(null);
+    return branch.prefHasUserValue(name);
+}
+
+const USER_AGENT_OVERRIDE_PREF = "general.useragent.override";
+
+function set_user_agent(str) {
+    lock_pref(USER_AGENT_OVERRIDE_PREF, str);
+}

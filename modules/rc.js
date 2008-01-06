@@ -49,8 +49,8 @@ function load_rc(path_s)
 {
     if (! path_s)
     {
-        if (preferences.prefHasUserValue ("conkeror.rcfile")) {
-            var rcfile = preferences.getCharPref("conkeror.rcfile");
+        if (pref_has_user_value("conkeror.rcfile")) {
+            var rcfile = get_pref("conkeror.rcfile");
             if (rcfile.length)
                 path_s = rcfile;
         }

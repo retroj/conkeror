@@ -28,7 +28,7 @@ application.prototype = {
     /* Note: resource://app currently doesn't result in xpcnativewrappers=yes */
     module_uri_prefix: "chrome://conkeror-modules/content/",
     subscript_loader: Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
-    preferences: Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefBranch),
+    preferences: Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService),
     dump_error: function (e) {
         if (e instanceof Error) {
             this.dumpln(e.name + ": " + e.message);

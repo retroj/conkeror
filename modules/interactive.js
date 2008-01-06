@@ -353,17 +353,7 @@ I.n = interactive_method(
 
 I.pref = interactive_method(
     $sync = function (pref) {
-            var type = preferences.getPrefType (pref);
-            switch (type) {
-                case preferences.PREF_BOOL:
-                    return preferences.getBoolPref (pref);
-                case preferences.PREF_INT:
-                    return preferences.getIntPref (pref);
-                case preferences.PREF_STRING:
-                    return preferences.getCharPref (pref);
-                default:
-                    return null;
-            }
+        return get_pref(pref);
     });
 
 I.C = interactive_method(
