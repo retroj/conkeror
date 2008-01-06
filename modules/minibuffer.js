@@ -504,7 +504,7 @@ function minibuffer_complete(window, count)
         if (new_index < 0)
             new_index += c.data.length;
     } else {
-        new_index = count % c.data.length;
+        new_index = (count - 1) % c.data.length;
         if (new_index < 0)
             new_index += c.data.length;
     }
