@@ -48,6 +48,14 @@ function buffer_creator(type) {
     }
 }
 
+/* USER PREFERENCE */
+/* If this is set to true, if a content buffer page calls
+ * window.close() from JavaScript and is not prevented by the normal
+ * Mozilla mechanism that restricts pages from closing a window that
+ * was not opened by a script, the buffer will be killed, deleting the
+ * window as well if it is the only buffer. */
+var allow_browser_window_close = true;
+
 function buffer(window, element)
 {
     keywords(arguments, $configuration = null);
@@ -80,6 +88,17 @@ function buffer(window, element)
     this.browser.addEventListener("load", function (event) {
             buffer_loaded_hook.run(buffer);
         }, true /* capture */, false /*ignore untrusted events */);
+
+    this.browser.addEventListener("DOMWindowClose", function (event) {
+            /* This call to preventDefault is very important; without
+             * it, somehow Mozilla does something bad and as a result
+             * the window loses focus, causing keyboard commands to
+             * stop working. */
+            event.preventDefault();
+
+            if (allow_browser_window_close)
+                kill_buffer(buffer, true);
+        }, true);
 }
 
 buffer.prototype = {
@@ -504,13 +523,13 @@ interactive("switch-to-buffer",
  * buffer, and close the window. */
 var can_kill_last_buffer = true;
 
-function kill_buffer(buffer)
+function kill_buffer(buffer, force)
 {
     if (!buffer)
         return;
     var buffers = buffer.window.buffers;
     if (buffers.count == 1 && buffer == buffers.current) {
-        if (can_kill_last_buffer) {
+        if (can_kill_last_buffer || force) {
             delete_window(buffer.window);
             return;
         }
