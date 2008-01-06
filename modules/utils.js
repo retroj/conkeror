@@ -426,6 +426,23 @@ dom_generator.prototype = {
         if (parent)
             parent.appendChild(node);
         return node;
+    },
+
+
+    stylesheet_link : function(href, parent) {
+        var node = this.element("link");
+        node.setAttribute("rel", "stylesheet");
+        node.setAttribute("type", "text/css");
+        node.setAttribute("href", href);
+        if (parent)
+            parent.appendChild(node);
+        return node;
+    },
+
+
+    add_stylesheet : function (url) {
+        var head = this.document.documentElement.firstChild;
+        this.stylesheet_link(url, head);
     }
 };
 

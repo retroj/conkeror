@@ -102,19 +102,8 @@ help_document_generator.prototype = {
         return f;
     },
 
-    stylesheet_link : function(href, parent) {
-        var node = this.element("link");
-        node.setAttribute("rel", "stylesheet");
-        node.setAttribute("type", "text/css");
-        node.setAttribute("href", href);
-        if (parent)
-            parent.appendChild(node);
-        return node;
-    },
-
     add_help_stylesheet : function () {
-        var head = this.document.documentElement.firstChild;
-        this.stylesheet_link("chrome://conkeror/content/help.css", head);
+        this.add_stylesheet("chrome://conkeror/content/help.css", head);
     }
 };
 
