@@ -89,7 +89,7 @@ function getWebJump(value)
             return null;
     }
     return webjump_build_url(jump, value.substring(start + 1));
-    } catch(e) {alert(e); return null;}
+    } catch(e) {/* FIXME: figure out why we need this */ dump_error(e); return null;}
 }
 
 function get_url_or_webjump(input)

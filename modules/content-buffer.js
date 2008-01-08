@@ -208,21 +208,15 @@ add_hook("current_content_buffer_status_change_hook",
 I.url_or_webjump = interactive_method(
     $async = function (ctx, cont) {
         keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "");
-        var completions = arguments.$completions;
-        if (completions === undefined)
-        {
-            completions = [];
-            for (var x in gWebJumpLocations)
-                completions.push([x,x]);
-        }
-        ctx.window.minibuffer.read_with_completion(
+        var completer = get_navigation_completer (completion_types);
+        ctx.window.minibuffer.read(
             $prompt = arguments.$prompt,
             $history = arguments.$history,
-            $completions = completions,
+            $completer = completer,
             $initial_value = arguments.$initial_value,
             $select,
-            $allow_non_matches,
-            $callback = function (match,s) {
+            $match_required = false,
+            $callback = function (s) {
                 if (s == "") // well-formedness check. (could be better!)
                     throw ("invalid url or webjump (\""+s+"\")");
                 cont(get_url_or_webjump (s));
