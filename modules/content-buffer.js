@@ -370,7 +370,17 @@ default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 function go_up (b, target)
 {
-    open_in_browser(b, target, b.current_URI.resolve (".."));
+    var url = Cc["@mozilla.org/network/standard-url;1"]
+        .createInstance (Ci.nsIURL);
+    url.spec = b.current_URI.spec;
+    var up;
+    if (url.param != "" || url.query != "")
+        up = url.filePath;
+    else if (url.fileName != "")
+        up = ".";
+    else
+        up = "..";
+    open_in_browser(b, target, b.current_URI.resolve (up));
 }
 interactive("go-up",
             "Go to the parent directory of the current URL",
