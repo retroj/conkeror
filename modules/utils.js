@@ -213,12 +213,17 @@ function set_focus_no_scroll(window, element)
     window.document.commandDispatcher.suppressFocusScroll = false;
 }
 
-
-function do_N_times(func, n)
-{
+function do_repeatedly_positive(func, n) {
     var args = Array.prototype.slice.call(arguments, 2);
     while (n-- > 0)
         func.apply(null, args);
+}
+
+function do_repeatedly(func, n, positive_args, negative_args) {
+    if (n < 0)
+        do func.apply(null, negative_args); while (++n < 0);
+    else
+        while (n-- > 0) func.apply(null, positive_args);
 }
 
 // remove whitespace from the beginning and end
@@ -550,3 +555,40 @@ const USER_AGENT_OVERRIDE_PREF = "general.useragent.override";
 function set_user_agent(str) {
     lock_pref(USER_AGENT_OVERRIDE_PREF, str);
 }
+
+
+var builtin_commands = ["cmd_beginLine",
+                        "cmd_copy",
+                        "cmd_copyOrDelete",
+                        "cmd_cut",
+                        "cmd_cutOrDelete",
+                        "cmd_deleteToBeginningOfLine",
+                        "cmd_deleteToEndOfLine",
+                        "cmd_endLine",
+                        "cmd_moveTop",
+                        "cmd_moveBottom",
+                        "cmd_selectAll",
+                        "cmd_selectBeginLine",
+                        "cmd_selectBottom",
+                        "cmd_selectEndLine",
+                        "cmd_selectTop",
+                        "cmd_scrollBeginLine",
+                        "cmd_scrollEndLine",
+                        "cmd_scrollTop",
+                        "cmd_scrollBottom"];
+
+var builtin_commands_with_count = [["cmd_charNext", "cmd_charPrevious"],
+                                   ["cmd_deleteCharForward", "cmd_deleteCharBackward"],
+                                   ["cmd_deleteCharForward", "cmd_deleteWordBackward"],
+                                   ["cmd_lineNext", "cmd_linePrevious"],
+                                   ["cmd_movePageDown", "cmd_movePageUp"],
+                                   ["cmd_undo", "cmd_redo"],
+                                   ["cmd_selectCharNext", "cmd_selectCharPrevious"],
+                                   ["cmd_selectLineNext", "cmd_selectLinePrevious"],
+                                   ["cmd_selectPageUp", "cmd_selectPageDown"],
+                                   ["cmd_selectWordNext", "cmd_selectWordPrevious"],
+                                   ["cmd_wordNext", "cmd_wordPrevious"],
+                                   ["cmd_scrollPageUp", "cmd_scrollPageDown"],
+                                   ["cmd_scrollLineUp", "cmd_scrollLineDown"],
+                                   ["cmd_scrollLeft", "cmd_scrollRight"],
+                                   "cmd_paste"];

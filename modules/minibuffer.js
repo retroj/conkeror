@@ -125,56 +125,24 @@ function minibuffer_do_command(window, command) {
     }
 }
 
-/* FIXME: These should all be defined more compactly using a loop */
-interactive("minibuffer-cmd_beginLine", minibuffer_do_command, I.current_window, 'cmd_beginLine');
-interactive("minibuffer-cmd_copy", minibuffer_do_command, I.current_window, 'cmd_copy');
-interactive("minibuffer-cmd_copyOrDelete", minibuffer_do_command, I.current_window, 'cmd_copyOrDelete');
-interactive("minibuffer-cmd_cut", minibuffer_do_command, I.current_window, 'cmd_cut');
-interactive("minibuffer-cmd_cutOrDelete", minibuffer_do_command, I.current_window, 'cmd_cutOrDelete');
-interactive("minibuffer-cmd_deleteToBeginningOfLine", minibuffer_do_command, I.current_window, 'cmd_deleteToBeginningOfLine');
-interactive("minibuffer-cmd_deleteToEndOfLine", minibuffer_do_command, I.current_window, 'cmd_deleteToEndOfLine');
-interactive("minibuffer-cmd_endLine", minibuffer_do_command, I.current_window, 'cmd_endLine');
-interactive("minibuffer-cmd_moveTop", minibuffer_do_command, I.current_window, 'cmd_moveTop');
-interactive("minibuffer-cmd_moveBottom", minibuffer_do_command, I.current_window, 'cmd_moveBottom');
-interactive("minibuffer-cmd_selectAll", minibuffer_do_command, I.current_window, 'cmd_selectAll');
-interactive("minibuffer-cmd_selectBeginLine", minibuffer_do_command, I.current_window, 'cmd_selectBeginLine');
-interactive("minibuffer-cmd_selectBottom", minibuffer_do_command, I.current_window, 'cmd_selectBottom');
-interactive("minibuffer-cmd_selectEndLine", minibuffer_do_command, I.current_window, 'cmd_selectEndLine');
-interactive("minibuffer-cmd_selectTop", minibuffer_do_command, I.current_window, 'cmd_selectTop');
-interactive("minibuffer-cmd_scrollBeginLine", minibuffer_do_command, I.current_window, 'cmd_scrollBeginLine');
-interactive("minibuffer-cmd_scrollEndLine", minibuffer_do_command, I.current_window, 'cmd_scrollEndLine');
-interactive("minibuffer-cmd_scrollTop", minibuffer_do_command, I.current_window, 'cmd_scrollTop');
-interactive("minibuffer-cmd_scrollBottom", minibuffer_do_command, I.current_window, 'cmd_scrollBottom');
+for each (let c in builtin_commands)
+    interactive("minibuffer-" + c, minibuffer_do_command, I.current_window, c);
 
-interactive("minibuffer-cmd_charNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_charNext');
-interactive("minibuffer-cmd_charPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_charPrevious');
-interactive("minibuffer-cmd_deleteCharBackward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteCharBackward');
-interactive("minibuffer-cmd_deleteCharForward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteCharForward');
-interactive("minibuffer-cmd_deleteWordBackward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteWordBackward');
-interactive("minibuffer-cmd_deleteWordForward", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_deleteWordForward');
-interactive("minibuffer-cmd_lineNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_lineNext');
-interactive("minibuffer-cmd_linePrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_linePrevious');
-interactive("minibuffer-cmd_movePageDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_movePageDown');
-interactive("minibuffer-cmd_movePageUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_movePageUp');
-interactive("minibuffer-cmd_redo", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_redo');
-interactive("minibuffer-cmd_selectCharNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectCharNext');
-interactive("minibuffer-cmd_selectCharPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectCharPrevious');
-interactive("minibuffer-cmd_selectLineNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectLineNext');
-interactive("minibuffer-cmd_selectLinePrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectLinePrevious');
-interactive("minibuffer-cmd_selectPageDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectPageDown');
-interactive("minibuffer-cmd_selectPageUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectPageUp');
-interactive("minibuffer-cmd_selectWordNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectWordNext');
-interactive("minibuffer-cmd_selectWordPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_selectWordPrevious');
-interactive("minibuffer-cmd_undo", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_undo');
-interactive("minibuffer-cmd_wordNext", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_wordNext');
-interactive("minibuffer-cmd_wordPrevious", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_wordPrevious');
-interactive("minibuffer-cmd_scrollPageUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollPageUp');
-interactive("minibuffer-cmd_scrollPageDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollPageDown');
-interactive("minibuffer-cmd_scrollLineUp", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollLineUp');
-interactive("minibuffer-cmd_scrollLineDown", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollLineDown');
-interactive("minibuffer-cmd_scrollLeft", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollLeft');
-interactive("minibuffer-cmd_scrollRight", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_scrollRight');
-interactive("minibuffer-cmd_paste", do_N_times, minibuffer_do_command, I.p, I.current_window, 'cmd_paste');
+
+for each (let c in builtin_commands_with_count)
+{
+    if (typeof(c) == "string")
+        interactive("minibuffer-" + c, do_repeatedly_positive, minibuffer_do_command, I.p,
+                    I.current_window, c);
+    else {
+        interactive("minibuffer-" + c[0], do_repeatedly, minibuffer_do_command, I.p,
+                    I.bind(Array, I.current_window, c[0]),
+                    I.bind(Array, I.current_window, c[1]));
+        interactive("minibuffer-" + c[1], do_repeatedly, minibuffer_do_command, I.p,
+                    I.bind(Array, I.current_window, c[1]),
+                    I.bind(Array, I.current_window, c[0]));
+    }
+}
 
 function minibuffer_insert_character(window, n, event)
 {
