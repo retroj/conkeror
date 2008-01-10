@@ -453,14 +453,15 @@ function browser_element_shell_command(buffer, elem, command) {
     download_for_external_program
         (load_spec,
          function (file, is_temp_file) {
+            function cont() {
+                if (is_temp_file)
+                    file.remove(false);
+            }
             shell_command_with_argument(
                 buffer.cwd,
                 $command = command,
                 $argument = file.path,
-                $callback = function () {
-                    if (is_temp_file)
-                        file.remove(false);
-                });
+                $callback = cont, $failure_callback = cont);
         });
 }
 
