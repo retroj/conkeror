@@ -143,7 +143,7 @@ function shell_command_with_argument(cwd) {
     } else {
         cmdline = cmdline.replace("{}", "\"" + shell_quote(argument) + "\"");
     }
-    shell_command(cwd, cmdline, cont, failure_callback /*, function (exit_code) {
+    shell_command(cwd, cmdline, cont, failure_cont /*, function (exit_code) {
             if (exit_code == 0)
                 buffer.window.minibuffer.message("Shell command exited normally.");
             else
