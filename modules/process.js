@@ -118,9 +118,15 @@ function get_shell_command_completer() {
                             $get_string = function (x) { return x; });
 }
 
+// use default
+minibuffer_auto_complete_preferences["shell-command"] = null;
+
 function minibuffer_read_shell_command(m) {
     keywords(arguments, $prompt = "Shell command", $history = "shell-command");
-    return m.read(forward_keywords(arguments),
+    return m.read($prompt = "Shell command:",
+                  $history = "shell-command",
+                  $auto_complete = "shell-command",
+                  forward_keywords(arguments),
                   $completer = get_shell_command_completer());
 }
 

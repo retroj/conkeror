@@ -451,6 +451,7 @@ I.top_document = interactive_method(
 // This name should perhaps change
 I.active_document = I.top_document;
 
+minibuffer_auto_complete_preferences["buffer"] = true;
 define_keywords("$default");
 I.b = interactive_method(
     $async = function (ctx, cont) {
@@ -466,13 +467,15 @@ I.b = interactive_method(
             },
             $get_description = function (x) {
                 return x.title;
-            },
-            $complete_blank);
+            });
         ctx.window.minibuffer.read(
             $prompt = arguments.$prompt,
             $history = arguments.$history,
             $completer = completer,
             $match_required = true,
+            $auto_complete = "buffer",
+            $auto_complete_initial = true,
+            $auto_complete_delay = 0,
             $default_completion = arguments.$default,
             $callback = cont);
     });

@@ -1,39 +1,33 @@
-
 function exit_minibuffer(window)
 {
     var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
-        throw "Invalid minibuffer state";
+        throw new Error("Invalid minibuffer state");
 
     var val = m._input_text;
 
-    if (s.validator && !s.validator(val, m))
+    if (s.validator != null && !s.validator(val, m))
         return;
 
     var match = null;
 
-    /* FIXME: this is only for old completion junk */
-    if (s instanceof completion_minibuffer_state) {
-        if (val.length == 0 && s.default_match != null)
-            val = s.default_match;
-        match = find_complete_match(s.completions, val);
-        if (!match && !s.allow_non_matches)
-            return;
-    } else
-        match = val;
-
     if (s.completer && s.match_required) {
-        var e = s.completions_display_element;
-        var i = e.currentIndex;
-        if (i == -1)
+        if (!s.completions_valid || s.completions === undefined)
+            s.update_completions(false);
+
+        let c = s.completions;
+        let i = s.selected_completion_index;
+        let x = c.data[i];
+        if (c != null && i >= 0 && i < c.data.length) {
+            if (c.get_value != null)
+                match = c.get_value(x);
+            else
+                match = x;
+        } else {
+            m.message("No match");
             return;
-        var c = s.completions;
-        var x = c.data[i];
-        if (c.get_value)
-            match = c.get_value(x);
-        else
-            match = x;
+        }
     }
 
     if (s.history)
@@ -44,13 +38,7 @@ function exit_minibuffer(window)
     }
     m.pop_state();
     if (s.callback) {
-        if (s instanceof completion_minibuffer_state) {
-            if (s.allow_non_matches)
-                s.callback(match, val);
-            else // match must be non-null because of previous check
-                s.callback(match);
-        }
-        else if (s.match_required)
+        if (s.match_required)
             s.callback(match);
         else
             s.callback(val);
@@ -63,7 +51,7 @@ function minibuffer_history_next (window)
     var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
-        throw "Invalid minibuffer state";
+        throw new Error("Invalid minibuffer state");
     if (!s.history)
         return;
     m._ensure_input_area_showing();
@@ -78,7 +66,7 @@ function minibuffer_history_previous (window)
     var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
-        throw "Invalid minibuffer state";
+        throw new Error("Invalid minibuffer state");
     if (!s.history)
         return;
     m._ensure_input_area_showing();
@@ -115,13 +103,11 @@ function minibuffer_do_command(window, command) {
                 c.doCommand(command);
             var s = m.current_state;
             if ((s instanceof text_entry_minibuffer_state))
-            {
-                s.update_completions(window);
-            }
+                s.handle_input_changed();
         }
     } catch (e)
     {
-        dumpln("minibuffer_do_command: " + e);
+        dump_error(e);
     }
 }
 
@@ -164,7 +150,7 @@ function minibuffer_insert_character(window, n, event)
     m._set_selection(new_sel, new_sel);
 
     if (s instanceof text_entry_minibuffer_state)
-        s.update_completions(window);
+        s.handle_input_changed();
 }
 interactive("minibuffer-insert-character", minibuffer_insert_character,
             I.current_window, I.p, I.e);
@@ -226,12 +212,20 @@ function basic_minibuffer_state()
 }
 basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inherit from minibuffer_state
 
+/* USER PREFERENCE */
+var default_minibuffer_auto_complete_delay = 150;
+
+/* USER PREFERENCE */
+var minibuffer_auto_complete_preferences = {};
+
+var minibuffer_auto_complete_default = false;
+
 /* The parameter `args' specifies the arguments.  In addition, the
  * arguments for basic_minibuffer_state are also allowed.
  *
  * history:           [optional] specifies a string to identify the history list to use
  *
- * callback:          [optional] function called once the user successfully enters a value; it is 
+ * callback:          [optional] function called once the user successfully enters a value; it is
  *                               called with the value entered by the user.
  *
  * abort_callback:    [optional] called if the operaion is aborted
@@ -241,16 +235,23 @@ basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inhe
  * match_required
  *
  * default_completion  only used if match_required is set to true
+ *
+ * $valiator          [optional]
+ *          specifies a function
  */
-define_keywords("$callback", "$abort_callback", "$history", "$completer",
-                "$match_required", "$default_completion",
-                "$validator");
+define_keywords("$callback", "$abort_callback", "$history", "$validator",
+
+                "$completer", "$match_required", "$default_completion",
+                "$auto_complete", "$auto_complete_initial", "$auto_complete_conservative",
+                "$auto_complete_delay",
+                "$space_completes");
+/* FIXME: support completing in another thread */
 function text_entry_minibuffer_state() {
     keywords(arguments);
 
     basic_minibuffer_state.call(this, forward_keywords(arguments));
     this.keymap = minibuffer_keymap;
-    
+
     this.callback = arguments.$callback;
     this.abort_callback = arguments.$abort_callback;
     if (arguments.$history)
@@ -259,20 +260,33 @@ function text_entry_minibuffer_state() {
         this.history_index = this.history.length;
     }
 
-    this.completer = arguments.$completer;
-    if (this.completer)
+    this.validator = arguments.$validator;
+
+    if (arguments.$completer != null)
     {
-        this.completions = this.completer(this.input, this.selection_start);
-        this.completions_valid = true;
+        this.completer = arguments.$completer;
+        let auto = arguments.$auto_complete;
+        while (typeof(auto) == "string")
+            auto = minibuffer_auto_complete_preferences[auto];
+        if (auto == null)
+            auto = minibuffer_auto_complete_default;
+        this.auto_complete = auto;
+        this.auto_complete_initial = !!arguments.$auto_complete_initial;
+        this.auto_complete_conservative = !!arguments.$auto_complete_conservative;
+        let delay = arguments.$auto_complete_delay;
+        if (delay == null)
+            delay = default_minibuffer_auto_complete_delay;
+        this.auto_complete_delay = delay;
+        this.completions = null;
+        this.completions_valid = false;
+        this.space_completes = !!arguments.$space_completes;
         this.completions_timer_ID = null;
         this.completions_display_element = null;
+        this.selected_completion_index = -1;
+        this.match_required  = !!arguments.$match_required;
+        if (this.match_required)
+            this.default_completion = arguments.$default_completion;
     }
-
-    this.match_required  = arguments.$match_required ? true : false;
-    if (this.match_required)
-        this.default_completion = arguments.$default_completion;
-
-    this.validator = arguments.$validator;
 }
 
 function completions_tree_view(minibuffer_state)
@@ -319,14 +333,18 @@ completions_tree_view.prototype = {
 text_entry_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
     load : function (window) {
-
+        this.window = window;
         if (this.completer) {
             // Create completion display element if needed
             if (!this.completion_element)
             {
+                /* FIXME: maybe use the dom_generator */
                 var tree = create_XUL(window, "tree");
                 var s = this;
-                tree.addEventListener("select", function () { s.completion_selected(window); }, true, false);
+                tree.addEventListener("select", function () {
+                        s.selected_completion_index = s.completions_display_element.currentIndex;
+                        s.handle_completion_selected();
+                    }, true, false);
                 tree.setAttribute("class", "completions");
 
                 tree.setAttribute("rows", "8");
@@ -349,25 +367,15 @@ text_entry_minibuffer_state.prototype = {
                 window.minibuffer.insert_before(tree);
                 tree.view = new completions_tree_view(this);
                 this.completions_display_element = tree;
+
+                /* This is the initial loading of this minibuffer
+                 * state.  If this.complete_initial is true, generate
+                 * completions. */
+                if (this.auto_complete_initial)
+                    this.handle_input_changed();
             }
 
-            if (this.completions && this.completions.data.length > 0) {
-                this.completions_display_element.setAttribute("collapsed", "false");
-                if (this.match_required && this.completions_display_element.currentIndex == -1)
-                {
-                    var i;
-                    if (this.default_completion)
-                    {
-                        i = this.completions.data.indexOf(this.default_completion);
-                        if (i == -1)
-                            i = 0;
-                    } else
-                        i = 0;
-                    this.completions_display_element.currentIndex = i;
-                    this.completions_display_element.treeBoxObject.ensureRowIsVisible(i);
-                    this.completion_selected(window); // This is a no-op, but it is done for consistency
-                }
-            }
+            this.update_completions_display();
         }
     },
 
@@ -385,56 +393,102 @@ text_entry_minibuffer_state.prototype = {
         }
     },
 
-    /* FIXME: this should perhaps be called "handle_state_change" or something */
-    update_completions : function (window) {
-        /* FIXME: need to use delay */
-        if (this.completer) {
-            var m = window.minibuffer;
-            this.completions = this.completer(m._input_text, m._selection_start);
+    handle_input_changed : function () {
+        if (!this.completer) return;
 
-            if (m.current_state == this)
+        this.completions_valid = false;
+
+        if (!this.auto_complete) return;
+
+        var s = this;
+
+        if (this.auto_complete_delay > 0) {
+            if (this.completions_timer_ID != null)
+                this.window.clearTimeout(this.completions_timer_ID);
+            this.completions_timer_ID = this.window.setTimeout(
+                function () {
+                    s.completions_timer_ID = null;
+                    s.update_completions(true /* auto */);
+                    s.update_completions_display();
+                }, this.auto_complete_delay);
+            return;
+        }
+
+        s.update_completions(true /* auto */);
+        s.update_completions_display();
+    },
+
+    update_completions_display : function () {
+
+        var m = this.window.minibuffer;
+
+        if (m.current_state == this)
+        {
+            if (this.completions && this.completions.data.length > 0)
             {
-                if (this.completions && this.completions.data.length > 0)
-                {
-                    this.completions_display_element.view = this.completions_display_element.view;
-                    this.completions_display_element.setAttribute("collapsed", "false");
-                    if (this.match_required)
-                    {
-                        var i;
-                        if (this.default_completion)
-                        {
-                            i = this.completions.data.indexOf(this.default_completion);
-                            if (i == -1)
-                                i = 0;
-                        }
-                        else
-                            i = 0;
-                        this.completions_display_element.currentIndex = i;
-                        this.completions_display_element.treeBoxObject.scrollToRow(i);
-                    } else  {
-                        this.completions_display_element.currentIndex = -1;
-                        this.completions_display_element.treeBoxObject.scrollToRow(0);
-                    }
+                this.completions_display_element.view = this.completions_display_element.view;
+                this.completions_display_element.setAttribute("collapsed", "false");
 
-                } else {
-                    this.completions_display_element.setAttribute("collapsed", "true");
-                }
+                this.completions_display_element.currentIndex = this.selected_completion_index;
+                this.completions_display_element.treeBoxObject.scrollToRow(this.selected_completion_index);
+            } else {
+                this.completions_display_element.setAttribute("collapsed", "true");
             }
         }
     },
 
-    completion_selected : function (window) {
+    /* If auto is true, this update is due to auto completion, rather
+     * than specifically requested. */
+    update_completions : function (auto) {
+
+
+        if (this.completions_timer_ID != null) {
+            this.window.clearTimeout(this.completions_timer_ID);
+            this.completions_timer_ID = null;
+        }
+
+        let m = this.window.minibuffer;
+
+        /* The completer should return undefined if completion was not
+         * attempted due to auto being true.  Otherwise, it can return
+         * null to indicate no completions. */
+        let c = this.completions = this.completer(m._input_text, m._selection_start,
+                                                  auto && this.auto_complete_conservative);
+        this.completions_valid = true;
+
+        let i = -1;
+        if (c && c.data.length > 0) {
+            if (this.match_required) {
+                if (c.data.length == 1)
+                    i = 0;
+                else if (this.default_completion)
+                    i = this.completions.data.indexOf(this.default_completion);
+            }
+            this.selected_completion_index = i;
+        }
+    },
+
+    select_completion : function (i) {
+        this.selected_completion_index = i;
+        this.completions_display_element.currentIndex = i;
+        if (i >= 0)
+            this.completions_display_element.treeBoxObject.ensureRowIsVisible(i);
+        this.handle_completion_selected();
+    },
+
+    handle_completion_selected : function () {
         /**
          * When a completion is selected, apply it to the input text
          * if a match is not "required"; otherwise, the completion is
          * only displayed.
          */
-        if (this.completions_valid && !this.match_required)
-        {
-            var m = window.minibuffer;
-            var c = this.completions;
+        var i = this.selected_completion_index;
+        var m = this.window.minibuffer;
+        var c = this.completions;
 
-            var sel_c = c.data[this.completions_display_element.currentIndex];
+        if (this.completions_valid && c && !this.match_required && i >= 0 && i < c.data.length)
+        {
+            var sel_c = c.data[i];
             c.apply(sel_c, m);
         }
     }
@@ -445,20 +499,22 @@ function minibuffer_complete(window, count)
     var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
-        throw "Invalid minibuffer state";
+        throw new Error("Invalid minibuffer state");
     if (!s.completer)
         return;
-    /* FIXME: handle delay
-    if (!s.completions_valid)
-    {
-    var str = m._input_text;
-    var pos = m._selection_start;
-    }*/
+    var just_completed = false;
 
-    /* FIXME: handle "select one of the choices" behavior */
+    if (!s.completions_valid || s.completions === undefined) {
+        s.update_completions(false /* not auto */);
+        s.update_completions_display();
+        just_completed = true;
+    }
+
     var c = s.completions;
+
     if (!c || c.data.length == 0)
         return;
+
     var e = s.completions_display_element;
     var new_index = -1;
 
@@ -466,31 +522,25 @@ function minibuffer_complete(window, count)
     {
         c.apply_common_prefix(c.common_prefix, m);
         c.common_prefix = null;
-    } else if (e.currentIndex != -1)
-    {
-        new_index = (e.currentIndex + count) % c.data.length;
-        if (new_index < 0)
-            new_index += c.data.length;
-    } else {
-        new_index = (count - 1) % c.data.length;
-        if (new_index < 0)
-            new_index += c.data.length;
+    } else if (!just_completed || s.auto_complete) {
+        if (e.currentIndex != -1)
+        {
+            new_index = (e.currentIndex + count) % c.data.length;
+            if (new_index < 0)
+                new_index += c.data.length;
+        } else {
+            new_index = (count - 1) % c.data.length;
+            if (new_index < 0)
+                new_index += c.data.length;
+        }
     }
 
     if (new_index != -1)
-    {
-        e.currentIndex = new_index;
-        s.completions_display_element.treeBoxObject.ensureRowIsVisible(new_index);
-        s.completion_selected(window);
-    }
+        s.select_completion(new_index);
 }
 interactive("minibuffer-complete", minibuffer_complete, I.current_window, I.p);
 interactive("minibuffer-complete-previous", minibuffer_complete, I.current_window,
             I.bind(function (x) { return -x; }, I.p));
-
-function or_string(options) {
-    return options.slice(0,options.length-1).join(", ") + " or " + options[options.length - 1];
-}
 
 /* USER PREFERENCE */
 var minibuffer_input_mode_show_message_timeout = 1000;
@@ -727,7 +777,6 @@ I.minibuffer_state = interactive_method(
     });
 
 function minibuffer_read_command(m) {
-    keywords(arguments, $prompt = "Command:", $history = "command");
     var completer = prefix_completer(
         $completions = function (visitor) {
             interactive_commands.for_each_value(visitor);
@@ -741,11 +790,16 @@ function minibuffer_read_command(m) {
         $get_value = function (x) {
             return x.name;
         });
-    return m.read(forward_keywords(arguments),
+    return m.read($prompt = "Command", $history = "command",
+                  forward_keywords(arguments),
                   $completer = completer,
                   $match_required = true);
 }
 
+
+function or_string(options) {
+    return options.slice(0,options.length-1).join(", ") + " or " + options[options.length - 1];
+}
 
 define_keywords("$options");
 function explicit_options_minibuffer_state() {
