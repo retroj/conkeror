@@ -263,7 +263,10 @@ function eval_expression(window, s)
 interactive("eval-expression",
             "Evaluate JavaScript statements.",
             eval_expression,
-            I.current_window, I.s($prompt = "Eval:", $history = "eval-expression"));
+            I.current_window,
+            I.s($prompt = "Eval:",
+                $history = "eval-expression",
+                $completer = I.bind(javascript_completer, I.current_buffer)));
 
 
 // our little hack. Add a big blank chunk to the bottom of the

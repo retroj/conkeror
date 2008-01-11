@@ -1,14 +1,14 @@
 require("minibuffer.js");
 
-/**
- * Completions is either a visit function or an array.
- */
 
 function apply_completion_string(str, m) {
     m._set_selection();
     m._input_text = str;
 }
 
+/**
+ * Completions is either a visit function or an array.
+ */
 define_keywords("$completions", "$get_string", "$get_description", "$get_value");
 function all_word_completer()
 {
@@ -47,9 +47,31 @@ function all_word_completer()
     }
 }
 
-function apply_prefix_completion_string(x, pos, str, m) {
-    m._input_text = x + str.substring(pos);
-    m._set_selection(x.length, x.length);
+function get_common_prefix_length(a, b, len) {
+    var lim;
+    if (len != null && len < a.length)
+        lim = len;
+    else
+        lim = a.length;
+    if (b < lim)
+        lim = b;
+    var i;
+    for (i = 0; i < lim && a[i] == b[i]; ++i);
+    return i;
+}
+
+function apply_partial_completion(x, prefix_end, suffix_begin, orig_str, m) {
+    if (suffix_begin < orig_str.length)  {
+        if (orig_str[suffix_begin] == " ")
+            suffix_begin++;
+        m._input_text = orig_str.substring(0, prefix_end) + x + " " + orig_str.substring(suffix_begin);
+        let sel = x.length + prefix_end + 1;
+        m._set_selection(sel, sel);
+    } else {
+        m._input_text = orig_str.substring(0, prefix_end) + x;
+        let sel = x.length + prefix_end;
+        m._set_selection(sel, sel);
+    }
 }
 
 function prefix_completer()
@@ -78,7 +100,7 @@ function prefix_completer()
     return function (input, pos, conservative) {
         var common_prefix = null;
         if (pos == 0 && conservative)
-            return null;
+            return undefined;
         var input_prefix = input.substring(0,pos);
         var data = arr.filter(function (x) {
                 var s = get_string(x);
@@ -88,21 +110,17 @@ function prefix_completer()
         {
             var a = get_string(data[0]);
             var b = get_string(data[data.length - 1]);
-            var lim = a.length < b.length ? a.length : b.length;
-            for (var i = 0; i < lim; ++i) {
-                if (a[i] != b[i])
-                    break;
-            }
+            var i = get_common_prefix_length(a, b);
             if (i > pos)
                 common_prefix = a.substring(0,i);
         }
         return { data: data,
                 get_string: get_string,
                 get_description : get_description,
-                apply : function (x, m) { apply_prefix_completion_string(get_string(x), pos, input, m); },
+                apply : function (x, m) { apply_partial_completion(get_string(x), 0, pos, input, m); },
                 get_value : get_value,
                 common_prefix : common_prefix,
-                apply_common_prefix : function (x, m) { apply_prefix_completion_string(x, pos, input, m); }
+                apply_common_prefix : function (x, m) { apply_partial_completion(x, 0, pos, input, m); }
                };
     }
 }
@@ -172,4 +190,108 @@ function get_navigation_completer (completer_type) {
 	$get_value = function (completion) {
 	    return completion.value;
 	});
+}
+
+function javascript_completer(buffer) {
+    var buffer = buffer;
+    var window = buffer.window;
+
+    return function (input, pos, conservative) {
+        // Derived from Vimperator JavaScript completion
+        if (pos == 0 && conservative)
+            return undefined;
+        var str = input.substr(0, pos);
+        var matches = str.match(/^(.*?)(\s*\.\s*)?(\w*)$/);
+        var filter = matches[3] || "";
+        var start = matches[1].length - 1;
+        var offset = matches[1] ? matches[1].length : 0;
+        offset += matches[2] ? matches[2].length : 0;
+
+        if (matches[2])
+        {
+            let brackets = 0, parentheses = 0;
+        outer:
+            for (; start >= 0; start--)
+            {
+                switch (matches[1][start])
+                {
+                case ";":
+                case "{":
+                    break outer;
+
+                case "]":
+                    brackets--;
+                    break;
+                case "[":
+                    brackets++;
+                    break;
+                case ")":
+                    parentheses--;
+                    break;
+                case "(":
+                    parentheses++;
+                    break;
+                }
+                if (brackets > 0 || parentheses > 0)
+                    break outer;
+            }
+        }
+
+        var objects = [];
+        var source_obj ;
+        var data = [];
+        var common_prefix_len = null;
+        var common_prefix = null;
+
+        function add_completion(str, desc) {
+            if (common_prefix != null)
+                common_prefix_len = get_common_prefix_length(common_prefix, str, common_prefix_len);
+            else
+                common_prefix = str;
+            data.push([str,desc]);
+        }
+        if (matches[1].substr(start+1))
+        {
+            try {
+                source_obj = eval(matches[1].substr(start+1));
+            } catch (e) {}
+        }
+        else
+        {
+            source_obj = conkeror;
+            if ("window".substring(0,filter.length) == filter)
+                add_completion("window", "object");
+            if ("buffer".substring(0,filter.length) == filter)
+                add_completion("buffer", "object");
+        }
+
+        if (source_obj != null) {
+            try {
+                for (let i in source_obj) {
+                    if (i.substring(0,filter.length) != filter)
+                        continue;
+                    let type, description;
+                    try {
+                        type = typeof(source_obj[i]);
+                    } catch (e) { type = "unknown type"; }
+                    if (type == "number" || type == "string" || type == "boolean") {
+                        description = type + ": " + source_obj[i];
+                    } else
+                        description = type;
+                    add_completion(i, description);
+                }
+            } catch (e) {}
+        }
+        if (common_prefix != null && common_prefix_len > 0)
+            common_prefix = common_prefix.substr(0, common_prefix_len);
+        else if (common_prefix_len != null)
+            common_prefix = null;
+        return {data: data,
+                get_string: function (x) x[0],
+                get_description: function (x) x[1],
+                apply: function (x,m) apply_partial_completion(x[0], offset, pos, input, m),
+                common_prefix: common_prefix,
+                apply_common_prefix: function (x,m) apply_partial_completion(x, offset, pos, input, m)
+               };
+    }
 }
