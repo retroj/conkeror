@@ -504,12 +504,12 @@ function minibuffer_complete(window, count)
         throw new Error("Invalid minibuffer state");
     if (!s.completer)
         return;
-    var just_completed = false;
-
+    var just_completed_manually = false;
     if (!s.completions_valid || s.completions === undefined) {
+        if (s.completions_timer_ID == null)
+            just_completed_manually = true;
         s.update_completions(false /* not auto */);
         s.update_completions_display();
-        just_completed = true;
     }
 
     var c = s.completions;
@@ -524,7 +524,7 @@ function minibuffer_complete(window, count)
     {
         c.apply_common_prefix(m);
         c.apply_common_prefix = null;
-    } else if (!just_completed || s.auto_complete) {
+    } else if (!just_completed_manually) {
         if (e.currentIndex != -1)
         {
             new_index = (e.currentIndex + count) % c.count;
