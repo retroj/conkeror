@@ -18,12 +18,11 @@ function exit_minibuffer(window)
 
         let c = s.completions;
         let i = s.selected_completion_index;
-        let x = c.data[i];
-        if (c != null && i >= 0 && i < c.data.length) {
+        if (c != null && i >= 0 && i < c.count) {
             if (c.get_value != null)
-                match = c.get_value(x);
+                match = c.get_value(i);
             else
-                match = x;
+                match = c.get_string(i);
         } else {
             m.message("No match");
             return;
@@ -301,16 +300,16 @@ completions_tree_view.prototype = {
         var c = this.minibuffer_state.completions;
         if (!c)
             return 0;
-        return c.data.length;
+        return c.count;
     },
     getCellText : function(row,column){
         var c = this.minibuffer_state.completions;
-        if (row >= c.data.length)
+        if (row >= c.count)
             return null;
         if (column.index == 0)
-            return c.get_string(c.data[row]);
+            return c.get_string(row);
         if (c.get_description)
-            return c.get_description(c.data[row]);
+            return c.get_description(row);
         return "";
     },
     setTree : function(treebox){ this.treebox = treebox; },
@@ -385,6 +384,8 @@ text_entry_minibuffer_state.prototype = {
     },
 
     destroy : function (window) {
+        if (this.completions != null && this.completions.destroy)
+            this.completions.destroy();
         var el = this.completions_display_element;
         if (el)
         {
@@ -424,7 +425,7 @@ text_entry_minibuffer_state.prototype = {
 
         if (m.current_state == this)
         {
-            if (this.completions && this.completions.data.length > 0)
+            if (this.completions && this.completions.count > 0)
             {
                 this.completions_display_element.view = this.completions_display_element.view;
                 this.completions_display_element.setAttribute("collapsed", "false");
@@ -452,17 +453,19 @@ text_entry_minibuffer_state.prototype = {
         /* The completer should return undefined if completion was not
          * attempted due to auto being true.  Otherwise, it can return
          * null to indicate no completions. */
+        if (this.completions != null && this.completions.destroy)
+            this.completions.destroy();
         let c = this.completions = this.completer(m._input_text, m._selection_start,
                                                   auto && this.auto_complete_conservative);
         this.completions_valid = true;
 
         let i = -1;
-        if (c && c.data.length > 0) {
+        if (c && c.count > 0) {
             if (this.match_required) {
-                if (c.data.length == 1)
+                if (c.count == 1)
                     i = 0;
-                else if (this.default_completion)
-                    i = this.completions.data.indexOf(this.default_completion);
+                else if (this.default_completion && this.completions.index_of)
+                    i = this.completions.index_of(this.default_completion);
             }
             this.selected_completion_index = i;
         }
@@ -486,10 +489,9 @@ text_entry_minibuffer_state.prototype = {
         var m = this.window.minibuffer;
         var c = this.completions;
 
-        if (this.completions_valid && c && !this.match_required && i >= 0 && i < c.data.length)
+        if (this.completions_valid && c && !this.match_required && i >= 0 && i < c.count)
         {
-            var sel_c = c.data[i];
-            c.apply(sel_c, m);
+            c.apply(i, m);
         }
     }
 };
@@ -512,26 +514,26 @@ function minibuffer_complete(window, count)
 
     var c = s.completions;
 
-    if (!c || c.data.length == 0)
+    if (!c || c.count == 0)
         return;
 
     var e = s.completions_display_element;
     var new_index = -1;
 
-    if (count == 1 && c.common_prefix)
+    if (count == 1 && c.apply_common_prefix)
     {
-        c.apply_common_prefix(c.common_prefix, m);
-        c.common_prefix = null;
+        c.apply_common_prefix(m);
+        c.apply_common_prefix = null;
     } else if (!just_completed || s.auto_complete) {
         if (e.currentIndex != -1)
         {
-            new_index = (e.currentIndex + count) % c.data.length;
+            new_index = (e.currentIndex + count) % c.count;
             if (new_index < 0)
-                new_index += c.data.length;
+                new_index += c.count;
         } else {
-            new_index = (count - 1) % c.data.length;
+            new_index = (count - 1) % c.count;
             if (new_index < 0)
-                new_index += c.data.length;
+                new_index += c.count;
         }
     }
 

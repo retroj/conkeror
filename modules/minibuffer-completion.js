@@ -38,11 +38,12 @@ function all_word_completer()
                 }
                 return true;
             });
-        return { data: data,
-                 get_string: get_string,
-                 get_description : get_description,
-                 apply : function (x, m) { apply_completion_string(get_string(x), m); },
-                 get_value : get_value
+        return {count: data.length,
+                index_of:  function (x) data.indexOf(x),
+                get_string: function (i) get_string(data[i]),
+                get_description : function (i) get_description(data[i]),
+                apply : function (i, m) apply_completion_string(get_string(data[i]), m),
+                get_value : function(i) (get_value ? get_value(data[i]) : data[i])
                };
     }
 }
@@ -114,86 +115,20 @@ function prefix_completer()
             if (i > pos)
                 common_prefix = a.substring(0,i);
         }
-        return { data: data,
-                get_string: get_string,
-                get_description : get_description,
-                apply : function (x, m) { apply_partial_completion(get_string(x), 0, pos, input, m); },
-                get_value : get_value,
-                common_prefix : common_prefix,
-                apply_common_prefix : function (x, m) { apply_partial_completion(x, 0, pos, input, m); }
+        return {count:data.length,
+                index_of:  function (x) data.indexOf(x),
+                get_string: function (i) get_string(data[i]),
+                get_description : function (i) get_description(data[i]),
+                apply : function (i, m) apply_partial_completion(get_string(data[i]), 0, pos, input, m),
+                get_value : function(i) get_value(data[i]),
+                apply_common_prefix: (common_prefix &&
+                                      function (m) apply_partial_completion(common_prefix, 0, pos, input, m))
+
                };
     }
 }
 
-/* USER PREFERENCE
-   completion_types controls what kinds of things are matched with minibuffer-completion
-   when opening a URL (using, e.g., g or C-x f), and in what order they are matched.
-   It should be an array consisting of one or zero each of "history", "webjumps", and
-   "bookmarks". */
-var completion_types = ["webjumps", "history", "bookmarks"];
-
-// Both history and bookmarks can be searched using nsINavHistoryService, so the common
-// code lives in this function.
-
-function get_history_service_results (service, options, query) {
-    var results = [];
-    var result = service.executeQuery(query, options).root;
-    result.containerOpen = true;
-    for (var i = 0; i < result.childCount; i++) {
-        var node = result.getChild(i);
-        if (node.type == node.RESULT_TYPE_URI) {
-            results.push ({ string: node.uri, description: node.title, value: node.uri });
-        }
-    }
-    result.containerOpen = false;
-    return results;
-}
-
-// Takes, as its argument, the user-defined completion_types argument defined above.
-// Returns an all_word_completer. Called by I.url_or_webjump.
-
-const nav_history_service = Cc["@mozilla.org/browser/nav-history-service;1"]
-    .getService(Ci.nsINavHistoryService);
-
-function get_navigation_completer (completer_type) {
-
-    var options = nav_history_service.getNewQueryOptions();
-    var query = nav_history_service.getNewQuery();
-
-    options.sortingMode = options.SORT_BY_VISITCOUNT_DESCENDING;
-
-    var completions = [];
-    for (var type in completion_types) {
-        if (completion_types[type] == "webjumps") {
-            for (var jump in gWebJumpLocations) {
-                completions.push ({ string: jump, description: "", value: gWebJumpLocations[jump] });
-            }
-        } else if (completion_types[type] == "history") {
-            options.queryType = options.QUERY_TYPE_HISTORY;
-            completions = completions.concat(get_history_service_results (nav_history_service, options, query));
-        } else if (completion_types[type] == "bookmarks") {
-            options.queryType = options.QUERY_TYPE_BOOKMARKS;
-            completions = completions.concat(get_history_service_results (nav_history_service, options, query));
-        } else {
-            throw ("Invalid completion_type");
-        }
-    }
-
-    return all_word_completer (
-	$completions = completions,
-	$get_string = function (completion) {
-	    return completion.string;
-	},
-	$get_description = function (completion) {
-	    return completion.description;
-	},
-	$get_value = function (completion) {
-	    return completion.value;
-	});
-}
-
 function javascript_completer(buffer) {
-    var buffer = buffer;
     var window = buffer.window;
 
     return function (input, pos, conservative) {
@@ -286,12 +221,12 @@ function javascript_completer(buffer) {
             common_prefix = common_prefix.substr(0, common_prefix_len);
         else if (common_prefix_len != null)
             common_prefix = null;
-        return {data: data,
-                get_string: function (x) x[0],
-                get_description: function (x) x[1],
-                apply: function (x,m) apply_partial_completion(x[0], offset, pos, input, m),
-                common_prefix: common_prefix,
-                apply_common_prefix: function (x,m) apply_partial_completion(x, offset, pos, input, m)
+        return {count:data.length,
+                get_string: function (i) data[i][0],
+                get_description: function (i) data[i][1],
+                apply: function (i,m) apply_partial_completion(data[i][0], offset, pos, input, m),
+                apply_common_prefix: (common_prefix &&
+                                      function (m) apply_partial_completion(common_prefix, offset, pos, input, m))
                };
     }
 }

@@ -202,18 +202,26 @@ add_hook("current_content_buffer_status_change_hook",
          });
 
 
+/* USER PREFERENCE */
+var url_completion_use_webjumps = true;
+var url_completion_use_bookmarks = true;
+var url_completion_use_history = false;
 
-//RETROJ: this may be improperly named.  it can read either an url or a
-//        webjump from the minibuffer, but it will always return an url.
-I.url_or_webjump = interactive_method(
+I.url = interactive_method(
     $async = function (ctx, cont) {
-        keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "");
-        var completer = get_navigation_completer (completion_types);
+        keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "",
+                 $use_webjumps = url_completion_use_webjumps,
+                 $use_history = url_completion_use_history,
+                 $use_bookmarks = url_completion_use_bookmarks);
+        var completer = url_completer ($use_webjumps = arguments.$use_webjumps,
+                                       $use_bookmarks = arguments.$use_bookmarks,
+                                       $use_history = arguments.$use_history);
         ctx.window.minibuffer.read(
             $prompt = arguments.$prompt,
             $history = arguments.$history,
             $completer = completer,
             $initial_value = arguments.$initial_value,
+            $auto_complete = "url",
             $select,
             $match_required = false,
             $callback = function (s) {
@@ -222,6 +230,7 @@ I.url_or_webjump = interactive_method(
                 cont(get_url_or_webjump (s));
             });
     });
+minibuffer_auto_complete_preferences["url"] = true;
 
 I.current_frame_url = interactive_method(
     $sync = function (ctx) {
@@ -351,20 +360,20 @@ interactive("open-url",
             "Open a URL, reusing the current buffer by default",
             open_in_browser,
             I.current_buffer, $$ = I.browse_target("open"),
-            I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$)));
+            I.url($prompt = I.bind(browse_target_prompt, $$)));
 
 interactive("find-alternate-url",
             "Edit the current URL in the minibuffer",
             open_in_browser,
             I.current_buffer, $$ = I.browse_target("open"),
-            I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$),
+            I.url($prompt = I.bind(browse_target_prompt, $$),
                              $initial_value = I.current_url));
 
 interactive("find-url",
             "Open a URL in a new buffer",
             open_in_browser,
             I.current_buffer, $$ = I.browse_target("find-url"),
-            I.url_or_webjump($prompt = I.bind(browse_target_prompt, $$)));
+            I.url($prompt = I.bind(browse_target_prompt, $$)));
 default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 

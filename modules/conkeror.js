@@ -24,6 +24,7 @@ require("download-manager.js");
 
 require("commands.js"); // depends: interactive.js
 require("webjump.js"); // depends: interactive.js
+require("history.js");
 
 require("save.js");
 

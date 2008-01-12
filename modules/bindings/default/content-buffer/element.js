@@ -34,6 +34,7 @@ function bind_element_operations(keymap) {
     define_key(keymap, "back_slash", "browser-element-view-source");
     define_key(keymap, "x", "browser-element-shell-command");
     define_key(keymap, "X", "browser-element-shell-command-on-url");
+    define_key(keymap, "k", "bookmark");
 }
 
 bind_element_operations(content_buffer_normal_keymap);

@@ -246,6 +246,7 @@ var hints_default_object_classes = {
     save: "links",
     copy: "links",
     view_source: "frames",
+    bookmark: "frames",
     def: "links"
 };
 
@@ -436,7 +437,7 @@ interactive("browser-element-shell-command-on-url",
                     if (url == null)
                         throw interactive_error("Unable to obtain URL from element");
                     return url;
-                }, $$ = hinted_element_with_prompt("shell-command-url",
+                }, $$ = hinted_element_with_prompt("shell_command_url",
                                                    "URL shell command target", "links")),
             $command = I.shell_command(
                 $prompt = I.bind(function (cwd) {
@@ -468,10 +469,23 @@ function browser_element_shell_command(buffer, elem, command) {
 interactive("browser-element-shell-command",
             browser_element_shell_command,
             I.current_buffer(content_buffer),
-            $$ = hinted_element_with_prompt("shell-command-url",
+            $$ = hinted_element_with_prompt("shell_command",
                                             "Shell command target", "links"),
             I.shell_command(
                 $prompt = I.bind(function (cwd) {
                         return "Shell command [" + cwd + "]:";
                     }, I.cwd),
                 $initial_value = I.bind(element_get_default_shell_command, $$)));
+
+
+interactive("bookmark", function (window, url, title) {
+        add_bookmark(url, title);
+        window.minibuffer.message("Added bookmark: " + url + " - " + title);
+    },
+    I.current_window,
+    I.bind(function (x) x[0],
+           $$ = I.bind(get_element_bookmark_info,
+                       hinted_element_with_prompt("bookmark",
+                                                  "Bookmark", "frames"))),
+    I.s($prompt = "Bookmark with title:",
+        $initial_value = I.bind(function (x) x[1], $$)));
