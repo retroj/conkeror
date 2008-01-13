@@ -589,19 +589,25 @@ minibuffer.prototype = {
     saved_focused_frame : null,
     saved_focused_element : null,
 
+    default_message : "",
+
+    current_message : null,
+
     /* This method will display the specified string in the
      * minibuffer, without recording it in any log/Messages buffer. */
     show : function (str) {
+        this.current_message = str;
+        this._show(str);
+    },
+
+    _show : function (str) {
         if (this.last_message != str)
         {
             this.output_element.value = str;
             this.last_message = str;
-            /*
-            if (str.length > 0)
-                dumpln("MINIBUFFER: " + str);
-            */
         }
     },
+
     message : function (str) {
         /* TODO: add the message to a *Messages* buffer, and/or
          * possibly dump them to the console. */
@@ -612,7 +618,14 @@ minibuffer.prototype = {
             this._ensure_message_area_showing();
     },
     clear : function () {
-        this.show("");
+        this.current_message = null;
+        this._show(this.default_message);
+    },
+
+    set_default_message : function (str) {
+        this.default_message = str;
+        if (this.current_message == null)
+            this._show(str);
     },
 
     get current_state () {

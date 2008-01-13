@@ -109,9 +109,11 @@ help_document_generator.prototype = {
 
 define_keywords("$binding_list");
 function describe_bindings_buffer(window, element) {
+    this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.binding_list = arguments.$binding_list;
+    this.constructor_end();
 }
 
 describe_bindings_buffer.prototype = {
@@ -191,12 +193,14 @@ default_browse_targets["describe-bindings"] = "find-url";
 
 define_keywords("$command", "$bindings");
 function describe_command_buffer(window, element) {
+    this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.bindings = arguments.$bindings;
     this.command = arguments.$command;
     this.cmd = interactive_commands.get(this.command);
     this.source_code_reference = this.cmd.source_code_reference;
+    this.constructor_end();
 }
 
 describe_command_buffer.prototype = {

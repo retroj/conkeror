@@ -41,6 +41,8 @@ require("hints.js");
 
 require("help.js");
 
+require("favicon.js");
+require("tab-bar.js");
 
 require("rc.js");
 require("bindings/default/bindings.js");

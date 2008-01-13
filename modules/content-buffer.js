@@ -1,11 +1,13 @@
 require_later("content-buffer-input.js");
 
 define_buffer_local_hook("content_buffer_finished_loading_hook");
+define_buffer_local_hook("content_buffer_started_loading_hook");
 define_buffer_local_hook("content_buffer_progress_change_hook");
 define_buffer_local_hook("content_buffer_location_change_hook");
 define_buffer_local_hook("content_buffer_status_change_hook");
 define_buffer_local_hook("content_buffer_focus_change_hook");
 define_buffer_local_hook("content_buffer_overlink_change_hook");
+define_buffer_local_hook("content_buffer_dom_link_added_hook");
 
 define_current_buffer_hook("current_content_buffer_finished_loading_hook", "content_buffer_finished_loading_hook");
 define_current_buffer_hook("current_content_buffer_progress_change_hook", "content_buffer_progress_change_hook");
@@ -19,6 +21,8 @@ define_keywords("$load");
 function content_buffer(window, element)
 {
     keywords(arguments);
+    this.constructor_begin();
+
     conkeror.buffer.call(this, window, element, forward_keywords(arguments));
 
     this.browser.addProgressListener(this);
@@ -57,6 +61,10 @@ function content_buffer(window, element)
             buffer.last_user_input_received = Date.now();
         }, true, false);
 
+    this.browser.addEventListener("DOMLinkAdded", function (event) {
+            content_buffer_dom_link_added_hook.run(buffer, event);
+        }, true, false);
+
     buffer.last_user_input_received = null;
 
     /* FIXME: Add a handler for blocked popups, and also PopupWindow event */
@@ -68,9 +76,21 @@ function content_buffer(window, element)
 
     content_buffer_normal_input_mode(this);
 
+    this.ignore_initial_blank = true;
+
     var load_spec = arguments.$load;
-    if (load_spec)
-        this.load(load_spec);
+    if (load_spec) {
+        if (load_spec.url == "about:blank")
+            this.ignore_initial_blank = false;
+        else {
+            /* Ensure that an existing load of about:blank is stopped */
+            this.web_navigation.stop(Ci.nsIWebNavigation.STOP_ALL);
+
+            this.load(load_spec);
+        }
+    }
+
+    this.constructor_end();
 }
 content_buffer.prototype = {
     constructor : content_buffer,
@@ -99,45 +119,76 @@ content_buffer.prototype = {
         apply_load_spec(this, load_spec);
     },
 
-    _requests_started: 0,
-    _requests_finished: 0,
+    _request_count: 0,
+
+    loading : false,
 
     /* nsIWebProgressListener */
     QueryInterface: generate_QI(Ci.nsIWebProgressListener, Ci.nsISupportsWeakReference),
 
     // This method is called to indicate state changes.
-    onStateChange: function(webProgress, request, stateFlags, status) {
+    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+/*
         const WPL = Components.interfaces.nsIWebProgressListener;
-        /*
+
         var flagstr = "";
-        if (stateFlags & WPL.STATE_START)
+        if (aStateFlags & WPL.STATE_START)
             flagstr += ",start";
-        if (stateFlags & WPL.STATE_STOP)
+        if (aStateFlags & WPL.STATE_STOP)
             flagstr += ",stop";
-        if (stateFlags & WPL.STATE_IS_REQUEST)
+        if (aStateFlags & WPL.STATE_IS_REQUEST)
             flagstr += ",request";
-        if (stateFlags & WPL.STATE_IS_DOCUMENT)
+        if (aStateFlags & WPL.STATE_IS_DOCUMENT)
             flagstr += ",document";
-        if (stateFlags & WPL.STATE_IS_NETWORK)
+        if (aStateFlags & WPL.STATE_IS_NETWORK)
             flagstr += ",network";
-        if (stateFlags & WPL.STATE_IS_WINDOW)
+        if (aStateFlags & WPL.STATE_IS_WINDOW)
             flagstr += ",window";
-        dumpln("onStateChange: " + flagstr + ", status: " + status);
-        */
-        if (stateFlags & WPL.STATE_IS_REQUEST) {
-            if (stateFlags & WPL.STATE_START) {
-                if (this._requests_started == 0)  {
-                    // Reset the time at which the last user input was received for the page
-                    this.last_user_input_received = 0;
-                }
-                this._requests_started++;
-            } else if (stateFlags & WPL.STATE_STOP) {
-                this._requests_finished++;
+        dumpln("onStateChange: " + flagstr + ", status: " + aStatus);
+*/
+        if (!aRequest)
+            return;
+
+
+        if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
+            this._request_count++;
+        }
+        else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+            const NS_ERROR_UNKNOWN_HOST = 2152398878;
+            if (--this._request_count > 0 && aStatus == NS_ERROR_UNKNOWN_HOST) {
+                // to prevent bug 235825: wait for the request handled
+                // by the automatic keyword resolver
+                return;
+            }
+            // since we (try to) only handle STATE_STOP of the last request,
+            // the count of open requests should now be 0
+            this._request_count = 0;
+        }
+
+        if (aStateFlags & Ci.nsIWebProgressListener.STATE_START &&
+            aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
+            // It's okay to clear what the user typed when we start
+            // loading a document. If the user types, this counter gets
+            // set to zero, if the document load ends without an
+            // onLocationChange, this counter gets decremented
+            // (so we keep it while switching tabs after failed loads)
+            //dumpln("*** started loading");
+            this.loading = true;
+            content_buffer_started_loading_hook.run(this);
+        }
+        else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+                 aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
+            if (this.loading == true)  {
+                //dumpln("*** finished loading");
+                content_buffer_finished_loading_hook.run(this);
+                this.loading = false;
             }
         }
-        if ((stateFlags & WPL.STATE_STOP) && (this._requests_finished == this._requests_started)) {
-            this._requests_finished = this._requests_started = 0;
-            content_buffer_finished_loading_hook.run(this);
+
+        if (aStateFlags & (Ci.nsIWebProgressListener.STATE_STOP |
+                           Ci.nsIWebProgressListener.STATE_START)) {
+            if (!this.loading)
+                this.set_default_message("Done");
         }
     },
 
@@ -151,20 +202,33 @@ content_buffer.prototype = {
     /* This method is called to indicate a change to the current location.
        The url can be gotten as location.spec. */
     onLocationChange : function(webProgress, request, location) {
+        /* Attempt to ignore onLocationChange calls due to the initial
+         * loading of about:blank by all xul:browser elements. */
+        if (location.spec == "about:blank" && this.ignore_initial_blank)
+            return;
+
+        this.ignore_initial_blank = false;
+
+        //dumpln("spec: " + location.spec  +" ;;; " + this.display_URI_string);
         /* Use the real location URI now */
         this._display_URI = null;
         content_buffer_location_change_hook.run(this, request, location);
+        buffer_description_change_hook.run(this);
     },
 
     // This method is called to indicate a status changes for the currently
     // loading page.  The message is already formatted for display.
     // Status messages could be displayed in the minibuffer output area.
     onStatusChange: function(webProgress, request, status, msg) {
+        this.set_default_message(msg);
         content_buffer_status_change_hook.run(this, request, status, msg);
     },
 
     // This method is called when the security state of the browser changes.
     onSecurityChange: function(webProgress, request, state) {
+        /* FIXME: currently this isn't used */
+
+        /*
         const WPL = Components.interfaces.nsIWebProgressListener;
 
         if (state & WPL.STATE_IS_INSECURE) {
@@ -183,6 +247,7 @@ content_buffer.prototype = {
             }
             // provide a visual indicator of the security state here.
         }
+        */
     },
 
     /* Inherit from buffer */
@@ -190,7 +255,7 @@ content_buffer.prototype = {
     __proto__ : buffer.prototype
 };
 
-
+/*
 add_hook("current_content_buffer_finished_loading_hook",
          function (buffer) {
                  buffer.window.minibuffer.show("Done");
@@ -198,9 +263,9 @@ add_hook("current_content_buffer_finished_loading_hook",
 
 add_hook("current_content_buffer_status_change_hook",
          function (buffer, request, status, msg) {
-             buffer.window.minibuffer.show(msg);
+             buffer.set_default_message(msg);
          });
-
+*/
 
 /* USER PREFERENCE */
 var url_completion_use_webjumps = true;
@@ -329,6 +394,7 @@ function apply_load_spec(target, load_spec) {
     if (target instanceof content_buffer) {
         target._display_URI = url;
         target = target.web_navigation;
+        //buffer_description_change_hook.run(target);
     }
     target.loadURI(url, flags, referrer, post_data, null /* headers */);
 }

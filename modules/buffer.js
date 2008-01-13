@@ -23,6 +23,8 @@ function define_current_buffer_hook(hook_name, existing_hook)
 define_buffer_local_hook("buffer_title_change_hook");
 define_buffer_local_hook("buffer_description_change_hook");
 define_buffer_local_hook("select_buffer_hook");
+define_buffer_local_hook("create_buffer_hook");
+define_buffer_local_hook("kill_buffer_hook");
 define_buffer_local_hook("buffer_scroll_hook");
 define_buffer_local_hook("buffer_dom_content_loaded_hook");
 define_buffer_local_hook("buffer_loaded_hook");
@@ -58,6 +60,7 @@ var allow_browser_window_close = true;
 
 function buffer(window, element)
 {
+    this.constructor_begin();
     keywords(arguments, $configuration = null);
     this.window = window;
     this.configuration = new buffer_configuration(arguments.$configuration);
@@ -71,6 +74,7 @@ function buffer(window, element)
         element.appendChild(browser);
         this.window.buffers.container.appendChild(element);
     }
+    this.window.buffers.buffer_list.push(this);
     this.element = element;
     this.browser = element.firstChild;
     this.element.conkeror_buffer_object = this;
@@ -99,6 +103,8 @@ function buffer(window, element)
             if (allow_browser_window_close)
                 kill_buffer(buffer, true);
         }, true);
+
+    this.constructor_end();
 }
 
 buffer.prototype = {
@@ -110,6 +116,25 @@ buffer.prototype = {
     // get title ()   [must be defined by subclasses]
     // get name ()    [must be defined by subclasses]
     dead : false, /* This is set when the buffer is killed */
+
+    default_message : "",
+
+    set_default_message : function (str) {
+        this.default_message = str;
+        if (this == this.window.buffers.current)
+            this.window.minibuffer.set_default_message(str);
+    },
+
+    constructors_running : 0,
+
+    constructor_begin : function () {
+        this.constructors_running++;
+    },
+
+    constructor_end : function () {
+        if (--this.constructors_running == 0)
+            create_buffer_hook.run(this);
+    },
 
     /* General accessors */
     get cwd () { return this.configuration.cwd; },
@@ -181,6 +206,8 @@ function buffer_container(window, create_initial_buffer)
 {
     this.window = window;
     this.container = window.document.getElementById("buffer-container");
+    this.buffer_list = [];
+    window.buffers = this;
 
     create_initial_buffer(window, this.container.firstChild);
 }
@@ -196,6 +223,9 @@ buffer_container.prototype = {
         var old_value = this.current;
         if (old_value == buffer)
             return;
+
+        this.buffer_list.splice(this.buffer_list.indexOf(buffer), 1);
+        this.buffer_list.unshift(buffer);
 
         this._switch_away_from(this.current);
         this._switch_to(buffer);
@@ -233,6 +263,8 @@ buffer_container.prototype = {
 
         buffer.saved_focused_element = null;
         buffer.saved_focused_frame = null;
+
+        this.window.minibuffer.set_default_message(buffer.default_message);
     },
 
     get count () {
@@ -250,6 +282,15 @@ buffer_container.prototype = {
         var count = nodes.length;
         for (var i = 0; i < count; ++i)
             if (nodes.item(i) == this.container.selectedPanel)
+                return i;
+        return null;
+    },
+
+    index_of : function (b) {
+        var nodes = this.container.childNodes;
+        var count = nodes.length;
+        for (var i = 0; i < count; ++i)
+            if (nodes.item(i) == b.element)
                 return i;
         return null;
     },
@@ -278,22 +319,23 @@ buffer_container.prototype = {
         var count = this.count;
         if (count <= 1)
             return false;
-        // TODO: call hook here
-        var new_buffer = this.current;
+        var new_buffer = this.buffer_list[0];
         var changed = false;
-        if (b == this.current)
-        {
-            var index = this.selected_index;
-            index = (index + 1) % count;
-            new_buffer = this.get_buffer(index);
+        if (b == new_buffer) {
+            new_buffer = this.buffer_list[1];
             changed = true;
         }
         this._switch_away_from(this.current);
         this.container.removeChild(b.element);
+        this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
         this._switch_to(new_buffer);
-        if (changed)
+        if (changed) {
             select_buffer_hook.run(new_buffer);
+            this.buffer_list.splice(this.buffer_list.indexOf(new_buffer), 1);
+            this.buffer_list.unshift(new_buffer);
+        }
         b.dead = true;
+        kill_buffer_hook.run(b);
         return true;
     },
 
@@ -314,7 +356,7 @@ function buffer_initialize_window_early(window)
 
     var create_initial_buffer
         = window.args.initial_buffer_creator || buffer_creator(content_buffer);
-    window.buffers = new buffer_container(window, create_initial_buffer);
+    new buffer_container(window, create_initial_buffer);
 }
 
 add_hook("window_initialize_early_hook", buffer_initialize_window_early);
@@ -518,7 +560,9 @@ interactive("switch-to-buffer",
             I.current_window,
             I.b($prompt = "Switch to buffer:",
                 $default = I.bind(function(window) {
-                        return window.buffers.get_buffer((window.buffers.selected_index + 1) % window.buffers.count);
+                        if (window.buffers.count > 1)
+                            return window.buffers.buffer_list[1];
+                        return window.buffers.current;
                     }, I.current_window)));
 
 /* USER PREFERENCE */

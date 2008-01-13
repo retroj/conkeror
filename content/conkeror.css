@@ -76,3 +76,80 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
 .download-panel .downloading-label, .download-panel .mime-type-label {
   font-weight: bold;
 }
+
+
+/* tab bar */
+
+#tab-bar {
+  -moz-box-pack: end;
+}
+
+.tab {
+  -moz-appearance: tab;
+  margin-top: 2px;
+  border-top: 2px solid;
+  border-right: 2px solid;
+  border-left: 2px solid;
+  border-bottom: 1px solid ThreeDHighlight;
+  -moz-border-top-colors: ThreeDHighlight ThreeDLightShadow;
+  -moz-border-right-colors: ThreeDDarkShadow ThreeDShadow;
+  -moz-border-left-colors: ThreeDHighlight ThreeDLightShadow;
+  -moz-border-radius-topleft: 2px;
+  -moz-border-radius-topright: 2px;
+  -moz-border-radius-bottomright: 1px;
+  padding: 1px 4px 2px 4px;
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+  min-width: 100px;
+  max-width: 250px;
+  -moz-box-flex: 100;
+  -moz-box-align: center;
+}
+
+.tab[selected="true"] {
+  margin-top: 0;
+  border-bottom-color: transparent;
+  padding: 1px 6px 4px 6px;
+  background-color: -moz-Dialog;
+}
+
+.tab-close-button {
+  -moz-appearance: none !important;
+  /*padding: 0px 4px 2px 0px;*/
+  padding: 0px 0px 0px 0px;
+  margin: 0px;
+  list-style-image: url("chrome://global/skin/icons/close.png") !important;
+  -moz-image-region: rect(0px, 16px, 16px, 0px);
+  border: none !important;
+}
+
+.tab[selected="false"] .tab-close-button {
+  display: none;
+}
+
+.tab-close-button:hover {
+  -moz-image-region: rect(0px, 32px, 16px, 16px);
+}
+
+.tab-close-button:active:hover {
+  -moz-image-region: rect(0px, 48px, 16px, 32px);
+}
+
+.tab-label {
+  -moz-box-flex: 100;
+  font: icon;
+}
+
+.tab[selected="true"] > .tab-label {
+  font-weight: bold;
+}
+
+.tab-icon  {
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png");
+  -moz-margin-start: 4px;
+  -moz-margin-end: 3px;
+}
