@@ -306,21 +306,21 @@ function hinted_element_with_prompt(action, action_name, default_class, target_v
                             $hint_xpath_expression = I.hints_xpath_expression(action));
 }
 
-interactive("browser-element-follow", browser_element_follow,
+interactive("follow", browser_element_follow,
             I.current_buffer,
             $$ = I.browse_target("follow"),
             hinted_element_with_prompt("follow", "Follow", "links", $$));
 
-interactive("browser-element-follow-top", browser_element_follow,
+interactive("follow-top", browser_element_follow,
             I.current_buffer,
             $$ = I.browse_target("follow-top"),
             hinted_element_with_prompt("follow_top", "Follow", "frames", $$));
 
-interactive("browser-element-focus", browser_element_focus,
+interactive("focus", browser_element_focus,
             I.current_buffer,
             hinted_element_with_prompt("focus", "Focus", null, null));
 
-interactive("browser-element-save", browser_element_save,
+interactive("save", browser_element_save,
             $$ = hinted_element_with_prompt("save", "Save", "links", null),
             $$1 = I.bind(element_get_url, $$),
             I.F($prompt = "Save as:",
@@ -349,7 +349,7 @@ function browser_element_copy(buffer, elem)
 }
 
 
-interactive("browser-element-copy", browser_element_copy,
+interactive("copy", browser_element_copy,
             I.current_buffer,
             hinted_element_with_prompt("copy", "Copy", "links", null));
 
@@ -402,7 +402,7 @@ function browser_element_view_source(buffer, target, elem, charset)
     }
 }
 
-interactive("browser-element-view-source", browser_element_view_source,
+interactive("view-source", browser_element_view_source,
             I.current_buffer(content_buffer),
             $$ = I.browse_target("follow"),
             hinted_element_with_prompt("view_source", "View source", "frames", $$),
@@ -430,7 +430,7 @@ function element_get_default_shell_command(elem) {
     return handler;
 }
 
-interactive("browser-element-shell-command-on-url",
+interactive("shell-command-on-url",
             shell_command_with_argument,
             $$1 = I.cwd,
             $argument = I.bind(function (elem) {
@@ -467,7 +467,7 @@ function browser_element_shell_command(buffer, elem, command) {
         });
 }
 
-interactive("browser-element-shell-command",
+interactive("shell-command-on-file",
             browser_element_shell_command,
             I.current_buffer(content_buffer),
             $$ = hinted_element_with_prompt("shell_command",

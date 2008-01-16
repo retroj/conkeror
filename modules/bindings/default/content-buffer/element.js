@@ -25,14 +25,14 @@ define_key(content_buffer_normal_keymap, "S-8 M", browser_elements_keymap,
 
 
 function bind_element_operations(keymap) {
-    define_key(keymap, "f", "browser-element-follow");
-    define_key(keymap, ";", "browser-element-focus");
-    define_key(keymap, "t", "browser-element-follow-top");
-    define_key(keymap, "s", "browser-element-save");
-    define_key(keymap, "c", "browser-element-copy");
-    define_key(keymap, "back_slash", "browser-element-view-source");
-    define_key(keymap, "x", "browser-element-shell-command");
-    define_key(keymap, "X", "browser-element-shell-command-on-url");
+    define_key(keymap, "f", "follow");
+    define_key(keymap, ";", "focus");
+    define_key(keymap, "t", "follow-top");
+    define_key(keymap, "s", "save");
+    define_key(keymap, "c", "copy");
+    define_key(keymap, "back_slash", "view-source");
+    define_key(keymap, "x", "shell-command-on-file");
+    define_key(keymap, "X", "shell-command-on-url");
     define_key(keymap, "k", "bookmark");
 }
 
