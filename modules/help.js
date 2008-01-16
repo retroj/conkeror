@@ -287,12 +287,14 @@ interactive("view-referenced-source-code", view_referenced_source_code,
 
 define_keywords("$binding", "$other_bindings", "$key_sequence");
 function describe_key_buffer(window, element) {
+    this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.key_sequence = arguments.$key_sequence;
     this.bindings = arguments.$other_bindings;
     this.bind = arguments.$binding;
     this.source_code_reference = this.bind.source_code_reference;
+    this.constructor_end();
 }
 
 describe_key_buffer.prototype = {
