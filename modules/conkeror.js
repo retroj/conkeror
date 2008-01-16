@@ -47,6 +47,8 @@ require("tab-bar.js");
 require("rc.js");
 require("bindings/default/bindings.js");
 
+require("ssl.js");
+
 //require("scroll-bars.js");
 
 

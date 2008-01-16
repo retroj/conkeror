@@ -2,3 +2,4 @@ content conkeror jar:conkeror.jar!/content/
 content conkeror-modules jar:conkeror.jar!/modules/
 locale conkeror en-US jar:conkeror.jar!/locale/en-US/
 locale branding en-US jar:conkeror.jar!/branding/
+override chrome://global/locale/netErrorApp.dtd chrome://conkeror/locale/netError.dtd
