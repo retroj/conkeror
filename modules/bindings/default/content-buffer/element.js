@@ -1,7 +1,6 @@
 require("element.js");
 
 var browser_elements_keymap = new keymap();
-bind_universal_argument(browser_elements_keymap, "C-u");
 
 define_key(content_buffer_normal_keymap, "i", browser_elements_keymap,
            $hook = hints_object_class_selector("images"));
@@ -38,4 +37,3 @@ function bind_element_operations(keymap) {
 }
 
 bind_element_operations(content_buffer_normal_keymap);
-bind_element_operations(browser_elements_keymap);

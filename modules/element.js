@@ -274,6 +274,7 @@ I.hints_xpath_expression = interactive_method(
 function hints_object_class_selector(name) {
     return function (ctx, active_keymap, overlay_keymap) {
         ctx.hints_object_class = name;
+        ctx.overlay_keymap = overlay_keymap || active_keymap;
     }
 }
 
