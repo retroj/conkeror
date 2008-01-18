@@ -28,23 +28,141 @@ function run_hooks(hook, args)
 {
     if (hook == null)
         return;
-    for (var i = 0; i < hook.length; ++i)
+    for (let i = 0; i < hook.length; ++i)
         hook[i].apply (null, Array.prototype.slice.call(args));
 }
 
-/* This should only be used by define_hook functions */
-function initialize_hook(hook_name)
+function run_hooks_until_success(hook, args)
 {
-    if (this[hook_name] == null)
-        this[hook_name] = [];
-    return this[hook_name];
+    if (hook == null)
+        return false;
+    for (let i = 0; i < hook.length; ++i)
+        if (hook[i].apply (null, Array.prototype.slice.call(args)))
+            return true;
+    return false;
 }
 
-function define_hook(hook_name)
+function run_hooks_until_failure(hook, args)
 {
-    initialize_hook(hook_name).run = function () {
+    if (hook == null)
+        return true;
+    for (let i = 0; i < hook.length; ++i)
+        if (!hook[i].apply (null, Array.prototype.slice.call(args)))
+            return false;
+    return true;
+}
+
+var hook_type_doc_strings = [
+    /* RUN_HOOK */
+    "Each hook function added is run in sequence.",
+    /* RUN_HOOK_UNTIL_SUCCESS */
+    "Only boolean-valued hook functions may be added.  Each hook function added is run in sequence until a value that conerts to true is returned.",
+    /* RUN_HOOK_UNTIL_FAILURE */
+    "Only boolean-valued hook functions may be added.  Each hook function added is run in sequence until a value that conerts to false is returned."];
+
+
+/* This should only be used by define_hook functions */
+function initialize_hook(prototype, hook_name, hook_type, doc_string, extra_doc_string)
+{
+    var h = this[hook_name];
+    if (h == null)
+        h = this[hook_name] = [];
+    if (hook_type == null)
+        hook_type = RUN_HOOK;
+    switch (hook_type) {
+    case RUN_HOOK:
+        h.run = prototype.run;
+        break;
+    case RUN_HOOK_UNTIL_SUCCESS:
+        h.run = prototype.run_until_success;
+        break;
+    case RUN_HOOK_UNTIL_FAILURE:
+        h.run = prototype.run_until_failure;
+        break;
+    }
+    h.hook_type = hook_type;
+    h.hook_name = hook_name;
+    h.doc_string =
+        (doc_string? doc_string + "\n" : "") +
+        hook_type_doc_strings[hook_type] +
+        (extra_doc_string? "\n" + extra_doc_string : "");
+    h.source_code_reference = get_caller_source_code_reference(1);
+    return h;
+}
+
+var hook_global_prototype = {
+    run: function() {
         run_hooks(this, arguments);
+    },
+    run_until_success: function() {
+        return run_hooks_until_success(this, arguments);
+    },
+    run_until_failure: function() {
+        return run_hooks_until_failure(this, arguments);
+    }
+};
+
+const RUN_HOOK = 0;
+const RUN_HOOK_UNTIL_SUCCESS = 1;
+const RUN_HOOK_UNTIL_FAILURE = 2;
+
+function define_hook(hook_name, hook_type, doc_string)
+{
+    initialize_hook(hook_global_prototype, hook_name, hook_type, doc_string);
+}
+
+var hook_simple_local_prototype = {
+    run: function(x) {
+        var hook_name = this.hook_name;
+        if (hook_name in x) run_hooks(x[hook_name], arguments);
+        run_hooks(this, arguments);
+    },
+    run_until_success: function (x) {
+        var hook_name = this.hook_name;
+        if ((hook_name in x) && run_hooks_until_success(x[hook_name], arguments)) return true;
+            return run_hooks_until_success(conkeror[hook_name], arguments);
+    },
+    run_until_failure: function (x) {
+        var hook_name = this.hook_name;
+        if ((hook_name in x) && !run_hooks_until_success(x[hook_name], arguments)) return false;
+        return run_hooks_until_failure(conkeror[hook_name], arguments);
+    }
+};
+
+function simple_local_hook_definer(extra_doc_string) {
+    return function (hook_name, hook_type, doc_string) {
+        initialize_hook(hook_simple_local_prototype, hook_name, hook_type, doc_string, extra_doc_string);
+    }
+}
+
+/* This function is called with a variable number of string arguments
+ * in addition to the first, that specify the additional hook arrays
+ * to use.  As an example: local_hook_definer("buffer", "buffer", "buffer.window")
+ */
+function local_hook_definer(prop_name, extra_doc_string) {
+    var prototype = {
+        run: function(x) {
+            var hook_name = this.hook_name;
+            if (hook_name in x) run_hooks(x[hook_name], arguments);
+            if (hook_name in x[prop_name]) run_hooks(x[prop_name][hook_name], arguments);
+            run_hooks(this, arguments);
+        },
+        run_until_success: function (x) {
+            var hook_name = this.hook_name;
+            if ((hook_name in x) && run_hooks_until_success(x[hook_name], arguments)) return true;
+            if ((hook_name in x[prop_name]) && run_hooks_until_success(x[prop_name][hook_name], arguments)) return true;
+            return run_hooks_until_success(conkeror[hook_name], arguments);
+        },
+        run_until_failure: function (x) {
+            var hook_name = this.hook_name;
+            if ((hook_name in x) && !run_hooks_until_success(x[hook_name], arguments)) return false;
+            if ((hook_name in x[prop_name]) && !run_hooks_until_success(x[prop_name][hook_name], arguments)) return false;
+            return run_hooks_until_failure(conkeror[hook_name], arguments);
+        }
     };
+    return function (hook_name, hook_type, doc_string) {
+        initialize_hook(prototype, hook_name, hook_type, doc_string, extra_doc_string);
+    }
 }
 
 function remove_hook(hook_name, func)
