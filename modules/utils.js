@@ -398,9 +398,15 @@ source_code_reference.prototype = {
     }
 };
 
-function get_caller_source_code_reference() {
-    var s = Error().stack;
-    var regexp = /.*\n.*\n.*\n[^@]*@(.*):([0-9]*)$/m;
+function get_caller_source_code_reference(extra_frames_back) {
+    var stack = Error().stack.split("\n");
+    if (extra_frames_back == null)
+        extra_frames_back = 0;
+    var i = extra_frames_back + 3;
+    if (stack.length <= i)
+        return null;
+    var s = stack[i];
+    var regexp = /^[^@]*@(.*):([0-9]*)$/m;
     var match = regexp.exec(s);
     if (match.index != 0)
         return null;
