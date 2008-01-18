@@ -1,13 +1,4 @@
-function define_buffer_local_hook(hook_name)
-{
-    initialize_hook(hook_name).run = function (buffer) {
-        run_hooks(this, arguments);
-        if (hook_name in buffer.window)
-            run_hooks(buffer.window[hook_name], arguments);
-        if (hook_name in buffer)
-            run_hooks(buffer[hook_name], arguments);
-    }
-}
+var define_buffer_local_hook = local_hook_definer("window");
 
 function define_current_buffer_hook(hook_name, existing_hook)
 {
@@ -198,6 +189,15 @@ buffer.prototype = {
                 break;
             win = win.parent;
         } while (true);
+    },
+
+    handle_kill : function () {
+        this.dead = true;
+        this.browser = null;
+        this.element = null;
+        this.saved_focused_frame = null;
+        this.saved_focused_element = null;
+        kill_buffer_hook.run(this);
     }
 };
 
@@ -334,8 +334,7 @@ buffer_container.prototype = {
             this.buffer_list.splice(this.buffer_list.indexOf(new_buffer), 1);
             this.buffer_list.unshift(new_buffer);
         }
-        b.dead = true;
-        kill_buffer_hook.run(b);
+        b.handle_kill();
         return true;
     },
 
@@ -361,6 +360,30 @@ function buffer_initialize_window_early(window)
 
 add_hook("window_initialize_early_hook", buffer_initialize_window_early);
 
+
+define_buffer_local_hook("buffer_kill_before_hook", RUN_HOOK_UNTIL_FAILURE);
+function buffer_before_window_close(window)
+{
+    var bs = window.buffers;
+    var count = bs.count;
+    for (let i = 0; i < count; ++i) {
+        if (!buffer_kill_before_hook.run(bs.get_buffer(i)))
+            return false;
+    }
+    return true;
+}
+add_hook("window_before_close_hook", buffer_before_window_close);
+
+function buffer_window_close_handler(window)
+{
+    var bs = window.buffers;
+    var count = bs.count;
+    for (let i = 0; i < count; ++i) {
+        let b = bs.get_buffer(i);
+        b.handle_kill();
+    }
+}
+add_hook("window_close_hook", buffer_window_close_handler);
 
 /* open/follow targets */
 const OPEN_CURRENT_BUFFER = 0; // only valid for open if the current

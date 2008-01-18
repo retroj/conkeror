@@ -1,12 +1,5 @@
+var define_window_local_hook = simple_local_hook_definer();
 
-function define_window_local_hook(hook_name)
-{
-    initialize_hook(hook_name).run = function (window) {
-        run_hooks(this, arguments);
-        if (hook_name in window)
-            run_hooks(window[hook_name], arguments);
-    }
-}
 
 define_hook("make_window_hook");
 
@@ -167,4 +160,20 @@ function window_initialize(window)
             delete window.window_initialize_late_hook; // used only once
             delete window.args; // get rid of args
         },0);
+
+    window.addEventListener("close", window_close_maybe, true /* capture */, false);
+}
+
+define_window_local_hook("window_before_close_hook", RUN_HOOK_UNTIL_FAILURE);
+define_window_local_hook("window_close_hook", RUN_HOOK);
+function window_close_maybe(event) {
+    var window = this;
+
+    if (!window_before_close_hook.run(window)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+    }
+
+    window_close_hook.run(window);
 }

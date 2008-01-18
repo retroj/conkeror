@@ -649,6 +649,13 @@ minibuffer.prototype = {
         this._restore_state(restore_focus);
     },
 
+    pop_all : function () {
+        while (this.states.length > 0) {
+            this.current_state.destroy();
+            this.states.pop();
+        }
+    },
+
     remove_state : function (state, restore_focus) {
         if (restore_focus === undefined)
             restore_focus = true;
@@ -778,6 +785,11 @@ function minibuffer_initialize_window(window)
 }
 
 add_hook("window_initialize_early_hook", minibuffer_initialize_window);
+
+function minibuffer_window_close_handler(window) {
+    window.minibuffer.pop_all();
+}
+add_hook("window_close_hook", minibuffer_window_close_handler);
 
 /* Note: This is concise, but doesn't seem to be useful in practice,
  * because nothing can be done with the state alone. */
