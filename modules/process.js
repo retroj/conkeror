@@ -126,6 +126,7 @@ function minibuffer_read_shell_command(m) {
     return m.read($prompt = "Shell command:",
                   $history = "shell-command",
                   $auto_complete = "shell-command",
+                  $select,
                   forward_keywords(arguments),
                   $completer = get_shell_command_completer());
 }
