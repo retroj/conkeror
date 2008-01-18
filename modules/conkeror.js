@@ -11,6 +11,7 @@ require("minibuffer.js"); // depends: interactive.js
 require("minibuffer-completion.js");
 require("localfile.js");
 require("thread.js");
+require("timer.js");
 require("process.js");
 require("mime.js");
 require("keyboard.js");
