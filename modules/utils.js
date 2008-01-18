@@ -598,3 +598,5 @@ var builtin_commands_with_count = [["cmd_charNext", "cmd_charPrevious"],
                                    ["cmd_scrollLineUp", "cmd_scrollLineDown"],
                                    ["cmd_scrollLeft", "cmd_scrollRight"],
                                    "cmd_paste"];
+
+var observer_service = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
