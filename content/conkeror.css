@@ -49,6 +49,7 @@ tree.completions {
   border-top: 4px double #333333 !important;
   background-color: #dcdad5 !important;
   -moz-border-top-colors: -moz-initial !important;
+  color: black;
 }
 
 tree.completions treechildren::-moz-tree-row { 
