@@ -16,7 +16,7 @@ function ssl_add_exception(buffer) {
 
 interactive("ssl-add-exception",
             "Add an exception for the SSL certificate of the current content page.",
-            ssl_add_exception,  I.current_buffer);
+            function (I) {ssl_add_exception(I.buffer);});
 
 function ssl_certificate_manager() {
     make_chrome_window("chrome://pippki/content/certManager.xul", null);

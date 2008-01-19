@@ -200,3 +200,41 @@ function get_file(path) {
     f.initWithPath(path);
     return f;
 }
+
+minibuffer.prototype.read_file_path = function () {
+    keywords(arguments, $prompt = "File:", $initial_value = default_directory.path,
+             $history = "file");
+    var result = yield this.read(
+        $prompt = arguments.$prompt,
+        $initial_value = arguments.$initial_value,
+        $history = arguments.$history);
+    yield co_return(result);
+}
+
+minibuffer.prototype.read_file = function () {
+    var result = yield this.read_file_path(forward_keywords(arguments));
+    yield co_return(get_file(result));
+};
+
+// FIXME
+minibuffer.prototype.read_existing_file = minibuffer.prototype.read_file;
+
+
+minibuffer.prototype.read_file_check_overwrite = function () {
+    keywords(arguments);
+    var initial_value = arguments.$initial_value;
+    do {
+        var path = yield this.read_file_path(forward_keywords(arguments), $initial_value = initial_value);
+
+        var file = get_file(path);
+
+        if (file.exists()) {
+            var overwrite = yield this.read_yes_or_no($prompt = "Overwrite existing file " + path + "?");
+            if (!overwrite) {
+                initial_value = path;
+                continue;
+            }
+        }
+        yield co_return(file);
+    } while (true);
+};

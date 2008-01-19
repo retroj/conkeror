@@ -66,6 +66,7 @@ function document_get_element_by_relationship(doc, relationship) {
 }
 
 function browser_follow_relationship(buffer, relationship, target) {
+    check_buffer(buffer, content_buffer);
     function helper(win) {
         var elem = document_get_element_by_relationship(win.document, relationship);
         if (elem)
@@ -87,12 +88,10 @@ function browser_follow_relationship(buffer, relationship, target) {
 
 default_browse_targets["follow-relationship"] = "follow";
 
-interactive("browser-follow-next", browser_follow_relationship,
-            I.current_buffer(content_buffer),
-            RELATIONSHIP_NEXT,
-            I.browse_target("follow-relationship"));
+interactive("browser-follow-next", function (I) {
+    browser_follow_relationship(I.buffer, RELATIONSHIP_NEXT, I.browse_target("follow-relationship"))
+});
 
-interactive("browser-follow-previous", browser_follow_relationship,
-            I.current_buffer(content_buffer),
-            RELATIONSHIP_PREVIOUS,
-            I.browse_target("follow-relationship"));
+interactive("browser-follow-previous", function (I) {
+    browser_follow_relationship(I.buffer, RELATIONSHIP_PREVIOUS, I.browse_target("follow-relationship"))
+});

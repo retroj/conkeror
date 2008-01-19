@@ -201,6 +201,13 @@ buffer.prototype = {
     }
 };
 
+function check_buffer(obj, type) {
+    if (!(obj instanceof type))
+        throw interactive_error("Buffer has invalid type.");
+    if (obj.dead)
+        throw interactive_error("Buffer has already been killed.");
+    return obj;
+}
 
 function buffer_container(window, create_initial_buffer)
 {
@@ -427,22 +434,21 @@ default_browse_targets["open"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW
 default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
 
-I.browse_target = interactive_method(
-    $sync = function (ctx, action) {
-        var prefix = ctx.prefix_argument;
-        var targets = action;
-        while (typeof(targets) == "string")
-            targets = default_browse_targets[targets];
-        if (prefix == null || typeof(prefix) != "object")
-            return targets[0];
-        var num = prefix[0];
-        var index = 0;
-        while (num >= 4 && index + 1 < targets.length) {
-            num = num / 4;
-            index++;
-        }
-        return targets[index];
-    });
+interactive_context.prototype.browse_target = function (action) {
+    var prefix = this.prefix_argument;
+    var targets = action;
+    while (typeof(targets) == "string")
+        targets = default_browse_targets[targets];
+    if (prefix == null || typeof(prefix) != "object")
+        return targets[0];
+    var num = prefix[0];
+    var index = 0;
+    while (num >= 4 && index + 1 < targets.length) {
+        num = num / 4;
+        index++;
+    }
+    return targets[index];
+};
 
 function create_buffer(window, creator, target) {
     switch (target) {
@@ -483,77 +489,31 @@ function create_buffer_in_current_window(creator, target) {
     }
 }
 
-I.current_buffer = interactive_method(
-    $doc = "Current buffer",
-    $sync = function (ctx, type) {
-        if (type && !(ctx.buffer instanceof type))
-            throw interactive_error("Current buffer is of invalid type");
-        return ctx.buffer;
-    });
-
-
-I.focused_element = interactive_method(
-    $sync =  function (ctx) {
-        return ctx.buffer.focused_element;
-    });
-
-I.current_frame = interactive_method(
-    $sync = function (ctx) {
-        return ctx.buffer.focused_frame;
-    });
-
-I.top_frame = interactive_method(
-    $sync = function (ctx) {
-        return ctx.buffer.top_frame;
-    });
-
-// This name should perhaps change
-I.top_document = interactive_method(
-    $sync = function (ctx) {
-        return ctx.buffer.top_document;
-    });
-
-// This name should perhaps change
-I.active_document = I.top_document;
-
 minibuffer_auto_complete_preferences["buffer"] = true;
 define_keywords("$default");
-I.b = interactive_method(
-    $async = function (ctx, cont) {
-        keywords(arguments, $prompt = "Buffer:",
-                 $default = ctx.buffer,
-                 $history = "buffer");
-        var completer = all_word_completer(
-            $completions = function (visitor) {
-                ctx.window.buffers.for_each(visitor);
-            },
-            $get_string = function (x) {
-                return x.description;
-            },
-            $get_description = function (x) {
-                return x.title;
-            });
-        ctx.window.minibuffer.read(
-            $prompt = arguments.$prompt,
-            $history = arguments.$history,
-            $completer = completer,
-            $match_required = true,
-            $auto_complete = "buffer",
-            $auto_complete_initial = true,
-            $auto_complete_delay = 0,
-            $default_completion = arguments.$default,
-            $callback = cont);
-    });
+minibuffer.prototype.read_buffer = function () {
+    var window = this.window;
+    var buffer = this.window.buffers.current;
+    keywords(arguments, $prompt = "Buffer:",
+             $default = buffer,
+             $history = "buffer");
+    var completer = all_word_completer(
+        $completions = function (visitor) window.buffers.for_each(visitor),
+        $get_string = function (x) x.description,
+        $get_description = function (x) x.title);
+    var result = yield this.read(
+        $prompt = arguments.$prompt,
+        $history = arguments.$history,
+        $completer = completer,
+        $match_required = true,
+        $auto_complete = "buffer",
+        $auto_complete_initial = true,
+        $auto_complete_delay = 0,
+        $default_completion = arguments.$default);
+    yield co_return(result);
+};
 
-I.cwd = interactive_method(
-    $sync = function (ctx) {
-        return ctx.buffer.cwd;
-    });
-
-I.buffer_configuration = interactive_method(
-    $sync = function (ctx) {
-        return ctx.buffer.configuration;
-    });
+interactive_context.prototype.__defineGetter__("cwd", function () this.buffer.cwd);
 
 function buffer_next (window, count)
 {
@@ -566,11 +526,10 @@ function buffer_next (window, count)
 }
 interactive("buffer-next",
             "Switch to the next buffer.",
-            buffer_next, I.current_window, I.p);
+            function (I) {buffer_next(I.window, I.p);});
 interactive("buffer-previous",
             "Switch to the previous buffer.",
-            buffer_next, I.current_window, I.bind(function (x) {return -x;}, I.p));
-
+            function (I) {buffer_next(I.window, -I.p);});
 
 function switch_to_buffer (window, buffer)
 {
@@ -579,14 +538,16 @@ function switch_to_buffer (window, buffer)
 }
 interactive("switch-to-buffer",
             "Switch to a buffer specified in the minibuffer.",
-            switch_to_buffer,
-            I.current_window,
-            I.b($prompt = "Switch to buffer:",
-                $default = I.bind(function(window) {
-                        if (window.buffers.count > 1)
-                            return window.buffers.buffer_list[1];
-                        return window.buffers.current;
-                    }, I.current_window)));
+            function (I) {
+                switch_to_buffer(
+                    I.window,
+                    (yield I.minibuffer.read_buffer(
+                        $prompt = "Switch to buffer:",
+                        $default = (I.window.buffers.count > 1 ? 
+                                    I.window.buffers.buffer_list[1] :
+                                    I.buffer)))
+                )
+            });
 
 /* USER PREFERENCE */
 /* If this is set to true, kill-buffer can kill the last remaining
@@ -612,34 +573,32 @@ interactive("kill-buffer",
             "Kill a buffer specified in the minibuffer.\n" +
             "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
             "buffer in a window will cause the window to be closed.",
-            kill_buffer,
-            I.b($prompt = "Kill buffer:"));
+            function (I) {kill_buffer((yield I.minibuffer.read_buffer($prompt = "Kill buffer:")))});
 
 interactive("kill-current-buffer",
             "Kill the current buffer.\n" +
             "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
             "buffer in a window will cause the window to be closed.",
-            kill_buffer, I.current_buffer);
+            function (I) {kill_buffer(I.buffer)});
 
 function change_directory(buffer, dir) {
     buffer.configuration.cwd = dir;
 }
 interactive("change-current-directory",
             "Change the current directory of the selected buffer.",
-            change_directory,
-            I.current_buffer,
-            I.bind(function (x) { return x.path; },
-                   I.f($prompt = "New current directory:",
-                       $initial_value = I.cwd)));
+            function (I) {
+                change_directory(
+                    I.buffer,
+                    (yield I.minibuffer.read_existing_directory_path(
+                        $prompt = "New current directory:",
+                        $initial_value = I.cwd)));
+            });
 
-
-interactive("shell-command",
-            shell_command,
-            $$ = I.cwd,
-            I.shell_command($prompt = I.bind(function (cwd) {
-                        return "Shell command [" + cwd + "]:";
-                    }, $$)));
-
+interactive("shell-command", function (I) {
+    var cwd = I.cwd;
+    var cmd = I.minibuffer.read_shell_command($cwd = cwd);
+    shell_command(cwd, cmd);
+});
 
 function unfocus(buffer)
 {
@@ -653,6 +612,6 @@ function unfocus(buffer)
         return;
     buffer.top_frame.focus();
 }
-interactive("unfocus", unfocus, I.current_buffer);
+interactive("unfocus", function (I) {unfocus(I.buffer)});
 
 require_later("content-buffer.js");

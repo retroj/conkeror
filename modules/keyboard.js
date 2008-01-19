@@ -637,9 +637,11 @@ function find_command_in_keymap(keymap_or_buffer, command) {
 var key_binding_reader_keymap = new keymap();
 define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
 
-define_keywords("$buffer", "$keymap", "$callback", "$failure_callback");
-function key_binding_reader() {
+define_keywords("$buffer", "$keymap");
+function key_binding_reader(continuation) {
     keywords(arguments, $prompt = "Describe key:");
+
+    this.continuation = continuation;
 
     if (arguments.$keymap)
         this.target_keymap = arguments.$keymap;
@@ -649,14 +651,27 @@ function key_binding_reader() {
         this.target_keymap = window.keyboard.override_keymap || buffer.keymap;
     }
 
-    this.callback = arguments.$callback;
-    this.failure_callback = arguments.$failure_callback;
-
     this.key_sequence = [];
     
     minibuffer_state.call(this, key_binding_reader_keymap, arguments.$prompt);
 }
-key_binding_reader.prototype.__proto__ = minibuffer_state.prototype;
+key_binding_reader.prototype = {
+    __proto__: minibuffer_state.prototype,
+    destroy: function () {
+        if (this.continuation)
+            this.continuation.throw(abort());
+    }
+};
+
+function invalid_key_binding(seq) {
+    var e = new Error(seq.join(" ") + " is undefined");
+    e.key_sequence = seq;
+    e.__proto__ = invalid_key_binding.prototype;
+    return e;
+}
+invalid_key_binding.prototype = {
+    __proto__: interactive_error.prototype
+};
 
 function read_key_binding_key(window, state, event) {
     var binding = lookup_key_binding(state.target_keymap, event);
@@ -664,11 +679,10 @@ function read_key_binding_key(window, state, event) {
     state.key_sequence.push(format_key_event(event));
 
     if (binding == null) {
+        var c = state.continuation;
+        delete state.continuation;
         window.minibuffer.pop_state();
-        if (state.failure_callback)
-            state.failure_callback(state.key_sequence);
-        else
-            window.minibuffer.message(state.key_sequence.join(" ") + " is undefined");
+        c.throw(invalid_key_binding(state.key_sequence));
         return;
     }
 
@@ -679,22 +693,22 @@ function read_key_binding_key(window, state, event) {
         return;
     }
 
+    var c = state.continuation;
+    delete state.continuation;
+
     window.minibuffer.pop_state();
 
-    if (state.callback)
-        state.callback(state.key_sequence, binding);
+    if (c != null)
+        c([state.key_sequence, binding]);
 }
-interactive("read-key-binding-key", read_key_binding_key,
-            I.current_window,
-            I.minibuffer_state(key_binding_reader),
-            I.e);
+interactive("read-key-binding-key", function (I) {
+    read_key_binding_key(I.window, I.minibuffer.check_state(key_binding_reader), I.event);
+});
 
-I.key_binding = interactive_method(
-    $async = function (ctx, cont) {
-        keywords(arguments);
-        var s = new key_binding_reader(forward_keywords(arguments),
-                                       $callback = function (seq, bind) {
-                                           cont([seq,bind]);
-                                       });
-        ctx.window.minibuffer.push_state(s);
-    });
+minibuffer.prototype.read_key_binding = function () {
+    keywords(arguments);
+    var s = new key_binding_reader((yield CONTINUATION), forward_keywords(arguments));
+    this.push_state(s);
+    var result = yield SUSPEND;
+    yield co_return(result);
+};

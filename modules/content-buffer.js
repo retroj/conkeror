@@ -272,58 +272,28 @@ var url_completion_use_webjumps = true;
 var url_completion_use_bookmarks = true;
 var url_completion_use_history = false;
 
-I.url = interactive_method(
-    $async = function (ctx, cont) {
-        keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "",
-                 $use_webjumps = url_completion_use_webjumps,
-                 $use_history = url_completion_use_history,
-                 $use_bookmarks = url_completion_use_bookmarks);
-        var completer = url_completer ($use_webjumps = arguments.$use_webjumps,
-                                       $use_bookmarks = arguments.$use_bookmarks,
-                                       $use_history = arguments.$use_history);
-        ctx.window.minibuffer.read(
-            $prompt = arguments.$prompt,
-            $history = arguments.$history,
-            $completer = completer,
-            $initial_value = arguments.$initial_value,
-            $auto_complete = "url",
-            $select,
-            $match_required = false,
-            $callback = function (s) {
-                if (s == "") // well-formedness check. (could be better!)
-                    throw ("invalid url or webjump (\""+s+"\")");
-                cont(get_url_or_webjump (s));
-            });
-    });
 minibuffer_auto_complete_preferences["url"] = true;
-
-I.current_frame_url = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.buffer;
-        if (!(buffer instanceof content_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.focused_frame.location.href;
-    });
-
-// This name should probably change
-I.current_url = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.buffer;
-        if (!(buffer instanceof content_buffer))
-            throw new Error("Current buffer is of invalid type");
-        return buffer.current_URI.spec;
-    });
-
-I.focused_link_url = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.buffer;
-        if (!(buffer instanceof content_buffer))
-            throw new Error("Current buffer is of invalid type");
-        // -- Focused link element
-        ///JJF: check for errors or wrong element type.
-        return get_link_location (buffer.focused_element);
-    });
-
+minibuffer.prototype.read_url = function () {
+    keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "",
+             $use_webjumps = url_completion_use_webjumps,
+             $use_history = url_completion_use_history,
+             $use_bookmarks = url_completion_use_bookmarks);
+    var completer = url_completer ($use_webjumps = arguments.$use_webjumps,
+        $use_bookmarks = arguments.$use_bookmarks,
+        $use_history = arguments.$use_history);
+    var result = yield this.read(
+        $prompt = arguments.$prompt,
+        $history = arguments.$history,
+        $completer = completer,
+        $initial_value = arguments.$initial_value,
+        $auto_complete = "url",
+        $select,
+        $match_required = false);
+    if (result == "") // well-formedness check. (could be better!)
+        throw ("invalid url or webjump (\""+ result +"\")");
+    yield co_return(get_url_or_webjump(result));
+};
+/*
 I.content_charset = interactive_method(
     $sync = function (ctx) {
         var buffer = ctx.buffer;
@@ -336,15 +306,15 @@ I.content_charset = interactive_method(
         else
             return null;
     });
-
-
+*/
+/*
 I.content_selection = interactive_method(
     $sync = function (ctx) {
         // -- Selection of content area of focusedWindow
         var focusedWindow = this.buffers.current.focused_frame;
         return focusedWindow.getSelection ();
     });
-
+*/
 function overlink_update_status(buffer, text) {
     if (text.length > 0)
         buffer.window.minibuffer.show("Link: " + text);
@@ -424,24 +394,31 @@ function open_in_browser(buffer, target, load_spec)
 
 interactive("open-url",
             "Open a URL, reusing the current buffer by default",
-            open_in_browser,
-            I.current_buffer, $$ = I.browse_target("open"),
-            I.url($prompt = I.bind(browse_target_prompt, $$)));
+            function (I) {
+                var target = I.browse_target("open");
+                open_in_browser(I.buffer, target,
+                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
+            });
 
 interactive("find-alternate-url",
             "Edit the current URL in the minibuffer",
-            open_in_browser,
-            I.current_buffer, $$ = I.browse_target("open"),
-            I.url($prompt = I.bind(browse_target_prompt, $$),
-                             $initial_value = I.current_url));
+            function (I) {
+                var target = I.browse_target("open");
+                check_buffer(I.buffer, content_buffer);
+                open_in_browser(I.buffer, target,
+                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target),
+                                                             $initial_value = I.buffer.display_URI_string)));
+            });
 
 interactive("find-url",
             "Open a URL in a new buffer",
-            open_in_browser,
-            I.current_buffer, $$ = I.browse_target("find-url"),
-            I.url($prompt = I.bind(browse_target_prompt, $$)));
+            function (I) {
+                var target = I.browse_target("find-url");
+                check_buffer(I.buffer, content_buffer);
+                open_in_browser(I.buffer, target,
+                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
+            });
 default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-
 
 function go_up (b, target)
 {
@@ -459,9 +436,7 @@ function go_up (b, target)
 }
 interactive("go-up",
             "Go to the parent directory of the current URL",
-            go_up,
-            I.current_buffer(content_buffer),
-            I.browse_target("go-up"));
+            function (I) { go_up(check_buffer(I.buffer, content_buffer),  I.browse_target("go-up")); });
 default_browse_targets["go-up"] = "open";
 
 
@@ -469,6 +444,8 @@ function go_back (b, prefix)
 {
     if (prefix < 0)
         go_forward(b, -prefix);
+
+    check_buffer(b, content_buffer);
 
     if (b.web_navigation.canGoBack)
     {
@@ -480,15 +457,17 @@ function go_back (b, prefix)
     } else
         throw interactive_error("Can't go back");
 }
-interactive("go-back",
-            "Go back in the session hisory for the current buffer.",
-            go_back, I.current_buffer(content_buffer), I.p);
-
+interactive(
+    "go-back",
+    "Go back in the session hisory for the current buffer.",
+    function (I) {go_back(I.buffer, I.p);});
 
 function go_forward (b, prefix)
 {
     if (prefix < 0)
         go_back(b, -prefix);
+
+    check_buffer(b, content_buffer);
 
     if (b.web_navigation.canGoForward)
     {
@@ -501,18 +480,20 @@ function go_forward (b, prefix)
 }
 interactive("go-forward",
             "Go back in the session hisory for the current buffer.",
-            go_forward, I.current_buffer(content_buffer), I.p);
+            function (I) {go_forward(I.buffer, I.p);});
 
 function stop_loading (b)
 {
+    check_buffer(b, content_buffer);
     b.web_navigation.stop(Ci.nsIWebNavigation.STOP_NETWORK);
 }
 interactive("stop-loading",
             "Stop loading the current document.",
-            stop_loading, I.current_buffer(content_buffer));
+            function (I) {stop_loading(I.buffer);});
 
 function reload (b, bypass_cache)
 {
+    check_buffer(b, content_buffer);
     var flags = bypass_cache != null ?
         Ci.nsIWebNavigation.LOAD_FLAGS_NONE : Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
     b.web_navigation.reload(flags);
@@ -520,7 +501,7 @@ function reload (b, bypass_cache)
 interactive("reload",
             "Reload the current document.\n" +
             "If a prefix argument is specified, the cache is bypassed.",
-            reload, I.current_buffer(content_buffer), I.P);
+            function (I) {reload(I.buffer, I.P);});
 
 /**
  * browserDOMWindow: intercept window opening

@@ -619,11 +619,17 @@ function save_focused_link (url, dest_file_o)
         false,       // save_as_text_p
         false);      // save_as_complete_p
 }
-interactive ("save-focused-link", save_focused_link,
-             $$ = I.focused_link_url,
-             I.F($prompt = "Save Link As:",
+/* FIXME  */
+/*
+interactive ("save-focused-link",
+             function (I) {
+                 check_buffer(I)
+                 var url = I.buffer.
+                 var file = yield I.minibuffer.read_file($prompt = "Save Link As:",
+                                                        $initial_value = 
                  $initial_value = I.bind(function (u) { return generate_save_path(u).path; }, $$),
                  $history = "save"));
+*/
 
 function save_image (url_o, dest_file_o)
 {
@@ -684,12 +690,16 @@ function generate_save_path_for_document(document_o, ext)
         content_disposition, ext).path;
 }
 
-
-interactive("save-page", save_page,
-            I.active_document,
-            I.F($prompt = "Save Page As:",
-                $history = "save",
-                $initial_value = I.bind(generate_save_path_for_document, I.active_document)));
+/* FIXME: this should move to content-buffer.js, possibly */
+interactive("save-page", function (I) {
+    check_buffer(I.buffer, content_buffer);
+    var doc = I.buffer.top_document;
+    save_page(doc,
+              (yield I.minibuffer.read_file_check_overwrite(
+                  $prompt = "Save Page As:",
+                  $history = "save",
+                  $initial_value = generate_save_path_for_document(doc))));
+});
 
 function save_page_as_text (document_o, dest_file_o)
 {
@@ -709,11 +719,15 @@ function save_page_as_text (document_o, dest_file_o)
         false); // save_as_complete_p
 }
 
-interactive("save-page-as-text", save_page_as_text,
-            I.active_document,
-            I.F($prompt = "Save Page As:",
-                $history = "save",
-                $initial_value = I.bind(generate_save_path_for_document, I.active_document, "txt")));
+interactive("save-page-as-text", function (I) {
+    check_buffer(I.buffer, content_buffer);
+    var doc = I.buffer.top_document;
+    save_page_as_text(doc,
+              (yield I.minibuffer.read_file_check_overwrite(
+                  $prompt = "Save Page As Text:",
+                  $history = "save",
+                  $initial_value = generate_save_path_for_document(doc, "txt"))));
+});
 
 function save_page_complete (document_o, dest_file_o, dest_data_dir_o)
 {
@@ -732,11 +746,18 @@ function save_page_complete (document_o, dest_file_o, dest_data_dir_o)
         true);  // save_as_complete_p
 }
 
-interactive("save-page-complete", save_page_complete,
-            I.active_document,
-            $$ = I.F($prompt = "Save Page As:",
-                     $history = "save",
-                     $initial_value = I.bind(generate_save_path_for_document, I.active_document)),
-            I.F($prompt = "Data Directory:",
-                $history = "save",
-                $initial_value = I.bind(function (f) { return f.path + ".support"; }, $$)));
+
+interactive("save-page-complete", function (I) {
+    check_buffer(I.buffer, content_buffer);
+    var doc = I.buffer.top_document;
+    var file = yield I.minibuffer.read_file_check_overwrite(
+        $prompt = "Save Page As Text:",
+        $history = "save",
+        $initial_value = generate_save_path_for_document(doc));
+    // FIXME: use proper read function
+    var dir = yield I.minibuffer.read_file(
+        $prompt = "Data Directory:",
+        $history = "save",
+        $initial_value = file.path + ".support");
+    save_page_complete(doc, file, dir);
+});

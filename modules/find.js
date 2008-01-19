@@ -264,8 +264,8 @@ function isearch_continue(window, direction) {
         s.find(s.top.search_str, direction, s.top.range);
     s.restore_state();
 }
-interactive("isearch-continue-forward", isearch_continue, I.current_window, true);
-interactive("isearch-continue-backward", isearch_continue, I.current_window, false);
+interactive("isearch-continue-forward", function (I) {isearch_continue(I.window, true);});
+interactive("isearch-continue-backward", function (I) {isearch_continue(I.window, false);});
 
 function isearch_start (window, direction)
 {
@@ -273,8 +273,8 @@ function isearch_start (window, direction)
     window.minibuffer.push_state(s);
     s.restore_state();
 }
-interactive("isearch-forward", isearch_start, I.current_window, true);
-interactive("isearch-backward", isearch_start, I.current_window, false);
+interactive("isearch-forward", function (I) {isearch_start(I.window, true);});
+interactive("isearch-backward", function (I) {isearch_start(I.window, false);});
 
 function isearch_backspace (window)
 {
@@ -285,8 +285,9 @@ function isearch_backspace (window)
         s.states.pop();
     s.restore_state();
 }
-interactive("isearch-backspace", isearch_backspace, I.current_window);
+interactive("isearch-backspace", function (I) {isearch_backspace(I.window);});
 
+/* FIXME: do this stuff in .destroy instead */
 function isearch_abort (window)
 {
     var s = window.minibuffer.current_state;
@@ -296,7 +297,7 @@ function isearch_abort (window)
     s.frame.scrollTo(s.states[0].screenx, s.states[0].screeny);
     s._clear_selection();
 }
-interactive("isearch-abort", isearch_abort, I.current_window);
+interactive("isearch-abort", function(I) {isearch_abort(I.window);});
 
 
 function isearch_add_character (window, event)
@@ -309,7 +310,7 @@ function isearch_add_character (window, event)
     s.find(str, s.top.direction, s.top.point);
     s.restore_state();
 }
-interactive("isearch-add-character", isearch_add_character, I.current_window, I.e);
+interactive("isearch-add-character", function (I) {isearch_add_character(I.window, I.event);});
 
 function isearch_done (window)
 {
@@ -322,5 +323,4 @@ function isearch_done (window)
     s.focus_link();
     s._clear_selection();
 }
-interactive("isearch-done", isearch_done, I.current_window);
-
+interactive("isearch-done", function (I) {isearch_done(I.window);});

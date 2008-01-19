@@ -22,7 +22,7 @@ function define_content_buffer_input_mode(base_name, keymap_name) {
         content_buffer_input_mode_change_hook.run(buffer);
     }
     var hyphen_name = name.replace("_","-","g");
-    interactive(hyphen_name, conkeror[name], I.current_buffer(content_buffer));
+    interactive(hyphen_name, function(I) {conkeror[name](check_buffer(I.buffer,content_buffer));});
 }
 
 define_content_buffer_input_mode("normal", "content_buffer_normal_keymap");
@@ -243,17 +243,13 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
         throw interactive_error("No form field found");
 }
 
-interactive("browser-focus-next-form-field",
-            browser_focus_next_form_field,
-            I.current_buffer(content_buffer),
-            I.p,
-            browser_form_field_xpath_expression);
+interactive("browser-focus-next-form-field", function (I) {
+    browser_focus_next_form_field(I.buffer, I.p, browser_form_field_xpath_expression);
+});
 
-interactive("browser-focus-previous-form-field",
-            browser_focus_next_form_field,
-            I.current_buffer(content_buffer),
-            I.bind(function (x) {return -x;}, I.p),
-            browser_form_field_xpath_expression);
+interactive("browser-focus-previous-form-field", function (I) {
+    browser_focus_next_form_field(I.buffer, -I.p, browser_form_field_xpath_expression);
+});
 
 function edit_field_in_external_editor(buffer, elem) {
     if (elem instanceof Ci.nsIDOMHTMLInputElement) {
@@ -306,7 +302,7 @@ function edit_field_in_external_editor(buffer, elem) {
         },
         $failure_callback = cleanup);
 }
-interactive("edit-current-field-in-external-editor",
-            edit_field_in_external_editor,
-            I.current_buffer(content_buffer),
-            I.focused_element);
+interactive("edit-current-field-in-external-editor", function (I) {
+    var buf = I.buffer;
+    edit_field_in_external_editor(buf, buf.focused_element);
+});

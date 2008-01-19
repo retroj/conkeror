@@ -21,7 +21,10 @@ function where_is_command(buffer, command) {
         msg = command + " is on " + list.join(", ");
     buffer.window.minibuffer.message(msg);
 }
-interactive("where-is", where_is_command, I.current_buffer, I.C($prompt = "Where is command:"));
+interactive("where-is", function (I) {
+    where_is_command(I.buffer,
+                     (yield I.minibuffer.read_command($prompt = "Where is command:")));
+});
 
 function help_document_generator(document) {
     dom_generator.call(this, document, XHTML_NS);
@@ -186,7 +189,7 @@ function describe_bindings(buffer, target) {
                                                 $binding_list = list),
                   target);
 }
-interactive("describe-bindings", describe_bindings, I.current_buffer, I.browse_target("describe-bindings"));
+interactive("describe-bindings", function (I) {describe_bindings(I.buffer, I.browse_target("describe-bindings"));});
 default_browse_targets["describe-bindings"] = "find-url";
 
 
@@ -262,10 +265,10 @@ function describe_command(buffer, command, target) {
                                  $bindings = bindings),
                   target);
 }
-interactive("describe-command", describe_command,
-            I.current_buffer,
-            I.C($prompt = "Describe command:"),
-            I.browse_target("describe-command"));
+interactive("describe-command", function (I) {
+    describe_command(I.buffer, (yield I.minibuffer.read_command($prompt = "Describe command:")),
+                     I.browse_target("describe-command"));
+});
 default_browse_targets["describe-command"] = "find-url";
 
 
@@ -278,11 +281,7 @@ function view_referenced_source_code(buffer) {
         throw interactive_error("Command not valid in current buffer.");
     buffer.source_code_reference.open_in_editor();
 }
-interactive("view-referenced-source-code", view_referenced_source_code,
-            I.current_buffer);
-
-
-
+interactive("view-referenced-source-code", function (I) {view_referenced_source_code(I.buffer);});
 
 
 define_keywords("$binding", "$other_bindings", "$key_sequence");
@@ -381,9 +380,9 @@ function describe_key(buffer, key_info, target) {
                                  $binding = bind),
                   target);
 }
-interactive("describe-key", describe_key,
-            $$ = I.current_buffer,
-            I.key_binding($prompt = "Describe key:",
-                          $buffer = $$),
-            I.browse_target("describe-key"));
+interactive("describe-key", function (I) {
+    describe_key(I.buffer,
+                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
+                 I.browse_target("describe-key"));
+});
 default_browse_targets["describe-key"] = "find-url";

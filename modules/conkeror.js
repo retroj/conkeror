@@ -1,13 +1,16 @@
 
 var start_time = Date.now ();
 
-require("keywords.js");
+require("keywords.js"); // not required to be listed as dep.
+require("coroutine.js"); // not required to be listed as dep.
 
 require("hook.js");
 require("debug.js");
 require("utils.js");
 require("interactive.js");
 require("minibuffer.js"); // depends: interactive.js
+require("minibuffer-read.js");
+require("minibuffer-read-option.js");
 require("minibuffer-completion.js");
 require("localfile.js");
 require("thread.js");

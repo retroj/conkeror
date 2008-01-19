@@ -324,14 +324,13 @@ initialize_hint_keymap();
  * $callback
  * $abort_callback
  */
-define_keywords("$keymap", "$auto", "$callback", "$abort_callback", "$hint_xpath_expression", "$multiple");
-function hints_minibuffer_state(buffer)
+define_keywords("$keymap", "$auto", "$hint_xpath_expression", "$multiple");
+function hints_minibuffer_state(continuation, buffer)
 {
     keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, $prompt = arguments.$prompt);
+    this.continuation = continuation;
     this.keymap = arguments.$keymap;
-    this.callback = arguments.$callback;
-    this.abort_callback = arguments.$abort_callback;
     this.auto_exit = arguments.$auto ? true : false;
     this.xpath_expr = arguments.$hint_xpath_expression;
     this.auto_exit_timer_ID = null;
@@ -418,8 +417,9 @@ function hints_handle_character(window, s, e) {
     }
     s.update_minibuffer(window);
 }
-interactive("hints-handle-character", hints_handle_character,
-            I.current_window, I.minibuffer_state(hints_minibuffer_state), I.e);
+interactive("hints-handle-character", function (I) {
+    hints_handle_character(I.window, I.minibuffer.check_state(hints_minibuffer_state), I.event);
+});
 
 function hints_backspace(window, s) {
     if (this.auto_exit_timer_ID) {
@@ -438,8 +438,9 @@ function hints_backspace(window, s) {
     }
     s.update_minibuffer(window);
 }
-interactive("hints-backspace", hints_backspace,
-            I.current_window, I.minibuffer_state(hints_minibuffer_state));
+interactive("hints-backspace", function (I) {
+    hints_backspace(I.window, I.minibuffer.check_state(hints_minibuffer_state));
+});
 
 function hints_next(window, s, count) {
     if (this.auto_exit_timer_ID) {
@@ -457,12 +458,13 @@ function hints_next(window, s, count) {
     }
     s.update_minibuffer(window);
 }
-interactive("hints-next", hints_next,
-            I.current_window, I.minibuffer_state(hints_minibuffer_state), I.p);
+interactive("hints-next", function (I) {
+    hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), I.p);
+});
 
-interactive("hints-previous", hints_next,
-            I.current_window, I.minibuffer_state(hints_minibuffer_state),
-            I.bind(function (x) {return -x;}, I.p));
+interactive("hints-previous", function (I) {
+    hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), -I.p);
+});
 
 function hints_exit(window, s)
 {
@@ -477,14 +479,17 @@ function hints_exit(window, s)
     else if (cur == 0)
         elem = window.buffers.current.top_frame;
     if (elem) {
+        var c = s.continuation;
+        delete s.continuation;
         window.minibuffer.pop_state();
-        if (s.callback)
-            s.callback(elem);
+        if (c)
+            c(elem);
     }
 }
 
-interactive("hints-exit", hints_exit,
-            I.current_window, I.minibuffer_state(hints_minibuffer_state));
+interactive("hints-exit", function (I) {
+    hints_exit(I.window, I.minibuffer.check_state(hints_minibuffer_state));
+});
 
 
 /* USER PREFERENCE */
@@ -501,27 +506,24 @@ var hints_xpath_expressions = {
     mathml: {def: "//m:math"}
 };
 
-define_keywords("$object_class");
-I.hinted_element = interactive_method(
-    $doc = "DOM element chosen using the hints system",
-    $async = function (ctx, cont) {
-        keywords(arguments);
-        // FIXME: clean this up and replace with proper object class declaration
-        var object_class = arguments.$object_class;
-        if (object_class == "frames") {
-            var buf = ctx.window.buffers.current;
-            if (!(buf instanceof content_buffer))
-                throw new Error("Current buffer is of invalid type");
-            var doc = buf.top_document;
-            if (doc.getElementsByTagName("frame").length == 0 &&
-                doc.getElementsByTagName("iframe").length == 0)
-            {
-                // only one frame (the top-level one), no need to use the hints system
-                cont(buf.top_frame);
-                return;
-            }
+define_keywords("$object_class", "$buffer");
+minibuffer.prototype.read_hinted_element = function () {
+    keywords(arguments);
+    var buf = arguments.$buffer;
+    // FIXME: clean this up and replace with proper object class declaration
+    var object_class = arguments.$object_class;
+    if (object_class == "frames") {
+        check_buffer(buf, content_buffer);
+        var doc = buf.top_document;
+        if (doc.getElementsByTagName("frame").length == 0 &&
+            doc.getElementsByTagName("iframe").length == 0)
+        {
+            // only one frame (the top-level one), no need to use the hints system
+            yield co_return(buf.top_frame);
         }
-        var s = new hints_minibuffer_state(ctx.window.buffers.current,
-                                           forward_keywords(arguments), $callback = cont);
-        ctx.window.minibuffer.push_state(s);
-    });
+    }
+    var s = new hints_minibuffer_state((yield CONTINUATION), buf, forward_keywords(arguments));
+    this.push_state(s);
+    var result = yield SUSPEND;
+    yield co_return(result);
+};

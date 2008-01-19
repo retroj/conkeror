@@ -121,22 +121,20 @@ function get_shell_command_completer() {
 // use default
 minibuffer_auto_complete_preferences["shell-command"] = null;
 
-function minibuffer_read_shell_command(m) {
-    keywords(arguments, $prompt = "Shell command", $history = "shell-command");
-    return m.read($prompt = "Shell command:",
-                  $history = "shell-command",
-                  $auto_complete = "shell-command",
-                  $select,
-                  forward_keywords(arguments),
-                  $completer = get_shell_command_completer());
+/* FIXME: support a relative or full path as well as PATH commands */
+define_keywords("$cwd");
+minibuffer.prototype.read_shell_command = function () {
+    keywords(arguments, $history = "shell-command");
+    var prompt = arguments.$prompt || "Shell command [" + arguments.$cwd + "]:";
+    var result = yield this.read(
+        $prompt = prompt,
+        $history = "shell-command",
+        $auto_complete = "shell-command",
+        $select,
+        forward_keywords(arguments),
+        $completer = get_shell_command_completer());
+    yield co_return(result);
 }
-
-I.shell_command = interactive_method(
-    $async = function (ctx, cont) {
-        minibuffer_read_shell_command(ctx.window.minibuffer, forward_keywords(arguments),
-                                      $callback = cont);
-    });
-
 
 define_keywords("$command", "$argument", "$callback", "$failure_callback");
 function shell_command_with_argument(cwd) {

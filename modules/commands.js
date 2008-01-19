@@ -50,7 +50,7 @@ function show_conkeror_version (window)
 }
 interactive ("conkeror-version",
              "Show version information for Conkeror.",
-             show_conkeror_version, I.current_window);
+             function (I) {show_conkeror_version(I.window);});
 
 /* FIXME: maybe this should be supported for non-browser buffers */
 function scrollHorizComplete (buffer, n)
@@ -60,18 +60,19 @@ function scrollHorizComplete (buffer, n)
 }
 interactive("beginning-of-line",
             "Scroll the current window all the way to the left.",
-            scrollHorizComplete, I.current_buffer, -1);
+            function (I) {scrollHorizComplete(I.buffer, -1);});
 
 interactive("end-of-line",
             "Scroll the current frame all the way to the right.",
-            scrollHorizComplete, I.current_buffer, 1);
+            function (I) {scrollHorizComplete(I.buffer, 1);});
 
 interactive("make-window",
             "Make a new window.",
-            make_window,
-            I.bind(buffer_creator, content_buffer,
-                   $load = I.bind(function(){return homepage;}),
-                   $configuration = I.buffer_configuration));
+            function (I) {
+                make_window(buffer_creator(content_buffer,
+                                           $load = homepage,
+                                           $configuration = I.buffer.configuration));
+            });
 
 function delete_window (window)
 {
@@ -79,13 +80,15 @@ function delete_window (window)
 }
 interactive("delete-window",
             "Delete the current window.",
-            delete_window, I.current_window);
+            function (I) {delete_window(I.window);});
 
 interactive("jsconsole",
             "Open the JavaScript console.",
-            open_in_browser,
-            I.current_buffer, I.browse_target("jsconsole"),
-            "chrome://global/content/console.xul");
+            function (I) {
+                open_in_browser(I.buffer,
+                                I.browse_target("jsconsole"),
+                                "chrome://global/content/console.xul");
+            });
 default_browse_targets["jsconsole"] = "find-url";
 
 // Copy the contents of the X11 clipboard to ours. This is a cheap
@@ -100,7 +103,7 @@ function yankToClipboard (window)
     gClipboardHelper.copyString(str);
     window.message("Pulled '" + str + "'");
 }
-interactive("yank-to-clipboard", yankToClipboard, I.current_window);
+interactive("yank-to-clipboard", function (I) {yankToClipboard(I.window);});
 
 function meta_x (window, prefix, command)
 {
@@ -108,19 +111,19 @@ function meta_x (window, prefix, command)
 }
 interactive("execute-extended-command",
             "Execute a Conkeror command specified in the minibuffer.",
-            meta_x,
-            I.current_window, I.P,
-            I.C($prompt = I.bind(function (prefix) {
-                        var prompt = "";
-                        if (prefix == null)
-                            prompt = "";
-                        else if (typeof prefix == "object")
-                            prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
-                        else
-                            prompt = prefix + " ";
-                        return prompt + "M-x";
-                    }, I.P)));
-
+            function (I) {
+                var prefix = I.P;
+                var prompt = "";
+                if (prefix == null)
+                    prompt = "";
+                else if (typeof prefix == "object")
+                    prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
+                else
+                    prompt = prefix + " ";
+                meta_x(I.window, I.P,
+                       (yield I.minibuffer.read_command(
+                           $prompt = "M-x" + prompt)));
+            });
 
 /// built in commands
 // see: http://www.xulplanet.com/tutorials/xultu/commandupdate.html
@@ -137,21 +140,26 @@ function buffer_do_command(buffer, command)
     }
 }
 
-for each (let c in builtin_commands)
-    interactive(c, buffer_do_command, I.current_buffer, c);
+for each (let c_temp in builtin_commands) {
+    let c = c_temp;
+    interactive(c, function (I) {buffer_do_command(I.buffer,c);});
+}
 
-for each (let c in builtin_commands_with_count)
+for each (let c_temp in builtin_commands_with_count)
 {
+    let c = c_temp;
     if (typeof(c) == "string")
-        interactive(c, do_repeatedly_positive, buffer_do_command, I.p,
-                    I.current_buffer, c);
+        interactive(c, function (I) {
+            do_repeatedly_positive(buffer_do_command, I.p,
+                                   I.buffer, c);
+        });
     else {
-        interactive(c[0], do_repeatedly, buffer_do_command, I.p,
-                    I.bind(Array, I.current_buffer, c[0]),
-                    I.bind(Array, I.current_buffer, c[1]));
-        interactive(c[1], do_repeatedly, buffer_do_command, I.p,
-                    I.bind(Array, I.current_buffer, c[1]),
-                    I.bind(Array, I.current_buffer, c[0]));
+        interactive(c[0], function (I) {
+            do_repeatedly(buffer_do_command, I.p, [I.buffer, c[0]], [I.buffer, c[1]]);
+        });
+        interactive(c[1], function (I) {
+            do_repeatedly(buffer_do_command, I.p, [I.buffer, c[1]], [I.buffer, c[0]]);
+        });
     }
 }
 
@@ -165,6 +173,7 @@ function get_link_text()
 }
 
 
+/*
 function copy_email_address (loc)
 {
     // Copy the comma-separated list of email addresses only.
@@ -200,12 +209,14 @@ function copy_email_address (loc)
     message("Copied '" + addresses + "'");
 }
 interactive("copy-email-address", copy_email_address, ['focused_link_url']);
+*/
 
-
+/* FIXME: fix this command */
+/*
 interactive("source",
             "Load a JavaScript file.",
             function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
-
+*/
 function reinit (window, fn)
 {
   try {
@@ -218,22 +229,23 @@ function reinit (window, fn)
 
 interactive ("reinit",
              "Reload the Conkeror rc file.",
-             reinit, I.current_window, I.pref("conkeror.rcfile"));
+             function (I) {
+                 reinit(I.window, get_pref("conkeror.rcfile"));
+             });
 
 interactive("help-page",
             "Open the Conkeror help page.",
-            open_in_browser,
-            I.current_buffer,
-            I.browse_target("open"),
-            "chrome://conkeror/content/help.html");
+            function (I) {
+                open_in_browser(I.buffer, I.browse_target("open"),
+                                "chrome://conkeror/content/help.html");
+            });
 
 interactive("help-with-tutorial",
             "Open the Conkeror tutorial.",
-            open_in_browser,
-            I.current_buffer,
-            I.browse_target("open"),
-            "chrome://conkeror/content/tutorial.html");
-
+            function (I) {
+                open_in_browser(I.buffer, I.browse_target("open"),
+                                "chrome://conkeror/content/tutorial.html");
+            });
 
 function univ_arg_to_number(prefix, default_value)
 {
@@ -262,11 +274,13 @@ function eval_expression(window, s)
 }
 interactive("eval-expression",
             "Evaluate JavaScript statements.",
-            eval_expression,
-            I.current_window,
-            I.s($prompt = "Eval:",
-                $history = "eval-expression",
-                $completer = I.bind(javascript_completer, I.current_buffer)));
+            function (I) {
+                eval_expression(
+                    I.window,
+                    (yield I.minibuffer.read($prompt = "Eval:",
+                                             $history = "eval-expression",
+                                             $completer = javascript_completer(I.buffer))));
+            });
 
 
 // our little hack. Add a big blank chunk to the bottom of the
@@ -334,7 +348,7 @@ function print_buffer(buffer)
 }
 interactive("print-buffer",
             "Print the currently loaded page.",
-            print_buffer, I.current_buffer(content_buffer));
+            function (I) {print_buffer(I.buffer);});
 
 function view_partial_source (window, charset, selection) {
     if (charset) { charset = "charset=" + charset; }
@@ -342,7 +356,7 @@ function view_partial_source (window, charset, selection) {
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, selection, 'selection');
 }
-interactive ('view-partial-source', view_partial_source, I.current_window, I.content_charset, I.content_selection);
+//interactive ('view-partial-source', view_partial_source, I.current_window, I.content_charset, I.content_selection);
 
 
 function  view_mathml_source (window, charset, target) {

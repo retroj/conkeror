@@ -41,6 +41,57 @@ download_helper.prototype = {
         this.panel = p;
     },
 
+    handle_show: function () {
+        var action_chosen = false;
+        try {
+            this.create_panel();
+            var action = yield this.window.minibuffer.read_single_character_option(
+                $prompt = "Action to perform: (save or open)",
+                $options = ["s", "o"]);
+
+            var cwd = this.buffer ? this.buffer.cwd : default_directory.path;
+
+            if (action == "s") {
+
+                // FIXME: this should be done by some function specified as a user preference
+                var dir = get_file(cwd);
+                dir.append(this.launcher.suggestedFileName);
+                var suggested_path = dir.path;
+
+                var file = yield this.window.minibuffer.read_file_check_overwrite(
+                    $prompt = "Save to file:",
+                    $initial_value = suggested_path,
+                    $select);
+                register_download(this.buffer, this.launcher.source);
+                this.launcher.saveToDisk(file, false);
+                action_chosen = true;
+
+            } else {
+                var mime_type = this.launcher.MIMEInfo.MIMEType;
+                var suggested_action = get_external_handler_for_mime_type(mime_type);
+                var command = yield this.window.minibuffer.read_shell_command(
+                    $initial_value = suggested_action,
+                    $cwd = cwd);
+                var file = file_locator.get("TmpD", Ci.nsIFile);
+                file.append(this.launcher.suggestedFileName);
+                // Create the file now to ensure that no exploits are possible
+                file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+                var info = register_download(this.buffer, this.launcher.source);
+                info.temporary_status = DOWNLOAD_TEMPORARY_FOR_COMMAND;
+                info.set_shell_command(command, cwd);
+                this.launcher.saveToDisk(file, false);
+                action_chosen = true;
+            }
+        } catch (e) {
+            handle_interactive_error(this.window, e);
+        } finally {
+            if (action_chosen)
+                this.cleanup();
+            else
+                this.abort();
+        }
+    },
+
     show : function (launcher, context, reason) {
         this.launcher = launcher;
 
@@ -64,129 +115,11 @@ download_helper.prototype = {
 
         this.window = window;
         this.buffer = buffer;
-        
-        var obj = this;
 
-        this.launcher.setWebProgressListener(this);
-
-        var dir;
-        // FIXME: this should be done by some function specified as a user preference
-        if (buffer)
-            dir = buffer.cwd;
-        else
-            dir = default_directory.path;
-        dir = get_file(dir);
-        dir.append(this.launcher.suggestedFileName);
-
-        var suggested_path = dir.path;
-
-        this.create_panel();
-
-        function choose_action() {
-            var s = new single_character_options_minibuffer_state(
-                $prompt = "Action to perform: (save or open)",
-                $options = ["s", "o"],
-                $callback = function (x) {
-                    obj.minibuffer_state = null;
-                    if (x == "s")
-                        read_save_path();
-                    else
-                        read_program();
-                },
-                $abort_callback = function () {
-                    obj.minibuffer_state = null;
-                    obj.abort();
-                });
-            obj.window.minibuffer.push_state(s);
-            obj.minibuffer_state = s;
-        }
-
-        function read_program() {
-            var mime_type = obj.launcher.MIMEInfo.MIMEType;
-            var suggested_action = get_external_handler_for_mime_type(mime_type);
-            var cwd = buffer ? buffer.cwd : default_directory.path;
-            obj.minibuffer_state = minibuffer_read_shell_command(
-                obj.window.minibuffer, $prompt = "Shell command [" + cwd + "]:",
-                $initial_value = suggested_action,
-                $abort_callback = function() {
-                    obj.minibuffer_state = null;
-                    obj.abort();
-                },
-                $callback = function (cmd) {
-                    obj.minibuffer_state = null;
-                    var file = file_locator.get("TmpD", Ci.nsIFile);
-                    file.append(obj.launcher.suggestedFileName);
-                    // Create the file now to ensure that no exploits are possible
-                    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
-                    var info = register_download(buffer, obj.launcher.source);
-                    info.temporary_status = DOWNLOAD_TEMPORARY_FOR_COMMAND;
-                    info.set_shell_command(cmd, cwd);
-                    obj.launcher.saveToDisk(file, false);
-                    obj.cleanup();
-                });
-        }
-        
-        function check_overwrite(f) {
-            var s = new yes_or_no_minibuffer_state(
-                $prompt = "File " + f.path + " exists.  Overwrite?",
-                $callback = function (overwrite) {
-                    obj.minibuffer_state = null;
-                    if (overwrite) {
-                        register_download(buffer, obj.launcher.source);
-                        obj.launcher.saveToDisk(f, false);
-                        obj.cleanup();
-                    } else {
-                        suggested_path = f.path;
-                        read_save_path();
-                    }
-                },
-                $abort_callback = function() {
-                    obj.minibuffer_state = null;
-                    obj.abort();
-                });
-            obj.minibuffer_state = s;
-            obj.window.minibuffer.push_state(s);
-        }
-
-        function read_save_path() {
-            var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-            var s = obj.window.minibuffer.read(
-                $prompt = "Save to file:",
-                $initial_value = suggested_path,
-                $history = "file",
-                $validator = function (val, m) {
-                    try {
-                        f.initWithPath(val);
-                        return true;
-                    } catch (e) {
-                        m.message("Invalid path: " + val);
-                        return false;
-                    }
-                },
-                $callback = function() {
-                    obj.minibuffer_state = null;
-                    if (f.exists())
-                        check_overwrite(f);
-                    else {
-                        register_download(buffer, obj.launcher.source);
-                        obj.launcher.saveToDisk(f, false);
-                        obj.cleanup();
-                    }
-                },
-                $abort_callback = function() {
-                    obj.minibuffer_state = null;
-                    obj.abort();
-                });
-            obj.minibuffer_state = s;
-        }
-        choose_action();
+        co_call(this.handle_show());
     },
 
     abort : function () {
-        if (this.minibuffer_state) {
-            this.window.minibuffer.remove_state(this.minibuffer_state);
-            this.minibuffer_state = null;
-        }
         const NS_BINDING_ABORTED = 0x804b0002;
         this.launcher.cancel(NS_BINDING_ABORTED);
         this.cleanup();
@@ -203,28 +136,7 @@ download_helper.prototype = {
 
     promptForSaveToFile : function(launcher, context, default_file, suggested_file_extension) {
         return null;
-    },
-
-    // nsIWebProgressListener methods.
-    // Look for error notifications and display alert to user.
-    onStatusChange: function( aWebProgress, aRequest, aStatus, aMessage ) {
-        if (aStatus != Cr.NS_OK ) {
-
-            // FIXME: fix this message
-            this.window.minibuffer.message("Save aborted: " + aMessage);
-            this.abort();
-        }
-    },
-
-    // Ignore onProgressChange, onProgressChange64, onStateChange,
-    // onLocationChange, onSecurityChange, and onRefreshAttempted
-    // notifications.
-    onProgressChange: function() {},
-    onProgressChange64: function() {},
-    onStateChange: function() {},
-    onLocationChange: function() {},
-    onSecurityChange: function() {},
-    onRefreshAttempted: function() { return true; }
+    }
 };
 
 
@@ -296,6 +208,13 @@ download_info.prototype = {
     get start_time () { return this.mozilla_info.startTime; },
     get speed () { return this.mozilla_info.speed; },
     get MIME_info () { return this.mozilla_info.MIMEInfo; },
+    get MIME_type () {
+        if (this.MIME_info)
+            return this.MIME_info.MIMEType;
+        if (this._MIME_type)
+            return this._MIME_type;
+        return "application/octet-stream";
+    },
     get id () { return this.mozilla_info.id; },
     get referrer () { return this.mozilla_info.referrer; },
 
@@ -781,7 +700,7 @@ download_buffer.prototype = {
         label = g.element("div", div, "class", "download-label");
         g.text("MIME type:", label);
         value = g.element("div", div, "class", "download-value");
-        g.text(info.MIME_info.MIMEType, value);
+        g.text(info.MIME_type, value);
 
         this.transferred_div_node = div = g.element("div", d.body,
                                                     "class", "download-info",
@@ -915,6 +834,7 @@ download_buffer.prototype = {
 };
 
 function download_cancel(buffer) {
+    check_buffer(buffer, download_buffer);
     var info = buffer.info;
     info.cancel();
     buffer.window.minibuffer.message("Download canceled");
@@ -923,9 +843,10 @@ interactive("download-cancel",
             "Cancel the current download.\n" +
             "The download can later be retried using the `download-retry' command, but any " +
             "data already transferred will be lost.",
-            download_cancel, I.current_buffer(download_buffer));
+            function (I) {download_cancel(I.buffer);});
 
 function download_retry(buffer) {
+    check_buffer(buffer, download_buffer);
     var info = buffer.info;
     info.retry();
     buffer.window.minibuffer.message("Download retried");
@@ -934,9 +855,10 @@ interactive("download-retry",
             "Retry a failed or canceled download.\n" +
             "This command can be used to retry a download that failed or was cancled using " +
             "the `download-cancel' command.  The download will begin from the start again.",
-            download_retry, I.current_buffer(download_buffer));
+            function (I) {download_retry(I.buffer);});
 
 function download_pause(buffer) {
+    check_buffer(buffer, download_buffer);
     buffer.info.pause();
     buffer.window.minibuffer.message("Download paused");
 }
@@ -944,27 +866,30 @@ interactive("download-pause",
             "Pause the current download.\n" +
             "The download can later be resumed using the `download-resume' command.  The " +
             "data already transferred will not be lost.",
-            download_pause, I.current_buffer(download_buffer));
+            function (I) {download_pause(I.buffer);});
 
 function download_resume(buffer) {
+    check_buffer(buffer, download_buffer);
     buffer.info.resume();
     buffer.window.minibuffer.message("Download resumed");
 }
 interactive("download-resume",
             "Resume the current download.\n" +
             "This command can be used to resume a download paused using the `download-pause' command.",
-            download_resume, I.current_buffer(download_buffer));
+            function (I) {download_resume(I.buffer);});
 
 function download_remove(buffer) {
+    check_buffer(buffer, download_buffer);
     buffer.info.remove();
     buffer.window.minibuffer.message("Download removed");
 }
 interactive("download-remove",
             "Remove the current download from the download manager.\n" +
             "This command can only be used on inactive (paused, canceled, completed, or failed) downloads.",
-            download_remove, I.current_buffer(download_buffer));
+            function (I) {download_remove(I.buffer);});
 
 function download_retry_or_resume(buffer) {
+    check_buffer(buffer, download_buffer);
     var info = buffer.info;
     if (info.state == DOWNLOAD_PAUSED)
         download_resume(buffer);
@@ -975,9 +900,10 @@ interactive("download-retry-or-resume",
             "Retry or resume the current download.\n" +
             "This command can be used to resume a download paused using the `download-pause' " +
             "command or canceled using the `download-cancel' command.",
-            download_retry_or_resume, I.current_buffer(download_buffer));
+            function (I) {download_retry_or_resume(I.buffer);});
 
 function download_pause_or_resume(buffer) {
+    check_buffer(buffer, download_buffer);
     var info = buffer.info;
     if (info.state == DOWNLOAD_PAUSED)
         download_resume(buffer);
@@ -987,9 +913,10 @@ function download_pause_or_resume(buffer) {
 interactive("download-pause-or-resume",
             "Pause or resume the current download.\n" +
             "This command toggles the paused state of the current download.",
-            download_pause_or_resume, I.current_buffer(download_buffer));
+            function (I) {download_pause_or_resume(I.buffer);});
 
 function download_delete_target(buffer) {
+    check_buffer(buffer, download_buffer);
     var info = buffer.info;
     info.delete_target();
     buffer.window.minibuffer.message("Deleted file: " + info.target_file.path);
@@ -997,9 +924,10 @@ function download_delete_target(buffer) {
 interactive("download-delete-target",
             "Delete the target file of the current download.\n"  +
             "This command can only be used if the download has finished successfully.",
-            download_delete_target, I.current_buffer(download_buffer));
+            function (I) {download_delete_target(I.buffer);});
 
 function download_shell_command(buffer, cwd, cmd) {
+    check_buffer(buffer, download_buffer);
     var info = buffer.info;
     if (info.state == DOWNLOAD_FINISHED) {
         shell_command_with_argument(cwd, $command = cmd,
@@ -1018,14 +946,15 @@ interactive("download-shell-command",
             "Run a shell command on the target file of the current download.\n" +
             "If the download is still in progress, the shell command will be queued " +
             "to run when the download finishes.",
-            download_shell_command,
-            $$ = I.current_buffer(download_buffer),
-            $$1 = I.bind(function (buffer) buffer.info.shell_command_cwd || buffer.cwd, $$),
-            I.shell_command($prompt = I.bind(function (cwd) "Shell command [" + cwd + "]:", $$1),
-                            $initial_value = I.bind(function (buffer) {
-                                    return buffer.info.shell_command ||
-                                        get_external_handler_for_mime_type(buffer.info.MIME_info.MIMEType);
-                                }, $$)));
+            function (I) {
+                var b = check_buffer(I.buffer, download_buffer);
+                var cwd = b.info.shell_command_cwd || b.cwd;
+                var cmd = yield I.minibuffer.read(
+                    $cwd = cwd,
+                    $initial_value = buffer.info.shell_command ||
+                        get_external_handler_for_mime_type(buffer.info.MIME_type));
+                download_shell_command(b, cwd, cmd);
+            });
 
 function download_manager_ui()
 {}
@@ -1043,7 +972,7 @@ function download_manager_show_builtin_ui(window) {
 }
 interactive("download-manager-show-builtin-ui",
             "Show the built-in (Firefox-style) download manager user interface.",
-            download_manager_show_builtin_ui, I.current_window);
+            function (I) {download_manager_show_builtin_ui(I.window);});
 
 
 

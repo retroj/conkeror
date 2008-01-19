@@ -600,3 +600,10 @@ var builtin_commands_with_count = [["cmd_charNext", "cmd_charPrevious"],
                                    "cmd_paste"];
 
 var observer_service = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+
+function abort(str) {
+    var e = new Error(str);
+    e.__proto__ = abort.prototype;
+    return e;
+}
+abort.prototype.__proto__ = Error.prototype;

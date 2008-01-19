@@ -250,82 +250,76 @@ var hints_default_object_classes = {
     def: "links"
 };
 
-I.hints_object_class = interactive_method(
-    $sync = function (ctx, action_name) {
-        var cls =
-            ctx.hints_object_class ||
-            hints_default_object_classes[action_name] ||
-            hints_default_object_classes["def"];
-        return cls;
-    }
-    );
+interactive_context.prototype.hints_object_class = function (action_name) {
+    var cls =
+        this._hints_object_class ||
+        hints_default_object_classes[action_name] ||
+        hints_default_object_classes["def"];
+    return cls;
+};
 
-I.hints_xpath_expression = interactive_method(
-    $sync = function (ctx, action_name) {
+interactive_context.prototype.hints_xpath_expression = function (action_name) {
         var cls =
-            ctx.hints_object_class ||
+            this._hints_object_class ||
             hints_default_object_classes[action_name] ||
             hints_default_object_classes["def"];
         var db = hints_xpath_expressions[cls];
         return db[action_name] || db["def"];
-    }
-    );
+};
 
 function hints_object_class_selector(name) {
     return function (ctx, active_keymap, overlay_keymap) {
-        ctx.hints_object_class = name;
+        ctx._hints_object_class = name;
         ctx.overlay_keymap = overlay_keymap || active_keymap;
     }
 }
 
-function hinted_element_with_prompt(action, action_name, default_class, target_var)
+interactive_context.prototype.read_hinted_element_with_prompt = function(action, action_name, default_class, target)
 {
-    var prompt;
-    if (target_var != null) {
-        prompt = I.bind(
-            function (cls,target) {
-                var base = action_name + TARGET_PROMPTS[target];
-                if (cls != default_class)
-                    base += " (" + cls + ")";
-                return base + ":";
-            },
-            $$9 = I.hints_object_class(action),
-            target_var);
-    } else {
-        prompt = I.bind(
-            function (cls) {
-                var base = (cls == default_class) ?
-                    action_name :
-                    action_name + " (" + cls + ")";
-                return base + ":";
-            },
-            $$9 = I.hints_object_class(action));
-    }
-    return I.hinted_element($prompt = prompt,
-                            $object_class = $$9,
-                            $hint_xpath_expression = I.hints_xpath_expression(action));
+    var object_class = this.hints_object_class(action);
+
+    var prompt = action_name;
+    if (target != null)
+        prompt += TARGET_PROMPTS[target];
+    if (object_class != default_class)
+        prompt += " (" + object_class + ")";
+    prompt += ":";
+    
+    var result = yield this.minibuffer.read_hinted_element(
+        $buffer = this.buffer,
+        $prompt = prompt,
+        $object_class = object_class,
+        $hint_xpath_expression = this.hints_xpath_expression(action));
+
+    yield co_return(result);
 }
 
-interactive("follow", browser_element_follow,
-            I.current_buffer,
-            $$ = I.browse_target("follow"),
-            hinted_element_with_prompt("follow", "Follow", "links", $$));
+interactive("follow", function (I) {
+    var target = I.browse_target("follow");
+    var element = yield I.read_hinted_element_with_prompt("follow", "Follow", "links", target);
+    browser_element_follow(I.buffer, target, element);
+});
 
-interactive("follow-top", browser_element_follow,
-            I.current_buffer,
-            $$ = I.browse_target("follow-top"),
-            hinted_element_with_prompt("follow_top", "Follow", "frames", $$));
+interactive("follow-top", function (I) {
+    var target = I.browse_target("follow-top");
+    var element = yield I.read_hinted_element_with_prompt("follow_top", "Follow", "links", target);
+    browser_element_follow(I.buffer, target, element);
+});
 
-interactive("focus", browser_element_focus,
-            I.current_buffer,
-            hinted_element_with_prompt("focus", "Focus", null, null));
+interactive("focus", function (I) {
+    var element = yield I.read_hinted_element_with_prompt("focus", "Focus");
+    browser_element_focus(I.buffer, element);
+});
 
-interactive("save", browser_element_save,
-            $$ = hinted_element_with_prompt("save", "Save", "links", null),
-            $$1 = I.bind(element_get_url, $$),
-            I.F($prompt = "Save as:",
-                $initial_value = I.bind(function (u) { return generate_save_path(u).path; }, $$1),
-                $history = "save"));
+interactive("save", function (I) {
+    var element = yield I.read_hinted_element_with_prompt("save", "Save", "links");
+    var url = element_get_url(element); // FIXME: use load spec instead
+    var file = yield I.minibuffer.read_file_check_overwrite(
+        $prompt = "Save as:",
+        $initial_value = generate_save_path(url).path,
+        $history = "save");
+    browser_element_save(element, url, file);
+});
 
 function browser_element_copy(buffer, elem)
 {
@@ -349,12 +343,13 @@ function browser_element_copy(buffer, elem)
 }
 
 
-interactive("copy", browser_element_copy,
-            I.current_buffer,
-            hinted_element_with_prompt("copy", "Copy", "links", null));
+interactive("copy", function (I) {
+    var element = yield I.read_hinted_element_with_prompt("copy", "Copy", "links");
+    browser_element_copy(I.buffer, element);
+});
 
 var view_source_use_external_editor = false, view_source_function = null;
-function browser_element_view_source(buffer, target, elem, charset)
+function browser_element_view_source(buffer, target, elem)
 {
     if (view_source_use_external_editor || view_source_function)
     {
@@ -402,11 +397,11 @@ function browser_element_view_source(buffer, target, elem, charset)
     }
 }
 
-interactive("view-source", browser_element_view_source,
-            I.current_buffer(content_buffer),
-            $$ = I.browse_target("follow"),
-            hinted_element_with_prompt("view_source", "View source", "frames", $$),
-            I.content_charset);
+interactive("view-source", function (I) {
+    var target = I.browse_target("follow");
+    var element = yield I.read_hinted_element_with_prompt("view_source", "View source", "frames", target);
+    browser_element_view_source(I.buffer, target, element);
+});
 
 function element_get_default_shell_command(elem) {
     var doc = null;
@@ -429,22 +424,18 @@ function element_get_default_shell_command(elem) {
     var handler = get_external_handler_for_mime_type(mime_type);
     return handler;
 }
-
-interactive("shell-command-on-url",
-            shell_command_with_argument,
-            $$1 = I.cwd,
-            $argument = I.bind(function (elem) {
-                    var url = element_get_url(elem);
-                    if (url == null)
-                        throw interactive_error("Unable to obtain URL from element");
-                    return url;
-                }, $$ = hinted_element_with_prompt("shell_command_url",
-                                                   "URL shell command target", "links")),
-            $command = I.shell_command(
-                $prompt = I.bind(function (cwd) {
-                        return "Shell command for URL [" + cwd + "]:";
-                    }, $$1),
-                $initial_value = I.bind(element_get_default_shell_command, $$)));
+interactive("shell-command-on-url", function (I) {
+    var cwd = I.cwd;
+    var element = yield I.read_hinted_element_with_prompt("shell_command_url", "URL shell command target", "links");
+    var url = element_get_url(elem);
+    if (url == null)
+        throw interactive_error("Unable to obtain URL from element");
+    var cmd = yield I.minibuffer.read_shell_command(
+        $cwd = cwd,
+        $prompt = "Shell command for URL [" + cwd + "]:",
+        $initial_value = element_get_default_shell_command(element));
+    shell_command_with_argument(cwd, $argument = url, $command = cmd);
+});
 
 function browser_element_shell_command(buffer, elem, command) {
     var load_spec = element_get_load_spec(elem);
@@ -467,26 +458,21 @@ function browser_element_shell_command(buffer, elem, command) {
         });
 }
 
-interactive("shell-command-on-file",
-            browser_element_shell_command,
-            I.current_buffer(content_buffer),
-            $$ = hinted_element_with_prompt("shell_command",
-                                            "Shell command target", "links"),
-            I.shell_command(
-                $prompt = I.bind(function (cwd) {
-                        return "Shell command [" + cwd + "]:";
-                    }, I.cwd),
-                $initial_value = I.bind(element_get_default_shell_command, $$)));
+interactive("shell-command-on-file", function (I) {
+    var cwd = I.cwd;
+    var element = yield I.read_hinted_element_with_prompt("shell_command", "Shell command target", "links");
+    var cmd = yield I.minibuffer.read_shell_command(
+        $cwd = cwd,
+        $initial_value = element_get_default_shell_command(element));
+    /* FIXME: specify cwd as well */
+    browser_element_shell_command(I.buffer, element, cmd);
+});
 
-
-interactive("bookmark", function (window, url, title) {
-        add_bookmark(url, title);
-        window.minibuffer.message("Added bookmark: " + url + " - " + title);
-    },
-    I.current_window,
-    I.bind(function (x) x[0],
-           $$ = I.bind(get_element_bookmark_info,
-                       hinted_element_with_prompt("bookmark",
-                                                  "Bookmark", "frames"))),
-    I.s($prompt = "Bookmark with title:",
-        $initial_value = I.bind(function (x) x[1], $$)));
+interactive("bookmark", function (I) {
+    var element = yield I.read_hinted_element_with_prompt("bookmark", "Bookmark", "frames");
+    var info = get_element_bookmark_info(element);
+    var title = yield I.minibuffer.read($prompt = "Bookmark with title:", $initial_value = x[1]);
+    var url = info[1];
+    add_bookmark(url, title);
+    I.minibuffer.message("Added bookmark: " + url + " - " + title);
+});
