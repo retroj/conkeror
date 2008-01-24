@@ -512,6 +512,9 @@ minibuffer.prototype.read_hinted_element = function () {
     var buf = arguments.$buffer;
     // FIXME: clean this up and replace with proper object class declaration
     var object_class = arguments.$object_class;
+    if (object_class == "top")
+        yield co_return(buf.top_frame);
+
     if (object_class == "frames") {
         check_buffer(buf, content_buffer);
         var doc = buf.top_document;
