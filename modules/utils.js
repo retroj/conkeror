@@ -352,9 +352,11 @@ function get_window_from_frame(frame) {
             .rootTreeItem
             .QueryInterface(Ci.nsIInterfaceRequestor)
             .getInterface(Ci.nsIDOMWindow).wrappedJSObject;
+        /* window is now an XPCSafeJSObjectWrapper */
+        window.escape_wrapper(function (w) { window = w; });
+        /* window is now completely unwrapped */
         return window;
     } catch (e) {
-        //dump_error(e);
         return null;
     }
 }
