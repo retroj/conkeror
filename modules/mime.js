@@ -28,10 +28,19 @@ function get_external_handler_for_mime_type(mime_type) {
 }
 
 function mime_type_from_url(url) {
+    var type = "application/octet-stream";
     try {
-        if (typeof(url) == "string")
-            url = makeURL(url);
-        return mime_service.getTypeFromURI(url);
+        url = make_uri(url);
+        type = mime_service.getTypeFromURI(url);
+    } catch (e) {}
+    return type;
+}
+
+function mime_info_from_mime_type(type) {
+    if (type == null)
+        type = "application/octet-stream";
+    try {
+        return mime_service.getFromTypeAndExtension(type, null);
     } catch (e) {
         return null;
     }
