@@ -261,14 +261,16 @@ function edit_field_in_external_editor(buffer, elem) {
     } else if (!(elem instanceof Ci.nsIDOMHTMLTextAreaElement))
         throw interactive_error("Element is not a text field.");
 
-    var file = file_locator.get("TmpD", Ci.nsIFile);
-    var name = elem.getAttribute("name") || "";
+    var name = elem.getAttribute("name");
+    if (!name || name.length == 0)
+        name = elem.getAttribute("id");
+    if (!name)
+        name = "";
     name = name.replace(/[^a-zA-Z0-9\-_]/g, "");
     if (name.length == 0)
         name = "text";
     name += ".txt";
-    file.append(name);
-    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+    var file = get_temporary_file(name);
 
     // Write to file
     try {

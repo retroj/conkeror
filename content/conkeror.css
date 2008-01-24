@@ -69,12 +69,12 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
   color: white !important;
 }
 
-.download-panel {
+.panel {
   border-top: 4px double #333333;
   background-color: #dcdad5;
 }
 
-.download-panel .downloading-label, .download-panel .mime-type-label {
+.panel .panel-row-label {
   font-weight: bold;
 }
 

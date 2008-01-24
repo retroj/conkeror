@@ -39,25 +39,17 @@ function spawn_process_sync(program, args, blocking) {
     return process.run(!!blocking, args, args.length);
 }
 
-function spawn_process(program, args, success_cont, error_cont) {
-    if (success_cont == null && error_cont == null) {
-        spawn_process_sync(program, args, false);
-        return;
-    }
-    call_in_new_thread(
-        function () { // function to run
-            return spawn_process_sync(program, args, true);
-        },
-        success_cont, error_cont);
+function spawn_process(program, args) {
+    var result = yield in_new_thread(spawn_process_sync, program, args, true);
+    yield co_return(result);
 }
 
-function shell_command(cwd, cmd, success_cont, error_cont) {
+function shell_command_sync(cwd, cmd, blocking) {
     if (POSIX) {
         var full_cmd = "cd \"" + shell_quote(cwd) + "\"; " + cmd;
-        spawn_process(getenv("SHELL") || "/bin/sh",
-                      ["-c", full_cmd],
-                      success_cont, error_cont);
-        return;
+        return spawn_process_sync(getenv("SHELL") || "/bin/sh",
+                                  ["-c", full_cmd],
+                                  blocking);
     } else {
 
         var full_cmd = "";
@@ -91,9 +83,13 @@ function shell_command(cwd, cmd, success_cont, error_cont) {
         }
         if (cur_arg.length > 0)
             out.push(cur_arg);
-        spawn_process("cmd.exe", out,
-                      success_cont, error_cont);
+        return spawn_process_sync("cmd.exe", out, blocking);
     }
+}
+
+function shell_command(cwd, cmd) {
+    var result = yield in_new_thread(shell_command_sync, cwd, cmd, true);
+    yield co_return(result);
 }
 
 var PATH_programs = null;
@@ -136,22 +132,16 @@ minibuffer.prototype.read_shell_command = function () {
     yield co_return(result);
 }
 
-define_keywords("$command", "$argument", "$callback", "$failure_callback");
-function shell_command_with_argument(cwd) {
-    keywords(arguments);
-    var cmdline = arguments.$command;
-    var cont = arguments.$callback;
-    var failure_cont = arguments.$failure_callback;
-    var argument = arguments.$argument;
+function shell_command_with_argument_sync(cwd, cmdline, argument, blocking) {
     if (!cmdline.match("{}")) {
         cmdline = cmdline + " \"" + shell_quote(argument) + "\"";
     } else {
         cmdline = cmdline.replace("{}", "\"" + shell_quote(argument) + "\"");
     }
-    shell_command(cwd, cmdline, cont, failure_cont /*, function (exit_code) {
-            if (exit_code == 0)
-                buffer.window.minibuffer.message("Shell command exited normally.");
-            else
-                buffer.window.minibuffer.message("Shell command exited with status " + exit_code + ".");
-                }*/);
+    return shell_command_sync(cwd, cmdline, blocking);
+}
+
+function shell_command_with_argument(cwd, cmdline, argument) {
+    var result = yield in_new_thread(shell_command_with_argument_sync, cwd, cmdline, argument, true);
+    yield co_return(result);
 }

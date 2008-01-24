@@ -11,34 +11,9 @@ download_helper.prototype = {
     QueryInterface: generate_QI(Ci.nsIHelperAppLauncherDialog, Ci.nsIWebProgressListener2),
 
     create_panel : function() {
-        /* Show information panel above minibuffer */
-        
-        var g = new dom_generator(this.window.document, XUL_NS);
-
-        var p = g.element("vbox", "class", "download-panel", "flex", "0");
-        var grid = g.element("grid", p);
-        var cols = g.element("columns", grid);
-        g.element("column", cols, "flex", "0");
-        g.element("column", cols, "flex", "1");
-
-        var rows = g.element("rows", grid);
-        var row;
-
-        row = g.element("row", rows);
-        g.element("label", row,
-                  "value", "Downloading:",
-                  "class", "downloading-label");
-        g.element("label", row,
-                  "value", this.launcher.source.spec,
-                  "class", "downloading-url");
-
-        row = g.element("row", rows);
-        g.element("label", row, "value", "Mime type:", "class", "mime-type-label");
-        g.element("label", row, "value", this.launcher.MIMEInfo.MIMEType,
-                  "class", "mime-type");
-
-        this.window.minibuffer.insert_before(p);
-        this.panel = p;
+        this.panel = create_info_panel(this.window, "download-panel",
+                                       [["downloading", "Downloading:", this.launcher.source.spec],
+                                        ["mime-type", "Mime type:", this.launcher.MIMEInfo.MIMEType]]);
     },
 
     handle_show: function () {
@@ -49,15 +24,9 @@ download_helper.prototype = {
                 $prompt = "Action to perform: (save or open)",
                 $options = ["s", "o"]);
 
-            var cwd = this.buffer ? this.buffer.cwd : default_directory.path;
 
             if (action == "s") {
-
-                // FIXME: this should be done by some function specified as a user preference
-                var dir = get_file(cwd);
-                dir.append(this.launcher.suggestedFileName);
-                var suggested_path = dir.path;
-
+                var suggested_path = suggest_save_path_from_file_name(this.launcher.suggestedFileName, this.buffer);
                 var file = yield this.window.minibuffer.read_file_check_overwrite(
                     $prompt = "Save to file:",
                     $initial_value = suggested_path,
@@ -67,15 +36,13 @@ download_helper.prototype = {
                 action_chosen = true;
 
             } else {
+                var cwd = this.buffer ? this.buffer.cwd : default_directory.path;
                 var mime_type = this.launcher.MIMEInfo.MIMEType;
                 var suggested_action = get_external_handler_for_mime_type(mime_type);
                 var command = yield this.window.minibuffer.read_shell_command(
                     $initial_value = suggested_action,
                     $cwd = cwd);
-                var file = file_locator.get("TmpD", Ci.nsIFile);
-                file.append(this.launcher.suggestedFileName);
-                // Create the file now to ensure that no exploits are possible
-                file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+                var file = get_temporary_file(this.launcher.suggestedFileName);
                 var info = register_download(this.buffer, this.launcher.source);
                 info.temporary_status = DOWNLOAD_TEMPORARY_FOR_COMMAND;
                 info.set_shell_command(command, cwd);
@@ -127,7 +94,7 @@ download_helper.prototype = {
 
     cleanup : function () {
         if (this.panel)
-            this.panel.parentNode.removeChild(this.panel);
+            this.panel.destroy();
         this.panel = null;
         this.launcher = null;
         this.window = null;
@@ -211,9 +178,7 @@ download_info.prototype = {
     get MIME_type () {
         if (this.MIME_info)
             return this.MIME_info.MIMEType;
-        if (this._MIME_type)
-            return this._MIME_type;
-        return "application/octet-stream";
+        return null;
     },
     get id () { return this.mozilla_info.id; },
     get referrer () { return this.mozilla_info.referrer; },
@@ -414,17 +379,18 @@ var download_progress_listener = {
 
                     if (info.shell_command != null) {
                         info.running_shell_command = true;
-                        function cont() {
-                            if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
-                                info.target_file.remove(false /* not recursive */);
-                            info.running_shell_command = false;
-                            download_shell_command_change_hook.run(info);
-                        }
-                        shell_command_with_argument(info.shell_command_cwd,
-                                                    $command = info.shell_command,
-                                                    $argument = info.target_file.path,
-                                                    $callback = cont,
-                                                    $failure_callback = cont);
+                        co_call(function () {
+                            try {
+                                yield shell_command_with_argument(info.shell_command_cwd,
+                                                                  info.shell_command,
+                                                                  info.target_file.path);
+                            } finally  {
+                                if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
+                                    info.target_file.remove(false /* not recursive */);
+                                info.running_shell_command = false;
+                                download_shell_command_change_hook.run(info);
+                            }
+                        }());
                         download_shell_command_change_hook.run(info);
                     }
                 }
@@ -700,7 +666,7 @@ download_buffer.prototype = {
         label = g.element("div", div, "class", "download-label");
         g.text("MIME type:", label);
         value = g.element("div", div, "class", "download-value");
-        g.text(info.MIME_type, value);
+        g.text(info.MIME_type || "unknown", value);
 
         this.transferred_div_node = div = g.element("div", d.body,
                                                     "class", "download-info",
@@ -930,8 +896,7 @@ function download_shell_command(buffer, cwd, cmd) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
     if (info.state == DOWNLOAD_FINISHED) {
-        shell_command_with_argument(cwd, $command = cmd,
-                                    $argument = info.target_file.path);
+        shell_command_with_argument_sync(cwd, cmd, info.target_file.path, false);
         return;
     }
     if (info.state != DOWNLOAD_DOWNLOADING && info.state != DOWNLOAD_PAUSED && info.state != DOWNLOAD_QUEUED)
@@ -947,13 +912,13 @@ interactive("download-shell-command",
             "If the download is still in progress, the shell command will be queued " +
             "to run when the download finishes.",
             function (I) {
-                var b = check_buffer(I.buffer, download_buffer);
-                var cwd = b.info.shell_command_cwd || b.cwd;
-                var cmd = yield I.minibuffer.read(
+                var buffer = check_buffer(I.buffer, download_buffer);
+                var cwd = buffer.info.shell_command_cwd || buffer.cwd;
+                var cmd = yield I.minibuffer.read_shell_command(
                     $cwd = cwd,
                     $initial_value = buffer.info.shell_command ||
                         get_external_handler_for_mime_type(buffer.info.MIME_type));
-                download_shell_command(b, cwd, cmd);
+                download_shell_command(buffer, cwd, cmd);
             });
 
 function download_manager_ui()

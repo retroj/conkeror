@@ -184,6 +184,13 @@ function makeURL(aURL)
     return ioService.newURI(aURL, null, null);
 }
 
+function make_uri(uri) {
+    if (uri instanceof Ci.nsIURI)
+        return uri;
+    var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+    return io_service.newURI(uri, null, null);
+}
+
 function makeFileURL(aFile)
 {
     var ioService = Cc["@mozilla.org/network/io-service;1"]
@@ -607,3 +614,48 @@ function abort(str) {
     return e;
 }
 abort.prototype.__proto__ = Error.prototype;
+
+
+function get_temporary_file(name) {
+    if (name == null)
+        name = "temp.txt";
+    var file = file_locator.get("TmpD", Ci.nsIFile);
+    file.append(name);
+    // Create the file now to ensure that no exploits are possible
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+    return file;
+}
+
+
+/* FIXME: This should be moved somewhere else, perhaps. */
+function create_info_panel(window, panel_class, row_arr) {
+    /* Show information panel above minibuffer */
+
+    var g = new dom_generator(window.document, XUL_NS);
+
+    var p = g.element("vbox", "class", "panel " + panel_class, "flex", "0");
+    var grid = g.element("grid", p);
+    var cols = g.element("columns", grid);
+    g.element("column", cols, "flex", "0");
+    g.element("column", cols, "flex", "1");
+
+    var rows = g.element("rows", grid);
+    var row;
+
+    for each (let [row_class, row_label, row_value] in row_arr) {
+        row = g.element("row", rows, "class", row_class);
+        g.element("label", row,
+                  "value", row_label,
+                  "class", "panel-row-label");
+        g.element("label", row,
+                  "value", row_value,
+                  "class", "panel-row-value");
+    }
+    window.minibuffer.insert_before(p);
+
+    p.destroy = function () {
+        this.parentNode.removeChild(this);
+    };
+
+    return p;
+}

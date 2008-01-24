@@ -5,40 +5,31 @@ var editor_shell_command = getenv("EDITOR") || "emacs";
 /* USER PREFERENCE */
 var run_external_editor_function = null;
 
-define_keyword("$temporary", "$line", "$callback", "$failure_callback");
+define_keyword("$temporary", "$line");
 function open_file_with_external_editor(file) {
     keywords(arguments);
+
     if (run_external_editor_function) {
-        run_external_editor_function(file, forward_keywords(arguments));
+        yield run_external_editor_function(file, forward_keywords(arguments));
         return;
     }
 
-    var callback = arguments.$callback;
-    var failure_callback = arguments.$failure_callback;
     var line = arguments.$line;
 
     var cmd = editor_shell_command + " ";
     if (line != null)
         cmd += "+" + line + " ";
     cmd += "\"" + shell_quote(file.path) + "\"";
-    function cont() {
-        file.remove(false /* not recursive */);
+
+    try {
+        yield shell_command(default_directory.path, cmd);
+    } finally {
+        if (arguments.$temporary)  {
+            try {
+                file.remove(false /* not recursive */);
+            } catch (e) {}
+        }
     }
-    if (arguments.$temporary)
-        shell_command(
-            default_directory.path, cmd,
-            function (x) {
-                if (callback)
-                    callback(x);
-                cont();
-            },
-            function (x) {
-                if (failure_callback)
-                    failure_callback(x);
-                cont();
-            });
-    else
-        shell_command(default_directory.path, cmd, callback, failure_callback);
 }
 
 function create_external_editor_launcher(program, args) {
@@ -71,11 +62,6 @@ function create_external_editor_launcher(program, args) {
 
 function open_with_external_editor(load_spec) {
     var args = arguments;
-    download_for_external_program
-        (load_spec,
-         function (file, is_temp_file) {
-            open_file_with_external_editor(file,
-                                           forward_keywords(args),
-                                           $temporary = is_temp_file);
-        });
+    let [file, temp] = yield download_as_temporary(load_spec);
+    yield open_file_with_external_editor(file, $line = arguments.$line, $temporary = temp);
 }
