@@ -160,6 +160,7 @@ download_info.prototype = {
     // Reflectors to properties of nsIDownload
     get state () { return this.mozilla_info.state; },
     get target_file () { return this.mozilla_info.targetFile; },
+    get amount_transferred () { return this.mozilla_info.amountTransferred; },
     get percent_complete () { return this.mozilla_info.percentComplete; },
     get size () {
         var s = this.mozilla_info.size;
