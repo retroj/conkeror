@@ -1,3 +1,5 @@
+require("load-spec.js");
+
 require_later("content-buffer-input.js");
 
 define_buffer_local_hook("content_buffer_finished_loading_hook");
@@ -331,43 +333,6 @@ define_global_mode("overlink_mode",
                    });
 
 overlink_mode(true);
-
-
-function document_load_spec(doc) {
-    var sh_entry = get_SHEntry_for_document(doc);
-    var result = {url: doc.location.href};
-    result.document = doc;
-    if (sh_entry != null) {
-        result.cache_key = sh_entry;
-        result.referrer = sh_entry.referrerURI;
-        result.post_data = sh_entry.postData;
-    }
-    return result;
-}
-
-/* Target can be either a content_buffer or an nsIWebNavigation */
-function apply_load_spec(target, load_spec) {
-    var url, flags, referrer, post_data;
-    if (typeof(load_spec) == "string") {
-        url = load_spec;
-        flags = null;
-        referrer = null;
-        post_data = null;
-    } else {
-        url = load_spec.url;
-        flags = load_spec.flags;
-        referrer = load_spec.referrer;
-        post_data = load_spec.post_data;
-    }
-    if (flags == null)
-        flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
-    if (target instanceof content_buffer) {
-        target._display_URI = url;
-        target = target.web_navigation;
-        //buffer_description_change_hook.run(target);
-    }
-    target.loadURI(url, flags, referrer, post_data, null /* headers */);
-}
 
 function open_in_browser(buffer, target, load_spec)
 {
