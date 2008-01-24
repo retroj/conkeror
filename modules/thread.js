@@ -35,3 +35,27 @@ function call_in_new_thread(func, success_cont, error_cont) {
             }
         });
 }
+
+/* Coroutine interface */
+function in_new_thread(f) {
+    var args = Array.prototype.splice.call(arguments, 1);
+    var cc = yield CONTINUATION;
+    var thread = thread_manager.newThread(0);
+    var current_thread = thread_manager.currentThread;
+    call_in_thread(thread, function () {
+        try {
+            var result = f.apply(null, args);
+            call_in_thread(current_thread, function () {
+                thread.shutdown();
+                cc(result);
+            });
+        } catch (e) {
+            call_in_thread(current_thread, function () {
+                thread.shutdown();
+                cc.throw(e);
+            });
+        }
+    });
+    var result = yield SUSPEND;
+    yield co_return(result);
+}
