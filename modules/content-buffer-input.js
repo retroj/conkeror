@@ -285,26 +285,20 @@ function edit_field_in_external_editor(buffer, elem) {
     // FIXME: decide if we should do this
     //var oldBg = elem.style.backgroundColor;
     //elem.style.backgroundColor = "#bbbbbb";
-    function cleanup() {
+
+    try {
+        yield open_file_with_external_editor(file);
+
+        elem.value = read_text_file(file);
+    } finally {
         if (old_readonly)
             elem.setAttribute("readonly", old_readonly);
         else
             elem.removeAttribute("readonly");
         file.remove(false);
     }
-    open_file_with_external_editor(
-        file,
-        $callback = function () {
-            try {
-                elem.value = read_text_file(file);
-            } catch (e) {
-            }
-            // FIXME: flash the textbox?
-            cleanup();
-        },
-        $failure_callback = cleanup);
 }
 interactive("edit-current-field-in-external-editor", function (I) {
     var buf = I.buffer;
-    edit_field_in_external_editor(buf, buf.focused_element);
+    yield edit_field_in_external_editor(buf, buf.focused_element);
 });
