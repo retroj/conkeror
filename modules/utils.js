@@ -487,7 +487,7 @@ function generate_QI() {
 function set_branch_pref(branch, name, value) {
     if (typeof(value) == "string") {
         branch.setCharPref(name, value);
-    } else if (typeof(alue) == "number") {
+    } else if (typeof(value) == "number") {
         branch.setIntPref(name, value);
     } else if (typeof(value) == "boolean") {
         branch.setBoolPref(name, value);
