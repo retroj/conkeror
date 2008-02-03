@@ -379,7 +379,6 @@ interactive("find-url",
             "Open a URL in a new buffer",
             function (I) {
                 var target = I.browse_target("find-url");
-                check_buffer(I.buffer, content_buffer);
                 open_in_browser(I.buffer, target,
                                 (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
             });
