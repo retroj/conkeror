@@ -127,6 +127,14 @@ minibuffer.prototype.read_shell_command = function () {
         $history = "shell-command",
         $auto_complete = "shell-command",
         $select,
+        $validator = function (x, m) {
+            var s = x.replace(/^\s+|\s+$/g, '');
+            if (s.length == 0) {
+                m.message("A blank shell command is not allowed.");
+                return false;
+            }
+            return true;
+        },
         forward_keywords(arguments),
         $completer = get_shell_command_completer());
     yield co_return(result);
