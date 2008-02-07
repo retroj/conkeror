@@ -594,7 +594,7 @@ var builtin_commands = ["cmd_beginLine",
 
 var builtin_commands_with_count = [["cmd_charNext", "cmd_charPrevious"],
                                    ["cmd_deleteCharForward", "cmd_deleteCharBackward"],
-                                   ["cmd_deleteCharForward", "cmd_deleteWordBackward"],
+                                   ["cmd_deleteWordForward", "cmd_deleteWordBackward"],
                                    ["cmd_lineNext", "cmd_linePrevious"],
                                    ["cmd_movePageDown", "cmd_movePageUp"],
                                    ["cmd_undo", "cmd_redo"],
