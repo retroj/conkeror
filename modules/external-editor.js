@@ -61,7 +61,7 @@ function create_external_editor_launcher(program, args) {
 }
 
 function open_with_external_editor(load_spec) {
-    var args = arguments;
+    keywords(arguments);
     let [file, temp] = yield download_as_temporary(load_spec);
     yield open_file_with_external_editor(file, $line = arguments.$line, $temporary = temp);
 }
