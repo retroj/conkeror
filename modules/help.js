@@ -48,10 +48,10 @@ help_document_generator.prototype = {
                              "class", "source-code-reference",
                              "href", "javascript:");
         x.addEventListener("click", function (event) {
-                ref.open_in_editor();
-                event.preventDefault();
-                event.stopPropagation();
-            }, false /* capture */, false /* allow untrusted */);
+            co_call(ref.open_in_editor());
+            event.preventDefault();
+            event.stopPropagation();
+        }, false /* capture */, false /* allow untrusted */);
         x.textContent = (module_name != null ? module_name : ref.file_name);
         f.appendChild(x);
         if (parent)
@@ -279,9 +279,9 @@ default_browse_targets["describe-command"] = "find-url";
 function view_referenced_source_code(buffer) {
     if (buffer.source_code_reference == null)
         throw interactive_error("Command not valid in current buffer.");
-    buffer.source_code_reference.open_in_editor();
+    yield buffer.source_code_reference.open_in_editor();
 }
-interactive("view-referenced-source-code", function (I) {view_referenced_source_code(I.buffer);});
+interactive("view-referenced-source-code", function (I) {yield view_referenced_source_code(I.buffer);});
 
 
 define_keywords("$binding", "$other_bindings", "$key_sequence");
