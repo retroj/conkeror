@@ -103,15 +103,26 @@ function prefix_completer()
         if (pos == 0 && conservative)
             return undefined;
         var input_prefix = input.substring(0,pos);
+        var default_completion = null;
+        var i = 0;
         var data = arr.filter(function (x) {
-                var s = get_string(x);
-                return s.length >= pos && s.substring(0,pos) == input_prefix;
-            });
+            var s = get_string(x);
+            var retval;
+
+            if (s == input) {
+                default_completion = i;
+                retval = true;
+            } else
+                retval = (s.length >= pos && s.substring(0,pos) == input_prefix);
+            if (retval)
+                ++i;
+            return retval;
+        });
         if (data.length > 0)
         {
-            var a = get_string(data[0]);
-            var b = get_string(data[data.length - 1]);
-            var i = get_common_prefix_length(a, b);
+            let a = get_string(data[0]);
+            let b = get_string(data[data.length - 1]);
+            let i = get_common_prefix_length(a, b);
             if (i > pos)
                 common_prefix = a.substring(0,i);
         }
@@ -122,8 +133,8 @@ function prefix_completer()
                 apply : function (i, m) apply_partial_completion(get_string(data[i]), 0, pos, input, m),
                 get_value : function(i) get_value(data[i]),
                 apply_common_prefix: (common_prefix &&
-                                      function (m) apply_partial_completion(common_prefix, 0, pos, input, m))
-
+                                      function (m) apply_partial_completion(common_prefix, 0, pos, input, m)),
+                default_completion: default_completion
                };
     }
 }

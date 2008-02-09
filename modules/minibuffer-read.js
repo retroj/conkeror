@@ -256,6 +256,8 @@ text_entry_minibuffer_state.prototype = {
             if (this.match_required) {
                 if (c.count == 1)
                     i = 0;
+                else if (c.default_completion != null)
+                    i = c.default_completion;
                 else if (this.default_completion && this.completions.index_of)
                     i = this.completions.index_of(this.default_completion);
             }
