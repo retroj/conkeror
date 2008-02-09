@@ -219,12 +219,12 @@ interactive("source",
 */
 function reinit (window, fn)
 {
-  try {
-    load_rc (fn);
-    window.message ("loaded \""+fn+"\"");
-  } catch (e) {
-    window.message ("failed to load \""+fn+"\"");
-  }
+    try {
+        load_rc (fn);
+        window.minibuffer.message ("Loaded: " + fn);
+    } catch (e) {
+        window.minibuffer.message ("Failed to load: "+fn);
+    }
 }
 
 interactive ("reinit",
