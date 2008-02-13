@@ -21,6 +21,8 @@ function bind_scroll_keys(keymap)
     define_key(keymap, "C-e","end-of-line");
     define_key(keymap, "M-S-comma","cmd_scrollTop");
     define_key(keymap, "M-S-period","cmd_scrollBottom");
+    define_key(keymap, "home","cmd_scrollTop");
+    define_key(keymap, "end","cmd_scrollBottom");
 }
 
 
