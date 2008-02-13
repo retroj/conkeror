@@ -51,7 +51,7 @@ interactive_context.prototype = {
 
     get p () univ_arg_to_number(this.prefix_argument),
 
-    set p (default_value) { univ_arg_to_number(this.prefix_argument, default_value) },
+    set p (default_value) univ_arg_to_number(this.prefix_argument, default_value),
 
     get minibuffer () this.window.minibuffer
 };
