@@ -36,27 +36,18 @@ function create_external_editor_launcher(program, args) {
     return function (file) {
         keywords(arguments);
         var arr = args.slice();
-        var callback = arguments.$callback;
-        var failure_callback = arguments.$failure_callback;
+        if (arguments.$line != null)
+            arr.push("+" + arguments.$line);
         arr.push(file.path);
-        function cont() {
-            file.remove(false);
+        try {
+            yield spawn_process(program, arr);
+        } finally {
+            if (arguments.$temporary) {
+                try {
+                    file.remove(false);
+                } catch (e) {}
+            }
         }
-        if (arguments.$temporary)
-            spawn_process(
-                program, arr,
-                function (x) {
-                    if (callback)
-                        callback(x);
-                    cont();
-                },
-                function (x) {
-                    if (failure_callback)
-                        failure_callback(x);
-                    cont();
-                });
-        else
-            spawn_process(program, arr, callback, failure_callback);
     };
 }
 
