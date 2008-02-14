@@ -18,3 +18,9 @@ span.__conkeror_img_hint {
   opacity: 0.5;
   z-index: 10000000;
 }
+
+/* FIXME: This should probably go in a different file. */
+.__conkeror_textbox_edited_externally {
+  background-color: #bbbbbb !important;
+  -moz-appearance: none !important;
+}

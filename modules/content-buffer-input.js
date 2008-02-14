@@ -282,15 +282,18 @@ function edit_field_in_external_editor(buffer, elem) {
 
     var old_readonly = elem.getAttribute("readonly");
     elem.setAttribute("readonly", "true");
+
     // FIXME: decide if we should do this
-    //var oldBg = elem.style.backgroundColor;
-    //elem.style.backgroundColor = "#bbbbbb";
+    var old_class = elem.className;
+    elem.className = "__conkeror_textbox_edited_externally " + old_class;
 
     try {
         yield open_file_with_external_editor(file);
 
         elem.value = read_text_file(file);
     } finally {
+        elem.className = old_class;
+
         if (old_readonly)
             elem.setAttribute("readonly", old_readonly);
         else
