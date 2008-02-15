@@ -212,6 +212,9 @@ isearch_session.prototype = {
     find : function (str, dir, pt) {
         var s = this.top;
 
+        if (str == null || str.length == 0)
+            return;
+
         // Should we wrap this time?
         var wrapped = s.wrapped;
         var point = pt;
