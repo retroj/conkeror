@@ -565,6 +565,12 @@ function pref_has_default_value(name) {
     return branch.prefHasUserValue(name);
 }
 
+function session_pref (name, value) {
+    try { clear_pref (name); }
+    catch (e) {}
+    return default_pref (name, value);
+}
+
 const USER_AGENT_OVERRIDE_PREF = "general.useragent.override";
 
 function set_user_agent(str) {
