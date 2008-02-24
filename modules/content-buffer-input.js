@@ -3,7 +3,7 @@ require("content-buffer.js");
 define_buffer_local_hook("content_buffer_input_mode_change_hook");
 define_current_buffer_hook("current_content_buffer_input_mode_change_hook", "content_buffer_input_mode_change_hook");
 
-function define_content_buffer_input_mode(base_name, keymap_name) {
+function define_content_buffer_input_mode(base_name, keymap_name, doc) {
     var name = "content_buffer_" + base_name + "_input_mode";
     buffer[name + "_enabled"] = false;
     define_buffer_local_hook(name + "_enable_hook");
@@ -22,7 +22,7 @@ function define_content_buffer_input_mode(base_name, keymap_name) {
         content_buffer_input_mode_change_hook.run(buffer);
     }
     var hyphen_name = name.replace("_","-","g");
-    interactive(hyphen_name, function(I) {conkeror[name](check_buffer(I.buffer,content_buffer));});
+    interactive(hyphen_name, doc, function(I) {conkeror[name](check_buffer(I.buffer,content_buffer));});
 }
 
 define_content_buffer_input_mode("normal", "content_buffer_normal_keymap");
