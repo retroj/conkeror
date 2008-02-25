@@ -34,8 +34,16 @@ define_content_buffer_input_mode("select", "content_buffer_select_keymap");
 define_content_buffer_input_mode("text", "content_buffer_text_keymap");
 define_content_buffer_input_mode("textarea", "content_buffer_textarea_keymap");
 
-define_content_buffer_input_mode("quote_next", "content_buffer_quote_next_keymap");
-define_content_buffer_input_mode("quote", "content_buffer_quote_keymap");
+define_content_buffer_input_mode(
+    "quote_next", "content_buffer_quote_next_keymap",
+    "This input mode sends the next key combo to the buffer, "+
+        "bypassing Conkeror's normal key handling.  The mode disengages "+
+        "after one key combo.");
+define_content_buffer_input_mode(
+    "quote", "content_buffer_quote_keymap",
+    "This input mode sends all key combos to the buffer, "+
+        "bypassing Conkeror's normal key handling, until the "+
+        "Escape key is pressed.");
 
 add_hook("content_buffer_focus_change_hook", function (buffer) {
         var form_input_mode_enabled =
