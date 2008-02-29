@@ -110,5 +110,23 @@ hyperlink.</a>
   type <code>m c 0</code>.
 </p>
 
+
+<h3>Copying Text</h3>
+<p>
+  Gecko has a feature called caret browsing that gives you a blinking
+  cursor that you can move and select document text with the keyboard.
+  To enter caret browsing mode in Conkeror, first press
+  <code>C-M-q</code> to enter content-buffer-quote-input-mode.  All of
+  your keystrokes until you press <code>ESC</code> will bypass
+  Conkeror's key handling and be passed directly to Gecko.  In
+  content-buffer-quote-input-mode you can enter caret browsing mode by
+  pressing <code>F7</code>.  Move the caret with <code>up</code>,
+  <code>down</code>, <code>left</code>, <code>right</code>, and so on.
+  Select text by holding shift while moving the caret.  Exit caret
+  browsing mode by pressing <code>F7</code> again.  Press
+  <code>ESC</code> to exit content-buffer-quote-input-mode.  Press
+  <code>M-w</code> to copy the selection to the clipboard.
+</p>
+
 </body>
 </html>
