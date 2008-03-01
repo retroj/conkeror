@@ -12,8 +12,16 @@
 
     function set_pref()
     {
-        gPrefService.setCharPref("conkeror.rcfile", document.getElementById("pref").value);
-        window.alert("RC File Set.");
+        var val = document.getElementById("pref").value;
+        if (val == '') {
+            if (gPrefService.prefHasUserValue ("conkeror.rcfile")) {
+                gPrefService.clearUserPref("conkeror.rcfile");
+            }
+            window.alert("preference `conkeror.rcfile' cleared.")
+        } else {
+            gPrefService.setCharPref("conkeror.rcfile", val);
+            window.alert("preference `conkeror.rcfile' Set.");
+        }
     }
 
     function fill_rc_pref_box () {
