@@ -201,19 +201,20 @@ frame are lost, at this point)</td></tr>
 
 <h2>Conkeror RC File</h2>
 <p>
-  If you want to add a key binding, a new command, or some other
-  customization then you need to create your rc file. The rc file is
-  just a javascript file that will get evaluated on startup. Conkeror
-  checks the "conkeror.rcfile" preference and if it exists, loads it
-  and evaluates it. Use the following form to set your rc file. You'll
-  have to restart conkeror to load the rc file. Here's an example
-  value. It's what I use:
+  You can customize Conkeror by creating an rc script or set of
+  scripts, and using the form below to set the preference
+  `conkeror.rcfile' to the path of your script.  It can be set to the
+  path of a single file or a directory.  When conkeror.rcfile is a
+  directory, all files with an extension of `.js' will be loaded from
+  that directory (non-recursive).  These scripts are plain javascript
+  files.  Conkeror loads them during startup into application scope
+  (as opposed to loading them for each window).
 </p>
-<pre>
-/home/sabetts/.conkerorrc
-</pre>
+
 <p>
-  It must be an absolute path and must be a file.
+  Note, if you set conkeror.rcfile to a file, the path must be
+  absolute.  Conkeror will not expand ~ to your home directory.  This
+  is a current limitation, and we hope to fix it soon.
 </p>
 
 <form action="get">
