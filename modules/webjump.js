@@ -1,7 +1,7 @@
 
 //// web jump stuff
 
-var webjumps = [];
+var webjumps = {};
 function add_webjump(key, loc)
 {
     webjumps[key] = loc;
