@@ -14,7 +14,7 @@ function interactive(name)
     var doc = null;
     var handler;
     var offset = 1;
-    if (typeof(arguments[1]) == "string")
+    if (typeof(arguments[1]) == "string" || arguments[1] == null)
     {
         doc = arguments[1];
         offset = 2;
