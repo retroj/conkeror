@@ -15,8 +15,8 @@ function url_completer() {
     if (use_webjumps)
         webjump_completer = prefix_completer(
             $completions = function(visitor) {
-                for (var i in gWebJumpLocations)
-                    visitor([i,gWebJumpLocations[i]]);
+                for (var i in webjumps)
+                    visitor([i,webjumps[i]]);
             },
             $get_string = function (x) x[0] + " ",
             $get_description = function (x) "");

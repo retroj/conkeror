@@ -1,10 +1,10 @@
 
 //// web jump stuff
 
-var gWebJumpLocations = [];
+var webjumps = [];
 function add_webjump(key, loc)
 {
-    gWebJumpLocations[key] = loc;
+    webjumps[key] = loc;
 }
 
 function add_delicious_webjumps (username)
@@ -77,14 +77,14 @@ function getWebJump(value)
     var start = value.indexOf(' ');
     var jump;
     if (start == -1)
-        jump = gWebJumpLocations[value];
+        jump = webjumps[value];
     else
-        jump = gWebJumpLocations[value.substr(0,start)];
+        jump = webjumps[value.substr(0,start)];
     // Try to find a web jump match
     if (!jump) {
-        var match = get_partial_match(gWebJumpLocations, value.substr(0,start));
+        var match = get_partial_match(webjumps, value.substr(0,start));
         if (match)
-            jump = gWebJumpLocations[match];
+            jump = webjumps[match];
         else
             return null;
     }
