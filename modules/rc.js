@@ -7,7 +7,7 @@ function load_rc_file(file)
             name = file;
         else
             name = file.path;
-            
+
         subscript_loader.loadSubScript("file://" + name, conkeror);
     } catch (e) {
         dump_error(e);
@@ -53,6 +53,10 @@ function load_rc(path_s)
             var rcfile = get_pref("conkeror.rcfile");
             if (rcfile.length)
                 path_s = rcfile;
+            else
+                return;
+        } else {
+            return;
         }
     }
 
