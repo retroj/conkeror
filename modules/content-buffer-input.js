@@ -313,3 +313,16 @@ interactive("edit-current-field-in-external-editor", function (I) {
     var buf = I.buffer;
     yield edit_field_in_external_editor(buf, buf.focused_element);
 });
+
+
+function select_all (elem) {
+    elem.select();
+}
+
+interactive (
+    "select-all",
+    "Select all text in field.",
+    function (I) {
+        select_all (I.buffer.focused_element);
+    });
+
