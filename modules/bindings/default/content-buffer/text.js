@@ -16,7 +16,7 @@ define_key(content_buffer_text_keymap, "C-f", "cmd_charNext");
 define_key(content_buffer_text_keymap, "right", "cmd_charNext");
 define_key(content_buffer_text_keymap, "M-f", "cmd_wordNext");
 define_key(content_buffer_text_keymap, "M-w", "cmd_copy");
-define_key(content_buffer_text_keymap, "C-k", "cmd_deleteToEndOfLine");
+define_key(content_buffer_text_keymap, "C-k", "cut-to-end-of-line");
 
 // 101 keys
 define_key(content_buffer_text_keymap, "home", "cmd_beginLine");

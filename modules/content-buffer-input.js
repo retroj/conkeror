@@ -326,3 +326,36 @@ interactive (
         select_all (I.buffer.focused_element);
     });
 
+
+// kill_whole_line: If true, `kill-line' with no arg at beg of line
+//    kills the whole line.
+var kill_whole_line = false;
+
+function cut_to_end_of_line (buffer) {
+    var elem = buffer.focused_element;
+    var st = elem.selectionStart;
+    var en = elem.selectionEnd;
+    if (st == en) {
+        // there is no selection.  set one up.
+        var eol = elem.value.indexOf ("\n", en);
+        if (eol == -1)
+        {
+            elem.selectionEnd = elem.textLength;
+        } else if (eol == st) {
+            elem.selectionEnd = eol + 1;
+        } else if (kill_whole_line &&
+                   (st == 0 || elem.value[st - 1] == "\n"))
+        {
+            elem.selectionEnd = eol + 1;
+        } else {
+            elem.selectionEnd = eol;
+        }
+    }
+    buffer.do_command ('cmd_cut');
+}
+
+interactive (
+    "cut-to-end-of-line",
+    function (I) {
+        cut_to_end_of_line (I.buffer);
+    });
