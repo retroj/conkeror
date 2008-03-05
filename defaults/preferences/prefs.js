@@ -11,3 +11,8 @@ pref("browser.xul.error_pages.enabled", true);
 
 /* Surely preferred by most Conkeror users */
 pref("plugin.expose_full_path", true);
+
+
+pref("extensions.getMoreExtensionsURL", "about:blank");
+pref("extensions.dss.enabled", false);
+pref("extensions.dss.switchPending", false);

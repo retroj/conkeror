@@ -137,6 +137,10 @@ function window_set_extra_arguments(args) {
     window_extra_argument_list.push(args);
 }
 
+function window_get_this_browser() {
+    return this.buffers.current.browser;
+}
+
 function window_initialize(window)
 {
     window.conkeror = conkeror;
@@ -151,6 +155,9 @@ function window_initialize(window)
     if ('tag' in window.args)
         tag = window.args.tag;
     window.tag = generate_new_window_tag(tag);
+
+    // Add a getBrowser() function to help certain extensions designed for Firefox work with conkeror
+    window.getBrowser = window_get_this_browser;
 
     window_initialize_early_hook.run(window);
     delete window.initialize_early_hook; // used only once
