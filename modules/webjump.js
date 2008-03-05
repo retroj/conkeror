@@ -18,7 +18,7 @@ function add_delicious_webjumps (username)
 // Some built in web jumps
 function init_webjumps()
 {
-    add_webjump("conkerorwiki","http://dev.technomancy.us/conkeror/index.cgi/search?q=%s&wiki=on&changeset=on&ticket=on");
+    add_webjump("conkerorwiki","http://conkeror.mozdev.org/drupal/search/node/%s");
     add_webjump("google",     "http://www.google.com/search?q=%s");
     add_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
     add_webjump("maps",       "http://maps.google.com/?q=%s");
