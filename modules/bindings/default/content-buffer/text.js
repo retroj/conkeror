@@ -39,6 +39,8 @@ define_key(content_buffer_text_keymap, "C-w", "cmd_cut");
 define_key(content_buffer_text_keymap, "S-delete", "cmd_cut");
 define_key(content_buffer_text_keymap, "C-x h", "select-all");
 
+define_key(content_buffer_text_keymap, "C-space", "set-mark");
+
 define_key(content_buffer_text_keymap, "C-i", "edit-current-field-in-external-editor");
 
 // This must be at the end of content_buffer_text_keymap defs so it's matched last.
