@@ -12,48 +12,33 @@ function minibuffer_abort (window)
 }
 interactive("minibuffer-abort", function (I) {minibuffer_abort(I.window);});
 
-function minibuffer_do_command(window, command) {
-    try {
-        var m = window.minibuffer;
-        if (m._input_mode_enabled)
+define_builtin_commands(
+    "minibuffer-",
+    function (I, command) {
+        try {
+            var m = I.minibuffer;
+            if (m._input_mode_enabled)
+            {
+                m._ensure_input_area_showing();
+                var e = m.input_element;
+                var c = e.controllers.getControllerForCommand(command);
+                if (c && c.isCommandEnabled(command))
+                    c.doCommand(command);
+                var s = m.current_state;
+                if ((s instanceof text_entry_minibuffer_state))
+                    s.handle_input_changed();
+            }
+        } catch (e)
         {
-            m._ensure_input_area_showing();
-            var e = m.input_element;
-            var c = e.controllers.getControllerForCommand(command);
-            if (c && c.isCommandEnabled(command))
-                c.doCommand(command);
-            var s = m.current_state;
-            if ((s instanceof text_entry_minibuffer_state))
-                s.handle_input_changed();
+            dump_error(e);
         }
-    } catch (e)
-    {
-        dump_error(e);
-    }
-}
+    },
+    function (I) {
+        I.minibuffer.current_state.mark_active = !I.minibuffer.current_state.mark_active;
+    },
 
-for each (let c_temp in builtin_commands)  {
-    let c = c_temp;
-    interactive("minibuffer-" + c, function(I) {minibuffer_do_command(I.window, c);});
-}
-
-for each (let c_temp in builtin_commands_with_count)
-{
-    let c = c_temp;
-    if (typeof(c) == "string")
-        interactive("minibuffer-" + c, function (I) {
-            do_repeatedly_positive(minibuffer_do_command, I.p,
-                                   I.window, c);
-        });
-    else {
-        interactive("minibuffer-" + c[0], function (I) {
-            do_repeatedly(minibuffer_do_command, I.p, [I.window, c[0]], [I.window, c[1]]);
-        });
-        interactive("minibuffer-" + c[1], function (I) {
-            do_repeatedly(minibuffer_do_command, I.p, [I.window, c[1]], [I.window, c[0]]);
-        });
-    }
-}
+    function (I) I.minibuffer.current_state.mark_active
+);
 
 function minibuffer_insert_character(window, n, event)
 {

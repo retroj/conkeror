@@ -129,39 +129,25 @@ interactive("execute-extended-command",
 // see: http://www.xulplanet.com/tutorials/xultu/commandupdate.html
 
 // Performs a command on a browser buffer content area
-function buffer_do_command(buffer, command)
-{
-    try {
-        buffer.do_command(command);
-    } catch (e) {
-        dump_error(e);
-        /* FIXME: figure out why this is needed, print better message */
-        buffer.window.minibuffer.message (command+": "+e);
-    }
-}
 
-for each (let c_temp in builtin_commands) {
-    let c = c_temp;
-    interactive(c, function (I) {buffer_do_command(I.buffer,c);});
-}
 
-for each (let c_temp in builtin_commands_with_count)
-{
-    let c = c_temp;
-    if (typeof(c) == "string")
-        interactive(c, function (I) {
-            do_repeatedly_positive(buffer_do_command, I.p,
-                                   I.buffer, c);
-        });
-    else {
-        interactive(c[0], function (I) {
-            do_repeatedly(buffer_do_command, I.p, [I.buffer, c[0]], [I.buffer, c[1]]);
-        });
-        interactive(c[1], function (I) {
-            do_repeatedly(buffer_do_command, I.p, [I.buffer, c[1]], [I.buffer, c[0]]);
-        });
-    }
-}
+define_builtin_commands(
+    "",
+    function (I, command) { 
+        var buffer = I.buffer;
+        try {
+            buffer.do_command(command);
+        } catch (e) {
+            dump_error(e);
+            /* FIXME: figure out why this is needed, print better message */
+            buffer.window.minibuffer.message (command+": "+e);
+        }
+    },
+    function (I) {
+        I.buffer.mark_active = !I.buffer.mark_active;
+    },
+    function (I) I.buffer.mark_active
+);
 
 function get_link_text()
 {

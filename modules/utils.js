@@ -577,42 +577,161 @@ function set_user_agent(str) {
     lock_pref(USER_AGENT_OVERRIDE_PREF, str);
 }
 
+function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_active_predicate) {
 
-var builtin_commands = ["cmd_beginLine",
-                        "cmd_copy",
-                        "cmd_copyOrDelete",
-                        "cmd_cut",
-                        "cmd_cutOrDelete",
-                        "cmd_deleteToBeginningOfLine",
-                        "cmd_deleteToEndOfLine",
-                        "cmd_endLine",
-                        "cmd_moveTop",
-                        "cmd_moveBottom",
-                        "cmd_selectAll",
-                        "cmd_selectBeginLine",
-                        "cmd_selectBottom",
-                        "cmd_selectEndLine",
-                        "cmd_selectTop",
-                        "cmd_scrollBeginLine",
-                        "cmd_scrollEndLine",
-                        "cmd_scrollTop",
-                        "cmd_scrollBottom"];
+    // Specify a docstring
+    function D(cmd, docstring) {
+        var o = new String(cmd);
+        o.doc = docstring;
+        return o;
+    }
 
-var builtin_commands_with_count = [["cmd_charNext", "cmd_charPrevious"],
-                                   ["cmd_deleteCharForward", "cmd_deleteCharBackward"],
-                                   ["cmd_deleteWordForward", "cmd_deleteWordBackward"],
-                                   ["cmd_lineNext", "cmd_linePrevious"],
-                                   ["cmd_movePageDown", "cmd_movePageUp"],
-                                   ["cmd_undo", "cmd_redo"],
-                                   ["cmd_selectCharNext", "cmd_selectCharPrevious"],
-                                   ["cmd_selectLineNext", "cmd_selectLinePrevious"],
-                                   ["cmd_selectPageUp", "cmd_selectPageDown"],
-                                   ["cmd_selectWordNext", "cmd_selectWordPrevious"],
-                                   ["cmd_wordNext", "cmd_wordPrevious"],
-                                   ["cmd_scrollPageUp", "cmd_scrollPageDown"],
-                                   ["cmd_scrollLineUp", "cmd_scrollLineDown"],
-                                   ["cmd_scrollLeft", "cmd_scrollRight"],
-                                   "cmd_paste"];
+    // Specify a forward/reverse pair
+    function R(a, b) {
+        var o = [a,b];
+        o.is_reverse_pair = true;
+        return o;
+    }
+
+    // Specify a movement/select command pair.
+    function S(command, movement, select) {
+        var o = [movement, select];
+        o.command = command;
+        o.is_move_select_pair = true;
+        return o;
+    }
+
+    var builtin_commands = [
+        S(D("beginning-of-line", "Move or select to the beginning of the current line."),
+          "cmd_beginLine", "cmd_selectBeginLine"),
+        S(D("end-of-line", "Move or select to the end of the current line."),
+          "cmd_endLine", "cmd_selectEndLine"),
+        "cmd_copy",
+        "cmd_copyOrDelete",
+        "cmd_cut",
+        "cmd_cutOrDelete",
+        "cmd_deleteToBeginningOfLine",
+        "cmd_deleteToEndOfLine",
+        S(D("beginning-of-first-line", "Move or select to the beginning of the first line."),
+          "cmd_moveTop", "cmd_selectTop"),
+        S(D("end-of-last-line", "Move or select to the end of the last line."),
+          "cmd_moveBottom", "cmd_selectBottom"),
+        "cmd_selectAll",
+        "cmd_scrollBeginLine",
+        "cmd_scrollEndLine",
+        "cmd_scrollTop",
+        "cmd_scrollBottom"];
+
+    var builtin_commands_with_count = [
+        R(S(D("forward-char", "Move or select forward one character."),
+            "cmd_charNext", "cmd_selectCharNext"),
+          S(D("backward-char", "Move or select backward one character."),
+            "cmd_charPrevious", "cmd_selectCharPrevious")),
+        R("cmd_deleteCharForward", "cmd_deleteCharBackward"),
+        R("cmd_deleteWordForward", "cmd_deleteWordBackward"),
+        R(S(D("forward-line", "Move or select forward one line."),
+            "cmd_lineNext", "cmd_selectLineNext"),
+          S(D("backward-line", "Move or select backward one line."),
+            "cmd_linePrevious", "cmd_selectLinePrevious")),
+        R(S(D("forward-page", "Move or select forward one page."),
+            "cmd_movePageDown", "cmd_selectPageDown"),
+          S(D("backward-page", "Move or select backward one page."),
+            "cmd_movePageUp", "cmd_selectPageUp")),
+        R("cmd_undo", "cmd_redo"),
+        R(S(D("forward-word", "Move or select forward one word."),
+            "cmd_wordNext", "cmd_selectWordNext"),
+          S(D("backward-word", "Move or select backward one word."),
+            "cmd_wordPrevious", "cmd_selectWordPrevious")),
+        R("cmd_scrollPageUp", "cmd_scrollPageDown"),
+        R("cmd_scrollLineUp", "cmd_scrollLineDown"),
+        R("cmd_scrollLeft", "cmd_scrollRight"),
+        "cmd_paste"];
+
+    interactive(prefix + "set-mark",
+                "Toggle whether the mark is active.\n" +
+                "When the mark is active, movement commands affect the selection.",
+                toggle_mark);
+
+    function doc_for_builtin(c) {
+        var s = "";
+        if (c.doc != null)
+            s += c.doc + "\n";
+        return s + "Run the built-in command " + c + ".";
+    }
+
+    function define_simple_command(c) {
+        interactive(prefix + c, doc_for_builtin(c), function (I) { do_command_function(I, c); });
+    }
+
+    function get_move_select_doc_string(c) {
+        return c.command.doc +
+            "\nSpecifically, if the mark is inactive, runs `" + prefix + c[0] + "'.  " +
+            "Otherwise, runs `" + prefix + c[1] + "'.\n" +
+            "To toggle whether the mark is active, use `" + prefix + "set-mark'.";
+    }
+
+    for each (let c_temp in builtin_commands)  {
+        let c = c_temp;
+        if (c.is_movement_select_pair) {
+            interactive(prefix + c.command, get_move_select_doc_string(c), function (I) {
+                do_command_function(I, mark_active_predicate(I) ? c[1] : c[0]);
+            });
+            define_simple_command(c[0]);
+            define_simple_command(c[1]);
+        }
+        else
+            define_simple_command(c);
+    }
+
+    function get_reverse_pair_doc_string(main_doc, alt_command) {
+        return main_doc + "\n" +
+            "The prefix argument specifies a repeat count for this command.  " +
+            "If the count is negative, `" + prefix + alt_command + "' is performed instead with " +
+            "a corresponding positive repeat count.";
+    }
+
+    function define_simple_reverse_pair(a, b) {
+        dumpln("defining: " + a + ", " + b);
+        interactive(prefix + a, get_reverse_pair_doc_string(doc_for_builtin(a), b),
+                    function (I) {
+                        do_repeatedly(do_command_function, I.p, [I, a], [I, b]);
+                    });
+        interactive(prefix + b, get_reverse_pair_doc_string(doc_for_builtin(b), a),
+                    function (I) {
+                        do_repeatedly(do_command_function, I.p, [I, b], [I, a]);
+                    });
+    }
+
+    for each (let c_temp in builtin_commands_with_count)
+    {
+        let c = c_temp;
+        if (c.is_reverse_pair) {
+            if (c[0].is_move_select_pair) {
+                interactive(prefix + c[0].command, get_reverse_pair_doc_string(get_move_select_doc_string(c[0]),
+                                                                               c[1].command),
+                            function (I) {
+                                var idx = mark_active_predicate(I) ? 1 : 0;
+                                do_repeatedly(do_command_function, I.p, [I, c[0][idx]], [I, c[1][idx]]);
+                            });
+                interactive(prefix + c[1].command, get_reverse_pair_doc_string(get_move_select_doc_string(c[1]),
+                                                                               c[0].command),
+                            function (I) {
+                                var idx = mark_active_predicate(I) ? 1 : 0;
+                                do_repeatedly(do_command_function, I.p, [I, c[1][idx]], [I, c[0][idx]]);
+                            });
+                define_simple_reverse_pair(c[0][0], c[1][0]);
+                define_simple_reverse_pair(c[0][1], c[1][1]);
+            } else
+                define_simple_reverse_pair(c[0], c[1]);
+        } else {
+            let doc = doc_for_builtin(c) +
+                "\nThe prefix argument specifies a positive repeat count for this command.";
+            interactive(prefix + c, doc, function (I) {
+                do_repeatedly_positive(do_command_function, I.p, I, c);
+            });
+        }
+    }
+}
 
 var observer_service = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
 
