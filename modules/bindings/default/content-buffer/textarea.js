@@ -3,17 +3,17 @@ require("bindings/default/content-buffer/text.js");
 var content_buffer_textarea_keymap = new keymap($parent = content_buffer_text_keymap);
 
 // textarea keys
-define_key(content_buffer_textarea_keymap, "C-n", "cmd_lineNext");
-define_key(content_buffer_textarea_keymap, "down", "cmd_lineNext");
-define_key(content_buffer_textarea_keymap, "C-p", "cmd_linePrevious");
-define_key(content_buffer_textarea_keymap, "up", "cmd_linePrevious");
-define_key(content_buffer_textarea_keymap, "M-<", "cmd_moveTop");
-define_key(content_buffer_textarea_keymap, "M->", "cmd_moveBottom");
-define_key(content_buffer_textarea_keymap, "M-v", "cmd_movePageUp");
-define_key(content_buffer_textarea_keymap, "page_up", "cmd_movePageUp");
+define_key(content_buffer_textarea_keymap, "C-n", "forward-line");
+define_key(content_buffer_textarea_keymap, "down", "forward-line");
+define_key(content_buffer_textarea_keymap, "C-p", "backward-line");
+define_key(content_buffer_textarea_keymap, "up", "backward-line");
+define_key(content_buffer_textarea_keymap, "M-<", "beginning-of-first-line");
+define_key(content_buffer_textarea_keymap, "M->", "end-of-last-line");
+define_key(content_buffer_textarea_keymap, "M-v", "backward-page");
+define_key(content_buffer_textarea_keymap, "page_up", "backward-page");
 
-define_key(content_buffer_textarea_keymap, "C-v", "cmd_movePageDown");
-define_key(content_buffer_textarea_keymap, "page_down", "cmd_movePageDown");
+define_key(content_buffer_textarea_keymap, "C-v", "forward-page");
+define_key(content_buffer_textarea_keymap, "page_down", "forward-page");
 define_key(content_buffer_textarea_keymap, "M-space", "yank-to-clipboard");
 
 // 101 keys

@@ -2,25 +2,25 @@ require("bindings/default/content-buffer/normal.js");
 
 var content_buffer_text_keymap = new keymap($parent = content_buffer_normal_keymap);
 
-define_key(content_buffer_text_keymap, "C-a", "cmd_beginLine");
-define_key(content_buffer_text_keymap, "C-e", "cmd_endLine");
+define_key(content_buffer_text_keymap, "C-a", "beginning-of-line");
+define_key(content_buffer_text_keymap, "C-e", "end-of-line");
 define_key(content_buffer_text_keymap, "back_space", "cmd_deleteCharBackward");
 define_key(content_buffer_text_keymap, "M-back_space", "cmd_deleteWordBackward");
 define_key(content_buffer_text_keymap, "C-d", "cmd_deleteCharForward");
 define_key(content_buffer_text_keymap, "delete", "cmd_deleteCharForward");
 define_key(content_buffer_text_keymap, "M-d", "cmd_deleteWordForward");
-define_key(content_buffer_text_keymap, "C-b", "cmd_charPrevious");
-define_key(content_buffer_text_keymap, "left", "cmd_charPrevious");
-define_key(content_buffer_text_keymap, "M-b", "cmd_wordPrevious");
-define_key(content_buffer_text_keymap, "C-f", "cmd_charNext");
-define_key(content_buffer_text_keymap, "right", "cmd_charNext");
-define_key(content_buffer_text_keymap, "M-f", "cmd_wordNext");
+define_key(content_buffer_text_keymap, "C-b", "backward-char");
+define_key(content_buffer_text_keymap, "left", "backward-char");
+define_key(content_buffer_text_keymap, "M-b", "backward-word");
+define_key(content_buffer_text_keymap, "C-f", "forward-char");
+define_key(content_buffer_text_keymap, "right", "forward-char");
+define_key(content_buffer_text_keymap, "M-f", "forward-word");
 define_key(content_buffer_text_keymap, "M-w", "cmd_copy");
 define_key(content_buffer_text_keymap, "C-k", "cut-to-end-of-line");
 
 // 101 keys
-define_key(content_buffer_text_keymap, "home", "cmd_beginLine");
-define_key(content_buffer_text_keymap, "end", "cmd_endLine");
+define_key(content_buffer_text_keymap, "home", "beginning-of-line");
+define_key(content_buffer_text_keymap, "end", "end-of-line");
 define_key(content_buffer_text_keymap, "S-home", "cmd_selectBeginLine");
 define_key(content_buffer_text_keymap, "S-end", "cmd_selectEndLine");
 define_key(content_buffer_text_keymap, "C-back_space", "cmd_deleteWordBackward");
