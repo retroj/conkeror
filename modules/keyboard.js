@@ -75,6 +75,8 @@ generate_key_tables();
 
 var abort_key = null;
 
+var sticky_modifiers = 0;
+
 const MOD_CTRL = 0x1;
 const MOD_META = 0x2;
 const MOD_SHIFT = 0x4;
@@ -151,7 +153,8 @@ function get_modifiers(event)
     // the event.
     return (event.ctrlKey ? MOD_CTRL:0) |
         (meta_pressed(event) ? MOD_META:0) |
-        (event.shiftKey ? MOD_SHIFT: 0);
+        (event.shiftKey ? MOD_SHIFT: 0) |
+        sticky_modifiers;
 }
 
 /* This function is no longer used for normal keymap lookups.  It is
@@ -465,6 +468,8 @@ function key_press_handler(true_event)
         binding =
             lookup_key_binding(active_keymap, event) ||
             (overlay_keymap && lookup_key_binding(overlay_keymap, event));
+
+        sticky_modifiers = 0;
 
         ctx.overlay_keymap = null;
 
