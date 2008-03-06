@@ -365,3 +365,13 @@ function  view_mathml_source (window, charset, target) {
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, target, 'mathml');
 }
+
+
+function sticky_meta () {
+    sticky_modifiers |= MOD_META;
+}
+interactive (
+    'sticky-meta',
+    function (I) {
+        sticky_meta();
+    });
