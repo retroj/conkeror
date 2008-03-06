@@ -37,7 +37,7 @@ define_key(content_buffer_text_keymap, "C-x u", "cmd_undo");
 define_key(content_buffer_text_keymap, "C-y", "cmd_paste");
 define_key(content_buffer_text_keymap, "C-w", "cmd_cut");
 define_key(content_buffer_text_keymap, "S-delete", "cmd_cut");
-define_key(content_buffer_text_keymap, "C-x h", "select-all");
+define_key(content_buffer_text_keymap, "C-x h", "cmd_selectAll");
 
 define_key(content_buffer_text_keymap, "C-space", "set-mark");
 

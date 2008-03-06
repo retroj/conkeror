@@ -316,18 +316,6 @@ interactive("edit-current-field-in-external-editor", function (I) {
 });
 
 
-function select_all (elem) {
-    elem.select();
-}
-
-interactive (
-    "select-all",
-    "Select all text in field.",
-    function (I) {
-        select_all (I.buffer.focused_element);
-    });
-
-
 // kill_whole_line: If true, `kill-line' with no arg at beg of line
 //    kills the whole line.
 var kill_whole_line = false;
