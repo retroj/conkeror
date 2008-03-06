@@ -1,12 +1,14 @@
 require("bindings/default/universal_argument.js");
 
+var default_base_keymap = new keymap();
+
 /**
  * Note: Most buffer keymaps should set this as the parent.
  */
-var default_global_keymap = new keymap();
+var default_global_keymap = new keymap($parent = default_base_keymap);
 var default_help_keymap = new keymap();
 
-bind_universal_argument(default_global_keymap, "C-u");
+bind_universal_argument(default_base_keymap, "C-u");
 
 define_key(default_global_keymap, "M-S-;","eval-expression");
 
@@ -18,7 +20,7 @@ define_key(default_global_keymap, "C-x 5 f", "find-url-other-buffer");
 define_key(default_global_keymap, "C-x 5 2", "make-window");
 define_key(default_global_keymap, "C-x 5 0", "delete-window");
 
-define_key(default_global_keymap, "C-h", default_help_keymap);
+define_key(default_base_keymap, "C-h", default_help_keymap);
 define_key(default_help_keymap, "b", "describe-bindings");
 define_key(default_help_keymap, "f", "describe-command");
 define_key(default_help_keymap, "k", "describe-key");

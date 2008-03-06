@@ -1,8 +1,6 @@
 require("bindings/default/global.js");
 
-var hint_keymap = new keymap();
-
-define_key(hint_keymap, "C-h", default_help_keymap);
+var hint_keymap = new keymap($parent = default_base_keymap);
 
 define_key(hint_keymap, kbd(match_any_unmodified_key), "hints-handle-character");
 define_key(hint_keymap, "back_space", "hints-backspace");
@@ -15,7 +13,3 @@ define_key(hint_keymap, "up", "hints-previous");
 define_key(hint_keymap, "escape", "minibuffer-abort");
 define_key(hint_keymap, "C-g", "minibuffer-abort");
 define_key(hint_keymap, "return", "hints-exit");
-
-// FIXME: this should probably be some better more general
-// property, i.e. catch_all or something.
-define_key(hint_keymap, kbd(match_any_key), null);

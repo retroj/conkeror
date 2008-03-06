@@ -1,12 +1,9 @@
 require("bindings/default/global.js");
 
-var minibuffer_base_keymap = new keymap();
+var minibuffer_base_keymap = new keymap($parent = default_base_keymap);
 
 
 // {{{ minibuffer_base_keymap
-bind_universal_argument(minibuffer_base_keymap, "C-u");
-
-define_key(minibuffer_base_keymap, "C-h", default_help_keymap);
 
 define_key(minibuffer_base_keymap, "C-a", "minibuffer-cmd_beginLine");
 define_key(minibuffer_base_keymap, "C-e", "minibuffer-cmd_endLine");
@@ -70,10 +67,8 @@ define_key (minibuffer_completion_keymap, match_any_unmodified_key, "minibuffer-
 // }}}
 
 // {{{ single_character_options_minibuffer_keymap
-var single_character_options_minibuffer_keymap = new keymap();
+var single_character_options_minibuffer_keymap = new keymap($parent = default_base_keymap);
 
-bind_universal_argument(single_character_options_minibuffer_keymap, "C-u");
-define_key(single_character_options_minibuffer_keymap, "C-h", default_help_keymap);
 define_key(single_character_options_minibuffer_keymap, "C-g", "minibuffer-abort");
 define_key(single_character_options_minibuffer_keymap, match_any_unmodified_key,
            "single-character-options-enter-character");
