@@ -47,7 +47,6 @@ define_key(minibuffer_base_keymap, match_any_unmodified_key, "minibuffer-insert-
 var minibuffer_keymap = new keymap($parent = minibuffer_base_keymap);
 
 define_key (minibuffer_keymap, "return", "exit-minibuffer");
-define_key (minibuffer_keymap, "C-m", "exit-minibuffer");
 define_key (minibuffer_keymap, "M-p", "minibuffer-history-previous");
 define_key (minibuffer_keymap, "M-n", "minibuffer-history-next");
 define_key (minibuffer_keymap, "C-g", "minibuffer-abort");

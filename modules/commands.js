@@ -349,3 +349,32 @@ function  view_mathml_source (window, charset, target) {
                             "_blank", "scrollbars,resizable,chrome,dialog=no",
                             null, charset, target, 'mathml');
 }
+
+
+function send_key_as_event (window, element, key) {
+    key = kbd (key);
+    var event = window.document.createEvent ("KeyboardEvent");
+    event.initKeyEvent (
+        "keypress",
+        true,
+        true,
+        null,
+        key.modifiers & MOD_CTRL, // ctrl
+        key.modifiers & MOD_META, // alt
+        key.modifiers & MOD_SHIFT, // shift
+        key.modifiers & MOD_META, // meta
+        key.keyCode,
+        null);    // charcode
+    // bit of a hack here.. we have to fake a keydown event for conkeror
+    window.keyboard.last_key_down_event = copy_event (event);
+    if (element) {
+        return element.dispatchEvent (event);
+    } else {
+        return window.dispatchEvent (event);
+    }
+}
+interactive (
+    "send-ret",
+    function (I) {
+        send_key_as_event (I.window, I.buffer.focused_element, "return");
+    });
