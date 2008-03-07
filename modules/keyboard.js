@@ -295,7 +295,7 @@ outer:
             if (final_binding) {
                 bind.command = new_command;
                 bind.keymap = new_keymap;
-                bind.fallthrough = args.$falllthrough;
+                bind.fallthrough = args.$fallthrough;
                 bind.hook = args.$hook;
                 bind.source_code_reference = ref;
             } else {
