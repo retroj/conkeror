@@ -30,7 +30,7 @@ define_builtin_commands(
             }
         } catch (e)
         {
-            dump_error(e);
+            /* Ignore exceptions. */
         }
     },
     function (I) {

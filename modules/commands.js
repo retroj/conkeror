@@ -138,9 +138,7 @@ define_builtin_commands(
         try {
             buffer.do_command(command);
         } catch (e) {
-            dump_error(e);
-            /* FIXME: figure out why this is needed, print better message */
-            buffer.window.minibuffer.message (command+": "+e);
+            /* Ignore exceptions */
         }
     },
     function (I) {
