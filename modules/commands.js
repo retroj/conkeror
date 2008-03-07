@@ -53,18 +53,18 @@ interactive ("conkeror-version",
              function (I) {show_conkeror_version(I.window);});
 
 /* FIXME: maybe this should be supported for non-browser buffers */
-function scrollHorizComplete (buffer, n)
+function scroll_horiz_complete (buffer, n)
 {
     var w = buffer.focused_frame;
     w.scrollTo (n > 0 ? w.scrollMaxX : 0, w.scrollY);
 }
-interactive("beginning-of-line",
-            "Scroll the current window all the way to the left.",
-            function (I) {scrollHorizComplete(I.buffer, -1);});
+interactive("scroll-beginning-of-line",
+            "Scroll the current frame all the way to the left.",
+            function (I) {scroll_horiz_complete(I.buffer, -1);});
 
-interactive("end-of-line",
+interactive("scroll-end-of-line",
             "Scroll the current frame all the way to the right.",
-            function (I) {scrollHorizComplete(I.buffer, 1);});
+            function (I) {scroll_horiz_complete(I.buffer, 1);});
 
 interactive("make-window",
             "Make a new window.",

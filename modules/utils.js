@@ -672,7 +672,7 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
 
     for each (let c_temp in builtin_commands)  {
         let c = c_temp;
-        if (c.is_movement_select_pair) {
+        if (c.is_move_select_pair) {
             interactive(prefix + c.command, get_move_select_doc_string(c), function (I) {
                 do_command_function(I, mark_active_predicate(I) ? c[1] : c[0]);
             });
@@ -691,7 +691,6 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
     }
 
     function define_simple_reverse_pair(a, b) {
-        dumpln("defining: " + a + ", " + b);
         interactive(prefix + a, get_reverse_pair_doc_string(doc_for_builtin(a), b),
                     function (I) {
                         do_repeatedly(do_command_function, I.p, [I, a], [I, b]);
