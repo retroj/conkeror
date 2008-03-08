@@ -92,7 +92,6 @@ interactive("jsconsole",
 default_browse_targets["jsconsole"] = "find-url";
 
 
-// XXX: side-effect: contents from primary selection will overwrite clipboard
 function paste_x_primary_selection (field) {
     var str = read_from_x_primary_selection ();
     field.value = field.value.substr (0, field.selectionStart) +
