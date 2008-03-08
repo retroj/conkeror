@@ -94,8 +94,10 @@ default_browse_targets["jsconsole"] = "find-url";
 
 function paste_x_primary_selection (field) {
     var str = read_from_x_primary_selection ();
+    var point = field.selectionEnd;
     field.value = field.value.substr (0, field.selectionStart) +
         str + field.value.substr (field.selectionEnd);
+    field.setSelectionRange (point, point);
 }
 interactive (
     "paste-x-primary-selection",
