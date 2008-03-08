@@ -14,7 +14,6 @@ define_key(content_buffer_textarea_keymap, "page_up", "backward-page");
 
 define_key(content_buffer_textarea_keymap, "C-v", "forward-page");
 define_key(content_buffer_textarea_keymap, "page_down", "forward-page");
-define_key(content_buffer_textarea_keymap, "M-space", "yank-to-clipboard");
 
 // 101 keys
 define_key(content_buffer_textarea_keymap, "S-page_up", "cmd_selectPageUp");

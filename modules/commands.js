@@ -91,19 +91,20 @@ interactive("jsconsole",
             });
 default_browse_targets["jsconsole"] = "find-url";
 
-// Copy the contents of the X11 clipboard to ours. This is a cheap
-// hack because it seems impossible to just always yank from the X11
-// clipboard. So you have to manually pull it.
-function yankToClipboard (window)
-{
-    var str = readFromClipboard();
-    var clipid = Components.interfaces.nsIClipboard;
-    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-        .getService(Components.interfaces.nsIClipboardHelper);
-    gClipboardHelper.copyString(str);
-    window.message("Pulled '" + str + "'");
+
+// XXX: side-effect: contents from primary selection will overwrite clipboard
+function paste_x_primary_selection (buffer) {
+    var str = read_from_x_primary_selection ();
+    var field = buffer.focused_element;
+    field.value = field.value.substr (0, field.selectionStart) +
+        str + field.value.substr (field.selectionEnd);
 }
-interactive("yank-to-clipboard", function (I) {yankToClipboard(I.window);});
+interactive (
+    "paste-x-primary-selection",
+    function (I) {
+        paste_x_primary_selection (I.buffer);
+    });
+
 
 function meta_x (window, prefix, command)
 {

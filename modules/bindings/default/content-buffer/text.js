@@ -26,6 +26,7 @@ define_key(content_buffer_text_keymap, "S-end", "cmd_selectEndLine");
 define_key(content_buffer_text_keymap, "C-back_space", "cmd_deleteWordBackward");
 define_key(content_buffer_text_keymap, "C-S-left", "cmd_selectWordPrevious");
 define_key(content_buffer_text_keymap, "C-S-right", "cmd_selectWordNext");
+define_key(content_buffer_text_keymap, "S-insert", "paste-x-primary-selection");
 
 // Nasty keys
 define_key(content_buffer_text_keymap, "C-r","cmd_redo");
