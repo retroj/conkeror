@@ -6,7 +6,6 @@ require("coroutine.js"); // not required to be listed as dep.
 
 require("hook.js");
 require("debug.js");
-require("user_variable.js");
 require("utils.js");
 require("interactive.js");
 require("minibuffer.js"); // depends: interactive.js
