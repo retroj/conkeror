@@ -39,3 +39,26 @@ function define_key_alias(typed_key, generated_key) {
     define_key(global_overlay_keymap, typed_key, name);
     global_overlay_keymap_mode(true);
 }
+
+
+
+function define_sticky_modifier(typed_key, modifiers) {
+    typed_key = kbd(typed_key);
+    var mod_str = "";
+    for (var i = 0; i < modifier_names.length; ++i)
+    {
+        if (modifiers & (1 << i)) {
+            if (mod_str.length > 0)
+                mod_str = mod_str + "-";
+            mod_str = mod_str + modifier_names[i];
+        }
+    }
+    if (mod_str.length == 0)
+        throw new Error("Invalid modifiers: " + modifiers);
+    var name = "sticky-modifiers:" + mod_str;
+    interactive(name, "Set sticky modifiers: " + mod_str, function (I) {
+        I.sticky_modifiers |= modifiers;
+    });
+    define_key(global_overlay_keymap, typed_key, name);
+    global_overlay_keymap_mode(true);
+}

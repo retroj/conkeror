@@ -151,7 +151,8 @@ function get_modifiers(event)
     // the event.
     return (event.ctrlKey ? MOD_CTRL:0) |
         (meta_pressed(event) ? MOD_META:0) |
-        (event.shiftKey ? MOD_SHIFT: 0);
+        (event.shiftKey ? MOD_SHIFT: 0) |
+        event.sticky_modifiers;
 }
 
 /* This function is no longer used for normal keymap lookups.  It is
@@ -408,6 +409,7 @@ function copy_event(event)
     ev.metaKey = event.metaKey;
     ev.altKey = event.altKey;
     ev.shiftKey = event.shiftKey;
+    ev.sticky_modifiers = event.sticky_modifiers;
     return ev;
 }
 
@@ -454,9 +456,12 @@ function key_press_handler(true_event)
 
         var ctx;
         if (!state.current_context)
-            ctx = state.current_context = { window: window, key_sequence: [] };
+            ctx = state.current_context = { window: window, key_sequence: [], sticky_modifiers: 0 };
         else
             ctx = state.current_context;
+
+        event.sticky_modifiers = ctx.sticky_modifiers;
+        ctx.sticky_modifiers = 0;
 
         ctx.event = event;
 
