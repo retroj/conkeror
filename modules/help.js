@@ -76,6 +76,15 @@ help_document_generator.prototype = {
         return node;
     },
 
+    variable_reference : function(name, parent) {
+        var node = this.element("a", "class", "variable", "href", "#");
+        /* FIXME: make this work */
+        this.text(name, node);
+        if (parent)
+            parent.appendChild(node);
+        return node;
+    },
+
     help_text : function(str, parent) {
         var paras = str.split("\n");
         var f = this.document.createDocumentFragment();
@@ -386,3 +395,104 @@ interactive("describe-key", function (I) {
                  I.browse_target("describe-key"));
 });
 default_browse_targets["describe-key"] = "find-url";
+
+
+
+
+define_keywords("$variable");
+function describe_variable_buffer(window, element) {
+    this.constructor_begin();
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.bindings = arguments.$bindings;
+    this.variable = arguments.$variable;
+    this.cmd = interactive_variables.get(this.variable);
+    this.source_code_reference = this.cmd.source_code_reference;
+    this.constructor_end();
+}
+
+function pretty_print_value(value) {
+    if (value === undefined)
+        return "undefined";
+    if (value === null)
+        return "null";
+    if (typeof(value) == "object")
+        return value.toSource();
+    if (typeof(value) == "function")
+        return value.toString();
+    if (typeof(value) == "string") {
+        let s = value.toSource();
+        // toSource returns: (new String("<blah>"))
+        // we want just: "<blah>"
+        return s.substring(12, s.length - 2);
+    }
+    return new String(value);
+}
+
+describe_variable_buffer.prototype = {
+
+    get keymap() {
+        return help_buffer_keymap;
+    },
+
+    get title() { return "Variable help: " + this.variable; },
+
+    description : "*help*",
+
+    generate : function () {
+        var d = this.top_document;
+
+        var g = new help_document_generator(d);
+
+        g.add_help_stylesheet();
+        d.body.setAttribute("class", "describe-variable");
+
+        var p;
+
+        p = g.element("p", d.body);
+        g.variable_reference(this.variable, p);
+        var uvar = user_variables.get(this.variable);
+        if (uvar.source_code_reference)  {
+            g.text(" is a user variable in ", p);
+            g.source_code_reference(uvar.source_code_reference, p);
+            g.text(".", p);
+        } else {
+            g.text(" is a user variable.", p);
+        }
+
+        p = g.element("p", d.body);
+        g.text("It's value is: ", p);
+        {
+            let s = pretty_print_value(conkeror[this.variable]);
+            let pre = g.element("pre", p);
+            g.text(s, pre);
+        }
+
+        if (uvar.doc != null)
+            g.help_text(uvar.doc, d.body);
+
+        p = g.element("p", d.body);
+        g.text("It's default value is: ", p);
+        {
+            let s = pretty_print_value(user_variables.get(this.variable).default_value);
+            let pre = g.element("pre", p);
+            g.text(s, pre);
+        }
+    },
+
+    __proto__: special_buffer.prototype
+};
+
+
+function describe_variable(buffer, variable, target) {
+    create_buffer(buffer.window,
+                  buffer_creator(describe_variable_buffer,
+                                 $configuration = buffer.configuration,
+                                 $variable = variable),
+                  target);
+}
+interactive("describe-variable", function (I) {
+    describe_variable(I.buffer, (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
+                     I.browse_target("describe-variable"));
+});
+default_browse_targets["describe-variable"] = "find-url";

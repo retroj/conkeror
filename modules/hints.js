@@ -4,10 +4,10 @@
  * Portions are derived from Vimperator (c) 2006-2007: Martin Stubenschrott <stubenschrott@gmx.net>
  */
 
-var active_img_hint_background_color = "#88FF00";
-var img_hint_background_color = "yellow";
-var active_hint_background_color = "#88FF00";
-var hint_background_color = "yellow";
+define_user_variable("active_img_hint_background_color", "#88FF00", "Color for the active image hint background.");
+define_user_variable("img_hint_background_color", "yellow", "Color for inactive image hint backgrounds.");
+define_user_variable("active_hint_background_color", "#88FF00", "Color for the active hint background.");
+define_user_variable("hint_background_color", "yellow", "Color for the inactive hint.");
 
 /**
  * Register hints style sheet
@@ -375,8 +375,7 @@ hints_minibuffer_state.prototype = {
     }
 };
 
-/* USER PREFERENCE */
-var hints_auto_exit_delay = 500;
+define_user_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the most recent key stroke before a sole matching element is automatically selected.  If this is set to 0, automatic selection is disabled.");
 
 function hints_handle_character(window, s, e) {
     /* Check for numbers */
@@ -492,19 +491,21 @@ interactive("hints-exit", function (I) {
 });
 
 
-/* USER PREFERENCE */
 /* FIXME: figure out why this needs to have a bunch of duplication */
-var hints_xpath_expressions = {
-    images: {def: "//img | //xhtml:img"},
-    frames: {def: "//iframe | //frame | //xhtml:iframe | //xhtml:frame"},
-    links: {def:
-            "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-            "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
-            "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-            "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
-            "//xhtml:button | //xhtml:select"},
-    mathml: {def: "//m:math"}
-};
+define_user_variable(
+    "hints_xpath_expressions",
+    {
+        images: {def: "//img | //xhtml:img"},
+        frames: {def: "//iframe | //frame | //xhtml:iframe | //xhtml:frame"},
+        links: {def:
+                "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+                "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
+                "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+                "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
+                "//xhtml:button | //xhtml:select"},
+        mathml: {def: "//m:math"}
+    },
+    "XPath expressions for each object class.");
 
 define_keywords("$object_class", "$buffer");
 minibuffer.prototype.read_hinted_element = function () {

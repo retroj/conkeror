@@ -11,7 +11,7 @@ function favicon_content_buffer_started_loading(buffer) {
 }
 add_hook("content_buffer_started_loading_hook", favicon_content_buffer_started_loading);
 
-/* USER PREFERENCE */
+define_user_variable("favicon_image_max_size", 1024, "Maximum (pixel) width and height of an image document that is considered for use as a favicon.");
 var favicon_image_max_size = 1024;
 
 function favicon_content_buffer_finished_loading(buffer) {

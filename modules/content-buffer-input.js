@@ -165,9 +165,8 @@ define_global_mode("browser_input_minibuffer_status_mode",
                    });
 browser_input_minibuffer_status_mode(true);
 
-/* USER PREFERENCE */
 // Milliseconds
-var browser_automatic_form_focus_window_duration = 20;
+define_user_variable("browser_automatic_form_focus_window_duration", 20, "Time window (in milliseconds) during which a form element is allowed to gain focus following a mouse click or key press, if `browser_prevent_automatic_form_focus_mode' is enabled.");;
 
 define_global_mode("browser_prevent_automatic_form_focus_mode",
                    function () {}, // enable
@@ -175,24 +174,27 @@ define_global_mode("browser_prevent_automatic_form_focus_mode",
                    );
 browser_prevent_automatic_form_focus_mode(true);
 
-var browser_form_field_xpath_expression =
+define_user_variable(
+    "browser_form_field_xpath_expression",
     "//input[" + (
 //        "translate(@type,'RADIO','radio')!='radio' and " +
 //        "translate(@type,'CHECKBOX','checkbox')!='checkbox' and " +
         "translate(@type,'HIDEN','hiden')!='hidden'"
 //        "translate(@type,'SUBMIT','submit')!='submit' and " +
 //        "translate(@type,'REST','rest')!='reset'"
-        ) +  "] | " +
-    "//xhtml:input[" + (
+    ) +  "] | " +
+        "//xhtml:input[" + (
 //        "translate(@type,'RADIO','radio')!='radio' and " +
 //        "translate(@type,'CHECKBOX','checkbox')!='checkbox' and " +
-        "translate(@type,'HIDEN','hiden')!='hidden'"
+            "translate(@type,'HIDEN','hiden')!='hidden'"
 //        "translate(@type,'SUBMIT','submit')!='submit' and " +
 //        "translate(@type,'REST','rest')!='reset'"
         ) +  "] |" +
-    "//select | //xhtml:select | " +
-    "//textarea | //xhtml:textarea | " +
-    "//textbox | //xul:textbox";
+        "//select | //xhtml:select | " +
+        "//textarea | //xhtml:textarea | " +
+        "//textbox | //xul:textbox",
+    "XPath expression matching elements to be selected by `browser-focus-next-form-field' " +
+        "and `browser-focus-previous-form-field.'");
 
 function browser_focus_next_form_field(buffer, count, xpath_expr) {
     var focused_elem = buffer.focused_element;
@@ -247,16 +249,18 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
         elem = helper(buffer.top_frame, focused_win);
     if (elem) {
         browser_element_focus(buffer, elem);
-    } else
+v    } else
         throw interactive_error("No form field found");
 }
 
-interactive("browser-focus-next-form-field", function (I) {
-    browser_focus_next_form_field(I.buffer, I.p, browser_form_field_xpath_expression);
-});
+interactive("browser-focus-next-form-field", "Focus the next element matching `browser_form_field_xpath_expression'.",
+            function (I) {
+                browser_focus_next_form_field(I.buffer, I.p, browser_form_field_xpath_expression);
+            });
 
-interactive("browser-focus-previous-form-field", function (I) {
-    browser_focus_next_form_field(I.buffer, -I.p, browser_form_field_xpath_expression);
+interactive("browser-focus-previous-form-field",  "Focus the previous element matching `browser_form_field_xpath_expression'.",
+            function (I) {
+                browser_focus_next_form_field(I.buffer, -I.p, browser_form_field_xpath_expression);
 });
 
 function edit_field_in_external_editor(buffer, elem) {
@@ -309,16 +313,14 @@ function edit_field_in_external_editor(buffer, elem) {
         file.remove(false);
     }
 }
-interactive("edit-current-field-in-external-editor", function (I) {
+interactive("edit-current-field-in-external-editor", "Edit the contents of the currently-focused text field in an external editor.",
+            function (I) {
     var buf = I.buffer;
     yield edit_field_in_external_editor(buf, buf.focused_element);
     unfocus(buf);
 });
 
-
-// kill_whole_line: If true, `kill-line' with no arg at beg of line
-//    kills the whole line.
-var kill_whole_line = false;
+define_user_variable("kill_whole_line", false, "If true, `kill-line' with no arg at beg of line kills the whole line.");
 
 function cut_to_end_of_line (buffer) {
     var elem = buffer.focused_element;

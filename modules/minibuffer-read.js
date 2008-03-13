@@ -1,18 +1,15 @@
 
-/* USER PREFERENCE */
-var default_minibuffer_auto_complete_delay = 150;
+define_user_variable("default_minibuffer_auto_complete_delay", 150,
+                     "Delay (in milliseconds) after the most recent key stroke before auto-completing.");
 
-/* USER PREFERENCE */
-var minibuffer_auto_complete_preferences = {};
+define_user_variable("minibuffer_auto_complete_preferences", {});
 
-var minibuffer_auto_complete_default = false;
-
+define_user_variable("minibuffer_auto_complete_default", false, "Boolean specifying whether to auto-complete by default.\nThe user variable `minibuffer_auto_complete_preferences' overrides this.");
 
 var minibuffer_history_data = new string_hashmap();
 
 /* FIXME: These should possibly be saved to disk somewhere */
-/* USER PREFERENCE */
-var minibuffer_history_max_items = 100;
+define_user_variable("minibuffer_history_max_items", 100, "Maximum number of minibuffer history entries stored.\nOlder history entries are truncated after this limit is reached.");
 
 
 /* The parameter `args' specifies the arguments.  In addition, the
@@ -425,6 +422,22 @@ minibuffer.prototype.read_command = function () {
     );
 
     var result = yield this.read($prompt = "Command", $history = "command",
+        forward_keywords(arguments),
+        $completer = completer,
+        $match_required = true);
+    yield co_return(result);
+}
+
+minibuffer.prototype.read_user_variable = function () {
+    keywords(arguments);
+    var completer = prefix_completer(
+        $completions = function (visitor) user_variables.for_each(visitor),
+        $get_string = function (x) x,
+        $get_description = function (x) user_variables.get(x).shortdoc || "",
+        $get_value = function (x) x
+    );
+
+    var result = yield this.read($prompt = "User variable", $history = "user_variable",
         forward_keywords(arguments),
         $completer = completer,
         $match_required = true);

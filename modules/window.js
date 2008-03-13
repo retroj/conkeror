@@ -106,7 +106,8 @@ define_window_local_hook("window_initialize_hook");
 define_window_local_hook("window_initialize_late_hook");
 
 var window_extra_argument_list = [];
-var window_extra_argument_max_delay = 100; /* USER PREFERENCE */
+
+define_user_variable("window_extra_argument_max_delay", 100);
 
 function window_setup_args(window) {
     if (window.args != null)
