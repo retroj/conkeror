@@ -20,19 +20,12 @@ function interactive(name)
         offset = 2;
     }
     handler = arguments[offset++];
-    var shortdoc = null;
-    if (doc != null) {
-        var idx = doc.indexOf("\n");
-        if (idx >= 0)
-            shortdoc = doc.substring(0,idx);
-        else
-            shortdoc = doc;
-    }
-    var cmd = { name: name,
-                handler: handler,
-                doc: doc,
-                shortdoc: shortdoc,
-                source_code_reference: get_caller_source_code_reference() };
+    var cmd = {
+        name: name,
+        handler: handler,
+        doc: doc,
+        shortdoc: get_shortdoc_string(doc),
+        source_code_reference: get_caller_source_code_reference() };
 
     interactive_commands.put(name, cmd);
 }

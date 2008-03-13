@@ -373,6 +373,18 @@ function get_buffer_from_frame(window, frame) {
 
 var file_locator = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
 
+function get_shortdoc_string(doc) {
+    var shortdoc = null;
+    if (doc != null) {
+        var idx = doc.indexOf("\n");
+        if (idx >= 0)
+            shortdoc = doc.substring(0,idx);
+        else
+            shortdoc = doc;
+    }
+    return shortdoc;
+}
+
 var conkeror_source_code_path = null;
 
 function source_code_reference(uri, line_number) {
