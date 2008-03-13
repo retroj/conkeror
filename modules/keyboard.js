@@ -1,4 +1,4 @@
-
+require("window.js");
 
 var keycode_to_name = [];
 var name_to_keycode = new Object();
@@ -200,6 +200,8 @@ function match_any_unmodified_key (event)
 
 function kbd (spec, mods)
 {
+    if (typeof(spec) == "object")
+        return spec;
     var key = {};
     if (typeof spec == "function")
         key.match_function = spec;
@@ -270,7 +272,7 @@ function define_key(kmap, keys, cmd)
         keys = [keys];
 
     var new_command = null, new_keymap = null;
-    if (typeof(cmd) == "string")
+    if (typeof(cmd) == "string" || typeof(cmd) == "function")
         new_command = cmd;
     else if (cmd instanceof keymap)
         new_keymap = cmd;
@@ -421,7 +423,9 @@ function key_down_handler(event)
 }
 
 define_variable("keyboard_key_sequence_help_timeout", 0,
-                     "Delay (in millseconds) before the current key sequence prefix is displayed in the minibuffer.");
+                "Delay (in millseconds) before the current key sequence prefix is displayed in the minibuffer.");
+
+define_window_local_hook("key_press_hook", RUN_HOOK_UNTIL_SUCCESS);
 
 function key_press_handler(true_event)
 {
@@ -455,6 +459,9 @@ function key_press_handler(true_event)
             ctx = state.current_context;
 
         ctx.event = event;
+
+        if (key_press_hook.run(window, ctx, true_event))
+            return;
 
         var active_keymap =
             state.active_keymap ||

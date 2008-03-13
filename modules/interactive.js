@@ -75,6 +75,12 @@ function call_interactively(I, command)
 
     var window = I.window;
 
+    if (typeof(command) == "function") {
+        // Special interactive command
+        command(I);
+        return;
+    }
+
     var cmd = interactive_commands.get(command);
     if (!cmd)
     {

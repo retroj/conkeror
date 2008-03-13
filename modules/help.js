@@ -161,10 +161,14 @@ describe_bindings_buffer.prototype = {
             command_td.setAttribute("class", "command");
             var help_str = null;
             if (bind.command != null) {
-                command_td.textContent = bind.command;
-                var cmd = interactive_commands.get(bind.command);
-                if (cmd != null)
-                    help_str = cmd.shortdoc;
+                if (typeof(bind.command) == "function") {
+                    command_td.textContent = "[function]";
+                } else {
+                    command_td.textContent = bind.command;
+                    var cmd = interactive_commands.get(bind.command);
+                    if (cmd != null)
+                        help_str = cmd.shortdoc;
+                }
             }
             else if (bind.fallthrough)
                 command_td.textContent = "[pass through]";
