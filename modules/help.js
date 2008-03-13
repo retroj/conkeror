@@ -393,10 +393,23 @@ function describe_key(buffer, key_info, target) {
                                  $binding = bind),
                   target);
 }
+
+function describe_key_briefly(buffer, key_info) {
+    var bindings;
+    var seq = key_info[0];
+    var bind = key_info[1];
+
+    buffer.window.minibuffer.message(seq.join(" ") + " runs the command " + bind.command);
+}
+
 interactive("describe-key", function (I) {
     describe_key(I.buffer,
                  (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
                  I.browse_target("describe-key"));
+});
+interactive("describe-key-briefly", function (I) {
+    describe_key_briefly(I.buffer,
+                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
 });
 default_browse_targets["describe-key"] = "find-url";
 
