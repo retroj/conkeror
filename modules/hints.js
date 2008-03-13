@@ -4,10 +4,10 @@
  * Portions are derived from Vimperator (c) 2006-2007: Martin Stubenschrott <stubenschrott@gmx.net>
  */
 
-define_user_variable("active_img_hint_background_color", "#88FF00", "Color for the active image hint background.");
-define_user_variable("img_hint_background_color", "yellow", "Color for inactive image hint backgrounds.");
-define_user_variable("active_hint_background_color", "#88FF00", "Color for the active hint background.");
-define_user_variable("hint_background_color", "yellow", "Color for the inactive hint.");
+define_variable("active_img_hint_background_color", "#88FF00", "Color for the active image hint background.");
+define_variable("img_hint_background_color", "yellow", "Color for inactive image hint backgrounds.");
+define_variable("active_hint_background_color", "#88FF00", "Color for the active hint background.");
+define_variable("hint_background_color", "yellow", "Color for the inactive hint.");
 
 /**
  * Register hints style sheet
@@ -375,7 +375,7 @@ hints_minibuffer_state.prototype = {
     }
 };
 
-define_user_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the most recent key stroke before a sole matching element is automatically selected.  If this is set to 0, automatic selection is disabled.");
+define_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the most recent key stroke before a sole matching element is automatically selected.  If this is set to 0, automatic selection is disabled.");
 
 function hints_handle_character(window, s, e) {
     /* Check for numbers */
@@ -492,7 +492,7 @@ interactive("hints-exit", function (I) {
 
 
 /* FIXME: figure out why this needs to have a bunch of duplication */
-define_user_variable(
+define_variable(
     "hints_xpath_expressions",
     {
         images: {def: "//img | //xhtml:img"},

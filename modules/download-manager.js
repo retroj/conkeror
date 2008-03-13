@@ -509,7 +509,7 @@ function pretty_print_time(val) {
     return parts.join(", ");
 }
 
-define_user_variable(
+define_variable(
     "download_buffer_min_update_interval", 2000,
     "Minimum interval (in milliseconds) between updates in download progress buffers.\n" +
         "Lowering this interval will increase the promptness of the progress display at " +
@@ -945,13 +945,13 @@ interactive("download-manager-show-builtin-ui",
 
 
 
-define_user_variable("download_temporary_file_open_buffer_delay", 500,
+define_variable("download_temporary_file_open_buffer_delay", 500,
                      "Delay (in milliseconds) before a download buffer is opened for temporary downloads.\n" +
                      "This variable takes effect only if `open_download_buffer_automatically' is in " +
                      "`download_added_hook', as it is by default.");
 
 
-define_user_variable("download_buffer_automatic_open_target", OPEN_NEW_WINDOW,
+define_variable("download_buffer_automatic_open_target", OPEN_NEW_WINDOW,
                      "Target for download buffers created by the `open_download_buffer_automatically' function.\n" +
                      "This variable takes effect only if `open_download_buffer_auotmatically' is in " +
                      "`download_added_hook', as it is by default.");

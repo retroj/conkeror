@@ -166,7 +166,7 @@ define_global_mode("browser_input_minibuffer_status_mode",
 browser_input_minibuffer_status_mode(true);
 
 // Milliseconds
-define_user_variable("browser_automatic_form_focus_window_duration", 20, "Time window (in milliseconds) during which a form element is allowed to gain focus following a mouse click or key press, if `browser_prevent_automatic_form_focus_mode' is enabled.");;
+define_variable("browser_automatic_form_focus_window_duration", 20, "Time window (in milliseconds) during which a form element is allowed to gain focus following a mouse click or key press, if `browser_prevent_automatic_form_focus_mode' is enabled.");;
 
 define_global_mode("browser_prevent_automatic_form_focus_mode",
                    function () {}, // enable
@@ -174,7 +174,7 @@ define_global_mode("browser_prevent_automatic_form_focus_mode",
                    );
 browser_prevent_automatic_form_focus_mode(true);
 
-define_user_variable(
+define_variable(
     "browser_form_field_xpath_expression",
     "//input[" + (
 //        "translate(@type,'RADIO','radio')!='radio' and " +
@@ -320,7 +320,7 @@ interactive("edit-current-field-in-external-editor", "Edit the contents of the c
     unfocus(buf);
 });
 
-define_user_variable("kill_whole_line", false, "If true, `kill-line' with no arg at beg of line kills the whole line.");
+define_variable("kill_whole_line", false, "If true, `kill-line' with no arg at beg of line kills the whole line.");
 
 function cut_to_end_of_line (buffer) {
     var elem = buffer.focused_element;

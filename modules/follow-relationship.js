@@ -7,7 +7,7 @@ var browser_relationship_rel_name = ["next", "previous"];
 var browser_relationship_rel_regexp = ["next", "prev|previous"];
 var browser_relationship_rev_regexp = ["prev|previous", "next"];
 
-define_user_variable("browser_relationship_patterns", {}, "Patterns used by `browser-follow-next' and `browser-follow-previous'.");
+define_variable("browser_relationship_patterns", {}, "Patterns used by `browser-follow-next' and `browser-follow-previous'.");
 
 browser_relationship_patterns[RELATIONSHIP_NEXT] = 
     [new RegExp("\\bnext","i"),

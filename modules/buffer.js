@@ -41,7 +41,7 @@ function buffer_creator(type) {
     }
 }
 
-define_user_variable("allow_browser_window_close", true,
+define_variable("allow_browser_window_close", true,
                      "If this is set to true, if a content buffer page calls " +
                      "window.close() from JavaScript and is not prevented by the " +
                      "normal Mozilla mechanism that restricts pages from closing " +
@@ -548,7 +548,7 @@ interactive("switch-to-buffer",
                 )
             });
 
-define_user_variable("can_kill_last_buffer", true,
+define_variable("can_kill_last_buffer", true,
                      "If this is set to true, kill-buffer can kill the last remaining buffer, and close the window.");
 
 function kill_buffer(buffer, force)

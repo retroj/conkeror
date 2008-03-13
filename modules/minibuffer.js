@@ -117,7 +117,7 @@ function basic_minibuffer_state()
 }
 basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inherit from minibuffer_state
 
-define_user_variable("minibuffer_input_mode_show_message_timeout", 1000, "Time duration (in milliseconds) to flash minibuffer messages while in minibuffer input mode.");
+define_variable("minibuffer_input_mode_show_message_timeout", 1000, "Time duration (in milliseconds) to flash minibuffer messages while in minibuffer input mode.");
 
 function minibuffer (window)
 {

@@ -1,5 +1,5 @@
 
-define_user_variable("editor_shell_command", getenv("EDITOR") || "emacs",
+define_variable("editor_shell_command", getenv("EDITOR") || "emacs",
                      "Shell command used to invoke an external editor.\n" +
                      "This defaults to the value of the EDITOR environment variable.  If " +
                      "`run_external_editor_function' is non-null, it is used instead to " +
@@ -9,7 +9,7 @@ define_user_variable("editor_shell_command", getenv("EDITOR") || "emacs",
                      "<editor_shell_command> +<line> <file>");
 
 
-define_user_variable("run_external_editor_function", null,
+define_variable("run_external_editor_function", null,
                      "Coroutine function called to invoke an external editor.\n" +
                      "If this variable is set to a function, it is used to invoke an external editor in place of `editor_shell_command'.  It is called with the filename as the first argument, and optionally the boolean keyword argument $temporary specifying whether the file should be deleted after the editor is closed, and optionally the keyword argument $line specifying a line number to display.  The `create_external_editor_launcher' function may be convenient for generating a function suitable for use as the value of this variable.");
 

@@ -420,7 +420,7 @@ function key_down_handler(event)
     state.last_key_code = null;
 }
 
-define_user_variable("keyboard_key_sequence_help_timeout", 0,
+define_variable("keyboard_key_sequence_help_timeout", 0,
                      "Delay (in millseconds) before the current key sequence prefix is displayed in the minibuffer.");
 
 function key_press_handler(true_event)

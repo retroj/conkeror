@@ -269,9 +269,9 @@ add_hook("current_content_buffer_status_change_hook",
          });
 */
 
-define_user_variable("url_completion_use_webjumps", true, "Specifies whether URL completion should complete webjumps.");
-define_user_variable("url_completion_use_bookmarks", true, "Specifies whether URL completion should complete bookmarks.");
-define_user_variable("url_completion_use_history", false,
+define_variable("url_completion_use_webjumps", true, "Specifies whether URL completion should complete webjumps.");
+define_variable("url_completion_use_bookmarks", true, "Specifies whether URL completion should complete bookmarks.");
+define_variable("url_completion_use_history", false,
                      "Specifies whether URL completion should complete using browser history.");
 
 minibuffer_auto_complete_preferences["url"] = true;
@@ -475,7 +475,7 @@ function initialize_browser_dom_window(window) {
         new browser_dom_window(window);
 }
 
-define_user_variable("browser_default_open_target", OPEN_NEW_BUFFER, "Specifies how new window requests by content pages (e.g. by window.open from JavaScript or by using the target attribute of anchor and form elements) will be handled.  This will generally be `OPEN_NEW_BUFFER', `OPEN_NEW_BUFFER_BACKGROUND', or `OPEN_NEW_WINDOW'.");
+define_variable("browser_default_open_target", OPEN_NEW_BUFFER, "Specifies how new window requests by content pages (e.g. by window.open from JavaScript or by using the target attribute of anchor and form elements) will be handled.  This will generally be `OPEN_NEW_BUFFER', `OPEN_NEW_BUFFER_BACKGROUND', or `OPEN_NEW_WINDOW'.");
 
 function browser_dom_window(window) {
     this.window = window;
