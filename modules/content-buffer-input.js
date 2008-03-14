@@ -249,7 +249,7 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
         elem = helper(buffer.top_frame, focused_win);
     if (elem) {
         browser_element_focus(buffer, elem);
-v    } else
+    } else
         throw interactive_error("No form field found");
 }
 
