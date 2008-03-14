@@ -34,6 +34,7 @@ define_key(content_buffer_text_keymap, "C-r","cmd_redo");
 
 define_key(content_buffer_text_keymap, "C-S-subtract", "cmd_undo");
 define_key(content_buffer_text_keymap, "C-x u", "cmd_undo");
+define_key(content_buffer_text_keymap, "C-/", "cmd_undo");
 
 define_key(content_buffer_text_keymap, "C-y", "cmd_paste");
 define_key(content_buffer_text_keymap, "C-w", "cmd_cut");
