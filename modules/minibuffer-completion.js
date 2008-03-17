@@ -251,9 +251,11 @@ function merge_completers(completers) {
         var count = 0;
         var results = completers.map(function(c) {
                 var r = c(input, pos, conservative);
-                count += r.count;
+                if(r != null) {
+                        count += r.count;
+                }
                 return r;
-            });
+        });
 
         function forward(name) {
             return function() {
@@ -261,6 +263,7 @@ function merge_completers(completers) {
                 var i = args.shift();
                 for(var j=0; j < results.length; j++) {
                     var r = results[j];
+                    if(r == null) continue;
                     if(i < r.count) {
                         args.unshift(i);
                         return r[name].apply(this, args);
