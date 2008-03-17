@@ -248,7 +248,7 @@ function file_path_completer() {
         var dir;
         try {
             f.initWithPath(input);
-            if(f.isDirectory())
+            if(f.exists() && f.isDirectory())
                 dir = f;
             else
                 dir = f.parent;
