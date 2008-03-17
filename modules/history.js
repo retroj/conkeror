@@ -51,6 +51,7 @@ function url_completer() {
     var use_history = arguments.$use_history;
     var use_bookmarks = arguments.$use_bookmarks;
     var completers = [];
+    completers.push(file_path_completer());
     if(use_webjumps) {
         completers.push(webjump_completer());
     }
