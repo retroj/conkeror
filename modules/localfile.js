@@ -207,7 +207,9 @@ minibuffer.prototype.read_file_path = function () {
     var result = yield this.read(
         $prompt = arguments.$prompt,
         $initial_value = arguments.$initial_value,
-        $history = arguments.$history);
+        $history = arguments.$history,
+        $completer = file_path_completer(),
+        $auto_complete = true);
     yield co_return(result);
 }
 
@@ -238,3 +240,31 @@ minibuffer.prototype.read_file_check_overwrite = function () {
         yield co_return(file);
     } while (true);
 };
+
+function file_path_completer() {
+    return function(input, pos, conservative) {
+        var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+        var ents = [];
+        var dir;
+        try {
+            f.initWithPath(input);
+            if(f.isDirectory())
+                dir = f;
+            else
+                dir = f.parent;
+            if(!dir.exists()) return null;
+            var iter = dir.directoryEntries;
+            while(iter.hasMoreElements()) {
+                var e = iter.getNext();
+                ents.push(e.path);
+            }
+        } catch(e) {
+            return null;
+        }
+        function id(x) { return x};
+        return prefix_completer($completions = ents,
+                                $get_string  = id,
+                                $get_description = id,
+                                $get_value = id)(input, pos, conservative);
+    };
+}
