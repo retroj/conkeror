@@ -241,3 +241,43 @@ function javascript_completer(buffer) {
                };
     }
 }
+
+
+function merge_completers(completers) {
+    if(completers.length == 0)
+        return null;
+    return function (input, pos, conservative) {
+        var results = [];
+        var count = 0;
+        var results = completers.map(function(c) {
+                var r = c(input, pos, conservative);
+                if(r != null) {
+                        count += r.count;
+                }
+                return r;
+        });
+
+        function forward(name) {
+            return function() {
+                var args = Array.prototype.slice.call(arguments);
+                var i = args.shift();
+                for(var j=0; j < results.length; j++) {
+                    var r = results[j];
+                    if(r == null) continue;
+                    if(i < r.count) {
+                        args.unshift(i);
+                        return r[name].apply(this, args);
+                    }
+                    i -= r.count;
+                }
+                return null;
+            }
+        }
+        return {count: count,
+                get_string: forward('get_string'),
+                get_description: forward('get_description'),
+                apply: forward('apply'),
+                destroy: forward('destroy')
+                };
+    };
+}
