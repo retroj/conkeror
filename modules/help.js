@@ -478,7 +478,7 @@ describe_variable_buffer.prototype = {
         }
 
         p = g.element("p", d.body);
-        g.text("It's value is: ", p);
+        g.text("Its value is: ", p);
         {
             let s = pretty_print_value(conkeror[this.variable]);
             let pre = g.element("pre", p);
@@ -489,7 +489,7 @@ describe_variable_buffer.prototype = {
             g.help_text(uvar.doc, d.body);
 
         p = g.element("p", d.body);
-        g.text("It's default value is: ", p);
+        g.text("Its default value is: ", p);
         {
             let s = pretty_print_value(user_variables.get(this.variable).default_value);
             let pre = g.element("pre", p);
