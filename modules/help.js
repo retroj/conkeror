@@ -423,7 +423,7 @@ function describe_variable_buffer(window, element) {
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.bindings = arguments.$bindings;
     this.variable = arguments.$variable;
-    this.cmd = interactive_variables.get(this.variable);
+    this.cmd = user_variables.get(this.variable);
     this.source_code_reference = this.cmd.source_code_reference;
     this.constructor_end();
 }
