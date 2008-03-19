@@ -600,7 +600,7 @@ function for_each_key_binding(keymap_or_buffer, callback) {
         binding_stack.pop();
     }
     function helper() {
-        var modifier_keys_masked = false;
+        var unmodified_keys_masked = false;
         var keycode_masks = [];
         while (true) {
             var keymap = keymap_stack[keymap_stack.length - 1];
@@ -609,7 +609,7 @@ function for_each_key_binding(keymap_or_buffer, callback) {
                 if (!(i in keycode_masks))
                     keycode_masks[i] = [];
                 for (var j in b) {
-                    if (modifier_keys_masked && j != 0)
+                    if (unmodified_keys_masked && ((j & MOD_SHIFT) == j))
                         continue;
                     if (!keycode_masks[i][j]) {
                         helper2(b[j]);
@@ -624,7 +624,7 @@ function for_each_key_binding(keymap_or_buffer, callback) {
                 if (p == match_any_key)
                     return;
                 if (p == match_any_unmodified_key)
-                    modifier_keys_masked = true;
+                    unmodified_keys_masked = true;
             }
             if (keymap.parent)
                 keymap_stack[keymap_stack.length - 1] = keymap.parent;
