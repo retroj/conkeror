@@ -1,12 +1,23 @@
 require("hints.js");
 require("save.js");
 
+function is_dom_node_or_window(elem) {
+    if (elem instanceof Ci.nsIDOMNode)
+        return true;
+    if (elem instanceof Ci.nsIDOMWindow)
+        return true;
+    return false;
+}
+
 /**
  * This is a simple wrapper function that sets focus to elem, and
  * bypasses the automatic focus prevention system, which might
  * otherwise prevent this from happening.
  */
 function browser_set_element_focus(buffer, elem, prevent_scroll) {
+    if (!is_dom_node_or_window(elem))
+        return;
+
     buffer.last_user_input_received = Date.now();
     if (prevent_scroll)
         set_focus_no_scroll(buffer.window, elem);
@@ -16,6 +27,9 @@ function browser_set_element_focus(buffer, elem, prevent_scroll) {
 
 function browser_element_focus(buffer, elem)
 {
+    if (!is_dom_node_or_window(elem))
+        return;
+
     if (elem instanceof Ci.nsIDOMXULTextBoxElement)  {
         // Focus the input field instead
         elem = elem.wrappedJSObject.inputField;
@@ -53,7 +67,10 @@ function browser_element_follow(buffer, target, elem)
     var load_spec = null;
     var current_frame = null;
     var no_click = false;
-    if (elem instanceof Ci.nsIDOMWindow) {
+    if (elem instanceof media_spec) {
+        no_click = true;
+        current_frame = elem.frame;
+    } else if (elem instanceof Ci.nsIDOMWindow) {
         current_frame = elem;
         no_click = true;
     } else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
@@ -139,7 +156,12 @@ function browser_follow_link_with_click(buffer, elem, x, y) {
 function element_get_url(elem) {
     var url = null;
 
-    if (elem instanceof Ci.nsIDOMWindow)
+    if (elem instanceof media_spec) {
+        if (elem instanceof media_spec_simple_uri)
+            return elem.uri;
+        return null;
+    }
+    else if (elem instanceof Ci.nsIDOMWindow)
         url = elem.location.href;
 
     else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
@@ -185,8 +207,14 @@ function element_get_url(elem) {
 function element_get_load_spec(elem) {
     var load_spec = null;
 
-
-    if (elem instanceof Ci.nsIDOMWindow)
+    if (elem instanceof media_spec) {
+        if (elem instanceof media_spec_simple_uri) {
+            load_spec = {url: elem.uri, referrer: make_uri(elem.frame.location.href),
+                         filename: elem.filename,
+                         mime_type: elem.mime_type };
+        }
+    }
+    else if (elem instanceof Ci.nsIDOMWindow)
         load_spec = document_load_spec(elem.document);
 
     else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
@@ -265,13 +293,13 @@ interactive_context.prototype.hints_object_class = function (action_name) {
     return cls;
 };
 
+function resolve_hints_xpath_expression(object_class, action_name) {
+    var db = hints_xpath_expressions[object_class];
+    return db[action_name] || db["def"];
+}
+
 interactive_context.prototype.hints_xpath_expression = function (action_name) {
-        var cls =
-            this._hints_object_class ||
-            hints_default_object_classes[action_name] ||
-            hints_default_object_classes["def"];
-        var db = hints_xpath_expressions[cls];
-        return db[action_name] || db["def"];
+    return resolve_hints_xpath_expression(this.hints_object_class(action_name), action_name);
 };
 
 function hints_object_class_selector(name) {
@@ -296,7 +324,7 @@ interactive_context.prototype.read_hinted_element_with_prompt = function(action,
         $buffer = this.buffer,
         $prompt = prompt,
         $object_class = object_class,
-        $hint_xpath_expression = this.hints_xpath_expression(action));
+        $action = action);
 
     yield co_return(result);
 }
@@ -325,6 +353,8 @@ function element_get_load_target_label(element) {
         return "frame";
     if (element instanceof Ci.nsIDOMHTMLIFrameElement)
         return "iframe";
+    if (element instanceof media_spec)
+        return  "media";
     return null;
 }
 
@@ -376,6 +406,8 @@ function browser_element_copy(buffer, elem)
 {
     var text = element_get_url(elem);
     if (text == null) {
+        if (!(elem instanceof Ci.nsIDOMNode))
+            throw interactive_error("Element has no associated text to copy.");
         switch (elem.localName) {
         case "INPUT":
         case "TEXTAREA":

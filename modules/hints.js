@@ -507,7 +507,8 @@ define_variable(
     },
     "XPath expressions for each object class.");
 
-define_keywords("$object_class", "$buffer");
+minibuffer_auto_complete_preferences["media"] = true;
+define_keywords("$object_class", "$buffer", "$action");
 minibuffer.prototype.read_hinted_element = function () {
     keywords(arguments);
     var buf = arguments.$buffer;
@@ -515,6 +516,29 @@ minibuffer.prototype.read_hinted_element = function () {
     var object_class = arguments.$object_class;
     if (object_class == "top")
         yield co_return(buf.top_frame);
+
+    if (object_class == "media") {
+        let media = media_scrape(buf);
+        if (!media || media.length == 0)
+            throw interactive_error("No media found.");
+
+        if (media.length == 1)
+            yield co_return(media[0]);
+
+        let completer = all_word_completer(
+            $completions = media,
+            $get_string = function (x) x.uri || "",
+            $get_description = function (x) x.title);
+
+        let result = yield this.read(
+            $prompt = "Media",
+            $match_required,
+            $completer = completer,
+            $auto_complete_initial,
+            $auto_complete = "media");
+
+        yield co_return(result);
+    }
 
     if (object_class == "frames") {
         check_buffer(buf, content_buffer);
@@ -526,7 +550,8 @@ minibuffer.prototype.read_hinted_element = function () {
             yield co_return(buf.top_frame);
         }
     }
-    var s = new hints_minibuffer_state((yield CONTINUATION), buf, forward_keywords(arguments));
+    var s = new hints_minibuffer_state((yield CONTINUATION), buf, forward_keywords(arguments),
+        $hint_xpath_expression = resolve_hints_xpath_expression(object_class, arguments.$action));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);

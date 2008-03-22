@@ -40,8 +40,11 @@ function uri_from_load_spec(spec) {
 }
 
 function mime_type_from_load_spec(spec) {
-    if (typeof(spec) == "object" && spec.document) {
-        return spec.document.contentType || "application/octet-stream";
+    if (typeof(spec) == "object") {
+        if (spec.mime_type != null)
+            return spec.mime_type;
+        if (spec.document)
+            return spec.document.contentType || "application/octet-stream";
     }
     return mime_type_from_url(uri_string_from_load_spec(spec));
 }

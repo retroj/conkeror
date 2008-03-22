@@ -11,6 +11,12 @@ define_key(content_buffer_normal_keymap, "n", browser_elements_keymap,
 define_key(content_buffer_normal_keymap, "m", browser_elements_keymap,
            $hook = hints_object_class_selector("frames"));
 
+define_key(content_buffer_normal_keymap, "e", browser_elements_keymap,
+           $hook = hints_object_class_selector("media"));
+
+define_key(content_buffer_normal_keymap, "S-8 e", browser_elements_keymap,
+           $hook = hints_object_class_selector("media"));
+
 define_key(content_buffer_normal_keymap, "S-8 i", browser_elements_keymap,
            $hook = hints_object_class_selector("images"));
 

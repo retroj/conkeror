@@ -276,6 +276,9 @@ function suggest_file_name(spec, extension) {
     var document;
     var uri;
     var content_type;
+    if (spec.filename)
+        return spec.filename;
+
     if (spec instanceof Ci.nsIDOMDocument)
         document = spec;
     else if (typeof(load_spec) == "object" && load_spec.document)
