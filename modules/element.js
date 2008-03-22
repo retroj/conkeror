@@ -239,19 +239,23 @@ function element_get_load_spec(elem) {
     return load_spec;
 }
 
-var hints_default_object_classes = {
-    follow: "links",
-    follow_top: "frames",
-    focus: "frames",
-    save: "links",
-    copy: "links",
-    view_source: "frames",
-    bookmark: "frames",
-    save_page: "frames",
-    save_page_complete: "top",
-    save_page_as_text: "frames",
-    def: "links"
-};
+define_variable(
+    "hints_default_object_classes",
+    {
+        follow: "links",
+        follow_top: "frames",
+        focus: "frames",
+        save: "links",
+        copy: "links",
+        view_source: "frames",
+        bookmark: "frames",
+        save_page: "frames",
+        save_page_complete: "top",
+        save_page_as_text: "frames",
+        def: "links"
+    },
+    "Specifies the default object class for each operation.\n" +
+        "This variable should be an object literal with string-valued properties that specify one of the supported object classes (\"links\", \"frames\", \"top\", or \"images\") defined in `hints_xpath_expression'.  If a property named after the operation is not present, the \"def\" property is consulted instead.");
 
 interactive_context.prototype.hints_object_class = function (action_name) {
     var cls =
