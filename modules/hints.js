@@ -13,9 +13,13 @@ define_variable("hint_background_color", "yellow", "Color for the inactive hint.
  * Register hints style sheet
  */
 const hints_stylesheet = "chrome://conkeror/content/hints.css";
-function hints_register_stylesheet()
+function hints_register_stylesheet(url)
 {
-    var uri = makeURL(hints_stylesheet);
+    if (url) {
+        var uri = makeURL(url);
+    } else {
+        var uri = makeURL(hints_stylesheet);
+    }
     var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
     sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
 }
