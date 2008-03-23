@@ -861,3 +861,19 @@ function define_variable(name, default_value, doc) {
         shortdoc: get_shortdoc_string(doc),
         source_code_reference: get_caller_source_code_reference() });
 }
+
+
+function register_user_stylesheet(url)
+{
+    var uri = makeURL(url);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
+}
+
+function unregister_user_stylesheet(url)
+{
+    var uri = makeURL(url);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    if (sss.sheetRegistered(uri, sss.USER_SHEET))
+        ss.unregisterSheet(uri, sss.USER_SHEET);
+}
