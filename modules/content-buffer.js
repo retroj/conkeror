@@ -111,6 +111,8 @@ content_buffer.prototype = {
     get display_URI_string () {
         if (this._display_URI)
             return this._display_URI;
+        if(this.current_URI == null)
+            return "";
         return this.current_URI.spec;
     },
 
