@@ -111,7 +111,9 @@ content_buffer.prototype = {
     get display_URI_string () {
         if (this._display_URI)
             return this._display_URI;
-        return this.current_URI.spec;
+        if (this.current_URI)
+            return this.current_URI.spec;
+        return "";
     },
 
     get title() { return this.browser.contentTitle; },
