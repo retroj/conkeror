@@ -19,7 +19,7 @@ function add_delicious_webjumps (username)
 function init_webjumps()
 {
     add_webjump("conkerorwiki",
-                "http://conkeror.jeremyms.com/?action=fullsearch&context=60&value=%s&fullsearch=Text");
+                "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
     add_webjump("google",     "http://www.google.com/search?q=%s");
     add_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
     add_webjump("maps",       "http://maps.google.com/?q=%s");
