@@ -31,3 +31,4 @@ function define_global_mode(name, enable, disable)
         I.minibuffer.message(hyphen_name + (conkeror[state] ? " enabled" : " disabled"));
     });
 }
+ignore_function_for_get_caller_source_code_reference("define_global_mode");

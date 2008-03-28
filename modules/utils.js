@@ -419,6 +419,8 @@ source_code_reference.prototype = {
     }
 };
 
+var get_caller_source_code_reference_ignored_functions = {};
+
 function get_caller_source_code_reference(extra_frames_back) {
     var frames_to_skip = 2;
     if (extra_frames_back != null)
@@ -429,8 +431,14 @@ function get_caller_source_code_reference(extra_frames_back) {
             --frames_to_skip;
             continue;
         }
+        if (get_caller_source_code_reference_ignored_functions[f.name])
+            continue;
         return new source_code_reference(f.filename, f.sourceLine);
     }
+}
+
+function ignore_function_for_get_caller_source_code_reference(func_name) {
+    get_caller_source_code_reference_ignored_functions[func_name] = 1;
 }
 
 require_later("external-editor.js");
