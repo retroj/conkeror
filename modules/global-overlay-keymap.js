@@ -39,7 +39,7 @@ function define_key_alias(typed_key, generated_key) {
     define_key(global_overlay_keymap, typed_key, name);
     global_overlay_keymap_mode(true);
 }
-
+ignore_function_for_get_caller_source_code_reference("define_key_alias");
 
 
 function define_sticky_modifier(typed_key, modifiers) {
@@ -62,3 +62,4 @@ function define_sticky_modifier(typed_key, modifiers) {
     define_key(global_overlay_keymap, typed_key, name);
     global_overlay_keymap_mode(true);
 }
+ignore_function_for_get_caller_source_code_reference("define_sticky_modifier");

@@ -24,6 +24,7 @@ function define_content_buffer_input_mode(base_name, keymap_name, doc) {
     var hyphen_name = name.replace("_","-","g");
     interactive(hyphen_name, doc, function(I) {conkeror[name](check_buffer(I.buffer,content_buffer));});
 }
+ignore_function_for_get_caller_source_code_reference("define_content_buffer_input_mode");
 
 define_content_buffer_input_mode("normal", "content_buffer_normal_keymap");
 
