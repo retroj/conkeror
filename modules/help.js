@@ -242,10 +242,9 @@ apropos_command_buffer.prototype = {
             tr.setAttribute("class", (i % 2 == 0) ? "even" : "odd");
 
             var command_td = d.createElementNS(XHTML_NS,"td");
-            command_td.setAttribute("class", "command");
+            g.command_reference(binding.name, command_td);
 
             var shortdoc = "";
-            command_td.textContent = binding.name;
             if (binding.cmd.shortdoc != null)
                 shortdoc = binding.cmd.shortdoc;
             tr.appendChild(command_td);
