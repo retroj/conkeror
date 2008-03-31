@@ -146,7 +146,7 @@ describe_bindings_buffer.prototype = {
         var g = new help_document_generator(d);
         g.add_help_stylesheet();
 
-        d.body.setAttribute("class", "describe-bindings");
+        d.body.setAttribute("class", "help-list");
 
         var table = d.createElementNS(XHTML_NS, "table");
         for (var i = 0; i < list.length; ++i) {
@@ -204,6 +204,96 @@ function describe_bindings(buffer, target) {
 }
 interactive("describe-bindings", function (I) {describe_bindings(I.buffer, I.browse_target("describe-bindings"));});
 default_browse_targets["describe-bindings"] = "find-url";
+
+
+define_keywords("$command_list");
+function apropos_command_buffer(window, element) {
+    this.constructor_begin();
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.command_list = arguments.$command_list;
+    this.constructor_end();
+}
+
+apropos_command_buffer.prototype = {
+
+    get keymap() {
+        return help_buffer_keymap;
+    },
+
+    title : "Apropos commands",
+
+    description : "*Apropos*",
+
+    generate : function () {
+        var d = this.top_document;
+        var list = this.command_list;
+        delete this.command_list;
+
+        var g = new help_document_generator(d);
+        g.add_help_stylesheet();
+
+        d.body.setAttribute("class", "help-list");
+
+        var table = d.createElementNS(XHTML_NS, "table");
+        for (var i = 0; i < list.length; ++i) {
+            var binding = list[i];
+            var tr = d.createElementNS(XHTML_NS, "tr");
+            tr.setAttribute("class", (i % 2 == 0) ? "even" : "odd");
+
+            var command_td = d.createElementNS(XHTML_NS,"td");
+            command_td.setAttribute("class", "command");
+
+            var shortdoc = "";
+            command_td.textContent = binding.name;
+            if (binding.cmd.shortdoc != null)
+                shortdoc = binding.cmd.shortdoc;
+            tr.appendChild(command_td);
+
+            var shortdoc_td = d.createElementNS(XHTML_NS, "td");
+            shortdoc_td.setAttribute("class", "help");
+            shortdoc_td.textContent = shortdoc;
+            tr.appendChild(shortdoc_td);
+
+            table.appendChild(tr);
+        }
+        d.body.appendChild(table);
+    },
+
+    __proto__: special_buffer.prototype
+};
+
+
+/* TODO: support regexps/etc. */
+function apropos_command(buffer, substring, target) {
+    var list = [];
+    interactive_commands.for_each(function (name, cmd) {
+        if (name.indexOf(substring) != -1) {
+            var binding = {name: name, cmd: cmd};
+            list.push(binding);
+        }
+    });
+    list.sort(function (a,b) {
+                  if (a.name < b.name)
+                      return -1;
+                  if (a.name > b.name)
+                      return 1;
+                  return 0
+              });
+    create_buffer(buffer.window, buffer_creator(apropos_command_buffer,
+                                                $configuration = buffer.configuration,
+                                                $command_list = list),
+                  target);
+}
+
+interactive("apropos-command", "List commands whose names contain a given substring.",
+    function (I) {
+        apropos_command(I.buffer,
+                    (yield I.minibuffer.read($prompt = "Apropos command:",
+                                             $history = "apropos")),
+                    I.browse_target("apropos-command"));
+});
+default_browse_targets["apropos-command"] = "find-url";
 
 
 

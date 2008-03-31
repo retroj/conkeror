@@ -2,14 +2,14 @@ body {
   background-color: #eeeeee;
 }
 
-body.describe-bindings {
+body.help-list {
   padding: 0px;
   margin: 0px;
 }
 
-.describe-bindings table { border-collapse: collapse; margin: 0px; width: 100%; }
+.help-list table { border-collapse: collapse; margin: 0px; width: 100%; }
 
-.describe-bindings td {
+.help-list td {
   border: 1px solid #999;
   padding-left: .3em;
   padding-right: .3em;
@@ -17,7 +17,7 @@ body.describe-bindings {
   white-space: nowrap;
 }
 
-.describe-bindings tr.even { background-color: #dddddd; }
+.help-list tr.even { background-color: #dddddd; }
 
 
 .source-code-reference {
