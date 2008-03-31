@@ -422,6 +422,8 @@ source_code_reference.prototype = {
 var get_caller_source_code_reference_ignored_functions = {};
 
 function get_caller_source_code_reference(extra_frames_back) {
+    /* Skip at least this function itself and whoever called it (and
+     * more if the caller wants to be skipped). */
     var frames_to_skip = 2;
     if (extra_frames_back != null)
         frames_to_skip += extra_frames_back;
@@ -435,6 +437,8 @@ function get_caller_source_code_reference(extra_frames_back) {
             continue;
         return new source_code_reference(f.filename, f.sourceLine);
     }
+
+    return null;
 }
 
 function ignore_function_for_get_caller_source_code_reference(func_name) {
