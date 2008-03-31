@@ -26,8 +26,9 @@ interactive("where-is", function (I) {
                      (yield I.minibuffer.read_command($prompt = "Where is command:")));
 });
 
-function help_document_generator(document) {
+function help_document_generator(document, buffer) {
     dom_generator.call(this, document, XHTML_NS);
+    this.buffer = buffer;
 }
 help_document_generator.prototype = {
     __proto__: dom_generator.prototype,
@@ -68,8 +69,16 @@ help_document_generator.prototype = {
     },
 
     command_reference : function(name, parent) {
-        var node = this.element("a", "class", "command", "href", "#");
-        /* FIXME: make this work */
+        var node = this.element("a",
+                                "class", "command",
+                                "href", "javascript:");
+        var buffer = this.buffer;
+        node.addEventListener("click", function (event) {
+                                  /* FIXME: don't hardcode browse target */
+                                  describe_command(buffer, name, OPEN_NEW_BUFFER);
+                                  event.preventDefault();
+                                  event.stopPropagation();
+            }, false /* capture */, false /* allow untrusted */);
         this.text(name, node);
         if (parent)
             parent.appendChild(node);
@@ -143,7 +152,7 @@ describe_bindings_buffer.prototype = {
         var list = this.binding_list;
         delete this.binding_list;
 
-        var g = new help_document_generator(d);
+        var g = new help_document_generator(d, this);
         g.add_help_stylesheet();
 
         d.body.setAttribute("class", "help-list");
@@ -230,7 +239,7 @@ apropos_command_buffer.prototype = {
         var list = this.command_list;
         delete this.command_list;
 
-        var g = new help_document_generator(d);
+        var g = new help_document_generator(d, this);
         g.add_help_stylesheet();
 
         d.body.setAttribute("class", "help-list");
@@ -321,7 +330,7 @@ describe_command_buffer.prototype = {
     generate : function () {
         var d = this.top_document;
 
-        var g = new help_document_generator(d);
+        var g = new help_document_generator(d, this);
 
         g.add_help_stylesheet();
         d.body.setAttribute("class", "describe-command");
@@ -411,7 +420,7 @@ describe_key_buffer.prototype = {
     generate : function () {
         var d = this.top_document;
 
-        var g = new help_document_generator(d);
+        var g = new help_document_generator(d, this);
 
         g.add_help_stylesheet();
         d.body.setAttribute("class", "describe-key");
@@ -548,7 +557,7 @@ describe_variable_buffer.prototype = {
     generate : function () {
         var d = this.top_document;
 
-        var g = new help_document_generator(d);
+        var g = new help_document_generator(d, this);
 
         g.add_help_stylesheet();
         d.body.setAttribute("class", "describe-variable");
