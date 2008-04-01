@@ -509,7 +509,7 @@ interactive("shell-command-on-url", function (I) {
         panel.destroy();
     }
 
-    shell_command_with_argument_sync(cwd, cmd, uri, false);
+    shell_command_with_argument_blind(cmd, uri, $cwd = cwd);
 });
 
 function browser_element_shell_command(buffer, elem, command) {

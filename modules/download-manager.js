@@ -382,9 +382,9 @@ var download_progress_listener = {
                         info.running_shell_command = true;
                         co_call(function () {
                             try {
-                                yield shell_command_with_argument(info.shell_command_cwd,
-                                                                  info.shell_command,
-                                                                  info.target_file.path);
+                                yield shell_command_with_argument(info.shell_command,
+                                                                  info.target_file.path,
+                                                                  $cwd = info.shell_command_cwd);
                             } finally  {
                                 if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
                                     info.target_file.remove(false /* not recursive */);
@@ -900,7 +900,7 @@ function download_shell_command(buffer, cwd, cmd) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
     if (info.state == DOWNLOAD_FINISHED) {
-        shell_command_with_argument_sync(cwd, cmd, info.target_file.path, false);
+        shell_command_with_argument_blind(cmd, info.target_file.path, $cwd = cwd);
         return;
     }
     if (info.state != DOWNLOAD_DOWNLOADING && info.state != DOWNLOAD_PAUSED && info.state != DOWNLOAD_QUEUED)

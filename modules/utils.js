@@ -435,7 +435,7 @@ function get_caller_source_code_reference(extra_frames_back) {
         }
         if (get_caller_source_code_reference_ignored_functions[f.name])
             continue;
-        return new source_code_reference(f.filename, f.sourceLine);
+        return new source_code_reference(f.filename, f.lineNumber);
     }
 
     return null;

@@ -30,7 +30,7 @@ function open_file_with_external_editor(file) {
     cmd += "\"" + shell_quote(file.path) + "\"";
 
     try {
-        yield shell_command(default_directory.path, cmd);
+        yield shell_command(cmd);
     } finally {
         if (arguments.$temporary)  {
             try {
@@ -43,12 +43,12 @@ function open_file_with_external_editor(file) {
 function create_external_editor_launcher(program, args) {
     return function (file) {
         keywords(arguments);
-        var arr = args.slice();
+        var arr = [null].concat(args.slice());
         if (arguments.$line != null)
             arr.push("+" + arguments.$line);
         arr.push(file.path);
         try {
-            yield spawn_process(program, arr);
+            yield spawn_and_wait_for_process(program, arr);
         } finally {
             if (arguments.$temporary) {
                 try {

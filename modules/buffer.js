@@ -593,8 +593,8 @@ interactive("change-current-directory",
 
 interactive("shell-command", function (I) {
     var cwd = I.cwd;
-    var cmd = I.minibuffer.read_shell_command($cwd = cwd);
-    shell_command(cwd, cmd);
+    var cmd = (yield I.minibuffer.read_shell_command($cwd = cwd));
+    yield shell_command(cmd, $cwd = cwd);
 });
 
 function unfocus(buffer)
