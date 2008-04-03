@@ -123,8 +123,17 @@ function prefix_completer()
             let a = get_string(data[0]);
             let b = get_string(data[data.length - 1]);
             let i = get_common_prefix_length(a, b);
-            if (i > pos)
+            if (i > pos) {
                 common_prefix = a.substring(0,i);
+                if (!default_completion) {
+                    for (let j = 0; j < data.length; ++j) {
+                        if (get_string(data[j]) == common_prefix) {
+                            default_completion = j;
+                            break;
+                        }
+                    }
+                }
+            }
         }
         return {count:data.length,
                 index_of:  function (x) data.indexOf(x),
