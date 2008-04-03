@@ -4,15 +4,14 @@ const mime_service = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService);
 
 var mime_type_external_handlers = [
 
-    ["text/", "emacs"],
+    ["text/.*", getenv("EDITOR")],
     ["image/.*", "feh"],
     ["video/.*", "mplayer"],
     ["audio/.*", "mplayer"],
     ["application/pdf", "evince"],
     ["application/postscript", "evince"],
     ["application/x-dvi", "evince"],
-    [".*", "emacs"]
-
+    [".*", getenv("EDITOR")]
     ];
 
 // FIXME: Make this array regexp matching a general operation
