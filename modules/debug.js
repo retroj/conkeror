@@ -44,3 +44,16 @@ function dump_obj (obj, name) {
         return obj;
     }
 }
+
+/**
+ * This simple facility can be used to execute arbitrary expression in the context of some point that you'd like to debug.
+ * At that point, simply set some global variable to the result of: eval(DEBUG_HERE);
+ * For example:  conkeror.my_debug_ref = eval(DEBUG_HERE);
+ * Then if you call:  conkeror.my_debug_ref("some expression"), the specified expression is evaluated in the context
+ * at which eval(DEBUG_HERE) was called.
+ *
+ * Note that the unusual identifier __DEBUG_HERE is simply used to
+ * avoid clobbering any identifiers that you might want to examine in
+ * the local context.
+ */
+const DEBUG_HERE = "function (__DEBUG_HERE) { return eval(__DEBUG_HERE); }";
