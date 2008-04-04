@@ -4,26 +4,18 @@ const mime_service = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService);
 
 var mime_type_external_handlers = [
 
-    ["text/.*", getenv("EDITOR")],
-    ["image/.*", "feh"],
-    ["video/.*", "mplayer"],
-    ["audio/.*", "mplayer"],
-    ["application/pdf", "evince"],
-    ["application/postscript", "evince"],
-    ["application/x-dvi", "evince"],
-    [".*", getenv("EDITOR")]
+    [ /^text\/.*$/, getenv("EDITOR")],
+    [/^image\/.*$/, "feh"],
+    [/^video\/.*$/, "mplayer"],
+    [/^audio\/.*$/, "mplayer"],
+    [/^application\/pdf$/, "evince"],
+    [/^application\/postscript$/, "evince"],
+    [/^application\/x-dvi$/, "evince"],
+    [/^.*$/, getenv("EDITOR")]
     ];
 
-// FIXME: Make this array regexp matching a general operation
 function get_external_handler_for_mime_type(mime_type) {
-    var handlers = mime_type_external_handlers;
-    for (var i = 0; i < handlers.length; ++i) {
-        var handler = handlers[i];
-        if (mime_type.match(new RegExp(handler[0])) != mime_type)
-            continue;
-        return handler[1];
-    }
-    return null;
+    return predicate_alist_match(mime_type);
 }
 
 function mime_type_from_url(url) {

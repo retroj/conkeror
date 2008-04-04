@@ -888,3 +888,11 @@ function unregister_user_stylesheet(url)
     if (sss.sheetRegistered(uri, sss.USER_SHEET))
         ss.unregisterSheet(uri, sss.USER_SHEET);
 }
+
+function predicate_alist_match(alist, key) {
+    for each (let i in alist) {
+        if (i[0](key))
+            return i[1];
+    }
+    return undefined;
+}
