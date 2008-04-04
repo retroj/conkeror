@@ -69,6 +69,9 @@ function buffer(window, element)
     this.browser = element.firstChild;
     this.element.conkeror_buffer_object = this;
 
+    this.enabled_modes = [];
+    this.local_variables = {};
+
     var buffer = this;
 
     this.browser.addEventListener("scroll", function (event) {
@@ -108,6 +111,12 @@ buffer.prototype = {
     dead : false, /* This is set when the buffer is killed */
 
     default_message : "",
+
+    get : function (x) {
+        if (x in this.local_variables)
+            return this.local_variables[x];
+        return conkeror[x];
+    },
 
     set_default_message : function (str) {
         this.default_message = str;
@@ -612,3 +621,122 @@ function unfocus(buffer)
 interactive("unfocus", function (I) {unfocus(I.buffer)});
 
 require_later("content-buffer.js");
+
+var mode_functions = {};
+
+var mode_display_names = {};
+
+define_buffer_local_hook("buffer_mode_change_hook");
+define_current_buffer_hook("current_buffer_mode_change_hook", "buffer_mode_change_hook");
+
+define_keywords("$class", "$enable", "$disable", "$doc");
+function define_buffer_mode(name, display_name) {
+    keywords(arguments);
+
+    var hyphen_name = name.replace("_","-","g");
+    var mode_class = arguments.$class;
+    var enable = arguments.$enable;
+    var disable = arguments.$disable;
+
+    mode_display_names[name] = display_name;
+
+    var can_disable;
+
+    if (disable == false) {
+        can_disable = false;
+        disable = null;
+    } else
+        can_disable = true;
+
+    var state = (mode_class != null) ? mode_class : (name + "_enabled");
+    var enable_hook_name = name + "_enable_hook";
+    var disable_hook_name = name + "_disable_hook";
+    define_buffer_local_hook(enable_hook_name);
+    define_buffer_local_hook(disable_hook_name);
+
+    var change_hook_name = null;
+
+    if (mode_class) {
+        mode_functions[name] = {enable: enable,
+                                disable: disable,
+                                mode_class: mode_class,
+                                disable_hook_name: disable_hook_name};
+        change_hook_name = mode_class + "_change_hook";
+        define_buffer_local_hook(change_hook_name);
+    }
+
+    function func(buffer, arg) {
+        var old_state = buffer[state];
+        var cur_state = (old_state == name);
+        var new_state = (arg == null) ? !cur_state : (arg > 0);
+        if ((new_state == cur_state) || (!can_disable && !new_state))
+            return null;
+        if (new_state) {
+            if (mode_class && old_state != null)  {
+                buffer.enabled_modes.splice(buffer.enabled_modes.indexOf(old_state), 1);
+                let x = mode_functions[old_state];
+                let y = x.disable;
+                if (y) y(buffer);
+                conkeror[x.disable_hook_name].run(buffer);
+            }
+            buffer[state] = name;
+            if (enable)
+                enable(buffer);
+            conkeror[enable_hook_name].run(buffer);
+            buffer.enabled_modes.push(name);
+        } else {
+            buffer.enabled_modes.splice(buffer.enabled_modes.indexOf(name), 1);
+            disable(buffer);
+            conkeror[disable_hook_name].run(buffer);
+            buffer[state] = null;
+        }
+        if (change_hook_name)
+            conkeror[change_hook_name].run(buffer, buffer[state]);
+        buffer_mode_change_hook.run(buffer);
+        return new_state;
+    };
+    conkeror[name] = func;
+    interactive(hyphen_name, arguments.$doc, function (I) {
+        var arg = I.P;
+        var new_state = func(I.buffer, arg && univ_arg_to_number(arg));
+        I.minibuffer.message(hyphen_name + (new_state ? " enabled" : " disabled"));
+    });
+}
+ignore_function_for_get_caller_source_code_reference("define_buffer_mode");
+
+
+function minibuffer_mode_indicator(window) {
+    this.window = window;
+    var element = create_XUL(window, "label");
+    element.setAttribute("id", "minibuffer-mode-indicator");
+    element.collapsed = true;
+    element.setAttribute("class", "minibuffer");
+    window.document.getElementById("minibuffer").appendChild(element);
+    this.element = element;
+    this.hook_func = method_caller(this, this.update);
+    add_hook.call(window, "select_buffer_hook", this.hook_func);
+    add_hook.call(window, "current_buffer_mode_change_hook", this.hook_func);
+    this.update();
+}
+minibuffer_mode_indicator.prototype = {
+    update : function () {
+        var buf = this.window.buffers.current;
+        var modes = buf.enabled_modes;
+        var str = modes.map( function (x) {
+            let y = mode_display_names[x];
+            if (y)
+                return "[" + y + "]";
+            else
+                return null;
+        } ).filter( function (x) x != null ).join(" ");
+        this.element.collapsed = (str.length == 0);
+        this.element.value = str;
+    },
+    uninstall : function () {
+        remove_hook.call(window, "select_buffer_hook", this.hook_fun);
+        remove_hook.call(window, "current_buffer_mode_change_hook", this.hook_fun);
+        this.element.parentNode.removeChild(this.element);
+    }
+};
+define_global_window_mode("minibuffer_mode_indicator", "window_initialize_hook");
+minibuffer_mode_indicator_mode(true);

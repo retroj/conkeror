@@ -12,7 +12,7 @@
 #minibuffer[minibuffermode="message"] #minibuffer-prompt,
 #minibuffer[minibuffermode="message"] #minibuffer-input,
 #minibuffer[minibuffermode="input"] #minibuffer-message,
-#minibuffer[minibuffermode="input"] #minibuffer-input-status {
+#minibuffer[minibuffermode="input"] #minibuffer-mode-indicator {
   visibility: collapse;
 }
 

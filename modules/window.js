@@ -1,3 +1,5 @@
+require("mode.js");
+
 var define_window_local_hook = simple_local_hook_definer();
 
 
@@ -188,3 +190,27 @@ function window_close_maybe(event) {
 
     window_close_hook.run(window);
 }
+
+function define_global_window_mode(name, hook_name) {
+    function install(window) {
+        if (window[name])
+            throw new Error(name + " already initialized for window");
+        window[name] = new conkeror[name](window);
+    }
+    function uninstall(window) {
+        if (!window[name])
+            throw new Error(name + " not initialized for window");
+        window[name].uninstall();
+        delete window[name];
+    }
+    define_global_mode(name + "_mode",
+                       function () { // enable
+                           add_hook(hook_name, install);
+                           for_each_window(install);
+                       },
+                       function () { // disable
+                           remove_hook(hook_name, install);
+                           for_each_window(uninstall);
+                       });
+}
+ignore_function_for_get_caller_source_code_reference("define_global_window_mode");

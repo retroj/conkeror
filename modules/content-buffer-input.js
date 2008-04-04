@@ -1,178 +1,112 @@
 require("content-buffer.js");
 
-define_buffer_local_hook("content_buffer_input_mode_change_hook");
-define_current_buffer_hook("current_content_buffer_input_mode_change_hook", "content_buffer_input_mode_change_hook");
+define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
 
-function define_content_buffer_input_mode(base_name, keymap_name, doc) {
-    var name = "content_buffer_" + base_name + "_input_mode";
-    buffer[name + "_enabled"] = false;
-    define_buffer_local_hook(name + "_enable_hook");
-    define_buffer_local_hook(name + "_disable_hook");
-    conkeror[name] = function (buffer) {
-        if (buffer[name + "_enabled"])
-            return;
-        if (buffer.current_input_mode) {
-            conkeror[buffer.current_input_mode + "_disable_hook"].run(buffer);
-            buffer[buffer.current_input_mode + "_enabled"] = false;
-        }
-        buffer.current_input_mode = name;
-        buffer[name + "_enabled"] = true;
-        buffer.keymap = conkeror[keymap_name];
-        conkeror[name + "_enable_hook"].run(buffer);
-        content_buffer_input_mode_change_hook.run(buffer);
-    }
-    var hyphen_name = name.replace("_","-","g");
-    interactive(hyphen_name, doc, function(I) {conkeror[name](check_buffer(I.buffer,content_buffer));});
+function define_input_mode(base_name, display_name, keymap_name, doc) {
+    define_buffer_mode(base_name + "_input_mode",
+		       display_name,
+		       $class = "input_mode",
+		       $enable = function (buffer) { check_buffer(buffer, content_buffer);
+						     buffer.keymap = buffer.get(keymap_name); },
+		       $disable = false,
+		       $doc = doc);
 }
-ignore_function_for_get_caller_source_code_reference("define_content_buffer_input_mode");
+ignore_function_for_get_caller_source_code_reference("define_input_mode");
 
-define_content_buffer_input_mode("normal", "content_buffer_normal_keymap");
+define_input_mode("normal", null, "content_buffer_normal_keymap");
 
 // For SELECT elements
-define_content_buffer_input_mode("select", "content_buffer_select_keymap");
+define_input_mode("select", "input:SELECT", "content_buffer_select_keymap");
 
 // For text INPUT and TEXTAREA elements
-define_content_buffer_input_mode("text", "content_buffer_text_keymap");
-define_content_buffer_input_mode("textarea", "content_buffer_textarea_keymap");
+define_input_mode("text", "input:TEXT", "content_buffer_text_keymap");
+define_input_mode("textarea", "input:TEXTAREA", "content_buffer_textarea_keymap");
 
-define_content_buffer_input_mode(
-    "quote_next", "content_buffer_quote_next_keymap",
+define_input_mode(
+    "quote_next", "input:PASS-THROUGH(next)", "content_buffer_quote_next_keymap",
     "This input mode sends the next key combo to the buffer, "+
-        "bypassing Conkeror's normal key handling.  The mode disengages "+
-        "after one key combo.");
-define_content_buffer_input_mode(
-    "quote", "content_buffer_quote_keymap",
+	"bypassing Conkeror's normal key handling.  The mode disengages "+
+	"after one key combo.");
+define_input_mode(
+    "quote", "input:PASS-THROUGH", "content_buffer_quote_keymap",
     "This input mode sends all key combos to the buffer, "+
-        "bypassing Conkeror's normal key handling, until the "+
-        "Escape key is pressed.");
+	"bypassing Conkeror's normal key handling, until the "+
+	"Escape key is pressed.");
 
 add_hook("content_buffer_focus_change_hook", function (buffer) {
-        var form_input_mode_enabled =
-            buffer.content_buffer_text_input_mode_enabled ||
-            buffer.content_buffer_textarea_input_mode_enabled ||
-            buffer.content_buffer_select_input_mode_enabled;
+    var mode = buffer.input_mode;
+    var form_input_mode_enabled = (mode == "text_input_mode" ||
+				   mode == "textarea_input_mode" ||
+				   mode == "select_input_mode");
 
-        if (form_input_mode_enabled || buffer.content_buffer_normal_input_mode_enabled) {
-            var elem = buffer.focused_element;
+    if (form_input_mode_enabled || mode == "normal_input_mode") {
+	var elem = buffer.focused_element;
 
-            if (elem) {
-                var input_mode_function = null;
-                if (elem instanceof Ci.nsIDOMHTMLInputElement) {
-                    var type = elem.getAttribute("type");
-                    if (type != null) type = type.toLowerCase();
-                    if (type != "radio" &&
-                        type != "checkbox" &&
-                        type != "submit" &&
-                        type != "reset")
-                        input_mode_function = content_buffer_text_input_mode;
-                }
-                else if (elem instanceof Ci.nsIDOMHTMLTextAreaElement)
-                    input_mode_function = content_buffer_textarea_input_mode;
+	if (elem) {
+	    var input_mode_function = null;
+	    if (elem instanceof Ci.nsIDOMHTMLInputElement) {
+		var type = elem.getAttribute("type");
+		if (type != null) type = type.toLowerCase();
+		if (type != "radio" &&
+		    type != "checkbox" &&
+		    type != "submit" &&
+		    type != "reset")
+		    input_mode_function = text_input_mode;
+	    }
+	    else if (elem instanceof Ci.nsIDOMHTMLTextAreaElement)
+		input_mode_function = textarea_input_mode;
 
-                else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
-                    input_mode_function = content_buffer_select_input_mode;
+	    else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
+		input_mode_function = select_input_mode;
 
-                if (input_mode_function) {
-                    if (browser_prevent_automatic_form_focus_mode_enabled &&
-                        !form_input_mode_enabled &&
-                        (buffer.last_user_input_received == null ||
-                         (Date.now() - buffer.last_user_input_received)
-                         > browser_automatic_form_focus_window_duration)) {
-                        // Automatic focus attempt blocked
-                        elem.blur();
-                    } else
-                        input_mode_function(buffer);
-                    return;
-                }
-            }
-            content_buffer_normal_input_mode(buffer);
-        }
-    });
+	    if (input_mode_function) {
+		if (browser_prevent_automatic_form_focus_mode_enabled &&
+		    !form_input_mode_enabled &&
+		    (buffer.last_user_input_received == null ||
+		     (Date.now() - buffer.last_user_input_received)
+		     > browser_automatic_form_focus_window_duration)) {
+		    // Automatic focus attempt blocked
+		    elem.blur();
+		} else
+		    input_mode_function(buffer);
+		return;
+	    }
+	}
+	normal_input_mode(buffer);
+    }
+});
 
-function browser_input_minibuffer_status(window) {
+function minibuffer_input_mode_indicator(window) {
     this.window = window;
-    var element = create_XUL(window, "label");
-    element.setAttribute("id", "minibuffer-input-status");
-    element.collapsed = true;
-    element.setAttribute("class", "minibuffer");
-    var insert_before = window.document.getElementById("minibuffer-prompt");
-    insert_before.parentNode.insertBefore(element, insert_before);
-    this.element = element;
-    this.select_buffer_hook_func = add_hook.call(window, "select_buffer_hook", method_caller(this, this.update));
-    this.mode_change_hook_func = add_hook.call(window, "current_content_buffer_input_mode_change_hook",
-                                               method_caller(this, this.update));
+    this.hook_func = method_caller(this, this.update);
+    add_hook.call(window, "select_buffer_hook", this.hook_func);
+    add_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
     this.update();
 }
-browser_input_minibuffer_status.prototype = {
-    update : function () {
-        var buf = this.window.buffers.current;
-        if (buf.content_buffer_normal_input_mode_enabled) {
-            this.element.collapsed = true;
-            this.window.minibuffer.element.className = "";
-        } else {
-            var name = "";
-            var className = null;
-            if (buf.content_buffer_text_input_mode_enabled) {
-                name = "[TEXT INPUT]";
-                className = "text";
-            } else if (buf.content_buffer_textarea_input_mode_enabled) {
-                name = "[TEXTAREA INPUT]";
-                className = "textarea";
-            } else if (buf.content_buffer_select_input_mode_enabled) {
-                name = "[SELECT INPUT]";
-                className = "select";
-            } else if (buf.content_buffer_quote_next_input_mode_enabled) {
-                name = "[PASS THROUGH (next)]";
-                className = "quote-next";
-            } else if (buf.content_buffer_quote_input_mode_enabled) {
-                name = "[PASS THROUGH]";
-                className = "quote";
-            } else /* error */;
 
-            this.element.value = name;
-            this.element.collapsed = false;
-            this.window.minibuffer.element.className = "minibuffer-" + className + "-input-mode";
-        }
+minibuffer_input_mode_indicator.prototype = {
+    update : function () {
+	var buf = this.window.buffers.current;
+	var mode = buf.input_mode;
+	if (mode)
+	    this.window.minibuffer.element.className = "minibuffer-" + buf.input_mode.replace("_","-","g");
     },
     uninstall : function () {
-        remove_hook.call(window, "select_buffer_hook", this.select_buffer_hook_func);
-        remove_hook.call(window, "current_content_buffer_input_mode_change_hook",
-                         method_caller(this, this.update), this.mode_change_hook_func);
-        this.element.parentNode.removeChild(this.element);
+	remove_hook.call(window, "select_buffer_hook", this.hook_func);
+	remove_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
     }
 };
 
-function browser_input_minibuffer_status_install(window) {
-    if (window.browser_input_minibuffer_status)
-        throw new Error("browser input minibuffer status already initialized for window");
-    window.browser_input_minibuffer_status = new browser_input_minibuffer_status(window);
-}
-
-function browser_input_minibuffer_status_uninstall(window) {
-    if (window.browser_input_minibuffer_status)
-        return;
-    window.browser_input_minibuffer_status.uninstall();
-    delete window.browser_input_minibuffer_status;
-}
-
-define_global_mode("browser_input_minibuffer_status_mode",
-                   function () { // enable
-                       add_hook("window_initialize_hook", browser_input_minibuffer_status_install);
-                       for_each_window(browser_input_minibuffer_status_install);
-                   },
-                   function () { // disable
-                       remove_hook("window_initialize_hook", browser_input_minibuffer_status_install);
-                       for_each_window(browser_input_minibuffer_status_uninstall);
-                   });
-browser_input_minibuffer_status_mode(true);
+define_global_window_mode("minibuffer_input_mode_indicator", "window_initialize_hook");
+minibuffer_input_mode_indicator_mode(true);
 
 // Milliseconds
 define_variable("browser_automatic_form_focus_window_duration", 20, "Time window (in milliseconds) during which a form element is allowed to gain focus following a mouse click or key press, if `browser_prevent_automatic_form_focus_mode' is enabled.");;
 
 define_global_mode("browser_prevent_automatic_form_focus_mode",
-                   function () {}, // enable
-                   function () {} // disable
-                   );
+		   function () {}, // enable
+		   function () {} // disable
+		   );
 browser_prevent_automatic_form_focus_mode(true);
 
 define_variable(
@@ -180,117 +114,117 @@ define_variable(
     "//input[" + (
 //        "translate(@type,'RADIO','radio')!='radio' and " +
 //        "translate(@type,'CHECKBOX','checkbox')!='checkbox' and " +
-        "translate(@type,'HIDEN','hiden')!='hidden'"
+	"translate(@type,'HIDEN','hiden')!='hidden'"
 //        "translate(@type,'SUBMIT','submit')!='submit' and " +
 //        "translate(@type,'REST','rest')!='reset'"
     ) +  "] | " +
-        "//xhtml:input[" + (
+	"//xhtml:input[" + (
 //        "translate(@type,'RADIO','radio')!='radio' and " +
 //        "translate(@type,'CHECKBOX','checkbox')!='checkbox' and " +
-            "translate(@type,'HIDEN','hiden')!='hidden'"
+	    "translate(@type,'HIDEN','hiden')!='hidden'"
 //        "translate(@type,'SUBMIT','submit')!='submit' and " +
 //        "translate(@type,'REST','rest')!='reset'"
-        ) +  "] |" +
-        "//select | //xhtml:select | " +
-        "//textarea | //xhtml:textarea | " +
-        "//textbox | //xul:textbox",
+	) +  "] |" +
+	"//select | //xhtml:select | " +
+	"//textarea | //xhtml:textarea | " +
+	"//textbox | //xul:textbox",
     "XPath expression matching elements to be selected by `browser-focus-next-form-field' " +
-        "and `browser-focus-previous-form-field.'");
+	"and `browser-focus-previous-form-field.'");
 
 function browser_focus_next_form_field(buffer, count, xpath_expr) {
     var focused_elem = buffer.focused_element;
     if (count == 0)
-        return; // invalid count
+	return; // invalid count
 
     function helper(win, skip_win) {
-        if (win == skip_win)
-            return null;
-        var doc = win.document;
-        var res = doc.evaluate(xpath_expr, doc, xpath_lookup_namespace,
-                               Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-                               null /* existing results */);
-        var length = res.snapshotLength;
-        if (length > 0) {
-            var index = null;
-            if (focused_elem != null) {
-                for (var i = 0; i < length; ++i) {
-                    if (res.snapshotItem(i) == focused_elem) {
-                        index = i;
-                        break;
-                    }
-                }
-            }
-            if (index == null) {
-                if (count > 0)
-                    index = count - 1;
-                else
-                    index = -count;
-            }
-            else
-                index = index + count;
-            index = index % length;
-            if (index < 0)
-                index += length;
+	if (win == skip_win)
+	    return null;
+	var doc = win.document;
+	var res = doc.evaluate(xpath_expr, doc, xpath_lookup_namespace,
+			       Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+			       null /* existing results */);
+	var length = res.snapshotLength;
+	if (length > 0) {
+	    var index = null;
+	    if (focused_elem != null) {
+		for (var i = 0; i < length; ++i) {
+		    if (res.snapshotItem(i) == focused_elem) {
+			index = i;
+			break;
+		    }
+		}
+	    }
+	    if (index == null) {
+		if (count > 0)
+		    index = count - 1;
+		else
+		    index = -count;
+	    }
+	    else
+		index = index + count;
+	    index = index % length;
+	    if (index < 0)
+		index += length;
 
-            return res.snapshotItem(index);
-        }
+	    return res.snapshotItem(index);
+	}
 
-        // Recurse on sub-frames
-        for (var i = 0; i < win.frames.length; ++i) {
-            var elem = helper(win.frames[i], skip_win);
-            if (elem)
-                return elem;
-        }
-        return null;
+	// Recurse on sub-frames
+	for (var i = 0; i < win.frames.length; ++i) {
+	    var elem = helper(win.frames[i], skip_win);
+	    if (elem)
+		return elem;
+	}
+	return null;
     }
 
     var focused_win = buffer.focused_frame;
     var elem = helper(focused_win, null);
     if (!elem)
-        elem = helper(buffer.top_frame, focused_win);
+	elem = helper(buffer.top_frame, focused_win);
     if (elem) {
-        browser_element_focus(buffer, elem);
+	browser_element_focus(buffer, elem);
     } else
-        throw interactive_error("No form field found");
+	throw interactive_error("No form field found");
 }
 
 interactive("browser-focus-next-form-field", "Focus the next element matching `browser_form_field_xpath_expression'.",
-            function (I) {
-                browser_focus_next_form_field(I.buffer, I.p, browser_form_field_xpath_expression);
-            });
+	    function (I) {
+		browser_focus_next_form_field(I.buffer, I.p, browser_form_field_xpath_expression);
+	    });
 
 interactive("browser-focus-previous-form-field",  "Focus the previous element matching `browser_form_field_xpath_expression'.",
-            function (I) {
-                browser_focus_next_form_field(I.buffer, -I.p, browser_form_field_xpath_expression);
+	    function (I) {
+		browser_focus_next_form_field(I.buffer, -I.p, browser_form_field_xpath_expression);
 });
 
 function edit_field_in_external_editor(buffer, elem) {
     if (elem instanceof Ci.nsIDOMHTMLInputElement) {
-        var type = elem.getAttribute("type");
-        if (type != null)
-            type = type.toLowerCase();
-        if (type == "hidden" || type == "checkbox" || type == "radio")
-            throw interactive_error("Element is not a text field.");
+	var type = elem.getAttribute("type");
+	if (type != null)
+	    type = type.toLowerCase();
+	if (type == "hidden" || type == "checkbox" || type == "radio")
+	    throw interactive_error("Element is not a text field.");
     } else if (!(elem instanceof Ci.nsIDOMHTMLTextAreaElement))
-        throw interactive_error("Element is not a text field.");
+	throw interactive_error("Element is not a text field.");
 
     var name = elem.getAttribute("name");
     if (!name || name.length == 0)
-        name = elem.getAttribute("id");
+	name = elem.getAttribute("id");
     if (!name)
-        name = "";
+	name = "";
     name = name.replace(/[^a-zA-Z0-9\-_]/g, "");
     if (name.length == 0)
-        name = "text";
+	name = "text";
     name += ".txt";
     var file = get_temporary_file(name);
 
     // Write to file
     try {
-        write_text_file(file, elem.value);
+	write_text_file(file, elem.value);
     } catch (e) {
-        file.remove(false);
-        throw e;
+	file.remove(false);
+	throw e;
     }
 
     // FIXME: decide if we should do this
@@ -298,17 +232,17 @@ function edit_field_in_external_editor(buffer, elem) {
     elem.className = "__conkeror_textbox_edited_externally " + old_class;
 
     try {
-        yield open_file_with_external_editor(file);
+	yield open_file_with_external_editor(file);
 
-        elem.value = read_text_file(file);
+	elem.value = read_text_file(file);
     } finally {
-        elem.className = old_class;
+	elem.className = old_class;
 
-        file.remove(false);
+	file.remove(false);
     }
 }
 interactive("edit-current-field-in-external-editor", "Edit the contents of the currently-focused text field in an external editor.",
-            function (I) {
+	    function (I) {
     var buf = I.buffer;
     yield edit_field_in_external_editor(buf, buf.focused_element);
     unfocus(buf);
@@ -321,20 +255,20 @@ function cut_to_end_of_line (buffer) {
     var st = elem.selectionStart;
     var en = elem.selectionEnd;
     if (st == en) {
-        // there is no selection.  set one up.
-        var eol = elem.value.indexOf ("\n", en);
-        if (eol == -1)
-        {
-            elem.selectionEnd = elem.textLength;
-        } else if (eol == st) {
-            elem.selectionEnd = eol + 1;
-        } else if (kill_whole_line &&
-                   (st == 0 || elem.value[st - 1] == "\n"))
-        {
-            elem.selectionEnd = eol + 1;
-        } else {
-            elem.selectionEnd = eol;
-        }
+	// there is no selection.  set one up.
+	var eol = elem.value.indexOf ("\n", en);
+	if (eol == -1)
+	{
+	    elem.selectionEnd = elem.textLength;
+	} else if (eol == st) {
+	    elem.selectionEnd = eol + 1;
+	} else if (kill_whole_line &&
+		   (st == 0 || elem.value[st - 1] == "\n"))
+	{
+	    elem.selectionEnd = eol + 1;
+	} else {
+	    elem.selectionEnd = eol;
+	}
     }
     buffer.do_command ('cmd_cut');
 }
@@ -342,5 +276,5 @@ function cut_to_end_of_line (buffer) {
 interactive (
     "cut-to-end-of-line",
     function (I) {
-        cut_to_end_of_line (I.buffer);
+	cut_to_end_of_line (I.buffer);
     });

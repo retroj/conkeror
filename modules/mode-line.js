@@ -51,7 +51,7 @@ function mode_line(window)
 mode_line.prototype = {
     __proto__: generic_element_widget_container.prototype,
 
-    remove: function () {
+    uninstall: function () {
         this.container.parentNode.removeChild(this.window.mode_line.container);
         this.__proto__.__proto__.destroy.call(this);
     }
@@ -121,30 +121,7 @@ text_widget.prototype = {
     }
 };
 
-function mode_line_install(window)
-{
-    if (window.mode_line)
-        throw new Error("mode line already initialized for window");
-    window.mode_line = new mode_line(window);
-}
-
-function mode_line_uninstall(window)
-{
-    if (!window.mode_line)
-        throw new Error("mode line not initialized for window");
-    window.mode_line.remove();
-    delete window.mode_line;
-}
-
-define_global_mode("mode_line_mode",
-                   function () { // enable
-                       add_hook("window_initialize_early_hook", mode_line_install);
-                       for_each_window(mode_line_install);
-                   },
-                   function () { // disable
-                       remove_hook("window_initialize_early_hook", mode_line_install);
-                       for_each_window(mode_line_uninstall);
-                   });
+define_global_window_mode("mode_line", "window_initialize_early_hook");
 
 function current_buffer_name_widget(window) {
     this.name = "current-buffer-name-widget";

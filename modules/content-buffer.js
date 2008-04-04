@@ -76,7 +76,7 @@ function content_buffer(window, element)
         }, true, false);
     */
 
-    content_buffer_normal_input_mode(this);
+    normal_input_mode(this);
 
     this.ignore_initial_blank = true;
 
@@ -525,3 +525,33 @@ browser_dom_window.prototype = {
 };
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
+
+define_keywords("$enable", "$disable", "$doc");
+function define_page_mode(name, display_name) {
+    keywords(arguments);
+    var enable = arguments.$enable;
+    var disable = arguments.$disable;
+    var doc = arguments.$doc;
+    define_buffer_mode(name, display_name,
+                       $class = "page_mode",
+                       $enable = enable,
+                       $disable = function (buffer) {
+                           if (disable)
+                               disable(buffer);
+                           buffer.local_variables = {};
+                       },
+                       $doc = doc);
+}
+ignore_function_for_get_caller_source_code_reference("define_page_mode");
+
+define_variable("auto_mode_list", [], "A list of mappings from URI regular expressions to page modes.");
+function page_mode_auto_update(buffer) {
+    var uri = buffer.current_URI.spec;
+    var mode = predicate_alist_match(auto_mode_list, uri);
+    if (mode)
+        mode(buffer, true);
+    else if (buffer.page_mode)
+        conkeror[buffer.page_mode](buffer, false);
+}
+
+add_hook("content_buffer_location_change_hook", page_mode_auto_update);
