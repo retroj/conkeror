@@ -88,12 +88,14 @@ function get_file(path) {
     return f;
 }
 
+var thread_manager = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager);
+
 function input_stream_async_wait(stream, callback, requested_count) {
     stream = stream.QueryInterface(Ci.nsIAsyncInputStream);
     var flags = (requested_count === false) ? Ci.nsIAsyncInputStream.WAIT_CLOSURE_ONLY : 0;
     if (requested_count == null || requested_count == false)
         requested_count = 0;
-    stream.asyncWait({onInputStreamReady: callback}, flags, requested_count, null);
+    stream.asyncWait({onInputStreamReady: callback}, flags, requested_count, thread_manager.mainThread);
 }
 
 function output_stream_async_wait(stream, callback, requested_count) {
@@ -101,7 +103,7 @@ function output_stream_async_wait(stream, callback, requested_count) {
     var flags = (requested_count === false) ? Ci.nsIAsyncOutputStream.WAIT_CLOSURE_ONLY : 0;
     if (requested_count == null || requested_count == false)
         requested_count = 0;
-    stream.asyncWait({onOutputStreamReady: callback}, flags, requested_count, null);
+    stream.asyncWait({onOutputStreamReady: callback}, flags, requested_count, thread_manager.mainThread);
 }
 
 function binary_output_stream(stream) {
