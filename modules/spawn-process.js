@@ -396,6 +396,7 @@ function spawn_process(program_name, args, working_dir,
                             }
                             if (received_data.length < header_size) {
                                 input_stream_async_wait(in_stream, handle_input);
+                                return;
                             } else {
                                 if (received_data.substring(0, key_length) != client_key)
                                     throw "Invalid key";
