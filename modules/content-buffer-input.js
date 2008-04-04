@@ -293,9 +293,6 @@ function edit_field_in_external_editor(buffer, elem) {
         throw e;
     }
 
-    var old_readonly = elem.getAttribute("readonly");
-    elem.setAttribute("readonly", "true");
-
     // FIXME: decide if we should do this
     var old_class = elem.className;
     elem.className = "__conkeror_textbox_edited_externally " + old_class;
@@ -307,10 +304,6 @@ function edit_field_in_external_editor(buffer, elem) {
     } finally {
         elem.className = old_class;
 
-        if (old_readonly)
-            elem.setAttribute("readonly", old_readonly);
-        else
-            elem.removeAttribute("readonly");
         file.remove(false);
     }
 }
