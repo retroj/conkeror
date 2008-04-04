@@ -31,7 +31,8 @@ function media_scrape_youtube(buffer, results) {
 }
 
 define_page_mode("youtube_mode", "YouTube", $enable = function (buffer) {
-    buffer.local_variables.media_scraper = media_scrape_youtube; 
+    buffer.local_variables.media_scraper = media_scrape_youtube;
+    media_setup_local_object_classes(buffer);
 });
 
 auto_mode_list.push([media_youtube_uri_test_regexp, youtube_mode]);

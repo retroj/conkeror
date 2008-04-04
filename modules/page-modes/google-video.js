@@ -38,7 +38,8 @@ function media_scrape_google_video(buffer, results) {
 
 
 define_page_mode("google_video_mode", "GoogleVideo", $enable = function (buffer) {
-    buffer.local_variables.media_scraper = media_scrape_google_video; 
+    buffer.local_variables.media_scraper = media_scrape_google_video;
+    media_setup_local_object_classes(buffer);
 });
 
 auto_mode_list.push([/^http:\/\/video\.google\.com\//, google_video_mode]);
