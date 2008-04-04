@@ -288,18 +288,18 @@ define_variable(
 interactive_context.prototype.hints_object_class = function (action_name) {
     var cls =
         this._hints_object_class ||
-        hints_default_object_classes[action_name] ||
-        hints_default_object_classes["def"];
+        this.get("hints_default_object_classes")[action_name] ||
+        this.get("hints_default_object_classes")["def"];
     return cls;
 };
 
-function resolve_hints_xpath_expression(object_class, action_name) {
-    var db = hints_xpath_expressions[object_class];
+function resolve_hints_xpath_expression(buffer, object_class, action_name) {
+    var db = buffer.get("hints_xpath_expressions")[object_class];
     return db[action_name] || db["def"];
 }
 
 interactive_context.prototype.hints_xpath_expression = function (action_name) {
-    return resolve_hints_xpath_expression(this.hints_object_class(action_name), action_name);
+    return resolve_hints_xpath_expression(this.buffer, this.hints_object_class(action_name), action_name);
 };
 
 function hints_object_class_selector(name) {

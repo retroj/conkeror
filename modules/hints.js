@@ -537,7 +537,7 @@ minibuffer.prototype.read_hinted_element = function () {
         }
     }
     var s = new hints_minibuffer_state((yield CONTINUATION), buf, forward_keywords(arguments),
-        $hint_xpath_expression = resolve_hints_xpath_expression(object_class, arguments.$action));
+        $hint_xpath_expression = resolve_hints_xpath_expression(buf, object_class, arguments.$action));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);
