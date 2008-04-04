@@ -46,7 +46,9 @@ interactive_context.prototype = {
 
     set p (default_value) univ_arg_to_number(this.prefix_argument, default_value),
 
-    get minibuffer () this.window.minibuffer
+    get minibuffer () this.window.minibuffer,
+
+    get : function (x) this.buffer.get(x)
 };
 
 function handle_interactive_error(window, e) {
