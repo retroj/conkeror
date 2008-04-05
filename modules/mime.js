@@ -15,14 +15,14 @@ var mime_type_external_handlers = [
     ];
 
 function get_external_handler_for_mime_type(mime_type) {
-    return predicate_alist_match(mime_type);
+    return predicate_alist_match(mime_type_external_handlers, mime_type);
 }
 
-function mime_type_from_url(url) {
+function mime_type_from_uri(uri) {
     var type = "application/octet-stream";
     try {
-        url = make_uri(url);
-        type = mime_service.getTypeFromURI(url);
+        uri = make_uri(uri);
+        type = mime_service.getTypeFromURI(uri);
     } catch (e) {}
     return type;
 }
