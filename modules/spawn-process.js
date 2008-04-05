@@ -149,160 +149,164 @@ function spawn_process(program_name, args, working_dir,
     if (fd_wait_timeout === undefined)
         fd_wait_timeout = spawn_process_helper_default_fd_wait_timeout;
 
-    // Create server socket to listen for connections from the external helper program
-    try {
-        var server = Cc['@mozilla.org/network/server-socket;1'].createInstance(Ci.nsIServerSocket);
+    var unregistered_transports = [];
+    var registered_transports = [];
 
-        var client_key = "";
-        var server_key = "";
-        // Make sure key does not have any 0 bytes in it.
-        for (let i = 0; i < key_length; ++i) client_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
+    var server = null;
+    var setup_timer = null;
 
-        // Make sure key does not have any 0 bytes in it.
-        for (let i = 0; i < key_length; ++i) server_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
+    const CONTROL_CONNECTED = 0;
+    const CONTROL_SENDING_KEY = 1;
+    const CONTROL_SENT_KEY = 2;
 
-        var key_file = get_temporary_file("spawn_process_key.dat");
+    var control_state = CONTROL_CONNECTED;
+    var terminate_pending = false;
 
-        var key_file_fd_data = "";
+    var control_transport = null;
 
-        // This is the total number of redirected file descriptors.
-        var total_client_fds = 0;
+    var control_binary_input_stream = null;
+    var control_output_stream = null, control_input_stream = null;
+    var exit_status = null;
 
-        // This is the total number of redirected file descriptors that will use a socket connection.
-        var total_fds = 0;
+    var client_key = "";
+    var server_key = "";
+    // Make sure key does not have any 0 bytes in it.
+    for (let i = 0; i < key_length; ++i) client_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
 
-        for (let i in fds) {
-            if (fds.hasOwnProperty(i)) {
-                key_file_fd_data += i + "\0";
-                let fd = fds[i];
-                if ('file' in fd) {
-                    if (fd.perms == null)
-                        fd.perms = 0666;
-                    key_file_fd_data += fd.file + "\0" + fd.mode + "\0" + fd.perms + "\0";
-                    delete fds[i]; // Remove it from fds, as we won't need to work with it anymore
-                } else
-                    ++total_fds;
-                ++total_client_fds;
-            }
+    // Make sure key does not have any 0 bytes in it.
+    for (let i = 0; i < key_length; ++i) server_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
+
+    var key_file_fd_data = "";
+
+    // This is the total number of redirected file descriptors.
+    var total_client_fds = 0;
+
+    // This is the total number of redirected file descriptors that will use a socket connection.
+    var total_fds = 0;
+
+    for (let i in fds) {
+        if (fds.hasOwnProperty(i)) {
+            key_file_fd_data += i + "\0";
+            let fd = fds[i];
+            if ('file' in fd) {
+                if (fd.perms == null)
+                    fd.perms = 0666;
+                key_file_fd_data += fd.file + "\0" + fd.mode + "\0" + fd.perms + "\0";
+                delete fds[i]; // Remove it from fds, as we won't need to work with it anymore
+            } else
+                ++total_fds;
+            ++total_client_fds;
         }
-        var key_file_data = client_key + "\0" + server_key + "\0" + program_name + "\0" +
-            (working_dir != null ? working_dir : "") + "\0" +
-            args.length + "\0" +
-            args.join("\0") + "\0" +
-            total_client_fds + "\0" + key_file_fd_data;
+    }
+    var key_file_data = client_key + "\0" + server_key + "\0" + program_name + "\0" +
+        (working_dir != null ? working_dir : "") + "\0" +
+        args.length + "\0" +
+        args.join("\0") + "\0" +
+        total_client_fds + "\0" + key_file_fd_data;
 
-        write_binary_file(key_file, key_file_data);
-        server.init(-1 /* choose a port automatically */,
-                    true /* bind to localhost only */,
-                    -1 /* select backlog size automatically */);
-
-        var unregistered_transports = [];
-        var registered_transports = [];
-
-        const CONTROL_CONNECTED = 0;
-        const CONTROL_SENDING_KEY = 1;
-        const CONTROL_SENT_KEY = 2;
-
-        var control_state = CONTROL_CONNECTED;
-        var terminate_pending = false;
-
-        var control_transport = null;
-
-        var control_binary_input_stream = null;
-        var control_output_stream = null, control_input_stream = null;
-        var exit_status = null;
-
-        function fail(e) {
-            if (!terminate_pending) {
-                terminate();
-                if (failure_callback)
-                    failure_callback(e);
-            }
+    function fail(e) {
+        if (!terminate_pending) {
+            terminate();
+            if (failure_callback)
+                failure_callback(e);
         }
+    }
 
-        var setup_timer = call_after_timeout(function () {
-            setup_timer = null;
-            if (control_state != CONTROL_SENT_KEY)
-                fail("setup timeout");
-        }, spawn_process_helper_setup_timeout);
-
-        function cleanup_server() {
-            if (server) {
-                server.close();
-                server = null;
-            }
-            for (let i in unregistered_transports) {
-                unregistered_transports[i].close(0);
-                delete unregistered_transports[i];
-            }
+    function cleanup_server() {
+        if (server) {
+            server.close();
+            server = null;
         }
-
-        function cleanup_fd_sockets() {
-            for (let i in registered_transports) {
-                registered_transports[i].transport.close(0);
-                delete registered_transports[i];
-            }
+        for (let i in unregistered_transports) {
+            unregistered_transports[i].close(0);
+            delete unregistered_transports[i];
         }
+    }
 
-        function cleanup_control() {
-            if (control_transport) {
-                control_binary_input_stream.close();
-                control_binary_input_stream = null;
-                control_transport.close(0);
-                control_transport = null;
-                control_input_stream = null;
-                control_output_stream = null;
-            }
+    function cleanup_fd_sockets() {
+        for (let i in registered_transports) {
+            registered_transports[i].transport.close(0);
+            delete registered_transports[i];
         }
+    }
 
-        function control_send_terminate() {
-            control_input_stream = null;
+    function cleanup_control() {
+        if (control_transport) {
             control_binary_input_stream.close();
             control_binary_input_stream = null;
-            async_binary_write(control_output_stream, "\0", function () {
-                control_output_stream = null;
-                control_transport.close(0);
-                control_transport = null;
-            });
+            control_transport.close(0);
+            control_transport = null;
+            control_input_stream = null;
+            control_output_stream = null;
         }
+    }
 
-        function terminate() {
-            if (terminate_pending)
-                return exit_status;
-            terminate_pending = true;
-            if (setup_timer) {
-                setup_timer.cancel();
-                setup_timer = null;
-            }
-            cleanup_server();
-            cleanup_fd_sockets();
-            if (control_transport) {
-                switch (control_state) {
-                case CONTROL_SENT_KEY:
-                    control_send_terminate();
-                    break;
-                case CONTROL_CONNECTED:
-                    cleanup_control();
-                    break;
+    function control_send_terminate() {
+        control_input_stream = null;
+        control_binary_input_stream.close();
+        control_binary_input_stream = null;
+        async_binary_write(control_output_stream, "\0", function () {
+            control_output_stream = null;
+            control_transport.close(0);
+            control_transport = null;
+        });
+    }
+
+    function terminate() {
+        if (terminate_pending)
+            return exit_status;
+        terminate_pending = true;
+        if (setup_timer) {
+            setup_timer.cancel();
+            setup_timer = null;
+        }
+        cleanup_server();
+        cleanup_fd_sockets();
+        if (control_transport) {
+            switch (control_state) {
+            case CONTROL_SENT_KEY:
+                control_send_terminate();
+                break;
+            case CONTROL_CONNECTED:
+                cleanup_control();
+                break;
                 /**
                  * case CONTROL_SENDING_KEY: in this case once the key
                  * is sent, the terminate_pending flag will be noticed
                  * and control_send_terminate will be called, so nothing
                  * more needs to be done here.
                  */
-                }
             }
-            return exit_status;
         }
+        return exit_status;
+    }
 
-        function finished() {
-            // Only call success_callback if terminate was not already called
-            if (!terminate_pending) {
-                terminate();
-                if (success_callback)
-                    success_callback(exit_status);
-            }
+    function finished() {
+        // Only call success_callback if terminate was not already called
+        if (!terminate_pending) {
+            terminate();
+            if (success_callback)
+                success_callback(exit_status);
         }
+    }
+
+    // Create server socket to listen for connections from the external helper program
+    try {
+        server = Cc['@mozilla.org/network/server-socket;1'].createInstance(Ci.nsIServerSocket);
+
+        var key_file = get_temporary_file("spawn_process_key.dat");
+
+        write_binary_file(key_file, key_file_data);
+        server.init(-1 /* choose a port automatically */,
+                    true /* bind to localhost only */,
+                    -1 /* select backlog size automatically */);
+
+        setup_timer = call_after_timeout(function () {
+            setup_timer = null;
+            if (control_state != CONTROL_SENT_KEY)
+                fail("setup timeout");
+        }, spawn_process_helper_setup_timeout);
+
 
         function wait_for_fd_sockets() {
             var remaining_streams = total_fds * 2;
