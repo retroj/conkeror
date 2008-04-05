@@ -46,7 +46,7 @@ function mime_type_from_load_spec(spec) {
         if (spec.document)
             return spec.document.contentType || "application/octet-stream";
     }
-    return mime_type_from_url(uri_string_from_load_spec(spec));
+    return mime_type_from_uri(uri_string_from_load_spec(spec));
 }
 
 function mime_info_from_load_spec(spec) {
