@@ -55,6 +55,7 @@ require("ssl.js");
 require("media.js");
 require("page-modes/youtube.js");
 require("page-modes/google-video.js");
+require("page-modes/google-search-results.js");
 
 //require("scroll-bars.js");
 
