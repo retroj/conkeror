@@ -64,23 +64,13 @@ function browser_element_follow(buffer, target, elem)
 {
     browser_set_element_focus(buffer, elem, true /* no scroll */);
 
-    var load_spec = null;
-    var current_frame = null;
-    var no_click = false;
-    if (elem instanceof media_spec) {
-        no_click = true;
-        current_frame = elem.frame;
-    } else if (elem instanceof Ci.nsIDOMWindow) {
-        current_frame = elem;
-        no_click = true;
-    } else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
-               elem instanceof Ci.nsIDOMHTMLIFrameElement ||
-               elem instanceof Ci.nsIDOMHTMLLinkElement) {
-        no_click = true;
-    } else if (elem instanceof Ci.nsIDOMHTMLImageElement) {
-        if (!elem.hasAttribute("onmousedown") && !elem.hasAttribute("onclick"))
-            no_click = true;
-    }
+    var no_click = (is_load_spec(elem) ||
+                    (elem instanceof Ci.nsIDOMWindow) ||
+                    (elem instanceof Ci.nsIDOMHTMLFrameElement) ||
+                    (elem instanceof Ci.nsIDOMHTMLIFrameElement) ||
+                    (elem instanceof Ci.nsIDOMHTMLLinkElement) ||
+                    (elem instanceof Ci.nsIDOMHTMLImageElement &&
+                     !elem.hasAttribute("onmousedown") && !elem.hasAttribute("onclick")));
 
     if (target == FOLLOW_DEFAULT && !no_click) {
         var x = 1, y = 1;
@@ -95,42 +85,36 @@ function browser_element_follow(buffer, target, elem)
         return;
     }
 
-    var load_spec = element_get_load_spec(elem);
-    if (load_spec == null) {
+    var spec = element_get_load_spec(elem);
+    if (spec == null) {
         throw interactive_error("Element has no associated URL");
         return;
     }
 
-    if (load_spec.url.match(/^\s*javascript:/)) {
+    if (load_spec_uri_string(spec).match(/^\s*javascript:/)) {
         // This URL won't work
         throw interactive_error("Can't load javascript URL");
     }
 
-    var target_obj = null;
     switch (target) {
     case FOLLOW_CURRENT_FRAME:
-        if (current_frame == null) {
-            if (elem.ownerDocument)
-                current_frame = elem.ownerDocument.defaultView;
-            else
-                current_frame = buffer.top_frame;
-        }
-        if (current_frame != buffer.top_frame) {
-            target_obj = get_web_navigation_for_window(current_frame);
-            apply_load_spec(target_obj, load_spec);
+        var current_frame = load_spec_source_frame(spec);
+        if (current_frame && current_frame != buffer.top_frame) {
+            var target_obj = get_web_navigation_for_frame(current_frame);
+            apply_load_spec(target_obj, spec);
             break;
         }
     case FOLLOW_DEFAULT:
     case FOLLOW_TOP_FRAME:
     case OPEN_CURRENT_BUFFER:
-        buffer.load(load_spec);
+        buffer.load(spec);
         break;
     case OPEN_NEW_WINDOW:
     case OPEN_NEW_BUFFER:
     case OPEN_NEW_BUFFER_BACKGROUND:
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
-                                     $load = load_spec,
+                                     $load = spec,
                                      $configuration = buffer.configuration),
                       target);
     }
@@ -153,76 +137,23 @@ function browser_follow_link_with_click(buffer, elem, x, y) {
     elem.dispatchEvent(evt);
 }
 
-function element_get_url(elem) {
-    var url = null;
-
-    if (elem instanceof media_spec) {
-        if (elem instanceof media_spec_simple_uri)
-            return elem.uri;
-        return null;
-    }
-    else if (elem instanceof Ci.nsIDOMWindow)
-        url = elem.location.href;
-
-    else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
-        elem instanceof Ci.nsIDOMHTMLIFrameElement)
-        url = elem.contentWindow.location.href;
-
-    else if (elem instanceof Ci.nsIDOMHTMLImageElement)
-        url = elem.src;
-
-    else if (elem instanceof Ci.nsIDOMHTMLAnchorElement ||
-             elem instanceof Ci.nsIDOMHTMLAreaElement ||
-             elem instanceof Ci.nsIDOMHTMLLinkElement) {
-        if (elem.hasAttribute("href"))
-            url = elem.href;
-        else
-            return null; // nothing can be done
-    } else {
-        var node = elem;
-        while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
-            node = node.parentNode;
-        if (node && !node.hasAttribute("href"))
-            node = null;
-        if (!node) {
-            // Try simple XLink
-            node = elem;
-            while (node) {
-                if (node.nodeType == Ci.nsIDOMNode.ELEMENT_NODE) {
-                    url = linkNode.getAttributeNS(XLINK_NS, "href");
-                    break;
-                }
-                node = node.parentNode;
-            }
-            if (url)
-                url = makeURLAbsolute(node.baseURI, url);
-        } else
-            url = node.href;
-    }
-    if (url && url.length == 0)
-        url = null;
-    return url;
-}
-
 function element_get_load_spec(elem) {
-    var load_spec = null;
 
-    if (elem instanceof media_spec) {
-        if (elem instanceof media_spec_simple_uri) {
-            load_spec = {url: elem.uri, referrer: make_uri(elem.frame.location.href),
-                         filename: elem.filename,
-                         mime_type: elem.mime_type };
-        }
-    }
-    else if (elem instanceof Ci.nsIDOMWindow)
-        load_spec = document_load_spec(elem.document);
+    if (is_load_spec(elem))
+        return elem;
+
+    var spec = null;
+
+    if (elem instanceof Ci.nsIDOMWindow)
+        spec = load_spec({document: elem.document});
 
     else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
              elem instanceof Ci.nsIDOMHTMLIFrameElement)
-        load_spec = document_load_spec(elem.contentDocument);
+        spec = load_spec({document: elem.contentDocument});
 
     else {
         var url = null;
+        var title = null;
 
         if (elem instanceof Ci.nsIDOMHTMLAnchorElement ||
             elem instanceof Ci.nsIDOMHTMLAreaElement ||
@@ -230,9 +161,11 @@ function element_get_load_spec(elem) {
             if (!elem.hasAttribute("href"))
                 return null; // nothing can be done, as no nesting within these elements is allowed
             url = elem.href;
+            title = elem.title || elem.textContent;
         }
         else if (elem instanceof Ci.nsIDOMHTMLImageElement) {
             url = elem.src;
+            title = elem.title || elem.alt;
         }
         else {
             var node = elem;
@@ -254,17 +187,16 @@ function element_get_load_spec(elem) {
                 }
                 if (url)
                     url = makeURLAbsolute(node.baseURI, url);
+                title = node.title || node.textContent;
             }
         }
         if (url && url.length > 0) {
-            var referrer = null;
-            try {
-                referrer = makeURL(elem.ownerDocument.location.href);
-            } catch (e) {}
-            load_spec = {url: url, referrer: referrer};
+            if (title && title.length == 0)
+                title = null;
+            spec = load_spec({uri: url, source_frame: elem.ownerDocument.defaultView, title: title});
         }
     }
-    return load_spec;
+    return spec;
 }
 
 define_variable(
@@ -319,7 +251,7 @@ interactive_context.prototype.read_hinted_element_with_prompt = function(action,
     if (object_class != default_class)
         prompt += " (" + object_class + ")";
     prompt += ":";
-    
+
     var result = yield this.minibuffer.read_hinted_element(
         $buffer = this.buffer,
         $prompt = prompt,
@@ -353,8 +285,6 @@ function element_get_load_target_label(element) {
         return "frame";
     if (element instanceof Ci.nsIDOMHTMLIFrameElement)
         return "iframe";
-    if (element instanceof media_spec)
-        return  "media";
     return null;
 }
 
@@ -376,36 +306,39 @@ function element_get_operation_label(element, op_name, suffix) {
 interactive("save", function (I) {
     var element = yield I.read_hinted_element_with_prompt("save", "Save", "links");
 
-    var load_spec = element_get_load_spec(element);
-    if (load_spec == null)
+    var spec = element_get_load_spec(element);
+    if (spec == null)
         throw interactive_error("Element has no associated URI");
 
     var panel;
     panel = create_info_panel(I.window, "download-panel",
                               [["downloading",
                                 element_get_operation_label(element, "Saving"),
-                                uri_string_from_load_spec(load_spec)],
-                               ["mime-type", "Mime type:", mime_type_from_load_spec(load_spec)]]);
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
 
     try {
         var file = yield I.minibuffer.read_file_check_overwrite(
             $prompt = "Save as:",
-            $initial_value = suggest_save_path_from_file_name(suggest_file_name(load_spec), I.buffer),
+            $initial_value = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer),
             $history = "save");
 
     } finally {
         panel.destroy();
     }
 
-    save_uri(load_spec, file,
+    save_uri(spec, file,
              $buffer = I.buffer,
              $use_cache = false);
 });
 
 function browser_element_copy(buffer, elem)
 {
-    var text = element_get_url(elem);
-    if (text == null) {
+    var spec = element_get_load_spec(elem);
+    var text = null;
+    if (spec)
+        text = load_spec_uri_string(spec);
+    else  {
         if (!(elem instanceof Ci.nsIDOMNode))
             throw interactive_error("Element has no associated text to copy.");
         switch (elem.localName) {
@@ -417,10 +350,11 @@ function browser_element_copy(buffer, elem)
             if (elem.selectedIndex >= 0)
                 text = elem.item(elem.selectedIndex).text;
             break;
+        default:
+            text = elem.textContent;
+            break;
         }
     }
-    if (text == null)
-        text = elem.textContent;
     writeToClipboard (text);
     buffer.window.minibuffer.message ("Copied: " + text);
 }
@@ -436,13 +370,13 @@ function browser_element_view_source(buffer, target, elem)
 {
     if (view_source_use_external_editor || view_source_function)
     {
-        var load_spec = element_get_load_spec(elem);
-        if (load_spec == null) {
+        var spec = element_get_load_spec(elem);
+        if (spec == null) {
             throw interactive_error("Element has no associated URL");
             return;
         }
 
-        let [file, temp] = yield download_as_temporary(load_spec,
+        let [file, temp] = yield download_as_temporary(spec,
                                                        $buffer = buffer,
                                                        $action = "View source");
         if (view_source_use_external_editor)
@@ -488,23 +422,23 @@ interactive("view-source", function (I) {
 interactive("shell-command-on-url", function (I) {
     var cwd = I.cwd;
     var element = yield I.read_hinted_element_with_prompt("shell_command_url", "URL shell command target", "links");
-    var load_spec = element_get_load_spec(element);
-    if (load_spec == null)
+    var spec = element_get_load_spec(element);
+    if (spec == null)
         throw interactive_error("Unable to obtain URI from element");
 
-    var uri = uri_string_from_load_spec(load_spec);
+    var uri = load_spec_uri_string(spec);
 
     var panel;
     panel = create_info_panel(I.window, "download-panel",
                               [["downloading",
                                 element_get_operation_label(element, "Running on", "URI"),
-                                uri_string_from_load_spec(load_spec)],
-                               ["mime-type", "Mime type:", mime_type_from_load_spec(load_spec)]]);
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
 
     try {
         var cmd = yield I.minibuffer.read_shell_command(
             $cwd = cwd,
-            $initial_value = default_shell_command_from_load_spec(load_spec));
+            $initial_value = load_spec_default_shell_command(spec));
     } finally {
         panel.destroy();
     }
@@ -513,12 +447,12 @@ interactive("shell-command-on-url", function (I) {
 });
 
 function browser_element_shell_command(buffer, elem, command) {
-    var load_spec = element_get_load_spec(elem);
-    if (load_spec == null) {
+    var spec = element_get_load_spec(elem);
+    if (spec == null) {
         throw interactive_error("Element has no associated URL");
         return;
     }
-    yield download_as_temporary(load_spec,
+    yield download_as_temporary(spec,
                                 $buffer = buffer,
                                 $shell_command = command,
                                 $shell_command_cwd = buffer.cwd);
@@ -528,24 +462,24 @@ interactive("shell-command-on-file", function (I) {
     var cwd = I.cwd;
     var element = yield I.read_hinted_element_with_prompt("shell_command", "Shell command target", "links");
 
-    var load_spec = element_get_load_spec(element);
-    if (load_spec == null)
+    var spec = element_get_load_spec(element);
+    if (spec == null)
         throw interactive_error("Unable to obtain URI from element");
 
-    var uri = uri_string_from_load_spec(load_spec);
+    var uri = load_spec_uri_string(spec);
 
     var panel;
     panel = create_info_panel(I.window, "download-panel",
                               [["downloading",
                                 element_get_operation_label(element, "Running on"),
-                                uri_string_from_load_spec(load_spec)],
-                               ["mime-type", "Mime type:", mime_type_from_load_spec(load_spec)]]);
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
 
     try {
 
         var cmd = yield I.minibuffer.read_shell_command(
             $cwd = cwd,
-            $initial_value = default_shell_command_from_load_spec(load_spec));
+            $initial_value = load_spec_default_shell_command(spec));
     } finally {
         panel.destroy();
     }
@@ -556,37 +490,38 @@ interactive("shell-command-on-file", function (I) {
 
 interactive("bookmark", function (I) {
     var element = yield I.read_hinted_element_with_prompt("bookmark", "Bookmark", "frames");
-    let [uri, suggested_title] = get_element_bookmark_info(element);
-
+    var spec = element_get_load_spec(element);
+    if (!spec)
+        throw interactive_error("Element has no associated URI");
+    var uri_string = load_spec_uri_string(spec);
     var panel;
     panel = create_info_panel(I.window, "bookmark-panel",
                               [["bookmarking",
                                 element_get_operation_label(element, "Bookmarking"),
-                                uri]]);
+                                uri_string]]);
     try {
-        var title = yield I.minibuffer.read($prompt = "Bookmark with title:", $initial_value = suggested_title);
+        var title = yield I.minibuffer.read($prompt = "Bookmark with title:", $initial_value = load_spec_title(spec) || "");
     } finally {
         panel.destroy();
     }
-    add_bookmark(uri, title);
-    I.minibuffer.message("Added bookmark: " + uri + " - " + title);
+    add_bookmark(uri_string, title);
+    I.minibuffer.message("Added bookmark: " + uri_string + " - " + title);
 });
 
 interactive("save-page", function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield I.read_hinted_element_with_prompt("save_page", "Save page", "frames");
-    var load_spec = element_get_load_spec(element);
-    if (load_spec == null || typeof(load_spec) != "object" || load_spec.document == null)
+    var spec = element_get_load_spec(element);
+    if (!spec || !load_spec_document(spec))
         throw interactive_error("Element is not associated with a document.");
-    var doc = load_spec.document;
-    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(doc), I.buffer);
+    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer);
 
     var panel;
     panel = create_info_panel(I.window, "download-panel",
                               [["downloading",
                                 element_get_operation_label(element, "Saving"),
-                                uri_string_from_load_spec(load_spec)],
-                               ["mime-type", "Mime type:", mime_type_from_load_spec(load_spec)]]);
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
 
     try {
         var file = yield I.minibuffer.read_file_check_overwrite(
@@ -597,24 +532,24 @@ interactive("save-page", function (I) {
         panel.destroy();
     }
 
-    save_uri(document_load_spec(doc), file, $buffer = I.buffer);
+    save_uri(spec, file, $buffer = I.buffer);
 });
 
 interactive("save-page-as-text", function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield I.read_hinted_element_with_prompt("save_page_as_text", "Save page as text", "frames");
-    var load_spec = element_get_load_spec(element);
-    if (load_spec == null || typeof(load_spec) != "object" || load_spec.document == null)
+    var spec = element_get_load_spec(element);
+    var doc;
+    if (!spec || !(doc = load_spec_document(spec)))
         throw interactive_error("Element is not associated with a document.");
-    var doc = load_spec.document;
-    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(doc, "txt"), I.buffer);
+    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec, "txt"), I.buffer);
 
     var panel;
     panel = create_info_panel(I.window, "download-panel",
                               [["downloading",
                                 element_get_operation_label(element, "Saving", "as text"),
-                                uri_string_from_load_spec(load_spec)],
-                               ["mime-type", "Mime type:", mime_type_from_load_spec(load_spec)]]);
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
 
     try {
         var file = yield I.minibuffer.read_file_check_overwrite(
@@ -631,18 +566,18 @@ interactive("save-page-as-text", function (I) {
 interactive("save-page-complete", function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield I.read_hinted_element_with_prompt("save_page_complete", "Save page complete", "frames");
-    var load_spec = element_get_load_spec(element);
-    if (load_spec == null || typeof(load_spec) != "object" || load_spec.document == null)
+    var spec = element_get_load_spec(element);
+    var doc;
+    if (!spec || !(doc = load_spec_document(spec)))
         throw interactive_error("Element is not associated with a document.");
-    var doc = load_spec.document;
-    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(doc), I.buffer);
-
+    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer);
+    
     var panel;
     panel = create_info_panel(I.window, "download-panel",
                               [["downloading",
                                 element_get_operation_label(element, "Saving complete"),
-                                uri_string_from_load_spec(load_spec)],
-                               ["mime-type", "Mime type:", mime_type_from_load_spec(load_spec)]]);
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
 
     try {
         var file = yield I.minibuffer.read_file_check_overwrite(

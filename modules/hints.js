@@ -513,8 +513,8 @@ minibuffer.prototype.read_hinted_element = function () {
 
         let completer = all_word_completer(
             $completions = media,
-            $get_string = function (x) x.uri || "",
-            $get_description = function (x) x.title);
+            $get_string = function (x) load_spec_uri_string(x),
+            $get_description = function (x) load_spec_title(x) || "");
 
         let result = yield this.read(
             $prompt = "Media",

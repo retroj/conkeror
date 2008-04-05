@@ -83,7 +83,7 @@ function maybe_get_preferred_url_extension (url_o, content_type) {
         return ext;
 }
 
-function getDefaultExtension (file_name_s, url_o, content_type) {
+function get_default_extension (file_name_s, url_o, content_type) {
     if (content_type == "text/plain" ||
         content_type == "application/octet-stream" ||
         url_o.scheme == "ftp")
@@ -94,7 +94,7 @@ function getDefaultExtension (file_name_s, url_o, content_type) {
             maybe_get_preferred_url_extension (url_o, content_type));
 }
 
-function getCharsetforSave(aDocument)
+function get_charset_for_save(aDocument)
 {
     if (aDocument)
         return aDocument.characterSet;
@@ -124,13 +124,12 @@ function maybe_filename_from_content_disposition (aContentDisposition, charset) 
     return null;
 }
 
-function maybe_filename_from_url (aURI) {
+function maybe_filename_from_uri(uri) {
     try {
         var url = aURI.QueryInterface(Components.interfaces.nsIURL);
         if (url.fileName != "") {
             // 2) Use the actual file name, if present
-            var textToSubURI = Components.classes["@mozilla.org/intl/texttosuburi;1"]
-                .getService(Components.interfaces.nsITextToSubURI);
+            var textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"].getService(Ci.nsITextToSubURI);
             return textToSubURI.unEscapeURIForUI(url.originCharset || "UTF-8", url.fileName);
         }
     } catch (e) {
@@ -139,10 +138,10 @@ function maybe_filename_from_url (aURI) {
     return null;
 }
 
-function maybe_filename_from_document_title (aDocument) {
-    if (aDocument) {
-        var docTitle = aDocument.title.replace(/^\s+|\s+$/g, "");
-        if (docTitle) {
+function maybe_filename_from_title(title) {
+    if (title) {
+        var docTitle = title.replace(/^\s+|\s+$/g, "");
+        if (docTitle && docTitle.length > 0) {
             // 3) Use the document title
             return docTitle;
         }
@@ -209,64 +208,6 @@ default:
     break;
 }
 
-
-
-function getDefaultFileName (aURI, aDocument) {
-    return generate_filename_safely_fn
-        (maybe_filename_from_content_disposition(aDocument && get_document_content_disposition(aDocument),
-                                                 getCharsetforSave(aDocument)) ||
-         maybe_filename_from_url (aURI) ||
-         maybe_filename_from_document_title (aDocument) ||
-         maybe_filename_from_url_last_directory (aURI) ||
-         maybe_filename_from_url_host (aURI) ||
-         maybe_filename_from_localization_default () ||
-         "index");
-}
-
-/**
- * Determine what the 'default' path is for operations like save-page.
- * Returns an nsILocalFile.
- * @param url_o nsIURI of the document being saved.
- * @param aDocument The document to be saved
- * @param aContentType The content type we're saving, if it could be
- *        determined by the caller.
- * @param aContentDisposition The content-disposition header for the object
- *        we're saving, if it could be determined by the caller.
- * @param dest_extension_s To override the extension of the destination file,
- *        pass the extension you want here.  Otherwise pass null.  This is
- *        used by save_page_as_text.
- */
-function suggest_file_name_internal(url, aDocument, aContentType, dest_extension_s)
-{
-    url = make_uri(url);
-
-    var file_ext_s;
-    var file_base_name_s;
-
-    file_ext_s = maybe_get_url_extension (url);
-
-    // Get the default filename:
-    var file_name_s = getDefaultFileName(url, aDocument);
-
-    // If file_ext_s is still blank, and url is a web link (http or
-    // https), make the extension `.html'.
-    if (! file_ext_s && !aDocument && !aContentType && (/^http(s?)/i.test(url.scheme))) {
-        file_ext_s = "html";
-        file_base_name_s = file_name_s;
-    } else {
-        file_ext_s = getDefaultExtension(file_name_s, url, aContentType);
-        // related to temporary fix for bug 120327 in getDefaultExtension
-        if (file_ext_s == "")
-            file_ext_s = file_name_s.replace (/^.*?\.(?=[^.]*$)/, "");
-        file_base_name_s = file_name_s.replace (/\.[^.]*$/, "");
-    }
-
-    if (dest_extension_s)
-        file_ext_s = dest_extension_s;
-
-    return file_base_name_s +'.'+ file_ext_s;
-}
-
 /**
  * spec may be a string (URI), a load spec, or an nsIDOMDocument
  *
@@ -276,22 +217,44 @@ function suggest_file_name(spec, extension) {
     var document;
     var uri;
     var content_type;
-    if (spec.filename)
-        return spec.filename;
 
     if (spec instanceof Ci.nsIDOMDocument)
-        document = spec;
-    else if (typeof(load_spec) == "object" && load_spec.document)
-        document = spec.document;
-    else
-        uri = uri_from_load_spec(spec);
+        spec = {document: spec};
 
-    if (document) {
-        uri = document.documentURIObject;
-        content_type = document.contentType;
+    var file_name = load_spec_filename(spec);
+
+    document = load_spec_document(spec);
+    uri = load_spec_uri(spec);
+    content_type = load_spec_mime_type(spec);
+
+    if (!file_name) {
+        file_name = generate_filename_safely_fn(
+            maybe_filename_from_content_disposition(document && get_document_content_disposition(document),
+                                                    get_charset_for_save(document)) ||
+            maybe_filename_from_uri(uri) ||
+            maybe_filename_from_title(load_spec_title(spec)) ||
+            maybe_filename_from_url_last_directory(uri) ||
+            maybe_filename_from_url_host(uri) ||
+            maybe_filename_from_localization_default() ||
+            "index");
+
+    }
+    var base_name = file_name.replace(/\.[^.]*$/, "");
+
+    var file_ext = extension || load_spec_filename_extension(spec);
+
+    if (!file_ext) {
+        file_ext = get_default_extension(file_name, uri, content_type);
+        if (file_ext == "")
+            file_ext = file_name.replace (/^.*?\.(?=[^.]*$)/, "");
+        if (!file_ext && (/^http(s?)/i).test(url.scheme) && !content_type)
+            file_ext = "html";
     }
 
-    return suggest_file_name_internal(uri, document, content_type, extension);
+    if (file_ext != null && file_ext.length > 0)
+        return base_name + "." + file_ext;
+    else
+        return base_name;
 }
 
 function suggest_save_path_from_file_name(file_name, buffer) {

@@ -80,15 +80,15 @@ function content_buffer(window, element)
 
     this.ignore_initial_blank = true;
 
-    var load_spec = arguments.$load;
-    if (load_spec) {
-        if (load_spec.url == "about:blank")
+    var lspec = arguments.$load;
+    if (lspec) {
+        if (lspec.url == "about:blank")
             this.ignore_initial_blank = false;
         else {
             /* Ensure that an existing load of about:blank is stopped */
             this.web_navigation.stop(Ci.nsIWebNavigation.STOP_ALL);
 
-            this.load(load_spec);
+            this.load(lspec);
         }
     }
 
@@ -336,7 +336,7 @@ define_global_mode("overlink_mode",
 
 overlink_mode(true);
 
-function open_in_browser(buffer, target, load_spec)
+function open_in_browser(buffer, target, lspec)
 {
     switch (target) {
     case OPEN_CURRENT_BUFFER:
@@ -344,7 +344,7 @@ function open_in_browser(buffer, target, load_spec)
     case FOLLOW_CURRENT_FRAME:
     case FOLLOW_TOP_FRAME:
         if (buffer instanceof content_buffer)  {
-            apply_load_spec(buffer, load_spec);
+            apply_load_spec(buffer, lspec);
             break;
         }
         target = OPEN_NEW_BUFFER;
@@ -352,7 +352,7 @@ function open_in_browser(buffer, target, load_spec)
     default:
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
-                                     $load = load_spec,
+                                     $load = lspec,
                                      $configuration = buffer.configuration),
                       target);
         break;

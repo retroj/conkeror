@@ -1,4 +1,71 @@
 
+/**
+ * A load_spec has the following properties:
+ *
+ * Name:        Required?   Type:           Description:
+ * -----        ---------   -----           ------------
+ * uri          required    string          Specifies the URI of the target.
+ *
+ * document     optional    nsIDOMDocument  Specifies a document corresponding to the target.
+ *                                          Can also provide a default value for the mime_type property,
+ *                                          the title property, and the source_frame property.
+ *
+ * flags        optional    number          Specifies flags to pass to nsIWebNavigation.loadURI
+ *
+ * cache_key    optional    nsISHEntry      Specifies a key for accessing the target from the cache.
+ *
+ * referrer     optional    nsIURI          Specifies the referrer URI to use to access the target.
+ *
+ * post_data    optional    nsIInputStream  Specifies POST data to use to access the target.
+ *
+ * mime_type    optional    string          Specifies the MIME type of the target.
+ *
+ * title        optional    string          Specifies a title/description text associated with the target.
+ *
+ * source_frame optional    nsIDOMWindow    Specifies the frame from which the link to the target was "obtained".
+ *                                          Can provide a default value for referrer if document is not specified.
+ *
+ * filename     optional    string          Specifies a default filename to use to save the target.
+ *
+ * filename_extension
+ *              optional    string          Specifies a default filename extension to use to save the target.
+ */
+function load_spec(x) { x.__proto__ = load_spec.prototype; return x; }
+
+function is_load_spec(x) {
+    return (typeof(x) == "string") || (x instanceof load_spec);
+}
+
+function load_spec_document(x) {
+    return x.document;
+}
+
+function load_spec_title(x) {
+    if (x.title)
+        return x.title;
+    if (x.document)
+        return x.document.title;
+    return null;
+}
+
+function load_spec_mime_type(x) {
+    if (typeof(x) == "object") {
+        if (x.mime_type)
+            return x.mime_type;
+        if (x.document)
+            return x.document.contentType || "application/octet-stream";
+    }
+    return mime_type_from_uri(load_spec_uri(x));
+}
+
+function load_spec_filename(x) {
+    return x.filename;
+}
+
+function load_spec_filename_extension(x) {
+    return x.filename_extension;
+}
+
 function get_web_navigation_for_frame(frame) {
     var ifr = frame.QueryInterface(Ci.nsIInterfaceRequestor);
     return ifr.getInterface(Ci.nsIWebNavigation);
@@ -16,70 +83,101 @@ function get_SHEntry_for_document(doc)
     } catch (e) { return null; }
 }
 
-function document_load_spec(doc) {
-    var sh_entry = get_SHEntry_for_document(doc);
-    var result = {url: doc.location.href, document: doc};
+function load_spec_set_properties_from_sh_entry(x) {
+    var sh_entry = get_SHEntry_for_document(x.document);
     if (sh_entry != null) {
-        result.cache_key = sh_entry;
-        result.referrer = sh_entry.referrerURI;
-        result.post_data = sh_entry.postData;
+        x.cache_key = sh_entry;
+        x.referrer = sh_entry.referrerURI;
+        x.post_data = sh_entry.postData;
     }
-    return result;
 }
 
-function uri_string_from_load_spec(spec) {
-    if (typeof(spec) == "object")
-        return spec.url;
-    return spec;
-}
-
-function uri_from_load_spec(spec) {
-    if (typeof(spec) == "object" && spec.document != null)
-        return spec.document.documentURIObject;
-    return make_uri(uri_string_from_load_spec(spec));
-}
-
-function mime_type_from_load_spec(spec) {
-    if (typeof(spec) == "object") {
-        if (spec.mime_type != null)
-            return spec.mime_type;
-        if (spec.document)
-            return spec.document.contentType || "application/octet-stream";
+function load_spec_referrer(x) {
+    if (x.referrer)
+        return x.referrer;
+    if (x.document) {
+        load_spec_set_properties_from_sh_entry(x);
+        return x.referrer;
     }
-    return mime_type_from_uri(uri_string_from_load_spec(spec));
+    if (x.source_frame) {
+        x.referrer = x.source_frame.document.documentURIObject;
+        return x.referrer;
+    }
+    return null;
 }
 
-function mime_info_from_load_spec(spec) {
-    var type = mime_type_from_load_spec(spec);
+function load_spec_post_data(x) {
+    if (x.post_data)
+        return x.post_data;
+    if (x.document) {
+        load_spec_set_properties_from_sh_entry(x);
+        return x.post_data;
+    }
+    return null;
+}
+
+function load_spec_cache_key(x) {
+    if (x.cache_key)
+        return x.cache_key;
+    if (x.document) {
+        load_spec_set_properties_from_sh_entry(x);
+        return x.cache_key;
+    }
+    return null;
+}
+
+function load_spec_source_frame(x) {
+    if (x.source_frame)
+        return x.source_frame;
+    if (x.document)
+        return x.document.defaultView;
+    return null;
+}
+
+function load_spec_uri_string(x) {
+    if (typeof(x) == "string")
+        return x;
+    if (x.uri)
+        return x.uri;
+    if (x.document)
+        return x.document.documentURI;
+    return null;
+}
+
+function load_spec_uri(x) {
+    if (x.document)
+        return x.document.documentURIObject;
+    return make_uri(load_spec_uri_string(x));
+}
+
+function load_spec_flags(x) {
+    return x.load_spec_flags;
+}
+
+function load_spec_mime_info(x) {
+    var type = load_spec_mime_type(x);
     return mime_info_from_mime_type(type);
 }
 
-function default_shell_command_from_load_spec(spec) {
-    var mime_type = mime_type_from_load_spec(spec);
-    var handler = get_external_handler_for_mime_type(mime_type);
-    return handler;
+function load_spec_default_shell_command(x) {
+    var mime_type = load_spec_mime_type(x);
+    return get_external_handler_for_mime_type(mime_type);
 }
 
 /* Target can be either a content_buffer or an nsIWebNavigation */
-function apply_load_spec(target, load_spec) {
-    var url, flags, referrer, post_data;
-    if (typeof(load_spec) == "string") {
-        url = load_spec;
-        flags = null;
-        referrer = null;
-        post_data = null;
-    } else {
-        url = load_spec.url;
-        flags = load_spec.flags;
-        referrer = load_spec.referrer;
-        post_data = load_spec.post_data;
-    }
+function apply_load_spec(target, spec) {
+    var uri = load_spec_uri_string(spec);
+    var flags = load_spec_flags(spec);
+    var referrer = load_spec_referrer(spec);
+    var post_data = load_spec_post_data(spec);
+
     if (flags == null)
         flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
+
     if (target instanceof content_buffer) {
-        target._display_URI = url;
+        target._display_URI = uri;
         target = target.web_navigation;
         //buffer_description_change_hook.run(target);
     }
-    target.loadURI(url, flags, referrer, post_data, null /* headers */);
+    target.loadURI(uri, flags, referrer, post_data, null /* headers */);
 }

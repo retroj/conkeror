@@ -4,7 +4,7 @@ require("suggest-file-name.js");
 
 /* buffer is used only to associate with the download */
 define_keywords("$use_cache", "$buffer", "$prepare_download");
-function save_uri(load_spec, output_file) {
+function save_uri(lspec, output_file) {
     keywords(arguments, $use_cache = false);
 
     var use_cache = arguments.$use_cache;
@@ -14,18 +14,11 @@ function save_uri(load_spec, output_file) {
     var prepare_download = arguments.$prepare_download;
 
     var cache_key = null;
-    var post_data = null;
-    var uri = null;
-    var referrer_uri = null;
-    if (typeof(load_spec) == "string") {
-        uri = make_uri(load_spec);
-    } else {
-        uri = make_uri(load_spec.url);
-        referrer_uri = load_spec.referrer;
-        post_data = load_spec.post_data;
-        if (use_cache)
-            cache_key = load_spec.cache_key;
-    }
+    var uri = load_spec_uri(lspec);
+    var referrer_uri = load_spec_referrer(lspec);
+    var post_data = load_spec_post_data(lspec);
+    if (use_cache)
+        cache_key = load_spec_cache_key(lspec);
 
     var file_uri = makeFileURL(output_file);
 
@@ -47,7 +40,7 @@ function save_uri(load_spec, output_file) {
 
     var tr = Cc["@mozilla.org/transfer;1"].createInstance(Ci.nsITransfer);
     tr.init(uri, file_uri, output_file.leafName,
-            mime_info_from_load_spec(load_spec),
+            load_spec_mime_info(lspec),
             null /* start time */,
             null /* temp file */,
             persist);
@@ -201,14 +194,14 @@ download_failed_error.prototype.__proto__ = Error.prototype;
  * done with it.
  */
 define_keywords("$action", "$shell_command", "$shell_command_cwd", "$buffer", "$use_cache");
-function download_as_temporary(load_spec) {
+function download_as_temporary(lspec) {
     keywords(arguments, $use_cache = true);
 
     var action_description = arguments.$action;
     var shell_command = arguments.$shell_command;
     var shell_command_cwd = arguments.$shell_command_cwd;
 
-    var uri = uri_from_load_spec(load_spec);
+    var uri = load_spec_uri(lspec);
     // If it is local file, there is no need to download it
     if (uri.scheme == "file")
     {
@@ -218,7 +211,7 @@ function download_as_temporary(load_spec) {
     }
 
 
-    var file = get_temporary_file(suggest_file_name(load_spec));
+    var file = get_temporary_file(suggest_file_name(lspec));
 
     var cc = yield CONTINUATION;
 
@@ -240,7 +233,7 @@ function download_as_temporary(load_spec) {
         }
     }
 
-    save_uri(load_spec, file,
+    save_uri(lspec, file,
              $use_cache = arguments.$use_cache,
              $buffer = arguments.$buffer,
              $prepare_download = function (info) {

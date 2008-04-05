@@ -1,12 +1,11 @@
 require("content-buffer.js");
 require("media.js");
 
-function media_scrape_google_video(buffer, results) {
+function media_scrape_google_video(buffer) {
 
     var doc = buffer.top_document;
 
     try {
-        let title = doc.title;
         let frame_doc = buffer.top_frame.frames[0].document;
         let mime_type;
         let ext;
@@ -29,15 +28,18 @@ function media_scrape_google_video(buffer, results) {
             ext = "flv";
             mime_type = "video/x-flv";
         } else
-            return;
-        let filename = title.replace(/^\s+|\s+$/g, "");
-        filename = generate_filename_safely_fn(title) + "." + ext;
-        results.push(new media_spec_simple_uri(target_uri, title, filename, buffer.top_frame, mime_type));
+            return null;
+        return [load_spec({uri: target_uri,
+                           title: doc.title,
+                           filename_extension: ext,
+                           source_frame: buffer.top_frame,
+                           mime_type: mime_type})];
     } catch (e if !(e instanceof interactive_error)) {}
+    return null;
 }
 
 
-define_page_mode("google_video_mode", "GoogleVideo", $enable = function (buffer) {
+define_page_mode("google_video_mode", "Google Video", $enable = function (buffer) {
     buffer.local_variables.media_scraper = media_scrape_google_video;
     media_setup_local_object_classes(buffer);
 });

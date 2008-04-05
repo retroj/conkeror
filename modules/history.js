@@ -68,27 +68,3 @@ function add_bookmark(url, title) {
     nav_bookmarks_service.insertBookmark(nav_bookmarks_service.unfiledBookmarksFolder,
                                          makeURL(url), -1, title);
 }
-
-function get_element_bookmark_info(elem) {
-    var uri, title;
-    var doc = null;
-    if (elem instanceof Ci.nsIDOMWindow)
-        doc = elem.document;
-    else if (elem instanceof Ci.nsIDOMHTMLFrameElement || Ci.nsIDOMHTMLIFrameElement)
-        doc = elem.contentDocument;
-    else if (elem instanceof Ci.nsIDOMHTMLAnchorElement) {
-        uri = elem.getAttribute("href");
-        let t = elem.getAttribute("title");
-        if (t.length > 0)
-            title = t;
-        else
-            title = elem.textContent;
-    } else {
-        throw interactive_error("Invalid element");
-    }
-    if (doc != null) {
-        uri = doc.location.href;
-        title = doc.title;
-    }
-    return [uri, title];
-}

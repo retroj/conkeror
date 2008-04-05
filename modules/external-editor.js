@@ -59,8 +59,8 @@ function create_external_editor_launcher(program, args) {
     };
 }
 
-function open_with_external_editor(load_spec) {
+function open_with_external_editor(lspec) {
     keywords(arguments);
-    let [file, temp] = yield download_as_temporary(load_spec);
+    let [file, temp] = yield download_as_temporary(lspec);
     yield open_file_with_external_editor(file, $line = arguments.$line, $temporary = temp);
 }

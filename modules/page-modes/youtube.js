@@ -4,7 +4,7 @@ require("media.js");
 const media_youtube_content_key_regexp = /t=[\w-]{10,}/i;
 const media_youtube_uri_test_regexp = /^http:\/\/youtube\.com\/watch\?v=([A-Za-z0-9\-]+)/;
 
-function media_scrape_youtube(buffer, results) {
+function media_scrape_youtube(buffer) {
     try {
         var uri = buffer.current_URI.spec;
 
@@ -19,15 +19,15 @@ function media_scrape_youtube(buffer, results) {
             let code = result[1];
             let res = media_youtube_content_key_regexp.exec(text);
             if (res) {
-                let key = res[0];
-                let target_uri = 'http://youtube.com/get_video?video_id=' + code + '&' + key;
-                let title_str = title.stringValue;
-                let filename = title_str.replace(/^\s+|\s+$/g, "");
-                filename = generate_filename_safely_fn(title_str) + ".flv";
-                results.push(new media_spec_simple_uri(target_uri, title_str, filename, buffer.top_frame, "video/x-flv"));
+                return [load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&' + res[0],
+                                   title: title.stringValue,
+                                   filename_extension: "flv",
+                                   source_frame: buffer.top_frame,
+                                   mime_type: "video/x-flv"})];
             }
         }
     } catch (e if !(e instanceof interactive_error)) {}
+    return null;
 }
 
 define_page_mode("youtube_mode", "YouTube", $enable = function (buffer) {
