@@ -18,12 +18,12 @@ var module = {
     /* We can't use XPCOMUtils because that doesn't provide this delay
      * trick. */
 
-    firstTime: true,
+    prevTimes: 0,
 
     // registerSelf: Register this component.
     registerSelf: function (compMgr, fileSpec, location, type) {
-        if (this.firstTime) {
-            this.firstTime = false;
+        if (this.prevTimes < 2) {
+            this.prevTimes++;
             throw Components.results.NS_ERROR_FACTORY_REGISTER_AGAIN;
         }
         compMgr = compMgr.QueryInterface(Components.interfaces.nsIComponentRegistrar);
