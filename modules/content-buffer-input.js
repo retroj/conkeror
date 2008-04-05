@@ -2,16 +2,27 @@ require("content-buffer.js");
 
 define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
 
+var content_buffer_input_mode_keymaps = {};
+
 function define_input_mode(base_name, display_name, keymap_name, doc) {
-    define_buffer_mode(base_name + "_input_mode",
-		       display_name,
-		       $class = "input_mode",
-		       $enable = function (buffer) { check_buffer(buffer, content_buffer);
-						     buffer.keymap = buffer.get(keymap_name); },
-		       $disable = false,
-		       $doc = doc);
+    var name = base_name + "_input_mode";
+    content_buffer_input_mode_keymaps[name] = keymap_name;
+    define_buffer_mode(name,
+		               display_name,
+		               $class = "input_mode",
+		               $enable = function (buffer) { check_buffer(buffer, content_buffer);
+                                                     content_buffer_update_keymap_for_input_mode(buffer); },
+		               $disable = false,
+		               $doc = doc);
 }
 ignore_function_for_get_caller_source_code_reference("define_input_mode");
+
+function content_buffer_update_keymap_for_input_mode(buffer) {
+    if (buffer.input_mode)
+        buffer.keymap = buffer.get(content_buffer_input_mode_keymaps[buffer.input_mode]);
+}
+
+add_hook("page_mode_change_hook", content_buffer_update_keymap_for_input_mode);
 
 define_input_mode("normal", null, "content_buffer_normal_keymap");
 
