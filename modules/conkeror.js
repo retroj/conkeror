@@ -56,6 +56,7 @@ require("media.js");
 require("page-modes/youtube.js");
 require("page-modes/google-video.js");
 require("page-modes/google-search-results.js");
+require("page-modes/gmail.js");
 
 //require("scroll-bars.js");
 
