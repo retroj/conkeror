@@ -1,6 +1,139 @@
 require("hints.js");
 require("save.js");
 
+var browser_object_classes = {};
+
+/**
+ * handler is a coroutine called as: handler(buffer, prompt)
+ */
+define_keywords("$doc", "$action", "$label", "$handler", "$xpath_expression");
+function define_browser_object_class(name) {
+    keywords(arguments);
+    var handler = arguments.$handler;
+    let xpath_expression = arguments.$xpath_expression;
+    if (handler === undefined && xpath_expression != undefined) {
+        handler = function (buf, prompt) {
+            var result = yield buf.window.minibuffer.read_hinted_element(
+                $buffer = buf,
+                $prompt = prompt,
+                $hint_xpath_expression = xpath_expression);
+            yield co_return(result);
+        };
+    }
+    var base_obj = browser_object_classes[name];
+    if (base_obj == null)
+        base_obj = browser_object_classes[name] = {};
+    var obj;
+    if (arguments.$action) {
+        name = name + "/" + arguments.$action;
+        obj = browser_object_classes[name];
+        if (obj == null)
+            obj = browser_object_classes[name] = {__proto__: base_obj};
+    } else
+        obj = base_obj;
+    if (arguments.$label !== undefined)
+        obj.label = arguments.$label;
+    if (arguments.$doc !== undefined)
+        obj.doc = arguments.$doc;
+    if (handler !== undefined)
+        obj.handler = handler;
+}
+
+define_browser_object_class("images", $xpath_expression = "//img | //xhtml:img");
+
+define_browser_object_class("frames", $handler = function (buf, prompt) {
+    check_buffer(buf, content_buffer);
+    var doc = buf.top_document;
+    if (doc.getElementsByTagName("frame").length == 0 &&
+        doc.getElementsByTagName("iframe").length == 0)
+    {
+        // only one frame (the top-level one), no need to use the hints system
+        yield co_return(buf.top_frame);
+    }
+
+    var result = yield buf.window.minibuffer.read_hinted_element(
+        $buffer = buf,
+        $prompt = prompt,
+        $hint_xpath_expression = "//iframe | //frame | //xhtml:iframe | //xhtml:frame");
+    yield co_return(result);
+});
+
+define_browser_object_class(
+    "links",
+    $xpath_expression = 
+        "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+        "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
+        "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+        "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
+        "//xhtml:button | //xhtml:select");
+
+define_browser_object_class("mathml", $label = "MathML", $xpath_expression = "//m:math");
+
+define_browser_object_class("top", $handler = function (buf, prompt) { yield co_return(buf.top_frame); });
+
+
+define_variable(
+    "default_browser_object_classes",
+    {
+        follow: "links",
+        follow_top: "frames",
+        focus: "frames",
+        save: "links",
+        copy: "links",
+        view_source: "frames",
+        bookmark: "frames",
+        save_page: "frames",
+        save_page_complete: "top",
+        save_page_as_text: "frames",
+        default: "links"
+    },
+    "Specifies the default object class for each operation.\n" +
+        "This variable should be an object literal with string-valued properties that specify one of the defined browser object classes.  If a property named after the operation is not present, the \"default\" property is consulted instead.");
+
+interactive_context.prototype.browser_object_class = function (action_name) {
+    var cls =
+        this._browser_object_class ||
+        this.get("default_browser_object_classes")[action_name] ||
+        this.get("default_browser_object_classes")["default"];
+    return cls;
+};
+
+function browser_object_class_selector(name) {
+    return function (ctx, active_keymap, overlay_keymap) {
+        ctx._browser_object_class = name;
+        ctx.overlay_keymap = overlay_keymap || active_keymap;
+    }
+}
+
+function lookup_browser_object_class(class_name, action) {
+    var obj;
+    if (action != null) {
+        obj = browser_object_classes[class_name + "/" + action];
+        if (obj)
+            return obj;
+    }
+    return browser_object_classes[class_name];
+}
+
+interactive_context.prototype.read_browser_object = function(action, action_name, default_class, target)
+{
+    var object_class_name = this.browser_object_class(action);
+    var object_class = lookup_browser_object_class(object_class_name, action);
+
+    var prompt = action_name;
+    if (target != null)
+        prompt += TARGET_PROMPTS[target];
+    if (object_class_name != default_class) {
+        var label = object_class.label || object_class_name;
+        prompt += " (" + label + ")";
+    }
+    prompt += ":";
+
+    var result = yield object_class.handler.call(null, this.buffer, prompt);
+    yield co_return(result);
+}
+
+
 function is_dom_node_or_window(elem) {
     if (elem instanceof Ci.nsIDOMNode)
         return true;
@@ -199,82 +332,20 @@ function element_get_load_spec(elem) {
     return spec;
 }
 
-define_variable(
-    "hints_default_object_classes",
-    {
-        follow: "links",
-        follow_top: "frames",
-        focus: "frames",
-        save: "links",
-        copy: "links",
-        view_source: "frames",
-        bookmark: "frames",
-        save_page: "frames",
-        save_page_complete: "top",
-        save_page_as_text: "frames",
-        def: "links"
-    },
-    "Specifies the default object class for each operation.\n" +
-        "This variable should be an object literal with string-valued properties that specify one of the supported object classes (\"links\", \"frames\", \"top\", or \"images\") defined in `hints_xpath_expression'.  If a property named after the operation is not present, the \"def\" property is consulted instead.");
-
-interactive_context.prototype.hints_object_class = function (action_name) {
-    var cls =
-        this._hints_object_class ||
-        this.get("hints_default_object_classes")[action_name] ||
-        this.get("hints_default_object_classes")["def"];
-    return cls;
-};
-
-function resolve_hints_xpath_expression(buffer, object_class, action_name) {
-    var db = buffer.get("hints_xpath_expressions")[object_class];
-    return db[action_name] || db["def"];
-}
-
-interactive_context.prototype.hints_xpath_expression = function (action_name) {
-    return resolve_hints_xpath_expression(this.buffer, this.hints_object_class(action_name), action_name);
-};
-
-function hints_object_class_selector(name) {
-    return function (ctx, active_keymap, overlay_keymap) {
-        ctx._hints_object_class = name;
-        ctx.overlay_keymap = overlay_keymap || active_keymap;
-    }
-}
-
-interactive_context.prototype.read_hinted_element_with_prompt = function(action, action_name, default_class, target)
-{
-    var object_class = this.hints_object_class(action);
-
-    var prompt = action_name;
-    if (target != null)
-        prompt += TARGET_PROMPTS[target];
-    if (object_class != default_class)
-        prompt += " (" + object_class + ")";
-    prompt += ":";
-
-    var result = yield this.minibuffer.read_hinted_element(
-        $buffer = this.buffer,
-        $prompt = prompt,
-        $object_class = object_class,
-        $action = action);
-
-    yield co_return(result);
-}
-
 interactive("follow", function (I) {
     var target = I.browse_target("follow");
-    var element = yield I.read_hinted_element_with_prompt("follow", "Follow", "links", target);
+    var element = yield I.read_browser_object("follow", "Follow", "links", target);
     browser_element_follow(I.buffer, target, element);
 });
 
 interactive("follow-top", function (I) {
     var target = I.browse_target("follow-top");
-    var element = yield I.read_hinted_element_with_prompt("follow_top", "Follow", "links", target);
+    var element = yield I.read_browser_object("follow_top", "Follow", "links", target);
     browser_element_follow(I.buffer, target, element);
 });
 
 interactive("focus", function (I) {
-    var element = yield I.read_hinted_element_with_prompt("focus", "Focus");
+    var element = yield I.read_browser_object("focus", "Focus");
     browser_element_focus(I.buffer, element);
 });
 
@@ -304,7 +375,7 @@ function element_get_operation_label(element, op_name, suffix) {
 }
 
 interactive("save", function (I) {
-    var element = yield I.read_hinted_element_with_prompt("save", "Save", "links");
+    var element = yield I.read_browser_object("save", "Save", "links");
 
     var spec = element_get_load_spec(element);
     if (spec == null)
@@ -361,7 +432,7 @@ function browser_element_copy(buffer, elem)
 
 
 interactive("copy", function (I) {
-    var element = yield I.read_hinted_element_with_prompt("copy", "Copy", "links");
+    var element = yield I.read_browser_object("copy", "Copy", "links");
     browser_element_copy(I.buffer, element);
 });
 
@@ -415,13 +486,13 @@ function browser_element_view_source(buffer, target, elem)
 
 interactive("view-source", function (I) {
     var target = I.browse_target("follow");
-    var element = yield I.read_hinted_element_with_prompt("view_source", "View source", "frames", target);
+    var element = yield I.read_browser_object("view_source", "View source", "frames", target);
     yield browser_element_view_source(I.buffer, target, element);
 });
 
 interactive("shell-command-on-url", function (I) {
     var cwd = I.cwd;
-    var element = yield I.read_hinted_element_with_prompt("shell_command_url", "URL shell command target", "links");
+    var element = yield I.read_browser_object("shell_command_url", "URL shell command target", "links");
     var spec = element_get_load_spec(element);
     if (spec == null)
         throw interactive_error("Unable to obtain URI from element");
@@ -460,7 +531,7 @@ function browser_element_shell_command(buffer, elem, command) {
 
 interactive("shell-command-on-file", function (I) {
     var cwd = I.cwd;
-    var element = yield I.read_hinted_element_with_prompt("shell_command", "Shell command target", "links");
+    var element = yield I.read_browser_object("shell_command", "Shell command target", "links");
 
     var spec = element_get_load_spec(element);
     if (spec == null)
@@ -489,7 +560,7 @@ interactive("shell-command-on-file", function (I) {
 });
 
 interactive("bookmark", function (I) {
-    var element = yield I.read_hinted_element_with_prompt("bookmark", "Bookmark", "frames");
+    var element = yield I.read_browser_object("bookmark", "Bookmark", "frames");
     var spec = element_get_load_spec(element);
     if (!spec)
         throw interactive_error("Element has no associated URI");
@@ -510,7 +581,7 @@ interactive("bookmark", function (I) {
 
 interactive("save-page", function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_hinted_element_with_prompt("save_page", "Save page", "frames");
+    var element = yield I.read_browser_object("save_page", "Save page", "frames");
     var spec = element_get_load_spec(element);
     if (!spec || !load_spec_document(spec))
         throw interactive_error("Element is not associated with a document.");
@@ -537,7 +608,7 @@ interactive("save-page", function (I) {
 
 interactive("save-page-as-text", function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_hinted_element_with_prompt("save_page_as_text", "Save page as text", "frames");
+    var element = yield I.read_browser_object("save_page_as_text", "Save page as text", "frames");
     var spec = element_get_load_spec(element);
     var doc;
     if (!spec || !(doc = load_spec_document(spec)))
@@ -565,7 +636,7 @@ interactive("save-page-as-text", function (I) {
 
 interactive("save-page-complete", function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_hinted_element_with_prompt("save_page_complete", "Save page complete", "frames");
+    var element = yield I.read_browser_object("save_page_complete", "Save page complete", "frames");
     var spec = element_get_load_spec(element);
     var doc;
     if (!spec || !(doc = load_spec_document(spec)))

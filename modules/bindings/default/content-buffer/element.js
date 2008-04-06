@@ -3,31 +3,31 @@ require("element.js");
 var browser_elements_keymap = new keymap();
 
 define_key(content_buffer_normal_keymap, "i", browser_elements_keymap,
-           $hook = hints_object_class_selector("images"));
+           $hook = browser_object_class_selector("images"));
 
 define_key(content_buffer_normal_keymap, "n", browser_elements_keymap,
-           $hook = hints_object_class_selector("links"));
+           $hook = browser_object_class_selector("links"));
 
 define_key(content_buffer_normal_keymap, "m", browser_elements_keymap,
-           $hook = hints_object_class_selector("frames"));
+           $hook = browser_object_class_selector("frames"));
 
 define_key(content_buffer_normal_keymap, "e", browser_elements_keymap,
-           $hook = hints_object_class_selector("media"));
+           $hook = browser_object_class_selector("media"));
 
 define_key(content_buffer_normal_keymap, "S-8 e", browser_elements_keymap,
-           $hook = hints_object_class_selector("media"));
+           $hook = browser_object_class_selector("media"));
 
 define_key(content_buffer_normal_keymap, "S-8 i", browser_elements_keymap,
-           $hook = hints_object_class_selector("images"));
+           $hook = browser_object_class_selector("images"));
 
 define_key(content_buffer_normal_keymap, "S-8 n", browser_elements_keymap,
-           $hook = hints_object_class_selector("links"));
+           $hook = browser_object_class_selector("links"));
 
 define_key(content_buffer_normal_keymap, "S-8 m", browser_elements_keymap,
-           $hook = hints_object_class_selector("frames"));
+           $hook = browser_object_class_selector("frames"));
 
 define_key(content_buffer_normal_keymap, "S-8 M", browser_elements_keymap,
-           $hook = hints_object_class_selector("mathml"));
+           $hook = browser_object_class_selector("mathml"));
 
 
 function bind_element_operations(keymap) {

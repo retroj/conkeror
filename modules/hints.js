@@ -494,50 +494,12 @@ define_variable(
     "XPath expressions for each object class.");
 
 minibuffer_auto_complete_preferences["media"] = true;
-define_keywords("$object_class", "$buffer", "$action");
+
+define_keywords("$buffer");
 minibuffer.prototype.read_hinted_element = function () {
     keywords(arguments);
     var buf = arguments.$buffer;
-    // FIXME: clean this up and replace with proper object class declaration
-    var object_class = arguments.$object_class;
-    if (object_class == "top")
-        yield co_return(buf.top_frame);
-
-    if (object_class == "media") {
-        let media = media_scrape(buf);
-        if (!media || media.length == 0)
-            throw interactive_error("No media found.");
-
-        if (media.length == 1)
-            yield co_return(media[0]);
-
-        let completer = all_word_completer(
-            $completions = media,
-            $get_string = function (x) load_spec_uri_string(x),
-            $get_description = function (x) load_spec_title(x) || "");
-
-        let result = yield this.read(
-            $prompt = "Media",
-            $match_required,
-            $completer = completer,
-            $auto_complete_initial,
-            $auto_complete = "media");
-
-        yield co_return(result);
-    }
-
-    if (object_class == "frames") {
-        check_buffer(buf, content_buffer);
-        var doc = buf.top_document;
-        if (doc.getElementsByTagName("frame").length == 0 &&
-            doc.getElementsByTagName("iframe").length == 0)
-        {
-            // only one frame (the top-level one), no need to use the hints system
-            yield co_return(buf.top_frame);
-        }
-    }
-    var s = new hints_minibuffer_state((yield CONTINUATION), buf, forward_keywords(arguments),
-        $hint_xpath_expression = resolve_hints_xpath_expression(buf, object_class, arguments.$action));
+    var s = new hints_minibuffer_state((yield CONTINUATION), buf, forward_keywords(arguments));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);
