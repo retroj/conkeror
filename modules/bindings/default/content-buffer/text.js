@@ -12,9 +12,11 @@ define_key(content_buffer_text_keymap, "M-d", "cmd_deleteWordForward");
 define_key(content_buffer_text_keymap, "C-b", "backward-char");
 define_key(content_buffer_text_keymap, "left", "backward-char");
 define_key(content_buffer_text_keymap, "M-b", "backward-word");
+define_key(content_buffer_text_keymap, "C-left", "backward-word");
 define_key(content_buffer_text_keymap, "C-f", "forward-char");
 define_key(content_buffer_text_keymap, "right", "forward-char");
 define_key(content_buffer_text_keymap, "M-f", "forward-word");
+define_key(content_buffer_text_keymap, "C-right", "forward-word");
 define_key(content_buffer_text_keymap, "M-w", "cmd_copy");
 define_key(content_buffer_text_keymap, "C-k", "cut-to-end-of-line");
 
