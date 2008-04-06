@@ -102,7 +102,16 @@ function paste_x_primary_selection (field) {
 interactive (
     "paste-x-primary-selection",
     function (I) {
-        paste_x_primary_selection (I.buffer.focused_element);
+        var m = I.window.minibuffer;
+        var s = m.current_state;
+        if (m._input_mode_enabled) {
+            m._ensure_input_area_showing();
+            var e = m.input_element;
+        } else
+            var e = I.buffer.focused_element;
+        paste_x_primary_selection (e);
+        if (s instanceof text_entry_minibuffer_state)
+            s.handle_input_changed();
     });
 
 
