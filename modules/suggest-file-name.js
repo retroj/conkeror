@@ -126,7 +126,7 @@ function maybe_filename_from_content_disposition (aContentDisposition, charset) 
 
 function maybe_filename_from_uri(uri) {
     try {
-        var url = aURI.QueryInterface(Components.interfaces.nsIURL);
+        var url = uri.QueryInterface(Components.interfaces.nsIURL);
         if (url.fileName != "") {
             // 2) Use the actual file name, if present
             var textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"].getService(Ci.nsITextToSubURI);
@@ -245,9 +245,15 @@ function suggest_file_name(spec, extension) {
 
     if (!file_ext) {
         file_ext = get_default_extension(file_name, uri, content_type);
-        if (file_ext == "")
-            file_ext = file_name.replace (/^.*?\.(?=[^.]*$)/, "");
-        if (!file_ext && (/^http(s?)/i).test(url.scheme) && !content_type)
+        if (file_ext == "") {
+            let x = file_name.lastIndexOf(".");
+            if (x == -1)
+                file_ext = null;
+            else
+                file_ext = file_name.substring(x+1);
+        }
+        if (!file_ext && (/^http(s?)/i).test(uri.scheme) && !content_type ||
+            content_type == "application/octet-stream")
             file_ext = "html";
     }
 
