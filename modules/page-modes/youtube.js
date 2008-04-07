@@ -2,7 +2,7 @@ require("content-buffer.js");
 require("media.js");
 
 const media_youtube_content_key_regexp = /t=[\w-]{10,}/i;
-const media_youtube_uri_test_regexp = /^http:\/\/youtube\.com\/watch\?v=([A-Za-z0-9\-]+)/;
+const media_youtube_uri_test_regexp = /^http:\/\/(?:www\.)youtube\.com\/watch\?v=([A-Za-z0-9\-]+)/;
 
 function media_scrape_youtube(buffer) {
     try {
