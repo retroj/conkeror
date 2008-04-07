@@ -44,47 +44,54 @@ define_input_mode(
 	"bypassing Conkeror's normal key handling, until the "+
 	"Escape key is pressed.");
 
-add_hook("content_buffer_focus_change_hook", function (buffer) {
+function content_buffer_update_input_mode_for_focus(buffer, force) {
     var mode = buffer.input_mode;
     var form_input_mode_enabled = (mode == "text_input_mode" ||
-				   mode == "textarea_input_mode" ||
-				   mode == "select_input_mode");
+				                   mode == "textarea_input_mode" ||
+				                   mode == "select_input_mode");
 
-    if (form_input_mode_enabled || mode == "normal_input_mode") {
-	var elem = buffer.focused_element;
+    if (force || form_input_mode_enabled || mode == "normal_input_mode") {
+	    var elem = buffer.focused_element;
 
-	if (elem) {
-	    var input_mode_function = null;
-	    if (elem instanceof Ci.nsIDOMHTMLInputElement) {
-		var type = elem.getAttribute("type");
-		if (type != null) type = type.toLowerCase();
-		if (type != "radio" &&
-		    type != "checkbox" &&
-		    type != "submit" &&
-		    type != "reset")
-		    input_mode_function = text_input_mode;
+	    if (elem) {
+	        var input_mode_function = null;
+	        if (elem instanceof Ci.nsIDOMHTMLInputElement) {
+		        var type = elem.getAttribute("type");
+		        if (type != null) type = type.toLowerCase();
+		        if (type != "radio" &&
+		            type != "checkbox" &&
+		            type != "submit" &&
+		            type != "reset")
+		            input_mode_function = text_input_mode;
+	        }
+	        else if (elem instanceof Ci.nsIDOMHTMLTextAreaElement)
+		        input_mode_function = textarea_input_mode;
+
+	        else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
+		        input_mode_function = select_input_mode;
+
+	        if (input_mode_function) {
+		        if (!force &&
+                    browser_prevent_automatic_form_focus_mode_enabled &&
+		            !form_input_mode_enabled &&
+		            (buffer.last_user_input_received == null ||
+		             (Date.now() - buffer.last_user_input_received)
+		             > browser_automatic_form_focus_window_duration)) {
+		            // Automatic focus attempt blocked
+		            elem.blur();
+		        } else
+		            input_mode_function(buffer);
+		        return;
+	        }
 	    }
-	    else if (elem instanceof Ci.nsIDOMHTMLTextAreaElement)
-		input_mode_function = textarea_input_mode;
-
-	    else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
-		input_mode_function = select_input_mode;
-
-	    if (input_mode_function) {
-		if (browser_prevent_automatic_form_focus_mode_enabled &&
-		    !form_input_mode_enabled &&
-		    (buffer.last_user_input_received == null ||
-		     (Date.now() - buffer.last_user_input_received)
-		     > browser_automatic_form_focus_window_duration)) {
-		    // Automatic focus attempt blocked
-		    elem.blur();
-		} else
-		    input_mode_function(buffer);
-		return;
-	    }
-	}
-	normal_input_mode(buffer);
+	    normal_input_mode(buffer);
     }
+}
+
+add_hook("content_buffer_focus_change_hook", content_buffer_update_input_mode_for_focus);
+
+interactive("content-buffer-update-input-mode-for-focus", function (I) {
+    content_buffer_update_input_mode_for_focus(I.buffer, true);
 });
 
 function minibuffer_input_mode_indicator(window) {
