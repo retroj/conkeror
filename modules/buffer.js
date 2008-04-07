@@ -23,6 +23,7 @@ define_buffer_local_hook("buffer_loaded_hook");
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
 define_current_buffer_hook("current_buffer_description_change_hook", "buffer_description_change_hook");
 define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
+define_current_buffer_hook("current_buffer_dom_content_loaded_hook", "buffer_dom_content_loaded_hook");
 
 function buffer_configuration(existing_configuration) {
     if (existing_configuration != null) {
