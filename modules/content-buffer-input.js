@@ -69,7 +69,7 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 
 	        else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
 		        input_mode_function = select_input_mode;
-
+            
 	        if (input_mode_function) {
 		        if (!force &&
                     browser_prevent_automatic_form_focus_mode_enabled &&
@@ -88,7 +88,7 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
     }
 }
 
-add_hook("content_buffer_focus_change_hook", content_buffer_update_input_mode_for_focus);
+add_hook("content_buffer_focus_change_hook", function (buf) { content_buffer_update_input_mode_for_focus(buf, false); } );
 
 interactive("content-buffer-update-input-mode-for-focus", function (I) {
     content_buffer_update_input_mode_for_focus(I.buffer, true);
