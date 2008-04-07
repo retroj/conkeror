@@ -231,7 +231,7 @@ function suggest_file_name(spec, extension) {
         file_name = generate_filename_safely_fn(
             maybe_filename_from_content_disposition(document && get_document_content_disposition(document),
                                                     get_charset_for_save(document)) ||
-            maybe_filename_from_uri(uri) ||
+            ((spec.suggest_filename_from_uri != false) && maybe_filename_from_uri(uri)) ||
             maybe_filename_from_title(load_spec_title(spec)) ||
             maybe_filename_from_url_last_directory(uri) ||
             maybe_filename_from_url_host(uri) ||
