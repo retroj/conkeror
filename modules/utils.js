@@ -597,7 +597,7 @@ function session_pref (name, value) {
 const USER_AGENT_OVERRIDE_PREF = "general.useragent.override";
 
 function set_user_agent(str) {
-    lock_pref(USER_AGENT_OVERRIDE_PREF, str);
+    session_pref(USER_AGENT_OVERRIDE_PREF, str);
 }
 
 function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_active_predicate) {
