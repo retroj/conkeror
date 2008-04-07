@@ -527,24 +527,6 @@ function user_pref(name, value) {
     set_branch_pref(branch, name, value);
 }
 
-function pref_is_locked(name, value) {
-    var branch = preferences.getBranch(null);
-    return branch.prefIsLocked(name);
-}
-
-function lock_pref(name, value) {
-    var branch = preferences.getBranch(null);
-    if (branch.prefIsLocked(name))
-        branch.unlockPref(name);
-    default_pref(name, value);
-    branch.lockPref(name);
-}
-
-function unlock_pref(name) {
-    var branch = preferences.getBranch(null);
-    branch.unlockPref(name);
-}
-
 function get_branch_pref(branch, name) {
     switch (branch.getPrefType(name)) {
     case branch.PREF_STRING:
