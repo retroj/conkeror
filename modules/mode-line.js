@@ -96,7 +96,7 @@ text_widget.prototype = {
         var obj = this;
         if (handler == null) handler = function () { obj.update(); }
         add_hook.call(this.window, hook_name, handler);
-        this.window_hooks.push(handler);
+        this.window_hooks.push([hook_name, handler]);
     },
 
     view : null,
@@ -111,8 +111,9 @@ text_widget.prototype = {
 
     destroy : function ()
     {
-        for (var i = 0; i < this.window_hooks.length; ++i)
-            remove_hook.call(this.window, this.window_hooks[i]);
+        for each (let i in this.window_hooks) {
+            remove_hook.call(this.window, i[0], i[1]);
+        }
     },
 
     remove : function ()
