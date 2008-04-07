@@ -20,6 +20,7 @@ function media_scrape_youtube(buffer) {
             let res = media_youtube_content_key_regexp.exec(text);
             if (res) {
                 return [load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&' + res[0],
+                                   suggest_filename_from_uri: false,
                                    title: title.stringValue,
                                    filename_extension: "flv",
                                    source_frame: buffer.top_frame,
