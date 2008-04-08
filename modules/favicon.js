@@ -18,8 +18,8 @@ function favicon_content_buffer_finished_loading(buffer) {
     if (buffer.favicon != null)
         return;
 
-    if (buffer.top_document instanceof Ci.nsIImageDocument) {
-        var req = buffer.top_document.imageRequest;
+    if (buffer.document instanceof Ci.nsIImageDocument) {
+        var req = buffer.document.imageRequest;
         if (req && req.image &&
             req.image.width <= favicon_image_max_size  &&
             req.image.height <= favicon_image_max_size) {

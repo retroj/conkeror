@@ -10,7 +10,7 @@ function media_scrape_youtube(buffer) {
 
         var result = media_youtube_uri_test_regexp.exec(uri);
 
-        var doc = buffer.top_document;
+        var doc = buffer.document;
 
         var title = doc.evaluate("//meta[@name='title']/@content", doc, xpath_lookup_namespace,
                                  Ci.nsIDOMXPathResult.STRING_TYPE , null);

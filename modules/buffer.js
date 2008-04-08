@@ -141,7 +141,7 @@ buffer.prototype = {
 
     /* Browser accessors */
     get top_frame () { return this.browser.contentWindow; },
-    get top_document () { return this.browser.contentDocument; },
+    get document () { return this.browser.contentDocument; },
     get web_navigation () { return this.browser.webNavigation; },
     get doc_shell () { return this.browser.docShell; },
     get markup_document_viewer () { return this.browser.markupDocumentViewer; },

@@ -148,7 +148,7 @@ describe_bindings_buffer.prototype = {
     description : "*bindings*",
 
     generate : function () {
-        var d = this.top_document;
+        var d = this.document;
         var list = this.binding_list;
         delete this.binding_list;
 
@@ -235,7 +235,7 @@ apropos_command_buffer.prototype = {
     description : "*Apropos*",
 
     generate : function () {
-        var d = this.top_document;
+        var d = this.document;
         var list = this.command_list;
         delete this.command_list;
 
@@ -328,7 +328,7 @@ describe_command_buffer.prototype = {
     description : "*help*",
 
     generate : function () {
-        var d = this.top_document;
+        var d = this.document;
 
         var g = new help_document_generator(d, this);
 
@@ -418,7 +418,7 @@ describe_key_buffer.prototype = {
     description : "*help*",
 
     generate : function () {
-        var d = this.top_document;
+        var d = this.document;
 
         var g = new help_document_generator(d, this);
 
@@ -555,7 +555,7 @@ describe_variable_buffer.prototype = {
     description : "*help*",
 
     generate : function () {
-        var d = this.top_document;
+        var d = this.document;
 
         var g = new help_document_generator(d, this);
 

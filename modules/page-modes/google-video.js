@@ -3,7 +3,7 @@ require("media.js");
 
 function media_scrape_google_video(buffer) {
 
-    var doc = buffer.top_document;
+    var doc = buffer.document;
 
     try {
         let frame_doc = buffer.top_frame.frames[0].document;

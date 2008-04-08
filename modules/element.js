@@ -43,7 +43,7 @@ define_browser_object_class("images", $xpath_expression = "//img | //xhtml:img")
 
 define_browser_object_class("frames", $handler = function (buf, prompt) {
     check_buffer(buf, content_buffer);
-    var doc = buf.top_document;
+    var doc = buf.document;
     if (doc.getElementsByTagName("frame").length == 0 &&
         doc.getElementsByTagName("iframe").length == 0)
     {

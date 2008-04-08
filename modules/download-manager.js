@@ -633,7 +633,7 @@ download_buffer.prototype = {
     },
 
     generate: function() {
-        var d = this.top_document;
+        var d = this.document;
         var g = new dom_generator(d, XHTML_NS);
 
         /* Warning: If any additional node references are saved in
