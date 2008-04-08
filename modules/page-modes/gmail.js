@@ -1,7 +1,7 @@
 require("content-buffer.js");
 require("bindings/default/content-buffer/normal.js");
 
-var gmail_keymap = new keymap($parent = content_buffer_normal_keymap);
+define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
 
 function gmail_label_go(buffer, label)
 {

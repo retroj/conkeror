@@ -152,43 +152,68 @@ describe_bindings_buffer.prototype = {
         var list = this.binding_list;
         delete this.binding_list;
 
+        var list_by_keymap = {};
+        var keymap_list = [];
+        for each (let x in list) {
+            let name = x.bound_in || "";
+            let km;
+            if (name in list_by_keymap)
+                km = list_by_keymap[name];
+            else {
+                km = list_by_keymap[name] = {list_by_category: {}, category_list: [], name: name};
+                keymap_list.push(km);
+            }
+            let catname = x.category || "";
+            let cat;
+            if (catname in km.list_by_category)
+                cat = km.list_by_category[catname];
+            else {
+                cat = km.list_by_category[catname] = [];
+                cat.name = catname;
+                if (catname == "")
+                    km.category_list.unshift(cat);
+                else
+                    km.category_list.push(cat);
+            }
+            cat.push(x);
+        }
+
         var g = new help_document_generator(d, this);
         g.add_help_stylesheet();
 
         d.body.setAttribute("class", "help-list");
 
-        var table = d.createElementNS(XHTML_NS, "table");
-        for (var i = 0; i < list.length; ++i) {
-            var bind = list[i];
-            var tr = d.createElementNS(XHTML_NS, "tr");
-            tr.setAttribute("class", (i % 2 == 0) ? "even" : "odd");
-            var seq_td = d.createElementNS(XHTML_NS, "td");
-            seq_td.setAttribute("class", "key-binding");
-            seq_td.textContent = bind.seq;
-            tr.appendChild(seq_td);
-            var command_td = d.createElementNS(XHTML_NS,"td");
-            command_td.setAttribute("class", "command");
-            var help_str = null;
-            if (bind.command != null) {
-                if (typeof(bind.command) == "function") {
-                    command_td.textContent = "[function]";
-                } else {
-                    command_td.textContent = bind.command;
-                    var cmd = interactive_commands.get(bind.command);
-                    if (cmd != null)
-                        help_str = cmd.shortdoc;
+        for each (let km in keymap_list) {
+            g.text(km.name, g.element("h1", d.body));
+            for each (let cat in km.category_list) {
+                if (cat.name != "")
+                    g.text(cat.name, g.element("h2", d.body));
+
+                let table = g.element("table", d.body);
+                for (var i = 0; i < cat.length; ++i) {
+                    let bind = cat[i];
+                    let tr = g.element("tr", table, "class", (i % 2 == 0) ? "even" : "odd");
+                    let seq_td = g.element("td", tr, "class", "key-binding");
+                    g.text(bind.seq, seq_td);
+                    let command_td = g.element("td", tr, "class", "command");
+                    let help_str = null;
+                    if (bind.command != null) {
+                        if (typeof(bind.command) == "function") {
+                            g.text("[function]", command_td);
+                        } else {
+                            g.text(bind.command, command_td);
+                            let cmd = interactive_commands.get(bind.command);
+                            if (cmd != null)
+                                help_str = cmd.shortdoc;
+                        }
+                    }
+                    else if (bind.fallthrough)
+                        g.text("[pass through]", command_td);
+                    let help_td = g.element("td", tr, "class", "help");
+                    g.text(help_str || "", help_td);
                 }
             }
-            else if (bind.fallthrough)
-                command_td.textContent = "[pass through]";
-            tr.appendChild(command_td);
-            var help_td = d.createElementNS(XHTML_NS, "td");
-            help_td.setAttribute("class", "help");
-            help_td.textContent = help_str || "";
-            tr.appendChild(help_td);
-            table.appendChild(tr);
         }
-        d.body.appendChild(table);
     },
 
     __proto__: special_buffer.prototype
@@ -201,9 +226,22 @@ function describe_bindings(buffer, target) {
             var last = binding_stack[binding_stack.length - 1];
             if (last.command == null && !last.fallthrough)
                 return;
+            let bound_in = null;
+        outer:
+            for (let i = binding_stack.length - 1; i >= 0; --i) {
+                bound_in = binding_stack[i].bound_in;
+                while (bound_in) {
+                    if (bound_in.name)
+                        break outer;
+                    bound_in = bound_in.bound_in;
+                }
+            }
             var bind = {seq: format_binding_sequence(binding_stack),
                         fallthrough: last.fallthrough,
-                        command: last.command};
+                        command: last.command,
+                        bound_in: bound_in.name,
+                        category: last.category,
+                       };
             list.push(bind);
         });
     create_buffer(buffer.window, buffer_creator(describe_bindings_buffer,

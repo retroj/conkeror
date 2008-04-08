@@ -1,7 +1,6 @@
 require("bindings/default/global.js");
 
-var minibuffer_base_keymap = new keymap($parent = default_base_keymap);
-
+define_keymap("minibuffer_base_keymap", $parent = default_base_keymap);
 
 // {{{ minibuffer_base_keymap
 
@@ -47,7 +46,7 @@ define_key(minibuffer_base_keymap, match_any_unmodified_key, "minibuffer-insert-
 
 // {{{ minibuffer_keymap
 
-var minibuffer_keymap = new keymap($parent = minibuffer_base_keymap);
+define_keymap("minibuffer_keymap", $parent = minibuffer_base_keymap);
 
 define_key (minibuffer_keymap, "return", "exit-minibuffer");
 define_key (minibuffer_keymap, "M-p", "minibuffer-history-previous");
@@ -63,18 +62,8 @@ define_key (minibuffer_keymap, "escape", "minibuffer-abort");
 
 // }}}
 
-// {{{ minibuffer_completion_keymap
-
-var minibuffer_completion_keymap = new keymap($parent = minibuffer_keymap);
-
-define_key (minibuffer_completion_keymap, "tab", "minibuffer-complete-old");
-define_key (minibuffer_completion_keymap, "space", "minibuffer-accept-match");
-define_key (minibuffer_completion_keymap, match_any_unmodified_key, "minibuffer-insert-character-complete");
-
-// }}}
-
 // {{{ single_character_options_minibuffer_keymap
-var single_character_options_minibuffer_keymap = new keymap($parent = default_base_keymap);
+define_keymap("single_character_options_minibuffer_keymap", $parent = default_base_keymap);
 
 define_key(single_character_options_minibuffer_keymap, "C-g", "minibuffer-abort");
 define_key(single_character_options_minibuffer_keymap, match_any_unmodified_key,

@@ -258,7 +258,7 @@ function kbd (spec, mods)
 }
 
 // bind key to either the keymap or command in the keymap, kmap
-define_keywords("$fallthrough", "$hook");
+define_keywords("$fallthrough", "$hook", "$category");
 function define_key(kmap, keys, cmd)
 {
     keywords(arguments);
@@ -301,6 +301,7 @@ outer:
                 bind.fallthrough = args.$fallthrough;
                 bind.hook = args.$hook;
                 bind.source_code_reference = ref;
+                bind.category = args.$category;
             } else {
                 if (!bind.keymap)
                     throw new Error("Key sequence has a non-keymap in prefix");
@@ -313,14 +314,19 @@ outer:
             if (final_binding) {
                 return {key: key, fallthrough: args.$fallthrough, hook: args.$hook,
                         command: new_command, keymap: new_keymap,
-                        source_code_reference: ref};
+                        source_code_reference: ref,
+                        category: args.$category,
+                        bound_in: kmap};
             }
             else
             {
+                let old_kmap = kmap;
                 // Check for a corresponding binding a parent
                 kmap = new keymap($parent = parent_kmap);
+                kmap.bound_in = old_kmap;
                 return {key: key, keymap: kmap,
-                        source_code_reference: ref};
+                        source_code_reference: ref,
+                        bound_in: old_kmap};
             }
         }
 
@@ -382,7 +388,7 @@ outer:
     }
 }
 
-define_keywords("$parent", "$help");
+define_keywords("$parent", "$help", "$name");
 function keymap ()
 {
     keywords(arguments);
@@ -398,6 +404,11 @@ function keymap ()
     this.keycode_bindings = [];
     this.predicate_bindings = [];
     this.help = arguments.$help;
+    this.name = arguments.$name;
+}
+
+function define_keymap(name) {
+    this[name] = new keymap($name = name, forward_keywords(arguments));
 }
 
 function copy_event(event)
@@ -646,7 +657,7 @@ function find_command_in_keymap(keymap_or_buffer, command) {
     return list;
 }
 
-var key_binding_reader_keymap = new keymap();
+define_keymap("key_binding_reader_keymap");
 define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
 
 define_keywords("$buffer", "$keymap");

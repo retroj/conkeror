@@ -295,14 +295,6 @@ hint_manager.prototype = {
     }
 };
 
-var hint_keymap = null;
-
-function initialize_hint_keymap()
-{
-    hint_keymap = new keymap();
-}
-initialize_hint_keymap();
-
 /**
  * keyword arguments:
  *

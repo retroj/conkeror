@@ -1,6 +1,6 @@
 
-var content_buffer_quote_next_keymap = new keymap();
-var content_buffer_quote_keymap = new keymap();
+define_keymap("content_buffer_quote_next_keymap");
+define_keymap("content_buffer_quote_keymap");
 
 define_key(content_buffer_quote_next_keymap, match_any_key, "content-buffer-update-input-mode-for-focus", $fallthrough);
 

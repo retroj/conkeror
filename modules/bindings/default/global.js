@@ -1,12 +1,12 @@
 require("bindings/default/universal_argument.js");
 
-var default_base_keymap = new keymap();
+define_keymap("default_base_keymap");
 
 /**
  * Note: Most buffer keymaps should set this as the parent.
  */
-var default_global_keymap = new keymap($parent = default_base_keymap);
-var default_help_keymap = new keymap();
+define_keymap("default_global_keymap", $parent = default_base_keymap);
+define_keymap("default_help_keymap");
 
 bind_universal_argument(default_base_keymap, "C-u");
 

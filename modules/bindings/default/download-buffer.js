@@ -1,6 +1,6 @@
 require("bindings/default/global.js");
 
-var download_buffer_keymap = new keymap($parent = default_global_keymap);
+define_keymap("download_buffer_keymap", $parent = default_global_keymap);
 
 bind_scroll_keys(download_buffer_keymap);
 bind_selection_keys(download_buffer_keymap);

@@ -1,4 +1,4 @@
-var universal_argument_keymap = new keymap();
+define_keymap("universal_argument_keymap");
 
 for (var i = 0; i <= 9; ++i)
     define_key(universal_argument_keymap, String(i), universal_argument_keymap, $hook = universal_digit);

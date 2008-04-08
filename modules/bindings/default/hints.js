@@ -1,6 +1,6 @@
 require("bindings/default/global.js");
 
-var hint_keymap = new keymap($parent = default_base_keymap);
+define_keymap("hint_keymap", $parent = default_base_keymap);
 
 define_key(hint_keymap, kbd(match_any_unmodified_key), "hints-handle-character");
 define_key(hint_keymap, "back_space", "hints-backspace");
