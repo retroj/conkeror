@@ -9,6 +9,7 @@ pref("conkeror.load.tab-bar", true);
 
 pref("conkeror.load.page-modes/youtube", true);
 pref("conkeror.load.page-modes/reddit", true);
+pref("conkeror.load.page-modes/google-reader", true);
 pref("conkeror.load.page-modes/google-video", true);
 pref("conkeror.load.page-modes/google-search-results", true);
 pref("conkeror.load.page-modes/youporn", true);
