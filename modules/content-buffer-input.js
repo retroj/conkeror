@@ -24,6 +24,8 @@ function content_buffer_update_keymap_for_input_mode(buffer) {
 
 add_hook("page_mode_change_hook", content_buffer_update_keymap_for_input_mode);
 
+add_hook("content_buffer_location_change_hook", function (buf) { normal_input_mode(buf, true); });
+
 define_input_mode("normal", null, "content_buffer_normal_keymap");
 
 // For SELECT elements
@@ -80,11 +82,11 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 		            // Automatic focus attempt blocked
 		            elem.blur();
 		        } else
-		            input_mode_function(buffer);
+		            input_mode_function(buffer, true);
 		        return;
 	        }
 	    }
-	    normal_input_mode(buffer);
+	    normal_input_mode(buffer, true);
     }
 }
 

@@ -217,6 +217,7 @@ content_buffer.prototype = {
         /* Use the real location URI now */
         this._display_URI = null;
         content_buffer_location_change_hook.run(this, request, location);
+        this.last_user_input_received = null;
         buffer_description_change_hook.run(this);
     },
 
