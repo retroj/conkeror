@@ -1,6 +1,6 @@
 var command_line_handlers = [];
 
-var url_remoting_fn = load_url_in_new_window;
+define_variable("url_remoting_fn", load_url_in_new_window);
 
 function load_url_in_new_window(url, ctx) {
     make_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config));
@@ -59,6 +59,32 @@ function handle_command_line(cmdline)
         }
 
         var initial_launch = (cmdline.state == cmdline.STATE_INITIAL_LAUNCH);
+
+        if (initial_launch) {
+            let j = i;
+            while (j + 1 < cmdline.length) {
+                if (cmdline.getArgument(j) == "-E") {
+                    eval(cmdline.getArgument(j+1));
+                    cmdline.removeArguments(j, j+1);
+                } else
+                    ++j;
+            }
+
+            let load_default_modules = get_pref("conkeror.loadDefaultModules");
+            try {
+                let branch = preferences.getBranch("conkeror.load.");
+                for each (let m in branch.getChildList("", {})) {
+                    try {
+                        let val = branch.getBoolPref(m);
+                        if (val && (load_default_modules || branch.prefHasUserValue(m)))
+                            require(m + ".js");
+                    } catch (e) {
+                        dumpln("Error: Preference 'conkeror.load." + m + "' has non-boolean value.");
+                    }
+                }
+            } catch (e) {dump_error(e);}
+        }
+
         if (! suppress_rc && initial_launch)
         {
             try {
@@ -67,7 +93,6 @@ function handle_command_line(cmdline)
         } else if (suppress_rc && ! initial_launch) {
             dumpln ("w: attempt to suppress load_rc in remote invocation");
         }
-
         var ctx = {}; // command-line processing context
 
         for (; i < cmdline.length; ++i)

@@ -144,6 +144,9 @@ function init_window_title ()
                  set_window_title(buffer.window);
              });
 }
+
+init_window_title ();
+
 ///
 
 

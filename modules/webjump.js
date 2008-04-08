@@ -15,8 +15,13 @@ function add_delicious_webjumps (username)
     add_webjump("sadelicious", " http://del.icio.us/search/all?search=%s");
 }
 
+function webjumps_clear()
+{
+    webjumps = {};
+}
+
 // Some built in web jumps
-function init_webjumps()
+function webjumps_add_defaults()
 {
     add_webjump("conkerorwiki",
                 "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
@@ -103,3 +108,5 @@ function get_url_or_webjump(input)
         return input;
     }
 }
+
+webjumps_add_defaults ();
