@@ -22,6 +22,7 @@ define_key(gmail_keymap, "p", null, $fallthrough);
 define_key(gmail_keymap, "r", null, $fallthrough);
 define_key(gmail_keymap, "C-c r", "reload");
 define_key(gmail_keymap, "a", null, $fallthrough);
+define_key(gmail_keymap, "?", null, $fallthrough);
 
 define_page_mode("gmail_mode", "GMail", $enable = function (buffer) {
     buffer.local_variables.content_buffer_normal_keymap = gmail_keymap;
