@@ -1,7 +1,7 @@
 require("content-buffer.js");
 require("bindings/default/content-buffer/normal.js");
 
-var google_reader_keymap = new keymap($parent = content_buffer_normal_keymap);
+define_keymap("google_reader_keymap", $parent = content_buffer_normal_keymap);
 
 define_key(google_reader_keymap, "j", null, $fallthrough);
 define_key(google_reader_keymap, "k", null, $fallthrough);
