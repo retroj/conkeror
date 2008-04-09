@@ -27,6 +27,7 @@ interactive("gmail-label-go",
         define_key(keymap, "C-c t", "follow-top");
 
         define_key(keymap, "tab", null, $fallthrough);
+        define_key(keymap, "escape", "gmail-focus-primary-frame");
     }
 
     gmail_bind_common(gmail_keymap);
@@ -74,15 +75,12 @@ interactive("gmail-label-go",
 
     define_keymap("gmail_richedit_keymap", $parent = content_buffer_richedit_keymap);
     gmail_bind_common(gmail_richedit_keymap);
-    define_key(gmail_richedit_keymap, "escape", "gmail-focus-primary-frame");
 
     define_keymap("gmail_text_keymap", $parent = content_buffer_text_keymap);
     gmail_bind_common(gmail_text_keymap);
-    define_key(gmail_text_keymap, "escape", "gmail-focus-primary-frame");
 
     define_keymap("gmail_textarea_keymap", $parent = content_buffer_textarea_keymap);
     gmail_bind_common(gmail_textarea_keymap);
-    define_key(gmail_textarea_keymap, "escape", "gmail-focus-primary-frame");
 }
 
 function gmail_focus_primary_frame(buffer) {
