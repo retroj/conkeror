@@ -438,38 +438,46 @@ outer:
 define_keywords("$fallthrough", "$hook", "$category");
 function define_key(kmap, keys, cmd)
 {
-    var ref = get_caller_source_code_reference();
-    
-    if (typeof(keys) == "string" && keys.length > 1)
-        keys = keys.split(" ");
+    var orig_keys = keys;
+    try {
+        var ref = get_caller_source_code_reference();
+        
+        if (typeof(keys) == "string" && keys.length > 1)
+            keys = keys.split(" ");
 
-    if (!(typeof(keys) == "object") || ('is_kbd' in keys) || !(keys instanceof Array))
-        keys = [keys];
+        if (!(typeof(keys) == "object") || ('is_kbd' in keys) || !(keys instanceof Array))
+            keys = [keys];
 
-    var new_command = null, new_keymap = null;
-    if (typeof(cmd) == "string" || typeof(cmd) == "function")
-        new_command = cmd;
-    else if (cmd instanceof keymap)
-        new_keymap = cmd;
-    else if (cmd != null)
-        throw new Error("Invalid `cmd' argument: " + cmd);
+        var new_command = null, new_keymap = null;
+        if (typeof(cmd) == "string" || typeof(cmd) == "function")
+            new_command = cmd;
+        else if (cmd instanceof keymap)
+            new_keymap = cmd;
+        else if (cmd != null)
+            throw new Error("Invalid `cmd' argument: " + cmd);
 
-    var args = arguments;
+        var args = arguments;
 
-    var input_keys = keys.map(function(x) kbd(x));
+        var input_keys = keys.map(function(x) kbd(x));
 
-    function helper(index, output_keys) {
-        if (index == input_keys.length) {
-            define_key_internal(ref, kmap, output_keys, new_command, new_keymap,
-                                forward_keywords(args));
-            return;
+        function helper(index, output_keys) {
+            if (index == input_keys.length) {
+                define_key_internal(ref, kmap, output_keys, new_command, new_keymap,
+                                    forward_keywords(args));
+                return;
+            }
+            var key = input_keys[index];
+            for (let i = 0; i < key.length; ++i)
+                helper(index + 1, output_keys.concat(key[i]));
         }
-        var key = input_keys[index];
-        for (let i = 0; i < key.length; ++i)
-            helper(index + 1, output_keys.concat(key[i]));
-    }
 
-    helper(0, []);
+        helper(0, []);
+    } catch (e if (typeof(e) == "string")) {
+        dumpln("Warning: Error occurred while binding keys: " + orig_keys);
+        dumpln(e);
+        dumpln("This may be due to an incorrect keyboard setup.");
+        dumpln("You may want to use the -keyboard-setup command-line option to fix your keyboard setup.");
+    }
 }
 
 define_keywords("$parent", "$help", "$name");
