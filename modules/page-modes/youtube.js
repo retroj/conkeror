@@ -12,16 +12,15 @@ function media_scrape_youtube(buffer) {
 
         var doc = buffer.document;
 
-        var title = doc.evaluate("//meta[@name='title']/@content", doc, xpath_lookup_namespace,
-                                 Ci.nsIDOMXPathResult.STRING_TYPE , null);
-        if (title != null && title.stringValue != null && result != null) {
+        var title = get_meta_title(doc);
+        if (title != null && result != null) {
             let text = doc.documentElement.innerHTML;
             let code = result[1];
             let res = media_youtube_content_key_regexp.exec(text);
             if (res) {
                 return [load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&' + res[0],
                                    suggest_filename_from_uri: false,
-                                   title: title.stringValue,
+                                   title: title,
                                    filename_extension: "flv",
                                    source_frame: buffer.top_frame,
                                    mime_type: "video/x-flv"})];

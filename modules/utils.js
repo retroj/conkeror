@@ -881,3 +881,12 @@ function predicate_alist_match(alist, key) {
     }
     return undefined;
 }
+
+
+function get_meta_title(doc) {
+    var title = doc.evaluate("//meta[@name='title']/@content", doc, xpath_lookup_namespace,
+                             Ci.nsIDOMXPathResult.STRING_TYPE , null);
+    if (title && title.stringValue)
+        return title.stringValue;
+    return null;
+}
