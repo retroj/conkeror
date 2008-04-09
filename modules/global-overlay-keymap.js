@@ -29,7 +29,7 @@ define_global_mode("global_overlay_keymap_mode",
 function define_key_alias(typed_key, generated_key) {
     typed_key = kbd(typed_key);
     generated_key = kbd(generated_key);
-    var formatted = format_key_spec(generated_key);
+    var formatted = format_key_spec(generated_key[0]);
     var name = "generate-key-event:" + formatted;
     interactive(name,
                 "Generate a fake key press event for the key: " + formatted,

@@ -362,7 +362,7 @@ function  view_mathml_source (window, charset, target) {
 
 
 function send_key_as_event (window, element, key) {
-    key = kbd (key);
+    key = kbd (key)[0];
     var event = window.document.createEvent ("KeyboardEvent");
     event.initKeyEvent (
         "keypress",
