@@ -12,4 +12,5 @@ pref("conkeror.load.page-modes/reddit", true);
 pref("conkeror.load.page-modes/google-reader", true);
 pref("conkeror.load.page-modes/google-video", true);
 pref("conkeror.load.page-modes/youporn", true);
+pref("conkeror.load.page-modes/dailymotion", true);
 pref("conkeror.load.page-modes/gmail", true);
