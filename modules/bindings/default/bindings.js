@@ -5,6 +5,7 @@ load_module("bindings/default/content-buffer/normal.js");
 load_module("bindings/default/content-buffer/text.js");
 load_module("bindings/default/content-buffer/checkbox.js");
 load_module("bindings/default/content-buffer/textarea.js");
+load_module("bindings/default/content-buffer/richedit.js");
 load_module("bindings/default/content-buffer/select.js");
 load_module("bindings/default/content-buffer/quote.js");
 
