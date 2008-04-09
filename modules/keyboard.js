@@ -1,77 +1,140 @@
 require("window.js");
+require("command-line.js");
 
-var keycode_to_name = [];
-var name_to_keycode = new Object();
-var shifted_keycode_to_name = [];
-var name_to_shifted_keycode = [];
+function get_default_keycode_to_charcode_tables() {
 
-/* Generate keyCode to string  and string to keyCode mapping tables.  */
-function generate_key_tables()
-{
-    var KeyEvent = Ci.nsIDOMKeyEvent;
-    function map(code, name) {
-        keycode_to_name[code] = name;
-        name_to_keycode[name] = code;
+    const KeyEvent = Ci.nsIDOMKeyEvent;
+
+    var unshifted_table = [];
+    var shifted_table = [];
+    for (var i = 0; i < 26; ++i) {
+        var keycode = KeyEvent.DOM_VK_A + i;
+        var charcode = keycode; // keycodes A-Z are same as ascii
+        shifted_table[keycode] = charcode;
+
+        unshifted_table[keycode] = "a".charCodeAt(0) + i;
     }
 
-    var prefix = "DOM_VK_";
+    for (var i = 0; i <= 9; ++i) {
+        var keycode = KeyEvent.DOM_VK_0 + i;
+        var charcode = keycode; // keycodes 0-9 are same as ascii
+        unshifted_table[keycode] = charcode;
+    }
+
+    function map(table, keycode, str) {
+        table[keycode] = str.charCodeAt(0);
+    }
+
+    map(unshifted_table, KeyEvent.DOM_VK_BACK_SLASH, "\\");
+    map(unshifted_table, KeyEvent.DOM_VK_OPEN_BRACKET, "[");
+    map(unshifted_table, KeyEvent.DOM_VK_CLOSE_BRACKET, "]");
+    map(unshifted_table, KeyEvent.DOM_VK_SEMICOLON, ";");
+    map(unshifted_table, KeyEvent.DOM_VK_COMMA, ",");
+    map(unshifted_table, KeyEvent.DOM_VK_PERIOD, ".");
+    map(unshifted_table, KeyEvent.DOM_VK_SLASH, "/");
+    map(unshifted_table, KeyEvent.DOM_VK_SUBTRACT, "-");
+    map(unshifted_table, KeyEvent.DOM_VK_EQUALS, "=");
+
+    map(shifted_table, KeyEvent.DOM_VK_SEMICOLON, ":");
+    map(shifted_table, KeyEvent.DOM_VK_1, "!");
+    map(shifted_table, KeyEvent.DOM_VK_2, "@");
+    map(shifted_table, KeyEvent.DOM_VK_3, "#");
+    map(shifted_table, KeyEvent.DOM_VK_4, "$");
+    map(shifted_table, KeyEvent.DOM_VK_5, "%");
+    map(shifted_table, KeyEvent.DOM_VK_6, "^");
+    map(shifted_table, KeyEvent.DOM_VK_7, "&");
+    map(shifted_table, KeyEvent.DOM_VK_8, "*");
+    map(shifted_table, KeyEvent.DOM_VK_9, "(");
+    map(shifted_table, KeyEvent.DOM_VK_0, ")");
+    map(shifted_table, KeyEvent.DOM_VK_EQUALS, "+");
+    map(shifted_table, KeyEvent.DOM_VK_SUBTRACT, "_");
+    map(shifted_table, KeyEvent.DOM_VK_COMMA, "<");
+    map(shifted_table, KeyEvent.DOM_VK_PERIOD, ">");
+    map(shifted_table, KeyEvent.DOM_VK_SLASH, "?");
+
+    return [unshifted_table, shifted_table];
+}
+
+/* Generate vk name table  */
+var keycode_to_vk_name = [];
+var vk_name_to_keycode = {};
+{
+    let KeyEvent = Ci.nsIDOMKeyEvent;
+    let prefix = "DOM_VK_";
     for (i in KeyEvent)
     {
         /* Check if this is a key binding */
         if (i.substr(0, prefix.length) == prefix)
         {
-            var name = i.substr(prefix.length).toLowerCase();
-            var code = KeyEvent[i];
-            keycode_to_name[code] = name;
-            name_to_keycode[name] = code;
+            let name = i.substr(prefix.length).toLowerCase();
+            let code = KeyEvent[i];
+            keycode_to_vk_name[code] = name;
+            vk_name_to_keycode[name] = code;
+        }
+    }
+}
+
+function get_charcode_mapping_table_from_preferences()
+{
+    var vals = conkeror.get_pref("conkeror.charCodeMappingTable");
+    if (!vals)
+        return null;
+    try {
+        return eval(vals);
+    } catch (e) {
+        return null;
+    }
+}
+
+var unshifted_keycode_to_charcode = null;
+var shifted_keycode_to_charcode = null;
+var charcode_to_keycodes = null;
+
+var keycode_to_name = null;
+var shifted_keycode_to_name = null;
+function load_charcode_mapping_table()
+{
+    var tables = get_charcode_mapping_table_from_preferences();
+    if (!tables)
+        tables = get_default_keycode_to_charcode_tables();
+    let [unshifted_table, shifted_table] = tables;
+    unshifted_keycode_to_charcode = unshifted_table;
+    shifted_keycode_to_charcode = shifted_table;
+    charcode_to_keycodes = [];
+    for each (let table in tables) {
+        var shifted = (table == tables[1]);
+        for (let x in unshifted_keycode_to_charcode) {
+            let charcode = table[x];
+            if (charcode == null)
+                continue;
+            var obj = charcode_to_keycodes[charcode];
+            if (obj == null)
+                obj = charcode_to_keycodes[charcode] = [];
+            obj[obj.length] = [x, shifted];
         }
     }
 
-    /* Add additional mappings for improved display */
-    map(KeyEvent.DOM_VK_BACK_SLASH, "\\");
-    map(KeyEvent.DOM_VK_OPEN_BRACKET, "[");
-    map(KeyEvent.DOM_VK_CLOSE_BRACKET, "]");
-    map(KeyEvent.DOM_VK_SEMICOLON, ";");
-    map(KeyEvent.DOM_VK_COMMA, ",");
-    map(KeyEvent.DOM_VK_PERIOD, ".");
-    map(KeyEvent.DOM_VK_SLASH, "/");
-    map(KeyEvent.DOM_VK_SUBTRACT, "-");
-    map(KeyEvent.DOM_VK_PAGE_DOWN, "pgdn");
-    map(KeyEvent.DOM_VK_PAGE_UP, "pgup");
-    map(KeyEvent.DOM_VK_EQUALS, "=");
-
-
-    /* Add additional shifted keycodes for improved display */
-    function smap(code, name) {
-        shifted_keycode_to_name[code] = name;
-        name_to_shifted_keycode[name] = code;
+    keycode_to_name = keycode_to_vk_name.slice();
+    shifted_keycode_to_name = [];
+    for (let charcode in charcode_to_keycodes) {
+        let arr = charcode_to_keycodes[charcode];
+        if (arr.length != 1)
+            continue;
+        let [keycode, shift] = arr[0];
+        let table = shift ? shifted_keycode_to_name : keycode_to_name;
+        table[keycode] = String.fromCharCode(charcode);
     }
-
-    for (var i = 0; i < 26; ++i) {
-        var code = KeyEvent.DOM_VK_A + i;
-        var name = String.fromCharCode(i + "A".charCodeAt(0));
-        smap(code, name);
-    }
-    smap(KeyEvent.DOM_VK_SEMICOLON, ":");
-    smap(KeyEvent.DOM_VK_1, "!");
-    smap(KeyEvent.DOM_VK_2, "@");
-    smap(KeyEvent.DOM_VK_3, "#");
-    smap(KeyEvent.DOM_VK_4, "$");
-    smap(KeyEvent.DOM_VK_5, "%");
-    smap(KeyEvent.DOM_VK_6, "^");
-    smap(KeyEvent.DOM_VK_7, "&");
-    smap(KeyEvent.DOM_VK_8, "*");
-    smap(KeyEvent.DOM_VK_9, "(");
-    smap(KeyEvent.DOM_VK_0, ")");
-    smap(KeyEvent.DOM_VK_EQUALS, "+");
-    smap(KeyEvent.DOM_VK_SUBTRACT, "_");
-    smap(KeyEvent.DOM_VK_COMMA, "<");
-    smap(KeyEvent.DOM_VK_PERIOD, ">");
-    smap(KeyEvent.DOM_VK_SLASH, "?");
-
 }
+load_charcode_mapping_table();
 
-generate_key_tables();
+interactive("keyboard-setup", function (I) {
+    make_chrome_window("chrome://conkeror/content/keyboard-setup.xul");
+});
+
+command_line_handler("keyboard-setup", true, function () {
+    make_chrome_window("chrome://conkeror/content/keyboard-setup.xul");
+});
+
 
 var abort_key = null;
 
@@ -88,13 +151,10 @@ function format_key_press(code, modifiers)
     if (code == 0)
         return "<invalid>";
     var name;
-    if ((modifiers & MOD_SHIFT) && (code in shifted_keycode_to_name))  {
-        name = shifted_keycode_to_name[code];
+    if ((modifiers & MOD_SHIFT) && (name = shifted_keycode_to_name[code]))  {
         modifiers &= ~MOD_SHIFT;
     } else
-        name = keycode_to_name[code];
-    if (!name)
-        name = String.fromCharCode(code);
+        name = keycode_to_name[code] || ("<" + code + ">");
     var out = "";
     if (modifiers)
     {
@@ -201,11 +261,15 @@ function match_any_unmodified_key (event)
 
 function kbd (spec, mods)
 {
-    if (typeof(spec) == "object")
+    if (spec.is_kbd)
         return spec;
-    var key = {};
+
+    var results = [];
+    results.is_kbd = true;
+
     if (typeof spec == "function")
-        key.match_function = spec;
+        results[0] = {match_function: spec};
+
     else if (typeof spec == "string")
     {
         /* Attempt to parse a key specification.  In order to allow
@@ -233,52 +297,39 @@ function kbd (spec, mods)
         }
         // Attempt to lookup keycode
         var name = parts[parts.length - 1];
-        var code = null;
-        if (name in name_to_keycode)
-            code = name_to_keycode[name];
-        else if (name in name_to_shifted_keycode) {
-            code = name_to_shifted_keycode[name];
-            parsed_modifiers |= MOD_SHIFT;
-        } else
-            throw "Invalid key specification: " + spec;
-        key.keyCode = code;
+
         if (mods)
             parsed_modifiers |= mods;
-        key.modifiers = parsed_modifiers;
+
+        if (name.length == 1) {
+            // Charcode, handle specially
+
+            var codes = charcode_to_keycodes[name.charCodeAt(0)];
+            if (!codes)
+                throw "Invalid key specification: " + spec;
+
+            for each ([keycode, shift] in codes) {
+                results[results.length] = {keyCode: keycode, modifiers: parsed_modifiers | (shift ? MOD_SHIFT : 0)};
+            }
+        } else {
+            var code = vk_name_to_keycode[name];
+            if (code == null)
+                throw "Invalid key specification: " + spec;
+            results[0] = {keyCode: code, modifiers: parsed_modifiers};
+        }
     }
     else {
-        key.keyCode = spec;
-        if (mods)
-            key.modifiers = mods;
-        else
-            key.modifiers = 0;
+        results[0] = {keyCode: spec, modifiers: ((mods != null)? mods : 0)};
     }
-
-    return key;
+    return results;
 }
 
-// bind key to either the keymap or command in the keymap, kmap
 define_keywords("$fallthrough", "$hook", "$category");
-function define_key(kmap, keys, cmd)
+function define_key_internal(ref, kmap, keys, new_command, new_keymap)
 {
     keywords(arguments);
 
-    var ref = get_caller_source_code_reference();
-
     var args = arguments;
-    
-    if (typeof(keys) == "string" && keys.length > 1)
-        keys = keys.split(" ");
-    if (!(keys instanceof Array))
-        keys = [keys];
-
-    var new_command = null, new_keymap = null;
-    if (typeof(cmd) == "string" || typeof(cmd) == "function")
-        new_command = cmd;
-    else if (cmd instanceof keymap)
-        new_keymap = cmd;
-    else if (cmd != null)
-        throw new Error("Invalid `cmd' argument: " + cmd);
 
     var parent_kmap = kmap.parent;
 
@@ -286,11 +337,6 @@ outer:
     for (var i = 0; i < keys.length; ++i) {
         var key = keys[i];
         var final_binding = (i == keys.length - 1);
-
-        if (typeof key == "string")
-            key = kbd(key);
-        else if (typeof key == "function")
-            key = kbd(key);
 
         /* Replace `bind' with the binding specified by (cmd, fallthrough) */
         function replace_binding(bind)
@@ -386,6 +432,44 @@ outer:
             arr[key.modifiers] = make_binding();
         }
     }
+}
+
+// bind key to either the keymap or command in the keymap, kmap
+define_keywords("$fallthrough", "$hook", "$category");
+function define_key(kmap, keys, cmd)
+{
+    var ref = get_caller_source_code_reference();
+    
+    if (typeof(keys) == "string" && keys.length > 1)
+        keys = keys.split(" ");
+
+    if (!(typeof(keys) == "object") || ('is_kbd' in keys) || !(keys instanceof Array))
+        keys = [keys];
+
+    var new_command = null, new_keymap = null;
+    if (typeof(cmd) == "string" || typeof(cmd) == "function")
+        new_command = cmd;
+    else if (cmd instanceof keymap)
+        new_keymap = cmd;
+    else if (cmd != null)
+        throw new Error("Invalid `cmd' argument: " + cmd);
+
+    var args = arguments;
+
+    var input_keys = keys.map(function(x) kbd(x));
+
+    function helper(index, output_keys) {
+        if (index == input_keys.length) {
+            define_key_internal(ref, kmap, output_keys, new_command, new_keymap,
+                                forward_keywords(args));
+            return;
+        }
+        var key = input_keys[index];
+        for (let i = 0; i < key.length; ++i)
+            helper(index + 1, output_keys.concat(key[i]));
+    }
+
+    helper(0, []);
 }
 
 define_keywords("$parent", "$help", "$name");
