@@ -13,49 +13,96 @@ interactive("gmail-label-go",
               gmail_label_go(I.buffer, (yield I.minibuffer.read($prompt = "Go to label: ")));
             });
 
-// Jumping
-define_key(gmail_keymap, "C-c g", "gmail-label-go");
+{
+    let gmail_bind_common = function (keymap) {
+        define_key(keymap, "C-c C-g", "gmail-label-go");
 
-// Threadlist
-define_key(gmail_keymap, "*", null, $fallthrough);
+        // Rebind overridden commands
+        define_key(keymap, "C-c g", "open-url");
+        define_key(keymap, "C-c c", "copy");
+        define_key(keymap, "C-c x", "shell-command-on-file");
+        define_key(keymap, "C-c s", "save");
+        define_key(keymap, "C-c r", "reload");
+        define_key(keymap, "C-c f", "follow");
+        define_key(keymap, "C-c t", "follow-top");
 
-// Navigation
-define_key(gmail_keymap, "u", null, $fallthrough);
-define_key(gmail_keymap, "j", null, $fallthrough);
-define_key(gmail_keymap, "k", null, $fallthrough);
-define_key(gmail_keymap, "o", null, $fallthrough);
-define_key(gmail_keymap, "n", null, $fallthrough);
-define_key(gmail_keymap, "p", null, $fallthrough);
+        define_key(keymap, "tab", null, $fallthrough);
+    }
 
-// Application
-define_key(gmail_keymap, "c", null, $fallthrough);
-define_key(gmail_keymap, "C-c c", "copy");
-define_key(gmail_keymap, "/", null, $fallthrough);
-define_key(gmail_keymap, "q", null, $fallthrough);
-define_key(gmail_keymap, "?", null, $fallthrough);
+    gmail_bind_common(gmail_keymap);
 
-// Actions
-define_key(gmail_keymap, "x", null, $fallthrough);
-define_key(gmail_keymap, "C-c x", "shell-command-on-file");
-define_key(gmail_keymap, "s", null, $fallthrough);
-define_key(gmail_keymap, "C-c s", "save");
-define_key(gmail_keymap, "y", null, $fallthrough);
-define_key(gmail_keymap, "e", null, $fallthrough);
-define_key(gmail_keymap, "m", null, $fallthrough);
-define_key(gmail_keymap, "!", null, $fallthrough);
-define_key(gmail_keymap, "#", null, $fallthrough);
-define_key(gmail_keymap, "r", null, $fallthrough);
-define_key(gmail_keymap, "C-c r", "reload");
-define_key(gmail_keymap, "f", null, $fallthrough);
-define_key(gmail_keymap, "C-c f", "follow");
-define_key(gmail_keymap, "S-n", null, $fallthrough);
-define_key(gmail_keymap, ".", null, $fallthrough);
-define_key(gmail_keymap, "S-i", null, $fallthrough);
-define_key(gmail_keymap, "S-u", null, $fallthrough);
+    // Jumping
+    define_key(gmail_keymap, "g", null, $fallthrough);
+    define_key(gmail_keymap, "i", null, $fallthrough);
+    define_key(gmail_keymap, "t", null, $fallthrough);
+    define_key(gmail_keymap, "d", null, $fallthrough);
+    define_key(gmail_keymap, "a", null, $fallthrough);
 
+    // Threadlist
+    define_key(gmail_keymap, "*", null, $fallthrough);
 
-define_page_mode("gmail_mode", "GMail", $enable = function (buffer) {
-    buffer.local_variables.content_buffer_normal_keymap = gmail_keymap;
-});
+    // Navigation
+    define_key(gmail_keymap, "u", null, $fallthrough);
+    define_key(gmail_keymap, "j", null, $fallthrough);
+    define_key(gmail_keymap, "k", null, $fallthrough);
+    define_key(gmail_keymap, "o", null, $fallthrough);
+    define_key(gmail_keymap, "n", null, $fallthrough);
+    define_key(gmail_keymap, "p", null, $fallthrough);
+
+    // Application
+    define_key(gmail_keymap, "c", null, $fallthrough);
+    define_key(gmail_keymap, "/", null, $fallthrough);
+    define_key(gmail_keymap, "q", null, $fallthrough);
+    define_key(gmail_keymap, "?", null, $fallthrough);
+
+    // Actions
+    define_key(gmail_keymap, "x", null, $fallthrough);
+    define_key(gmail_keymap, "s", null, $fallthrough);
+    define_key(gmail_keymap, "y", null, $fallthrough);
+    define_key(gmail_keymap, "e", null, $fallthrough);
+    define_key(gmail_keymap, "m", null, $fallthrough);
+    define_key(gmail_keymap, "!", null, $fallthrough);
+    define_key(gmail_keymap, "#", null, $fallthrough);
+    define_key(gmail_keymap, "r", null, $fallthrough);
+    define_key(gmail_keymap, "f", null, $fallthrough);
+    define_key(gmail_keymap, "S-n", null, $fallthrough);
+    define_key(gmail_keymap, ".", null, $fallthrough);
+    define_key(gmail_keymap, "S-i", null, $fallthrough);
+    define_key(gmail_keymap, "S-u", null, $fallthrough);
+    define_key(gmail_keymap, "]", null, $fallthrough);
+    define_key(gmail_keymap, "[", null, $fallthrough);
+
+    define_keymap("gmail_richedit_keymap", $parent = content_buffer_richedit_keymap);
+    gmail_bind_common(gmail_richedit_keymap);
+    define_key(gmail_richedit_keymap, "escape", "gmail-focus-primary-frame");
+
+    define_keymap("gmail_text_keymap", $parent = content_buffer_text_keymap);
+    gmail_bind_common(gmail_text_keymap);
+    define_key(gmail_text_keymap, "escape", "gmail-focus-primary-frame");
+
+    define_keymap("gmail_textarea_keymap", $parent = content_buffer_textarea_keymap);
+    gmail_bind_common(gmail_textarea_keymap);
+    define_key(gmail_textarea_keymap, "escape", "gmail-focus-primary-frame");
+}
+
+function gmail_focus_primary_frame(buffer) {
+    var frames = buffer.top_frame.frames;
+    if (frames.length >= 3)
+        buffer.top_frame.frames[2].focus();
+}
+interactive("gmail-focus-primary-frame", "Focus the main GMail frame.",
+            function (I) {gmail_focus_primary_frame(I.buffer); unfocus(I.buffer);});
+
+define_page_mode("gmail_mode", "GMail",
+                 $enable = function (buffer) {
+                     buffer.local_variables.content_buffer_normal_keymap = gmail_keymap;
+                     buffer.local_variables.content_buffer_richedit_keymap = gmail_richedit_keymap;
+                     buffer.local_variables.content_buffer_text_keymap = gmail_richedit_keymap;
+                     buffer.local_variables.content_buffer_textarea_keymap = gmail_richedit_keymap;
+                     add_hook.call(buffer, "buffer_dom_content_loaded_hook", gmail_focus_primary_frame);
+                 },
+                 $disable = function (buffer) {
+                     remove_hook.call(buffer, "buffer_dom_content_loaded_hook", gmail_focus_primary_frame);
+                 });
 
 auto_mode_list.push([/^https?:\/\/mail\.google\.com\//, gmail_mode]);
