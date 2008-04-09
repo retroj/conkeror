@@ -27,6 +27,9 @@ command_line_handler("batch", true);
 command_line_param_handler("e", false, function (expr, ctx) {
         eval(expr);
     });
+
+command_line_param_handler("E", false, function (expr, ctx) {});
+
 command_line_param_handler("chrome", true, function (uri, ctx) {
         try {
             make_chrome_window(uri);
