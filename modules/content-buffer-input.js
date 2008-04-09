@@ -82,7 +82,7 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 
             let frame = buffer.focused_frame;
             let in_design_mode = false;
-            if (frame && frame.document.designMode.toLowerCase() == "on")
+            if (frame && frame.document.designMode == "on")
                 in_design_mode = true;
             else {
                 outer:
