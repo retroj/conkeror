@@ -2,8 +2,8 @@
 function media_scrape(buffer) {
     var scraper = buffer.get("media_scraper");
     if (scraper)
-        return scraper(buffer);
-    return null;
+        yield co_return(yield scraper(buffer));
+    yield co_return(null);
 }
 
 function media_setup_local_object_classes(buffer) {
@@ -16,7 +16,7 @@ function media_setup_local_object_classes(buffer) {
 }
 
 define_browser_object_class("media", $handler = function (buf, prompt) {
-    let media = media_scrape(buf);
+    let media = yield media_scrape(buf);
     if (!media || media.length == 0)
         throw interactive_error("No media found.");
 
