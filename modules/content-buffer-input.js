@@ -35,6 +35,8 @@ define_input_mode("select", "input:SELECT", "content_buffer_select_keymap");
 define_input_mode("text", "input:TEXT", "content_buffer_text_keymap");
 define_input_mode("textarea", "input:TEXTAREA", "content_buffer_textarea_keymap");
 
+define_input_mode("checkbox", "input:CHECKBOX/RADIOBUTTON", "content_buffer_checkbox_keymap");
+
 define_input_mode(
     "quote_next", "input:PASS-THROUGH(next)", "content_buffer_quote_next_keymap",
     "This input mode sends the next key combo to the buffer, "+
@@ -49,8 +51,9 @@ define_input_mode(
 function content_buffer_update_input_mode_for_focus(buffer, force) {
     var mode = buffer.input_mode;
     var form_input_mode_enabled = (mode == "text_input_mode" ||
-				                   mode == "textarea_input_mode" ||
-				                   mode == "select_input_mode");
+				   mode == "textarea_input_mode" ||
+				   mode == "select_input_mode" ||
+                                   mode == "checkbox_input_mode");
 
     if (force || form_input_mode_enabled || mode == "normal_input_mode") {
 	    var elem = buffer.focused_element;
@@ -60,9 +63,9 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 	        if (elem instanceof Ci.nsIDOMHTMLInputElement) {
 		        var type = elem.getAttribute("type");
 		        if (type != null) type = type.toLowerCase();
-		        if (type != "radio" &&
-		            type != "checkbox" &&
-		            type != "submit" &&
+                        if (type == "checkbox" || type == "radio")
+                            input_mode_function = checkbox_input_mode;
+		        else if (type != "submit" &&
 		            type != "reset")
 		            input_mode_function = text_input_mode;
 	        }
@@ -71,7 +74,7 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 
 	        else if (elem instanceof Ci.nsIDOMHTMLSelectElement)
 		        input_mode_function = select_input_mode;
-            
+
 	        if (input_mode_function) {
 		        if (!force &&
                     browser_prevent_automatic_form_focus_mode_enabled &&
