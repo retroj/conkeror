@@ -11,7 +11,8 @@ const CONTINUATION = { toString: function () "[object CONTINUATION]" };
 const SUSPEND = { toString: function () "[object SUSPEND]" };
 
 function is_coroutine(obj) {
-    return typeof(obj) == "object" &&
+    return obj != null &&
+        typeof(obj) == "object" &&
         typeof(obj.next) == "function" &&
         typeof(obj.send) == "function";
 }
