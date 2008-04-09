@@ -483,11 +483,13 @@ function _process_queued_buffer_creators(window) {
     }
     queued_buffer_creators = null;
 }
-function create_buffer_in_current_window(creator, target) {
+function create_buffer_in_current_window(creator, target, focus_existing) {
     if (target == OPEN_NEW_WINDOW)
         throw new Error("invalid target");
     var window = get_recent_conkeror_window();
     if (window) {
+        if (focus_existing)
+            window.focus();
         create_buffer(window, creator, target);
     } else if (queued_buffer_creators != null) {
         queued_buffer_creators.push([creator,target]);

@@ -8,7 +8,7 @@ function load_url_in_new_window(url, ctx) {
 
 function load_url_in_new_buffer(url, ctx) {
     create_buffer_in_current_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config),
-                                    OPEN_NEW_BUFFER);
+                                    OPEN_NEW_BUFFER, true /* focus the new window */);
 }
 
 function command_line_handler(name, suppress_default, handler)
