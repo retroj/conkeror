@@ -161,11 +161,11 @@ function minibuffer (window)
     this.input_element = window.document.getElementById("minibuffer-input");
     var m = this;
     this.input_element.inputField.addEventListener("blur", function() {
-            if (m._input_mode_enabled && !m._showing_message)
+            if (m.active && m._input_mode_enabled && !m._showing_message)
             {
                 window.setTimeout(
                     function(){
-                        m.input_element.focus();
+                        m.input_element.mInputField.focus();
                     }, 0);
             }
         }, false);
