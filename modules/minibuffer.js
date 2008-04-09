@@ -19,7 +19,7 @@ define_builtin_commands(
             var m = I.minibuffer;
             if (m._input_mode_enabled)
             {
-                m._ensure_input_area_showing();
+                m._restore_normal_state();
                 var e = m.input_element;
                 var c = e.controllers.getControllerForCommand(command);
                 if (c && c.isCommandEnabled(command))
@@ -46,7 +46,7 @@ function minibuffer_insert_character(window, n, event)
     var s = m.current_state;
     if (!(s instanceof basic_minibuffer_state))
         throw "Invalid minibuffer state";
-    m._ensure_input_area_showing();
+    m._restore_normal_state();
     var val = m._input_text;
     var sel_start = m._selection_start;
     var sel_end = m._selection_end;
@@ -66,9 +66,42 @@ interactive("minibuffer-insert-character", function (I) {
     minibuffer_insert_character(I.window, I.p, I.event);
 });
 
-function minibuffer_state(keymap, prompt, input, selection_start, selection_end)
+
+function minibuffer_state(keymap, use_input_mode)
 {
     this.keymap = keymap;
+    this.use_input_mode = use_input_mode;
+}
+minibuffer_state.prototype.load = function () {}
+minibuffer_state.prototype.unload = function () {}
+minibuffer_state.prototype.destroy = function () {}
+
+function minibuffer_message_state(keymap, message, destroy_function)
+{
+    minibuffer_state.call(this, keymap, false);
+    this._message = message;
+    if (destroy_function)
+        this.destroy = destroy_function;
+}
+minibuffer_message_state.prototype = {
+    __proto__: minibuffer_state.prototype,
+    load : function (window) {
+        this.window = window;
+    },
+    unload : function (window) {
+        this.window = null;
+    },
+    get message () { return this._message; },
+    set message (x) {
+        if (this.window) {
+            this.window.minibuffer._restore_normal_state();
+            this.window.minibuffer._show(this._message);
+        }
+    }
+};
+
+function minibuffer_input_state(keymap, prompt, input, selection_start, selection_end)
+{
     this.prompt = prompt;
     if (input)
         this.input = input;
@@ -82,10 +115,11 @@ function minibuffer_state(keymap, prompt, input, selection_start, selection_end)
         this.selection_end = selection_end;
     else
         this.selection_end = this.selection_start;
+
+    minibuffer_state.call(this, keymap, true);
 }
-minibuffer_state.prototype.load = function () {}
-minibuffer_state.prototype.unload = function () {}
-minibuffer_state.prototype.destroy = function () {}
+minibuffer_input_state.prototype.__proto__ = minibuffer_state.prototype;
+
 
 /**
  * The parameter `args' is an object specifying the arguments for
@@ -111,11 +145,11 @@ function basic_minibuffer_state()
     } else {
         sel_start = sel_end = initial_value.length;
     }
-    minibuffer_state.call(this, minibuffer_base_keymap,
-                          arguments.$prompt, initial_value,
-                          sel_start, sel_end);
+    minibuffer_input_state.call(this, minibuffer_base_keymap,
+                                arguments.$prompt, initial_value,
+                                sel_start, sel_end);
 }
-basic_minibuffer_state.prototype.__proto__ = minibuffer_state.prototype; // inherit from minibuffer_state
+basic_minibuffer_state.prototype.__proto__ = minibuffer_input_state.prototype; // inherit from minibuffer_state
 
 define_variable("minibuffer_input_mode_show_message_timeout", 1000, "Time duration (in milliseconds) to flash minibuffer messages while in minibuffer input mode.");
 
@@ -167,12 +201,14 @@ minibuffer.prototype = {
 
     /* This method will display the specified string in the
      * minibuffer, without recording it in any log/Messages buffer. */
-    show : function (str) {
-        this.current_message = str;
-        this._show(str);
+    show : function (str, force) {
+        if (!this.active || force) {
+            this.current_message = str;
+            this._show(str);
+        }
     },
 
-    _show : function (str) {
+    _show : function (str, force) {
         if (this.last_message != str)
         {
             this.output_element.value = str;
@@ -183,15 +219,15 @@ minibuffer.prototype = {
     message : function (str) {
         /* TODO: add the message to a *Messages* buffer, and/or
          * possibly dump them to the console. */
-        this.show(str);
+        this.show(str, true /* force */);
 
-
-        if (str.length > 0 && this._input_mode_enabled)
-            this._ensure_message_area_showing();
+        if (str.length > 0 && this.active)
+            this._flash_temporary_message();
     },
     clear : function () {
         this.current_message = null;
-        this._show(this.default_message);
+        if (!this.active)
+            this._show(this.default_message);
     },
 
     set_default_message : function (str) {
@@ -213,12 +249,10 @@ minibuffer.prototype = {
         state.load(this.window);
     },
 
-    pop_state : function (restore_focus) {
-        if (restore_focus === undefined)
-            restore_focus = true;
+    pop_state : function () {
         this.current_state.destroy();
         this.states.pop();
-        this._restore_state(restore_focus);
+        this._restore_state();
     },
 
     pop_all : function () {
@@ -228,16 +262,18 @@ minibuffer.prototype = {
         }
     },
 
-    remove_state : function (state, restore_focus) {
-        if (restore_focus === undefined)
-            restore_focus = true;
+    remove_state : function (state) {
         var i = this.states.indexOf(state);
+        var was_current = (i == this.states.length);
         state.destroy();
         this.states.splice(i, 1);
-        this._restore_state(restore_focus);
+        if (was_current)
+            this._restore_state();
     },
 
     _input_mode_enabled : false,
+
+    active : false,
 
     /* If _input_mode_enabled is true, this is set to indicate that
      * the message area is being temporarily shown instead of the
@@ -247,28 +283,33 @@ minibuffer.prototype = {
     _message_timer_ID : null,
 
     /* This must only be called if _input_mode_enabled is true */
-    _ensure_input_area_showing : function () {
+    _restore_normal_state : function () {
         if (this._showing_message)
         {
             this.window.clearTimeout(this._message_timer_ID);
             this._message_timer_ID = null;
             this._showing_message = false;
-            this._switch_to_input_mode();
+
+            if (this._input_mode_enabled)
+                this._switch_to_input_mode();
+            else
+                this._show(this.current_state._message);
         }
     },
 
     /* This must only be called if _input_mode_enabled is true */
-    _ensure_message_area_showing : function () {
+    _flash_temporary_message : function () {
         if (this._showing_message)
             this.window.clearTimeout(this._message_timer_ID);
         else {
             this._showing_message = true;
-            this._switch_to_message_mode();
+            if (this._input_mode_enabled)
+                this._switch_to_message_mode();
         }
         var obj = this;
         this._message_timer_ID = this.window.setTimeout(function(){
-                obj._ensure_input_area_showing();
-            }, minibuffer_input_mode_show_message_timeout);
+            obj._restore_normal_state();
+        }, minibuffer_input_mode_show_message_timeout);
     },
 
     _switch_to_input_mode : function () {
@@ -280,53 +321,60 @@ minibuffer.prototype = {
         this.element.setAttribute("minibuffermode", "message");
     },
 
-    _restore_state : function (restore_focus) {
+    _restore_state : function () {
         var s = this.current_state;
+        var want_input_mode = false;
         if (s) {
-            if (!this._input_mode_enabled)
-            {
+            if (!this.active) {
                 this.saved_focused_frame = this.window.document.commandDispatcher.focusedWindow;
                 this.saved_focused_element = this.window.document.commandDispatcher.focusedElement;
-                this._input_mode_enabled = true;
-                this._switch_to_input_mode();
+            }
+            if (s.use_input_mode) {
+                want_input_mode = true;
+                this._input_text = s.input;
+                this.prompt = s.prompt;
+                this._set_selection(s.selection_start, s.selection_end);
+            } else {
+                this._show(s._message);
             }
             this.window.keyboard.set_override_keymap(s.keymap);
-            this._input_text = s.input;
-            this.prompt = s.prompt;
-            this._set_selection(s.selection_start, s.selection_end);
+            this.active = true;
         } else {
-            if (this._input_mode_enabled)
-            {
-                this._input_mode_enabled = false;
-                if (!this._showing_message)
-                    this._switch_to_message_mode();
-                else {
-                    this.window.clearTimeout(this._message_timer_ID);
-                    this._message_timer_ID = null;
-                    this._showing_message = false;
-                }
-                if (restore_focus)
-                {
-                    if (this.saved_focused_element)
-                        set_focus_no_scroll(this.window, this.saved_focused_element);
-                    else if (this.saved_focused_frame)
-                        set_focus_no_scroll(this.window, this.saved_focused_frame);
-                }
+            if (this.active) {
+                this.active = false;
+                this.window.keyboard.set_override_keymap(null);
+                if (this.saved_focused_element)
+                    set_focus_no_scroll(this.window, this.saved_focused_element);
+                else if (this.saved_focused_frame)
+                    set_focus_no_scroll(this.window, this.saved_focused_frame);
                 this.saved_focused_element = null;
                 this.saved_focused_frame = null;
-                this.window.keyboard.set_override_keymap(null);
+                this._show(this.current_message || this.default_message);
             }
         }
+        var in_input_mode = this._input_mode_enabled && !this._showing_message;
+        if (this._showing_message) {
+            this.window.clearTimeout(this._message_timer_ID);
+            this._message_timer_ID = null;
+            this._showing_message = false;
+        }
+        if (want_input_mode && !in_input_mode)
+            this._switch_to_input_mode();
+        else if (!want_input_mode && in_input_mode)
+            this._switch_to_message_mode();
+        this._input_mode_enabled = want_input_mode;
     },
 
     _save_state : function () {
         var s = this.current_state;
         if (s)
         {
-            s.input = this._input_text;
-            s.prompt = this.prompt;
-            s.selection_start = this._selection_start;
-            s.selection_end = this._selection_end;
+            if (s.use_input_mode) {
+                s.input = this._input_text;
+                s.prompt = this.prompt;
+                s.selection_start = this._selection_start;
+                s.selection_end = this._selection_end;
+            }
             s.unload(this.window);
         }
     },
@@ -354,5 +402,11 @@ minibuffer.prototype.check_state = function(type) {
     var s = this.current_state;
     if (!(s instanceof type))
         throw new Error("Invalid minibuffer state.");
+    return s;
+};
+
+minibuffer.prototype.show_wait_message = function (initial_message, destroy_function) {
+    var s = new minibuffer_message_state(minibuffer_message_keymap, initial_message, destroy_function);
+    this.push_state(s);
     return s;
 };

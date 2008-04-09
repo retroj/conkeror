@@ -71,3 +71,6 @@ define_key(single_character_options_minibuffer_keymap, match_any_unmodified_key,
 define_key(single_character_options_minibuffer_keymap, "escape", "minibuffer-abort");
 
 // }}}
+
+define_keymap("minibuffer_message_keymap");
+define_key(minibuffer_message_keymap, "C-g", "minibuffer-abort");

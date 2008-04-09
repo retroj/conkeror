@@ -105,7 +105,7 @@ interactive (
         var m = I.window.minibuffer;
         var s = m.current_state;
         if (m._input_mode_enabled) {
-            m._ensure_input_area_showing();
+            m._restore_normal_state();
             var e = m.input_element;
         } else
             var e = I.buffer.focused_element;

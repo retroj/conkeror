@@ -78,11 +78,11 @@ function isearch_session(window, forward)
     this.states.push(new initial_isearch_state(this.frame, forward));
     this.window = window;
 
-    minibuffer_state.call(this, isearch_keymap, "");
+    minibuffer_input_state.call(this, isearch_keymap, "");
 }
 isearch_session.prototype = {
     constructor : isearch_session,
-    __proto__ : minibuffer_state.prototype, // inherit from minibuffer_state
+    __proto__ : minibuffer_input_state.prototype, // inherit from minibuffer_state
 
     get top () {
         return this.states[this.states.length - 1];
@@ -321,7 +321,12 @@ function isearch_done (window)
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     s.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    window.minibuffer.pop_state(false /* don't restore focus */);
+
+    // Prevent focus from being reverted
+    window.minibuffer.saved_focused_element = null;
+    window.minibuffer.saved_focused_window = null;
+
+    window.minibuffer.pop_state();
     window.isearch_last_search = s.top.search_str;
     s.focus_link();
     s._clear_selection();

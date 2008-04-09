@@ -33,10 +33,10 @@ function single_character_options_minibuffer_state(continuation) {
     keywords(arguments);
     this.continuation = continuation;
     this.options = arguments.$options;
-    minibuffer_state.call(this, single_character_options_minibuffer_keymap, arguments.$prompt);
+    minibuffer_input_state.call(this, single_character_options_minibuffer_keymap, arguments.$prompt);
 }
 single_character_options_minibuffer_state.prototype = {
-    __proto__: minibuffer_state.prototype,
+    __proto__: minibuffer_input_state.prototype,
     destroy: function () {
         if (this.continuation)
             this.continuation.throw(abort());

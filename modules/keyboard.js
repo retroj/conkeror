@@ -676,10 +676,10 @@ function key_binding_reader(continuation) {
 
     this.key_sequence = [];
     
-    minibuffer_state.call(this, key_binding_reader_keymap, arguments.$prompt);
+    minibuffer_input_state.call(this, key_binding_reader_keymap, arguments.$prompt);
 }
 key_binding_reader.prototype = {
-    __proto__: minibuffer_state.prototype,
+    __proto__: minibuffer_input_state.prototype,
     destroy: function () {
         if (this.continuation)
             this.continuation.throw(abort());
@@ -710,7 +710,7 @@ function read_key_binding_key(window, state, event) {
     }
 
     if (binding.keymap) {
-        window.minibuffer._ensure_input_area_showing();
+        window.minibuffer._restore_normal_state();
         window.minibuffer._input_text = state.key_sequence.join(" ") + " ";
         state.target_keymap = binding.keymap;
         return;

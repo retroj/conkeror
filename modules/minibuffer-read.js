@@ -391,7 +391,7 @@ function minibuffer_history_next (window, count)
         throw new Error("Invalid minibuffer state");
     if (!s.history || s.history.length == 0)
         return;
-    m._ensure_input_area_showing();
+    m._restore_normal_state();
     var index = s.history_index + count;
     if (index < 0)
         index = 0;
