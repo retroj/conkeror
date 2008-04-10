@@ -64,6 +64,32 @@ function buffer(window, element)
         browser.setAttribute("flex", "1");
         element.appendChild(browser);
         this.window.buffers.container.appendChild(element);
+    } else {
+        /* Manually set up session history.
+         *
+         * This is needed because when constructor for the XBL binding
+         * (mozilla/toolkit/content/widgets/browser.xml#browser) for
+         * the initial browser element of the window is called, the
+         * docShell is not yet initialized and setting up the session
+         * history will fail.  To work around this problem, we do as
+         * tabbrowser.xml (Firefox) does and set the initial browser
+         * to have the disablehistory=true attribute, and then repeat
+         * the work that would normally be done in the XBL
+         * constructor.
+         */
+
+        // This code is taken from mozilla/browser/base/content/browser.js
+        let browser = element.firstChild;
+        browser.webNavigation.sessionHistory =
+            Cc["@mozilla.org/browser/shistory;1"].createInstance(Ci.nsISHistory);
+        observer_service.addObserver(browser, "browser:purge-session-history", false);
+
+        // remove the disablehistory attribute so the browser cleans up, as
+        // though it had done this work itself
+        browser.removeAttribute("disablehistory");
+
+        // enable global history
+        browser.docShell.QueryInterface(Ci.nsIDocShellHistory).useGlobalHistory = true;
     }
     this.window.buffers.buffer_list.push(this);
     this.element = element;
@@ -554,7 +580,7 @@ interactive("switch-to-buffer",
                     I.window,
                     (yield I.minibuffer.read_buffer(
                         $prompt = "Switch to buffer:",
-                        $default = (I.window.buffers.count > 1 ? 
+                        $default = (I.window.buffers.count > 1 ?
                                     I.window.buffers.buffer_list[1] :
                                     I.buffer)))
                 )
