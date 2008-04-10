@@ -158,7 +158,7 @@ text_entry_minibuffer_state.prototype = {
                  * state.  If this.complete_initial is true, generate
                  * completions. */
                 if (this.auto_complete_initial)
-                    this.handle_input_changed();
+                    this.handle_input();
             }
 
             this.update_completions_display();

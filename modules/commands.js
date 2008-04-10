@@ -110,8 +110,8 @@ interactive (
         } else
             var e = I.buffer.focused_element;
         paste_x_primary_selection (e);
-        if (s instanceof text_entry_minibuffer_state)
-            s.handle_input_changed();
+        if (s && s.handle_input)
+            s.handle_input(m);
     });
 
 
