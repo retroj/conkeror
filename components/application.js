@@ -19,7 +19,6 @@ function application () {
         this.dumpln("Error initializing.");
         this.dump_error(e);
     }
-
 }
 application.prototype = {
     Cc: Cc,
@@ -52,6 +51,7 @@ application.prototype = {
         if (this.loaded_modules.indexOf(module) == -1)
             this.loaded_modules.push(module);
     },
+    skip_module_load : {},
     load_module: function(module_name) {
         if (this.loading_modules.indexOf(module_name) != -1)
             throw new Error("Circular module dependency detected: "
@@ -60,23 +60,27 @@ application.prototype = {
         try {
             this.subscript_loader.loadSubScript(this.module_uri_prefix + module_name,
                                                 this);
-        } catch (e) {
+            this.provide(module_name);
+            var funcs;
+            if ((funcs = this.module_after_load_functions[module_name]) != null)
+            {
+                for (var i = 0; i < funcs.length; ++i)
+                    funcs[i]();
+                delete this.module_after_load_functions[module_name];
+            }
+        }
+        catch (e if e == this.skip_module_load) {}
+        catch (e) {
             if (!(e instanceof Error) && !(e instanceof Ci.nsIException) &&
                 (String(e) == "ContentLength not available (not a local URL?)" ||
                  String(e) == "Error creating channel (invalid URL scheme?)"))
                 throw new Error("Module not found: " + this.module_uri_prefix + module_name + ": " + e);
             throw e;
-        } finally {
+        }
+        finally {
             this.loading_modules.pop();
         }
-        this.provide(module_name);
-        var funcs;
-        if ((funcs = this.module_after_load_functions[module_name]) != null)
-        {
-            for (var i = 0; i < funcs.length; ++i)
-                funcs[i]();
-            delete this.module_after_load_functions[module_name];
-        }
+
         if (this.loading_modules.length == 0)
         {
             while (this.pending_loads.length > 0)
