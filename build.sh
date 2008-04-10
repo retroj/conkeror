@@ -42,6 +42,10 @@ esac
 shift
 
 
+#build the spawn-process-helper
+make
+
+
 ## if this is not an official release, tag on a build date.
 ##
 ## if this is an official release, strip the subminor.
