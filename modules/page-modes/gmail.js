@@ -1,5 +1,8 @@
 require("content-buffer.js");
 require("bindings/default/content-buffer/normal.js");
+require("bindings/default/content-buffer/richedit.js");
+require("bindings/default/content-buffer/text.js");
+require("bindings/default/content-buffer/textarea.js");
 
 define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
 
