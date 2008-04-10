@@ -183,7 +183,7 @@ text_entry_minibuffer_state.prototype = {
             this.continuation.throw(abort());
     },
 
-    handle_input_changed : function () {
+    handle_input : function () {
         if (!this.completer) return;
 
         this.completions_valid = false;
@@ -206,6 +206,10 @@ text_entry_minibuffer_state.prototype = {
 
         s.update_completions(true /* auto */);
         s.update_completions_display();
+    },
+
+    ran_minibuffer_command : function () {
+        this.handle_input();
     },
 
     update_completions_display : function () {

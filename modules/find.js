@@ -254,6 +254,21 @@ isearch_session.prototype = {
                 }
             }
         } while ((node = node.parentNode));
+    },
+
+    handle_input : function (m) {
+        m._set_selection();
+        this.find(m._input_text, this.top.direction, this.top.point);
+        this.restore_state();
+    },
+
+    done : false,
+
+    destroy : function () {
+        if (!this.done)  {
+            this.frame.scrollTo(this.states[0].screenx, this.states[0].screeny);
+            this._clear_selection();
+        }
     }
 };
 
@@ -290,31 +305,6 @@ function isearch_backspace (window)
 }
 interactive("isearch-backspace", function (I) {isearch_backspace(I.window);});
 
-/* FIXME: do this stuff in .destroy instead */
-function isearch_abort (window)
-{
-    var s = window.minibuffer.current_state;
-    if (!(s instanceof isearch_session))
-        throw "Invalid minibuffer state";
-    window.minibuffer.pop_state();
-    s.frame.scrollTo(s.states[0].screenx, s.states[0].screeny);
-    s._clear_selection();
-}
-interactive("isearch-abort", function(I) {isearch_abort(I.window);});
-
-
-function isearch_add_character (window, event)
-{
-    var s = window.minibuffer.current_state;
-    if (!(s instanceof isearch_session))
-        throw "Invalid minibuffer state";
-    var str = s.top.search_str;
-    str += String.fromCharCode(event.charCode);
-    s.find(str, s.top.direction, s.top.point);
-    s.restore_state();
-}
-interactive("isearch-add-character", function (I) {isearch_add_character(I.window, I.event);});
-
 function isearch_done (window)
 {
     var s = window.minibuffer.current_state;
@@ -325,6 +315,8 @@ function isearch_done (window)
     // Prevent focus from being reverted
     window.minibuffer.saved_focused_element = null;
     window.minibuffer.saved_focused_window = null;
+
+    s.done = true;
 
     window.minibuffer.pop_state();
     window.isearch_last_search = s.top.search_str;

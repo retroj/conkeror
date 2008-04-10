@@ -40,7 +40,7 @@ define_key(minibuffer_base_keymap, "C-space", "minibuffer-set-mark");
 // Nasty keys
 define_key(minibuffer_base_keymap, "C-r", "minibuffer-cmd_redo");
 
-define_key(minibuffer_base_keymap, match_any_unmodified_key, "minibuffer-insert-character");
+define_key(minibuffer_base_keymap, match_any_unmodified_key, null, $fallthrough);
 
 // }}}
 

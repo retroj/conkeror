@@ -22,11 +22,17 @@ define_builtin_commands(
                 m._restore_normal_state();
                 var e = m.input_element;
                 var c = e.controllers.getControllerForCommand(command);
-                if (c && c.isCommandEnabled(command))
-                    c.doCommand(command);
+                try {
+                    m.ignore_input_events = true;
+                    if (c && c.isCommandEnabled(command))
+                        c.doCommand(command);
+                } finally {
+                    m.ignore_input_events = false;
+                }
                 var s = m.current_state;
-                if ((s instanceof text_entry_minibuffer_state))
-                    s.handle_input_changed();
+                let x = s.ran_minibuffer_command;
+                if (x)
+                    x(command);
             }
         } catch (e)
         {
@@ -39,33 +45,6 @@ define_builtin_commands(
 
     function (I) I.minibuffer.current_state.mark_active
 );
-
-function minibuffer_insert_character(window, n, event)
-{
-    var m = window.minibuffer;
-    var s = m.current_state;
-    if (!(s instanceof basic_minibuffer_state))
-        throw "Invalid minibuffer state";
-    m._restore_normal_state();
-    var val = m._input_text;
-    var sel_start = m._selection_start;
-    var sel_end = m._selection_end;
-    var insert = String.fromCharCode(event.charCode);
-    var out = val.substr(0, sel_start);
-    for (var i = 0; i < n; ++i)
-        out += insert;
-    out += val.substr(sel_end);
-    m._input_text = out;
-    var new_sel = sel_end + n;
-    m._set_selection(new_sel, new_sel);
-
-    if (s instanceof text_entry_minibuffer_state)
-        s.handle_input_changed();
-}
-interactive("minibuffer-insert-character", function (I) {
-    minibuffer_insert_character(I.window, I.p, I.event);
-});
-
 
 function minibuffer_state(keymap, use_input_mode)
 {
@@ -165,10 +144,27 @@ function minibuffer (window)
             {
                 window.setTimeout(
                     function(){
-                        m.input_element.mInputField.focus();
+                        m.input_element.inputField.focus();
                     }, 0);
             }
         }, false);
+    this.input_element.addEventListener("input", function(e) {
+        if (m.ignore_input_events || !m._input_mode_enabled)
+            return;
+        var s = m.current_state;
+        if (s) {
+            if (s.handle_input)
+                s.handle_input(m);
+        }
+    }, true);
+
+    // Ensure that the input area will have focus if a message is
+    // currently being flashed so that the default handler for key
+    // events will properly add text to the input area.
+    window.addEventListener("keydown", function (e) {
+        if (m._input_mode_enabled && m._showing_message)
+            m._restore_normal_state();
+    }, true);
     this.window = window;
     this.last_message = "";
     this.states = [];
@@ -314,7 +310,7 @@ minibuffer.prototype = {
 
     _switch_to_input_mode : function () {
         this.element.setAttribute("minibuffermode", "input");
-        this.input_element.focus();
+        this.input_element.inputField.focus();
     },
 
     _switch_to_message_mode : function () {

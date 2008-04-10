@@ -307,6 +307,7 @@ function hints_minibuffer_state(continuation, buffer)
 {
     keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, $prompt = arguments.$prompt);
+    this.original_prompt = arguments.$prompt;
     this.continuation = continuation;
     this.keymap = arguments.$keymap;
     this.auto_exit = arguments.$auto ? true : false;
@@ -338,70 +339,76 @@ hints_minibuffer_state.prototype = {
     },
     destroy : function () {
         if (this.auto_exit_timer_ID) {
-            window.clearTimeout(this.auto_exit_timer_ID);
+            this.manager.window.clearTimeout(this.auto_exit_timer_ID);
             this.auto_exit_timer_ID = null;
         }
         this.manager.remove();
     },
-    update_minibuffer : function (window) {
-        var str = this.typed_string;
-        if (this.typed_number.length > 0) {
-            str += " #" + this.typed_number;
-        }
-        window.minibuffer._input_text = str;
-        window.minibuffer._set_selection();
+    update_minibuffer : function (m) {
+        if (this.typed_number.length > 0)
+            m.prompt = this.original_prompt + " #" + this.typed_number;
+        else
+            m.prompt = this.original_prompt;
+    },
+
+    handle_auto_exit : function (m) {
+        let window = m.window;
+
+        if (this.auto_exit_timer_ID)
+            window.clearTimeout(this.auto_exit_timer_ID);
+        let s = this;
+        this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
+                                                    hints_auto_exit_delay);
+    },
+
+    handle_input : function (m) {
+        m._set_selection();
+
+        var auto_exit = false;
+        this.typed_number = "";
+        this.typed_string = m._input_text;
+        this.manager.current_hint_string = this.typed_string;
+        this.manager.current_hint_number = -1;
+        this.manager.update_valid_hints();
+        if (this.auto_exit && this.manager.valid_hints.length == 1)
+            this.handle_auto_exit(m);
+        this.update_minibuffer(m);
     }
 };
 
 define_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the most recent key stroke before a sole matching element is automatically selected.  If this is set to 0, automatic selection is disabled.");
 
-function hints_handle_character(window, s, e) {
-    /* Check for numbers */
-    var ch = String.fromCharCode(e.charCode);
+interactive("hints-handle-number", function (I) {
+    let s = I.minibuffer.check_state(hints_minibuffer_state);
+    var ch = String.fromCharCode(I.event.charCode);
     var auto_exit = false;
     /* TODO: implement number escaping */
-    if (e.charCode >= 48 && e.charCode <= 57) {
-        // Number entered
-        s.typed_number += ch;
-        s.manager.select_hint(parseInt(s.typed_number));
-        var num = s.manager.current_hint_number;
-        if (s.auto_exit) {
-            if (num > 0 && num <= s.manager.valid_hints.length && num * 10 > s.manager.valid_hints.length)
-                auto_exit = true;
-            if (num == 0) {
-                if (!s.multiple) {
-                    hints_exit(window, s);
-                    return;
-                }
-                auto_exit = true;
-            }
-        }
-    } else {
-        s.typed_number = "";
-        s.typed_string += ch;
-        s.manager.current_hint_string = s.typed_string;
-        s.manager.current_hint_number = -1;
-        s.manager.update_valid_hints();
-        if (s.auto_exit && s.manager.valid_hints.length == 1)
+    // Number entered
+    s.typed_number += ch;
+
+    s.manager.select_hint(parseInt(s.typed_number));
+    var num = s.manager.current_hint_number;
+    if (s.auto_exit) {
+        if (num > 0 && num <= s.manager.valid_hints.length && num * 10 > s.manager.valid_hints.length)
             auto_exit = true;
-    }
-    if (auto_exit) {
-        if (this.auto_exit_timer_ID) {
-            window.clearTimeout(this.auto_exit_timer_ID);
+        if (num == 0) {
+            if (!s.multiple) {
+                hints_exit(I.window, s);
+                return;
+            }
+            auto_exit = true;
         }
-        this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
-                                                   hints_auto_exit_delay);
     }
-    s.update_minibuffer(window);
-}
-interactive("hints-handle-character", function (I) {
-    hints_handle_character(I.window, I.minibuffer.check_state(hints_minibuffer_state), I.event);
+    if (auto_exit)
+        s.handle_auto_exit(I.minibuffer);
+    s.update_minibuffer(I.minibuffer);
 });
 
 function hints_backspace(window, s) {
-    if (this.auto_exit_timer_ID) {
-        window.clearTimeout(this.auto_exit_timer_ID);
-        this.auto_exit_timer_ID = null;
+    let m = window.minibuffer;
+    if (s.auto_exit_timer_ID) {
+        window.clearTimeout(s.auto_exit_timer_ID);
+        s.auto_exit_timer_ID = null;
     }
     if (s.typed_number.length > 0) {
         s.typed_number = s.typed_number.substring(0, s.typed_number.length - 1);
@@ -409,20 +416,22 @@ function hints_backspace(window, s) {
         s.manager.select_hint(num);
     } else if (s.typed_string.length > 0) {
         s.typed_string = s.typed_string.substring(0, s.typed_string.length - 1);
+        m._input_text = s.typed_string;
+        m._set_selection();
         s.manager.current_hint_string = s.typed_string;
         s.manager_current_hint_number = -1;
         s.manager.update_valid_hints();
     }
-    s.update_minibuffer(window);
+    s.update_minibuffer(m);
 }
 interactive("hints-backspace", function (I) {
     hints_backspace(I.window, I.minibuffer.check_state(hints_minibuffer_state));
 });
 
 function hints_next(window, s, count) {
-    if (this.auto_exit_timer_ID) {
-        window.clearTimeout(this.auto_exit_timer_ID);
-        this.auto_exit_timer_ID = null;
+    if (s.auto_exit_timer_ID) {
+        window.clearTimeout(s.auto_exit_timer_ID);
+        s.auto_exit_timer_ID = null;
     }
     s.typed_number = "";
     var cur = s.manager.current_hint_number - 1;
@@ -445,9 +454,9 @@ interactive("hints-previous", function (I) {
 
 function hints_exit(window, s)
 {
-    if (this.auto_exit_timer_ID) {
-        window.clearTimeout(this.auto_exit_timer_ID);
-        this.auto_exit_timer_ID = null;
+    if (s.auto_exit_timer_ID) {
+        window.clearTimeout(s.auto_exit_timer_ID);
+        s.auto_exit_timer_ID = null;
     }
     var cur = s.manager.current_hint_number;
     var elem = null;
