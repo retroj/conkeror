@@ -65,6 +65,11 @@ function reddit_mode_setup(buffer) {
     }
 
     var current = 0;
+    var beforeLinkRegex = /^https?:\/\/([a-zA-Z0-9\-]\.)*reddit\.com\/.*before=.*/;
+    if(beforeLinkRegex.test(buffer.current_URI.spec)) {
+      current = links.length-1;
+      reddit_showElement(buffer, links[current]);
+    }
     reddit_toggleHighlight(links[current]);
 
     document.redditCurrent = current;
