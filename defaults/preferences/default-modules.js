@@ -1,16 +1,52 @@
-pref("conkeror.loadDefaultModules", true);
+/**
+ * This property can have three distinct meanings, depending on whether it is positive, zero, or negative.
+ *
+ * If it is positive, all modules corresponding to children of
+ * conkeror.load. set to a positive number are loaded.
+ *
+ * If it is set to 0, only children of conkeror.load. that have a
+ * positive user value (i.e. not just a default value) are loaded.
+ *
+ * If it is negative, no additional optional modules are loaded.
+ */
+pref("conkeror.loadDefaultModules", 1);
 
-pref("conkeror.load.bindings/default/bindings", true);
-pref("conkeror.load.mode-line", true);
-pref("conkeror.load.daemon", true);
+/**
+ * This preference specifies a regular expression of additional
+ * modules to load.  Each module corresponding to a child of
+ * "conkeror.load." set to a _non-negative_ value that matches this
+ * regular expression (partial matches are not permitted) will be
+ * loaded.  These modules are loaded in addition to any modules loaded
+ * according to the description of conkeror.loadDefaultModules above.
+ * Thus, if the preference corresponding to a module has a negative
+ * value, it will never be loaded, but if it is set to 0, then it will
+ * be loaded only if it matches this regular expression.
+ *
+ * This preference may be useful as a concise way of specifying that
+ * you want to load all of a certain class of modules.  For example,
+ * the value "(extensions|page-modes)/.*" would specify to load all
+ * modules in the extensions/ (extension support modules) or
+ * page-modes/ directories.
+ */
+pref("conkeror.loadModules", "");
 
-pref("conkeror.load.favicon", true); // Enhances tab-bar mode
-pref("conkeror.load.tab-bar", true);
+pref("conkeror.load.bindings/default/bindings", 1);
+pref("conkeror.load.mode-line", 1);
+pref("conkeror.load.daemon", 1);
 
-pref("conkeror.load.page-modes/youtube", true);
-pref("conkeror.load.page-modes/reddit", true);
-pref("conkeror.load.page-modes/google-reader", true);
-pref("conkeror.load.page-modes/google-video", true);
-pref("conkeror.load.page-modes/youporn", true);
-pref("conkeror.load.page-modes/dailymotion", true);
-pref("conkeror.load.page-modes/gmail", true);
+pref("conkeror.load.favicon", 1); // Enhances tab-bar mode
+pref("conkeror.load.tab-bar", 1);
+
+// Extension support modules
+// These modules will automatically skip loading if the associated extension is not enabled.
+pref("conkeror.load.extensions/dom-inspector", 1);
+
+// Page mode modules
+pref("conkeror.load.page-modes/youtube", 1);
+pref("conkeror.load.page-modes/reddit", 1);
+pref("conkeror.load.page-modes/google-search-results", 0);
+pref("conkeror.load.page-modes/google-reader", 1);
+pref("conkeror.load.page-modes/google-video", 1);
+pref("conkeror.load.page-modes/youporn", 1);
+pref("conkeror.load.page-modes/dailymotion", 1);
+pref("conkeror.load.page-modes/gmail", 1);

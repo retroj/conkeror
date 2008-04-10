@@ -74,16 +74,20 @@ function handle_command_line(cmdline)
             }
 
             let load_default_modules = get_pref("conkeror.loadDefaultModules");
+            let load_mods = new RegExp("^(" + get_pref("conkeror.loadModules") + ")$");
             try {
                 let branch = preferences.getBranch("conkeror.load.");
                 for each (let m in branch.getChildList("", {})) {
+                    let val;
                     try {
-                        let val = branch.getBoolPref(m);
-                        if (val && (load_default_modules || branch.prefHasUserValue(m)))
-                            require(m + ".js");
+                        val = branch.getIntPref(m);
                     } catch (e) {
-                        dumpln("Error: Preference 'conkeror.load." + m + "' has non-boolean value.");
+                        dumpln("Error: Preference 'conkeror.load." + m + "' has non-integer value.");
                     }
+                    if ((val > 0 && (load_default_modules > 0 ||
+                                     ((load_default_modules == 0) && branch.prefHasUserValue(m)))) ||
+                        (val >= 0 && load_mods.test(m)))
+                        require(m + ".js");
                 }
             } catch (e) {dump_error(e);}
         }
