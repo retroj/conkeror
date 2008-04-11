@@ -12,6 +12,13 @@ pref("browser.xul.error_pages.enabled", true);
 /* Surely preferred by most Conkeror users */
 pref("plugin.expose_full_path", true);
 
+/* Disable useless warnings */
+pref("general.warnOnAboutConfig", false);
+pref("security.warn_entering_secure", false);
+pref("security.warn_entering_weak", false);
+pref("security.warn_leaving_secure", false);
+pref("security.warn_submit_insecure", false);
+pref("security.warn_viewing_mixed", false);
 
 pref("extensions.getMoreExtensionsURL", "about:blank");
 pref("extensions.dss.enabled", false);
