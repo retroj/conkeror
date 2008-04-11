@@ -103,7 +103,7 @@ function load_charcode_mapping_table()
     charcode_to_keycodes = [];
     for each (let table in tables) {
         var shifted = (table == tables[1]);
-        for (let x in unshifted_keycode_to_charcode) {
+        for (let x in table) {
             let charcode = table[x];
             if (charcode == null)
                 continue;
@@ -308,7 +308,7 @@ function kbd (spec, mods)
             if (!codes)
                 throw "Invalid key specification: " + spec;
 
-            for each ([keycode, shift] in codes) {
+            for each (let [keycode, shift] in codes) {
                 results[results.length] = {keyCode: keycode, modifiers: parsed_modifiers | (shift ? MOD_SHIFT : 0)};
             }
         } else {
