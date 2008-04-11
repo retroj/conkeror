@@ -2,7 +2,7 @@
 function media_scrape(buffer) {
     var scraper = buffer.get("media_scraper");
     if (scraper)
-        yield co_return(yield scraper(buffer));
+        yield co_return((yield scraper(buffer)));
     yield co_return(null);
 }
 
