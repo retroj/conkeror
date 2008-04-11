@@ -240,7 +240,7 @@ function describe_bindings(buffer, target) {
                         fallthrough: last.fallthrough,
                         command: last.command,
                         bound_in: bound_in.name,
-                        category: last.category,
+                        category: last.category
                        };
             list.push(bind);
         });

@@ -8,7 +8,7 @@ var browser_object_classes = {};
  */
 define_keywords("$doc", "$action", "$label", "$handler", "$xpath_expression");
 function define_browser_object_class(name) {
-    keywords(arguments);
+    keywords(arguments, $xpath_expression = undefined);
     var handler = arguments.$handler;
     let xpath_expression = arguments.$xpath_expression;
     if (handler === undefined && xpath_expression != undefined) {
