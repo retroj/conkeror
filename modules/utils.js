@@ -543,6 +543,14 @@ function get_branch_pref(branch, name) {
     }
 }
 
+function get_localized_pref(name) {
+    try {
+        return preferences.getBranch(null).getComplexValue(name, Ci.nsIPrefLocalizedString).data;
+    } catch (e) {
+        return null;
+    }
+}
+
 function get_pref(name) {
     var branch = preferences.getBranch(null);
     return get_branch_pref(branch, name);
