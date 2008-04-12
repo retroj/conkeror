@@ -45,3 +45,6 @@ require("ssl.js");
 require("media.js");
 
 require("command-line.js");
+
+require("search-engine.js");
+
