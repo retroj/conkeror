@@ -566,11 +566,6 @@ function clear_pref(name) {
     return branch.clearUserPref(name);
 }
 
-function clear_default_pref(name) {
-    var branch = preferences.getDefaultBranch(null);
-    return branch.clearUserPref(name);
-}
-
 function pref_has_user_value(name) {
     var branch = preferences.getBranch(null);
     return branch.prefHasUserValue(name);
