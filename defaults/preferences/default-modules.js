@@ -35,7 +35,7 @@ pref("conkeror.load.mode-line", 1);
 pref("conkeror.load.daemon", 1);
 
 pref("conkeror.load.favicon", 1); // Enhances tab-bar mode
-pref("conkeror.load.tab-bar", 1);
+pref("conkeror.load.tab-bar", 0);
 
 // Extension support modules
 // These modules will automatically skip loading if the associated extension is not enabled.

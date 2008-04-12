@@ -128,3 +128,5 @@ define_global_mode("tab_bar_mode",
                        remove_hook("window_initialize_hook", tab_bar_install);
                        for_each_window(tab_bar_uninstall);
                    });
+
+tab_bar_mode(true);
