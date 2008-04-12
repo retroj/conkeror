@@ -40,6 +40,7 @@ pref("conkeror.load.tab-bar", 0);
 // Extension support modules
 // These modules will automatically skip loading if the associated extension is not enabled.
 pref("conkeror.load.extensions/dom-inspector", 1);
+pref("conkeror.load.extensions/adblockplus", 1);
 
 // Page mode modules
 pref("conkeror.load.page-modes/youtube", 1);
