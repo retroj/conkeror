@@ -183,6 +183,16 @@ buffer.prototype = {
         return (frame && frame.top == this.top_frame);
     },
 
+    // This method is like focused_frame, except that if no content
+    // frame actually has focus, this returns null.
+    get focused_frame_or_null () {
+        var frame = this.window.document.commandDispatcher.focusedWindow;
+        var top = this.top_frame;
+        if (this.is_child_frame(frame))
+            return frame;
+        return null;
+    },
+
     get focused_frame () {
         var frame = this.window.document.commandDispatcher.focusedWindow;
         var top = this.top_frame;

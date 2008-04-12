@@ -388,3 +388,11 @@ interactive (
     function (I) {
         send_key_as_event (I.window, I.buffer.focused_element, "return");
     });
+
+function ensure_content_focused(buffer) {
+    var foc = buffer.focused_frame_or_null;
+    if (!foc)
+        buffer.top_frame.focus();
+}
+interactive("ensure-content-focused", "Ensure that the content document has focus.",
+            function (I) { ensure_content_focused(I.buffer); });
