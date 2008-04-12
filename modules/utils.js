@@ -582,6 +582,12 @@ function session_pref (name, value) {
     return default_pref (name, value);
 }
 
+const LOCALE_PREF = "general.useragent.locale";
+
+function get_locale() {
+    return get_localized_pref(LOCALE_PREF) || get_pref(LOCALE_PREF);
+}
+
 const USER_AGENT_OVERRIDE_PREF = "general.useragent.override";
 
 function set_user_agent(str) {
