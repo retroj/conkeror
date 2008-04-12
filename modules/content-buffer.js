@@ -179,6 +179,7 @@ content_buffer.prototype = {
             //dumpln("*** started loading");
             this.loading = true;
             content_buffer_started_loading_hook.run(this);
+            this.last_user_input_received = null;
         }
         else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
                  aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
