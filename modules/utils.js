@@ -198,7 +198,7 @@ function makeFileURL(aFile)
 {
     var ioService = Cc["@mozilla.org/network/io-service;1"]
         .getService(Ci.nsIIOService);
-    return ioService.newFileURI(aFile);
+    return ioService.newFileURI(aFile).QueryInterface(Ci.nsIURL);
 }
 
 
