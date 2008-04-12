@@ -35,7 +35,7 @@ function interactive_error(str) {
     e.__proto__ = interactive_error.prototype;
     return e;
 }
-interactive_error.prototype.__proto__ = Error;
+interactive_error.prototype.__proto__ = Error.prototype;
 
 function interactive_context() {}
 interactive_context.prototype = {
