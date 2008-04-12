@@ -4,10 +4,10 @@ require("bindings/default/content-buffer/normal.js");
 define_keymap("google_search_results_keymap", $parent = content_buffer_normal_keymap);
 
 // Keys for the "experimental" keyboard search
-define_key(google_search_results_keymap, "j", null, $fallthrough);
-define_key(google_search_results_keymap, "k", null, $fallthrough);
-define_key(google_search_results_keymap, "o", null, $fallthrough);
-define_key(google_search_results_keymap, "/", null, $fallthrough);
+define_key(google_search_results_keymap, "j", "ensure-content-focused", $fallthrough);
+define_key(google_search_results_keymap, "k", "ensure-content-focused", $fallthrough);
+define_key(google_search_results_keymap, "o", "ensure-content-focused", $fallthrough);
+define_key(google_search_results_keymap, "/", "ensure-content-focused", $fallthrough);
 
 /**
  * Note: return already falls through by default in the content_buffer_normal_keymap,
