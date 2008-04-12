@@ -1,3 +1,4 @@
+require("bindings/default/content-buffer/normal.js");
 require("element.js");
 
 define_keymap("browser_elements_keymap");

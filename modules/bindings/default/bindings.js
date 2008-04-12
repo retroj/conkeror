@@ -1,20 +1,20 @@
 
 // Simply load the other modules
 
-load_module("bindings/default/content-buffer/normal.js");
-load_module("bindings/default/content-buffer/text.js");
-load_module("bindings/default/content-buffer/checkbox.js");
-load_module("bindings/default/content-buffer/textarea.js");
-load_module("bindings/default/content-buffer/richedit.js");
-load_module("bindings/default/content-buffer/select.js");
-load_module("bindings/default/content-buffer/quote.js");
+require("bindings/default/content-buffer/normal.js");
+require("bindings/default/content-buffer/text.js");
+require("bindings/default/content-buffer/checkbox.js");
+require("bindings/default/content-buffer/textarea.js");
+require("bindings/default/content-buffer/richedit.js");
+require("bindings/default/content-buffer/select.js");
+require("bindings/default/content-buffer/quote.js");
 
-load_module("bindings/default/minibuffer.js");
-load_module("bindings/default/hints.js");
-load_module("bindings/default/isearch.js");
+require("bindings/default/minibuffer.js");
+require("bindings/default/hints.js");
+require("bindings/default/isearch.js");
 
-load_module("bindings/default/content-buffer/element.js");
-load_module("bindings/default/content-buffer/zoom.js");
+require("bindings/default/content-buffer/element.js");
+require("bindings/default/content-buffer/zoom.js");
 
-load_module("bindings/default/help-buffer.js");
-load_module("bindings/default/download-buffer.js");
+require("bindings/default/help-buffer.js");
+require("bindings/default/download-buffer.js");
