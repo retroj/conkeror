@@ -17,6 +17,15 @@
  * referrer     optional    nsIURI          Specifies the referrer URI to use to access the target.
  *
  * post_data    optional    nsIInputStream  Specifies POST data to use to access the target.
+ *                                          The request headers should be included in this stream.
+ *
+ * request_mime_type
+ *              optional    string          Specifies the MIME type for the request post data.
+ *
+ * raw_post_data
+ *              optional    nsIInputStream  Specifies the POST data to use to access the target.
+ *                                          The request_mime_type property must also be set.
+ *                                          This provides a value for post_data.
  *
  * mime_type    optional    string          Specifies the MIME type of the target.
  *
@@ -113,11 +122,26 @@ function load_spec_referrer(x) {
 function load_spec_post_data(x) {
     if (x.post_data)
         return x.post_data;
+    if (x.raw_post_data) {
+        let y = x.raw_post_data;
+        if (typeof(y) == "string")
+            y = string_input_stream(y);
+        x.post_data = mime_input_stream(y, [["Content-Type", x.request_mime_type]]);
+        return x.post_data;
+    }
     if (x.document) {
         load_spec_set_properties_from_sh_entry(x);
         return x.post_data;
     }
     return null;
+}
+
+function load_spec_raw_post_data(x) {
+    return x.raw_post_data;
+}
+
+function load_spec_request_mime_type(x) {
+    return x.request_mime_type;
 }
 
 function load_spec_cache_key(x) {
