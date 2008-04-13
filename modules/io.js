@@ -193,3 +193,21 @@ function async_binary_reader(callback) {
         input_stream_async_wait(stream, handler);
     };
 }
+
+function string_input_stream(data) {
+    var string_stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
+    string_stream.data = data;
+    return string_stream;
+}
+
+function mime_input_stream(stream, headers) {
+    var mime_stream = Cc["@mozilla.org/network/mime-input-stream;1"].createInstance(Ci.nsIMIMEInputStream);
+    if (headers) {
+        for each (let [name,value] in headers) {
+            mime_stream.addHeader(name,value);
+        }
+    }
+    mime_stream.addContentLength = true;
+    mime_stream.setData(stream);
+    return mime_stream;
+}
