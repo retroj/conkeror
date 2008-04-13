@@ -260,7 +260,9 @@ minibuffer.prototype = {
 
     remove_state : function (state) {
         var i = this.states.indexOf(state);
-        var was_current = (i == this.states.length);
+        if (i == -1)
+            return;
+        var was_current = (i == (this.states.length - 1));
         state.destroy();
         this.states.splice(i, 1);
         if (was_current)
