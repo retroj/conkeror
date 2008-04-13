@@ -1,8 +1,59 @@
 
+
+/**
+ * Default media scraper
+ *
+ * Looks for <embed> and <object> elements, and also uses regular
+ * expresisons to attempt to match strings that look like URIs to
+ * embedded media.
+ **/
+
+define_variable("media_scrape_default_regexp",
+                new RegExp("(?:http://[a-zA-Z0-9.\\-]+/)?(?!://)[^=&<>\"'|\\s]+\\."
+                           + "(?:aiff|au|avi|flv|mid|mov|mp3|ogg|ra|rm|spl|wav|wma|wmv)(?!\\w)", "ig"),
+                "Regular expression used by the default media scraper to match URIs for "
+                + "embedded media in the page source code.");
+
+function media_scrape_default(buffer) {
+    var results = [];
+    for_each_frame(buffer.top_frame, function (frame) {
+                       var text = frame.document.documentElement.innerHTML;
+                       var matches = text.match(media_scrape_default_regexp);
+                       //matches = matches.concat(unescape(text).match(media_scrape_default_regexp));
+
+                       let base_uri = frame.document.documentURIObject;
+
+                       var uris = new string_hashset();
+                       for each (let x in matches) {
+                           let str = x;
+                           dumpln("got match: " + str);
+                           try {
+                               let uri_obj = make_uri(str, null, base_uri);
+                               if (!uris.contains(uri_obj.spec))  {
+                                   uris.add(uri_obj.spec);
+                                   results.push(load_spec({uri: uri_obj.spec, source_frame: frame}));
+                               }
+                           } catch (e) {}
+                       }
+                   });
+
+    // If there is exactly 1, use the document title as the video title
+    if (results.length == 1) {
+        results[0].title = buffer.document.title;
+        results[0].suggest_filename_from_uri = false;
+    }
+    return results;
+}
+
+define_variable("media_scraper", media_scrape_default,
+                "Function (or coroutine) to use to scrape the current buffer for embedded media.");
+
+
 function media_scrape(buffer) {
     var scraper = buffer.get("media_scraper");
     if (scraper)
         yield co_return((yield scraper(buffer)));
+
     yield co_return(null);
 }
 
@@ -28,7 +79,7 @@ define_browser_object_class("media", $handler = function (buf, prompt) {
         $get_string = function (x) load_spec_uri_string(x),
         $get_description = function (x) load_spec_title(x) || "");
 
-    let result = yield this.read(
+    let result = yield buf.window.minibuffer.read(
         $prompt = prompt,
         $match_required,
         $completer = completer,

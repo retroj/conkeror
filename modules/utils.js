@@ -43,7 +43,7 @@ string_hashset.prototype = {
     add : function(s) {
         this["-" + s] = true;
     },
-    
+
     contains : function(s) {
         return (("-" + s) in this);
     },
@@ -69,7 +69,7 @@ string_hashmap.prototype = {
     put : function(s,value) {
         this["-" + s] = value;
     },
-    
+
     contains : function(s) {
         return (("-" + s) in this);
     },
@@ -180,25 +180,19 @@ function get_link_location (element)
 }
 
 
-function makeURL(aURL)
-{
-    var ioService = Cc["@mozilla.org/network/io-service;1"]
-        .getService(Ci.nsIIOService);
-    return ioService.newURI(aURL, null, null);
-}
+var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
 
-function make_uri(uri) {
+function make_uri(uri, charset, base_uri) {
     if (uri instanceof Ci.nsIURI)
         return uri;
-    var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
-    return io_service.newURI(uri, null, null);
+    return io_service.newURI(uri, charset, base_uri);
 }
+
+var makeURL = make_uri; // until all callers are fixed
 
 function makeFileURL(aFile)
 {
-    var ioService = Cc["@mozilla.org/network/io-service;1"]
-        .getService(Ci.nsIIOService);
-    return ioService.newFileURI(aFile).QueryInterface(Ci.nsIURL);
+    return io_service.newFileURI(aFile).QueryInterface(Ci.nsIURL);
 }
 
 
@@ -964,4 +958,18 @@ extension_info.prototype = {
 function extension_is_enabled(id) {
     var info = new extension_info(id);
     return info.update_item && (info.isDisabled == "false");
+}
+
+function for_each_frame(root_frame, callback, start_with) {
+    if (start_with)
+        callback(start_with);
+    function helper(f) {
+        if (f == start_with)
+            return;
+        callback(f);
+        for (let i = 0; i < f.frames.length; ++i) {
+            helper(f.frames[i]);
+        }
+    }
+    helper(root_frame);
 }
