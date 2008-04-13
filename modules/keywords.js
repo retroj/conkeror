@@ -49,7 +49,8 @@ function keywords(args)
     }
     function helper(in_args)
     {
-        for (var i = 0; i < in_args.length; ++i)
+        // Begin at the first "undeclared" argument
+        for (var i = in_args.callee.length; i < in_args.length; ++i)
         {
             var arg = in_args[i];
             if (arg instanceof keyword_argument)
