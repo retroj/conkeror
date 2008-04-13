@@ -408,3 +408,18 @@ minibuffer.prototype.show_wait_message = function (initial_message, destroy_func
     this.push_state(s);
     return s;
 };
+
+minibuffer.prototype.wait_for = function minibuffer__wait_for(message, coroutine) {
+    var cc = yield CONTINUATION;
+    var done = false;
+    var s = this.show_wait_message(message, function () { if (!done) cc.throw(abort()); });
+    var result;
+    try {
+        result = yield coroutine;
+    }
+    finally {
+        done = true;
+        this.remove_state(s);
+    }
+    yield co_return(result);
+}
