@@ -14,8 +14,8 @@ define_variable("media_scrape_default_regexp",
                 "Regular expression used by the default media scraper to match URIs for "
                 + "embedded media in the page source code.");
 
-function media_scrape_default(buffer) {
-    var results = [];
+function media_scrape_default(buffer, results) {
+    var initial_length = results.length;
     for_each_frame(buffer.top_frame, function (frame) {
                        var text = frame.document.documentElement.innerHTML;
                        var matches = text.match(media_scrape_default_regexp);
@@ -26,7 +26,6 @@ function media_scrape_default(buffer) {
                        var uris = new string_hashset();
                        for each (let x in matches) {
                            let str = x;
-                           dumpln("got match: " + str);
                            try {
                                let uri_obj = make_uri(str, null, base_uri);
                                if (!uris.contains(uri_obj.spec))  {
@@ -35,26 +34,32 @@ function media_scrape_default(buffer) {
                                }
                            } catch (e) {}
                        }
+
                    });
 
     // If there is exactly 1, use the document title as the video title
-    if (results.length == 1) {
+    if (initial_length == 0 && results.length == 1 &&
+        buffer.document.title && buffer.document.title.length > 0) {
+
         results[0].title = buffer.document.title;
         results[0].suggest_filename_from_uri = false;
     }
     return results;
 }
 
-define_variable("media_scraper", media_scrape_default,
+define_variable("media_scrapers", [media_scrape_default],
                 "Function (or coroutine) to use to scrape the current buffer for embedded media.");
 
 
 function media_scrape(buffer) {
-    var scraper = buffer.get("media_scraper");
-    if (scraper)
-        yield co_return((yield scraper(buffer)));
-
-    yield co_return(null);
+    var scrapers = buffer.get("media_scrapers");
+    var results = [];
+    if (scrapers)  {
+        for each (let scraper in scrapers) {
+            yield scraper(buffer, results);
+        }
+    }
+    yield co_return(results);
 }
 
 function media_setup_local_object_classes(buffer) {

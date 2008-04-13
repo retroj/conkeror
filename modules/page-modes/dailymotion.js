@@ -1,7 +1,7 @@
 require("content-buffer.js");
 require("media.js");
 
-function media_scrape_dailymotion(buffer) {
+function media_scrape_dailymotion(buffer, results) {
     var text = unescape(buffer.document.documentElement.innerHTML);
     const reg = /video=([^&]+)&/;
 
@@ -9,27 +9,27 @@ function media_scrape_dailymotion(buffer) {
     var match = reg.exec(text);
     var param;
     if (!match || !(param = match[1]))
-        return null;
+        return;
 
     param = unescape(param);
-    
+
     match = reg2.exec(param);
     var path;
     if (!match || !(path = match[1]))
-        return null;
+        return;
     let title = get_meta_title(buffer.document);
     if (title)
         title = title.replace("Dailymotion : ", "");
-    return [load_spec({uri: "http://dailymotion.com" + path,
-                       suggest_filename_from_uri: (title == null),
-                       title: title,
-                       filename_extension: "flv",
-                       source_frame: buffer.top_frame,
-                       mime_type: "video/x-flv"})];
+    results.push(load_spec({uri: "http://dailymotion.com" + path,
+                            suggest_filename_from_uri: (title == null),
+                            title: title,
+                            filename_extension: "flv",
+                            source_frame: buffer.top_frame,
+                            mime_type: "video/x-flv"}));
 }
 
 define_page_mode("dailymotion_mode", "Dailymotion", $enable = function (buffer) {
-    buffer.local_variables.media_scraper = media_scrape_dailymotion;
+    buffer.local_variables.media_scrapers = [media_scrape_dailymotion];
     media_setup_local_object_classes(buffer);
 });
 
