@@ -973,3 +973,87 @@ function for_each_frame(root_frame, callback, start_with) {
     }
     helper(root_frame);
 }
+
+// Co-routine version of for_each_frame
+function co_for_each_frame(root_frame, callback, start_with) {
+    if (start_with)
+        yield callback(start_with);
+    function helper(f) {
+        if (f == start_with)
+            return;
+        yield callback(f);
+        for (let i = 0; i < f.frames.length; ++i) {
+            yield helper(f.frames[i]);
+        }
+    }
+    yield helper(root_frame);
+}
+
+function xml_http_request() {
+    return Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest).QueryInterface(Ci.nsIJSXMLHttpRequest).QueryInterface(Ci.nsIDOMEventTarget);
+}
+
+var xml_http_request_load_listener = {
+  // nsIBadCertListener2
+  notifyCertProblem: function SSLL_certProblem(socketInfo, status, targetSite) {
+    return true;
+  },
+
+  // nsISSLErrorListener
+  notifySSLError: function SSLL_SSLError(socketInfo, error, targetSite) {
+    return true;
+  },
+
+  // nsIInterfaceRequestor
+  getInterface: function SSLL_getInterface(iid) {
+    return this.QueryInterface(iid);
+  },
+
+  // nsISupports
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIBadCertListener2,
+                                         Ci.nsISSLErrorListener,
+                                         Ci.nsIInterfaceRequestor])
+};
+
+
+define_keywords("$user", "$password", "$override_mime_type", "$headers");
+function send_http_request(lspec) {
+    keywords(arguments);
+    var req = xml_http_request();
+    var cc = yield CONTINUATION;
+    req.onreadystatechange = function () {
+        if (req.readyState != 4)
+            return;
+        cc();
+    };
+
+    if (arguments.$override_mime_type)
+        req.overrideMimeType(arguments.$override_mime_type);
+
+    var post_data = load_spec_raw_post_data(lspec);
+
+    var method = post_data ? "POST" : "GET";
+
+    req.open(method, load_spec_uri_string(lspec), true, arguments.$user, arguments.$password);
+    req.channel.notificationCallbacks = xml_http_request_load_listener;
+
+    for each (let [name,value] in arguments.$headers) {
+        req.setRequestHeader(name, value);
+    }
+
+    if (post_data) {
+        req.setRequestHeader("Content-Type", load_spec_request_mime_type(lspec));
+        req.send(post_data);
+    } else
+        req.send(null);
+
+    try {
+        yield SUSPEND;
+    } catch (e) {
+        req.abort();
+        throw e;
+    }
+
+    // Let the caller access the status and reponse data
+    yield co_return(req);
+}
