@@ -5,6 +5,9 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function application () {
     Components.utils.import("resource://gre/modules/XPCOMUtils.jsm", this);
+
+    this.JSON = Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
+
     this.wrappedJSObject = this;
     this.conkeror = this;
 
