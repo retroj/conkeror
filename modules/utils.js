@@ -34,8 +34,7 @@ the terms of any one of the MPL, the GPL or the LGPL.
  */
 
 
-function string_hashset() {
-}
+function string_hashset() {}
 
 string_hashset.prototype = {
     constructor : string_hashset,
@@ -101,6 +100,20 @@ string_hashmap.prototype = {
         for (var i in this) {
             if (i[0] == "-")
                 f(this[i]);
+        }
+    },
+
+    iterator: function (only_keys) {
+        if (only_keys) {
+            for (let k in Iterator(this, true)) {
+                if (k[0] == "-")
+                    yield k.slice(1);
+            }
+        } else {
+            for (let [k,v] in Iterator(this, false)) {
+                if (k[0] == "-")
+                    yield [k.slice(1),v];
+            }
         }
     }
 };
