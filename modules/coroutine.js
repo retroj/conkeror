@@ -102,4 +102,5 @@ function co_call(f) {
     try {
         g.send(cc);
     } catch (e if e instanceof StopIteration) {}
+    return cc;
 }
