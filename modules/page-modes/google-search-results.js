@@ -8,10 +8,10 @@ define_key(google_search_results_keymap, "j", "ensure-content-focused", $fallthr
 define_key(google_search_results_keymap, "k", "ensure-content-focused", $fallthrough);
 define_key(google_search_results_keymap, "o", "ensure-content-focused", $fallthrough);
 define_key(google_search_results_keymap, "/", "ensure-content-focused", $fallthrough);
+define_key(google_search_results_keymap, "return", "ensure-content-focused", $fallthrough);
 
 /**
- * Note: return already falls through by default in the content_buffer_normal_keymap,
- * and escape already does the same thing as the Google key binding.
+ * Note: escape already does the same thing as the Google key binding.
  */
 
 define_browser_object_class("google_search_results_links", $label = "Google Search Results",
