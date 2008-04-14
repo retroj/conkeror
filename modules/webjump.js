@@ -1,11 +1,33 @@
 
 //// web jump stuff
 
-var webjumps = {};
-function add_webjump(key, loc)
-{
-    webjumps[key] = loc;
+var webjumps = new string_hashmap();
+
+define_keywords("$completer", "$description", "$no_argument");
+function define_webjump(key, handler) {
+    keywords(arguments);
+
+    if (typeof(handler) == "string") {
+        let template = handler;
+        handler = function (arg) {
+            var b = template.indexOf('%s');
+            var a = b + 2;
+            // Just return the same string if it doesn't contain a %s
+            if (b == -1)
+                return template;
+            else
+                return template.substr(0,b) + encodeURIComponent(arg) + template.substring(a);
+        };
+    }
+    webjumps.put(key,
+                 {key: key,
+                  handler: handler, completer: arguments.$completer,
+                  description: arguments.$description,
+                  no_argument: arguments.$no_argument});
 }
+
+// Compatibility
+var add_webjump = define_webjump;
 
 function add_delicious_webjumps (username)
 {
@@ -15,22 +37,20 @@ function add_delicious_webjumps (username)
     add_webjump("sadelicious", " http://del.icio.us/search/all?search=%s");
 }
 
-function webjumps_clear()
+function clear_webjumps()
 {
     webjumps = {};
 }
 
 // Some built in web jumps
-function webjumps_add_defaults()
+function define_default_webjumps()
 {
     add_webjump("conkerorwiki",
                 "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
-    add_webjump("google",     "http://www.google.com/search?q=%s");
     add_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
     add_webjump("maps",       "http://maps.google.com/?q=%s");
     add_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
     add_webjump("clusty",     "http://www.clusty.com/search?query=%s");
-    add_webjump("wikipedia",  "http://en.wikipedia.org/wiki/Special:Search?search=%s");
     add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
     add_webjump("xulplanet",  "http://www.google.com/custom?q=%s&cof=S%3A"+
@@ -39,7 +59,6 @@ function webjumps_add_defaults()
                 "xulplanet.png%3BALC%3Ablue%3BLW%3A215%3BAWFID%3A0979f384d5"+
                 "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go");
     add_webjump("image",      "http://images.google.com/images?q=%s");
-    add_webjump("bugzilla",   "https://bugzilla.mozilla.org/show_bug.cgi?id=%s");
     add_webjump("clhs",       "http://www.xach.com/clhs?q=%s");
     add_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
     add_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
@@ -53,60 +72,87 @@ function webjumps_add_defaults()
     add_webjump("sheldonbrown",     "http://www.google.com/search?q=site:sheldonbrown.com %s");
 }
 
-function webjump_build_url(template, subs)
-{
-    var b = template.indexOf('%s');
-    var a = b + 2;
-    // Just return the same string if it doesn't contain a %s
-    if (b == -1)
-        return template;
-    else
-        return template.substr(0,b) + encodeURIComponent(subs) + template.substring(a);
+function match_webjump(str) {
+    var sp = str.indexOf(' ');
+
+    var key, arg;
+    if (sp == -1) {
+        key = str;
+        arg = null;
+    } else {
+        key = str.substring(0, sp);
+        arg = str.substring(sp + 1);
+    }
+
+    // Look for an exact match
+    var match = webjumps.get(key);
+
+    // Look for a partial match
+    if (!match) {
+        for (let [k,v] in webjumps.iterator()) {
+            if (k.substring(0, key.length) == key) {
+                if (match) {
+                    // key is not a unique prefix, as there are multiple partial matches
+                    return null;
+                }
+                match = v;
+            }
+        }
+    }
+
+    if (match) {
+        if (!arg && !match.no_argument) {
+            // This webjump requires an argument, but none was given
+            return null;
+        }
+        return [match, key, arg];
+    }
+    return null;
 }
 
-function get_partial_match(hash, part)
-{
-    var matches = [];
-    for (x in hash) {
-        if (part == x.substr(0, part.length))
-            matches.push(x);
-    }
-    if (matches.length == 1)
-        return matches[0];
-    else
-        return null;
-}
 
 function getWebJump(value)
 {
-    try {
-    var start = value.indexOf(' ');
-    var jump;
-    if (start == -1)
-        jump = webjumps[value];
-    else
-        jump = webjumps[value.substr(0,start)];
-    // Try to find a web jump match
-    if (!jump) {
-        var match = get_partial_match(webjumps, value.substr(0,start));
-        if (match)
-            jump = webjumps[match];
-        else
-            return null;
-    }
-    return webjump_build_url(jump, value.substring(start + 1));
-    } catch(e) {/* FIXME: figure out why we need this */ dump_error(e); return null;}
+    var res = match_webjump(value);
+    if (!res)
+        return null;
+    let [match,key,arg] = res;
+    return match.handler(arg);
 }
 
 function get_url_or_webjump(input)
 {
     var url = getWebJump(input);
 
-    if (url) {
+    if (url != null) {
         return url;
     } else {
         return input;
     }
 }
 
-webjumps_add_defaults ();
+define_default_webjumps();
+
+function webjump_completer()
+{
+    let base_completer = prefix_completer(
+        $completions = [ v for ([k,v] in webjumps.iterator()) ],
+        $get_string = function (x) x.key + (x.no_argument ? "" : " "),
+        $get_description = function (x) x.description || "");
+
+    return function(input, pos, conservative) {
+        let str = input.substring(0,pos);
+        let res = match_webjump(str);
+        if (res) {
+            let [match, key, arg] = res;
+            if (arg != null) { // If there is no argument yet, we use the base completer
+                if (match.completer) {
+                    let c = yield match.completer.call(null, arg, pos - key.length - 1, conservative);
+                    yield co_return(nest_completions(c, match.key + " "));
+                }
+                yield co_return(null);
+            }
+        }
+        yield co_return(base_completer(input, pos, conservative));
+    }
+}

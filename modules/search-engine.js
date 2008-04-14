@@ -153,6 +153,10 @@ function parse_search_engine_from_dom_node(node) {
     return eng;
 }
 
+search_engine.prototype.supports_response_type = function (type) {
+    return this.urls.contains(type);
+};
+
 /**
  * Returns null if the result mime_type isn't supported.  The string
  * search_terms will be escaped by this function.
@@ -199,14 +203,88 @@ search_engine.prototype.get_query_load_spec = function search_engine__get_query_
                 url_string += "&";
             url_string += data;
         }
-        return load_spec({uri: uri_string});
+        return load_spec({uri: url_string});
     } else {
-        var string_stream = Cc["@mozilla.org/io/string-input-stream;1"].createInstance(Ci.nsIStringInputStream);
-        string_stream.data = data;
-        return load_spec({uri: uri_string, raw_post_data: data,
+        return load_spec({uri: url_string, raw_post_data: data,
                           request_mime_type: "application/x-www-form-urlencoded"});
     }
 }
+
+search_engine.prototype.__defineGetter__("completer", function () {
+    const response_type_json = "application/x-suggestions+json";
+    const response_type_xml = "application/x-suggestions+xml";
+
+    var eng = this;
+    if (this.supports_response_type(response_type_xml)) {
+        return function (input, pos, conservative) {
+            if (pos == 0 && conservative)
+                yield co_return(undefined);
+            let str = input.substring(0,pos);
+            try {
+                let lspec = eng.get_query_load_spec(str, response_type_xml,
+                                                    $override_mime_type = "application/xml");
+                let result = yield send_http_request(lspec);
+                let doc = result.responseXML;
+                let data = [];
+                if (doc) {
+                    let elems = doc.getElementsByTagName("CompleteSuggestion");
+                    for (let i = 0; i < elems.length; ++i) {
+                        let node = elems[i];
+                        let name = node.firstChild.getAttribute("data");
+                        let desc = node.lastChild.getAttribute("int");
+                        if (name && desc)
+                            data.push([name,desc]);
+                    }
+                    delete doc;
+                    delete elem;
+                    delete result;
+                    delete lspec;
+                    let c = { count: data.length,
+                              get_string: function (i) data[i][0],
+                              get_description: function (i) data[i][1] + " results",
+                              get_input_state: function (i) [data[i][0]]
+                            };
+                    yield co_return(c);
+                }
+            } catch (e) {
+                yield co_return(null);
+            }
+        };
+    } else if (this.supports_response_type(response_type_json)) {
+        return function (input, pos, conservative) {
+            if (pos == 0 && conservative)
+                yield co_return(undefined);
+            let str = input.substring(0,pos);
+            try {
+                let lspec = eng.get_query_load_spec(str, response_type_json);
+                let result = yield send_http_request(lspec);
+                let data = JSON.decode(result.responseText);
+                delete result;
+                delete lspec;
+
+                if (!(data instanceof Array &&
+                      data.length >= 2 &&
+                      typeof(data[0]) == "string" &&
+                      data[0] == str &&
+                      data[1] instanceof Array &&
+                      (data[2] == null || (data[2] instanceof Array))))
+                    yield co_return(null);
+                if (data[2].length != data[1].length)
+                    data[2] = null;
+                let c = { count: data[1].length,
+                          get_string: function (i) String(data[1][i]),
+                          get_description: (data[2] != null) && (function (i) String(data[2][i])),
+                          get_input_state: function (i) [String(data[1][i])]
+                        };
+                yield co_return(c);
+            } catch (e) {
+                yield co_return(null);
+            }
+        };
+    } else {
+        return null;
+    }
+});
 
 // Load search engines from default directories
 {
@@ -220,3 +298,26 @@ search_engine.prototype.get_query_load_spec = function search_engine__get_query_
     if (dir.exists() && dir.isDirectory())
         load_search_engines_in_directory(dir);
 }
+
+function define_search_engine_webjump(search_engine_name, key) {
+    var eng = search_engines.get(search_engine_name);
+
+    if (key == null)
+        key = search_engine_name;
+
+    define_webjump(key,
+                   function (arg) {
+                       return eng.get_query_load_spec(arg);
+                   },
+                   $description = eng.description,
+                   $completer = eng.completer);
+}
+
+define_search_engine_webjump("google.xml", "google");
+define_search_engine_webjump("mozilla-bugzilla.xml", "bugzilla");
+define_search_engine_webjump("amazondotcom.xml", "amazon");
+define_search_engine_webjump("wikipedia.xml", "wikipedia");
+define_search_engine_webjump("answers.xml", "answers");
+define_search_engine_webjump("yahoo.xml", "yahoo");
+define_search_engine_webjump("creativecommons.xml", "creativecommons");
+define_search_engine_webjump("eBay.xml", "ebay");

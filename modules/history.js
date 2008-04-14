@@ -21,28 +21,12 @@ function history_completer() {
         root.containerOpen = true;
         var history_count = root.childCount;
         return {count: history_count,
-                get_string: function (i) {
-                    return root.getChild(i).uri;
-                },
-                get_description: function (i) {
-                    return root.getChild(i).title;
-                },
-                apply: function (i, m) {
-                    apply_completion_string(root.getChild(i).uri, m);
-                },
+                get_string: function (i) root.getChild(i).uri,
+                get_description: function (i) root.getChild(i).title,
+                get_input_state: function (i) [root.getChild(i).uri],
                 destroy: function () { root.containerOpen = false; }
                };
     }
-}
-
-function webjump_completer() {
-    return prefix_completer(
-            $completions = function(visitor) {
-                for (var i in webjumps)
-                    visitor([i,webjumps[i]]);
-            },
-            $get_string = function (x) x[0] + " ",
-            $get_description = function (x) "");
 }
 
 function url_completer() {

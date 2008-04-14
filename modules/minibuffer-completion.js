@@ -1,11 +1,5 @@
 require("minibuffer.js");
 
-
-function apply_completion_string(str, m) {
-    m._set_selection();
-    m._input_text = str;
-}
-
 /**
  * Completions is either a visit function or an array.
  */
@@ -42,7 +36,7 @@ function all_word_completer()
                 index_of:  function (x) data.indexOf(x),
                 get_string: function (i) get_string(data[i]),
                 get_description : function (i) get_description(data[i]),
-                apply : function (i, m) apply_completion_string(get_string(data[i]), m),
+                get_input_state: function (i) [get_string(data[i])],
                 get_value : function(i) (get_value ? get_value(data[i]) : data[i])
                };
     }
@@ -61,17 +55,16 @@ function get_common_prefix_length(a, b, len) {
     return i;
 }
 
-function apply_partial_completion(x, prefix_end, suffix_begin, orig_str, m) {
+function get_partial_completion_input_state(x, prefix_end, suffix_begin, orig_str) {
     if (suffix_begin < orig_str.length)  {
         if (orig_str[suffix_begin] == " ")
             suffix_begin++;
-        m._input_text = orig_str.substring(0, prefix_end) + x + " " + orig_str.substring(suffix_begin);
         let sel = x.length + prefix_end + 1;
-        m._set_selection(sel, sel);
+        return [orig_str.substring(0, prefix_end) + x + " " + orig_str.substring(suffix_begin),
+                sel, sel];
     } else {
-        m._input_text = orig_str.substring(0, prefix_end) + x;
         let sel = x.length + prefix_end;
-        m._set_selection(sel, sel);
+        return [orig_str.substring(0, prefix_end) + x, sel, sel];
     }
 }
 
@@ -139,10 +132,11 @@ function prefix_completer()
                 index_of:  function (x) data.indexOf(x),
                 get_string: function (i) get_string(data[i]),
                 get_description : function (i) get_description(data[i]),
-                apply : function (i, m) apply_partial_completion(get_string(data[i]), 0, pos, input, m),
+                get_input_state : function (i) get_partial_completion_input_state(get_string(data[i]), 0, pos, input),
                 get_value : function(i) get_value(data[i]),
-                apply_common_prefix: (common_prefix &&
-                                      function (m) apply_partial_completion(common_prefix, 0, pos, input, m)),
+                get common_prefix_input_state () {
+                    return common_prefix && get_partial_completion_input_state(common_prefix, 0, pos, input);
+                },
                 default_completion: default_completion
                };
     }
@@ -244,9 +238,10 @@ function javascript_completer(buffer) {
         return {count:data.length,
                 get_string: function (i) data[i][0],
                 get_description: function (i) data[i][1],
-                apply: function (i,m) apply_partial_completion(data[i][0], offset, pos, input, m),
-                apply_common_prefix: (common_prefix &&
-                                      function (m) apply_partial_completion(common_prefix, offset, pos, input, m))
+                get_input_state: function (i) get_partial_completion_input_state(data[i][0], offset, pos, input),
+                get common_prefix_input_state  () {
+                    return common_prefix && get_partial_completion_input_state(common_prefix, offset, pos, input);
+                }
                };
     }
 }
@@ -258,21 +253,19 @@ function merge_completers(completers) {
     return function (input, pos, conservative) {
         var results = [];
         var count = 0;
-        var results = completers.map(function(c) {
-                var r = c(input, pos, conservative);
-                if(r != null) {
-                        count += r.count;
-                }
-                return r;
-        });
-
+        for (let i = 0; i < completers.length; ++i) {
+            let r = yield completers[i](input, pos, conservative);
+            if (r != null && r.count > 0) {
+                results.push(r);
+                count += r.count;
+            }
+        }
         function forward(name) {
             return function() {
                 var args = Array.prototype.slice.call(arguments);
                 var i = args.shift();
                 for(var j=0; j < results.length; j++) {
                     var r = results[j];
-                    if(r == null) continue;
                     if(i < r.count) {
                         args.unshift(i);
                         return r[name].apply(this, args);
@@ -282,11 +275,36 @@ function merge_completers(completers) {
                 return null;
             }
         }
-        return {count: count,
-                get_string: forward('get_string'),
-                get_description: forward('get_description'),
-                apply: forward('apply'),
-                destroy: forward('destroy')
-                };
+        yield co_return({count: count,
+                         get_string: forward('get_string'),
+                         get_description: forward('get_description'),
+                         get_input_state: forward('get_input_state'),
+                         destroy: forward('destroy')
+                        });
+    };
+}
+
+function nest_completions(completions, prefix, suffix) {
+    if (prefix == null)
+        prefix = "";
+    if (suffix == null)
+        suffix = "";
+    function nest(x) {
+        let [s, a, b] = x;
+        if (a == null)
+            a = s.length;
+        if (b == null)
+            b = s.length;
+        return [prefix + s + suffix, a + prefix.length, b + prefix.length];
+    }
+    return {
+        __proto__: completions,
+        get_input_state: function (i) nest(completions.get_input_state(i)),
+        get common_prefix_input_state () {
+            let x = completions.common_prefix_input_state;
+            if (x)
+                return nest(x);
+            return null;
+        }
     };
 }

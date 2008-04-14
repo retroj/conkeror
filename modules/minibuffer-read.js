@@ -173,6 +173,11 @@ text_entry_minibuffer_state.prototype = {
     destroy : function (window) {
         if (this.completions != null && this.completions.destroy)
             this.completions.destroy();
+        delete this.completions;
+        if (this.completions_cont)
+            this.completions_cont.throw(abort());
+        delete this.completions_cont;
+
         var el = this.completions_display_element;
         if (el)
         {
@@ -198,14 +203,12 @@ text_entry_minibuffer_state.prototype = {
             this.completions_timer_ID = this.window.setTimeout(
                 function () {
                     s.completions_timer_ID = null;
-                    s.update_completions(true /* auto */);
-                    s.update_completions_display();
+                    s.update_completions(true /* auto */, true /* update completions display */);
                 }, this.auto_complete_delay);
             return;
         }
 
-        s.update_completions(true /* auto */);
-        s.update_completions_display();
+        s.update_completions(true /* auto */, true /* update completions display */);
     },
 
     ran_minibuffer_command : function () {
@@ -233,8 +236,7 @@ text_entry_minibuffer_state.prototype = {
 
     /* If auto is true, this update is due to auto completion, rather
      * than specifically requested. */
-    update_completions : function (auto) {
-
+    update_completions : function (auto, update_display) {
 
         if (this.completions_timer_ID != null) {
             this.window.clearTimeout(this.completions_timer_ID);
@@ -243,14 +245,47 @@ text_entry_minibuffer_state.prototype = {
 
         let m = this.window.minibuffer;
 
+        if (this.completions_cont) {
+            this.completions_cont.throw(abort());
+            this.completions_cont = null;
+        }
+
+        let c = this.completer(m._input_text, m._selection_start,
+                               auto && this.auto_complete_conservative);
+
+        if (is_coroutine(c)) {
+            let s = this;
+            let already_done = false;
+            this.completions_cont = co_call(function () {
+                var x;
+                try {
+                    x = yield c;
+                } finally {
+                    s.completions_cont = null;
+                    already_done = true;
+                }
+                s.update_completions_done(x, update_display);
+            }());
+
+            // In case the completer actually already finished
+            if (already_done)
+                this.completions_cont = null;
+            return;
+        } else
+            this.update_completions_done(c, update_display);
+    },
+
+    update_completions_done : function update_completions_done(c, update_display) {
+
         /* The completer should return undefined if completion was not
          * attempted due to auto being true.  Otherwise, it can return
          * null to indicate no completions. */
         if (this.completions != null && this.completions.destroy)
             this.completions.destroy();
-        let c = this.completions = this.completer(m._input_text, m._selection_start,
-                                                  auto && this.auto_complete_conservative);
+
+        this.completions = c;
         this.completions_valid = true;
+        this.applied_common_prefix = false;
 
         let i = -1;
         if (c && c.count > 0) {
@@ -264,6 +299,9 @@ text_entry_minibuffer_state.prototype = {
             }
             this.selected_completion_index = i;
         }
+
+        if (update_display)
+            this.update_completions_display();
     },
 
     select_completion : function (i) {
@@ -286,7 +324,7 @@ text_entry_minibuffer_state.prototype = {
 
         if (this.completions_valid && c && !this.match_required && i >= 0 && i < c.count)
         {
-            c.apply(i, m);
+            m.set_input_state(c.get_input_state(i));
         }
     }
 };
@@ -303,8 +341,11 @@ function minibuffer_complete(window, count)
     if (!s.completions_valid || s.completions === undefined) {
         if (s.completions_timer_ID == null)
             just_completed_manually = true;
-        s.update_completions(false /* not auto */);
-        s.update_completions_display();
+        s.update_completions(false /* not auto */, true /* update completions display */);
+
+        // If the completer is a coroutine, nothing we can do here
+        if (!s.completions_valid)
+            return;
     }
 
     var c = s.completions;
@@ -315,10 +356,12 @@ function minibuffer_complete(window, count)
     var e = s.completions_display_element;
     var new_index = -1;
 
-    if (count == 1 && c.apply_common_prefix)
+    let common_prefix;
+
+    if (count == 1 && !s.applied_common_prefix && (common_prefix = c.common_prefix_input_state))
     {
-        c.apply_common_prefix(m);
-        c.apply_common_prefix = null;
+        m.set_input_state(common_prefix);
+        s.applied_common_prefix = true;
     } else if (!just_completed_manually) {
         if (e.currentIndex != -1)
         {
@@ -354,7 +397,7 @@ function exit_minibuffer(window)
 
     if (s.completer && s.match_required) {
         if (!s.completions_valid || s.completions === undefined)
-            s.update_completions(false);
+            s.update_completions(false /* not conservative */, false /* don't update */);
 
         let c = s.completions;
         let i = s.selected_completion_index;

@@ -30,9 +30,8 @@ define_builtin_commands(
                     m.ignore_input_events = false;
                 }
                 var s = m.current_state;
-                let x = s.ran_minibuffer_command;
-                if (x)
-                    x(command);
+                if (s.ran_minibuffer_command)
+                    s.ran_minibuffer_command(command);
             }
         } catch (e)
         {
@@ -178,6 +177,11 @@ minibuffer.prototype = {
     set _input_text (text) { this.input_element.value = text; },
     get prompt () { return this.input_prompt_element.value; },
     set prompt (s) { this.input_prompt_element.value = s; },
+
+    set_input_state : function(x) {
+        this._input_text = x[0];
+        this._set_selection(x[1], x[2]);
+    },
 
     _set_selection : function (start, end) {
         if (start == null)
