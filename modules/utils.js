@@ -1031,7 +1031,8 @@ var xml_http_request_load_listener = {
 
 define_keywords("$user", "$password", "$override_mime_type", "$headers");
 function send_http_request(lspec) {
-    keywords(arguments);
+    keywords(arguments, $user = undefined, $password = undefined,
+             $override_mime_type = undefined, $headers = undefined);
     var req = xml_http_request();
     var cc = yield CONTINUATION;
     req.onreadystatechange = function () {
