@@ -167,6 +167,8 @@ function load_spec_uri_string(x) {
         return x;
     if (x.uri)
         return x.uri;
+    if (x.document && x.document.defaultView)
+        return x.document.defaultView.location.href;
     if (x.document)
         return x.document.documentURI;
     return null;
