@@ -31,12 +31,13 @@ interactive("inspect-page", "Inspect the current content document.",
 
 interactive("inspect-click", "Inspect the target of the next mouse click.",
             function (I) {
+                var window = I.window;
                 function handler(e) {
                     e.preventDefault();
                     e.stopPropagation();
+                    window.removeEventListener("click", arguments.callee, true);
                     inspect_dom_node(e.target);
-                    I.window.removeEventListener("click", handler);
                 }
-                I.window.addEventListener("click", handler, true);
+                window.addEventListener("click", handler, true);
                 I.minibuffer.message("Click in this window to select the DOM node to inspect.");
             });
