@@ -46,7 +46,6 @@ define_page_mode("youtube_mode", "YouTube", $enable = function (buffer) {
 
 function media_scrape_embedded_youtube(buffer, results) {
 
-    dumpln("scraping");
     const embedded_youtube_regexp = /^http:\/\/[a-zA-Z0-9\-.]+\.youtube\.com\/v\/(.*)$/;
 
     function helper(frame) {
