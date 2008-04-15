@@ -175,6 +175,8 @@ function load_spec_uri_string(x) {
 }
 
 function load_spec_uri(x) {
+    if (x.document && x.document.defaultView)
+        return x.document.defaultView.location.href;
     if (x.document)
         return x.document.documentURIObject;
     return make_uri(load_spec_uri_string(x));
