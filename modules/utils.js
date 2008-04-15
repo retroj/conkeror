@@ -1071,3 +1071,6 @@ function send_http_request(lspec) {
     // Let the caller access the status and reponse data
     yield co_return(req);
 }
+
+
+var JSON = ("@mozilla.org/dom/json;1" in Cc) && Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);

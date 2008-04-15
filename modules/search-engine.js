@@ -250,7 +250,7 @@ search_engine.prototype.__defineGetter__("completer", function () {
                 yield co_return(null);
             }
         };
-    } else if (this.supports_response_type(response_type_json)) {
+    } else if (JSON && this.supports_response_type(response_type_json)) {
         return function (input, pos, conservative) {
             if (pos == 0 && conservative)
                 yield co_return(undefined);
