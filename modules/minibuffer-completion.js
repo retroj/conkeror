@@ -8,7 +8,7 @@ function all_word_completer()
 {
     keywords(arguments);
     var completions = arguments.$completions;
-    var get_string = arguments.$get_string;
+    var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
     var get_description = arguments.$get_description;
     var get_value = arguments.$get_value;
     var arr;
@@ -72,7 +72,7 @@ function prefix_completer()
 {
     keywords(arguments);
     var completions = arguments.$completions;
-    var get_string = arguments.$get_string;
+    var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
     var get_description = arguments.$get_description;
     var get_value = arguments.$get_value;
     var arr;
