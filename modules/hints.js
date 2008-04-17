@@ -208,7 +208,7 @@ hint_manager.prototype = {
                         img_elem = null;
                 }
                 if (img_elem) {
-                    var bgcolor = (active_number == cur_number) ? 
+                    var bgcolor = (active_number == cur_number) ?
                         active_img_hint_background_color : img_hint_background_color;
                     h.img_hint.style.backgroundColor = bgcolor;
                     h.img_hint.style.display = "inline";
@@ -419,7 +419,7 @@ function hints_backspace(window, s) {
         m._input_text = s.typed_string;
         m._set_selection();
         s.manager.current_hint_string = s.typed_string;
-        s.manager_current_hint_number = -1;
+        s.manager.current_hint_number = -1;
         s.manager.update_valid_hints();
     }
     s.update_minibuffer(m);
