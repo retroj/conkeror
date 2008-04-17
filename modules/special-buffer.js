@@ -11,7 +11,7 @@ function special_buffer(window, element) {
             buffer.generated = true;
             buffer.generate();
         });
-    this.web_navigation.loadURI("about:blank", Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
+    this.web_navigation.loadURI("chrome://conkeror/content/blank.html", Ci.nsIWebNavigation.LOAD_FLAGS_NONE,
                                 null /* referrer */, null /* post data */, null /* headers */);
     this.constructor_end();
 }
