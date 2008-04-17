@@ -1,7 +1,5 @@
 #! /bin/bash
 
-source VERSION
-
 SDK_DIR="/usr/lib/xulrunner"
 
 XPIDL="${SDK_DIR}/xpidl"
@@ -17,8 +15,6 @@ TARGET='help'
 ETAGSDIR=""
 
 case "$1" in
-    jar)
-        TARGET=jar ;;
     xulapp)
         TARGET=xulapp ;;
     dist-tar)
@@ -42,8 +38,7 @@ esac
 shift
 
 
-#build the spawn-process-helper
-make
+VERSION=$(grep '^Version=' application.ini | cut -d '=' -f 2)
 
 
 ## if this is not an official release, tag on a build date.
@@ -169,44 +164,40 @@ function diff_wrapper () {
 ###
 ###
 
-function do_target_jar () {
-    echo -n Building JAR...
-    FILES=($(find content branding locale modules -type f -and \! -name '*[~#]' -print ))
-    zip "conkeror.jar" "${FILES[@]}" > /dev/null
-    echo ok
-}
-
-
 function do_target_xulapp () {
-    do_target_jar
     echo -n Building XULRunner Application...
+
+    #build the spawn-process-helper
+    make
+
     get_scratch
     mkdir -p "$SCRATCH/chrome"
     cp application.ini "$SCRATCH"
     if [ -n "$CONKEROR_APP_NAME" ]; then
         sed -i -e "s/Name=conkeror/Name=${CONKEROR_APP_NAME}/" "${SCRATCH}/application.ini"
     fi
-    mv conkeror.jar "$SCRATCH/chrome/"
-    cp chrome.manifest.for-jar "$SCRATCH/chrome/chrome.manifest"
-    copy_tree_sans_boring defaults "$SCRATCH/defaults"
-    copy_tree_sans_boring components "$SCRATCH/components"
+    for x in branding chrome components content defaults locale modules search-engines; do
+        copy_tree_sans_boring "$x" "$SCRATCH/$x"
+    done
+    cp spawn-process-helper "${SCRATCH}"
     if [ -d idl ]; then
         for x in idl/*; do
             name="$(basename "$x")"
             "${XPIDL}" -w -v -m typelib -I "${XPIDL_INCLUDE}" -e "$SCRATCH/components/${name%.idl}.xpt" "$x"
         done
     fi
+    BUILD_ID=$(git rev-parse HEAD 2> /dev/null)
+    if [ "$?" != 0 ]; then
+        BUILD_ID="git"
+    fi
     pushd "$SCRATCH" > /dev/null
     ## begin preprocessing
     ##
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' application.ini
-    perl -pi -e 's/\$CONKEROR_BUILD_DATE\$/'$BUILD_DATE'/g' application.ini
-    perl -pi -e 's/\$CONKEROR_VERSION\$/'$VERSION'/g' components/application.js
+    perl -pi -e 's/BuildID=git/BuildID='${BUILD_ID}'/g' application.ini
     ##
     ## end preprocessing
-    zip -r conkeror.xulapp * > /dev/null
+    zip -r ../conkeror.xulapp * > /dev/null
     popd > /dev/null
-    mv "$SCRATCH/conkeror.xulapp" .
     do_cleanup
     echo ok
 }
@@ -335,7 +326,6 @@ function do_target_help () {
 assert_conkeror_src
 
 case "$TARGET" in
-    jar) do_target_jar ;;
     xulapp) do_target_xulapp ;;
     dist-tar) do_target_dist_tar ;;
     release) do_target_release ;;
