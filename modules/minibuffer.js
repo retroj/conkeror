@@ -246,7 +246,6 @@ minibuffer.prototype = {
         this._save_state();
         this.states.push(state);
         this._restore_state();
-        state.load(this.window);
     },
 
     pop_state : function () {
@@ -339,6 +338,7 @@ minibuffer.prototype = {
             } else {
                 this._show(s._message);
             }
+            s.load(this.window);
             this.window.keyboard.set_override_keymap(s.keymap);
             this.active = true;
         } else {
