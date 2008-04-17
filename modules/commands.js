@@ -143,7 +143,7 @@ interactive("execute-extended-command",
 
 define_builtin_commands(
     "",
-    function (I, command) { 
+    function (I, command) {
         var buffer = I.buffer;
         try {
             buffer.do_command(command);
@@ -159,7 +159,7 @@ define_builtin_commands(
 
 function get_link_text()
 {
-    var e = document.commandDispatcher.focusedElement;   
+    var e = document.commandDispatcher.focusedElement;
     if (e && e.getAttribute("href")) {
         return e.getAttribute("href");
     }
@@ -198,7 +198,7 @@ function copy_email_address (loc)
     //     catch(ex) {
     //         // Do nothing.
     //     }
-    
+
     writeToClipboard(addresses);
     message("Copied '" + addresses + "'");
 }
@@ -276,53 +276,6 @@ interactive("eval-expression",
                                              $completer = javascript_completer(I.buffer))));
             });
 
-
-// our little hack. Add a big blank chunk to the bottom of the
-// page
-const scrolly_document_observer = {
-
-    enabled : false,
-
-    observe: function(subject, topic, url)
-    {
-        // We asume the focused window is the one loading. Not always
-        // the case..tho pretty safe since conkeror is only one window.
-        try {
-            var win = document.commandDispatcher.focusedWindow;
-            var doc;
-            if (win) 
-                doc = win.content.document;
-            else
-                doc = content.document;
-
-            // Make sure we haven't already added the image
-            if (!doc.__conkeror_scrolly_hack__) {
-                doc.__conkeror_scrolly_hack__ = true;
-                var spc = doc.createElement("img");
-                spc.setAttribute("width", "1");
-                spc.setAttribute("height", getBrowser().mCurrentBrowser.boxObject.height);
-                spc.setAttribute("src", "chrome://conkeror/content/pixel.png");
-                doc.lastChild.appendChild(spc);
-            }
-        } catch(e) {alert(e);}
-    }
-};
-
-/*
-function toggle_eod_space()
-{
-    var observerService = Components.classes["@mozilla.org/observer-service;1"]
-        .getService(Components.interfaces.nsIObserverService);
-    if (scrolly_document_observer.enabled) {
-        observerService.removeObserver(scrolly_document_observer, "page-end-load", false);
-        scrolly_document_observer.enabled = false;
-    } else {
-        observerService.addObserver(scrolly_document_observer, "page-end-load", false);
-        scrolly_document_observer.enabled = true;
-    }
-}
-interactive("toggle-eod-space", toggle_eod_space);
-*/
 
 function show_extension_manager () {
     return conkeror.window_watcher.openWindow (
