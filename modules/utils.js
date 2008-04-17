@@ -56,6 +56,13 @@ string_hashset.prototype = {
             if (i[0] == "-")
                 f(i.slice(1));
         }
+    },
+
+    iterator : function () {
+        for (let k in this) {
+            if (i[0] == "-")
+                yield i.slice(1);
+        }
     }
 };
 
