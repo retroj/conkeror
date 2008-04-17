@@ -414,6 +414,9 @@ var download_progress_listener = {
     },
 
     onSecurityChange : function (progress, request, state, download) {
+    },
+
+    onStateChange : function (progress, request, state_flags, status, download) {
     }
 };
 
@@ -486,7 +489,7 @@ function pretty_print_time(val) {
     var minutes = val % 60;
 
     var hours = Math.floor(val / 60);
-    
+
     var parts = [];
 
     if (hours > 1)
@@ -589,7 +592,7 @@ download_buffer.prototype = {
             label = "Download queued";
             break;
         }
-        
+
         if (append_transfer_info) {
             if (append_speed_info)
                 new_title = label + " at " + pretty_print_file_size(info.speed).join(" ") + "/s: ";
@@ -620,7 +623,7 @@ download_buffer.prototype = {
         if (this.last_update == null ||
             (cur_time - this.last_update) > download_buffer_min_update_interval ||
             this.info.state != this.previous_state) {
-            
+
             if (this.update_title())
                 buffer_title_change_hook.run(this);
 
@@ -761,7 +764,7 @@ download_buffer.prototype = {
             this.percent_textnode.nodeValue = "";
             this.progress_container_node.style.display = "none";
         }
-        
+
         this.update_command_field();
     },
 
