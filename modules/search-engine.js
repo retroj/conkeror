@@ -273,7 +273,7 @@ search_engine.prototype.__defineGetter__("completer", function () {
                     data[2] = null;
                 let c = { count: data[1].length,
                           get_string: function (i) String(data[1][i]),
-                          get_description: (data[2] != null) && (function (i) String(data[2][i])),
+                          get_description: (data[2] != null ? (function (i) String(data[2][i])) : null),
                           get_input_state: function (i) [String(data[1][i])]
                         };
                 yield co_return(c);

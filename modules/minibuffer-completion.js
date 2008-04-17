@@ -267,8 +267,10 @@ function merge_completers(completers) {
                 for(var j=0; j < results.length; j++) {
                     var r = results[j];
                     if(i < r.count) {
-                        args.unshift(i);
-                        return r[name].apply(this, args);
+                        if (name in r && r[name] != null) {
+                            args.unshift(i);
+                            return r[name].apply(this, args);
+                        }
                     }
                     i -= r.count;
                 }
