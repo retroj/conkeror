@@ -76,8 +76,15 @@ hint_manager.prototype = {
 
             var fragment = doc.createDocumentFragment();
             var rect, elem, text, node;
-            while ((elem = res.iterateNext()) != null)
+            while (true)
             {
+                try {
+                    elem = res.iterateNext();
+                    if (!elem)
+                        break;
+                } catch (e) {
+                    break; // Iterator may have been invalidated by page load activity
+                }
                 rect = elem.getBoundingClientRect();
                 if (!rect || rect.left > maxX || rect.right < minX || rect.top > maxY || rect.bottom < minY)
                     continue;
@@ -101,7 +108,7 @@ hint_manager.prototype = {
                 node.style.top = (rect.top + scrollY) + "px";
                 fragment.appendChild(node);
 
-                var hint = {text: text,
+                let hint = {text: text,
                             elem: elem,
                             hint: node,
                             img_hint: null,
