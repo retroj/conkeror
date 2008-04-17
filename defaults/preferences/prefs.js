@@ -21,5 +21,6 @@ pref("security.warn_submit_insecure", false);
 pref("security.warn_viewing_mixed", false);
 
 pref("extensions.getMoreExtensionsURL", "about:blank");
+pref("extensions.update.url", "");
 pref("extensions.dss.enabled", false);
 pref("extensions.dss.switchPending", false);
