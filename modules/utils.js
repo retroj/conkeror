@@ -200,7 +200,7 @@ function get_link_location (element)
 }
 
 
-var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService);
+var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService2);
 
 function make_uri(uri, charset, base_uri) {
     if (uri instanceof Ci.nsIURI)
@@ -1087,3 +1087,21 @@ function send_http_request(lspec) {
 
 
 var JSON = ("@mozilla.org/dom/json;1" in Cc) && Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
+
+
+
+var console_service = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+
+console_service.registerListener(
+    {observe: function (msg) {
+         if (msg instanceof Ci.nsIScriptError) {
+             switch (msg.category) {
+             case "CSS Parser":
+             case "content javascript":
+                 return;
+             }
+             msg.QueryInterface(Ci.nsIScriptError);
+             dumpln("Console error: " + msg.message);
+             dumpln("  Category: " + msg.category);
+         }
+     }});
