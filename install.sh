@@ -1,5 +1,11 @@
 #! /bin/bash
 
+# (C) Copyright 2004-2007 Shawn Betts
+# (C) Copyright 2007 John J. Foerch
+#
+# Use, modification, and distribution are subject to the terms specified in the
+# COPYING file.
+
 ## BUILD
 ##
 ##   Whether to build the xulapp.  This is just a shortcut for developers and hackers.

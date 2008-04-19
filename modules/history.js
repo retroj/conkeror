@@ -1,4 +1,10 @@
-
+/**
+ * (C) Copyright 2008 Eli Naeher
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 const nav_history_service = Cc["@mozilla.org/browser/nav-history-service;1"]
     .getService(Ci.nsINavHistoryService);

@@ -1,3 +1,12 @@
+/**
+ * (C) Copyright 2008 David Glasser
+ * (C) Copyright 2008 Will Farrington
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("content-buffer.js");
 require("bindings/default/content-buffer/normal.js");
 require("bindings/default/content-buffer/richedit.js");

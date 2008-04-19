@@ -1,5 +1,12 @@
 #! /bin/bash
 
+# (C) Copyright 2004-2007 Shawn Betts
+# (C) Copyright 2007-2008 John J. Foerch
+# (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+#
+# Use, modification, and distribution are subject to the terms specified in the
+# COPYING file.
+
 SDK_DIR="/usr/lib/xulrunner"
 
 XPIDL="${SDK_DIR}/xpidl"

@@ -1,4 +1,3 @@
-
 <!ENTITY securityOverride.linkText "Or you can add an exception…">
 <!ENTITY securityOverride.warningText "
 <p>You should not add an exception if you are using an internet connection that you do not trust completely or if you are not used to seeing a warning for this server.</p>

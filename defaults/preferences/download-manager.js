@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2004-2007 Shawn Betts
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 pref("browser.download.useDownloadDir", true);
 pref("browser.download.folderList", 0);

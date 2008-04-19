@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("special-buffer.js");
 var download_manager_service = Cc["@mozilla.org/download-manager;1"].getService(Ci.nsIDownloadManager);
 //var download_manager_ui = Cc["@mozilla.org/download-manager-ui;1"].getService(Ci.nsIDownloadManagerUI);

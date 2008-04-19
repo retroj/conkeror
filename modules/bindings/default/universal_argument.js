@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 define_keymap("universal_argument_keymap");
 
 for (var i = 0; i <= 9; ++i)

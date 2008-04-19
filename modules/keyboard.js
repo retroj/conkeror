@@ -1,3 +1,12 @@
+/**
+ * (C) Copyright 2004-2007 Shawn Betts
+ * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("window.js");
 require("command-line.js");
 
@@ -441,7 +450,7 @@ function define_key(kmap, keys, cmd)
     var orig_keys = keys;
     try {
         var ref = get_caller_source_code_reference();
-        
+
         if (typeof(keys) == "string" && keys.length > 1)
             keys = keys.split(" ");
 
@@ -552,7 +561,7 @@ function key_press_handler(true_event)
             return;
 
         /* Clear minibuffer message */
-        window.minibuffer.clear();    
+        window.minibuffer.clear();
 
         var binding = null;
         var done = true;
@@ -767,7 +776,7 @@ function key_binding_reader(continuation) {
     }
 
     this.key_sequence = [];
-    
+
     minibuffer_input_state.call(this, key_binding_reader_keymap, arguments.$prompt);
 }
 key_binding_reader.prototype = {

@@ -1,3 +1,11 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 Nelson Elhage
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("io.js");
 
 minibuffer.prototype.read_file_path = function () {

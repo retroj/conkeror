@@ -1,8 +1,12 @@
 /**
- * hints module
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
- * Portions are derived from Vimperator (c) 2006-2007: Martin Stubenschrott <stubenschrott@gmx.net>
- */
+ * Portions of this file are derived from Vimperator,
+ * (C) Copyright 2006-2007 Martin Stubenschrott.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 define_variable("active_img_hint_background_color", "#88FF00", "Color for the active image hint background.");
 define_variable("img_hint_background_color", "yellow", "Color for inactive image hint backgrounds.");

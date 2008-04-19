@@ -1,8 +1,13 @@
-
-/*
- *  GENERATE FILENAME
- */
-
+/**
+ * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard.
+ *
+ * Portions of this file were derived from Mozilla,
+ * (C) Copyright 1998-2007 Mozilla Foundation.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 /* maybe_get_filename_extension
  *

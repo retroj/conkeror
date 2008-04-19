@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 var conkeror = Components.classes['@conkeror.mozdev.org/application;1'].getService ().wrappedJSObject;
 
 var last_keydown_event = null;
@@ -25,7 +32,7 @@ function handle_keypress(e) {
     // Ignore this keypress if we don't have a charcode
     if (!e.charCode)
         return;
-    
+
     // Ignore space
     if (e.charCode == " ".charCodeAt(0))
         return;

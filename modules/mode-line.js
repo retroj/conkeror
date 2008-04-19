@@ -1,3 +1,11 @@
+/**
+ * (C) Copyright 2005 Shawn Betts
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("mode.js");
 
 define_window_local_hook("mode_line_hook");
@@ -155,7 +163,7 @@ current_buffer_scroll_position_widget.prototype.update = function () {
         scrollY = w.scrollY;
         scrollMaxX = w.scrollMaxX;
         scrollMaxY = w.scrollMaxY;
-    } else 
+    } else
     {
         scrollX = b.scrollX;
         scrollY = b.scrollY;

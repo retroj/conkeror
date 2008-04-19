@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2008 Ævar Arnfjörð Bjarmason
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("content-buffer.js");
 require("media.js");
 

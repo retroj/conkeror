@@ -1,3 +1,12 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Portions of this file were derived from Vimperator,
+ * (C) Copyright 2006-2007 Martin Stubenschrott.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 /**
  * Text and full-page zoom

@@ -1,4 +1,11 @@
 /**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
+/**
  * This property can have three distinct meanings, depending on whether it is positive, zero, or negative.
  *
  * If it is positive, all modules corresponding to children of

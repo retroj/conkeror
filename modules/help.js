@@ -1,3 +1,12 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 Nelson Elhage
+ * (C) Copyright 2008 David Glasser
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("special-buffer.js");
 require("interactive.js");
 

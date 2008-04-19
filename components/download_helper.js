@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 // Register the Conkeror download_helper
 
 const classID = Components.ID("{74FCB100-B972-11DC-95FF-0800200C9A66}");

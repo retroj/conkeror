@@ -1,3 +1,12 @@
+/**
+ * (C) Copyright 2004-2007 Shawn Betts
+ * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("load-spec.js");
 
 require_later("content-buffer-input.js");

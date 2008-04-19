@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 define_variable("default_minibuffer_auto_complete_delay", 150,
                      "Delay (in milliseconds) after the most recent key stroke before auto-completing.");

@@ -1,6 +1,12 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 /* Adds the specified function to the specified hook.  To add a local
- * hook, invoke this function as:  add_hook.call(context, hook_name, ...).  
+ * hook, invoke this function as:  add_hook.call(context, hook_name, ...).
  * Note: hook_name must be a string */
 function add_hook(hook_name, func, prepend, avoid_duplicates)
 {

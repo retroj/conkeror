@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 /* This should only be used for minibuffer states where it makes
  * sense.  In particular, it should not be used if additional cleanup

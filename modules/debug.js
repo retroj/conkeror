@@ -1,3 +1,11 @@
+/**
+ * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 var MAX_DUMP_DEPTH = 1;
 function dump_obj_r(obj, name, indent, depth) {
     if (depth > MAX_DUMP_DEPTH) {

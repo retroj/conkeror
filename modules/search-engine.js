@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("utils.js");
 
 var search_engines = new string_hashmap();

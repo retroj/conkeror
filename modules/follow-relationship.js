@@ -1,3 +1,14 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Portions of this file were derived from Vimperator,
+ * (C) Copyright 2007 Doug Kearns
+ * (C) Copyright 2007-2008 Martin Stubenschrott.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("element.js");
 
 const RELATIONSHIP_NEXT = 0;
@@ -9,25 +20,25 @@ var browser_relationship_rev_regexp = ["prev|previous", "next"];
 
 define_variable("browser_relationship_patterns", {}, "Patterns used by `browser-follow-next' and `browser-follow-previous'.");
 
-browser_relationship_patterns[RELATIONSHIP_NEXT] = 
+browser_relationship_patterns[RELATIONSHIP_NEXT] =
     [new RegExp("\\bnext","i"),
      new RegExp("^>$","i"),
      new RegExp("^(>>|»)$","i"),
      new RegExp("^(>|»)","i"),
      new RegExp("(>|»)$","i")];
 
-browser_relationship_patterns[RELATIONSHIP_PREVIOUS] = 
-    [new RegExp("\\bprev|previous\\b","i"), 
-     new RegExp("^<$","i"), 
-     new RegExp("^(<<|«)$","i"), 
-     new RegExp("^(<|«)","i"), 
+browser_relationship_patterns[RELATIONSHIP_PREVIOUS] =
+    [new RegExp("\\bprev|previous\\b","i"),
+     new RegExp("^<$","i"),
+     new RegExp("^(<<|«)$","i"),
+     new RegExp("^(<|«)","i"),
      new RegExp("(<|«)$","i")];
 
 function document_get_element_by_relationship(doc, relationship) {
     var patterns = browser_relationship_patterns[relationship];
     var rel_name = new RegExp(browser_relationship_rel_regexp[relationship], "i");
     var rev_name = new RegExp(browser_relationship_rev_regexp[relationship], "i");
-    
+
     var elems = doc.getElementsByTagName("link");
     // links have higher priority than normal <a> hrefs
     for (var i = 0; i < elems.length; i++)

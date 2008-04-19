@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 function _return_value(x) {
     this.value = x;
@@ -19,7 +25,7 @@ function is_coroutine(obj) {
 
 function _do_call(f) {
     var cc = yield;
-    
+
     var stack = [];
     var y = undefined;
     var throw_value = false;

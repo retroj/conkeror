@@ -1,3 +1,14 @@
+/**
+ * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Portions of this file are derived from Vimperator,
+ * (C) Copyright 2006-2007 Martin Stubenschrott.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("hints.js");
 require("save.js");
 
@@ -60,7 +71,7 @@ define_browser_object_class("frames", $handler = function (buf, prompt) {
 
 define_browser_object_class(
     "links",
-    $xpath_expression = 
+    $xpath_expression =
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@class='lk' or @class='s' or @role='link'] | " +
         "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
@@ -643,7 +654,7 @@ interactive("save-page-complete", function (I) {
     if (!spec || !(doc = load_spec_document(spec)))
         throw interactive_error("Element is not associated with a document.");
     var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer);
-    
+
     var panel;
     panel = create_info_panel(I.window, "download-panel",
                               [["downloading",

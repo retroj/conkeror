@@ -1,3 +1,11 @@
+/**
+ * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 var command_line_handlers = [];
 
 define_variable("url_remoting_fn", load_url_in_new_window);

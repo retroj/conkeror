@@ -1,3 +1,14 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 Nelson Elhage
+ *
+ * Portions of this file (the JavaScript completer) were derived from Vimperator,
+ * (C) Copyright 2006-2007 Martin Stubenschrott.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("minibuffer.js");
 
 /**

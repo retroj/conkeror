@@ -1,3 +1,12 @@
+/**
+ * (C) Copyright 2004-2007 Shawn Betts
+ * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("content-buffer.js");
 require("load-spec.js");
 require("suggest-file-name.js");
@@ -188,7 +197,7 @@ function download_failed_error() {
 }
 download_failed_error.prototype.__proto__ = Error.prototype;
 
-/* Returns an array of two elements: the first element is the 
+/* Returns an array of two elements: the first element is the
  * nsILocalFile object, the second element is a boolean indicating
  * whether the file is temporary and should be deleted when the caller is
  * done with it.

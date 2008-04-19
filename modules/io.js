@@ -1,3 +1,14 @@
+/**
+ * (C) Copyright 2004 Shawn Betts
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Portions of this file were derived from the Venkman JavaScript debugger,
+ * (C) Copyright 1998 Netscape Communications Corporation.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 const PERM_IWOTH = 00002;  /* write permission, others */
 const PERM_IWGRP = 00020;  /* write permission, group */
 

@@ -1,3 +1,10 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 // Register the Conkeror download_manager_ui, which doesn't really do anything at all
 
 const classID = Components.ID("{7770E0D0-C4A0-11DC-95FF-0800200C9A66}");

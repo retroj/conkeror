@@ -1,3 +1,11 @@
+/**
+ * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("utils.js");
 
 var interactive_commands = new string_hashmap();
@@ -93,7 +101,7 @@ function call_interactively(I, command)
     I.command = command;
 
     var handler = cmd.handler;
-    
+
     try {
         var result = handler(I);
         if (is_coroutine(result)) {

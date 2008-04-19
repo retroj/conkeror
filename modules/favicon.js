@@ -1,3 +1,12 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Portions of this file were derived from Mozilla,
+ * (C) Copyright 1998-2008 Mozilla Foundation.
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 const favicon_service = Cc["@mozilla.org/browser/favicon-service;1"].getService(Ci.nsIFaviconService);
 

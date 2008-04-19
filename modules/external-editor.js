@@ -1,3 +1,9 @@
+/**
+ * (C) Copyright 2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
 
 define_variable("editor_shell_command", getenv("EDITOR") || "emacs",
                      "Shell command used to invoke an external editor.\n" +

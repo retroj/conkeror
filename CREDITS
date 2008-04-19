@@ -1,0 +1,76 @@
+The following people have helped make Conkeror what it is today!
+
+Shawn Betts
+  - Original author
+  - Maintainer and primary developer (2004-2007)
+
+Ævar Arnfjörð Bjarmason <avar@cpan.org>
+  - Fix to youtube-mode URI regular expression
+  - Youporn page mode
+
+Jesse Black <jwb6542 at rit edu>
+  - Contributed to extension version
+
+Clinton Ebadi <clinton@unknownlamer.org>
+  - hyperlinked buffer list (extension version)
+
+Nelson Elhage <nelhage at mit.edu>
+  - Implemented describe-key-briefly (C-h c)  
+  - Implemented completion merging infrastructure
+  - Completion for local files
+  - Various bug fixes
+
+Will Farrington <wcfarrington at gmail.com>
+  - Google Reader page mode
+  - Improvements to Gmail mode
+
+John J. Foerch
+  - Ported Conkeror to XULRunner
+  - Primary maintainer of XULRunner port (2007)
+  - Saving links and pages
+  - Major minibuffer and keymap restructuring
+  - A real build/release system and versioning
+  - Interactive system
+  - Contributed many ideas for the browser object infrastructure
+  - Many other contributions
+
+David Glasser <glasser at davidglasser.net>
+  - Improved implementation of get_caller_source_code_reference
+  - Implementation of apropos-command
+  - Implemented help_document_generator.command_reference
+  - Google Mail page mode
+
+Philip Hagelberg
+  - (previously) hosted the wiki
+  - New minibuffer completion (in extension version)
+  - follow-link-in-new-buffer in top_kmap (in extension version)
+
+Doug Kearns
+  - Win32 home directory lookup
+  - Follow relationship navigation (in Vimperator)
+
+Jeremy Maitin-Shepard <jeremy at jeremyms com>
+  - Primary maintainer (2007-2008)
+  - Keyword argument and coroutine infrastructure
+  - Implemented and reimplemented many core features.
+  - Implemented the download manager
+  - Implemented external process spawning
+  - Implemented many of the built-in help facilities
+  - Reimplemented many features from Vimperator in Conkeror
+
+Eli Naeher <enaeher at gmail.com>
+  - Implemented better completion of URLs from history
+
+Frank Ruel
+  - Input abort callback typo fix (in extension version)
+
+Martin Stubenschrott <stubenschrott at gmx net>
+  - VI bindings (in extension version)
+  - Bookmark improvements (in extension version)
+  - New hints system (in Vimperator)
+  - JavaScript completer (in Vimperator)
+  - External editing of text form fields (in Vimperator)
+
+Len Trigg <lenbok at gmail com>
+  - jsconsole command
+  - RC directory code

@@ -1,3 +1,11 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 John J. Foerch
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("content-buffer.js");
 
 define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
