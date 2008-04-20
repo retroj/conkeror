@@ -476,6 +476,8 @@ function spawn_process(program_name, args, working_dir,
                     } catch (e) {
                         close();
                     }
+                },
+                onStopListening: function (s, status) {
                 }
             });
 
@@ -483,6 +485,13 @@ function spawn_process(program_name, args, working_dir,
         return terminate;
     } catch (e) {
         terminate();
+
+        if ((e instanceof Ci.nsIException) && e.result == Cr.NS_ERROR_INVALID_POINTER) {
+            if (WINDOWS)
+                throw new Error("Error spawning process: not yet supported on MS Windows");
+            else
+                throw new Error("Error spawning process: spawn-process-helper not found; try running \"make\"");
+        }
         // Allow the exception to propagate to the caller
         throw e;
     }
