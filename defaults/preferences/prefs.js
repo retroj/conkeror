@@ -31,3 +31,7 @@ pref("extensions.getMoreExtensionsURL", "about:blank");
 pref("extensions.update.url", "");
 pref("extensions.dss.enabled", false);
 pref("extensions.dss.switchPending", false);
+
+
+// Enable form autocomplete
+pref("browser.formfill.enable", true);

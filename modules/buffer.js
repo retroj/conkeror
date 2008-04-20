@@ -71,6 +71,7 @@ function buffer(window, element)
         var browser = create_XUL(window, "browser");
         browser.setAttribute("type", "content");
         browser.setAttribute("flex", "1");
+        browser.setAttribute("autocompletepopup", "popup_autocomplete");
         element.appendChild(browser);
         this.window.buffers.container.appendChild(element);
     } else {
