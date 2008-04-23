@@ -99,14 +99,26 @@ function co_call(f) {
         try {
             g.send(x);
         } catch (e if e instanceof StopIteration) {}
+        catch (e) {
+            // Dump this error, because it indicates a programming error
+            dump_error(e);
+        }
     };
     cc.throw = function (x) {
         try {
             g.throw(x);
         } catch (e if e instanceof StopIteration) {}
+        catch (e) {
+            // Dump this error, because it indicates a programming error
+            dump_error(e);
+        }
     };
     try {
         g.send(cc);
     } catch (e if e instanceof StopIteration) {}
+    catch (e) {
+        // Dump this error, because it indicates a programming error
+        dump_error(e);
+    }
     return cc;
 }
