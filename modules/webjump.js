@@ -109,7 +109,7 @@ function match_webjump(str) {
     }
 
     if (match) {
-        if (!arg && !match.no_argument) {
+        if (arg == null && !match.no_argument) {
             // This webjump requires an argument, but none was given
             return null;
         }
