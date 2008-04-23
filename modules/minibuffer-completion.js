@@ -20,7 +20,7 @@ function all_word_completer()
     keywords(arguments);
     var completions = arguments.$completions;
     var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
-    var get_description = arguments.$get_description;
+    var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
     var get_value = arguments.$get_value;
     var arr;
     if (typeof(completions) == "function")
@@ -84,7 +84,7 @@ function prefix_completer()
     keywords(arguments);
     var completions = arguments.$completions;
     var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
-    var get_description = arguments.$get_description;
+    var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
     var get_value = arguments.$get_value;
     var arr;
     if (typeof(completions) == "function")
