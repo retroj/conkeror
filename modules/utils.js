@@ -1021,8 +1021,11 @@ function send_http_request(lspec) {
              $override_mime_type = undefined, $headers = undefined);
     var req = xml_http_request();
     var cc = yield CONTINUATION;
-    req.onreadystatechange = function () {
+    var aborting = false;
+    req.onreadystatechange = function send_http_request__onreadysatechange() {
         if (req.readyState != 4)
+            return;
+        if (aborting)
             return;
         cc();
     };
@@ -1050,6 +1053,7 @@ function send_http_request(lspec) {
     try {
         yield SUSPEND;
     } catch (e) {
+        aborting = true;
         req.abort();
         throw e;
     }
