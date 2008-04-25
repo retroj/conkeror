@@ -18,7 +18,7 @@ var browser_relationship_rel_name = ["next", "previous"];
 var browser_relationship_rel_regexp = ["next", "prev|previous"];
 var browser_relationship_rev_regexp = ["prev|previous", "next"];
 
-define_variable("browser_relationship_patterns", {}, "Patterns used by `browser-follow-next' and `browser-follow-previous'.");
+define_variable("browser_relationship_patterns", {}, "Patterns used by `follow-next' and `follow-previous'.");
 
 browser_relationship_patterns[RELATIONSHIP_NEXT] =
     [new RegExp("\\bnext","i"),
@@ -98,10 +98,10 @@ function browser_follow_relationship(buffer, relationship, target) {
 
 default_browse_targets["follow-relationship"] = "follow";
 
-interactive("browser-follow-next", function (I) {
+interactive("follow-next", function (I) {
     browser_follow_relationship(I.buffer, RELATIONSHIP_NEXT, I.browse_target("follow-relationship"))
 });
 
-interactive("browser-follow-previous", function (I) {
+interactive("follow-previous", function (I) {
     browser_follow_relationship(I.buffer, RELATIONSHIP_PREVIOUS, I.browse_target("follow-relationship"))
 });
