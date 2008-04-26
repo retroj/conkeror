@@ -83,6 +83,11 @@ define_browser_object_class("mathml", $label = "MathML", $xpath_expression = "//
 
 define_browser_object_class("top", $handler = function (buf, prompt) { yield co_return(buf.top_frame); });
 
+define_browser_object_class("url", $handler = function (buf, prompt) {
+                                check_buffer (buf, content_buffer);
+                                var result = yield buf.window.minibuffer.read_url ($prompt = prompt);
+                                yield co_return (result);
+                            });
 
 define_variable(
     "default_browser_object_classes",

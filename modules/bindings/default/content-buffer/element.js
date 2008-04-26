@@ -38,6 +38,12 @@ define_key(content_buffer_normal_keymap, "S-8 m", browser_elements_keymap,
 define_key(content_buffer_normal_keymap, "S-8 M", browser_elements_keymap,
            $hook = browser_object_class_selector("mathml"));
 
+define_key(content_buffer_normal_keymap, "S-8 u", browser_elements_keymap,
+           $hook = browser_object_class_selector("url"));
+// FIXME: the following binding is just for testing. remove it or
+//        replace it with a logical letter.
+define_key(content_buffer_normal_keymap, "q", browser_elements_keymap,
+           $hook = browser_object_class_selector("url"));
 
 function bind_element_operations(keymap) {
     define_key(keymap, "f", "follow", $category = "Browser object");
