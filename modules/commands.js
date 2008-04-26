@@ -68,7 +68,7 @@ interactive("jsconsole",
                                 I.browse_target("jsconsole"),
                                 "chrome://global/content/console.xul");
             });
-default_browse_targets["jsconsole"] = "find-url";
+default_browse_targets["jsconsole"] = "find-url-new-buffer";
 
 
 function paste_x_primary_selection (field) {

@@ -259,7 +259,7 @@ function describe_bindings(buffer, target) {
                   target);
 }
 interactive("describe-bindings", function (I) {describe_bindings(I.buffer, I.browse_target("describe-bindings"));});
-default_browse_targets["describe-bindings"] = "find-url";
+default_browse_targets["describe-bindings"] = "find-url-new-buffer";
 
 
 define_keywords("$command_list");
@@ -348,7 +348,7 @@ interactive("apropos-command", "List commands whose names contain a given substr
                                              $history = "apropos")),
                     I.browse_target("apropos-command"));
 });
-default_browse_targets["apropos-command"] = "find-url";
+default_browse_targets["apropos-command"] = "find-url-new-buffer";
 
 
 
@@ -427,7 +427,7 @@ interactive("describe-command", function (I) {
     describe_command(I.buffer, (yield I.minibuffer.read_command($prompt = "Describe command:")),
                      I.browse_target("describe-command"));
 });
-default_browse_targets["describe-command"] = "find-url";
+default_browse_targets["describe-command"] = "find-url-new-buffer";
 
 
 
@@ -556,7 +556,7 @@ interactive("describe-key-briefly", function (I) {
     describe_key_briefly(I.buffer,
                  (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
 });
-default_browse_targets["describe-key"] = "find-url";
+default_browse_targets["describe-key"] = "find-url-new-buffer";
 
 
 
@@ -657,4 +657,4 @@ interactive("describe-variable", function (I) {
     describe_variable(I.buffer, (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
                      I.browse_target("describe-variable"));
 });
-default_browse_targets["describe-variable"] = "find-url";
+default_browse_targets["describe-variable"] = "find-url-new-buffer";

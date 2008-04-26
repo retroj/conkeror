@@ -389,13 +389,32 @@ interactive("find-alternate-url",
             });
 
 interactive("find-url",
-            "Open a URL in a new buffer",
+            "Open a URL in the current buffer",
             function (I) {
                 var target = I.browse_target("find-url");
                 open_in_browser(I.buffer, target,
                                 (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
             });
-default_browse_targets["find-url"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+default_browse_targets["find-url"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+
+
+interactive("find-url-new-buffer",
+            "Open a URL in a new buffer",
+            function (I) {
+                var target = I.browse_target("find-url-new-buffer");
+                open_in_browser(I.buffer, target,
+                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
+            });
+default_browse_targets["find-url-new-buffer"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+
+interactive("find-url-new-window",
+            "Open a URL in a new window",
+            function (I) {
+                var target = I.browse_target("find-url-new-window");
+                open_in_browser(I.buffer, target,
+                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
+            });
+default_browse_targets["find-url-new-window"] = [OPEN_NEW_WINDOW];
 
 function go_up (b, target)
 {

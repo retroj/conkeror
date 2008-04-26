@@ -25,7 +25,7 @@ define_key(default_global_keymap, "C-x C-c", "quit");
 
 define_key(default_global_keymap, "C-x b", "switch-to-buffer");
 define_key(default_global_keymap, "C-x k", "kill-buffer");
-define_key(default_global_keymap, "C-x 5 f", "find-url-other-buffer");
+define_key(default_global_keymap, "C-x 5 f", "find-url-new-window");
 define_key(default_global_keymap, "C-x 5 2", "make-window");
 define_key(default_global_keymap, "C-x 5 0", "delete-window");
 
@@ -45,7 +45,7 @@ define_key(default_global_keymap, "M-x", "execute-extended-command");
 define_key(default_global_keymap, "M-p", "buffer-previous");
 define_key(default_global_keymap, "M-n", "buffer-next");
 
-define_key(default_global_keymap, "C-x C-f", "find-url");
+define_key(default_global_keymap, "C-x C-f", "find-url-new-buffer");
 
 define_key(default_global_keymap, "M-S-1", "shell-command");
 
