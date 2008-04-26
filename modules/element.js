@@ -116,9 +116,9 @@ interactive_context.prototype.browser_object_class = function (action_name) {
 };
 
 function browser_object_class_selector(name) {
-    return function (ctx, active_keymap, overlay_keymap) {
+    return function (ctx, active_keymap, overlay_keymap, top_keymap) {
         ctx._browser_object_class = name;
-        ctx.overlay_keymap = overlay_keymap || active_keymap;
+        ctx.overlay_keymap = top_keymap;
     }
 }
 

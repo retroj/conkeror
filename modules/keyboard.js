@@ -580,10 +580,14 @@ function key_press_handler(true_event)
         if (key_press_hook.run(window, ctx, true_event))
             return;
 
-        var active_keymap =
-            state.active_keymap ||
+        var top_keymap =
             state.override_keymap ||
             window.buffers.current.keymap;
+
+        var active_keymap =
+            state.active_keymap ||
+            top_keymap;
+
         var overlay_keymap = ctx.overlay_keymap;
 
         binding =
@@ -611,7 +615,7 @@ function key_press_handler(true_event)
         if (binding) {
             if (binding.keymap) {
                 if (binding.hook)
-                    binding.hook.call(null, ctx, active_keymap, overlay_keymap);
+                    binding.hook.call(null, ctx, active_keymap, overlay_keymap, top_keymap);
                 state.active_keymap = binding.keymap;
                 if (!state.help_displayed)
                 {

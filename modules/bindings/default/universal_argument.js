@@ -11,14 +11,14 @@ for (var i = 0; i <= 9; ++i)
     define_key(universal_argument_keymap, String(i), universal_argument_keymap, $hook = universal_digit);
 define_key(universal_argument_keymap, "subtract", universal_argument_keymap, $hook = universal_negate);
 
-function universal_argument(ctx, active_keymap, overlay_keymap)
+function universal_argument(ctx, active_keymap, overlay_keymap, top_keymap)
 {
     if (ctx.prefix_argument) {
         if (typeof(ctx.prefix_argument) == "object") // must be array
             ctx.prefix_argument = [ctx.prefix_argument[0] * 4];
     } else
         ctx.prefix_argument = [4];
-    ctx.overlay_keymap = overlay_keymap || active_keymap;
+    ctx.overlay_keymap = top_keymap;
 }
 
 function universal_digit(ctx, active_keymap, overlay_keymap)
