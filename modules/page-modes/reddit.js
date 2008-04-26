@@ -13,8 +13,8 @@ require("bindings/default/content-buffer/normal.js");
  * a reddit-remake.
  */
 var reddit_highlight_color = "#BFB";
-default_browse_targets["reddit-open"] = "open";
-default_browse_targets["reddit-open-comments"] = "open";
+default_browse_targets["reddit-open"] = "find-url";
+default_browse_targets["reddit-open-comments"] = "find-url";
 
 function reddit_toggleHighlight(elem) {
     if(elem) {

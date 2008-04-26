@@ -209,14 +209,14 @@ interactive ("reinit",
 interactive("help-page",
             "Open the Conkeror help page.",
             function (I) {
-                open_in_browser(I.buffer, I.browse_target("open"),
+                open_in_browser(I.buffer, I.browse_target("find-url"),
                                 "chrome://conkeror/content/help.html");
             });
 
 interactive("help-with-tutorial",
             "Open the Conkeror tutorial.",
             function (I) {
-                open_in_browser(I.buffer, I.browse_target("open"),
+                open_in_browser(I.buffer, I.browse_target("find-url"),
                                 "chrome://conkeror/content/tutorial.html");
             });
 

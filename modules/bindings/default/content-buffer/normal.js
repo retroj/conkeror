@@ -21,7 +21,7 @@ define_key(content_buffer_normal_keymap, "F", "go-forward");
 define_key(content_buffer_normal_keymap, "B", "go-back");
 define_key(content_buffer_normal_keymap, "l", "go-back");
 define_key(content_buffer_normal_keymap, "r", "reload");
-define_key(content_buffer_normal_keymap, "g", "open-url");
+define_key(content_buffer_normal_keymap, "g", "find-url");
 define_key(content_buffer_normal_keymap, "C-x C-v", "find-alternate-url");
 
 

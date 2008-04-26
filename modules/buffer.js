@@ -485,7 +485,6 @@ function browse_target_prompt(target, prefix) {
 
 
 var default_browse_targets = {};
-default_browse_targets["open"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
 

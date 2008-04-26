@@ -30,7 +30,7 @@ interactive("gmail-label-go",
         define_key(keymap, "C-c C-g", "gmail-label-go");
 
         // Rebind overridden commands
-        define_key(keymap, "C-c g", "open-url");
+        define_key(keymap, "C-c g", "find-url");
         define_key(keymap, "C-c c", "copy");
         define_key(keymap, "C-c x", "shell-command-on-file");
         define_key(keymap, "C-c s", "save");

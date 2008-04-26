@@ -370,18 +370,10 @@ function open_in_browser(buffer, target, lspec)
     }
 }
 
-interactive("open-url",
-            "Open a URL, reusing the current buffer by default",
-            function (I) {
-                var target = I.browse_target("open");
-                open_in_browser(I.buffer, target,
-                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
-            });
-
 interactive("find-alternate-url",
             "Edit the current URL in the minibuffer",
             function (I) {
-                var target = I.browse_target("open");
+                var target = I.browse_target("find-url");
                 check_buffer(I.buffer, content_buffer);
                 open_in_browser(I.buffer, target,
                                 (yield I.minibuffer.read_url($prompt = browse_target_prompt(target),
@@ -433,7 +425,7 @@ function go_up (b, target)
 interactive("go-up",
             "Go to the parent directory of the current URL",
             function (I) { go_up(check_buffer(I.buffer, content_buffer),  I.browse_target("go-up")); });
-default_browse_targets["go-up"] = "open";
+default_browse_targets["go-up"] = "find-url";
 
 
 function go_back (b, prefix)
