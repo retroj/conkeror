@@ -75,7 +75,7 @@ define_browser_object_class(
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@role='link'] | " +
         "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
-        "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
+        "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand] | " +
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
         "//xhtml:button | //xhtml:select");
 
