@@ -73,7 +73,7 @@ define_browser_object_class(
     "links",
     $xpath_expression =
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
-        "@class='lk' or @class='s' or @role='link'] | " +
+        "@role='link'] | " +
         "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
         "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
