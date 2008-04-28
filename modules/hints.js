@@ -362,15 +362,9 @@ hints_minibuffer_state.prototype = {
             m.prompt = this.original_prompt;
     },
 
-    handle_auto_exit : function (m) {
+    handle_auto_exit : function (m, delay) {
         let window = m.window;
         var num = this.manager.current_hint_number;
-        var delay;
-        if (num * 10 > this.manager.valid_hints.length) {
-            delay = hints_auto_exit_delay;
-        } else {
-            delay = hints_ambiguous_auto_exit_delay;
-        }
         if (this.auto_exit_timer_ID)
             window.clearTimeout(this.auto_exit_timer_ID);
         let s = this;
@@ -386,11 +380,13 @@ hints_minibuffer_state.prototype = {
         this.manager.current_hint_string = this.typed_string;
         this.manager.current_hint_number = -1;
         this.manager.update_valid_hints();
-        if (this.auto_exit
-            && (this.manager.valid_hints.length == 1
-                || (this.manager.valid_hints.length > 1
-                   && hints_ambiguous_auto_exit_delay > 0)))
-            this.handle_auto_exit(m);
+        if (this.auto_exit) {
+            if (this.manager.valid_hints.length == 1)
+                this.handle_auto_exit(m, hints_auto_exit_delay);
+            else if (this.manager.valid_hints.length > 1
+                     && hints_ambiguous_auto_exit_delay > 0)
+                this.handle_auto_exit(m, hints_ambiguous_auto_exit_delay);
+        }
         this.update_minibuffer(m);
     }
 };
@@ -410,20 +406,22 @@ interactive("hints-handle-number", function (I) {
     s.manager.select_hint(parseInt(s.typed_number));
     var num = s.manager.current_hint_number;
     if (s.auto_exit) {
-        if (num > 0 && num <= s.manager.valid_hints.length
-            && (num * 10 > s.manager.valid_hints.length
-                || hints_ambiguous_auto_exit_delay > 0))
-            auto_exit = true;
+        if (num > 0 && num <= s.manager.valid_hints.length) {
+            if (num * 10 > s.manager.valid_hints.length)
+                auto_exit = hints_auto_exit_delay;
+            else if (hints_ambiguous_auto_exit_delay > 0)
+                auto_exit = hints_ambiguous_auto_exit_delay;
+        }
         if (num == 0) {
             if (!s.multiple) {
                 hints_exit(I.window, s);
                 return;
             }
-            auto_exit = true;
+            auto_exit = hints_auto_exit_delay;
         }
     }
     if (auto_exit)
-        s.handle_auto_exit(I.minibuffer);
+        s.handle_auto_exit(I.minibuffer, auto_exit);
     s.update_minibuffer(I.minibuffer);
 });
 
