@@ -74,8 +74,11 @@ char *read_all(int fd, int max_bytes, int *bytes_read) {
  */
 char *next_term(char **buffer, int *len) {
   char *p = *buffer;
-  int x = strnlen(p, *len);
-  if (x == *len)
+  int x = 0;
+  int max_len = *len;
+  while (x < max_len && p[x])
+    ++x;
+  if (x == max_len)
     fail("error parsing");
   *buffer += x + 1;
   *len -= (x + 1);
