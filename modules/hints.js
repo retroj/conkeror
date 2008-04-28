@@ -364,30 +364,40 @@ hints_minibuffer_state.prototype = {
 
     handle_auto_exit : function (m) {
         let window = m.window;
-
+        var num = this.manager.current_hint_number;
+        var delay;
+        if (num * 10 > this.manager.valid_hints.length) {
+            delay = hints_auto_exit_delay;
+        } else {
+            delay = hints_ambiguous_auto_exit_delay;
+        }
         if (this.auto_exit_timer_ID)
             window.clearTimeout(this.auto_exit_timer_ID);
         let s = this;
         this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
-                                                    hints_auto_exit_delay);
+                                                    delay);
     },
 
     handle_input : function (m) {
         m._set_selection();
 
-        var auto_exit = false;
         this.typed_number = "";
         this.typed_string = m._input_text;
         this.manager.current_hint_string = this.typed_string;
         this.manager.current_hint_number = -1;
         this.manager.update_valid_hints();
-        if (this.auto_exit && this.manager.valid_hints.length == 1)
+        if (this.auto_exit
+            && (this.manager.valid_hints.length == 1
+                || (this.manager.valid_hints.length > 1
+                   && hints_ambiguous_auto_exit_delay > 0)))
             this.handle_auto_exit(m);
         this.update_minibuffer(m);
     }
 };
 
 define_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the most recent key stroke before a sole matching element is automatically selected.  If this is set to 0, automatic selection is disabled.");
+
+define_variable("hints_ambiguous_auto_exit_delay", 0, "Delay (in milliseconds) after the most recent key stroke before the first of an ambiguous match is automatically selected.  If this is set to 0, automatic selection in ambiguous matches is disabled.");
 
 interactive("hints-handle-number", function (I) {
     let s = I.minibuffer.check_state(hints_minibuffer_state);
@@ -400,7 +410,9 @@ interactive("hints-handle-number", function (I) {
     s.manager.select_hint(parseInt(s.typed_number));
     var num = s.manager.current_hint_number;
     if (s.auto_exit) {
-        if (num > 0 && num <= s.manager.valid_hints.length && num * 10 > s.manager.valid_hints.length)
+        if (num > 0 && num <= s.manager.valid_hints.length
+            && (num * 10 > s.manager.valid_hints.length
+                || hints_ambiguous_auto_exit_delay > 0))
             auto_exit = true;
         if (num == 0) {
             if (!s.multiple) {
