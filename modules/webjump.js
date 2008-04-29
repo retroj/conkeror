@@ -114,8 +114,7 @@ function match_webjump(str) {
 
     if (match) {
         if (arg == null && !match.no_argument) {
-            // This webjump requires an argument, but none was given
-            return null;
+            throw ('Webjump '+key+' requires an argument.');
         }
         return [match, key, arg];
     }
