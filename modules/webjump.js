@@ -114,7 +114,7 @@ function match_webjump(str) {
 
     if (match) {
         if (arg == null && !match.no_argument) {
-            throw ('Webjump '+key+' requires an argument.');
+            throw interactive_error('Webjump '+key+' requires an argument.');
         }
         return [match, key, arg];
     }
@@ -153,7 +153,9 @@ function webjump_completer()
 
     return function(input, pos, conservative) {
         let str = input.substring(0,pos);
-        let res = match_webjump(str);
+        let res;
+        try { res = match_webjump(str); }
+        catch (e) { res = null; }
         if (res) {
             let [match, key, arg] = res;
             if (arg != null) { // If there is no argument yet, we use the base completer
