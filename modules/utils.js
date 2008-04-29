@@ -1082,3 +1082,18 @@ console_service.registerListener(
              dumpln("  Category: " + msg.category);
          }
      }});
+
+
+// ensure_index_is_visible ensures that the given index in the given
+// field (an html input field for example) is visible.
+function ensure_index_is_visible (window, field, index) {
+    var start = field.selectionStart;
+    var end = field.selectionEnd;
+    field.setSelectionRange (index, index);
+    send_key_as_event (window, field, "left");
+    if (field.selectionStart < index) {
+        send_key_as_event (window, field, "right");
+    }
+    field.setSelectionRange (start, end);
+}
+

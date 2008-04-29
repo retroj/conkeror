@@ -76,6 +76,7 @@ function paste_x_primary_selection (field) {
     var point = field.selectionEnd;
     field.value = field.value.substr (0, field.selectionStart) +
         str + field.value.substr (field.selectionEnd);
+    point += str.length;
     field.setSelectionRange (point, point);
 }
 interactive (
@@ -89,6 +90,7 @@ interactive (
         } else
             var e = I.buffer.focused_element;
         paste_x_primary_selection (e);
+        ensure_index_is_visible (I.window, e, e.selectionStart);
         if (s && s.handle_input)
             s.handle_input(m);
     });
