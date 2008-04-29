@@ -50,9 +50,11 @@ function define_browser_object_class(name) {
         obj.handler = handler;
 }
 
-define_browser_object_class("images", $xpath_expression = "//img | //xhtml:img");
+define_browser_object_class("images",
+                            $label = "image",
+                            $xpath_expression = "//img | //xhtml:img");
 
-define_browser_object_class("frames", $handler = function (buf, prompt) {
+define_browser_object_class("frames", $label = "frame", $handler = function (buf, prompt) {
     check_buffer(buf, content_buffer);
     var doc = buf.document;
     if (doc.getElementsByTagName("frame").length == 0 &&
@@ -70,7 +72,7 @@ define_browser_object_class("frames", $handler = function (buf, prompt) {
 });
 
 define_browser_object_class(
-    "links",
+    "links", $label = "link",
     $xpath_expression =
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@role='link'] | " +
@@ -79,7 +81,7 @@ define_browser_object_class(
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
         "//xhtml:button | //xhtml:select");
 
-define_browser_object_class("mathml", $label = "MathML", $xpath_expression = "//m:math");
+define_browser_object_class("mathml", $label = "MathML element", $xpath_expression = "//m:math");
 
 define_browser_object_class("top", $handler = function (buf, prompt) { yield co_return(buf.top_frame); });
 
@@ -132,19 +134,16 @@ function lookup_browser_object_class(class_name, action) {
     return browser_object_classes[class_name];
 }
 
-interactive_context.prototype.read_browser_object = function(action, action_name, default_class, target)
+interactive_context.prototype.read_browser_object = function(action, action_name, target)
 {
     var object_class_name = this.browser_object_class(action);
     var object_class = lookup_browser_object_class(object_class_name, action);
 
     var prompt = action_name;
+    var label = object_class.label || object_class_name;
     if (target != null)
         prompt += TARGET_PROMPTS[target];
-    if (object_class_name != default_class) {
-        var label = object_class.label || object_class_name;
-        prompt += " (" + label + ")";
-    }
-    prompt += ":";
+    prompt += " (select " + label + "):";
 
     var result = yield object_class.handler.call(null, this.buffer, prompt);
     yield co_return(result);
@@ -351,13 +350,13 @@ function element_get_load_spec(elem) {
 
 interactive("follow", function (I) {
     var target = I.browse_target("follow");
-    var element = yield I.read_browser_object("follow", "Follow", "links", target);
+    var element = yield I.read_browser_object("follow", "Follow", target);
     browser_element_follow(I.buffer, target, element);
 });
 
 interactive("follow-top", function (I) {
     var target = I.browse_target("follow-top");
-    var element = yield I.read_browser_object("follow_top", "Follow", "links", target);
+    var element = yield I.read_browser_object("follow_top", "Follow", target);
     browser_element_follow(I.buffer, target, element);
 });
 
@@ -392,7 +391,7 @@ function element_get_operation_label(element, op_name, suffix) {
 }
 
 interactive("save", function (I) {
-    var element = yield I.read_browser_object("save", "Save", "links");
+    var element = yield I.read_browser_object("save", "Save");
 
     var spec = element_get_load_spec(element);
     if (spec == null)
@@ -449,7 +448,7 @@ function browser_element_copy(buffer, elem)
 
 
 interactive("copy", function (I) {
-    var element = yield I.read_browser_object("copy", "Copy", "links");
+    var element = yield I.read_browser_object("copy", "Copy");
     browser_element_copy(I.buffer, element);
 });
 
@@ -503,13 +502,13 @@ function browser_element_view_source(buffer, target, elem)
 
 interactive("view-source", function (I) {
     var target = I.browse_target("follow");
-    var element = yield I.read_browser_object("view_source", "View source", "frames", target);
+    var element = yield I.read_browser_object("view_source", "View source", target);
     yield browser_element_view_source(I.buffer, target, element);
 });
 
 interactive("shell-command-on-url", function (I) {
     var cwd = I.cwd;
-    var element = yield I.read_browser_object("shell_command_url", "URL shell command target", "links");
+    var element = yield I.read_browser_object("shell_command_url", "URL shell command");
     var spec = element_get_load_spec(element);
     if (spec == null)
         throw interactive_error("Unable to obtain URI from element");
@@ -548,7 +547,7 @@ function browser_element_shell_command(buffer, elem, command) {
 
 interactive("shell-command-on-file", function (I) {
     var cwd = I.cwd;
-    var element = yield I.read_browser_object("shell_command", "Shell command target", "links");
+    var element = yield I.read_browser_object("shell_command", "Shell command");
 
     var spec = element_get_load_spec(element);
     if (spec == null)
@@ -577,7 +576,7 @@ interactive("shell-command-on-file", function (I) {
 });
 
 interactive("bookmark", function (I) {
-    var element = yield I.read_browser_object("bookmark", "Bookmark", "frames");
+    var element = yield I.read_browser_object("bookmark", "Bookmark");
     var spec = element_get_load_spec(element);
     if (!spec)
         throw interactive_error("Element has no associated URI");
@@ -598,7 +597,7 @@ interactive("bookmark", function (I) {
 
 interactive("save-page", function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_browser_object("save_page", "Save page", "frames");
+    var element = yield I.read_browser_object("save_page", "Save page");
     var spec = element_get_load_spec(element);
     if (!spec || !load_spec_document(spec))
         throw interactive_error("Element is not associated with a document.");
@@ -625,7 +624,7 @@ interactive("save-page", function (I) {
 
 interactive("save-page-as-text", function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_browser_object("save_page_as_text", "Save page as text", "frames");
+    var element = yield I.read_browser_object("save_page_as_text", "Save page as text");
     var spec = element_get_load_spec(element);
     var doc;
     if (!spec || !(doc = load_spec_document(spec)))
@@ -653,7 +652,7 @@ interactive("save-page-as-text", function (I) {
 
 interactive("save-page-complete", function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_browser_object("save_page_complete", "Save page complete", "frames");
+    var element = yield I.read_browser_object("save_page_complete", "Save page complete");
     var spec = element_get_load_spec(element);
     var doc;
     if (!spec || !(doc = load_spec_document(spec)))

@@ -21,7 +21,7 @@ define_key(google_search_results_keymap, "return", "ensure-content-focused", $fa
  * Note: escape already does the same thing as the Google key binding.
  */
 
-define_browser_object_class("google_search_results_links", $label = "Google Search Results",
+define_browser_object_class("google_search_results_links", $label = "Google search result",
                             $xpath_expression = "//a[@class='l']");
 
 define_page_mode("google_search_results_mode", "Google Search Results",
