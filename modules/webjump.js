@@ -15,10 +15,14 @@ define_keywords("$completer", "$description", "$no_argument");
 function define_webjump(key, handler) {
     keywords(arguments);
 
+    var no_argument = arguments.$no_argument;
+
     if (typeof(handler) == "string") {
         let template = handler;
+        let b = template.indexOf('%s');
+        if (b == -1)
+            no_argument = true;        
         handler = function (arg) {
-            var b = template.indexOf('%s');
             var a = b + 2;
             // Just return the same string if it doesn't contain a %s
             if (b == -1)
@@ -31,7 +35,7 @@ function define_webjump(key, handler) {
                  {key: key,
                   handler: handler, completer: arguments.$completer,
                   description: arguments.$description,
-                  no_argument: arguments.$no_argument});
+                  no_argument: no_argument});
 }
 
 // Compatibility
