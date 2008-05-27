@@ -16,15 +16,23 @@ var reddit_highlight_color = "#BFB";
 default_browse_targets["reddit-open"] = "find-url";
 default_browse_targets["reddit-open-comments"] = "find-url";
 
+
+function reddit_highlight(elem) {
+    elem.highlighted = true;
+    elem.style.backgroundColor = reddit_highlight_color;    
+}
+
+function reddit_dehighlight(elem) {
+    elem.style.backgroundColor = elem.originalBackgroundColor;
+    elem.highlighted = false;
+}
+
 function reddit_toggleHighlight(elem) {
     if(elem) {
-        if (elem.highlighted) {
-            elem.style.backgroundColor = elem.originalBackgroundColor;
-            elem.highlighted = false;
-        } else {
-            elem.highlighted = true;
-            elem.style.backgroundColor = reddit_highlight_color;
-        }
+      if(elem.highlighted)
+        reddit_dehighlight(elem);
+      else
+        reddit_highlight(elem);
     }
 }
 
@@ -199,19 +207,19 @@ function reddit_mod_down(I) {
 }
 
 interactive("reddit-next-link",
-            "Go to the next reddit entry.",
+            "Move the 'cursor' to the next reddit entry.",
             reddit_next);
 
 interactive("reddit-prev-link",
-            "Go to the previous reddit entry.",
+            "Move the 'cursor' to the previous reddit entry.",
             reddit_prev);
 
 interactive("reddit-open-current",
-            "Open the currently selected link on reddit.",
+            "Open the currently selected link.",
             reddit_open);
 
 interactive("reddit-open-comments",
-            "Open the comments-page associated with the currently selected reddit-link.",
+            "Open the comments-page associated with the currently selected link.",
             reddit_open_comments);
 
 interactive("reddit-vote-up",
@@ -237,18 +245,21 @@ define_key(reddit_keymap, "h", "reddit-open-comments");
 function enable_reddit_mode(buffer) {
   var doc = buffer.document;
   if(doc.redditCurrent != null)
-    reddit_toggleHighlight(doc.redditLinkDivs[doc.redditCurrent]);
+    reddit_highlight(doc.redditLinkDivs[doc.redditCurrent]);  
   buffer.local_variables.content_buffer_normal_keymap = reddit_keymap;
   add_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
 }
 
 function disable_reddit_mode(buffer) {
   var doc = buffer.document;
+
   if(doc.redditCurrent != null)
-    reddit_toggleHighlight(doc.redditLinkDivs[doc.redditCurrent]);
+    reddit_dehighlight(doc.redditLinkDivs[doc.redditCurrent]);
   remove_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
 }
 
-define_page_mode("reddit_mode", "Reddit", $enable = enable_reddit_mode,
-                 $disable = disable_reddit_mode);
+define_page_mode("reddit_mode", "reddit",
+                 $enable = enable_reddit_mode,
+                 $disable = disable_reddit_mode,
+                 $doc = "reddit page-mode: keyboard navigation for reddit.");
 auto_mode_list.push([/^https?:\/\/([a-zA-Z0-9\-]*\.)*reddit\.com\//, reddit_mode]);
