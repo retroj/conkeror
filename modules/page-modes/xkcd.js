@@ -44,6 +44,7 @@ define_page_mode("xkcd_mode","XKCD",
     },
     // When we disable the mode, remove the <span>
     $disable = function(buffer) {
+        remove_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_add_title);
         var span = buffer.document.getElementById('conkeror:xkcd-title-text');
         if(span) {
             span.parentNode.removeChild(span);

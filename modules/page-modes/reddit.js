@@ -28,6 +28,17 @@ function reddit_toggleHighlight(elem) {
     }
 }
 
+function reddit_addGlobalStyle(document, css) {
+    var head, style;
+    head = document.getElementsByTagName('head')[0];
+    if (!head) { return; }
+    style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = css;
+    head.appendChild(style);
+}
+
+
 /* Sets up the reddit-mode for the given buffer. */
 function reddit_mode_setup(buffer) {
     var document = buffer.document;
@@ -35,10 +46,11 @@ function reddit_mode_setup(buffer) {
     else document.reddit_mode_loaded = true;
     siteTable = document.getElementById("siteTable");
     if (!siteTable) {
-        /* siteTable not found, abort.Tthis happens e.g. when browsing the
+        /* siteTable not found, abort. This happens e.g. when browsing the
        preferences */
         return;
     }
+
     // Get all divs that have a id that starts with "thingrow"
     var links = siteTable.getElementsByTagName("div");
     links = Array.filter(links, function (element) {
@@ -70,9 +82,11 @@ function reddit_mode_setup(buffer) {
     if (!links || !links.length) {
         return;
     }
+    // remove ugly white background (error in their css)
+    reddit_addGlobalStyle(document, ".linkcompressed .entry .buttons li { background-color: inherit !important; }");
 
     var current = 0;
-    var beforeLinkRegex = /^https?:\/\/([a-zA-Z0-9\-]\.)*reddit\.com\/.*before=.*/;
+    var beforeLinkRegex = /^https?:\/\/([a-zA-Z0-9\-]*\.)*reddit\.com\/.*before=.*/;
     if(beforeLinkRegex.test(buffer.current_URI.spec)) {
       current = links.length-1;
       reddit_showElement(buffer, links[current]);
@@ -221,14 +235,20 @@ define_key(reddit_keymap, "h", "reddit-open-comments");
 /* Setting up and tearing down the mode */
 
 function enable_reddit_mode(buffer) {
-    buffer.local_variables.content_buffer_normal_keymap = reddit_keymap;
-    add_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
+  var doc = buffer.document;
+  if(doc.redditCurrent != null)
+    reddit_toggleHighlight(doc.redditLinkDivs[doc.redditCurrent]);
+  buffer.local_variables.content_buffer_normal_keymap = reddit_keymap;
+  add_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
 }
 
 function disable_reddit_mode(buffer) {
-    remove_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
+  var doc = buffer.document;
+  if(doc.redditCurrent != null)
+    reddit_toggleHighlight(doc.redditLinkDivs[doc.redditCurrent]);
+  remove_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
 }
 
 define_page_mode("reddit_mode", "Reddit", $enable = enable_reddit_mode,
                  $disable = disable_reddit_mode);
-auto_mode_list.push([/^https?:\/\/([a-zA-Z0-9\-]\.)*reddit\.com\//, reddit_mode]);
+auto_mode_list.push([/^https?:\/\/([a-zA-Z0-9\-]*\.)*reddit\.com\//, reddit_mode]);
