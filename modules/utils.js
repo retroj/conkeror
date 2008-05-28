@@ -334,6 +334,18 @@ function shell_quote(str) {
     return s;
 }
 
+/* Like perl's quotemeta. Backslash all non-alphanumerics. */
+function quotemeta(str) {
+    return str.replace(/([^a-zA-Z0-9])/g, "\\$1");
+}
+
+/* Given a list of choices (strings), return a regex which matches any
+   of them*/
+function choice_regex(choices) {
+    var regex = "(?:" + choices.map(quotemeta).join("|") + ")";
+    return regex;
+}
+
 function get_window_from_frame(frame) {
     try {
         var window = frame.QueryInterface(Ci.nsIInterfaceRequestor)
@@ -1097,3 +1109,38 @@ function ensure_index_is_visible (window, field, index) {
     field.setSelectionRange (start, end);
 }
 
+function regex_to_string(obj) {
+    if(obj instanceof RegExp) {
+        obj = obj.source;
+    } else {
+        obj = quotemeta(obj);
+    }
+    return obj;
+}
+
+/*
+ * Build a regular expression to match URLs for a given web site.
+ *
+ * Both the $domain and $path arguments can be either regexes, in
+ * which case they will be matched as is, or strings, in which case
+ * they will be matched literally.
+ *
+ * $tlds specifies a list of valid top-level-domains to match, and
+ * defaults to .com. Useful for when e.g. foo.org and foo.com are the
+ * same.
+ *
+ * If $allow_www is true, www.domain.tld will also be allowed.
+ *
+ */
+define_keywords("$domain", "$path", "$tlds", "$allow_www");
+function build_url_regex() {
+    keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
+    var domain = regex_to_string(arguments.$domain);
+    if(arguments.$allow_www) {
+        domain = "(?:www\.)?" + domain;
+    }
+    var path   = regex_to_string(arguments.$path);
+    var tlds   = arguments.$tlds;
+    var regex = "^https?://" + domain + "\\." + choice_regex(tlds) + "/" + path;
+    return new RegExp(regex);
+}
