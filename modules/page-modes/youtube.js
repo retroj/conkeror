@@ -8,7 +8,6 @@
 require("content-buffer.js");
 require("media.js");
 
-let media_youtube_uri_test_regexp = /^http:\/\/(?:[a-z]+\.)?youtube\.com\/watch\?v=([A-Za-z0-9\-]+)/;
 let media_youtube_content_key_regexp = /t=[\w-]{10,}/i;
 let media_youtube_content_title_regexp = new RegExp("&title=([^\"'&]+)");
 
@@ -102,4 +101,6 @@ function media_scrape_embedded_youtube(buffer, results) {
 // Use the embedded youtube scraper by default
 media_scrapers.unshift(media_scrape_embedded_youtube);
 
+let media_youtube_uri_test_regexp = build_url_regex($domain = /(?:[a-z]+\.)?youtube/,
+                                                    $path = /watch\?v=([A-Za-z0-9\-]+)/);
 auto_mode_list.push([media_youtube_uri_test_regexp, youtube_mode]);

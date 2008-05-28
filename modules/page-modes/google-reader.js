@@ -54,4 +54,7 @@ define_page_mode("google_reader_mode", "Google Reader", $enable = function (buff
     buffer.local_variables.content_buffer_normal_keymap = google_reader_keymap;
 });
 
-auto_mode_list.push([/^https?:\/\/www\.google\.com\/reader\//, google_reader_mode]);
+var google_reader_re = build_url_regex($domain = "google",
+                                       $allow_www = true,
+                                       $path = "reader/");
+auto_mode_list.push([google_reader_re, google_reader_mode]);

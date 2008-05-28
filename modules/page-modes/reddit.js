@@ -19,7 +19,7 @@ default_browse_targets["reddit-open-comments"] = "find-url";
 
 function reddit_highlight(elem) {
     elem.highlighted = true;
-    elem.style.backgroundColor = reddit_highlight_color;    
+    elem.style.backgroundColor = reddit_highlight_color;
 }
 
 function reddit_dehighlight(elem) {
@@ -245,7 +245,7 @@ define_key(reddit_keymap, "h", "reddit-open-comments");
 function enable_reddit_mode(buffer) {
   var doc = buffer.document;
   if(doc.redditCurrent != null)
-    reddit_highlight(doc.redditLinkDivs[doc.redditCurrent]);  
+    reddit_highlight(doc.redditLinkDivs[doc.redditCurrent]);
   buffer.local_variables.content_buffer_normal_keymap = reddit_keymap;
   add_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
 }
@@ -262,4 +262,6 @@ define_page_mode("reddit_mode", "reddit",
                  $enable = enable_reddit_mode,
                  $disable = disable_reddit_mode,
                  $doc = "reddit page-mode: keyboard navigation for reddit.");
-auto_mode_list.push([/^https?:\/\/([a-zA-Z0-9\-]*\.)*reddit\.com\//, reddit_mode]);
+
+var reddit_re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/);
+auto_mode_list.push([reddit_re, reddit_mode]);
