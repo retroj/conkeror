@@ -666,7 +666,10 @@ function unfocus(buffer)
         return;
     buffer.top_frame.focus();
 }
-interactive("unfocus", function (I) {unfocus(I.buffer)});
+interactive("unfocus", function (I) {
+    unfocus(I.buffer);
+    I.buffer.minibuffer.message("unfocus");
+});
 
 require_later("content-buffer.js");
 
