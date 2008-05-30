@@ -668,7 +668,7 @@ function unfocus(buffer)
 }
 interactive("unfocus", function (I) {
     unfocus(I.buffer);
-    I.buffer.minibuffer.message("unfocus");
+    I.window.minibuffer.message("unfocus");
 });
 
 require_later("content-buffer.js");
