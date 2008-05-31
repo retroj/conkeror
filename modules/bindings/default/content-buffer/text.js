@@ -22,10 +22,12 @@ define_key(content_buffer_text_keymap, "C-b", "backward-char", $category = "Move
 define_key(content_buffer_text_keymap, "left", "backward-char", $category = "Movement");
 define_key(content_buffer_text_keymap, "M-b", "backward-word", $category = "Movement");
 define_key(content_buffer_text_keymap, "C-left", "backward-word", $category = "Movement");
+define_key(content_buffer_text_keymap, "M-left", "backward-word", $category = "Movement");
 define_key(content_buffer_text_keymap, "C-f", "forward-char", $category = "Movement");
 define_key(content_buffer_text_keymap, "right", "forward-char", $category = "Movement");
 define_key(content_buffer_text_keymap, "M-f", "forward-word", $category = "Movement");
 define_key(content_buffer_text_keymap, "C-right", "forward-word", $category = "Movement");
+define_key(content_buffer_text_keymap, "M-right", "forward-word", $category = "Movement");
 define_key(content_buffer_text_keymap, "M-w", "cmd_copy", $category = "Selection");
 define_key(content_buffer_text_keymap, "C-k", "cut-to-end-of-line", $category = "Editing");
 
