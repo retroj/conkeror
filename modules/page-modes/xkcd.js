@@ -53,6 +53,6 @@ define_page_mode("xkcd_mode","XKCD",
 
 var xkcd_re = build_url_regex($domain = "xkcd",
                               $allow_www = true,
-                              $tlds = ["com", "net"],
+                              $tlds = ["com", "net", "org"],
                               $path = /(\d+\/)?/);
 auto_mode_list.push([xkcd_re, xkcd_mode]);
