@@ -32,7 +32,7 @@ function command_line_param_handler(name, suppress_default, handler)
 }
 
 command_line_handler("batch", true);
-command_line_param_handler("e", false, function (expr, ctx) {
+command_line_param_handler("e", true, function (expr, ctx) {
         eval(expr);
     });
 
@@ -53,7 +53,7 @@ command_line_param_handler("cwd", false, function (dir, ctx) {
         ctx.config.cwd = dir;
     });
 
-command_line_param_handler("f", false, function (command) {
+command_line_param_handler("f", true, function (command) {
         var ctx = {
             window: window_watcher.activeWindow
         };
