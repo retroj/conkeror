@@ -879,7 +879,7 @@ function unregister_user_stylesheet(url)
     var uri = makeURL(url);
     var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
     if (sss.sheetRegistered(uri, sss.USER_SHEET))
-        ss.unregisterSheet(uri, sss.USER_SHEET);
+        sss.unregisterSheet(uri, sss.USER_SHEET);
 }
 
 function predicate_alist_match(alist, key) {
