@@ -79,7 +79,7 @@ hint_manager.prototype = {
             base_node.className = "__conkeror_hint";
 
             var fragment = doc.createDocumentFragment();
-            var rect, elem, text, node;
+            var rect, elem, text, node, show_text;
             while (true)
             {
                 try {
@@ -95,17 +95,24 @@ hint_manager.prototype = {
                 rect = elem.getClientRects()[0];
                 if (!rect)
                     continue;
+                show_text = false;
                 if (elem instanceof Ci.nsIDOMHTMLInputElement || elem instanceof Ci.nsIDOMHTMLTextAreaElement)
-                    text = elem.value.toLowerCase();
+                    text = elem.value;
                 else if (elem instanceof Ci.nsIDOMHTMLSelectElement) {
                     if (elem.selectedIndex >= 0)
-                        text = elem.item(elem.selectedIndex).text.toLowerCase();
+                        text = elem.item(elem.selectedIndex).text;
                     else
                         text = "";
                 } else if (elem instanceof Ci.nsIDOMHTMLFrameElement) {
                     text = elem.name ? elem.name : "";
+                } else if (/^\s*$/.test(elem.textContent) &&
+                           elem.childNodes.length == 1 &&
+                           elem.childNodes.item(0) instanceof Ci.nsIDOMHTMLImageElement) {
+                    text = elem.childNodes.item(0).alt;
+                    show_text = true;
                 } else
-                    text = elem.textContent.toLowerCase();
+                    text = elem.textContent;
+                text = text.toLowerCase();
 
                 node = base_node.cloneNode(true);
                 node.style.left = (rect.left + scrollX) + "px";
@@ -116,7 +123,8 @@ hint_manager.prototype = {
                             elem: elem,
                             hint: node,
                             img_hint: null,
-                            visible : false};
+                            visible: false,
+                            show_text: show_text};
                 if (elem.style) {
                     hint.saved_color = elem.style.color;
                     hint.saved_bgcolor = elem.style.backgroundColor;
@@ -236,6 +244,17 @@ hint_manager.prototype = {
             var label = "" + cur_number;
             if (h.elem instanceof Ci.nsIDOMHTMLFrameElement) {
                 label +=  " " + text;
+            } else if (h.show_text && !/^\s*$/.test(text)) {
+                let substrs = [[0,4]];
+                for (j = 0; j < tokens.length; ++j)
+                {
+                    let pos = text.indexOf(tokens[j]);
+                    if(pos == -1) continue;
+                    splice_range(substrs, pos, pos + tokens[j].length + 2);
+                }
+                label += " " + substrs.map(function(x) {
+                    return text.substring(x[0],Math.min(x[1], text.length));
+                }).join("..") + "..";
             }
             h.hint.textContent = label;
             h.hint.style.display = "inline";

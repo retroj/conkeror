@@ -1144,3 +1144,50 @@ function build_url_regex() {
     var regex = "^https?://" + domain + "\\." + choice_regex(tlds) + "/" + path;
     return new RegExp(regex);
 }
+
+/*
+ *
+ * Given an ordered array of non-overlapping ranges, represented as
+ * elements of [start, end], insert a new range into the array,
+ * extending, replacing, or merging existing ranges as needed. Mutates
+ * `arr' in place.
+ *
+ * Examples:
+ *
+ * splice_range([[1,3],[4,6], 5, 8)
+ *  => [[1,3],[4,8]]
+ *
+ * splice_range([[1,3],[4,6],[7,10]], 2, 8)
+ *  => [[1,10]]
+ */
+function splice_range(arr, start, end) {
+    for(var i = 0; i < arr.length; ++i) {
+        let [n,m] = arr[i];
+        if(start > m)
+            continue;
+        if(end < n) {
+            arr.splice(i, 0, [start, end]);
+            break;
+        }
+        if(start < n) {
+            arr[i][0] = start;
+        }
+
+        if(end >= n) {
+            /*
+             * The range we are inserting overlaps the current
+             * range. We need to scan right to see if it also contains any other
+             * ranges entirely, and remove them if necessary.
+             */
+            var j = i;
+            while(j < arr.length && end >= arr[j][0]) j++;
+            j--;
+            arr[i][1] = Math.max(end, arr[j][1]);
+            arr.splice(i + 1, j - i);
+            break;
+        }
+    }
+    if(start > arr[arr.length - 1][1]) {
+        arr.push([start, end]);
+    }
+}
