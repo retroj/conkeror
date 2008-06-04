@@ -76,7 +76,7 @@ define_browser_object_class(
     $xpath_expression =
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@role='link'] | " +
-        "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
+        "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | //label | " +
         "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand] | " +
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
         "//xhtml:button | //xhtml:select");
