@@ -82,6 +82,7 @@ function define_default_webjumps()
     add_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
     add_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
     add_webjump("sheldonbrown",     "http://www.google.com/search?q=site:sheldonbrown.com %s");
+    add_webjump("youtube", "http://www.youtube.com/results?search_query=%s&search=Search");
 }
 
 function match_webjump(str) {
