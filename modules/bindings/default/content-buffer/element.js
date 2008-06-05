@@ -51,6 +51,7 @@ function bind_element_operations(keymap) {
     define_key(keymap, "x", "shell-command-on-file", $category = "Browser object");
     define_key(keymap, "X", "shell-command-on-url", $category = "Browser object");
     define_key(keymap, "b", "bookmark", $category = "Browser object");
+    define_key(keymap, "v", "view-as-mime-type", $category = "Browser object");
 }
 
 bind_element_operations(content_buffer_normal_keymap);

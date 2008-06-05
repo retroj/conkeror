@@ -11,6 +11,8 @@
 
 require("hints.js");
 require("save.js");
+require("mime-type-override.js");
+require("minibuffer-read-mime-type.js");
 
 var browser_object_classes = {};
 
@@ -682,3 +684,44 @@ interactive("save-page-complete", function (I) {
 
     save_document_complete(doc, file, dir, $buffer = I.buffer);
 });
+
+default_browse_targets["view-as-mime-type"] = [FOLLOW_CURRENT_FRAME, OPEN_CURRENT_BUFFER,
+                                               OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+interactive("view-as-mime-type",
+            "Display a browser object in the browser using the specified MIME type.",
+            function (I) {
+                var element = yield I.read_browser_object("view_as_mime_type", "View in browser as mime type");
+                var spec = element_get_load_spec(element);
+
+                var target = I.browse_target("view-as-mime-type");
+
+                if (!spec)
+                    throw interactive_error("Element is not associated with a URI");
+
+                if (!can_override_mime_type_for_uri(load_spec_uri(spec)))
+                    throw interactive_error("Overriding the MIME type is not currently supported for non-HTTP URLs.");
+
+                var panel;
+
+                var mime_type = load_spec_mime_type(spec);
+                panel = create_info_panel(I.window, "download-panel",
+                                          [["downloading",
+                                            element_get_operation_label(element, "View in browser"),
+                                            load_spec_uri_string(spec)],
+                                           ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+
+                try {
+                    let suggested_type = mime_type;
+                    if (gecko_viewable_mime_type_list.indexOf(suggested_type) == -1)
+                        suggested_type = "text/plain";
+                    mime_type = yield I.minibuffer.read_gecko_viewable_mime_type(
+                        $prompt = "View internally as",
+                        $initial_value = suggested_type,
+                        $select);
+                    override_mime_type_for_next_load(load_spec_uri(spec), mime_type);
+                    browser_element_follow(I.buffer, target, spec);
+                } finally {
+                    panel.destroy();
+                }
+            });
