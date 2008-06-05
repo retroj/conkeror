@@ -6,6 +6,9 @@
 **/
 
 require("special-buffer.js");
+require("mime-type-override.js");
+require("minibuffer-read-mime-type.js");
+
 var download_manager_service = Cc["@mozilla.org/download-manager;1"].getService(Ci.nsIDownloadManager);
 //var download_manager_ui = Cc["@mozilla.org/download-manager-ui;1"].getService(Ci.nsIDownloadManagerUI);
 var download_manager_builtin_ui = Components.classesByID["{7dfdf0d1-aff6-4a34-bad1-d0fe74601642}"]
@@ -25,11 +28,16 @@ download_helper.prototype = {
 
     handle_show: function () {
         var action_chosen = false;
+
+        var can_view_internally = this.frame != null &&
+                can_override_mime_type_for_uri(this.launcher.source);
         try {
             this.create_panel();
             var action = yield this.window.minibuffer.read_single_character_option(
-                $prompt = "Action to perform: (save or open)",
-                $options = ["s", "o"]);
+                $prompt = "Action to perform: (Save" + (can_view_internally ?
+                                                        ", Open, view Internally, view internally as Text)"
+                                                        : " or Open)"),
+                $options = (can_view_internally ? ["s", "o", "i", "t"] : ["s", "o"]));
 
 
             if (action == "s") {
@@ -42,7 +50,7 @@ download_helper.prototype = {
                 this.launcher.saveToDisk(file, false);
                 action_chosen = true;
 
-            } else {
+            } else if (action == "o") {
                 var cwd = this.buffer ? this.buffer.cwd : default_directory.path;
                 var mime_type = this.launcher.MIMEInfo.MIMEType;
                 var suggested_action = get_external_handler_for_mime_type(mime_type);
@@ -55,6 +63,28 @@ download_helper.prototype = {
                 info.set_shell_command(command, cwd);
                 this.launcher.saveToDisk(file, false);
                 action_chosen = true;
+            } else /* if (action == "i" || action == "t") */ {
+                let mime_type;
+                if (action == "t")
+                    mime_type = "text/plain";
+                else {
+                    let suggested_type = this.launcher.MIMEInfo.MIMEType;
+                    if (gecko_viewable_mime_type_list.indexOf(suggested_type) == -1)
+                        suggested_type = "text/plain";
+                    mime_type = yield this.window.minibuffer.read_gecko_viewable_mime_type(
+                        $prompt = "View internally as",
+                        $initial_value = suggested_type,
+                        $select);
+                }
+                action_chosen = true;
+
+                let launcher = this.launcher;
+                let frame = this.frame;
+
+                this.abort(); // abort before reloading
+
+                override_mime_type_for_next_load(launcher.source, mime_type);
+                frame.location = launcher.source.spec; // reload
             }
         } catch (e) {
             handle_interactive_error(this.window, e);
@@ -72,9 +102,10 @@ download_helper.prototype = {
         // Get associated buffer; if that fails (hopefully not), just get any window
         var buffer = null;
         var window = null;
+        var frame = null;
         try {
-            var frame = context.QueryInterface(Ci.nsIWebProgress).DOMWindow.top;
-            window = get_window_from_frame(frame);
+            frame = context.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowInternal);
+            window = get_window_from_frame(frame.top);
             if (window)
                 buffer = get_buffer_from_frame(window, frame);
         } catch (e) {
@@ -87,6 +118,7 @@ download_helper.prototype = {
             }
         }
 
+        this.frame = frame;
         this.window = window;
         this.buffer = buffer;
 
@@ -106,6 +138,7 @@ download_helper.prototype = {
         this.launcher = null;
         this.window = null;
         this.buffer = null;
+        this.frame = null;
     },
 
     promptForSaveToFile : function(launcher, context, default_file, suggested_file_extension) {
