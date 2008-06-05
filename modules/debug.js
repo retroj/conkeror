@@ -53,6 +53,23 @@ function dump_obj (obj, name) {
     }
 }
 
+function get_interface_info(o) {
+    var output = "";
+    for (let x in Ci) {
+        try {
+            o.QueryInterface(Ci[x]);
+            output += x + "\n";
+        } catch (e)  {
+            try {
+                o.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci[x]);
+                output += x + " (getInterface)\n";
+            } catch (e2) {
+            }
+        }
+    }
+    return output;
+}
+
 /**
  * This simple facility can be used to execute arbitrary expression in the context of some point that you'd like to debug.
  * At that point, simply set some global variable to the result of: eval(DEBUG_HERE);
