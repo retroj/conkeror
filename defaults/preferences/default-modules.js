@@ -55,7 +55,9 @@ pref("conkeror.load.page-modes/reddit", 1);
 pref("conkeror.load.page-modes/google-search-results", 0);
 pref("conkeror.load.page-modes/google-reader", 1);
 pref("conkeror.load.page-modes/google-video", 1);
+pref("conkeror.load.page-modes/google-maps", 1);
 pref("conkeror.load.page-modes/youporn", 1);
 pref("conkeror.load.page-modes/dailymotion", 1);
 pref("conkeror.load.page-modes/gmail", 1);
 pref("conkeror.load.page-modes/xkcd", 1);
+
