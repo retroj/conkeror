@@ -144,7 +144,7 @@ function prefix_completer()
                 get_string: function (i) get_string(data[i]),
                 get_description : function (i) get_description(data[i]),
                 get_input_state : function (i) get_partial_completion_input_state(get_string(data[i]), 0, pos, input),
-                get_value : function(i) get_value(data[i]),
+                get_value : function(i) (get_value ? get_value(data[i]) : data[i]),
                 get common_prefix_input_state () {
                     return common_prefix && get_partial_completion_input_state(common_prefix, 0, pos, input);
                 },
