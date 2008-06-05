@@ -33,5 +33,6 @@ pref("extensions.dss.enabled", false);
 pref("extensions.dss.switchPending", false);
 
 
-// Enable form autocomplete
-pref("browser.formfill.enable", true);
+/* FIXME: the following pref enables form autocompletion.  enable it
+/* when we have keyboard support for it. */
+// pref("browser.formfill.enable", true);
