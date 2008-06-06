@@ -276,7 +276,7 @@ search_engine.prototype.__defineGetter__("completer", function () {
                       data[1] instanceof Array &&
                       (data[2] == null || (data[2] instanceof Array))))
                     yield co_return(null);
-                if (data[2].length != data[1].length)
+                if (data[2] && data[2].length != data[1].length)
                     data[2] = null;
                 let c = { count: data[1].length,
                           get_string: function (i) String(data[1][i]),
