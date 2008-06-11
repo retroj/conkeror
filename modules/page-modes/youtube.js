@@ -54,7 +54,7 @@ function media_scrape_embedded_youtube(buffer, results) {
 
     const embedded_youtube_regexp = /^http:\/\/[a-zA-Z0-9\-.]+\.youtube\.com\/v\/(.*)$/;
 
-    function helper(frame) {
+    for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
         // Look for embedded YouTube videos
         let obj_els = frame.document.getElementsByTagName("object");
         for (let i = 0; i < obj_els.length; ++i) {
@@ -77,23 +77,18 @@ function media_scrape_embedded_youtube(buffer, results) {
                         let text = result.responseText;
                         if (text != null && text.length > 0)
                             media_scrape_youtube_document_text(frame, code, text, results);
-                    } catch (e if !(e instanceof abort)) {
-                        // Allow abort to fall through, so that we don't continue looking
-                        // for embedded youtube.
-
-                        // An error here means there was some problem with the request.
+                    } catch (e if (e instanceof abort)) {
+                        // Still allow other media scrapers to try even if the user aborted an http request,
+                        // but don't continue looking for embedded youtube videos.
+                        return;
+                    } catch (e) {
+                        // Some other error here means there was some problem with the request.
                         // We'll just ignore it.
                     }
                     break inner;
                 }
             }
         }
-    }
-    try {
-        yield co_for_each_frame(buffer.top_frame, helper);
-    } catch (e if (e instanceof abort)) {
-        dump_error(e);
-        // Still allow other media scrapers to try even if the user aborted an http request.
     }
 }
 

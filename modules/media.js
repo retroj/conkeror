@@ -21,26 +21,25 @@ define_variable("media_scrape_default_regexp",
 
 function media_scrape_default(buffer, results) {
     var initial_length = results.length;
-    for_each_frame(buffer.top_frame, function (frame) {
-                       var text = frame.document.documentElement.innerHTML;
-                       var matches = text.match(media_scrape_default_regexp);
-                       //matches = matches.concat(unescape(text).match(media_scrape_default_regexp));
+    for (let frame in frame_iterator(buffer.top_frame)) {
+        var text = frame.document.documentElement.innerHTML;
+        var matches = text.match(media_scrape_default_regexp);
+        //matches = matches.concat(unescape(text).match(media_scrape_default_regexp));
 
-                       let base_uri = frame.document.documentURIObject;
+        let base_uri = frame.document.documentURIObject;
 
-                       var uris = new string_hashset();
-                       for each (let x in matches) {
-                           let str = x;
-                           try {
-                               let uri_obj = make_uri(str, null, base_uri);
-                               if (!uris.contains(uri_obj.spec))  {
-                                   uris.add(uri_obj.spec);
-                                   results.push(load_spec({uri: uri_obj.spec, source_frame: frame}));
-                               }
-                           } catch (e) {}
-                       }
-
-                   });
+        var uris = new string_hashset();
+        for each (let x in matches) {
+            let str = x;
+            try {
+                let uri_obj = make_uri(str, null, base_uri);
+                if (!uris.contains(uri_obj.spec))  {
+                    uris.add(uri_obj.spec);
+                    results.push(load_spec({uri: uri_obj.spec, source_frame: frame}));
+                }
+            } catch (e) {}
+        }
+    }
 
     // If there is exactly 1, use the document title as the video title
     if (initial_length == 0 && results.length == 1 &&

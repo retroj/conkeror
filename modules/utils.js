@@ -965,33 +965,50 @@ function extension_is_enabled(id) {
     return info.update_item && (info.isDisabled == "false");
 }
 
-function for_each_frame(root_frame, callback, start_with) {
-    if (start_with)
-        callback(start_with);
-    function helper(f) {
-        if (f == start_with)
-            return;
-        callback(f);
-        for (let i = 0; i < f.frames.length; ++i) {
-            helper(f.frames[i]);
-        }
-    }
-    helper(root_frame);
+function queue() {
+    this.input = [];
+    this.output = [];
 }
-
-// Co-routine version of for_each_frame
-function co_for_each_frame(root_frame, callback, start_with) {
-    if (start_with)
-        yield callback(start_with);
-    function helper(f) {
-        if (f == start_with)
-            return;
-        yield callback(f);
-        for (let i = 0; i < f.frames.length; ++i) {
-            yield helper(f.frames[i]);
+queue.prototype = {
+    get length () {
+        return this.input.length + this.output.length;
+    },
+    push: function (x) {
+        this.input[this.input.length] = x;
+    },
+    pop: function (x) {
+        let l = this.output.length;
+        if (!l) {
+            l = this.input.length;
+            if (!l)
+                return undefined;
+            this.output = this.input.reverse();
+            this.input = [];
+            let x = this.output[l];
+            this.output.length--;
+            return x;
         }
     }
-    yield helper(root_frame);
+};
+
+function frame_iterator(root_frame, start_with) {
+    var q = new queue, x;
+    if (start_with) {
+        x = start_with;
+        do {
+            yield x;
+            for (let i = 0; i < f.frames.length; ++i)
+                q.push(f.frames[i]);
+        } while ((x = q.pop()));
+    }
+    x = root_frame;
+    do {
+        if (x == start_with)
+            continue;
+        yield x;
+        for (let i = 0; i < f.frames.length; ++i)
+            q.push(f.frames[i]);
+    } while ((x = q.pop()));
 }
 
 function xml_http_request() {

@@ -77,23 +77,13 @@ function document_get_element_by_relationship(doc, relationship) {
 
 function browser_follow_relationship(buffer, relationship, target) {
     check_buffer(buffer, content_buffer);
-    function helper(win) {
-        var elem = document_get_element_by_relationship(win.document, relationship);
+    for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
+        let elem = document_get_element_by_relationship(frame.document, relationship);
         if (elem)
-            return elem;
-        for (var i = 0; i < win.frames.length; ++i) {
-            elem = document_get_element_by_relationship(win.frames[i].document, relationship);
-            if (elem)
-                return elem;
-        }
-        return null;
+            browser_element_follow(buffer, target, elem);
     }
-
-    var elem = helper(buffer.top_frame);
-    if (!elem)
-        throw interactive_error("No \"" + browser_relationship_rel_name[relationship]
-                                + "\" link found");
-    browser_element_follow(buffer, target, elem);
+    throw interactive_error("No \"" + browser_relationship_rel_name[relationship]
+                            + "\" link found");
 }
 
 default_browse_targets["follow-relationship"] = "follow";
