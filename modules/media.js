@@ -15,7 +15,7 @@
 
 define_variable("media_scrape_default_regexp",
                 new RegExp("(?:http://[a-zA-Z0-9.\\-]+/)?(?!://)[^=&<>\"'|\\s]+\\."
-                           + "(?:aiff|au|avi|flv|mid|mov|mp3|ogg|ra|rm|spl|wav|wma|wmv)(?!\\w)", "ig"),
+                           + "(?:aiff|au|avi|flv|mid|mov|mp3|mpg|mpeg|ogg|ra|rm|spl|wav|wma|wmv)(?!\\w)", "ig"),
                 "Regular expression used by the default media scraper to match URIs for "
                 + "embedded media in the page source code.");
 
