@@ -68,6 +68,8 @@ define_key (minibuffer_keymap, "S-tab", "minibuffer-complete-previous");
 
 define_key (minibuffer_keymap, "down", "minibuffer-complete");
 define_key (minibuffer_keymap, "up", "minibuffer-complete-previous");
+define_key (minibuffer_keymap, "C-n", "minibuffer-complete");
+define_key (minibuffer_keymap, "C-p", "minibuffer-complete-previous");
 
 define_key (minibuffer_keymap, "escape", "minibuffer-abort");
 
