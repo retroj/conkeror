@@ -20,25 +20,19 @@ function download_helper()
 download_helper.prototype = {
     QueryInterface: generate_QI(Ci.nsIHelperAppLauncherDialog, Ci.nsIWebProgressListener2),
 
-    create_panel : function() {
-        this.panel = create_info_panel(this.window, "download-panel",
-                                       [["downloading", "Downloading:", this.launcher.source.spec],
-                                        ["mime-type", "Mime type:", this.launcher.MIMEInfo.MIMEType]]);
-    },
-
     handle_show: function () {
         var action_chosen = false;
 
         var can_view_internally = this.frame != null &&
                 can_override_mime_type_for_uri(this.launcher.source);
         try {
-            this.create_panel();
+            this.panel = create_info_panel(this.window, "download-panel",
+                                           [["downloading", "Downloading:", this.launcher.source.spec],
+                                            ["mime-type", "Mime type:", this.launcher.MIMEInfo.MIMEType]]);
             var action = yield this.window.minibuffer.read_single_character_option(
-                $prompt = "Action to perform: (Save" + (can_view_internally ?
-                                                        ", Open, view Internally, view internally as Text)"
-                                                        : " or Open)"),
-                $options = (can_view_internally ? ["s", "o", "i", "t"] : ["s", "o"]));
-
+                $prompt = "Action to perform: (s: save; o: open; O: open URL; " +
+                    (can_view_internally ? "i: view internally; t: view as text)" : ")"),
+                $options = (can_view_internally ? ["s", "o", "O", "i", "t"] : ["s", "o", "O"]));
 
             if (action == "s") {
                 var suggested_path = suggest_save_path_from_file_name(this.launcher.suggestedFileName, this.buffer);
@@ -63,6 +57,15 @@ download_helper.prototype = {
                 info.set_shell_command(command, cwd);
                 this.launcher.saveToDisk(file, false);
                 action_chosen = true;
+            } else if (action == "O") {
+                action_chosen = true;
+                this.abort(); // abort download
+                let mime_type = this.launcher.MIMEInfo.MIMEType;
+                let cwd = this.buffer ? this.buffer.cwd : this.window.buffers.current.cwd;
+                let cmd = yield this.window.minibuffer.read_shell_command(
+                    $cwd = cwd,
+                    $initial_value = get_external_handler_for_mime_type(mime_type));
+                shell_command_with_argument_blind(cmd, this.launcher.source.spec, $cwd = cwd);
             } else /* if (action == "i" || action == "t") */ {
                 let mime_type;
                 if (action == "t")
@@ -77,22 +80,17 @@ download_helper.prototype = {
                         $select);
                 }
                 action_chosen = true;
-
-                let launcher = this.launcher;
-                let frame = this.frame;
-
                 this.abort(); // abort before reloading
 
-                override_mime_type_for_next_load(launcher.source, mime_type);
-                frame.location = launcher.source.spec; // reload
+                override_mime_type_for_next_load(this.launcher.source, mime_type);
+                this.frame.location = this.launcher.source.spec; // reload
             }
         } catch (e) {
             handle_interactive_error(this.window, e);
         } finally {
-            if (action_chosen)
-                this.cleanup();
-            else
+            if (!action_chosen)
                 this.abort();
+            this.cleanup();
         }
     },
 
@@ -128,7 +126,6 @@ download_helper.prototype = {
     abort : function () {
         const NS_BINDING_ABORTED = 0x804b0002;
         this.launcher.cancel(NS_BINDING_ABORTED);
-        this.cleanup();
     },
 
     cleanup : function () {
