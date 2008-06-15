@@ -997,8 +997,8 @@ function frame_iterator(root_frame, start_with) {
         x = start_with;
         do {
             yield x;
-            for (let i = 0; i < f.frames.length; ++i)
-                q.push(f.frames[i]);
+            for (let i = 0; i < x.frames.length; ++i)
+                q.push(x.frames[i]);
         } while ((x = q.pop()));
     }
     x = root_frame;
@@ -1006,8 +1006,8 @@ function frame_iterator(root_frame, start_with) {
         if (x == start_with)
             continue;
         yield x;
-        for (let i = 0; i < f.frames.length; ++i)
-            q.push(f.frames[i]);
+        for (let i = 0; i < x.frames.length; ++i)
+            q.push(x.frames[i]);
     } while ((x = q.pop()));
 }
 
