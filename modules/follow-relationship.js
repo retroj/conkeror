@@ -79,8 +79,10 @@ function browser_follow_relationship(buffer, relationship, target) {
     check_buffer(buffer, content_buffer);
     for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
         let elem = document_get_element_by_relationship(frame.document, relationship);
-        if (elem)
+        if (elem) {
             browser_element_follow(buffer, target, elem);
+            return;
+        }
     }
     throw interactive_error("No \"" + browser_relationship_rel_name[relationship]
                             + "\" link found");
