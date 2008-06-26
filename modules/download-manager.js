@@ -30,9 +30,9 @@ download_helper.prototype = {
                                            [["downloading", "Downloading:", this.launcher.source.spec],
                                             ["mime-type", "Mime type:", this.launcher.MIMEInfo.MIMEType]]);
             var action = yield this.window.minibuffer.read_single_character_option(
-                $prompt = "Action to perform: (s: save; o: open; O: open URL; " +
+                $prompt = "Action to perform: (s: save; o: open; O: open URL; c: copy URL; " +
                     (can_view_internally ? "i: view internally; t: view as text)" : ")"),
-                $options = (can_view_internally ? ["s", "o", "O", "i", "t"] : ["s", "o", "O"]));
+                $options = (can_view_internally ? ["s", "o", "O", "c", "i", "t"] : ["s", "o", "O", "c"]));
 
             if (action == "s") {
                 var suggested_path = suggest_save_path_from_file_name(this.launcher.suggestedFileName, this.buffer);
@@ -66,6 +66,12 @@ download_helper.prototype = {
                     $cwd = cwd,
                     $initial_value = get_external_handler_for_mime_type(mime_type));
                 shell_command_with_argument_blind(cmd, this.launcher.source.spec, $cwd = cwd);
+            } else if (action == "c") {
+                action_chosen = true;
+                this.abort(); // abort download
+                let uri = this.launcher.source.spec;
+                writeToClipboard(uri);
+                this.window.minibuffer.message("Copied: " + uri);
             } else /* if (action == "i" || action == "t") */ {
                 let mime_type;
                 if (action == "t")
