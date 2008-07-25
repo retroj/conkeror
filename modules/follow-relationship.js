@@ -21,18 +21,22 @@ var browser_relationship_rev_regexp = ["prev|previous", "next"];
 define_variable("browser_relationship_patterns", {}, "Patterns used by `follow-next' and `follow-previous'.");
 
 browser_relationship_patterns[RELATIONSHIP_NEXT] =
-    [new RegExp("\\bnext","i"),
+    [/^next$/i,
      new RegExp("^>$","i"),
      new RegExp("^(>>|»)$","i"),
      new RegExp("^(>|»)","i"),
-     new RegExp("(>|»)$","i")];
+     new RegExp("(>|»)$","i"),
+     new RegExp("\\bnext","i")
+    ];
 
 browser_relationship_patterns[RELATIONSHIP_PREVIOUS] =
-    [new RegExp("\\bprev|previous\\b","i"),
+    [/^(prev|previous)$/i,
      new RegExp("^<$","i"),
      new RegExp("^(<<|«)$","i"),
      new RegExp("^(<|«)","i"),
-     new RegExp("(<|«)$","i")];
+     new RegExp("(<|«)$","i"),
+     new RegExp("\\bprev|previous\\b","i")
+    ];
 
 function document_get_element_by_relationship(doc, relationship) {
     var patterns = browser_relationship_patterns[relationship];
