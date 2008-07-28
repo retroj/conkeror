@@ -75,7 +75,7 @@ function define_default_webjumps()
     add_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
     add_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
     add_webjump("ratpoisonwiki", "http://ratpoison.elektrubadur.se/?search=%s");
-    add_webjump("stumpwmwiki", "http://stumpwm.elektrubadur.se/?search=%s");
+    add_webjump("stumpwmwiki", "http://stumpwm.antidesktop.net/wiki?search=%s");
     add_webjump("savannah", "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
     add_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
     add_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
