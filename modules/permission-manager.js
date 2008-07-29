@@ -13,7 +13,113 @@
 
 let permission_manager = Cc["@mozilla.org/permissionmanager;1"].getService(Ci.nsIPermissionManager);
 
-interactive("permission-manager", "View or edit the host-specific"
+let get_spaces = function get_spaces(n) {
+    var x = "";
+    while (x.length < n) x += " ";
+    return x;
+}
+
+let word_wrap = function word_wrap(str, line_length, line_prefix_first, line_prefix) {
+    if (line_prefix === undefined)
+        line_prefix = line_prefix_first;
+    else if (line_prefix.length < line_prefix_first.length) {
+        line_prefix += get_spaces(line_prefix_first.length - line_prefix.length);
+    }
+
+    line_length -= line_prefix_first.length;
+
+    if (line_length < 1)
+        line_length = 1;
+
+    let cur_prefix = line_prefix_first;
+
+    var out = "";
+    while (line_length < str.length) {
+        let i = str.lastIndexOf(" ", line_length);
+        if (i == -1)
+            i = str.indexOf(" ", line_length);
+        if (i == -1) {
+            out += cur_prefix + str + "\n";
+            str = "";
+        }
+        else  {
+            out += cur_prefix + str.substr(0, i) + "\n";
+            while (i < str.length && str.charAt(i) ==  " ")
+                ++i;
+            str = str.substr(i + 1);
+        }
+        cur_prefix = line_prefix;
+    }
+    if (str.length > 0)
+        out += cur_prefix + str + "\n";
+    return out;
+}
+
+let permission_types = {
+    popup : {desc: "specifies a whitelist and blacklist for the popup blocker",
+             values: [ ["allow", Ci.nsIPermissionManager.ALLOW_ACTION],
+                       ["deny", Ci.nsIPermissionManager.DENY_ACTION], ],
+             related_prefs: [
+                 [ "dom.disable_open_during_load",
+                   "This preference defines the default behavior of whether " +
+                   "unrequested popups are allowed for sites not listed in the permission list." ],
+                 [ "dom.popup_maximum", "The number of pop-ups to allow from a single non-click event."] ]
+            },
+
+    cookie : {desc: "specifies per-host cookie policies",
+              values: [
+                  ["allow", Ci.nsIPermissionManager.ALLOW_ACTION],
+                  ["session", Ci.nsICookiePermission.ACCESS_SESSION, "expire matching cookies when the browser exits"],
+                  ["deny", Ci.nsIPermissionManager.DENY_ACTION], ],
+              related_prefs: [
+                  [ "network.cookie.lifetime.behavior.enabled" ],
+                  [ "network.cookie.cookieBehavior",
+                    "This preference defines the default cookie behavior for sites not listed in the " +
+                    "permission list.  The value 0 means to enable all cookies, 1 means to reject " +
+                    "only third-party cookies, and 2 means to reject all cookies." ],
+                  [ "network.cookie.lifetime.behavior",
+                    "If network.cookie.lifetime.behavior.enabled is set to true, a value of 0 means all " +
+                    "cookies expire at the end of the current session,  while a value of 1 means that " +
+                    "cookies expire after the number of days specified by network.cookie.lifetime.days."
+                  ],
+                  [ "network.cookie.lifetime.days" ] ]
+             },
+
+
+    image : {desc: "specifies per-host image automatic loading policies",
+              values: [
+                  ["allow", Ci.nsIPermissionManager.ALLOW_ACTION],
+                  ["deny", Ci.nsIPermissionManager.DENY_ACTION], ],
+              related_prefs: [
+                  [ "permissions.default.image", "This prefreence defines the default image loading policy "
+                                                 + "for sites not listed in the permission list.  The value "
+                                                 + "1 means all images should be loaded, 2 means no images "
+                                                 + "should be loaded, and 3 means only third-party images "
+                                                 + "are blocked." ] ]
+            },
+
+    install : {desc: "specifies a whitelist of sites from which XPI files may be opened",
+              values: [
+                  ["allow", Ci.nsIPermissionManager.ALLOW_ACTION] ]
+              }
+};
+
+/*
+ * cookie
+ *
+ *
+ *
+ * popup
+ *   dom.popup_maximum  -  The number of pop-ups to allow from a single non-click event
+ *
+ *   dom.popup_allowed_events
+ *
+ *   dom.disable_open_during_load - This preference defines the default behavior of whether unrequested popups are allowed for sites not listed in the permission list.
+ *
+ *
+ */
+
+interactive("permission-manager", "View or edit the host-specific "
             + "permission list.\nThis list is used for the popup"
             + "blocker whitelist, among other things.",
             function (I) {
@@ -22,15 +128,9 @@ interactive("permission-manager", "View or edit the host-specific"
                 let existing_perms = new string_hashmap();
 
                 var file_buf =
-                    "# Permission list\n\n" +
-                    "# syntax: <domain> <type> <permission>\n\n" +
-                    "# Common types: \n" +
-                    "#   popup - whitelist/blacklist for the popup blocker\n\n" +
-                    "# Permission values: (any non-negative integer is permitted)\n" +
-                    "#   allow - equal to " + Ci.nsIPermissionManager.ALLOW_ACTION + "\n" +
-                    "#   deny - equal to " + Ci.nsIPermissionManager.DENY_ACTION + "\n\n";
+                    "# -*- conf -*-\n" +
+                    "# Permission list\n\n";
 
-                // Prefix has 11 lines
 
                 {
                     let e = permission_manager.enumerator;
@@ -49,29 +149,62 @@ interactive("permission-manager", "View or edit the host-specific"
                         arr.push([host, type, cap]);
                         existing_perms.put([host, type], cap);
                     }
-                    let get_spaces = function (n) {
-                        var x = "";
-                        while (x.length < n) x += " ";
-                        return x;
-                    }
                     ++max_host_len;
                     ++max_type_len;
                     let max_host = get_spaces(max_host_len);
                     let max_type = get_spaces(max_type_len);
                     for (let i = 0; i < arr.length; ++i) {
                         let [host, type, cap] = arr[i];
-                        if (cap == Ci.nsIPermissionManager.ALLOW_ACTION)
-                            cap = "allow";
-                        else if (cap == Ci.nsIPermissionManager.DENY_ACTION)
-                            cap = "deny";
+                        if (permission_types.hasOwnProperty(type)) {
+                            let values = permission_types[type].values;
+                            for (let j = 0; j < values.length; ++j) {
+                                if (cap == values[j][1]) {
+                                    cap = values[j][0];
+                                    break;
+                                }
+                            }
+                        }
                         file_buf += host + max_host.substr(host.length) + type + max_type.substr(type.length) + cap + "\n";
                     }
+
+                    if (arr.length == 0)
+                        file_buf += "\n";
                 }
 
+                file_buf += "\n" +
+                    "# entry syntax (one per line): <domain> <type> <permission>\n\n" +
+                    "# example: google.com popup allow\n\n" +
+
+                    word_wrap("The <domain> must be a valid domain name.  Depending on the <type>, only exact " +
+                              "matches may be used, or alternatively it may match any sub-domain if a more " +
+                              "specific entry is not found.", 80, "# ") + "\n" +
+                    "# The possible values for the permission <type> include:\n";
+                for (let type in permission_types) {
+                    let data = permission_types[type];
+                    file_buf += "#   " + type + " - " + data.desc + "\n\n";
+                    file_buf += "#     Supported <permission> values:\n";
+                    for (let i = 0; i < data.values.length; ++i) {
+                        let x = data.values[i];
+                        file_buf += "#       " + x[0] + " (" + x[1] + ")";
+                        if (x[3])
+                            file_buf += " - " + x[3];
+                        file_buf += "\n";
+                    }
+                    if (data.related_prefs && data.related_prefs.length > 0) {
+                        file_buf += "\n#     Related Mozilla preferences:\n"
+                        for (let i = 0; i < data.related_prefs.length; ++i) {
+                            let x = data.related_prefs[i];
+                            file_buf += "#       " + x[0] + " = " + get_pref(x[0]) + "\n";
+                            if (x.length > 1) {
+                                file_buf += word_wrap(x[1], 80, "#         ", "#") + "\n";
+                            }
+                        }
+                    }
+                }
                 var file = null;
                 try {
                     file = get_temporary_file("permissions.txt");
-                    let line = 12;
+                    let line = 4;
 
                     outer: while (1) {
 
@@ -86,6 +219,8 @@ interactive("permission-manager", "View or edit the host-specific"
 
                         // Parse
                         let lines = new_buf.split("\n");
+                        if (lines[lines.length - 1].length == 0) // Remove extra line at end
+                            lines.length = lines.length - 1;
                         let arr = [];
                         let prev_entries = new string_hashset();
                         for (let i = 0; i < lines.length; ++i) {
@@ -107,14 +242,20 @@ interactive("permission-manager", "View or edit the host-specific"
                                 if (parts.length < 3)
                                     throw "missing permission value";
                                 let cap = parts[2];
-                                if (!/allow|deny|([0-9]+)/.test(cap))
+                                if (permission_types.hasOwnProperty(type)) {
+                                    let values = permission_types[type].values;
+                                    for (let i = 0; i < values.length; ++i) {
+                                        if (cap == values[i][0]) {
+                                            cap = values[i][1];
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (!/([0-9]+)/.test(cap))
                                     throw "invalid permission value: " + cap;
-                                if (cap == "allow")
-                                    cap = Ci.nsIPermissionManager.ALLOW_ACTION;
-                                else if (cap == "deny")
-                                    cap = Ci.nsIPermissionManager.DENY_ACTION;
-                                else
-                                    cap = parseInt(cap);
+                                cap = parseInt(cap);
+                                if (parts.length > 3)
+                                    throw "too many terms";
                                 if (prev_entries.contains([host,type]))
                                     throw "duplicate entry";
                                 prev_entries.add([host,type]);
@@ -122,7 +263,7 @@ interactive("permission-manager", "View or edit the host-specific"
                             } catch (syntax_err) {
                                 line = i + 1;
                                 lines.splice(i+1, 0, "# ERROR on previous line: " + syntax_err, "");
-                                file_buf = lines.join("\n");
+                                file_buf = lines.join("\n") + "\n";
                                 I.minibuffer.message("Correct the syntax error in the permissions list, " +
                                                      "or close the editor to abort.");
                                 continue outer;
