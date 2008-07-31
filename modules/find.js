@@ -1,10 +1,18 @@
 /**
  * (C) Copyright 2004-2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 Jeremy Maitin-Shepard*
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
+
+const CARET_PREF = 'accessibility.browsewithcaret';
+
+function caret_enabled()
+{
+    return get_pref(CARET_PREF);
+}
 
 // turn on the selection in all frames
 function getFocusedSelCtrl(window)
@@ -38,7 +46,17 @@ function initial_isearch_state(frame, forward)
     this.screeny = frame.scrollY;
     this.search_str = "";
     this.wrapped = false;
-    this.point = null;
+    if (caret_enabled()) {
+        let sel = frame.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+        if(sel.rangeCount > 0) {
+            this.point = sel.getRangeAt(0);
+            this.caret = this.point.cloneRange();
+        } else {
+            this.point = null;
+        }
+    } else {
+        this.point = null;
+    }
     this.range = frame.document.createRange();
     this.selection = null;
     this.direction = forward;
@@ -232,6 +250,14 @@ isearch_session.prototype = {
         } while ((node = node.parentNode));
     },
 
+    collapse_selection : function() {
+        const selctrlcomp = Components.interfaces.nsISelectionController;
+        var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
+        if(sel.rangeCount > 0) {
+            sel.getRangeAt(0).collapse(true);
+        }
+    },
+
     handle_input : function (m) {
         m._set_selection();
         this.find(m._input_text, this.top.direction, this.top.point);
@@ -243,7 +269,11 @@ isearch_session.prototype = {
     destroy : function () {
         if (!this.done)  {
             this.frame.scrollTo(this.states[0].screenx, this.states[0].screeny);
-            this._clear_selection();
+            if (caret_enabled() && this.states[0].caret) {
+                this._set_selection(this.states[0].caret);
+            } else {
+                this._clear_selection();
+            }
         }
     }
 };
@@ -297,6 +327,6 @@ function isearch_done (window)
     window.minibuffer.pop_state();
     window.isearch_last_search = s.top.search_str;
     s.focus_link();
-    s._clear_selection();
+    s.collapse_selection();
 }
 interactive("isearch-done", function (I) {isearch_done(I.window);});
