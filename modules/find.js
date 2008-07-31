@@ -1,7 +1,7 @@
 /**
  * (C) Copyright 2004-2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2008 Jeremy Maitin-Shepard*
+ * (C) Copyright 2008 Nelson Elhage
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
