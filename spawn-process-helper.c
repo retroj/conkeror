@@ -224,6 +224,9 @@ int main(int argc, char **argv) {
   /* Block SIGPIPE to avoid a signal being generated while writing to a socket */
   signal(SIGPIPE, SIG_IGN);
 
+  /* Close STDIN as we don't need it */
+  close(STDIN_FILENO);
+
   /* Parse key file */
   {
     char *buf;
