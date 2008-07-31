@@ -303,7 +303,7 @@ interactive("edit-current-field-in-external-editor", "Edit the contents of the c
             function (I) {
                 var buf = I.buffer;
                 yield edit_field_in_external_editor(buf, buf.focused_element);
-                unfocus(buf);
+                unfocus(I.window, buf);
             });
 
 define_variable("kill_whole_line", false, "If true, `kill-line' with no arg at beg of line kills the whole line.");

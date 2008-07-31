@@ -39,6 +39,20 @@ function getFocusedSelCtrl(window)
       .QueryInterface(Components.interfaces.nsISelectionController);
 }
 
+function clear_selection(window) {
+    let sel_ctrl = getFocusedSelCtrl(window);
+    if (sel_ctrl) {
+        let sel = sel_ctrl.getSelection(sel_ctrl.SELECTION_NORMAL);
+        if(caret_enabled()) {
+            if(sel.rangeCount > 0) {
+                sel.getRangeAt(0).collapse(true);
+            }
+        } else {
+            sel.removeAllRanges();
+        }
+    }
+}
+
 
 function initial_isearch_state(frame, forward)
 {

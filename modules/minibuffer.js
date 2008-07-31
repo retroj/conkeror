@@ -48,7 +48,8 @@ define_builtin_commands(
         I.minibuffer.current_state.mark_active = !I.minibuffer.current_state.mark_active;
     },
 
-    function (I) I.minibuffer.current_state.mark_active
+    function (I) I.minibuffer.current_state.mark_active,
+    false
 );
 
 function minibuffer_state(keymap, use_input_mode)

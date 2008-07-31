@@ -654,7 +654,7 @@ interactive("shell-command", function (I) {
     yield shell_command(cmd, $cwd = cwd);
 });
 
-function unfocus(buffer)
+function unfocus(window, buffer)
 {
     var elem = buffer.focused_element;
     if (elem) {
@@ -664,10 +664,11 @@ function unfocus(buffer)
     var win = buffer.focused_frame;
     if (win != buffer.top_frame)
         return;
+    clear_selection(window);
     buffer.top_frame.focus();
 }
 interactive("unfocus", function (I) {
-    unfocus(I.buffer);
+    unfocus(I.window, I.buffer);
     I.window.minibuffer.message("unfocus");
 });
 
