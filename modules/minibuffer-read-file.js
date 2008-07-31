@@ -62,7 +62,7 @@ function file_path_completer() {
             if(!dir.exists()) return null;
             var iter = dir.directoryEntries;
             while(iter.hasMoreElements()) {
-                var e = iter.getNext();
+                var e = iter.getNext().QueryInterface(Ci.nsIFile);
                 ents.push(e.path);
             }
         } catch(e) {
