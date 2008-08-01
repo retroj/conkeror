@@ -31,7 +31,16 @@ while [[ "$1" = -* ]]; do
     shift
 done
 
-
+function assert () {
+    "$@"
+    if [[ $? != 0 ]]; then
+        echo fail
+        echo command failed: "$@"
+        exit 1
+    else
+        echo ok
+    fi
+}
 
 function assert_conkeror_src () {
     if  [[ ! -e build.sh ]]; then
@@ -64,8 +73,7 @@ fi
 
 
 echo -n "Installing conkeror to $PREFIX/lib/conkeror ..."
-xulrunner --install-app conkeror.xulapp "$PREFIX/lib/"
-echo ok
+assert xulrunner --install-app conkeror.xulapp "$PREFIX/lib/"
 
 echo -n "Installing spawn-process-helper to $PREFIX/lib/conkeror ..."
 cp spawn-process-helper $PREFIX/lib/conkeror/
