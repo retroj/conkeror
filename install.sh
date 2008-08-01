@@ -6,10 +6,6 @@
 # Use, modification, and distribution are subject to the terms specified in the
 # COPYING file.
 
-## exit as soon as a command fails
-##
-set -e
-
 ## BUILD
 ##
 ##   Whether to build the xulapp.  This is just a shortcut for developers and hackers.
@@ -35,7 +31,13 @@ while [[ "$1" = -* ]]; do
     shift
 done
 
-
+function assert () {
+    "$@"
+    if [[ $? != 0 ]]; then
+        echo command failed: "$@"
+        exit 1
+    fi
+}
 
 function assert_conkeror_src () {
     if  [[ ! -e build.sh ]]; then
@@ -68,7 +70,7 @@ fi
 
 
 echo -n "Installing conkeror to $PREFIX/lib/conkeror ..."
-xulrunner --install-app conkeror.xulapp "$PREFIX/lib/"
+assert xulrunner --install-app conkeror.xulapp "$PREFIX/lib/"
 echo ok
 
 echo -n "Installing spawn-process-helper to $PREFIX/lib/conkeror ..."
