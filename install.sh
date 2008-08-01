@@ -6,6 +6,10 @@
 # Use, modification, and distribution are subject to the terms specified in the
 # COPYING file.
 
+## exit as soon as a command fails
+##
+set -e
+
 ## BUILD
 ##
 ##   Whether to build the xulapp.  This is just a shortcut for developers and hackers.
