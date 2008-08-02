@@ -14,6 +14,7 @@ require("bindings/default/content-buffer/textarea.js");
 require("bindings/default/content-buffer/richedit.js");
 require("bindings/default/content-buffer/select.js");
 require("bindings/default/content-buffer/quote.js");
+require("bindings/default/content-buffer/caret.js");
 
 require("bindings/default/minibuffer.js");
 require("bindings/default/hints.js");

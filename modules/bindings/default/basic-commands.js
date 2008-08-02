@@ -11,29 +11,26 @@ function bind_scroll_keys(keymap)
 {
     define_key(keymap, "back_space", "cmd_scrollPageUp", $category = "Scrolling");
     define_key(keymap, "space","cmd_scrollPageDown", $category = "Scrolling");
-    define_key(keymap, "M-v","backward-page", $category = "Scrolling");
-    define_key(keymap, "C-v","forward-page", $category = "Scrolling");
-    define_key(keymap, "page_up","forward-page", $category = "Scrolling");
-    define_key(keymap, "page_down","backward-page", $category = "Scrolling");
-    define_key(keymap, "C-n","forward-line", $category = "Scrolling");
-    define_key(keymap, "C-p","backward-line", $category = "Scrolling");
+    define_key(keymap, "M-v","cmd_scrollPageUp", $category = "Scrolling");
+    define_key(keymap, "C-v","cmd_scrollPageDown", $category = "Scrolling");
+    define_key(keymap, "page_up","cmd_scrollPageUp", $category = "Scrolling");
+    define_key(keymap, "page_down","cmd_scrollPageDown", $category = "Scrolling");
+    define_key(keymap, "C-p","cmd_scrollLineUp", $category = "Scrolling");
+    define_key(keymap, "C-n","cmd_scrollLineDown", $category = "Scrolling");
 
-    define_key(keymap, "up","backward-line", $category = "Scrolling");
-    define_key(keymap, "down","forward-line", $category = "Scrolling");
+    define_key(keymap, "up","cmd_scrollLineUp", $category = "Scrolling");
+    define_key(keymap, "down","cmd_scrollLineDown", $category = "Scrolling");
     define_key(keymap, "left","cmd_scrollLeft", $category = "Scrolling");
     define_key(keymap, "right","cmd_scrollRight", $category = "Scrolling");
 
-    define_key(keymap, "M-f","forward-word", $category = "Scrolling");
-    define_key(keymap, "M-b","backward-word", $category = "Scrolling");
-
-    define_key(keymap, "C-b","backward-char", $category = "Scrolling");
-    define_key(keymap, "C-f","forward-char", $category = "Scrolling");
-    define_key(keymap, "C-a","beginning-of-line", $category = "Scrolling");
-    define_key(keymap, "C-e","end-of-line", $category = "Scrolling");
-    define_key(keymap, "M-<","beginning-of-first-line", $category = "Scrolling");
-    define_key(keymap, "M->","end-of-last-line", $category = "Scrolling");
-    define_key(keymap, "home","beginning-of-first-line", $category = "Scrolling");
-    define_key(keymap, "end","end-of-last-line", $category = "Scrolling");
+    define_key(keymap, "C-b","cmd_scrollLeft", $category = "Scrolling");
+    define_key(keymap, "C-f","cmd_scrollRight", $category = "Scrolling");
+    define_key(keymap, "C-a","scroll-beginning-of-line", $category = "Scrolling");
+    define_key(keymap, "C-e","scroll-end-of-line", $category = "Scrolling");
+    define_key(keymap, "M-<","cmd_scrollTop", $category = "Scrolling");
+    define_key(keymap, "M->","cmd_scrollBottom", $category = "Scrolling");
+    define_key(keymap, "home","cmd_scrollTop", $category = "Scrolling");
+    define_key(keymap, "end","cmd_scrollBottom", $category = "Scrolling");
 }
 
 
