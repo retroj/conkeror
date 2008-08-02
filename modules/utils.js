@@ -581,6 +581,25 @@ function session_pref (name, value) {
     return default_pref (name, value);
 }
 
+function watch_pref(pref, hook) {
+    /* Extract pref into branch.pref */
+    let match = pref.match(/^(.*[.])?([^.]*)$/);
+    let br = match[1];
+    let key = match[2];
+    dumpln("watch:" + br + ":" + key);
+    let branch = preferences.getBranch(br).QueryInterface(Ci.nsIPrefBranch2);
+    let observer = {
+        observe: function (subject, topic, data) {
+            dumpln("watch_pref: " + subject + ":" + topic + ":" + data);
+            if (topic == "nsPref:changed" && data == key) {
+                hook();
+            }
+        }
+    };
+
+    branch.addObserver("", observer, false);
+}
+
 const LOCALE_PREF = "general.useragent.locale";
 
 function get_locale() {
