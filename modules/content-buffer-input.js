@@ -152,6 +152,15 @@ define_buffer_mode('caret_mode', 'CARET',
                        content_buffer_update_input_mode_for_focus(buffer, true);
                    });
 
+watch_pref(CARET_PREF, function() {
+               if (get_pref(CARET_PREF)) {
+                   session_pref(CARET_PREF, false);
+                   let window = window_watcher.activeWindow;
+                   let buffer = window.buffers.current;
+                   caret_mode(buffer);
+               }
+           });
+
 interactive("content-buffer-update-input-mode-for-focus", function (I) {
     content_buffer_update_input_mode_for_focus(I.buffer, true);
 });
