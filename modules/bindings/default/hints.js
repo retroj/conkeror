@@ -21,5 +21,6 @@ define_key(hint_keymap, "S-tab", "hints-previous");
 define_key(hint_keymap, "left", "hints-previous");
 define_key(hint_keymap, "up", "hints-previous");
 define_key(hint_keymap, "escape", "minibuffer-abort");
+define_key(hint_keymap, "M-escape", "minibuffer-abort");
 define_key(hint_keymap, "C-g", "minibuffer-abort");
 define_key(hint_keymap, "return", "hints-exit");

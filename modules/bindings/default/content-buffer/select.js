@@ -33,3 +33,4 @@ define_key(content_buffer_select_keymap, match_any_unmodified_key, null, $fallth
 //define_key(content_buffer_select_keymap, match_any_key, null, $fallthrough);
 
 define_key(content_buffer_select_keymap, "escape", "unfocus"); // leave text input mode
+define_key(content_buffer_select_keymap, "M-escape", "unfocus");

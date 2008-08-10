@@ -31,6 +31,7 @@ define_key(content_buffer_normal_keymap, "C-g", "stop-loading");
 define_key(content_buffer_normal_keymap, "C-return", "follow-link-in-new-buffer");
 
 define_key(content_buffer_normal_keymap, "escape", "unfocus");
+define_key(content_buffer_normal_keymap, "M-escape", "unfocus");
 
 define_key(content_buffer_normal_keymap, "C-q", "quote-next-input-mode");
 define_key(content_buffer_normal_keymap, "C-M-q", "quote-input-mode");

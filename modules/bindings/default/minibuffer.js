@@ -72,6 +72,7 @@ define_key (minibuffer_keymap, "C-n", "minibuffer-complete");
 define_key (minibuffer_keymap, "C-p", "minibuffer-complete-previous");
 
 define_key (minibuffer_keymap, "escape", "minibuffer-abort");
+define_key (minibuffer_keymap, "M-escape", "minibuffer-abort");
 
 // }}}
 
@@ -82,6 +83,7 @@ define_key(single_character_options_minibuffer_keymap, "C-g", "minibuffer-abort"
 define_key(single_character_options_minibuffer_keymap, match_any_unmodified_key,
            "single-character-options-enter-character");
 define_key(single_character_options_minibuffer_keymap, "escape", "minibuffer-abort");
+define_key(single_character_options_minibuffer_keymap, "M-escape", "minibuffer-abort");
 
 // }}}
 
