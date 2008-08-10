@@ -264,7 +264,8 @@ function match_any_unmodified_key (event)
     try {
         return event.charCode
             && !meta_pressed(event)
-            && !event.ctrlKey;
+            && !event.ctrlKey
+            && !event.sticky_modifiers;
     } catch (e) {return false; }
 }
 
