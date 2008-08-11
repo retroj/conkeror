@@ -139,15 +139,17 @@ function handle_command_line(cmdline)
                         }
                     }
                     continue;
+                } else {
+                    dump ("w: unknown command switch `"+arg+"'.\n");
                 }
+            } else {
+                // something other than a switch was passed on the command
+                // line.  suppress the default window, and call the
+                // user-configurable remoting function on it.
+                //
+                suppress_default = true;
+                url_remoting_fn (arg, ctx);
             }
-
-            // something other than a switch was passed on the command
-            // line.  suppress the default window, and call the
-            // user-configurable remoting function on it.
-            //
-            suppress_default = true;
-            url_remoting_fn (arg, ctx);
         }
 
         // we are greedy and handle all command line arguments.  remove
