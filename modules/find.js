@@ -1,17 +1,18 @@
 /**
  * (C) Copyright 2004-2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2008 Jeremy Maitin-Shepard*
+ * (C) Copyright 2008 Nelson Elhage
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
 const CARET_PREF = 'accessibility.browsewithcaret';
+const CARET_ATTRIBUTE = 'showcaret';
 
-function caret_enabled()
+function caret_enabled(buffer)
 {
-    return get_pref(CARET_PREF);
+    return buffer.browser.getAttribute(CARET_ATTRIBUTE);
 }
 
 // turn on the selection in all frames
@@ -39,14 +40,28 @@ function getFocusedSelCtrl(window)
       .QueryInterface(Components.interfaces.nsISelectionController);
 }
 
+function clear_selection(window, buffer) {
+    let sel_ctrl = getFocusedSelCtrl(window);
+    if (sel_ctrl) {
+        let sel = sel_ctrl.getSelection(sel_ctrl.SELECTION_NORMAL);
+        if(caret_enabled(buffer)) {
+            if(sel.anchorNode) {
+                sel.collapseToStart();
+            }
+        } else {
+            sel.removeAllRanges();
+        }
+    }
+}
 
-function initial_isearch_state(frame, forward)
+
+function initial_isearch_state(buffer, frame, forward)
 {
     this.screenx = frame.scrollX;
     this.screeny = frame.scrollY;
     this.search_str = "";
     this.wrapped = false;
-    if (caret_enabled()) {
+    if (caret_enabled(buffer)) {
         let sel = frame.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
         if(sel.rangeCount > 0) {
             this.point = sel.getRangeAt(0);
@@ -65,11 +80,12 @@ function initial_isearch_state(frame, forward)
 function isearch_session(window, forward)
 {
     this.states = [];
-    this.frame = window.buffers.current.focused_frame;
+    this.buffer = window.buffers.current;
+    this.frame = this.buffer.focused_frame;
     this.sel_ctrl = getFocusedSelCtrl(window);
     this.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
     this.sel_ctrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    this.states.push(new initial_isearch_state(this.frame, forward));
+    this.states.push(new initial_isearch_state(this.buffer, this.frame, forward));
     this.window = window;
 
     minibuffer_input_state.call(this, isearch_keymap, "");
@@ -269,7 +285,7 @@ isearch_session.prototype = {
     destroy : function () {
         if (!this.done)  {
             this.frame.scrollTo(this.states[0].screenx, this.states[0].screeny);
-            if (caret_enabled() && this.states[0].caret) {
+            if (caret_enabled(this.buffer) && this.states[0].caret) {
                 this._set_selection(this.states[0].caret);
             } else {
                 this._clear_selection();

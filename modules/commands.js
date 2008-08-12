@@ -135,7 +135,25 @@ define_builtin_commands(
     function (I) {
         I.buffer.mark_active = !I.buffer.mark_active;
     },
-    function (I) I.buffer.mark_active
+    function (I) I.buffer.mark_active,
+    false
+);
+
+define_builtin_commands(
+    "caret-",
+    function (I, command) {
+        var buffer = I.buffer;
+        try {
+            buffer.do_command(command);
+        } catch (e) {
+            /* Ignore exceptions */
+        }
+    },
+    function (I) {
+        I.buffer.mark_active = !I.buffer.mark_active;
+    },
+    function (I) I.buffer.mark_active,
+    true
 );
 
 function get_link_text()

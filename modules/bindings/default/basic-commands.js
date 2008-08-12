@@ -40,6 +40,7 @@ function bind_selection_keys(keymap)
     define_key(keymap, "S-page_up", "cmd_selectPageUp", $category = "Selection");
     define_key(keymap, "S-page_down", "cmd_selectPageDown", $category = "Selection");
     define_key(keymap, "C-delete", "cmd_copy", $category = "Selection");
+    define_key(keymap, "C-space", "set-mark", $category = "Selection");
     define_key(keymap, "C-insert", "cmd_copy", $category = "Selection");
     define_key(keymap, "C-S-home", "cmd_selectTop", $category = "Selection");
     define_key(keymap, "C-S-end", "cmd_selectBottom", $category = "Selection");

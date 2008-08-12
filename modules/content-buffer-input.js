@@ -57,6 +57,8 @@ define_input_mode(
         "bypassing Conkeror's normal key handling, until the "+
         "Escape key is pressed.");
 
+define_input_mode("caret", null, "content_buffer_caret_keymap");
+
 function content_buffer_update_input_mode_for_focus(buffer, force) {
     var mode = buffer.input_mode;
     var form_input_mode_enabled = (mode == "text_input_mode" ||
@@ -129,6 +131,35 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 }
 
 add_hook("content_buffer_focus_change_hook", function (buf) { content_buffer_update_input_mode_for_focus(buf, false); } );
+
+define_buffer_mode('caret_mode', 'CARET',
+                   $enable = function(buffer) {
+                       buffer.browser.setAttribute('showcaret', 'true');
+                       let sc = getFocusedSelCtrl(buffer.window);
+                       let s = sc.getSelection(sc.SELECTION_NORMAL);
+                       if(s.anchorNode) {
+                           s.collapseToStart();
+                       } else {
+                           s.collapse(buffer.document.body, 0);
+                       }
+                       sc.setCaretEnabled(true);
+                       buffer.top_frame.focus();
+                       caret_input_mode(buffer, true);
+                   },
+                   $disable = function(buffer) {
+                       buffer.browser.setAttribute('showcaret', '');
+                       buffer.browser.focus();
+                       content_buffer_update_input_mode_for_focus(buffer, true);
+                   });
+
+watch_pref(CARET_PREF, function() {
+               if (get_pref(CARET_PREF)) {
+                   session_pref(CARET_PREF, false);
+                   let window = window_watcher.activeWindow;
+                   let buffer = window.buffers.current;
+                   caret_mode(buffer);
+               }
+           });
 
 interactive("content-buffer-update-input-mode-for-focus", function (I) {
     content_buffer_update_input_mode_for_focus(I.buffer, true);
@@ -303,7 +334,7 @@ interactive("edit-current-field-in-external-editor", "Edit the contents of the c
             function (I) {
                 var buf = I.buffer;
                 yield edit_field_in_external_editor(buf, buf.focused_element);
-                unfocus(buf);
+                unfocus(I.window, buf);
             });
 
 define_variable("kill_whole_line", false, "If true, `kill-line' with no arg at beg of line kills the whole line.");

@@ -581,6 +581,25 @@ function session_pref (name, value) {
     return default_pref (name, value);
 }
 
+function watch_pref(pref, hook) {
+    /* Extract pref into branch.pref */
+    let match = pref.match(/^(.*[.])?([^.]*)$/);
+    let br = match[1];
+    let key = match[2];
+    dumpln("watch:" + br + ":" + key);
+    let branch = preferences.getBranch(br).QueryInterface(Ci.nsIPrefBranch2);
+    let observer = {
+        observe: function (subject, topic, data) {
+            dumpln("watch_pref: " + subject + ":" + topic + ":" + data);
+            if (topic == "nsPref:changed" && data == key) {
+                hook();
+            }
+        }
+    };
+
+    branch.addObserver("", observer, false);
+}
+
 const LOCALE_PREF = "general.useragent.locale";
 
 function get_locale() {
@@ -593,7 +612,7 @@ function set_user_agent(str) {
     session_pref(USER_AGENT_OVERRIDE_PREF, str);
 }
 
-function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_active_predicate) {
+function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_active_predicate, scroll) {
 
     // Specify a docstring
     function D(cmd, docstring) {
@@ -609,21 +628,28 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         return o;
     }
 
-    // Specify a movement/select command pair.
-    function S(command, movement, select) {
-        var o = [movement, select];
+    // Specify a movement/select/scroll command pair.
+    function S(command, movement, select, scroll) {
+        var o = [movement, select, scroll];
         o.command = command;
         o.is_move_select_pair = true;
         return o;
     }
 
     var builtin_commands = [
+
+        /*
+         * cmd_scrollBeginLine and cmd_scrollEndLine don't do what I
+         * want, either in or out of caret mode...
+         */
         S(D("beginning-of-line", "Move or extend the selection to the beginning of the current line."),
           D("cmd_beginLine", "Move point to the beginning of the current line."),
-          D("cmd_selectBeginLine", "Extend selection to the beginning of the current line.")),
+          D("cmd_selectBeginLine", "Extend selection to the beginning of the current line."),
+          D("cmd_beginLine", "Scroll to the beginning of the line")),
         S(D("end-of-line", "Move or extend the selection to the end of the current line."),
           D("cmd_endLine", "Move point to the end of the current line."),
-          D("cmd_selectEndLine", "Extend selection to the end of the current line.")),
+          D("cmd_selectEndLine", "Extend selection to the end of the current line."),
+          D("cmd_endLine", "Scroll to the end of the current line.")),
         D("cmd_copy", "Copy the selection into the clipboard."),
         "cmd_copyOrDelete",
         D("cmd_cut", "Cut the selection into the clipboard."),
@@ -632,10 +658,12 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         D("cmd_deleteToEndOfLine", "Delete to the end of the current line."),
         S(D("beginning-of-first-line", "Move or extend the selection to the beginning of the first line."),
           D("cmd_moveTop", "Move point to the beginning of the first line."),
-          D("cmd_selectTop", "Extend selection to the beginning of the first line.")),
+          D("cmd_selectTop", "Extend selection to the beginning of the first line."),
+          D("cmd_scrollTop", "Scroll to the top of the buffer")),
         S(D("end-of-last-line", "Move or extend the selection to the end of the last line."),
           D("cmd_moveBottom", "Move point to the end of the last line."),
-          D("cmd_selectBottom", "Extend selection to the end of the last line.")),
+          D("cmd_selectBottom", "Extend selection to the end of the last line."),
+          D("cmd_scrollBottom", "Scroll to the bottom of the buffer")),
         D("cmd_selectAll", "Select all."),
         "cmd_scrollBeginLine",
         "cmd_scrollEndLine",
@@ -645,34 +673,42 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
     var builtin_commands_with_count = [
         R(S(D("forward-char", "Move or extend the selection forward one character."),
             D("cmd_charNext", "Move point forward one character."),
-            D("cmd_selectCharNext", "Extend selection forward one character.")),
+            D("cmd_selectCharNext", "Extend selection forward one character."),
+            D("cmd_scrollRight", "Scroll to the right")),
           S(D("backward-char", "Move or extend the selection backward one character."),
             D("cmd_charPrevious", "Move point backward one character."),
-            D("cmd_selectCharPrevious", "Extend selection backward one character."))),
+            D("cmd_selectCharPrevious", "Extend selection backward one character."),
+            D("cmd_scrollLeft", "Scroll to the left."))),
         R(D("cmd_deleteCharForward", "Delete the following character."),
           D("cmd_deleteCharBackward", "Delete the previous character.")),
         R(D("cmd_deleteWordForward", "Delete the following word."),
           D("cmd_deleteWordBackward", "Delete the previous word.")),
         R(S(D("forward-line", "Move or extend the selection forward one line."),
             D("cmd_lineNext", "Move point forward one line."),
-            "cmd_selectLineNext", "Extend selection forward one line."),
+            D("cmd_selectLineNext", "Extend selection forward one line."),
+            D("cmd_scrollLineDown", "Scroll down one line.")),
           S(D("backward-line", "Move or extend the selection backward one line."),
             D("cmd_linePrevious", "Move point backward one line."),
-            D("cmd_selectLinePrevious", "Extend selection backward one line."))),
+            D("cmd_selectLinePrevious", "Extend selection backward one line."),
+            D("cmd_scrollLineUp", "Scroll up one line."))),
         R(S(D("forward-page", "Move or extend the selection forward one page."),
             D("cmd_movePageDown", "Move point forward one page."),
-            D("cmd_selectPageDown", "Extend selection forward one page.")),
+            D("cmd_selectPageDown", "Extend selection forward one page."),
+            D("cmd_scrollPageDown", "Scroll forward one page.")),
           S(D("backward-page", "Move or extend the selection backward one page."),
             D("cmd_movePageUp", "Move point backward one page."),
-            D("cmd_selectPageUp", "Extend selection backward one page."))),
+            D("cmd_selectPageUp", "Extend selection backward one page."),
+            D("cmd_scrollPageUp", "Scroll backward one page."))),
         R(D("cmd_undo", "Undo last editing action."),
           D("cmd_redo", "Redo last editing action.")),
         R(S(D("forward-word", "Move or extend the selection forward one word."),
             D("cmd_wordNext", "Move point forward one word."),
-            D("cmd_selectWordNext", "Extend selection forward one word.")),
+            D("cmd_selectWordNext", "Extend selection forward one word."),
+            D("cmd_scrollRight", "Scroll to the right.")),
           S(D("backward-word", "Move or extend the selection backward one word."),
             D("cmd_wordPrevious", "Move point backward one word."),
-            D("cmd_selectWordPrevious", "Extend selection backward one word."))),
+            D("cmd_selectWordPrevious", "Extend selection backward one word."),
+            D("cmd_scrollLeft", "Scroll to the left."))),
         R(D("cmd_scrollPageUp", "Scroll up one page."),
           D("cmd_scrollPageDown", "Scroll down one page.")),
         R(D("cmd_scrollLineUp", "Scroll up one line."),
@@ -685,6 +721,11 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
                 "Toggle whether the mark is active.\n" +
                 "When the mark is active, movement commands affect the selection.",
                 toggle_mark);
+
+    function get_move_select_idx(I) {
+        return mark_active_predicate(I) ? 1 :
+            (scroll ? 2 : 0);
+    }
 
     function doc_for_builtin(c) {
         var s = "";
@@ -699,8 +740,8 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
 
     function get_move_select_doc_string(c) {
         return c.command.doc +
-            "\nSpecifically, if the mark is inactive, runs `" + prefix + c[0] + "'.  " +
-            "Otherwise, runs `" + prefix + c[1] + "'.\n" +
+            "\nSpecifically, if the mark is active, runs `" + prefix + c[1] + "'.  " +
+            "Otherwise, runs `" + prefix + c[scroll ? 0 : 2] + "'\n"
             "To toggle whether the mark is active, use `" + prefix + "set-mark'.";
     }
 
@@ -708,7 +749,8 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         let c = c_temp;
         if (c.is_move_select_pair) {
             interactive(prefix + c.command, get_move_select_doc_string(c), function (I) {
-                do_command_function(I, mark_active_predicate(I) ? c[1] : c[0]);
+                var idx = get_move_select_idx(I);
+                do_command_function(I, c[idx]);
             });
             define_simple_command(c[0]);
             define_simple_command(c[1]);
@@ -743,13 +785,13 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
                 interactive(prefix + c[0].command, get_reverse_pair_doc_string(get_move_select_doc_string(c[0]),
                                                                                c[1].command),
                             function (I) {
-                                var idx = mark_active_predicate(I) ? 1 : 0;
+                                var idx = get_move_select_idx(I);
                                 do_repeatedly(do_command_function, I.p, [I, c[0][idx]], [I, c[1][idx]]);
                             });
                 interactive(prefix + c[1].command, get_reverse_pair_doc_string(get_move_select_doc_string(c[1]),
                                                                                c[0].command),
                             function (I) {
-                                var idx = mark_active_predicate(I) ? 1 : 0;
+                                var idx = get_move_select_idx(I);
                                 do_repeatedly(do_command_function, I.p, [I, c[1][idx]], [I, c[0][idx]]);
                             });
                 define_simple_reverse_pair(c[0][0], c[1][0]);
