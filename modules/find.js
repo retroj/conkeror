@@ -2,6 +2,7 @@
  * (C) Copyright 2004-2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  * (C) Copyright 2008 Nelson Elhage
+ * (C) Copyright 2008 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -9,6 +10,10 @@
 
 const CARET_PREF = 'accessibility.browsewithcaret';
 const CARET_ATTRIBUTE = 'showcaret';
+
+define_variable("isearch_keep_selection", false,
+                "Set to `true' to make isearch leave the selection "+
+                "visible when a search is completed.");
 
 function caret_enabled(buffer)
 {
@@ -61,14 +66,11 @@ function initial_isearch_state(buffer, frame, forward)
     this.screeny = frame.scrollY;
     this.search_str = "";
     this.wrapped = false;
-    if (caret_enabled(buffer)) {
-        let sel = frame.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-        if(sel.rangeCount > 0) {
-            this.point = sel.getRangeAt(0);
+    let sel = frame.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    if(sel.rangeCount > 0) {
+        this.point = sel.getRangeAt(0);
+        if (caret_enabled(buffer))
             this.caret = this.point.cloneRange();
-        } else {
-            this.point = null;
-        }
     } else {
         this.point = null;
     }
@@ -257,9 +259,19 @@ isearch_session.prototype = {
         do {
             if (node.localName == "A") {
                 if (node.hasAttributes && node.attributes.getNamedItem("href")) {
-                    /* FIXME: This shouldn't be needed anymore, due to
-                     * better xpc wrappers */
-                    Components.lookupMethod(node, "focus").call(node);
+                    // if there is a selection, preserve it.  it is up
+                    // to the caller to decide whether or not to keep
+                    // the selection.
+                    var sel = this.frame.getSelection(
+                        Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+                    if(sel.rangeCount > 0) {
+                        var stored_selection = sel.getRangeAt(0).cloneRange();
+                    }
+                    node.focus();
+                    if (stored_selection) {
+                        sel.removeAllRanges();
+                        sel.addRange(stored_selection);
+                    }
                     return;
                 }
             }
@@ -294,15 +306,32 @@ isearch_session.prototype = {
     }
 };
 
+function isearch_continue_noninteractively(window, direction) {
+    var s = new isearch_session(window, direction);
+    if (window.isearch_last_search)
+        s.find(window.isearch_last_search, direction, s.top.point);
+    else
+        throw "No previous isearch";
+    window.minibuffer.push_state(s);
+    s.restore_state();
+    // if (direction && s.top.point !== null)
+    //    isearch_continue (window, direction);
+    isearch_done (window, true);
+}
+
 function isearch_continue(window, direction) {
     var s = window.minibuffer.current_state;
+    // if the minibuffer is not open, this command operates in
+    // non-interactive mode.
+    if (s == null)
+        return isearch_continue_noninteractively(window, direction);
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
     if (s.states.length == 1 && window.isearch_last_search)
         s.find(window.isearch_last_search, direction, s.top.point);
     else
         s.find(s.top.search_str, direction, s.top.range);
-    s.restore_state();
+    return s.restore_state();
 }
 interactive("isearch-continue-forward", function (I) {isearch_continue(I.window, true);});
 interactive("isearch-continue-backward", function (I) {isearch_continue(I.window, false);});
@@ -327,7 +356,7 @@ function isearch_backspace (window)
 }
 interactive("isearch-backspace", function (I) {isearch_backspace(I.window);});
 
-function isearch_done (window)
+function isearch_done (window, keep_selection)
 {
     var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
@@ -343,6 +372,7 @@ function isearch_done (window)
     window.minibuffer.pop_state();
     window.isearch_last_search = s.top.search_str;
     s.focus_link();
-    s.collapse_selection();
+    if (! isearch_keep_selection && ! keep_selection)
+        s.collapse_selection();
 }
 interactive("isearch-done", function (I) {isearch_done(I.window);});
