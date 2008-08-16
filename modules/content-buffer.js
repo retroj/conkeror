@@ -306,7 +306,7 @@ minibuffer.prototype.read_url = function () {
         $match_required = false);
     if (result == "") // well-formedness check. (could be better!)
         throw ("invalid url or webjump (\""+ result +"\")");
-    yield co_return(get_url_or_webjump(result));
+    yield co_return(result);
 };
 /*
 I.content_charset = interactive_method(

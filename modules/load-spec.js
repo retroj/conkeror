@@ -49,6 +49,9 @@
  *              optional    boolean         Specifies whether to attempt to generate a filename from the URI.
  *                                          Defaults to true.
  */
+
+require("webjump.js");
+
 function load_spec(x) { x.__proto__ = load_spec.prototype; return x; }
 
 function is_load_spec(x) {
@@ -170,7 +173,9 @@ function load_spec_source_frame(x) {
 
 function load_spec_uri_string(x) {
     if (typeof(x) == "string")
-        return x;
+        x = get_url_or_webjump(x);
+    if (typeof(x) == "string")
+       return x;
     if (x.uri)
         return x.uri;
     if (x.document && x.document.defaultView)
