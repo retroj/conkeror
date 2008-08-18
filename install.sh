@@ -18,7 +18,7 @@ BUILD=""
 ##   Install prefix.  Conkeror will be installed to $PREFIX/lib/conkeror and a
 ##   symlink to the stub binary will be placed in $PREFIX/bin/conkeror
 ##
-PREFIX=/usr/local
+PREFIX=${PREFIX:-/usr/local}
 
 while [[ "$1" = -* ]]; do
     case "$1" in
