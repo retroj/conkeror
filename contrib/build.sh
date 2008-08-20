@@ -174,7 +174,7 @@ function diff_wrapper () {
 function do_target_xulapp () {
     echo -n Building XULRunner Application...
 
-    #build the spawn-process-helper
+    #build the conkeror-spawn-helper
     make
 
     get_scratch
@@ -186,7 +186,7 @@ function do_target_xulapp () {
     for x in branding chrome components content defaults locale modules search-engines; do
         copy_tree_sans_boring "$x" "$SCRATCH/$x"
     done
-    cp spawn-process-helper "${SCRATCH}"
+    cp conkeror-spawn-helper "${SCRATCH}"
     if [ -d idl ]; then
         for x in idl/*; do
             name="$(basename "$x")"

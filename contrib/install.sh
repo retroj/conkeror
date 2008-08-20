@@ -64,9 +64,9 @@ if [[ ! -e conkeror.xulapp ]]; then
 fi
 
 
-### spawn-process-helper should be in the current directory
-if [[ ! -e spawn-process-helper ]]; then
-    echo " spawn-process-helper not found.  install cannot continue."
+### conkeror-spawn-helper should be in the current directory
+if [[ ! -e conkeror-spawn-helper ]]; then
+    echo " conkeror-spawn-helper not found.  install cannot continue."
     exit 1
 fi
 
@@ -75,8 +75,8 @@ fi
 echo -n "Installing conkeror to $PREFIX/lib/conkeror ..."
 assert xulrunner --install-app conkeror.xulapp "$PREFIX/lib/"
 
-echo -n "Installing spawn-process-helper to $PREFIX/lib/conkeror ..."
-cp spawn-process-helper $PREFIX/lib/conkeror/
+echo -n "Installing conkeror-spawn-helper to $PREFIX/lib/conkeror ..."
+cp conkeror-spawn-helper $PREFIX/lib/conkeror/
 echo ok
 
 

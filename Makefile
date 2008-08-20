@@ -2,7 +2,7 @@
 
 CFLAGS = -O2 -g
 
-spawn-process-helper: spawn-process-helper.c
+conkeror-spawn-helper: conkeror-spawn-helper.c
 
 clean:
-	rm -f spawn-process-helper
+	rm -f conkeror-spawn-helper
