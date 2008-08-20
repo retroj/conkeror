@@ -2,7 +2,7 @@
 #*#
 .#*
 xulrunner-stub
-spawn-process-helper
+conkeror-spawn-helper
 conkeror
 plugins
 /components/xpti.dat
