@@ -24,7 +24,9 @@ function universal_argument(ctx)
 function universal_digit(ctx)
 {
     var digit = ctx.event.charCode - 48;
-    if (typeof(ctx.prefix_argument) == "object") { // array
+    if (ctx.prefix_argument == null)
+        ctx.prefix_argument = digit;
+    else if (typeof(ctx.prefix_argument) == "object") { // array
         if (ctx.prefix_argument[0] < 0)
             ctx.prefix_argument = -digit;
         else
