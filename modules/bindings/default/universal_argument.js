@@ -8,20 +8,20 @@
 define_keymap("universal_argument_keymap");
 
 for (var i = 0; i <= 9; ++i)
-    define_key(universal_argument_keymap, String(i), universal_argument_keymap, $hook = universal_digit);
-define_key(universal_argument_keymap, "subtract", universal_argument_keymap, $hook = universal_negate);
+    define_key(universal_argument_keymap, String(i), null, $hook = universal_digit);
+define_key(universal_argument_keymap, "subtract", null, $hook = universal_negate);
 
-function universal_argument(ctx, active_keymap, overlay_keymap, top_keymap)
+function universal_argument(ctx)
 {
     if (ctx.prefix_argument) {
         if (typeof(ctx.prefix_argument) == "object") // must be array
             ctx.prefix_argument = [ctx.prefix_argument[0] * 4];
     } else
         ctx.prefix_argument = [4];
-    ctx.overlay_keymap = top_keymap;
+    ctx.overlay_keymap = universal_argument_keymap;
 }
 
-function universal_digit(ctx, active_keymap, overlay_keymap)
+function universal_digit(ctx)
 {
     var digit = ctx.event.charCode - 48;
     if (typeof(ctx.prefix_argument) == "object") { // array
@@ -34,19 +34,16 @@ function universal_digit(ctx, active_keymap, overlay_keymap)
         ctx.prefix_argument = ctx.prefix_argument * 10 - digit;
     else
         ctx.prefix_argument = ctx.prefix_argument * 10 + digit;
-
-    ctx.overlay_keymap = overlay_keymap || active_keymap;
 }
 
-function universal_negate(ctx, active_keymap, overlay_keymap)
+function universal_negate(ctx)
 {
     if (typeof ctx.prefix_argument == "object")
         ctx.prefix_argument[0] = 0 - ctx.prefix_argument[0];
     else
         ctx.prefix_argument = 0 - ctx.prefix_argument;
-    ctx.overlay_keymap = overlay_keymap || active_keymap;
 }
 
 function bind_universal_argument(keymap, key) {
-    define_key(keymap, key, universal_argument_keymap, $hook = universal_argument);
+    define_key(keymap, key, null, $hook = universal_argument);
 }

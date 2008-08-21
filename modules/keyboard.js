@@ -592,10 +592,8 @@ function key_press_handler(true_event)
         var overlay_keymap = ctx.overlay_keymap;
 
         binding =
-            lookup_key_binding(active_keymap, event) ||
-            (overlay_keymap && lookup_key_binding(overlay_keymap, event));
-
-        ctx.overlay_keymap = null;
+            (overlay_keymap && lookup_key_binding(overlay_keymap, event)) ||
+            lookup_key_binding(active_keymap, event) ;
 
         // Should we stop this event from being processed by the gui?
         //
@@ -614,9 +612,11 @@ function key_press_handler(true_event)
         // Finally, process the binding.
         ctx.key_sequence.push(format_key_event(event));
         if (binding) {
+            if (binding.hook) {
+                binding.hook.call(null, ctx);
+                done = false;
+            }
             if (binding.keymap) {
-                if (binding.hook)
-                    binding.hook.call(null, ctx, active_keymap, overlay_keymap, top_keymap);
                 state.active_keymap = binding.keymap;
                 if (!state.help_displayed)
                 {
@@ -633,6 +633,7 @@ function key_press_handler(true_event)
                 done = false;
             } else if (binding.command) {
                 call_interactively(ctx, binding.command);
+                done = true;
             }
         } else {
             window.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");

@@ -9,36 +9,34 @@
 require("bindings/default/content-buffer/normal.js");
 require("element.js");
 
-define_keymap("browser_elements_keymap");
-
-define_key(content_buffer_normal_keymap, "i", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "i", null,
            $hook = browser_object_class_selector("images"));
 
-define_key(content_buffer_normal_keymap, "n", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "n", null,
            $hook = browser_object_class_selector("links"));
 
-define_key(content_buffer_normal_keymap, "m", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "m", null,
            $hook = browser_object_class_selector("frames"));
 
-define_key(content_buffer_normal_keymap, "e", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "e", null,
            $hook = browser_object_class_selector("media"));
 
-define_key(content_buffer_normal_keymap, "S-8 e", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "S-8 e", null,
            $hook = browser_object_class_selector("media"));
 
-define_key(content_buffer_normal_keymap, "S-8 i", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "S-8 i", null,
            $hook = browser_object_class_selector("images"));
 
-define_key(content_buffer_normal_keymap, "S-8 n", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "S-8 n", null,
            $hook = browser_object_class_selector("links"));
 
-define_key(content_buffer_normal_keymap, "S-8 m", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "S-8 m", null,
            $hook = browser_object_class_selector("frames"));
 
-define_key(content_buffer_normal_keymap, "S-8 M", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "S-8 M", null,
            $hook = browser_object_class_selector("mathml"));
 
-define_key(content_buffer_normal_keymap, "S-8 u", browser_elements_keymap,
+define_key(content_buffer_normal_keymap, "S-8 u", null,
            $hook = browser_object_class_selector("url"));
 
 function bind_element_operations(keymap) {
