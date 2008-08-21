@@ -634,6 +634,10 @@ function key_press_handler(true_event)
             } else if (binding.command) {
                 call_interactively(ctx, binding.command);
                 done = true;
+            } else {
+                // binding was probably only a hook with no keymap or
+                // command.
+                state.active_keymap = null;
             }
         } else {
             window.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");
