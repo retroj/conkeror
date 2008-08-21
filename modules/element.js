@@ -50,6 +50,12 @@ function define_browser_object_class(name) {
         obj.doc = arguments.$doc;
     if (handler !== undefined)
         obj.handler = handler;
+    interactive(
+        "browser-object-class-"+name,
+        "A prefix command to specify that the following command operate "+
+            "on objects of type: "+name+".",
+        function (ctx) { ctx._browser_object_class = name; },
+        $prefix = true);
 }
 
 define_browser_object_class("images",
@@ -118,12 +124,6 @@ interactive_context.prototype.browser_object_class = function (action_name) {
         this.get("default_browser_object_classes")["default"];
     return cls;
 };
-
-function browser_object_class_selector(name) {
-    return function (ctx) {
-        ctx._browser_object_class = name;
-    }
-}
 
 function lookup_browser_object_class(class_name, action) {
     var obj;

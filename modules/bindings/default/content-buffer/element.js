@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2008 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -9,35 +9,25 @@
 require("bindings/default/content-buffer/normal.js");
 require("element.js");
 
-define_key(content_buffer_normal_keymap, "i", null,
-           $hook = browser_object_class_selector("images"));
+define_key(content_buffer_normal_keymap, "i", "browser-object-class-images");
 
-define_key(content_buffer_normal_keymap, "n", null,
-           $hook = browser_object_class_selector("links"));
+define_key(content_buffer_normal_keymap, "n", "browser-object-class-links");
 
-define_key(content_buffer_normal_keymap, "m", null,
-           $hook = browser_object_class_selector("frames"));
+define_key(content_buffer_normal_keymap, "m", "browser-object-class-frames");
 
-define_key(content_buffer_normal_keymap, "e", null,
-           $hook = browser_object_class_selector("media"));
+define_key(content_buffer_normal_keymap, "e", "browser-object-class-media");
 
-define_key(content_buffer_normal_keymap, "S-8 e", null,
-           $hook = browser_object_class_selector("media"));
+define_key(content_buffer_normal_keymap, "S-8 e", "browser-object-class-media");
 
-define_key(content_buffer_normal_keymap, "S-8 i", null,
-           $hook = browser_object_class_selector("images"));
+define_key(content_buffer_normal_keymap, "S-8 i", "browser-object-class-images");
 
-define_key(content_buffer_normal_keymap, "S-8 n", null,
-           $hook = browser_object_class_selector("links"));
+define_key(content_buffer_normal_keymap, "S-8 n", "browser-object-class-links");
 
-define_key(content_buffer_normal_keymap, "S-8 m", null,
-           $hook = browser_object_class_selector("frames"));
+define_key(content_buffer_normal_keymap, "S-8 m", "browser-object-class-frames");
 
-define_key(content_buffer_normal_keymap, "S-8 M", null,
-           $hook = browser_object_class_selector("mathml"));
+define_key(content_buffer_normal_keymap, "S-8 M", "browser-object-class-mathml");
 
-define_key(content_buffer_normal_keymap, "S-8 u", null,
-           $hook = browser_object_class_selector("url"));
+define_key(content_buffer_normal_keymap, "S-8 u", "browser-object-class-url");
 
 function bind_element_operations(keymap) {
     define_key(keymap, "f", "follow", $category = "Browser object");

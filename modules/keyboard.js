@@ -334,7 +334,7 @@ function kbd (spec, mods)
     return results;
 }
 
-define_keywords("$fallthrough", "$hook", "$category");
+define_keywords("$fallthrough", "$category");
 function define_key_internal(ref, kmap, keys, new_command, new_keymap)
 {
     keywords(arguments);
@@ -355,7 +355,6 @@ outer:
                 bind.command = new_command;
                 bind.keymap = new_keymap;
                 bind.fallthrough = args.$fallthrough;
-                bind.hook = args.$hook;
                 bind.source_code_reference = ref;
                 bind.category = args.$category;
             } else {
@@ -368,7 +367,7 @@ outer:
         function make_binding()
         {
             if (final_binding) {
-                return {key: key, fallthrough: args.$fallthrough, hook: args.$hook,
+                return {key: key, fallthrough: args.$fallthrough,
                         command: new_command, keymap: new_keymap,
                         source_code_reference: ref,
                         category: args.$category,
@@ -445,7 +444,7 @@ outer:
 }
 
 // bind key to either the keymap or command in the keymap, kmap
-define_keywords("$fallthrough", "$hook", "$category");
+define_keywords("$fallthrough", "$category");
 function define_key(kmap, keys, cmd)
 {
     var orig_keys = keys;
@@ -544,6 +543,18 @@ define_window_local_hook("key_press_hook", RUN_HOOK_UNTIL_SUCCESS);
 
 function key_press_handler(true_event)
 {
+    function show_partial_key_sequence (window, state, ctx) {
+        if (!state.help_displayed)
+        {
+            state.help_timer_ID = window.setTimeout(function () {
+                window.minibuffer.show(ctx.key_sequence.join(" "));
+                state.help_displayed = true;
+                state.help_timer_ID = null;
+            }, keyboard_key_sequence_help_timeout);
+        }
+        else
+            window.minibuffer.show(ctx.key_sequence.join(" "));
+    }
     try{
         var window = this;
         var state = window.keyboard;
@@ -612,32 +623,18 @@ function key_press_handler(true_event)
         // Finally, process the binding.
         ctx.key_sequence.push(format_key_event(event));
         if (binding) {
-            if (binding.hook) {
-                binding.hook.call(null, ctx);
-                done = false;
-            }
             if (binding.keymap) {
                 state.active_keymap = binding.keymap;
-                if (!state.help_displayed)
-                {
-                    state.help_timer_ID = window.setTimeout(function () {
-                            window.minibuffer.show(ctx.key_sequence.join(" "));
-                            state.help_displayed = true;
-                            state.help_timer_ID = null;
-                        }, keyboard_key_sequence_help_timeout);
-                }
-                else
-                    window.minibuffer.show(ctx.key_sequence.join(" "));
-
+                show_partial_key_sequence(window, state, ctx);
                 // We're going for another round
                 done = false;
             } else if (binding.command) {
                 call_interactively(ctx, binding.command);
-                done = true;
-            } else {
-                // binding was probably only a hook with no keymap or
-                // command.
-                state.active_keymap = null;
+                if (interactive_commands.get(binding.command).prefix) {
+                    state.active_keymap = null;
+                    show_partial_key_sequence(window, state, ctx);
+                    done = false;
+                }
             }
         } else {
             window.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");

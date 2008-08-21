@@ -16,9 +16,13 @@ var interactive_commands = new string_hashmap();
  * This is optionally followed by a documentation string.
  *
  * This is followed by the command function.
+ *
+ * The $prefix keyword, when true, means that the command is a prefix-command.
  */
+define_keywords("$prefix");
 function interactive(name)
 {
+    keywords(arguments);
     var doc = null;
     var handler;
     var offset = 1;
@@ -31,6 +35,7 @@ function interactive(name)
     var cmd = {
         name: name,
         handler: handler,
+        prefix: arguments.$prefix,
         doc: doc,
         shortdoc: get_shortdoc_string(doc),
         source_code_reference: get_caller_source_code_reference() };
