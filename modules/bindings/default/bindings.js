@@ -19,6 +19,7 @@ require("bindings/default/content-buffer/caret.js");
 require("bindings/default/minibuffer.js");
 require("bindings/default/hints.js");
 require("bindings/default/isearch.js");
+require("bindings/default/universal_argument.js");
 
 require("bindings/default/content-buffer/element.js");
 require("bindings/default/content-buffer/zoom.js");

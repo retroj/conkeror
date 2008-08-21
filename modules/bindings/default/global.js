@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/universal_argument.js");
-
 define_keymap("default_base_keymap");
 
 /**
@@ -16,8 +14,6 @@ define_keymap("default_base_keymap");
  */
 define_keymap("default_global_keymap", $parent = default_base_keymap);
 define_keymap("default_help_keymap");
-
-bind_universal_argument(default_base_keymap, "C-u");
 
 define_key(default_global_keymap, "M-S-;","eval-expression");
 

@@ -28,6 +28,7 @@ require("window.js");
 require("download-manager.js");
 
 
+require("universal-argument.js");
 require("commands.js"); // depends: interactive.js
 require("webjump.js"); // depends: interactive.js
 require("history.js");
