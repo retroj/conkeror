@@ -48,3 +48,5 @@ define_key(default_global_keymap, "M-S-1", "shell-command");
 // I-search
 define_key(default_global_keymap, "C-s", "isearch-forward");
 define_key(default_global_keymap, "C-r", "isearch-backward");
+define_key(content_buffer_normal_keymap, "S", "isearch-continue-forward");
+define_key(content_buffer_normal_keymap, "R", "isearch-continue-backward");
