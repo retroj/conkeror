@@ -44,3 +44,7 @@ define_key(content_buffer_normal_keymap, "return", null, $fallthrough);
 define_key(content_buffer_normal_keymap, "tab", "browser-focus-next-form-field");
 
 define_key(content_buffer_normal_keymap, "S-tab", "browser-focus-previous-form-field");
+
+// isearch (non-interactive)
+define_key(content_buffer_normal_keymap, "S", "isearch-continue-forward");
+define_key(content_buffer_normal_keymap, "R", "isearch-continue-backward");
