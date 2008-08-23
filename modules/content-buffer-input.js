@@ -147,8 +147,9 @@ define_buffer_mode('caret_mode', 'CARET',
                        caret_input_mode(buffer, true);
                    },
                    $disable = function(buffer) {
-                       clear_selection(buffer);
                        buffer.browser.setAttribute('showcaret', '');
+                       let sc = getFocusedSelCtrl(buffer);
+                       sc.setCaretEnabled(false);
                        buffer.browser.focus();
                        content_buffer_update_input_mode_for_focus(buffer, true);
                    });
