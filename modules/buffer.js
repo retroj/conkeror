@@ -664,7 +664,7 @@ function unfocus(window, buffer)
     var win = buffer.focused_frame;
     if (win != buffer.top_frame)
         return;
-    clear_selection(window, buffer);
+    clear_selection(buffer);
     buffer.top_frame.focus();
 }
 interactive("unfocus", function (I) {
