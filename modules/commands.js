@@ -153,8 +153,7 @@ define_builtin_commands(
         I.buffer.mark_active = !I.buffer.mark_active;
     },
     function (I) I.buffer.mark_active,
-    true
-);
+    'caret');
 
 function get_link_text()
 {

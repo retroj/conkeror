@@ -42,3 +42,7 @@ define_key(content_buffer_caret_keymap, "M-<", "caret-beginning-of-first-line", 
 define_key(content_buffer_caret_keymap, "M->", "caret-end-of-last-line", $category = "Movement");
 define_key(content_buffer_caret_keymap, "M-v", "caret-backward-page", $category = "Movement");
 define_key(content_buffer_caret_keymap, "page_up", "caret-backward-page", $category = "Movement");
+define_key(content_buffer_caret_keymap, "C-v", "caret-forward-page", $category = "Movement");
+define_key(content_buffer_caret_keymap, "page_down", "caret-forward-page", $category = "Movement");
+define_key(content_buffer_caret_keymap, "back_space", "caret-backward-page", $category = "Movement");
+define_key(content_buffer_caret_keymap, "space","caret-forward-page", $category = "Movement");

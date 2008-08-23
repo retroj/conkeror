@@ -612,7 +612,7 @@ function set_user_agent(str) {
     session_pref(USER_AGENT_OVERRIDE_PREF, str);
 }
 
-function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_active_predicate, scroll) {
+function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_active_predicate, mode) {
 
     // Specify a docstring
     function D(cmd, docstring) {
@@ -628,9 +628,9 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         return o;
     }
 
-    // Specify a movement/select/scroll command pair.
-    function S(command, movement, select, scroll) {
-        var o = [movement, select, scroll];
+    // Specify a movement/select/scroll/move-caret command group.
+    function S(command, movement, select, scroll, caret) {
+        var o = [movement, select, scroll, caret];
         o.command = command;
         o.is_move_select_pair = true;
         return o;
@@ -645,10 +645,12 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         S(D("beginning-of-line", "Move or extend the selection to the beginning of the current line."),
           D("cmd_beginLine", "Move point to the beginning of the current line."),
           D("cmd_selectBeginLine", "Extend selection to the beginning of the current line."),
+          D("cmd_beginLine", "Scroll to the beginning of the line"),
           D("cmd_beginLine", "Scroll to the beginning of the line")),
         S(D("end-of-line", "Move or extend the selection to the end of the current line."),
           D("cmd_endLine", "Move point to the end of the current line."),
           D("cmd_selectEndLine", "Extend selection to the end of the current line."),
+          D("cmd_endLine", "Scroll to the end of the current line."),
           D("cmd_endLine", "Scroll to the end of the current line.")),
         D("cmd_copy", "Copy the selection into the clipboard."),
         "cmd_copyOrDelete",
@@ -659,11 +661,13 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         S(D("beginning-of-first-line", "Move or extend the selection to the beginning of the first line."),
           D("cmd_moveTop", "Move point to the beginning of the first line."),
           D("cmd_selectTop", "Extend selection to the beginning of the first line."),
-          D("cmd_scrollTop", "Scroll to the top of the buffer")),
+          D("cmd_scrollTop", "Scroll to the top of the buffer"),
+          D("cmd_scrollTop", "Move point to the beginning of the first line.")),
         S(D("end-of-last-line", "Move or extend the selection to the end of the last line."),
           D("cmd_moveBottom", "Move point to the end of the last line."),
           D("cmd_selectBottom", "Extend selection to the end of the last line."),
-          D("cmd_scrollBottom", "Scroll to the bottom of the buffer")),
+          D("cmd_scrollBottom", "Scroll to the bottom of the buffer"),
+          D("cmd_scrollBottom", "Move point to the end of the last line.")),
         D("cmd_selectAll", "Select all."),
         "cmd_scrollBeginLine",
         "cmd_scrollEndLine",
@@ -674,10 +678,12 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         R(S(D("forward-char", "Move or extend the selection forward one character."),
             D("cmd_charNext", "Move point forward one character."),
             D("cmd_selectCharNext", "Extend selection forward one character."),
+            D("cmd_scrollRight", "Scroll to the right"),
             D("cmd_scrollRight", "Scroll to the right")),
           S(D("backward-char", "Move or extend the selection backward one character."),
             D("cmd_charPrevious", "Move point backward one character."),
             D("cmd_selectCharPrevious", "Extend selection backward one character."),
+            D("cmd_scrollLeft", "Scroll to the left."),
             D("cmd_scrollLeft", "Scroll to the left."))),
         R(D("cmd_deleteCharForward", "Delete the following character."),
           D("cmd_deleteCharBackward", "Delete the previous character.")),
@@ -686,29 +692,35 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         R(S(D("forward-line", "Move or extend the selection forward one line."),
             D("cmd_lineNext", "Move point forward one line."),
             D("cmd_selectLineNext", "Extend selection forward one line."),
+            D("cmd_scrollLineDown", "Scroll down one line."),
             D("cmd_scrollLineDown", "Scroll down one line.")),
           S(D("backward-line", "Move or extend the selection backward one line."),
             D("cmd_linePrevious", "Move point backward one line."),
             D("cmd_selectLinePrevious", "Extend selection backward one line."),
+            D("cmd_scrollLineUp", "Scroll up one line."),
             D("cmd_scrollLineUp", "Scroll up one line."))),
         R(S(D("forward-page", "Move or extend the selection forward one page."),
             D("cmd_movePageDown", "Move point forward one page."),
             D("cmd_selectPageDown", "Extend selection forward one page."),
-            D("cmd_scrollPageDown", "Scroll forward one page.")),
+            D("cmd_scrollPageDown", "Scroll forward one page."),
+            D("cmd_movePageDown", "Move point forward one page.")),
           S(D("backward-page", "Move or extend the selection backward one page."),
             D("cmd_movePageUp", "Move point backward one page."),
             D("cmd_selectPageUp", "Extend selection backward one page."),
-            D("cmd_scrollPageUp", "Scroll backward one page."))),
+            D("cmd_scrollPageUp", "Scroll backward one page."),
+            D("cmd_movePageUp", "Move point backward one page."))),
         R(D("cmd_undo", "Undo last editing action."),
           D("cmd_redo", "Redo last editing action.")),
         R(S(D("forward-word", "Move or extend the selection forward one word."),
             D("cmd_wordNext", "Move point forward one word."),
             D("cmd_selectWordNext", "Extend selection forward one word."),
-            D("cmd_scrollRight", "Scroll to the right.")),
+            D("cmd_scrollRight", "Scroll to the right."),
+            D("cmd_wordNext", "Move point forward one word.")),
           S(D("backward-word", "Move or extend the selection backward one word."),
             D("cmd_wordPrevious", "Move point backward one word."),
             D("cmd_selectWordPrevious", "Extend selection backward one word."),
-            D("cmd_scrollLeft", "Scroll to the left."))),
+            D("cmd_scrollLeft", "Scroll to the left."),
+            D("cmd_wordPrevious", "Move point backward one word."))),
         R(D("cmd_scrollPageUp", "Scroll up one page."),
           D("cmd_scrollPageDown", "Scroll down one page.")),
         R(D("cmd_scrollLineUp", "Scroll up one line."),
@@ -722,9 +734,14 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
                 "When the mark is active, movement commands affect the selection.",
                 toggle_mark);
 
+    function get_mode_idx() {
+        if (mode == 'scroll') return 2;
+        else if (mode == 'caret') return 3;
+        else return 0;
+    }
+
     function get_move_select_idx(I) {
-        return mark_active_predicate(I) ? 1 :
-            (scroll ? 2 : 0);
+        return mark_active_predicate(I) ? 1 : get_mode_idx();
     }
 
     function doc_for_builtin(c) {
@@ -741,7 +758,7 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
     function get_move_select_doc_string(c) {
         return c.command.doc +
             "\nSpecifically, if the mark is active, runs `" + prefix + c[1] + "'.  " +
-            "Otherwise, runs `" + prefix + c[scroll ? 2 : 0] + "'\n"
+            "Otherwise, runs `" + prefix + c[get_mode_idx()] + "'\n"
             "To toggle whether the mark is active, use `" + prefix + "set-mark'.";
     }
 
