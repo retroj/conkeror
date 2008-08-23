@@ -135,7 +135,7 @@ add_hook("content_buffer_focus_change_hook", function (buf) { content_buffer_upd
 define_buffer_mode('caret_mode', 'CARET',
                    $enable = function(buffer) {
                        buffer.browser.setAttribute('showcaret', 'true');
-                       let sc = getFocusedSelCtrl(buffer.window);
+                       let sc = getFocusedSelCtrl(buffer);
                        let s = sc.getSelection(sc.SELECTION_NORMAL);
                        if(s.anchorNode) {
                            s.collapseToStart();
@@ -147,6 +147,7 @@ define_buffer_mode('caret_mode', 'CARET',
                        caret_input_mode(buffer, true);
                    },
                    $disable = function(buffer) {
+                       clear_selection(buffer);
                        buffer.browser.setAttribute('showcaret', '');
                        buffer.browser.focus();
                        content_buffer_update_input_mode_for_focus(buffer, true);

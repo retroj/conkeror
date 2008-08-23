@@ -1,4 +1,4 @@
-/**
+1/**
  * (C) Copyright 2004-2007 Shawn Betts
  * (C) Copyright 2007 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
