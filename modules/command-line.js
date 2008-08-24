@@ -10,13 +10,40 @@ var command_line_handlers = [];
 
 define_variable("url_remoting_fn", load_url_in_new_window);
 
+/*
+ * load_url_in_new_window is a function intended for use as
+ * a value of `url_remoting_fn'.  Every url given on the
+ * command line will be loaded in a new window.
+ */
 function load_url_in_new_window(url, ctx) {
     make_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config));
 }
 
+/*
+ * load_url_in_new_buffer is a function intended for use as
+ * a value of `url_remoting_fn'.  Every url given on the
+ * command line will be loaded in a new buffer in the most
+ * recently used window, or a new window if none exist.
+ */
 function load_url_in_new_buffer(url, ctx) {
     create_buffer_in_current_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config),
                                     OPEN_NEW_BUFFER, true /* focus the new window */);
+}
+
+/*
+ * load_url_in_current_buffer is a function intended for use
+ * as a value of `url_remoting_fn'.  Every url given on the
+ * command line will be loaded in the current buffer of the
+ * most recently used window.  This makes it useful for only
+ * one url at a time.  When there are no conkeror windows
+ * open, the url will be loaded in a new window.
+ */
+function  load_url_in_current_buffer(url,ctx) {
+    if (var win = get_recent_conkeror_window()) {
+        open_in_browser(win.buffers.current, OPEN_CURRENT_BUFFER, url);
+    } else {
+        load_url_in_new_window(url, ctx);
+    }
 }
 
 function command_line_handler(name, suppress_default, handler)
