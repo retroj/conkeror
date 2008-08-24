@@ -39,7 +39,8 @@ function load_url_in_new_buffer(url, ctx) {
  * open, the url will be loaded in a new window.
  */
 function  load_url_in_current_buffer(url,ctx) {
-    if (var win = get_recent_conkeror_window()) {
+    var win;
+    if (win = get_recent_conkeror_window()) {
         open_in_browser(win.buffers.current, OPEN_CURRENT_BUFFER, url);
     } else {
         load_url_in_new_window(url, ctx);
