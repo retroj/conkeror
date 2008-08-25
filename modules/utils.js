@@ -758,7 +758,7 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
     function get_move_select_doc_string(c) {
         return c.command.doc +
             "\nSpecifically, if the mark is active, runs `" + prefix + c[1] + "'.  " +
-            "Otherwise, runs `" + prefix + c[get_mode_idx()] + "'\n"
+            "Otherwise, runs `" + prefix + c[get_mode_idx()] + "'\n" +
             "To toggle whether the mark is active, use `" + prefix + "set-mark'.";
     }
 
