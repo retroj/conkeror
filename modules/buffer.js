@@ -400,6 +400,16 @@ buffer_container.prototype = {
         return true;
     },
 
+    bury_buffer : function(b) {
+      var new_buffer = this.buffer_list[0];
+      if (b == new_buffer) new_buffer = this.buffer_list[1];
+      this._switch_to(this.buffer_list[1]);
+      this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
+      this.buffer_list.push(b);
+      this._switch_to(new_buffer);
+      return true;
+    },
+
     for_each : function (f) {
         var count = this.count;
         for (var i = 0; i < count; ++i)
@@ -634,6 +644,12 @@ interactive("kill-current-buffer",
             "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
             "buffer in a window will cause the window to be closed.",
             function (I) {kill_buffer(I.buffer)});
+
+interactive("bury-buffer",
+            "Bury the current buffer.\n Put the current buffer at the end of " +
+            "the buffer list, so that it is the least likely buffer to be " +
+            "selected by `switch-to-buffer'.",
+            function (I) {I.window.buffers.bury_buffer(I.buffer);});
 
 function change_directory(buffer, dir) {
     buffer.configuration.cwd = dir;
