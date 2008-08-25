@@ -25,6 +25,8 @@ define_key(default_global_keymap, "C-x 5 f", "find-url-new-window");
 define_key(default_global_keymap, "C-x 5 2", "make-window");
 define_key(default_global_keymap, "C-x 5 0", "delete-window");
 
+define_key(default_global_keymap, "q", "kill-current-buffer");
+
 define_key(default_base_keymap, "C-h", default_help_keymap);
 define_key(default_help_keymap, "a", "apropos-command");
 define_key(default_help_keymap, "b", "describe-bindings");
