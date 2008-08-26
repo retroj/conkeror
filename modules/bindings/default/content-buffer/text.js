@@ -18,6 +18,7 @@ define_key(content_buffer_text_keymap, "M-back_space", "cmd_deleteWordBackward",
 define_key(content_buffer_text_keymap, "C-d", "cmd_deleteCharForward", $category = "Editing");
 define_key(content_buffer_text_keymap, "delete", "cmd_deleteCharForward", $category = "Editing");
 define_key(content_buffer_text_keymap, "M-d", "cmd_deleteWordForward", $category = "Editing");
+define_key(content_buffer_text_keymap, "C-delete", "cmd_deleteWordForward", $category = "Editing");
 define_key(content_buffer_text_keymap, "C-b", "backward-char", $category = "Movement");
 define_key(content_buffer_text_keymap, "left", "backward-char", $category = "Movement");
 define_key(content_buffer_text_keymap, "M-b", "backward-word", $category = "Movement");
