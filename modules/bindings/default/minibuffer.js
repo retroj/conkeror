@@ -20,6 +20,7 @@ define_key(minibuffer_base_keymap, "M-back_space", "minibuffer-cmd_deleteWordBac
 define_key(minibuffer_base_keymap, "C-d", "minibuffer-cmd_deleteCharForward");
 define_key(minibuffer_base_keymap, "delete", "minibuffer-cmd_deleteCharForward");
 define_key(minibuffer_base_keymap, "M-d", "minibuffer-cmd_deleteWordForward");
+define_key(minibuffer_base_keymap, "C-delete", "minibuffer-cmd_deleteWordForward");
 define_key(minibuffer_base_keymap, "C-b", "minibuffer-backward-char");
 define_key(minibuffer_base_keymap, "left", "minibuffer-backward-char");
 define_key(minibuffer_base_keymap, "M-b", "minibuffer-backward-word");
