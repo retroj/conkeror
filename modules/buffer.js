@@ -403,10 +403,9 @@ buffer_container.prototype = {
     bury_buffer : function(b) {
       var new_buffer = this.buffer_list[0];
       if (b == new_buffer) new_buffer = this.buffer_list[1];
-      this._switch_to(this.buffer_list[1]);
       this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
       this.buffer_list.push(b);
-      this._switch_to(new_buffer);
+      this.current = new_buffer;
       return true;
     },
 
