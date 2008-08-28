@@ -880,27 +880,30 @@ function create_info_panel(window, panel_class, row_arr) {
 }
 
 
-// read_from_x_primary_selection favors the X PRIMARY SELECTION, when
-// it exists.  The builtin cmd_paste always uses X CLIPBOARD.  So this
-// is an auxiliary utility, in case you need to work with the primary
-// selection.
-//
+/**
+ * Paste from the X primary selection, unless the system doesn't support a
+ * primary selection, in which case fall back to the clipboard.
+ */
 function read_from_x_primary_selection ()
 {
     // Get clipboard.
     var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
         .getService(Components.interfaces.nsIClipboard);
 
+    // Fall back to global clipboard if the system doesn't support a selection
+    var selection = clipboard.supportsSelectionClipboard ?
+        clipboard.kSelectionClipboard : clipboard.kGlobalClipboard;
+
+    // Don't barf if there's nothing on the clipboard
+    if (!clipboard.hasDataMatchingFlavors(["text/unicode"], 1, selection))
+        return "";
+
     // Create tranferable that will transfer the text.
     var trans = Components.classes["@mozilla.org/widget/transferable;1"]
         .createInstance(Components.interfaces.nsITransferable);
 
     trans.addDataFlavor("text/unicode");
-    // If available, use selection clipboard, otherwise global one
-    if (clipboard.supportsSelectionClipboard())
-        clipboard.getData(trans, clipboard.kSelectionClipboard);
-    else
-        clipboard.getData(trans, clipboard.kGlobalClipboard);
+    clipboard.getData(trans, selection);
 
     var data = {};
     var dataLen = {};
