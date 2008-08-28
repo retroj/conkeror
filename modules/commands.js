@@ -70,31 +70,60 @@ interactive("jsconsole",
             });
 default_browse_targets["jsconsole"] = "find-url-new-buffer";
 
+/**
+ * Given a callback func and an interactive context I, call func, passing either
+ * a focused field, or the minibuffer's input element if the minibuffer is
+ * active. Afterward, call `ensure_index_is_visible' on the field. See
+ * `paste_x_primary_selection' and `open_line' for examples.
+ */
+function call_on_focused_field(I, func) {
+  var m = I.window.minibuffer;
+  var s = m.current_state;
+  if (m._input_mode_enabled) {
+    m._restore_normal_state();
+    var e = m.input_element;
+  } else var e = I.buffer.focused_element;
+  func(e);
+  ensure_index_is_visible (I.window, e, e.selectionStart);
+  if (s && s.handle_input) s.handle_input(m);
+}
+
+/**
+ * Replace the current region with modifier(selection). Deactivates region and
+ * sets point to the end of the inserted text, unless keep_point is true, in
+ * which case the point will be left at the beginning of the inserted text.
+ */
+function modify_region(field, modifier, keep_point) {
+  var replacement =
+    modifier(field.value.substring(field.selectionStart, field.selectionEnd+1));
+  var point = field.selectionStart;
+  field.value =
+    field.value.substr(0, field.selectionStart) + replacement +
+    field.value.substr(field.selectionEnd);
+  if (!keep_point) point += replacement.length;
+  field.setSelectionRange(point, point);
+}
 
 function paste_x_primary_selection (field) {
-    var str = read_from_x_primary_selection ();
-    var point = field.selectionEnd;
-    field.value = field.value.substr (0, field.selectionStart) +
-        str + field.value.substr (field.selectionEnd);
-    point += str.length;
-    field.setSelectionRange (point, point);
+  modify_region(field, function(str) read_from_x_primary_selection());
 }
 interactive (
-    "paste-x-primary-selection",
-    function (I) {
-        var m = I.window.minibuffer;
-        var s = m.current_state;
-        if (m._input_mode_enabled) {
-            m._restore_normal_state();
-            var e = m.input_element;
-        } else
-            var e = I.buffer.focused_element;
-        paste_x_primary_selection (e);
-        ensure_index_is_visible (I.window, e, e.selectionStart);
-        if (s && s.handle_input)
-            s.handle_input(m);
-    });
+  "paste-x-primary-selection",
+  "Insert the contents of the X primary selection into the selected field or " +
+  "minibuffer. Deactivates the region if it is active, and leaves the point " +
+  "after the inserted text.",
+  function (I) call_on_focused_field(I, paste_x_primary_selection)
+);
 
+function open_line(field) {
+  modify_region(field, function() "\n", true);
+}
+interactive(
+  "open-line",
+  "If there is an active region, replace is with a newline, otherwise just " +
+  "insert a newline. In both cases leave point before the inserted newline.",
+  function (I) call_on_focused_field(I, open_line)
+);
 
 function meta_x (window, prefix, command)
 {

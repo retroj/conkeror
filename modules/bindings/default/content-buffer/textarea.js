@@ -20,6 +20,7 @@ define_key(content_buffer_textarea_keymap, "M-<", "beginning-of-first-line", $ca
 define_key(content_buffer_textarea_keymap, "M->", "end-of-last-line", $category = "Movement");
 define_key(content_buffer_textarea_keymap, "M-v", "backward-page", $category = "Movement");
 define_key(content_buffer_textarea_keymap, "page_up", "backward-page", $category = "Movement");
+define_key(content_buffer_textarea_keymap, "C-o", "open-line", $category = "Editing");
 
 define_key(content_buffer_textarea_keymap, "C-v", "forward-page", $category = "Movement");
 define_key(content_buffer_textarea_keymap, "page_down", "forward-page", $category = "Movement");
