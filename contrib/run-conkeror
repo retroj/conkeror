@@ -33,8 +33,13 @@ function chase () {
 }
 
 ## search in a gre dir for the first xulrunner 1.9 install location
+##
+## to be robust, we would need to examine each candidate xulrunner and
+## find a valid one.  for now we just take the first and accept our
+## doom.
+##
 function check-gre () {
-    grep -h GRE_PATH  $(grep -l '\[1\.9' "${1%/}"/*.conf) | cut -d= -f2
+    grep -h GRE_PATH  $(grep -l '\[1\.9' "${1%/}"/*.conf) | cut -d= -f2 | head -n 1
 }
 
 if [[ -d "$HOME/.gre.d" ]]; then
