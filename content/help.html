@@ -12,43 +12,8 @@ COPYING file.
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Conkeror User Manual</title>
-<script type="text/javascript">
-<!-- <![CDATA[
-
-    var gPrefService = Components.classes["@mozilla.org/preferences-service;1"]
-        .getService(Components.interfaces.nsIPrefBranch);
-
-    function set_pref()
-    {
-        var val = document.getElementById("pref").value;
-        if (val == '') {
-            if (gPrefService.prefHasUserValue ("conkeror.rcfile")) {
-                gPrefService.clearUserPref("conkeror.rcfile");
-            }
-            window.alert("preference `conkeror.rcfile' cleared.")
-        } else {
-            gPrefService.setCharPref("conkeror.rcfile", val);
-            window.alert("preference `conkeror.rcfile' Set.");
-        }
-    }
-
-    function fill_rc_pref_box () {
-        var pref;
-
-        if (!gPrefService.prefHasUserValue("conkeror.rcfile")) {
-            pref = "";
-        } else {
-            pref = gPrefService.getCharPref("conkeror.rcfile");
-        }
-
-        var el = document.getElementById ("pref");
-        el.value = pref;
-    }
-
-// ]]> -->
-</script>
 </head>
-<body onload="fill_rc_pref_box()">
+<body>
 <h1>Conkeror User Manual</h1>
 
 <h2>Introduction</h2>
@@ -211,55 +176,6 @@ frame are lost, at this point)</td></tr>
 <tr><td>C-x C-c</td><td>Quit conkeror</td></tr>
 </table>
 
-
-<h2>Conkeror RC File</h2>
-<p>
-  You can customize Conkeror by creating an rc script or set of
-  scripts, and using the form below to set the preference
-  `conkeror.rcfile' to the path of your script.  It can be set to the
-  path of a single file or a directory.  When conkeror.rcfile is a
-  directory, all files with an extension of `.js' will be loaded from
-  that directory (non-recursive).  These scripts are plain javascript
-  files.  Conkeror loads them during startup into application scope
-  (as opposed to loading them for each window).
-</p>
-
-<p>
-  Note, if you set conkeror.rcfile to a file, the path must be
-  absolute.  Conkeror will not expand ~ to your home directory.  This
-  is a current limitation, and we hope to fix it soon.
-</p>
-
-<form action="get">
-  <p>
-    <input id="pref" value="" />
-    <input type="button" value="Set RC File" onclick="set_pref();" />
-  </p>
-</form>
-
-<p>Here are three common customizations:</p>
-<ul>
-<li>To add a new web jump:
-<pre>
-add_webjump("keyword", "url");
-</pre></li>
-<li>To add a new command:
-<pre>
-add_command("command-name", function_name, []);
-</pre>
-The 3rd argument is much like the interactive function in
-emacs. Currently only "p" and "P" work. See bindings.js in the source
-code for examples of how it works.
-</li>
-
-<li>To add a new key binding:
-<pre>
-define_key(ctrlx_kmap, kbd("c", MOD_META), "command-name");
-</pre>
-This binds C-x M-c to execute "command-name". Take a look at
-bindings.js for the builtin keymaps and key bindings.
-</li>
-</ul>
 
 <h2>Universal Argument</h2>
 
