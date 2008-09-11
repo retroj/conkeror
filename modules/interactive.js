@@ -11,13 +11,17 @@ require("utils.js");
 var interactive_commands = new string_hashmap();
 
 /**
- * First argument is the command name.
+ * name: string name of the command.
  *
- * This is optionally followed by a documentation string.
+ * doc: Documentation string, may be null.
  *
- * This is followed by the command function.
+ * handler: A function to handle the command.
  *
- * The $prefix keyword, when true, means that the command is a prefix-command.
+ * options: An object that may contain any of the following keys.
+ *          Options may be null.
+ *
+ *   prefix: boolean where `true' means that this command is a
+ *           prefix command.
  */
 function interactive(name, doc, handler, options)
 {
