@@ -163,7 +163,7 @@ watch_pref(CARET_PREF, function() {
                }
            });
 
-interactive("content-buffer-update-input-mode-for-focus", function (I) {
+interactive("content-buffer-update-input-mode-for-focus", null, function (I) {
     content_buffer_update_input_mode_for_focus(I.buffer, true);
 });
 
@@ -370,6 +370,7 @@ function cut_to_end_of_line (buffer) {
 
 interactive (
     "cut-to-end-of-line",
+    null,
     function (I) {
         cut_to_end_of_line (I.buffer);
     });

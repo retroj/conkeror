@@ -63,7 +63,7 @@ function single_character_options_enter_character(window, s, event) {
     window.minibuffer.message(str);
 }
 
-interactive("single-character-options-enter-character",
+interactive("single-character-options-enter-character", null,
             function (I) {
                 single_character_options_enter_character(
                     I.window,

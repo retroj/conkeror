@@ -333,8 +333,8 @@ function isearch_continue(window, direction) {
         s.find(s.top.search_str, direction, s.top.range);
     return s.restore_state();
 }
-interactive("isearch-continue-forward", function (I) {isearch_continue(I.window, true);});
-interactive("isearch-continue-backward", function (I) {isearch_continue(I.window, false);});
+interactive("isearch-continue-forward", null, function (I) {isearch_continue(I.window, true);});
+interactive("isearch-continue-backward", null, function (I) {isearch_continue(I.window, false);});
 
 function isearch_start (window, direction)
 {
@@ -342,8 +342,8 @@ function isearch_start (window, direction)
     window.minibuffer.push_state(s);
     s.restore_state();
 }
-interactive("isearch-forward", function (I) {isearch_start(I.window, true);});
-interactive("isearch-backward", function (I) {isearch_start(I.window, false);});
+interactive("isearch-forward", null, function (I) {isearch_start(I.window, true);});
+interactive("isearch-backward", null, function (I) {isearch_start(I.window, false);});
 
 function isearch_backspace (window)
 {
@@ -354,7 +354,7 @@ function isearch_backspace (window)
         s.states.pop();
     s.restore_state();
 }
-interactive("isearch-backspace", function (I) {isearch_backspace(I.window);});
+interactive("isearch-backspace", null, function (I) {isearch_backspace(I.window);});
 
 function isearch_done (window, keep_selection)
 {
@@ -375,4 +375,4 @@ function isearch_done (window, keep_selection)
     if (! isearch_keep_selection && ! keep_selection)
         s.collapse_selection();
 }
-interactive("isearch-done", function (I) {isearch_done(I.window);});
+interactive("isearch-done", null, function (I) {isearch_done(I.window);});

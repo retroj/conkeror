@@ -30,7 +30,7 @@ function where_is_command(buffer, command) {
         msg = command + " is on " + list.join(", ");
     buffer.window.minibuffer.message(msg);
 }
-interactive("where-is", function (I) {
+interactive("where-is", null, function (I) {
     where_is_command(I.buffer,
                      (yield I.minibuffer.read_command($prompt = "Where is command:")));
 });
@@ -258,7 +258,7 @@ function describe_bindings(buffer, target) {
                                                 $binding_list = list),
                   target);
 }
-interactive("describe-bindings", function (I) {describe_bindings(I.buffer, I.browse_target("describe-bindings"));});
+interactive("describe-bindings", null, function (I) {describe_bindings(I.buffer, I.browse_target("describe-bindings"));});
 default_browse_targets["describe-bindings"] = "find-url-new-buffer";
 
 
@@ -423,7 +423,7 @@ function describe_command(buffer, command, target) {
                                  $bindings = bindings),
                   target);
 }
-interactive("describe-command", function (I) {
+interactive("describe-command", null, function (I) {
     describe_command(I.buffer, (yield I.minibuffer.read_command($prompt = "Describe command:")),
                      I.browse_target("describe-command"));
 });
@@ -439,7 +439,7 @@ function view_referenced_source_code(buffer) {
         throw interactive_error("Command not valid in current buffer.");
     yield buffer.source_code_reference.open_in_editor();
 }
-interactive("view-referenced-source-code", function (I) {yield view_referenced_source_code(I.buffer);});
+interactive("view-referenced-source-code", null, function (I) {yield view_referenced_source_code(I.buffer);});
 
 
 define_keywords("$binding", "$other_bindings", "$key_sequence");
@@ -547,12 +547,12 @@ function describe_key_briefly(buffer, key_info) {
     buffer.window.minibuffer.message(seq.join(" ") + " runs the command " + bind.command);
 }
 
-interactive("describe-key", function (I) {
+interactive("describe-key", null, function (I) {
     describe_key(I.buffer,
                  (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
                  I.browse_target("describe-key"));
 });
-interactive("describe-key-briefly", function (I) {
+interactive("describe-key-briefly", null, function (I) {
     describe_key_briefly(I.buffer,
                  (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
 });
@@ -653,7 +653,7 @@ function describe_variable(buffer, variable, target) {
                                  $variable = variable),
                   target);
 }
-interactive("describe-variable", function (I) {
+interactive("describe-variable", null, function (I) {
     describe_variable(I.buffer, (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
                      I.browse_target("describe-variable"));
 });

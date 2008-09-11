@@ -19,23 +19,13 @@ var interactive_commands = new string_hashmap();
  *
  * The $prefix keyword, when true, means that the command is a prefix-command.
  */
-define_keywords("$prefix");
-function interactive(name)
+function interactive(name, doc, handler, options)
 {
-    keywords(arguments);
-    var doc = null;
-    var handler;
-    var offset = 1;
-    if (typeof(arguments[1]) == "string" || arguments[1] == null)
-    {
-        doc = arguments[1];
-        offset = 2;
-    }
-    handler = arguments[offset++];
+    var prefix = options && options.prefix;
     var cmd = {
         name: name,
         handler: handler,
-        prefix: arguments.$prefix,
+        prefix: prefix,
         doc: doc,
         shortdoc: get_shortdoc_string(doc),
         source_code_reference: get_caller_source_code_reference() };

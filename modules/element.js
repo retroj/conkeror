@@ -55,7 +55,7 @@ function define_browser_object_class(name) {
         "A prefix command to specify that the following command operate "+
             "on objects of type: "+name+".",
         function (ctx) { ctx._browser_object_class = name; },
-        $prefix = true);
+        { prefix: true });
 }
 
 define_browser_object_class("images",
@@ -349,19 +349,19 @@ function element_get_load_spec(elem) {
     return spec;
 }
 
-interactive("follow", function (I) {
+interactive("follow", null, function (I) {
     var target = I.browse_target("follow");
     var element = yield I.read_browser_object("follow", "Follow", target);
     browser_element_follow(I.buffer, target, element);
 });
 
-interactive("follow-top", function (I) {
+interactive("follow-top", null, function (I) {
     var target = I.browse_target("follow-top");
     var element = yield I.read_browser_object("follow_top", "Follow", target);
     browser_element_follow(I.buffer, target, element);
 });
 
-interactive("focus", function (I) {
+interactive("focus", null, function (I) {
     var element = yield I.read_browser_object("focus", "Focus");
     browser_element_focus(I.buffer, element);
 });
@@ -391,7 +391,7 @@ function element_get_operation_label(element, op_name, suffix) {
     return op_name + target_label + suffix + ":";
 }
 
-interactive("save", function (I) {
+interactive("save", null, function (I) {
     var element = yield I.read_browser_object("save", "Save");
 
     var spec = element_get_load_spec(element);
@@ -448,7 +448,7 @@ function browser_element_copy(buffer, elem)
 }
 
 
-interactive("copy", function (I) {
+interactive("copy", null, function (I) {
     var element = yield I.read_browser_object("copy", "Copy");
     browser_element_copy(I.buffer, element);
 });
@@ -501,13 +501,13 @@ function browser_element_view_source(buffer, target, elem)
     }
 }
 
-interactive("view-source", function (I) {
+interactive("view-source", null, function (I) {
     var target = I.browse_target("follow");
     var element = yield I.read_browser_object("view_source", "View source", target);
     yield browser_element_view_source(I.buffer, target, element);
 });
 
-interactive("shell-command-on-url", function (I) {
+interactive("shell-command-on-url", null, function (I) {
     var cwd = I.cwd;
     var element = yield I.read_browser_object("shell_command_url", "URL shell command");
     var spec = element_get_load_spec(element);
@@ -546,7 +546,7 @@ function browser_element_shell_command(buffer, elem, command) {
                                 $shell_command_cwd = buffer.cwd);
 }
 
-interactive("shell-command-on-file", function (I) {
+interactive("shell-command-on-file", null, function (I) {
     var cwd = I.cwd;
     var element = yield I.read_browser_object("shell_command", "Shell command");
 
@@ -576,7 +576,7 @@ interactive("shell-command-on-file", function (I) {
     yield browser_element_shell_command(I.buffer, element, cmd);
 });
 
-interactive("bookmark", function (I) {
+interactive("bookmark", null, function (I) {
     var element = yield I.read_browser_object("bookmark", "Bookmark");
     var spec = element_get_load_spec(element);
     if (!spec)
@@ -596,7 +596,7 @@ interactive("bookmark", function (I) {
     I.minibuffer.message("Added bookmark: " + uri_string + " - " + title);
 });
 
-interactive("save-page", function (I) {
+interactive("save-page", null, function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield I.read_browser_object("save_page", "Save page");
     var spec = element_get_load_spec(element);
@@ -623,7 +623,7 @@ interactive("save-page", function (I) {
     save_uri(spec, file, $buffer = I.buffer);
 });
 
-interactive("save-page-as-text", function (I) {
+interactive("save-page-as-text", null, function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield I.read_browser_object("save_page_as_text", "Save page as text");
     var spec = element_get_load_spec(element);
@@ -651,7 +651,7 @@ interactive("save-page-as-text", function (I) {
     save_document_as_text(doc, file, $buffer = I.buffer);
 });
 
-interactive("save-page-complete", function (I) {
+interactive("save-page-complete", null, function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield I.read_browser_object("save_page_complete", "Save page complete");
     var spec = element_get_load_spec(element);

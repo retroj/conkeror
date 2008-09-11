@@ -365,6 +365,7 @@ function send_key_as_event (window, element, key) {
 }
 interactive (
     "send-ret",
+    null,
     function (I) {
         send_key_as_event (I.window, I.buffer.focused_element, "return");
     });

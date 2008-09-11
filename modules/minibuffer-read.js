@@ -385,8 +385,8 @@ function minibuffer_complete(window, count)
     if (new_index != -1)
         s.select_completion(new_index);
 }
-interactive("minibuffer-complete", function (I) {minibuffer_complete(I.window, I.p);});
-interactive("minibuffer-complete-previous", function (I) {minibuffer_complete(I.window, -I.p);});
+interactive("minibuffer-complete", null, function (I) {minibuffer_complete(I.window, I.p);});
+interactive("minibuffer-complete-previous", null, function (I) {minibuffer_complete(I.window, -I.p);});
 
 function exit_minibuffer(window)
 {
@@ -435,7 +435,7 @@ function exit_minibuffer(window)
             cont(val);
     }
 }
-interactive("exit-minibuffer", function (I) {exit_minibuffer(I.window);});
+interactive("exit-minibuffer", null, function (I) {exit_minibuffer(I.window);});
 
 function minibuffer_history_next (window, count)
 {
@@ -455,8 +455,8 @@ function minibuffer_history_next (window, count)
     m._input_text = s.history[index];
     m._set_selection();
 }
-interactive("minibuffer-history-next", function (I) {minibuffer_history_next(I.window, I.p);});
-interactive("minibuffer-history-previous", function (I) {minibuffer_history_next(I.window, -I.p);});
+interactive("minibuffer-history-next", null, function (I) {minibuffer_history_next(I.window, I.p);});
+interactive("minibuffer-history-previous", null, function (I) {minibuffer_history_next(I.window, -I.p);});
 
 // Define the asynchronous minibuffer.read function
 minibuffer.prototype.read = function () {

@@ -663,7 +663,7 @@ interactive("change-current-directory",
                         $initial_value = I.cwd)));
             });
 
-interactive("shell-command", function (I) {
+interactive("shell-command", null, function (I) {
     var cwd = I.cwd;
     var cmd = (yield I.minibuffer.read_shell_command($cwd = cwd));
     yield shell_command(cmd, $cwd = cwd);
@@ -682,7 +682,7 @@ function unfocus(window, buffer)
     clear_selection(buffer);
     buffer.top_frame.focus();
 }
-interactive("unfocus", function (I) {
+interactive("unfocus", null, function (I) {
     unfocus(I.window, I.buffer);
     I.window.minibuffer.message("unfocus");
 });

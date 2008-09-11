@@ -136,7 +136,7 @@ function load_charcode_mapping_table()
 }
 load_charcode_mapping_table();
 
-interactive("keyboard-setup", function (I) {
+interactive("keyboard-setup", null, function (I) {
     make_chrome_window("chrome://conkeror/content/keyboard-setup.xul");
 });
 
@@ -832,7 +832,7 @@ function read_key_binding_key(window, state, event) {
     if (c != null)
         c([state.key_sequence, binding]);
 }
-interactive("read-key-binding-key", function (I) {
+interactive("read-key-binding-key", null, function (I) {
     read_key_binding_key(I.window, I.minibuffer.check_state(key_binding_reader), I.event);
 });
 

@@ -20,7 +20,7 @@ interactive (
             ctx.prefix_argument = [4];
         ctx.overlay_keymap = universal_argument_keymap;
     },
-    $prefix = true);
+    { prefix: true });
 
 interactive (
     "universal-digit",
@@ -41,7 +41,7 @@ interactive (
         else
             ctx.prefix_argument = ctx.prefix_argument * 10 + digit;
     },
-    $prefix = true);
+    { prefix: true });
 
 interactive (
     "universal-negate",
@@ -54,5 +54,5 @@ interactive (
         else
             ctx.prefix_argument = 0 - ctx.prefix_argument;
     },
-    $prefix = true);
+    { prefix: true });
 

@@ -58,14 +58,14 @@ function browser_zoom_change(buffer, full_zoom, count) {
     browser_zoom_set(buffer, full_zoom, zoom_levels[new_level]);
 }
 
-interactive("zoom-in-text", function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, I.p);});
-interactive("zoom-out-text", function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, -I.p);});
-interactive("zoom-in-text-more", function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, I.p * 3);});
-interactive("zoom-out-text-more", function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, -I.p * 3);});
-interactive("zoom-reset-text", function (I) {browser_zoom_set(I.buffer, false /* not full zoom */, I.p = 100);});
+interactive("zoom-in-text", null, function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, I.p);});
+interactive("zoom-out-text", null, function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, -I.p);});
+interactive("zoom-in-text-more", null, function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, I.p * 3);});
+interactive("zoom-out-text-more", null, function (I) {browser_zoom_change(I.buffer, false /* not full zoom */, -I.p * 3);});
+interactive("zoom-reset-text", null, function (I) {browser_zoom_set(I.buffer, false /* not full zoom */, I.p = 100);});
 
-interactive("zoom-in-full", function (I) {browser_zoom_change(I.buffer, true /* full zoom */, I.p);});
-interactive("zoom-out-full", function (I) {browser_zoom_change(I.buffer, true /* full zoom */, -I.p);});
-interactive("zoom-in-full-more", function (I) {browser_zoom_change(I.buffer, true /* full zoom */, I.p * 3);});
-interactive("zoom-out-full-more", function (I) {browser_zoom_change(I.buffer, true /* full zoom */, -I.p * 3);});
-interactive("zoom-reset-full", function (I) {browser_zoom_set(I.buffer, true /* full zoom */, I.p = 100);});
+interactive("zoom-in-full", null, function (I) {browser_zoom_change(I.buffer, true /* full zoom */, I.p);});
+interactive("zoom-out-full", null, function (I) {browser_zoom_change(I.buffer, true /* full zoom */, -I.p);});
+interactive("zoom-in-full-more", null, function (I) {browser_zoom_change(I.buffer, true /* full zoom */, I.p * 3);});
+interactive("zoom-out-full-more", null, function (I) {browser_zoom_change(I.buffer, true /* full zoom */, -I.p * 3);});
+interactive("zoom-reset-full", null, function (I) {browser_zoom_set(I.buffer, true /* full zoom */, I.p = 100);});

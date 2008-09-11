@@ -414,7 +414,7 @@ define_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the
 
 define_variable("hints_ambiguous_auto_exit_delay", 0, "Delay (in milliseconds) after the most recent key stroke before the first of an ambiguous match is automatically selected.  If this is set to 0, automatic selection in ambiguous matches is disabled.");
 
-interactive("hints-handle-number", function (I) {
+interactive("hints-handle-number", null, function (I) {
     let s = I.minibuffer.check_state(hints_minibuffer_state);
     var ch = String.fromCharCode(I.event.charCode);
     var auto_exit = false;
@@ -464,7 +464,7 @@ function hints_backspace(window, s) {
     }
     s.update_minibuffer(m);
 }
-interactive("hints-backspace", function (I) {
+interactive("hints-backspace", null, function (I) {
     hints_backspace(I.window, I.minibuffer.check_state(hints_minibuffer_state));
 });
 
@@ -484,11 +484,11 @@ function hints_next(window, s, count) {
     }
     s.update_minibuffer(window);
 }
-interactive("hints-next", function (I) {
+interactive("hints-next", null, function (I) {
     hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), I.p);
 });
 
-interactive("hints-previous", function (I) {
+interactive("hints-previous", null, function (I) {
     hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), -I.p);
 });
 
@@ -513,7 +513,7 @@ function hints_exit(window, s)
     }
 }
 
-interactive("hints-exit", function (I) {
+interactive("hints-exit", null, function (I) {
     hints_exit(I.window, I.minibuffer.check_state(hints_minibuffer_state));
 });
 

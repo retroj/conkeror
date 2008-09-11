@@ -16,7 +16,7 @@ function minibuffer_abort (window)
         throw "Invalid minibuffer state";
     m.pop_state();
 }
-interactive("minibuffer-abort", function (I) {minibuffer_abort(I.window);});
+interactive("minibuffer-abort", null, function (I) {minibuffer_abort(I.window);});
 
 define_builtin_commands(
     "minibuffer-",

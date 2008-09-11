@@ -31,7 +31,7 @@ function define_global_mode(name, enable, disable)
         }
     };
     this[name] = func;
-    interactive(hyphen_name, function (I) {
+    interactive(hyphen_name, null, function (I) {
         var arg = I.P;
         func(arg && univ_arg_to_number(arg));
         I.minibuffer.message(hyphen_name + (conkeror[state] ? " enabled" : " disabled"));

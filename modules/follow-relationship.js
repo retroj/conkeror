@@ -94,10 +94,10 @@ function browser_follow_relationship(buffer, relationship, target) {
 
 default_browse_targets["follow-relationship"] = "follow";
 
-interactive("follow-next", function (I) {
+interactive("follow-next", null, function (I) {
     browser_follow_relationship(I.buffer, RELATIONSHIP_NEXT, I.browse_target("follow-relationship"))
 });
 
-interactive("follow-previous", function (I) {
+interactive("follow-previous", null, function (I) {
     browser_follow_relationship(I.buffer, RELATIONSHIP_PREVIOUS, I.browse_target("follow-relationship"))
 });
