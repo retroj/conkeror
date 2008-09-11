@@ -41,5 +41,5 @@ define_page_mode("dailymotion_mode", "Dailymotion", $enable = function (buffer) 
 });
 
 
-var dailymotion_re = build_url_regex($domain = /(?:[^\/]*\.)?dailymotion/);
+var dailymotion_re = build_url_regex({ domain: /(?:[^\/]*\.)?dailymotion/ });
 auto_mode_list.push([dailymotion_re, dailymotion_mode]);

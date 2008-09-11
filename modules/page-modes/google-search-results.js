@@ -36,7 +36,8 @@ define_page_mode("google_search_results_mode", "Google Search Results",
                          shell_command_url: "google_search_results_links" };
                  });
 
-var google_search_re = build_url_regex($domain = "google",
-                                       $allow_www = true,
-                                       $path = "search?");
+var google_search_re = build_url_regex(
+    { domain: "google",
+      allow_www: true,
+      path: "search?" });
 auto_mode_list.push([google_search_re, google_search_results_mode]);

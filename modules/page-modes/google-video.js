@@ -51,5 +51,5 @@ define_page_mode("google_video_mode", "Google Video", $enable = function (buffer
     media_setup_local_object_classes(buffer);
 });
 
-var google_video_re = build_url_regex($domain = "video.google");
+var google_video_re = build_url_regex({ domain: "video.google" });
 auto_mode_list.push([google_video_re, google_video_mode]);

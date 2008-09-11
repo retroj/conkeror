@@ -96,6 +96,7 @@ function media_scrape_embedded_youtube(buffer, results) {
 // Use the embedded youtube scraper by default
 media_scrapers.unshift(media_scrape_embedded_youtube);
 
-let media_youtube_uri_test_regexp = build_url_regex($domain = /(?:[a-z]+\.)?youtube/,
-                                                    $path = /watch\?v=([A-Za-z0-9\-_]+)/);
+var media_youtube_uri_test_regexp = build_url_regex(
+    { domain: /(?:[a-z]+\.)?youtube/,
+      path: /watch\?v=([A-Za-z0-9\-_]+)/ });
 auto_mode_list.push([media_youtube_uri_test_regexp, youtube_mode]);

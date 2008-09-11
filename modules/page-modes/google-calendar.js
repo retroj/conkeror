@@ -41,7 +41,8 @@ define_page_mode("google_calendar_mode", "Google Calendar", $enable = function (
                      buffer.local_variables.content_buffer_normal_keymap = google_calendar_keymap;
                  });
 
-var google_calendar_re = build_url_regex($domain = "google",
-                                         $path   = "calendar/",
-                                         $allow_www = true);
+var google_calendar_re = build_url_regex(
+    { domain: "google",
+      path: "calendar/",
+      allow_www: true });
 auto_mode_list.push([google_calendar_re, google_calendar_mode]);

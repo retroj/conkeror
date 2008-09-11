@@ -1196,28 +1196,32 @@ function regex_to_string(obj) {
 /*
  * Build a regular expression to match URLs for a given web site.
  *
- * Both the $domain and $path arguments can be either regexes, in
+ * The arg `options' is an object that can contain the following
+ * keys to control the generation of the regexp.
+ *
+ * domain
+ *
+ * path
+ *
+ *   Both the domain and path arguments can be either regexes, in
  * which case they will be matched as is, or strings, in which case
  * they will be matched literally.
  *
- * $tlds specifies a list of valid top-level-domains to match, and
- * defaults to .com. Useful for when e.g. foo.org and foo.com are the
- * same.
+ * tlds - tlds specifies a list of valid top-level-domains to match,
+ * and defaults to .com. Useful for when e.g. foo.org and foo.com are
+ * the same.
  *
- * If $allow_www is true, www.domain.tld will also be allowed.
+ * allow_www - If allow_www is true, www.domain.tld will also be allowed.
  *
  */
-define_keywords("$domain", "$path", "$tlds", "$allow_www");
-function build_url_regex() {
-    keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
-    var domain = regex_to_string(arguments.$domain);
-    if(arguments.$allow_www) {
-        domain = "(?:www\.)?" + domain;
-    }
-    var path   = regex_to_string(arguments.$path);
-    var tlds   = arguments.$tlds;
-    var regex = "^https?://" + domain + "\\." + choice_regex(tlds) + "/" + path;
-    return new RegExp(regex);
+function build_url_regex(options) {
+    return new RegExp("^https?://" +
+                      (options.allow_www ? "(?:www\.)?" : "") +
+                      regex_to_string(options.domain) +
+                      "\\." +
+                      choice_regex(options.tlds || ["com"]) +
+                      "/" +
+                      regex_to_string(options.path || ""));
 }
 
 /*

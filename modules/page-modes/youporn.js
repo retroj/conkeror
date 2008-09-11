@@ -34,5 +34,5 @@ define_page_mode("youporn_mode", "YouPorn", $enable = function (buffer) {
     media_setup_local_object_classes(buffer);
 });
 
-var youporn_re = build_url_regex($domain = "youporn");
+var youporn_re = build_url_regex({ domain: "youporn" });
 auto_mode_list.push([youporn_re, youporn_mode]);
