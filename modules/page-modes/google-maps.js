@@ -38,9 +38,10 @@ define_key(google_maps_keymap, "C-n", "google-maps-pan-down");
 define_key(google_maps_keymap, "C-p", "google-maps-pan-up");
 
 
-define_page_mode("google_maps_mode", "Google Maps", $enable = function(buffer) {
+define_page_mode("google_maps_mode", "Google Maps",
+                 { enable: function(buffer) {
                      buffer.local_variables.content_buffer_normal_keymap = google_maps_keymap;
-                 });
+                 }});
 
 var google_maps_re = build_url_regex({ domain: "maps.google" });
 auto_mode_list.push([google_maps_re, google_maps_mode]);

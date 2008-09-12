@@ -53,8 +53,8 @@ var open_link_in_new_buffer = function (event)
 	    var buffer = window.buffers.current;
 	    create_buffer(window,
 			  buffer_creator(content_buffer,
-					 $load = spec,
-					 $configuration = buffer.configuration),
+					 { load: spec,
+					   configuration: buffer.configuration }),
 			  clicks_in_new_buffer_target);
 	}
 }

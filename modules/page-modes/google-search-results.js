@@ -25,7 +25,7 @@ define_browser_object_class("google_search_results_links", $label = "Google sear
                             $xpath_expression = "//a[@class='l']");
 
 define_page_mode("google_search_results_mode", "Google Search Results",
-                 $enable = function (buffer) {
+                 { enable: function (buffer) {
                      buffer.local_variables.content_buffer_normal_keymap = google_search_results_keymap;
                      buffer.local_variables.default_browser_object_classes = {
                          __proto__: default_browser_object_classes,
@@ -34,7 +34,7 @@ define_page_mode("google_search_results_mode", "Google Search Results",
                          save: "google_search_results_links",
                          shell_command: "google_search_results_links",
                          shell_command_url: "google_search_results_links" };
-                 });
+                 }});
 
 var google_search_re = build_url_regex(
     { domain: "google",

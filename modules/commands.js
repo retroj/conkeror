@@ -49,8 +49,8 @@ interactive("make-window",
             "Make a new window.",
             function (I) {
                 make_window(buffer_creator(content_buffer,
-                                           $load = homepage,
-                                           $configuration = I.buffer.configuration));
+                                           { load: homepage,
+                                             configuration: I.buffer.configuration }));
             });
 
 function delete_window (window)

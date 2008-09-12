@@ -7,6 +7,32 @@
  * COPYING file.
 **/
 
+/*
+ * merge_defaults does a soft merge of the key/value pairs of
+ * `defaults' into `obj'.  That is, a key/value pair will only be
+ * copied over when key does not already exist in `obj'.
+ *
+ * When `obj' is not of type "object", a clone of `defaults' will be
+ * returned if `defaults' is an object, and a new empty object
+ * otherwise.  When `obj' is of type "object", the key/value pairs
+ * from `defaults' will be soft-merged into it, and it will be
+ * returned.  Thus this function always returns something of type
+ * "object".
+ */
+function merge_defaults(obj, defaults)
+{
+    if (typeof obj != "object")
+        obj = {};
+    if (typeof defaults != "object")
+        return obj;
+    for (var k in defaults) {
+        if (obj[k] === undefined)
+            obj[k] = defaults[k];
+    }
+    return obj;
+}
+
+
 function string_hashset() {}
 
 string_hashset.prototype = {
@@ -1215,13 +1241,17 @@ function regex_to_string(obj) {
  *
  */
 function build_url_regex(options) {
+    options = merge_defaults(options,
+                             { path: "",
+                               tlds: ["com"]
+                             });
     return new RegExp("^https?://" +
                       (options.allow_www ? "(?:www\.)?" : "") +
                       regex_to_string(options.domain) +
                       "\\." +
-                      choice_regex(options.tlds || ["com"]) +
+                      choice_regex(options.tlds) +
                       "/" +
-                      regex_to_string(options.path || ""));
+                      regex_to_string(options.path));
 }
 
 /*

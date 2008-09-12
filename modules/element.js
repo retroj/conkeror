@@ -264,8 +264,8 @@ function browser_element_follow(buffer, target, elem)
     case OPEN_NEW_BUFFER_BACKGROUND:
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
-                                     $load = spec,
-                                     $configuration = buffer.configuration),
+                                     { load: spec,
+                                       configuration: buffer.configuration }),
                       target);
     }
 }

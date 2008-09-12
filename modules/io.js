@@ -29,7 +29,8 @@ const MODE_INPUT = MODE_RDONLY;
  */
 function read_text_file(file, options)
 {
-    var charset = options && options.charset || "UTF-8";
+    options = merge_defaults(options, { charset: "UTF-8" });
+    var charset = options.charset;
 
     var ifstream = null, icstream = null;
 
@@ -59,9 +60,14 @@ function read_text_file(file, options)
  */
 function write_text_file(file, buf, options)
 {
-    var charset = options && options.charset || "UTF-8";
-    var perms = options && options.perms || 0644;
-    var mode = options && options.mode || (MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
+    options = merge_defaults(options,
+                             { charset: "UTF-8",
+                               perms: 0644,
+                               mode: (MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE)
+                             });
+    var charset = options.charset;
+    var perms = options.perms;
+    var mode = options.mode;
 
     var ofstream, ocstream;
     try {
@@ -84,8 +90,12 @@ function write_text_file(file, buf, options)
  */
 function write_binary_file(file, buf, options)
 {
-    var perms = options && options.perms || 0644;
-    var mode = options && options.mode || (MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
+    options = merge_defaults(options,
+                             { perms: 0644,
+                               mode: (MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE)
+                             });
+    var perms = options.perms;
+    var mode = options.mode;
 
     var stream = null, bstream = null;
 

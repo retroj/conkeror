@@ -25,11 +25,11 @@ var interactive_commands = new string_hashmap();
  */
 function interactive(name, doc, handler, options)
 {
-    var prefix = options && options.prefix;
+    options = merge_defaults(options);
     var cmd = {
         name: name,
         handler: handler,
-        prefix: prefix,
+        prefix: options.prefix,
         doc: doc,
         shortdoc: get_shortdoc_string(doc),
         source_code_reference: get_caller_source_code_reference() };
