@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 Nicholas A. Zigarovich
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -51,12 +52,12 @@ function remove_mime_type_external_handler(mime_type) {
     return undefined;
 }
 
-/* Add a new external MIME type handler, or replace an existing handler.
+/* Define a new external MIME type handler, or replace an existing handler.
  * 'before' is optional, and must be a MIME type. If 'before' is specified,
  * then the 'mime_type' will be added to the list immediately before the MIME
  * type noted by 'before'. For example:
  *
- * add_mime_type_external_handler("video/ogg-theora", "mplayer", "video/*");
+ * define_mime_type_external_handler("video/ogg-theora", "mplayer", "video/*");
  *
  * If 'before' is specified but not in the list, then the 'mime_type' will be
  * added to the end of the list.
@@ -66,7 +67,7 @@ function remove_mime_type_external_handler(mime_type) {
  * list, then it will retain its current position in the list with the new
  * 'handler'.
  */
-function add_mime_type_external_handler(mime_type, handler, before) {
+function define_mime_type_external_handler(mime_type, handler, before) {
     let mteh = mime_type_external_handlers;
     let mt_r = _get_mime_type_regexp(mime_type);
     if (! before) {
@@ -85,9 +86,6 @@ function add_mime_type_external_handler(mime_type, handler, before) {
 	mteh.splice(bf_i, 0, [mt_r, handler]);
     }
 }
-
-var set_mime_type_external_handler = add_mime_type_external_handler;
-var update_mime_type_external_handler = add_mime_type_external_handler;
 
 function mime_type_from_uri(uri) {
     var type = "application/octet-stream";
