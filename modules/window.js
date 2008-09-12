@@ -222,3 +222,50 @@ function define_global_window_mode(name, hook_name) {
                        });
 }
 ignore_function_for_get_caller_source_code_reference("define_global_window_mode");
+
+
+
+/// Window title formatting
+
+/**
+ * Default tile formatter.  The page url is ignored.  If there is a
+ * page_title, returns: "Page title - Conkeror".  Otherwise, it
+ * returns just: "Conkeror".
+ */
+function default_title_formatter (window)
+{
+    var page_title = window.buffers.current.title;
+
+    if (page_title && page_title.length > 0)
+        return page_title + " - Conkeror";
+    else
+        return "Conkeror";
+}
+
+var title_format_fn = null;
+
+function set_window_title (window)
+{
+    window.document.title = title_format_fn(window);
+}
+
+function init_window_title ()
+{
+    title_format_fn = default_title_formatter;
+
+    add_hook("window_initialize_late_hook", set_window_title);
+    add_hook("current_content_buffer_location_change_hook",
+             function (buffer) {
+                 set_window_title(buffer.window);
+             });
+    add_hook("select_buffer_hook", function (buffer) { set_window_title(buffer.window); }, true);
+    add_hook("current_buffer_title_change_hook",
+             function (buffer) {
+                 set_window_title(buffer.window);
+             });
+}
+
+init_window_title ();
+
+///
+
