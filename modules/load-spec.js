@@ -204,7 +204,7 @@ function load_spec_mime_info(x) {
 
 function load_spec_default_shell_command(x) {
     var mime_type = load_spec_mime_type(x);
-    return get_external_handler_for_mime_type(mime_type);
+    return get_mime_type_external_handler(mime_type);
 }
 
 /* Target can be either a content_buffer or an nsIWebNavigation */

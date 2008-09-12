@@ -47,7 +47,7 @@ download_helper.prototype = {
             } else if (action == "o") {
                 var cwd = this.buffer ? this.buffer.cwd : default_directory.path;
                 var mime_type = this.launcher.MIMEInfo.MIMEType;
-                var suggested_action = get_external_handler_for_mime_type(mime_type);
+                var suggested_action = get_mime_type_external_handler(mime_type);
                 var command = yield this.window.minibuffer.read_shell_command(
                     $initial_value = suggested_action,
                     $cwd = cwd);
@@ -64,7 +64,7 @@ download_helper.prototype = {
                 let cwd = this.buffer ? this.buffer.cwd : this.window.buffers.current.cwd;
                 let cmd = yield this.window.minibuffer.read_shell_command(
                     $cwd = cwd,
-                    $initial_value = get_external_handler_for_mime_type(mime_type));
+                    $initial_value = get_mime_type_external_handler(mime_type));
                 shell_command_with_argument_blind(cmd, this.launcher.source.spec, $cwd = cwd);
             } else if (action == "c") {
                 action_chosen = true;
@@ -966,7 +966,7 @@ interactive("download-shell-command",
                 var cmd = yield I.minibuffer.read_shell_command(
                     $cwd = cwd,
                     $initial_value = buffer.info.shell_command ||
-                        get_external_handler_for_mime_type(buffer.info.MIME_type));
+                        get_mime_type_external_handler(buffer.info.MIME_type));
                 download_shell_command(buffer, cwd, cmd);
             });
 
