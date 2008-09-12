@@ -228,8 +228,7 @@ search_engine.prototype.__defineGetter__("completer", function () {
                 yield co_return(undefined);
             let str = input.substring(0,pos);
             try {
-                let lspec = eng.get_query_load_spec(str, response_type_xml,
-                                                    $override_mime_type = "application/xml");
+                let lspec = eng.get_query_load_spec(str, response_type_xml);
                 let result = yield send_http_request(lspec);
                 let doc = result.responseXML;
                 let data = [];

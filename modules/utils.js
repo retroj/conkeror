@@ -1128,10 +1128,8 @@ var xml_http_request_load_listener = {
 };
 
 
-define_keywords("$user", "$password", "$override_mime_type", "$headers");
-function send_http_request(lspec) {
-    keywords(arguments, $user = undefined, $password = undefined,
-             $override_mime_type = undefined, $headers = undefined);
+function send_http_request(lspec, options) {
+    options = merge_defaults(options);
     var req = xml_http_request();
     var cc = yield CONTINUATION;
     var aborting = false;
@@ -1143,17 +1141,17 @@ function send_http_request(lspec) {
         cc();
     };
 
-    if (arguments.$override_mime_type)
-        req.overrideMimeType(arguments.$override_mime_type);
+    if (options.override_mime_type)
+        req.overrideMimeType(options.override_mime_type);
 
     var post_data = load_spec_raw_post_data(lspec);
 
     var method = post_data ? "POST" : "GET";
 
-    req.open(method, load_spec_uri_string(lspec), true, arguments.$user, arguments.$password);
+    req.open(method, load_spec_uri_string(lspec), true, options.user, options.password);
     req.channel.notificationCallbacks = xml_http_request_load_listener;
 
-    for each (let [name,value] in arguments.$headers) {
+    for each (let [name,value] in options.headers) {
         req.setRequestHeader(name, value);
     }
 
