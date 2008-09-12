@@ -447,6 +447,7 @@ outer:
 define_keywords("$fallthrough", "$category");
 function define_key(kmap, keys, cmd)
 {
+    keywords(arguments);
     var orig_keys = keys;
     try {
         var ref = get_caller_source_code_reference();
@@ -509,6 +510,7 @@ function keymap ()
 }
 
 function define_keymap(name) {
+    keywords(arguments);
     this[name] = new keymap($name = name, forward_keywords(arguments));
 }
 
