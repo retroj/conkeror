@@ -7,32 +7,6 @@
  * COPYING file.
 **/
 
-/*
- * merge_defaults does a soft merge of the key/value pairs of
- * `defaults' into `obj'.  That is, a key/value pair will only be
- * copied over when key does not already exist in `obj'.
- *
- * When `obj' is not of type "object", a clone of `defaults' will be
- * returned if `defaults' is an object, and a new empty object
- * otherwise.  When `obj' is of type "object", the key/value pairs
- * from `defaults' will be soft-merged into it, and it will be
- * returned.  Thus this function always returns something of type
- * "object".
- */
-function merge_defaults(obj, defaults)
-{
-    if (typeof obj != "object")
-        obj = {};
-    if (typeof defaults != "object")
-        return obj;
-    for (var k in defaults) {
-        if (obj[k] === undefined)
-            obj[k] = defaults[k];
-    }
-    return obj;
-}
-
-
 function string_hashset() {}
 
 string_hashset.prototype = {
@@ -1084,8 +1058,12 @@ var xml_http_request_load_listener = {
 };
 
 
-function send_http_request(lspec, options) {
-    options = merge_defaults(options);
+define_keywords("$user", "$password", "$override_mime_type", "$headers");
+function send_http_request(lspec) {
+    // why do we get warnings in jsconsole unless we initialize the
+    // following keywords?
+    keywords(arguments, $user = undefined, $password = undefined,
+             $override_mime_type = undefined, $headers = undefined);
     var req = xml_http_request();
     var cc = yield CONTINUATION;
     var aborting = false;
@@ -1097,17 +1075,17 @@ function send_http_request(lspec, options) {
         cc();
     };
 
-    if (options.override_mime_type)
-        req.overrideMimeType(options.override_mime_type);
+    if (arguments.$override_mime_type)
+        req.overrideMimeType(arguments.$override_mime_type);
 
     var post_data = load_spec_raw_post_data(lspec);
 
     var method = post_data ? "POST" : "GET";
 
-    req.open(method, load_spec_uri_string(lspec), true, options.user, options.password);
+    req.open(method, load_spec_uri_string(lspec), true, arguments.$user, arguments.$password);
     req.channel.notificationCallbacks = xml_http_request_load_listener;
 
-    for each (let [name,value] in options.headers) {
+    for each (let [name,value] in arguments.$headers) {
         req.setRequestHeader(name, value);
     }
 
@@ -1176,36 +1154,28 @@ function regex_to_string(obj) {
 /*
  * Build a regular expression to match URLs for a given web site.
  *
- * The arg `options' is an object that can contain the following
- * keys to control the generation of the regexp.
- *
- * domain
- *
- * path
- *
- *   Both the domain and path arguments can be either regexes, in
+ * Both the $domain and $path arguments can be either regexes, in
  * which case they will be matched as is, or strings, in which case
  * they will be matched literally.
  *
- * tlds - tlds specifies a list of valid top-level-domains to match,
- * and defaults to .com. Useful for when e.g. foo.org and foo.com are
- * the same.
+ * $tlds specifies a list of valid top-level-domains to match, and
+ * defaults to .com. Useful for when e.g. foo.org and foo.com are the
+ * same.
  *
- * allow_www - If allow_www is true, www.domain.tld will also be allowed.
+ * If $allow_www is true, www.domain.tld will also be allowed.
  *
  */
-function build_url_regex(options) {
-    options = merge_defaults(options,
-                             { path: "",
-                               tlds: ["com"]
-                             });
-    return new RegExp("^https?://" +
-                      (options.allow_www ? "(?:www\.)?" : "") +
-                      regex_to_string(options.domain) +
-                      "\\." +
-                      choice_regex(options.tlds) +
-                      "/" +
-                      regex_to_string(options.path));
+define_keywords("$domain", "$path", "$tlds", "$allow_www");
+function build_url_regex() {
+    keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
+    var domain = regex_to_string(arguments.$domain);
+    if(arguments.$allow_www) {
+        domain = "(?:www\.)?" + domain;
+    }
+    var path   = regex_to_string(arguments.$path);
+    var tlds   = arguments.$tlds;
+    var regex = "^https?://" + domain + "\\." + choice_regex(tlds) + "/" + path;
+    return new RegExp(regex);
 }
 
 /*

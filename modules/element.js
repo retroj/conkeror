@@ -55,7 +55,7 @@ function define_browser_object_class(name) {
         "A prefix command to specify that the following command operate "+
             "on objects of type: "+name+".",
         function (ctx) { ctx._browser_object_class = name; },
-        { prefix: true });
+        $prefix = true);
 }
 
 define_browser_object_class("images",
@@ -264,8 +264,8 @@ function browser_element_follow(buffer, target, elem)
     case OPEN_NEW_BUFFER_BACKGROUND:
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
-                                     { load: spec,
-                                       configuration: buffer.configuration }),
+                                     $load = spec,
+                                     $configuration = buffer.configuration),
                       target);
     }
 }

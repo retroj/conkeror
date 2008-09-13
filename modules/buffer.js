@@ -43,10 +43,11 @@ function buffer_configuration(existing_configuration) {
     }
 }
 
-function buffer_creator(type, options) {
-    options = merge_defaults(options);
+define_keywords("$configuration", "$element");
+function buffer_creator(type) {
+    var args = forward_keywords(arguments);
     return function (window, element) {
-        return new type(window, element, options);
+        return new type(window, element, args);
     }
 }
 
@@ -57,13 +58,12 @@ define_variable("allow_browser_window_close", true,
                      "a window that was not opened by a script, the buffer will be " +
                      "killed, deleting the window as well if it is the only buffer.");
 
-function buffer(window, element, options)
+function buffer(window, element)
 {
-    options = merge_defaults(options);
-    var configuration = options.configuration;
     this.constructor_begin();
+    keywords(arguments, $configuration = null);
     this.window = window;
-    this.configuration = new buffer_configuration(configuration);
+    this.configuration = new buffer_configuration(arguments.$configuration);
     if (element == null)
     {
         element = create_XUL(window, "vbox");
@@ -696,13 +696,14 @@ var mode_display_names = {};
 define_buffer_local_hook("buffer_mode_change_hook");
 define_current_buffer_hook("current_buffer_mode_change_hook", "buffer_mode_change_hook");
 
-function define_buffer_mode(name, display_name, options) {
-    options = merge_defaults(options);
+define_keywords("$class", "$enable", "$disable", "$doc");
+function define_buffer_mode(name, display_name) {
+    keywords(arguments);
 
     var hyphen_name = name.replace("_","-","g");
-    var mode_class = options.class;
-    var enable = options.enable;
-    var disable = options.disable;
+    var mode_class = arguments.$class;
+    var enable = arguments.$enable;
+    var disable = arguments.$disable;
 
     mode_display_names[name] = display_name;
 
@@ -762,7 +763,7 @@ function define_buffer_mode(name, display_name, options) {
         return new_state;
     };
     conkeror[name] = func;
-    interactive(hyphen_name, options.doc, function (I) {
+    interactive(hyphen_name, arguments.$doc, function (I) {
         var arg = I.P;
         var new_state = func(I.buffer, arg && univ_arg_to_number(arg));
         I.minibuffer.message(hyphen_name + (new_state ? " enabled" : " disabled"));

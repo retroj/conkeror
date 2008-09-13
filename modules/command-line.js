@@ -16,7 +16,7 @@ define_variable("url_remoting_fn", load_url_in_new_window);
  * command line will be loaded in a new window.
  */
 function load_url_in_new_window(url, ctx) {
-    make_window(buffer_creator(content_buffer, { load: url, configuration: ctx.config }));
+    make_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config));
 }
 
 /*
@@ -26,10 +26,8 @@ function load_url_in_new_window(url, ctx) {
  * recently used window, or a new window if none exist.
  */
 function load_url_in_new_buffer(url, ctx) {
-    create_buffer_in_current_window(
-        buffer_creator(
-            content_buffer, { load: url, configuration: ctx.config }),
-        OPEN_NEW_BUFFER, true /* focus the new window */);
+    create_buffer_in_current_window(buffer_creator(content_buffer, $load = url, $configuration = ctx.config),
+                                    OPEN_NEW_BUFFER, true /* focus the new window */);
 }
 
 /*

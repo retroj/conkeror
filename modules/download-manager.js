@@ -561,11 +561,12 @@ define_variable(
         "Lowering this interval will increase the promptness of the progress display at " +
         "the cost of using additional processor time.");
 
-function download_buffer(window, element, options) {
-    options = merge_defaults(options);
+define_keywords("$info");
+function download_buffer(window, element) {
     this.constructor_begin();
-    special_buffer.call(this, window, element, options);
-    this.info = options.info;
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.info = arguments.$info;
     this.configuration.cwd = this.info.mozilla_info.targetFile.parent.path;
     this.description = this.info.mozilla_info.source.spec;
     this.keymap = download_buffer_keymap;
@@ -1008,7 +1009,7 @@ function open_download_buffer_automatically(info) {
         target = OPEN_NEW_WINDOW;
     if (info.temporary_status == DOWNLOAD_NOT_TEMPORARY ||
         !(download_temporary_file_open_buffer_delay > 0))
-        create_buffer(buf, buffer_creator(download_buffer, { info: info }), target);
+        create_buffer(buf, buffer_creator(download_buffer, $info = info), target);
     else {
         var timer = null;
         function finish() {
@@ -1017,7 +1018,7 @@ function open_download_buffer_automatically(info) {
         add_hook.call(info, "download_finished_hook", finish);
         timer = call_after_timeout(function () {
                 remove_hook.call(info, "download_finished_hook", finish);
-                create_buffer(buf, buffer_creator(download_buffer, { info: info }), target);
+                create_buffer(buf, buffer_creator(download_buffer, $info = info), target);
             }, download_temporary_file_open_buffer_delay);
     }
 }

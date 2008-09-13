@@ -137,11 +137,12 @@ help_document_generator.prototype = {
     }
 };
 
-function describe_bindings_buffer(window, element, options) {
-    options = merge_defaults(options);
+define_keywords("$binding_list");
+function describe_bindings_buffer(window, element) {
     this.constructor_begin();
-    special_buffer.call(this, window, element, options);
-    this.binding_list = options.binding_list;
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.binding_list = arguments.$binding_list;
     this.constructor_end();
 }
 
@@ -253,19 +254,20 @@ function describe_bindings(buffer, target) {
             list.push(bind);
         });
     create_buffer(buffer.window, buffer_creator(describe_bindings_buffer,
-                                                { configuration: buffer.configuration,
-                                                  binding_list: list }),
+                                                $configuration = buffer.configuration,
+                                                $binding_list = list),
                   target);
 }
 interactive("describe-bindings", null, function (I) {describe_bindings(I.buffer, I.browse_target("describe-bindings"));});
 default_browse_targets["describe-bindings"] = "find-url-new-buffer";
 
 
-function apropos_command_buffer(window, element, options) {
-    options = merge_defaults(options);
+define_keywords("$command_list");
+function apropos_command_buffer(window, element) {
     this.constructor_begin();
-    special_buffer.call(this, window, element, options);
-    this.command_list = options.command_list;
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.command_list = arguments.$command_list;
     this.constructor_end();
 }
 
@@ -334,8 +336,8 @@ function apropos_command(buffer, substring, target) {
                   return 0
               });
     create_buffer(buffer.window, buffer_creator(apropos_command_buffer,
-                                                { configuration: buffer.configuration,
-                                                  command_list: list }),
+                                                $configuration = buffer.configuration,
+                                                $command_list = list),
                   target);
 }
 
@@ -350,12 +352,13 @@ default_browse_targets["apropos-command"] = "find-url-new-buffer";
 
 
 
-function describe_command_buffer(window, element, options) {
-    options = merge_defaults(options);
+define_keywords("$command", "$bindings");
+function describe_command_buffer(window, element) {
     this.constructor_begin();
-    special_buffer.call(this, window, element, options);
-    this.bindings = options.bindings;
-    this.command = options.command;
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.bindings = arguments.$bindings;
+    this.command = arguments.$command;
     this.cmd = interactive_commands.get(this.command);
     this.source_code_reference = this.cmd.source_code_reference;
     this.constructor_end();
@@ -415,9 +418,9 @@ function describe_command(buffer, command, target) {
     var bindings = find_command_in_keymap(buffer, command);
     create_buffer(buffer.window,
                   buffer_creator(describe_command_buffer,
-                                 { configuration: buffer.configuration,
-                                   command: command,
-                                   bindings: bindings }),
+                                 $configuration = buffer.configuration,
+                                 $command = command,
+                                 $bindings = bindings),
                   target);
 }
 interactive("describe-command", null, function (I) {
@@ -439,13 +442,14 @@ function view_referenced_source_code(buffer) {
 interactive("view-referenced-source-code", null, function (I) {yield view_referenced_source_code(I.buffer);});
 
 
-function describe_key_buffer(window, element, options) {
-    options = merge_defaults(options);
+define_keywords("$binding", "$other_bindings", "$key_sequence");
+function describe_key_buffer(window, element) {
     this.constructor_begin();
-    special_buffer.call(this, window, element, options);
-    this.key_sequence = options.key_sequence;
-    this.bindings = options.other_bindings;
-    this.bind = options.binding;
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.key_sequence = arguments.$key_sequence;
+    this.bindings = arguments.$other_bindings;
+    this.bind = arguments.$binding;
     this.source_code_reference = this.bind.source_code_reference;
     this.constructor_end();
 }
@@ -528,10 +532,10 @@ function describe_key(buffer, key_info, target) {
 
     create_buffer(buffer.window,
                   buffer_creator(describe_key_buffer,
-                                 { configuration: buffer.configuration,
-                                   key_sequence: seq.join(" "),
-                                   other_bindings: bindings,
-                                   binding: bind }),
+                                 $configuration = buffer.configuration,
+                                 $key_sequence = seq.join(" "),
+                                 $other_bindings = bindings,
+                                 $binding = bind),
                   target);
 }
 
@@ -557,11 +561,12 @@ default_browse_targets["describe-key"] = "find-url-new-buffer";
 
 
 
-function describe_variable_buffer(window, element, options) {
-    options = merge_defaults(options);
+define_keywords("$variable");
+function describe_variable_buffer(window, element) {
     this.constructor_begin();
-    special_buffer.call(this, window, element, options);
-    this.variable = options.variable;
+    keywords(arguments);
+    special_buffer.call(this, window, element, forward_keywords(arguments));
+    this.variable = arguments.$variable;
     this.cmd = user_variables.get(this.variable);
     this.source_code_reference = this.cmd.source_code_reference;
     this.constructor_end();
@@ -643,8 +648,8 @@ describe_variable_buffer.prototype = {
 function describe_variable(buffer, variable, target) {
     create_buffer(buffer.window,
                   buffer_creator(describe_variable_buffer,
-                                 { configuration: buffer.configuration,
-                                   variable: variable }),
+                                 $configuration = buffer.configuration,
+                                 $variable = variable),
                   target);
 }
 interactive("describe-variable", null, function (I) {

@@ -17,19 +17,17 @@ var interactive_commands = new string_hashmap();
  *
  * handler: A function to handle the command.
  *
- * options: An object that may contain any of the following keys.
- *          Options may be null.
- *
- *   prefix: boolean where `true' means that this command is a
- *           prefix command.
+ * The $prefix keyword, when true, means that the command
+ * is a prefix-command.
  */
-function interactive(name, doc, handler, options)
+define_keywords("$prefix");
+function interactive(name, doc, handler)
 {
-    options = merge_defaults(options);
+    keywords(arguments);
     var cmd = {
         name: name,
         handler: handler,
-        prefix: options.prefix,
+        prefix: arguments.$prefix,
         doc: doc,
         shortdoc: get_shortdoc_string(doc),
         source_code_reference: get_caller_source_code_reference() };

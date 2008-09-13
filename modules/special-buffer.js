@@ -7,10 +7,10 @@
 
 require("buffer.js");
 
-function special_buffer(window, element, options) {
-    options = merge_defaults(options);
+function special_buffer(window, element) {
     this.constructor_begin();
-    conkeror.buffer.call(this, window, element, options);
+    keywords(arguments);
+    conkeror.buffer.call(this, window, element, forward_keywords(arguments));
     this.generated = false;
 
     var buffer = this;

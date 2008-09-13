@@ -24,13 +24,10 @@ const MODE_OUTPUT = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE;
 const MODE_OUTPUT_APPEND = MODE_WRONLY | MODE_CREATE | MODE_APPEND;
 const MODE_INPUT = MODE_RDONLY;
 
-/*
- * options: charset
- */
-function read_text_file(file, options)
+define_keywords("$charset");
+function read_text_file(file)
 {
-    options = merge_defaults(options, { charset: "UTF-8" });
-    var charset = options.charset;
+    keywords(arguments, $charset = "UTF-8");
 
     var ifstream = null, icstream = null;
 
@@ -40,7 +37,7 @@ function read_text_file(file, options)
 
         ifstream.init(file, -1, 0, 0);
         const replacementChar = Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER;
-        icstream.init(ifstream, charset, 4096, replacementChar); // 4096 bytes buffering
+        icstream.init(ifstream, arguments.$charset, 4096, replacementChar); // 4096 bytes buffering
 
         var buffer = "";
         var str = {};
@@ -55,27 +52,18 @@ function read_text_file(file, options)
     }
 }
 
-/*
- * options: charset, perms, mode
- */
-function write_text_file(file, buf, options)
+define_keywords("$mode", "$perms", "$charset");
+function write_text_file(file, buf)
 {
-    options = merge_defaults(options,
-                             { charset: "UTF-8",
-                               perms: 0644,
-                               mode: (MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE)
-                             });
-    var charset = options.charset;
-    var perms = options.perms;
-    var mode = options.mode;
+    keywords(arguments, $charset = "UTF-8", $perms = 0644, $mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
 
     var ofstream, ocstream;
     try {
         ofstream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
         ocstream = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
 
-        ofstream.init(file, mode, perms, 0);
-        ocstream.init(ofstream, charset, 0, 0x0000);
+        ofstream.init(file, arguments.$mode, arguments.$perms, 0);
+        ocstream.init(ofstream, arguments.$charset, 0, 0x0000);
         ocstream.writeString(buf);
     } finally {
         if (ocstream)
@@ -85,23 +73,15 @@ function write_text_file(file, buf, options)
     }
 }
 
-/*
- * options: perms, mode
- */
-function write_binary_file(file, buf, options)
+define_keywords("$mode", "$perms");
+function write_binary_file(file, buf)
 {
-    options = merge_defaults(options,
-                             { perms: 0644,
-                               mode: (MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE)
-                             });
-    var perms = options.perms;
-    var mode = options.mode;
-
+    keywords(arguments, $perms = 0644, $mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
     var stream = null, bstream = null;
 
     try {
         stream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
-        stream.init(file, mode, perms, 0);
+        stream.init(file, arguments.$mode, arguments.$perms, 0);
 
         bstream = binary_output_stream(stream);
         bstream.writeBytes(buf, buf.length);

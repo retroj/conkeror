@@ -28,13 +28,13 @@ define_current_buffer_hook("current_content_buffer_focus_change_hook", "content_
 define_current_buffer_hook("current_content_buffer_overlink_change_hook", "content_buffer_overlink_change_hook");
 
 /* If browser is null, create a new browser */
-function content_buffer(window, element, options)
+define_keywords("$load");
+function content_buffer(window, element)
 {
+    keywords(arguments);
     this.constructor_begin();
 
-    options = merge_defaults(options);
-
-    conkeror.buffer.call(this, window, element, options);
+    conkeror.buffer.call(this, window, element, forward_keywords(arguments));
 
     this.browser.addProgressListener(this);
     var buffer = this;
@@ -89,7 +89,7 @@ function content_buffer(window, element, options)
 
     this.ignore_initial_blank = true;
 
-    var lspec = options.load;
+    var lspec = arguments.$load;
     if (lspec) {
         if (lspec.url == "about:blank")
             this.ignore_initial_blank = false;
@@ -363,8 +363,8 @@ function open_in_browser(buffer, target, lspec)
     default:
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
-                                     { load: lspec,
-                                       configuration: buffer.configuration }),
+                                     $load = lspec,
+                                     $configuration = buffer.configuration),
                       target);
         break;
     }
@@ -527,11 +527,11 @@ browser_dom_window.prototype = {
         case FOLLOW_CURRENT_FRAME:
             return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new content_buffer(this.window, null /* element */, { configuration: config });
+            var buffer = new content_buffer(this.window, null /* element */, $configuration = config);
             this.window.buffers.current = buffer;
             return buffer.top_frame;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new content_buffer(this.window, null /* element */, { configuration: config });
+            var buffer = new content_buffer(this.window, null /* element */, $configuration = config);
             return buffer.top_frame;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */
@@ -548,20 +548,21 @@ browser_dom_window.prototype = {
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
 
-function define_page_mode(name, display_name, options) {
-    options = merge_defaults(options);
-    var enable = options.enable;
-    var disable = options.disable;
-    var doc = options.doc;
+define_keywords("$enable", "$disable", "$doc");
+function define_page_mode(name, display_name) {
+    keywords(arguments);
+    var enable = arguments.$enable;
+    var disable = arguments.$disable;
+    var doc = arguments.$doc;
     define_buffer_mode(name, display_name,
-                       { class: "page_mode",
-                         enable: enable,
-                         disable: function (buffer) {
+                       $class = "page_mode",
+                       $enable = enable,
+                       $disable = function (buffer) {
                            if (disable)
                                disable(buffer);
                            buffer.local_variables = {};
-                         },
-                         doc: doc });
+                       },
+                       $doc = doc);
 }
 ignore_function_for_get_caller_source_code_reference("define_page_mode");
 

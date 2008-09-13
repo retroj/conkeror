@@ -259,9 +259,9 @@ function disable_reddit_mode(buffer) {
 }
 
 define_page_mode("reddit_mode", "reddit",
-                 { enable: enable_reddit_mode,
-                   disable: disable_reddit_mode,
-                   doc: "reddit page-mode: keyboard navigation for reddit." });
+                 $enable = enable_reddit_mode,
+                 $disable = disable_reddit_mode,
+                 $doc = "reddit page-mode: keyboard navigation for reddit.");
 
-var reddit_re = build_url_regex({ domain: /([a-zA-Z0-9\-]*\.)*reddit/ });
+var reddit_re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/);
 auto_mode_list.push([reddit_re, reddit_mode]);

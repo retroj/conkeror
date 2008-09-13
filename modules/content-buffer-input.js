@@ -17,12 +17,11 @@ function define_input_mode(base_name, display_name, keymap_name, doc) {
     content_buffer_input_mode_keymaps[name] = keymap_name;
     define_buffer_mode(name,
                        display_name,
-                       { class: "input_mode",
-                         enable: function (buffer) {
-                             check_buffer(buffer, content_buffer);
-                             content_buffer_update_keymap_for_input_mode(buffer); },
-                         disable: false,
-                         doc: doc });
+                       $class = "input_mode",
+                       $enable = function (buffer) { check_buffer(buffer, content_buffer);
+                                                     content_buffer_update_keymap_for_input_mode(buffer); },
+                       $disable = false,
+                       $doc = doc);
 }
 ignore_function_for_get_caller_source_code_reference("define_input_mode");
 
@@ -134,7 +133,7 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 add_hook("content_buffer_focus_change_hook", function (buf) { content_buffer_update_input_mode_for_focus(buf, false); } );
 
 define_buffer_mode('caret_mode', 'CARET',
-                   { enable: function(buffer) {
+                   $enable = function(buffer) {
                        buffer.browser.setAttribute('showcaret', 'true');
                        let sc = getFocusedSelCtrl(buffer);
                        let s = sc.getSelection(sc.SELECTION_NORMAL);
@@ -147,13 +146,13 @@ define_buffer_mode('caret_mode', 'CARET',
                        buffer.top_frame.focus();
                        caret_input_mode(buffer, true);
                    },
-                     disable: function(buffer) {
+                   $disable = function(buffer) {
                        buffer.browser.setAttribute('showcaret', '');
                        let sc = getFocusedSelCtrl(buffer);
                        sc.setCaretEnabled(false);
                        buffer.browser.focus();
                        content_buffer_update_input_mode_for_focus(buffer, true);
-                     }});
+                   });
 
 watch_pref(CARET_PREF, function() {
                if (get_pref(CARET_PREF)) {

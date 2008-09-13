@@ -34,9 +34,8 @@ function xkcd_add_title(buffer) {
     img.parentNode.insertBefore(span, node.nextSibling);
 }
 
-define_page_mode(
-    "xkcd_mode","XKCD",
-    { enable: function (buffer) {
+define_page_mode("xkcd_mode","XKCD",
+    $enable = function (buffer) {
         if(buffer.browser.webProgress.isLoadingDocument) {
             add_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_add_title);
         } else {
@@ -44,17 +43,16 @@ define_page_mode(
         }
     },
     // When we disable the mode, remove the <span>
-    disable: function(buffer) {
+    $disable = function(buffer) {
         remove_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_add_title);
         var span = buffer.document.getElementById('conkeror:xkcd-title-text');
         if(span) {
             span.parentNode.removeChild(span);
         }
-    }});
+    });
 
-var xkcd_re = build_url_regex(
-    { domain: "xkcd",
-      allow_www: true,
-      tlds: ["com", "net", "org"],
-      path: /(\d+\/)?/ });
+var xkcd_re = build_url_regex($domain = "xkcd",
+                              $allow_www = true,
+                              $tlds = ["com", "net", "org"],
+                              $path = /(\d+\/)?/);
 auto_mode_list.push([xkcd_re, xkcd_mode]);
