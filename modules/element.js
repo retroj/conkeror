@@ -443,6 +443,7 @@ function browser_element_copy(buffer, elem)
             break;
         }
     }
+    browser_set_element_focus(buffer, elem);
     writeToClipboard (text);
     buffer.window.minibuffer.message ("Copied: " + text);
 }
