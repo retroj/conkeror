@@ -136,12 +136,6 @@ define_buffer_mode('caret_mode', 'CARET',
                    $enable = function(buffer) {
                        buffer.browser.setAttribute('showcaret', 'true');
                        let sc = getFocusedSelCtrl(buffer);
-                       let s = sc.getSelection(sc.SELECTION_NORMAL);
-                       if(s.anchorNode) {
-                           s.collapseToStart();
-                       } else {
-                           s.collapse(buffer.document.body, 0);
-                       }
                        sc.setCaretEnabled(true);
                        buffer.top_frame.focus();
                        caret_input_mode(buffer, true);
