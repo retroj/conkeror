@@ -97,8 +97,8 @@ interactive("gmail-label-go",
 
 function gmail_focus_primary_frame(buffer) {
     var frames = buffer.top_frame.frames;
-    if (frames.length >= 3)
-        buffer.top_frame.frames[2].focus();
+    if (frames.length >= 4)
+        buffer.top_frame.frames[3].focus();
 }
 interactive("gmail-focus-primary-frame", "Focus the main GMail frame.",
             function (I) {gmail_focus_primary_frame(I.buffer); unfocus(I.window, I.buffer);});
