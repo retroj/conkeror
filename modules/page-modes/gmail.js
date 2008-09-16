@@ -101,7 +101,7 @@ function gmail_focus_primary_frame(buffer) {
         buffer.top_frame.frames[2].focus();
 }
 interactive("gmail-focus-primary-frame", "Focus the main GMail frame.",
-            function (I) {gmail_focus_primary_frame(I.buffer); unfocus(I.buffer);});
+            function (I) {gmail_focus_primary_frame(I.buffer); unfocus(I.window, I.buffer);});
 
 define_page_mode("gmail_mode", "GMail",
                  $enable = function (buffer) {
