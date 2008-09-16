@@ -390,6 +390,13 @@ define_download_local_hook("download_progress_change_hook");
 define_download_local_hook("download_state_change_hook");
 define_download_local_hook("download_shell_command_change_hook");
 
+define_variable('delete_temporary_files_for_command', true,
+                'If this is set to true, temporary files '
+                + 'downloaded to run a command on them will be '
+                + 'deleted once the command completes. If not, the '
+                + 'file will stay around forever unless deleted '
+                + 'outside the browser.');
+
 var download_info_max_queue_delay = 100;
 
 var download_progress_listener = {
@@ -430,7 +437,9 @@ var download_progress_listener = {
                                                                   $cwd = info.shell_command_cwd);
                             } finally  {
                                 if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
-                                    info.target_file.remove(false /* not recursive */);
+                                    if(delete_temporary_files_for_command) {
+                                        info.target_file.remove(false /* not recursive */);
+                                    }
                                 info.running_shell_command = false;
                                 download_shell_command_change_hook.run(info);
                             }
