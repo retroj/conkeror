@@ -7,13 +7,13 @@
 
 require("bindings/default/content-buffer/normal.js");
 
-define_key(content_buffer_normal_keymap, "S-equals", "zoom-in-text", $category = "Zoom (text)");
-define_key(content_buffer_normal_keymap, "equals", "zoom-reset-text", $category = "Zoom (text)");
-define_key(content_buffer_normal_keymap, "subtract", "zoom-out-text", $category = "Zoom (text)");
+define_key(content_buffer_normal_keymap, "+", "zoom-in-text", $category = "Zoom (text)");
+define_key(content_buffer_normal_keymap, "=", "zoom-reset-text", $category = "Zoom (text)");
+define_key(content_buffer_normal_keymap, "-", "zoom-out-text", $category = "Zoom (text)");
 
-define_key(content_buffer_normal_keymap, "C-S-equals", "zoom-in-full", $category = "Zoom (full)");
-define_key(content_buffer_normal_keymap, "C-equals", "zoom-reset-full", $category = "Zoom (full)");
-define_key(content_buffer_normal_keymap, "C-subtract", "zoom-out-full", $category = "Zoom (full)");
+define_key(content_buffer_normal_keymap, "C-+", "zoom-in-full", $category = "Zoom (full)");
+define_key(content_buffer_normal_keymap, "C-=", "zoom-reset-full", $category = "Zoom (full)");
+define_key(content_buffer_normal_keymap, "C--", "zoom-out-full", $category = "Zoom (full)");
 
 
 
