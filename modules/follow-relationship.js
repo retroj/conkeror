@@ -38,8 +38,8 @@ browser_relationship_patterns[RELATIONSHIP_PREVIOUS] =
      new RegExp("\\bprev|previous\\b","i")
     ];
 
-function document_get_element_by_relationship(doc, relationship) {
-    var patterns = browser_relationship_patterns[relationship];
+function document_get_element_by_relationship(buffer, doc, relationship) {
+    var patterns = buffer.get('browser_relationship_patterns')[relationship];
     var rel_name = new RegExp(browser_relationship_rel_regexp[relationship], "i");
     var rev_name = new RegExp(browser_relationship_rev_regexp[relationship], "i");
 
@@ -82,7 +82,8 @@ function document_get_element_by_relationship(doc, relationship) {
 function browser_follow_relationship(buffer, relationship, target) {
     check_buffer(buffer, content_buffer);
     for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
-        let elem = document_get_element_by_relationship(frame.document, relationship);
+        let elem = document_get_element_by_relationship(
+            buffer, frame.document, relationship);
         if (elem) {
             browser_element_follow(buffer, target, elem);
             return;
