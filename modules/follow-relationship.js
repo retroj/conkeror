@@ -18,7 +18,10 @@ var browser_relationship_rel_name = ["next", "previous"];
 var browser_relationship_rel_regexp = ["next", "prev|previous"];
 var browser_relationship_rev_regexp = ["prev|previous", "next"];
 
-define_variable("browser_relationship_patterns", {}, "Patterns used by `follow-next' and `follow-previous'.");
+define_variable("browser_relationship_patterns", {},
+    "Patterns used by `follow-next' and `follow-previous'. "+
+    "User value may be overridden for specific websites by "+
+    "page-modes.");
 
 browser_relationship_patterns[RELATIONSHIP_NEXT] =
     [/^next$/i,
