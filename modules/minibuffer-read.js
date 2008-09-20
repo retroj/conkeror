@@ -50,7 +50,8 @@ function text_entry_minibuffer_state(continuation) {
     if (arguments.$history)
     {
         this.history = minibuffer_history_data.get_put_default(arguments.$history, []);
-        this.history_index = this.history.length;
+        this.history_index = -1;
+        this.saved_last_history_entry = null;
     }
 
     this.validator = arguments.$validator;
@@ -444,16 +445,34 @@ function minibuffer_history_next (window, count)
     if (!(s instanceof text_entry_minibuffer_state))
         throw new Error("Invalid minibuffer state");
     if (!s.history || s.history.length == 0)
+        throw interactive_error("No history available.");
+    if (count == 0)
         return;
-    m._restore_normal_state();
-    var index = s.history_index + count;
+    var index = s.history_index;
+    if (count > 0 && index == -1)
+        throw interactive_error("End of history; no next item");
+    else if (count < 0 && index == 0) {
+        throw interactive_error("Beginning of history; no preceding item");
+    }
+    if (index == -1) {
+        s.saved_last_history_entry = m._input_text;
+        index = s.history.length + count;
+    } else
+        index = index + count;
+
     if (index < 0)
         index = 0;
-    if (index >= s.history.length)
-        index = s.history.length - 1;
+
+    m._restore_normal_state();
+    if (index >= s.history.length) {
+        index = -1;
+        m._input_text = s.saved_last_history_entry;
+    } else {
+        m._input_text = s.history[index];
+    }
     s.history_index = index;
-    m._input_text = s.history[index];
     m._set_selection();
+    s.handle_input();
 }
 interactive("minibuffer-history-next", null, function (I) {minibuffer_history_next(I.window, I.p);});
 interactive("minibuffer-history-previous", null, function (I) {minibuffer_history_next(I.window, -I.p);});
