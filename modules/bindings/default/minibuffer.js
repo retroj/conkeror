@@ -33,6 +33,7 @@ define_key(minibuffer_base_keymap, "C-right", "minibuffer-forward-word");
 define_key(minibuffer_base_keymap, "M-right", "minibuffer-forward-word");
 define_key(minibuffer_base_keymap, "C-y", "minibuffer-cmd_paste");
 define_key(minibuffer_base_keymap, "M-w", "minibuffer-cmd_copy");
+define_key(minibuffer_base_keymap, "C-w", "minibuffer-cmd_cut");
 define_key(minibuffer_base_keymap, "C-k", "minibuffer-cmd_deleteToEndOfLine");
 
 define_key(minibuffer_base_keymap, "home", "minibuffer-beginning-of-line");
