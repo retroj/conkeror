@@ -11,7 +11,7 @@ const nav_history_service = Cc["@mozilla.org/browser/nav-history-service;1"]
 
 define_keywords("$use_webjumps", "$use_history", "$use_bookmarks");
 function history_completer() {
-    keywords(arguments)
+    keywords(arguments);
     var use_history = arguments.$use_history;
     var use_bookmarks = arguments.$use_bookmarks;
     return function (input, pos, conservative) {
@@ -23,6 +23,12 @@ function history_completer() {
             query.onlyBookmarked = true;
         var options = nav_history_service.getNewQueryOptions();
         options.sortingMode = options.SORT_BY_VISITCOUNT_DESCENDING;
+        if (use_bookmarks && !use_history)
+            options.queryType = options.QUERY_TYPE_BOOKMARKS;
+        else if (use_history && !use_bookmarks)
+            options.queryType = options.QUERY_TYPE_HISTORY;
+        else
+            options.queryType = options.QUERY_TYPE_UNIFIED; //WTF: not implemented yet?
         var root = nav_history_service.executeQuery(query, options).root;
         root.containerOpen = true;
         var history_count = root.childCount;
