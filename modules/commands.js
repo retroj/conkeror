@@ -141,9 +141,9 @@ interactive("execute-extended-command",
                     prompt += '['+boc+'] ';
                 if (prefix !== null) {
                     if (typeof prefix == "object")
-                        prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
+                        prompt += prefix[0] == 4 ? "C-u " : prefix[0] + " ";
                     else
-                        prompt = prefix + " ";
+                        prompt += prefix + " ";
                 }
                 meta_x(I.window, I.P,
                        (yield I.minibuffer.read_command(
