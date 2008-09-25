@@ -125,24 +125,30 @@ interactive(
   function (I) call_on_focused_field(I, open_line)
 );
 
-function meta_x (window, prefix, command)
+function meta_x (window, prefix, command, browser_object_class)
 {
-    call_interactively({window: window, prefix_argument: prefix}, command);
+    call_interactively({window: window,
+                        prefix_argument: prefix,
+                        _browser_object_class: browser_object_class}, command);
 }
 interactive("execute-extended-command",
             "Execute a Conkeror command specified in the minibuffer.",
             function (I) {
                 var prefix = I.P;
+                var boc = I._browser_object_class;
                 var prompt = "";
-                if (prefix == null)
-                    prompt = "";
-                else if (typeof prefix == "object")
-                    prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
-                else
-                    prompt = prefix + " ";
+                if (boc)
+                    prompt += '['+boc+'] ';
+                if (prefix !== null) {
+                    if (typeof prefix == "object")
+                        prompt = prefix[0] == 4 ? "C-u " : prefix[0] + " ";
+                    else
+                        prompt = prefix + " ";
+                }
                 meta_x(I.window, I.P,
                        (yield I.minibuffer.read_command(
-                           $prompt = "M-x" + prompt)));
+                           $prompt = "M-x" + prompt)),
+                       boc);
             });
 
 /// built in commands
