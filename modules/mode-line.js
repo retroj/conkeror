@@ -193,6 +193,19 @@ clock_widget.prototype.destroy = function () {
     this.window.clearTimeout(this.timer_ID);
 };
 
+function buffer_count_widget(window) {
+    this.name = "buffer-count-widget";
+    text_widget.call(this, window);
+    this.add_hook("select_buffer_hook");
+    this.add_hook("create_buffer_hook");
+    this.add_hook("kill_buffer_hook");
+}
+buffer_count_widget.prototype.__proto__ = text_widget.prototype;
+buffer_count_widget.prototype.update = function () {
+    this.view.text = ("[" + (this.window.buffers.selected_index+1) + "/" +
+                      this.window.buffers.count + "]");
+};
+
 function mode_line_adder(widget_constructor) {
     return function (window) { window.mode_line.add_text_widget(new widget_constructor(window)); }
 }
