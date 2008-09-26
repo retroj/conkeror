@@ -22,3 +22,23 @@ function adblockplus_settings(buffer, uri_string) {
 }
 interactive("adblockplus-settings", "Show the Adblock Plus settings dialog.",
             function (I) { adblockplus_settings(I.buffer); });
+
+default_browser_object_classes.adblock = "images";
+
+interactive("adblockplus-add", "Add a pattern to Adblock Plus.",
+            function (I) {
+    var element = yield I.read_browser_object("adblock", "Adblock");
+
+    var spec = element_get_load_spec(element);
+    if (spec == null)
+        throw interactive_error("Element has no associated URI");
+
+    var pattern = yield I.minibuffer.read_url(
+        $prompt = "Adblock:",
+        $initial_value = load_spec_uri_string(spec),
+        $history = "url");
+
+    adblockplus_service.addPatterns([pattern]);
+
+    I.buffer.web_navigation.reload(Ci.nsIWebNavigation.LOAD_FLAGS_NONE);
+});
