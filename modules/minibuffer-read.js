@@ -486,33 +486,29 @@ minibuffer.prototype.read = function () {
 }
 
 minibuffer.prototype.read_command = function () {
-    keywords(arguments);
-    var completer = prefix_completer(
-        $completions = function (visitor) interactive_commands.for_each_value(visitor),
-        $get_string = function (x) x.name,
-        $get_description = function (x) x.shortdoc || "",
-        $get_value = function (x) x.name
-    );
-
-    var result = yield this.read($prompt = "Command", $history = "command",
-        forward_keywords(arguments),
-        $completer = completer,
+    keywords(
+        arguments,
+        $prompt = "Command", $history = "command",
+        $completer = prefix_completer(
+            $completions = function (visitor) interactive_commands.for_each_value(visitor),
+            $get_string = function (x) x.name,
+            $get_description = function (x) x.shortdoc || "",
+            $get_value = function (x) x.name),
         $match_required = true);
+    var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
 }
 
 minibuffer.prototype.read_user_variable = function () {
-    keywords(arguments);
-    var completer = prefix_completer(
-        $completions = function (visitor) user_variables.for_each(visitor),
-        $get_string = function (x) x,
-        $get_description = function (x) user_variables.get(x).shortdoc || "",
-        $get_value = function (x) x
-    );
-
-    var result = yield this.read($prompt = "User variable", $history = "user_variable",
-        forward_keywords(arguments),
-        $completer = completer,
+    keywords(
+        arguments,
+        $prompt = "User variable", $history = "user_variable",
+        $completer = prefix_completer(
+            $completions = function (visitor) user_variables.for_each(visitor),
+            $get_string = function (x) x,
+            $get_description = function (x) user_variables.get(x).shortdoc || "",
+            $get_value = function (x) x),
         $match_required = true);
+    var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
 }
