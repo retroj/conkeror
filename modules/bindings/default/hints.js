@@ -10,10 +10,8 @@ require("bindings/default/global.js");
 define_keymap("hint_keymap", $parent = default_base_keymap);
 
 define_key(hint_keymap, match_any_unmodified_key, null, $fallthrough);
-for (let i = 0; i <= 9; ++i) {
+for (let i = 0; i <= 9; ++i)
     define_key(hint_keymap, String.fromCharCode("0".charCodeAt(0) + i), "hints-handle-number");
-    define_key(hint_keymap, "numpad"+i, "hints-handle-number");
-}
 
 define_key(hint_keymap, "back_space", "hints-backspace");
 define_key(hint_keymap, "tab", "hints-next");

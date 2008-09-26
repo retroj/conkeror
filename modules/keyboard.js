@@ -26,8 +26,10 @@ function get_default_keycode_to_charcode_tables() {
 
     for (var i = 0; i <= 9; ++i) {
         var keycode = KeyEvent.DOM_VK_0 + i;
+        var numpad_keycode = KeyEvent.DOM_VK_NUMPAD0 + i;
         var charcode = keycode; // keycodes 0-9 are same as ascii
         unshifted_table[keycode] = charcode;
+        unshifted_table[numpad_keycode] = charcode;
     }
 
     function map(table, keycode, str) {
