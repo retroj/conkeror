@@ -447,7 +447,7 @@ function go_back (b, prefix)
 }
 interactive(
     "go-back",
-    "Go back in the session hisory for the current buffer.",
+    "Go back in the session history for the current buffer.",
     function (I) {go_back(I.buffer, I.p);});
 
 function go_forward (b, prefix)

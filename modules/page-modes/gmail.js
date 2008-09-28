@@ -40,7 +40,7 @@ interactive("gmail-label-go",
 
         define_key(keymap, "tab", null, $fallthrough);
         define_key(keymap, "escape", "gmail-focus-primary-frame");
-    }
+    };
 
     gmail_bind_common(gmail_keymap);
 

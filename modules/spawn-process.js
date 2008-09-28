@@ -121,7 +121,7 @@ spawn_process_helper_program.append("conkeror-spawn-helper");
  *                 Called with a single argument, an exception, if one occurs.
  * @param fds
  *                 If non-null, must be an object with only non-negative integer properties set.  Each such property
- *                 specifies that the corresponding file descriptor in the spaned process should be redirected.  Note that
+ *                 specifies that the corresponding file descriptor in the spawned process should be redirected.  Note that
  *                 0 corresponds to STDIN, 1 corresponds to STDOUT, and 2 corresponds to STDERR.  Note that every redirected
  *                 file descriptor can be used for both input and output, although STDIN, STDOUT, and STDERR are typically
  *                 used only unidirectionally.  Each property must be an object itself, with an input and/or output property
