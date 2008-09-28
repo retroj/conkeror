@@ -207,7 +207,11 @@ buffer_count_widget.prototype.update = function () {
 };
 
 function mode_line_adder(widget_constructor) {
-    return function (window) { window.mode_line.add_text_widget(new widget_constructor(window)); }
+    if (!('mode_line_adder' in widget_constructor))
+        widget_constructor.mode_line_adder = function (window) {
+            window.mode_line.add_text_widget(new widget_constructor(window));
+        };
+    return widget_constructor.mode_line_adder;
 }
 
 add_hook("mode_line_hook", mode_line_adder(current_buffer_name_widget));
