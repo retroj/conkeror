@@ -30,7 +30,6 @@ define_key(content_buffer_caret_keymap, "S-home", "cmd_selectBeginLine", $catego
 define_key(content_buffer_caret_keymap, "S-end", "cmd_selectEndLine", $category = "Selection");
 define_key(content_buffer_caret_keymap, "C-S-left", "cmd_selectWordPrevious", $category = "Selection");
 define_key(content_buffer_caret_keymap, "C-S-right", "cmd_selectWordNext", $category = "Selection");
-define_key(content_buffer_caret_keymap, "S-insert", "paste-x-primary-selection", $category = "Selection");
 
 define_key(content_buffer_caret_keymap, "C-space", "set-mark", $category = "Selection");
 
