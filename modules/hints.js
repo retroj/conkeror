@@ -92,6 +92,9 @@ hint_manager.prototype = {
                 rect = elem.getBoundingClientRect();
                 if (!rect || rect.left > maxX || rect.right < minX || rect.top > maxY || rect.bottom < minY)
                     continue;
+                let style = topwin.getComputedStyle(elem, "");
+                if (style.display == "none" || style.visibility == "hidden")
+                    continue;
                 rect = elem.getClientRects()[0];
                 if (!rect)
                     continue;
