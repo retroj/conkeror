@@ -27,8 +27,8 @@ minibuffer.prototype.read_file = function () {
 
 // FIXME
 minibuffer.prototype.read_existing_file = minibuffer.prototype.read_file;
-minibuffer.prototype.read_directory = minibuffer.prototype.read_file;
-minibuffer.prototype.read_existing_directory = minibuffer.prototype.read_directory;
+minibuffer.prototype.read_directory_path = minibuffer.prototype.read_file_path;
+minibuffer.prototype.read_existing_directory_path = minibuffer.prototype.read_directory_path;
 
 minibuffer.prototype.read_file_check_overwrite = function () {
     keywords(arguments);
