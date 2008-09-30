@@ -658,7 +658,7 @@ interactive("change-current-directory",
             function (I) {
                 change_directory(
                     I.buffer,
-                    (yield I.minibuffer.read_existing_directory_path(
+                    (yield I.minibuffer.read_existing_directory(
                         $prompt = "New current directory:",
                         $initial_value = I.cwd)));
             });
