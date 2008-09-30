@@ -839,31 +839,39 @@ function create_info_panel(window, panel_class, row_arr) {
 function read_from_x_primary_selection ()
 {
     // Get clipboard.
-    var clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
+    let clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
         .getService(Components.interfaces.nsIClipboard);
 
     // Fall back to global clipboard if the system doesn't support a selection
-    var which_clipboard = clipboard.supportsSelectionClipboard() ?
+    let which_clipboard = clipboard.supportsSelectionClipboard() ?
         clipboard.kSelectionClipboard : clipboard.kGlobalClipboard;
 
+    let flavors = ["text/unicode"];
+
     // Don't barf if there's nothing on the clipboard
-    if (!clipboard.hasDataMatchingFlavors(["text/unicode"], 1, which_clipboard))
+    if (!clipboard.hasDataMatchingFlavors(flavors, flavors.length, which_clipboard))
         return "";
 
     // Create transferable that will transfer the text.
-    var trans = Components.classes["@mozilla.org/widget/transferable;1"]
+    let trans = Components.classes["@mozilla.org/widget/transferable;1"]
         .createInstance(Components.interfaces.nsITransferable);
 
-    trans.addDataFlavor("text/unicode");
+    for each (let flavor in flavors) {
+        trans.addDataFlavor(flavor);
+    }
     clipboard.getData(trans, which_clipboard);
 
+    var data_flavor = {};
     var data = {};
     var dataLen = {};
-    trans.getTransferData("text/unicode", data, dataLen);
+    trans.getAnyTransferData(data_flavor, data, dataLen);
 
     if (data) {
         data = data.value.QueryInterface(Components.interfaces.nsISupportsString);
-        return data.data.substring(0, dataLen.value / 2);
+        let data_length = dataLen.value;
+        if (data_flavor.value == "text/unicode")
+            data_length = dataLen.value / 2;
+        return data.data.substring(0, data_length);
     } else {
         return "";
     }
