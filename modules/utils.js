@@ -843,19 +843,19 @@ function read_from_x_primary_selection ()
         .getService(Components.interfaces.nsIClipboard);
 
     // Fall back to global clipboard if the system doesn't support a selection
-    var selection = clipboard.supportsSelectionClipboard ?
+    var which_clipboard = clipboard.supportsSelectionClipboard() ?
         clipboard.kSelectionClipboard : clipboard.kGlobalClipboard;
 
     // Don't barf if there's nothing on the clipboard
-    if (!clipboard.hasDataMatchingFlavors(["text/unicode"], 1, selection))
+    if (!clipboard.hasDataMatchingFlavors(["text/unicode"], 1, which_clipboard))
         return "";
 
-    // Create tranferable that will transfer the text.
+    // Create transferable that will transfer the text.
     var trans = Components.classes["@mozilla.org/widget/transferable;1"]
         .createInstance(Components.interfaces.nsITransferable);
 
     trans.addDataFlavor("text/unicode");
-    clipboard.getData(trans, selection);
+    clipboard.getData(trans, which_clipboard);
 
     var data = {};
     var dataLen = {};
