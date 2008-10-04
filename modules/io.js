@@ -192,7 +192,7 @@ function async_binary_string_writer(bstr, callback) {
             if (callback == null) {
                 stream.close();
             } else {
-                callback(e);
+                callback(stream, e);
             }
         }
         async_binary_write(stream, bstr, modified_callback);
