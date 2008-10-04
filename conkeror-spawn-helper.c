@@ -17,6 +17,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <dirent.h>
 
 void fail(const char *msg) {
   fprintf(stderr, "%s\n", msg);
@@ -200,7 +201,7 @@ void setup_fds(struct fd_info *fds, int fd_count) {
         break;
       }
     }
-    TRY(result, dup2(fd, fds[i].orig_fd));
+    TRY(result, dup2(fds[i].orig_fd, fd));
     close(fds[i].orig_fd);
   }
 }
@@ -224,8 +225,33 @@ int main(int argc, char **argv) {
   /* Block SIGPIPE to avoid a signal being generated while writing to a socket */
   signal(SIGPIPE, SIG_IGN);
 
-  /* Close STDIN as we don't need it */
-  close(STDIN_FILENO);
+  /* Close everything except STDERR.  Mozilla leaves us with a bunch
+     of junk file descriptors. */
+  {
+    DIR *dir = opendir("/proc/self/fd");
+    if (!dir) {
+      /* No proc filesystem available, just loop through file descriptors */
+      struct rlimit file_lim;
+      int max_fileno = 1024;
+      if (getrlimit(RLIMIT_NOFILE, &file_lim) == 0)
+        max_fileno = file_lim.rlim_cur;
+      for (i = 0; i < max_fileno; ++i) {
+        if (i == STDERR_FILENO)
+          continue;
+        close(i);
+      }
+    } else {
+      struct dirent *dir_ent;
+      int dir_fd = dirfd(dir);
+      while ((dir_ent = readdir(dir)) != NULL) {
+        int file_desc = atoi(dir_ent->d_name);
+        if (file_desc == STDERR_FILENO || file_desc == dir_fd)
+          continue;
+        close(file_desc);
+      }
+      closedir(dir);
+    }
+  }
 
   /* Parse key file */
   {
@@ -257,7 +283,7 @@ int main(int argc, char **argv) {
     for (i = 0; i < fd_count; ++i) {
       fds[i].desired_fd = atoi(next_term(&buf, &len));
       fds[i].path = next_term(&buf, &len);
-      if (fds[i].path) {
+      if (fds[i].path[0]) {
         fds[i].open_mode = atoi(next_term(&buf, &len));
         fds[i].perms = atoi(next_term(&buf, &len));
       }
@@ -275,7 +301,7 @@ int main(int argc, char **argv) {
   /* Create a socket connection or open a local file for each
      requested file descriptor redirection. */
   for (i = 0; i < fd_count; ++i) {
-    if (fds[i].path) {
+    if (fds[i].path[0]) {
       TRY(fds[i].orig_fd, open(fds[i].path, fds[i].open_mode, fds[i].perms));
     } else {
       fds[i].orig_fd = my_connect(port, client_key, fds[i].desired_fd);

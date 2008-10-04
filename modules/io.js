@@ -129,14 +129,16 @@ function binary_input_stream(stream) {
     return s;
 }
 
-//  callback is called with a single argument, either true if the write succeeded, or false otherwise
+//  callback is called with null if the write succeeded, and an error otherwise
 function async_binary_write(stream, data, callback) {
+    var data1 = data;
     function attempt_write() {
         try {
             while (true) {
                 if (data.length == 0) {
                     stream.flush();
-                    callback(true);
+                    if (callback != null)
+                        callback(null);
                     return;
                 }
                 var len = stream.write(data, data.length);
@@ -147,7 +149,8 @@ function async_binary_write(stream, data, callback) {
         }
         catch (e if (e instanceof Components.Exception) && e.result == Cr.NS_BASE_STREAM_WOULD_BLOCK) {}
         catch (e) {
-            callback(false);
+            if (callback != null)
+                callback(e);
             return;
         }
         output_stream_async_wait(stream, attempt_write, data.length);
@@ -181,9 +184,18 @@ function decode_string(bstr, charset) {
     return converter.ConvertToUnicode(bstr);
 }
 
-function async_binary_string_writer(bstr) {
+/* Calls callback when the write has completed.  If callback is null,
+   the stream is closed when the write completes. */
+function async_binary_string_writer(bstr, callback) {
     return function (stream) {
-        async_binary_write(stream, bstr);
+        function modified_callback (e) {
+            if (callback == null) {
+                stream.close();
+            } else {
+                callback(e);
+            }
+        }
+        async_binary_write(stream, bstr, modified_callback);
     };
 }
 

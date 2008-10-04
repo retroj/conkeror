@@ -193,6 +193,10 @@ function spawn_process(program_name, args, working_dir,
 
     for (let i in fds) {
         if (fds.hasOwnProperty(i)) {
+            if (fds[i] == null) {
+                delete fds[i];
+                continue;
+            }
             key_file_fd_data += i + "\0";
             let fd = fds[i];
             if ('file' in fd) {
@@ -200,8 +204,10 @@ function spawn_process(program_name, args, working_dir,
                     fd.perms = 0666;
                 key_file_fd_data += fd.file + "\0" + fd.mode + "\0" + fd.perms + "\0";
                 delete fds[i]; // Remove it from fds, as we won't need to work with it anymore
-            } else
+            } else {
                 ++total_fds;
+                key_file_fd_data += "\0";
+            }
             ++total_client_fds;
         }
     }
@@ -431,7 +437,7 @@ function spawn_process(program_name, args, working_dir,
                                 var fd = parseInt(fdspec);
                                 if (!fds.hasOwnProperty(fd) || (fd in registered_transports))
                                     throw "Invalid fd";
-                                bin_stream.close();
+                                remove_from_unregistered();
                                 bin_stream = null;
                                 registered_transports[fd] = {transport: transport,
                                                              input: in_stream,
@@ -442,7 +448,9 @@ function spawn_process(program_name, args, working_dir,
                                 cleanup_server();
                                 control_state = CONTROL_SENDING_KEY;
                                 async_binary_write(control_output_stream, server_key,
-                                                   function () {
+                                                   function (error) {
+                                                       if (error != null)
+                                                           fail(error);
                                                        control_state = CONTROL_SENT_KEY;
                                                        if (setup_timer) {
                                                            setup_timer.cancel();
@@ -456,8 +464,12 @@ function spawn_process(program_name, args, working_dir,
                                                                let t = registered_transports[i];
                                                                if ('input' in f)
                                                                    f.input(t.input);
+                                                               else
+                                                                   t.input.close();
                                                                if ('output' in f)
                                                                    f.output(t.output);
+                                                               else
+                                                                   t.output.close();
                                                            }
                                                        }
                                                    });
