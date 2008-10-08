@@ -23,12 +23,12 @@ function call_after_timeout(callback, timeout) {
 
 function call_at_interval(callback, interval) {
     var timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    timer.initWithCallback(new timer_callback(callback), timeout, Ci.nsITimer.TYPE_REPEATING_SLACK);
+    timer.initWithCallback(new timer_callback(callback), interval, Ci.nsITimer.TYPE_REPEATING_SLACK);
     return timer;
 }
 
 function call_at_precise_interval(callback, interval) {
     var timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-    timer.initWithCallback(new timer_callback(callback), timeout, Ci.nsITimer.TYPE_REPEATING_PRECISE);
+    timer.initWithCallback(new timer_callback(callback), interval, Ci.nsITimer.TYPE_REPEATING_PRECISE);
     return timer;
 }
