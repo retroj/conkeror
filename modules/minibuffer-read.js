@@ -512,3 +512,37 @@ minibuffer.prototype.read_user_variable = function () {
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
 }
+
+minibuffer.prototype.read_preference = function minibuffer__read_preference () {
+    keywords(arguments,
+             $prompt = "Preference:", $history = "preference",
+             $completer = prefix_completer(
+                 $completions = preferences.getBranch(null).getChildList("", {}),
+                 $get_description = function (pref) {
+                     let default_value = get_default_pref(pref);
+                     let value = get_pref(pref);
+                     if (value == default_value)
+                         value = null;
+                     let type;
+                     switch (preferences.getBranch(null).getPrefType(pref)) {
+                     case Ci.nsIPrefBranch.PREF_STRING:
+                         type = "string";
+                         break;
+                     case Ci.nsIPrefBranch.PREF_INT:
+                         type = "int";
+                         break;
+                     case Ci.nsIPrefBranch.PREF_BOOL:
+                         type = "boolean";
+                         break;
+                     }
+                     let out = type + ":";
+                     if (value != null)
+                         out += " " + pretty_print_value(value);
+                     if (default_value != null)
+                         out += " (" + pretty_print_value(default_value) + ")";
+                     return out;
+                 }),
+             $match_required = true);
+    var result = yield this.read(forward_keywords(arguments));
+    yield co_return(result);
+};

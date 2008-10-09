@@ -657,3 +657,14 @@ interactive("describe-variable", null, function (I) {
                      I.browse_target("describe-variable"));
 });
 default_browse_targets["describe-variable"] = "find-url-new-buffer";
+
+function describe_preference(buffer, preference, target) {
+    let key = preference.charAt(0).toUpperCase() + preference.substring(1);
+    let url = "http://kb.mozillazine.org/" + key;
+    browser_element_follow(buffer, target, url);
+}
+interactive("describe-preference", null, function (I) {
+    describe_preference(I.buffer, (yield I.minibuffer.read_preference($prompt = "Describe preference:")),
+                     I.browse_target("describe-preference"));
+});
+default_browse_targets["describe-preference"] = "find-url-new-buffer";

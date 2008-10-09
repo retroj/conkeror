@@ -34,6 +34,7 @@ define_key(default_help_keymap, "f", "describe-command");
 define_key(default_help_keymap, "v", "describe-variable");
 define_key(default_help_keymap, "k", "describe-key");
 define_key(default_help_keymap, "c", "describe-key-briefly");
+define_key(default_help_keymap, "p", "describe-preference");
 define_key(default_help_keymap, "i", "help-page");
 define_key(default_help_keymap, "t", "help-with-tutorial");
 define_key(default_help_keymap, "w", "where-is");
