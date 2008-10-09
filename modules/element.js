@@ -246,6 +246,13 @@ function browser_element_follow(buffer, target, elem)
         throw interactive_error("Can't load javascript URL");
     }
 
+    if (!(buffer instanceof content_buffer) &&
+        (target == FOLLOW_CURRENT_FRAME ||
+         target == FOLLOW_DEFAULT ||
+         target == FOLLOW_TOP_FRAME ||
+         target == OPEN_CURRENT_BUFFER))
+        target = OPEN_NEW_BUFFER;
+
     switch (target) {
     case FOLLOW_CURRENT_FRAME:
         var current_frame = load_spec_source_frame(spec);
