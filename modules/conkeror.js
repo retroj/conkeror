@@ -8,6 +8,7 @@
 var start_time = Date.now ();
 
 require("keywords.js"); // not required to be listed as dep.
+require("labels.js"); // not required to be listed as a dep.
 require("coroutine.js"); // not required to be listed as dep.
 
 require("hook.js");
