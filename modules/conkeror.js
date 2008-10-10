@@ -58,3 +58,4 @@ require("search-engine.js");
 
 require("permission-manager.js");
 require("cookie.js");
+require("cache.js");

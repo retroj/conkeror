@@ -37,20 +37,6 @@ function can_override_mime_type_for_uri(uri) {
     return uri.schemeIs("http") || uri.schemeIs("https");
 }
 
-const cache_service = Cc["@mozilla.org/network/cache-service;1"].getService(Ci.nsICacheService);
-
-function clear_http_cache_entry(uri_string) {
-    var http_cache_session = cache_service.createSession("HTTP", 0, true);
-    http_cache_session.doomEntriesIfExpired = false;
-    try {
-        // Remove the ref component of the URL
-        var cache_key = uri_string.replace(/#.*$/, "");
-        var entry = http_cache_session.openCacheEntry(cacheKey, Ci.nsICache.ACCESS_READ, false);
-        entry.doom();
-        entry.close();
-    } catch (e) { }
-}
-
 let clear_override = function(uri_string) {
     table.remove(uri_string);
     table_size--;
@@ -91,8 +77,7 @@ let observer = {
 
 // mime_type must be a string
 function override_mime_type_for_next_load(uri, mime_type) {
-
-    clear_http_cache_entry(uri.spec);
+    cache_entry_clear(CACHE_ALL, CACHE_SESSION_HTTP, uri);
 
     var obj = table.get(uri.spec);
     if (obj)

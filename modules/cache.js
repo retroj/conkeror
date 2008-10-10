@@ -5,17 +5,52 @@
  * COPYING file.
 **/
 
-var CACHE_MEMORY  = Ci.nsICache.STORE_IN_MEMORY;
-var CACHE_DISK    = Ci.nsICache.STORE_ON_DISK;
-var CACHE_OFFLINE = Ci.nsICache.STORE_OFFLINE;
-var CACHE_ALL     = Ci.nsICache.STORE_ANYWHERE;
+const cache_service = Cc["@mozilla.org/network/cache-service;1"]
+                      .getService(Ci.nsICacheService);
+
+const CACHE_MEMORY   = Ci.nsICache.STORE_IN_MEMORY;
+const CACHE_DISK     = Ci.nsICache.STORE_ON_DISK;
+const CACHE_OFFLINE  = Ci.nsICache.STORE_OFFLINE;
+const CACHE_ALL      = Ci.nsICache.STORE_ANYWHERE;
+
+const CACHE_SESSION_HTTP         = "HTTP";
+const CACHE_SESSION_HTTP_OFFLINE = "HTTP-offline";
+const CACHE_SESSION_FTP          = "FTP";
+
+// Returns null if uri is not cached.
+function cache_entry_open(cache_type, cache_session, uri) {
+    if (uri instanceof Ci.nsIURI)
+        uri = uri.spec;
+    let session = cache_service.createSession(cache_session, 0, true);
+    session.doomEntriesIfExpired = false;
+    // Remove the ref component of the URL
+    let cache_key = uri.replace(/#.*$/, "");
+    try {
+        return session.openCacheEntry(cache_key,
+                                      Ci.nsICache.ACCESS_READ,
+                                      false);
+    }
+    catch (ex) {
+        if (ex.name == "NS_ERROR_CACHE_KEY_NOT_FOUND")
+            return null;
+        throw ex;
+    }
+}
+
+// Returns false if uri is not cached, else true.
+function cache_entry_clear(cache_type, cache_session, uri) {
+    let entry = cache_entry_open(cache_type, cache_session, uri);
+    if (entry == null)
+        return false;
+    entry.doom();
+    entry.close();
+    return true;
+}
 
 function cache_clear(cache_type) {
-    let cs = Cc["@mozilla.org/network/cache-service;1"]
-             .getService(Ci.nsICacheService);
-    cs.evictEntries(cache_type);
+    cache_service.evictEntries(cache_type);
     if (cache_type == CACHE_DISK)
-        cs.evictEntries(Ci.nsICache.STORE_ON_DISK_IN_FILE);
+        cache_service.evictEntries(Ci.nsICache.STORE_ON_DISK_IN_FILE);
 }
 
 function cache_disable(cache_type) {
@@ -49,3 +84,4 @@ function cache_enable(cache_type) {
     else
         throw new Error("Invalid cache type");
 }
+
