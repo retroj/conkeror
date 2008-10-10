@@ -57,3 +57,4 @@ require("command-line.js");
 require("search-engine.js");
 
 require("permission-manager.js");
+require("cookie.js");
