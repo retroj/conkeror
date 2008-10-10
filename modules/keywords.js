@@ -29,8 +29,9 @@
 
     var define_keyword = define_keywords;
 
-    let write_keywords = function write_keywords(output, input) {
-        let first_index = input.callee.length;
+    function write_keywords(output, input, first_index) {
+        if (first_index == null)
+            first_index = input.callee.length;
         let max_index = input.length;
         let count = max_index - first_index;
         if (count > 0) {
