@@ -623,8 +623,9 @@ describe_variable_buffer.prototype = {
 
         p = g.element("p", d.body);
         g.text("Its value is: ", p);
+        let value = conkeror[this.variable];
         {
-            let s = pretty_print_value(conkeror[this.variable]);
+            let s = pretty_print_value(value);
             let pre = g.element("pre", p);
             g.text(s, pre);
         }
@@ -632,7 +633,9 @@ describe_variable_buffer.prototype = {
         if (uvar.doc != null)
             g.help_text(uvar.doc, d.body);
 
-        if (uvar.default_value !== undefined) {
+        if (uvar.default_value !== undefined &&
+            (uvar.default_value !== value ||
+             (typeof(uvar.default_value) != "object")))  {
             p = g.element("p", d.body);
             g.text("Its default value is: ", p);
             {
