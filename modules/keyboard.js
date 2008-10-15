@@ -634,7 +634,9 @@ function key_press_handler(true_event)
                 done = false;
             } else if (binding.command) {
                 call_interactively(ctx, binding.command);
-                if (interactive_commands.get(binding.command).prefix) {
+                if (typeof(binding.command) == "string" &&
+                    interactive_commands.get(binding.command).prefix) {
+                    
                     state.active_keymap = null;
                     show_partial_key_sequence(window, state, ctx);
                     done = false;
