@@ -21,6 +21,7 @@ function application () {
     this.loading_modules = [];
     this.module_after_load_functions = new Object();
     this.pending_loads = [];
+    this.load_paths = [this.module_uri_prefix];
 
     try {
         this.require("conkeror.js");
@@ -67,24 +68,35 @@ application.prototype = {
                             + this.loading_modules.join(" -> ") + " -> " + module_name);
         this.loading_modules.push(module_name);
         try {
-            this.subscript_loader.loadSubScript(this.module_uri_prefix + module_name,
-                                                this);
-            this.provide(module_name);
-            var funcs;
-            if ((funcs = this.module_after_load_functions[module_name]) != null)
-            {
-                for (var i = 0; i < funcs.length; ++i)
-                    funcs[i]();
-                delete this.module_after_load_functions[module_name];
+            let j = 0;
+            while (true) {
+                if (j >= this.load_paths.length)
+                    throw new Error("Module not found: " + module_name);
+                try {
+                    this.subscript_loader.loadSubScript(this.load_paths[j] + module_name,
+                                                        this);
+                    this.provide(module_name);
+                    let funcs;
+                    if ((funcs = this.module_after_load_functions[module_name]) != null)
+                    {
+                        for (let i = 0; i < funcs.length; ++i)
+                            funcs[i]();
+                        delete this.module_after_load_functions[module_name];
+                    }
+                }
+                catch (e if e == this.skip_module_load) {}
+                catch (e) {
+                    if (!(e instanceof Error) && !(e instanceof Ci.nsIException) &&
+                        (String(e) == "ContentLength not available (not a local URL?)" ||
+                         String(e) == "Error creating channel (invalid URL scheme?)" ||
+                         String(e) == "Error opening input stream (invalid filename?)")) {
+                        ++j;
+                        continue;
+                    }
+                    throw e;
+                }
+                break;
             }
-        }
-        catch (e if e == this.skip_module_load) {}
-        catch (e) {
-            if (!(e instanceof Error) && !(e instanceof Ci.nsIException) &&
-                (String(e) == "ContentLength not available (not a local URL?)" ||
-                 String(e) == "Error creating channel (invalid URL scheme?)"))
-                throw new Error("Module not found: " + this.module_uri_prefix + module_name + ": " + e);
-            throw e;
         }
         finally {
             this.loading_modules.pop();
