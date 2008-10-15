@@ -19,10 +19,10 @@ define_variable("mime_type_external_handlers",
 		  [/^application\/x-dvi$/, "evince"],
 		  [/^.*$/, getenv("EDITOR")]
 		],
-		"Array of MIME types and external handlers. Each element is" +
-		"an array of two elements, the first being the RegExp for" +
-		"the target MIME type, the second being handler as a" +
-		"string. Order matters. The handler of the first RegExp to" +
+		"Array of MIME types and external handlers. Each element is " +
+		"an array of two elements, the first being the RegExp for " +
+		"the target MIME type, the second being handler as a " +
+		"string. Order matters. The handler of the first RegExp to " +
 		"match a specified MIME type will be used.");
 
 function _get_mime_type_index(mime_type) {
