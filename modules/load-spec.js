@@ -217,12 +217,6 @@ function apply_load_spec(target, spec) {
     if (flags == null)
         flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
 
-    try {
-        make_uri(uri); // Check that the URI is valid
-    } catch (e) {
-        throw interactive_error("Invalid URL: " + uri);
-    }
-
     if (target instanceof content_buffer) {
         try {
             target.web_navigation.loadURI(uri, flags, referrer, post_data, null /* headers */);
@@ -231,6 +225,11 @@ function apply_load_spec(target, spec) {
         } catch (e) {
             /* Ignore error for now */
         }
-    } else
-        target.loadURI(uri, flags, referrer, post_data, null /* headers */);
+    } else {
+        try {
+            target.loadURI(uri, flags, referrer, post_data, null /* headers */);
+        } catch (e) {
+            /* Ignore error for now */
+        }
+    }
 }
