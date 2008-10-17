@@ -217,10 +217,20 @@ function apply_load_spec(target, spec) {
     if (flags == null)
         flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
 
-    if (target instanceof content_buffer) {
-        target._display_URI = uri;
-        target = target.web_navigation;
-        //buffer_description_change_hook.run(target);
+    try {
+        make_uri(uri); // Check that the URI is valid
+    } catch (e) {
+        throw interactive_error("Invalid URL: " + uri);
     }
-    target.loadURI(uri, flags, referrer, post_data, null /* headers */);
+
+    if (target instanceof content_buffer) {
+        try {
+            target.web_navigation.loadURI(uri, flags, referrer, post_data, null /* headers */);
+            target._display_URI = uri;
+            buffer_description_change_hook.run(target);
+        } catch (e) {
+            /* Ignore error for now */
+        }
+    } else
+        target.loadURI(uri, flags, referrer, post_data, null /* headers */);
 }

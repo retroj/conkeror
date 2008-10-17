@@ -33,75 +33,77 @@ function content_buffer(window, element)
 {
     keywords(arguments);
     this.constructor_begin();
+    try {
 
-    conkeror.buffer.call(this, window, element, forward_keywords(arguments));
+        conkeror.buffer.call(this, window, element, forward_keywords(arguments));
 
-    this.browser.addProgressListener(this);
-    var buffer = this;
-    this.browser.addEventListener("DOMTitleChanged", function (event) {
-            buffer_title_change_hook.run(buffer);
-        }, true /* capture */, false /* ignore untrusted events */);
+        this.browser.addProgressListener(this);
+        var buffer = this;
+        this.browser.addEventListener("DOMTitleChanged", function (event) {
+                                          buffer_title_change_hook.run(buffer);
+                                      }, true /* capture */, false /* ignore untrusted events */);
 
-    this.browser.addEventListener("scroll", function (event) {
-            buffer_scroll_hook.run(buffer);
-        }, true /* capture */, false /* ignore untrusted events */);
+        this.browser.addEventListener("scroll", function (event) {
+                                          buffer_scroll_hook.run(buffer);
+                                      }, true /* capture */, false /* ignore untrusted events */);
 
-    this.browser.addEventListener("focus", function (event) {
-            content_buffer_focus_change_hook.run(buffer, event);
-        }, true /* capture */, false /* ignore untrusted events */);
+        this.browser.addEventListener("focus", function (event) {
+                                          content_buffer_focus_change_hook.run(buffer, event);
+                                      }, true /* capture */, false /* ignore untrusted events */);
 
-    this.browser.addEventListener("mouseover", function (event) {
-            if (event.target instanceof Ci.nsIDOMHTMLAnchorElement) {
-                content_buffer_overlink_change_hook.run(buffer, event.target.href);
-                buffer.current_overlink = event.target;
+        this.browser.addEventListener("mouseover", function (event) {
+                                          if (event.target instanceof Ci.nsIDOMHTMLAnchorElement) {
+                                              content_buffer_overlink_change_hook.run(buffer, event.target.href);
+                                              buffer.current_overlink = event.target;
+                                          }
+                                      }, true, false);
+
+        this.browser.addEventListener("mouseout", function (event) {
+                                          if (buffer.current_overlink == event.target) {
+                                              buffer.current_overlink = null;
+                                              content_buffer_overlink_change_hook.run(buffer, "");
+                                          }
+                                      }, true, false);
+
+        this.browser.addEventListener("mousedown", function (event) {
+                                          buffer.last_user_input_received = Date.now();
+                                      }, true, false);
+
+        this.browser.addEventListener("keypress", function (event) {
+                                          buffer.last_user_input_received = Date.now();
+                                      }, true, false);
+
+        this.browser.addEventListener("DOMLinkAdded", function (event) {
+                                          content_buffer_dom_link_added_hook.run(buffer, event);
+                                      }, true, false);
+
+        buffer.last_user_input_received = null;
+
+        /* FIXME: Add a handler for blocked popups, and also PopupWindow event */
+        /*
+         this.browser.addEventListener("DOMPopupBlocked", function (event) {
+         dumpln("PopupWindow: " + event);
+         }, true, false);
+         */
+
+        normal_input_mode(this);
+
+        this.ignore_initial_blank = true;
+
+        var lspec = arguments.$load;
+        if (lspec) {
+            if (lspec.url == "about:blank")
+                this.ignore_initial_blank = false;
+            else {
+                /* Ensure that an existing load of about:blank is stopped */
+                this.web_navigation.stop(Ci.nsIWebNavigation.STOP_ALL);
+
+                this.load(lspec);
             }
-        }, true, false);
-
-    this.browser.addEventListener("mouseout", function (event) {
-            if (buffer.current_overlink == event.target) {
-                buffer.current_overlink = null;
-                content_buffer_overlink_change_hook.run(buffer, "");
-            }
-        }, true, false);
-
-    this.browser.addEventListener("mousedown", function (event) {
-            buffer.last_user_input_received = Date.now();
-        }, true, false);
-
-    this.browser.addEventListener("keypress", function (event) {
-            buffer.last_user_input_received = Date.now();
-        }, true, false);
-
-    this.browser.addEventListener("DOMLinkAdded", function (event) {
-            content_buffer_dom_link_added_hook.run(buffer, event);
-        }, true, false);
-
-    buffer.last_user_input_received = null;
-
-    /* FIXME: Add a handler for blocked popups, and also PopupWindow event */
-    /*
-    this.browser.addEventListener("DOMPopupBlocked", function (event) {
-            dumpln("PopupWindow: " + event);
-        }, true, false);
-    */
-
-    normal_input_mode(this);
-
-    this.ignore_initial_blank = true;
-
-    var lspec = arguments.$load;
-    if (lspec) {
-        if (lspec.url == "about:blank")
-            this.ignore_initial_blank = false;
-        else {
-            /* Ensure that an existing load of about:blank is stopped */
-            this.web_navigation.stop(Ci.nsIWebNavigation.STOP_ALL);
-
-            this.load(lspec);
         }
+    } finally {
+        this.constructor_end();
     }
-
-    this.constructor_end();
 }
 content_buffer.prototype = {
     constructor : content_buffer,
