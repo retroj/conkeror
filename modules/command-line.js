@@ -86,6 +86,12 @@ command_line_param_handler("f", true, function (command, ctx) {
         call_interactively(ctx, command);
     });
 
+command_line_handler("uu", false, function (ctx) {
+        if (! ctx.window)
+            ctx.window = window_watcher.activeWindow;
+        call_interactively(ctx, "universal-argument");
+    });
+
 function handle_command_line(cmdline)
 {
     try {
