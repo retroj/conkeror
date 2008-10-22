@@ -81,11 +81,9 @@ command_line_param_handler("cwd", false, function (dir, ctx) {
         ctx.config.cwd = dir;
     });
 
-command_line_param_handler("f", true, function (command) {
-        var ctx = {
-            window: window_watcher.activeWindow
-        };
-       call_interactively(ctx, command);
+command_line_param_handler("f", true, function (command, ctx) {
+        ctx.window = window_watcher.activeWindow;
+        call_interactively(ctx, command);
     });
 
 function handle_command_line(cmdline)
