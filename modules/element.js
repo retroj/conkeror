@@ -99,6 +99,36 @@ define_browser_object_class("url", $handler = function (buf, prompt) {
                                 yield co_return (result);
                             });
 
+define_browser_object_class(
+    "alt", $label = "Image Alt-text",
+    $handler = function (buf, prompt) {
+        var result = yield buf.window.minibuffer.read_hinted_element(
+            $buffer = buf,
+            $prompt = prompt,
+            $hint_xpath_expression = "//img[@alt]");
+        yield (co_return (result.alt));
+    });
+
+define_browser_object_class(
+    "title", $label = "Element Title",
+    $handler = function (buf, prompt) {
+        var result = yield buf.window.minibuffer.read_hinted_element(
+            $buffer = buf,
+            $prompt = prompt,
+            $hint_xpath_expression = "//*[@title]");
+        yield (co_return (result.title));
+    });
+
+define_browser_object_class(
+    "title-or-alt", $label = "Element Title or Alt-text",
+    $handler = function (buf, prompt) {
+        var result = yield buf.window.minibuffer.read_hinted_element(
+            $buffer = buf,
+            $prompt = prompt,
+            $hint_xpath_expression = "//img[@alt] | //*[@title]");
+        yield (co_return (result.title ? result.title : result.alt));
+    });
+
 define_variable(
     "default_browser_object_classes",
     {
