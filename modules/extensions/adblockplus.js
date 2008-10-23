@@ -23,7 +23,7 @@ function adblockplus_settings(buffer, uri_string) {
 interactive("adblockplus-settings", "Show the Adblock Plus settings dialog.",
             function (I) { adblockplus_settings(I.buffer); });
 
-default_browser_object_classes.adblock = "images";
+//default_browser_object_classes.adblock = "images";
 
 interactive("adblockplus-add", "Add a pattern to Adblock Plus.",
             function (I) {

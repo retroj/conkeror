@@ -75,7 +75,9 @@ function media_setup_local_object_classes(buffer) {
     };
 }
 
-define_browser_object_class("media", $handler = function (buf, prompt) {
+var browser_object_media = new browser_object_class(
+    "media", null, null,
+    function (buf, prompt) {
     let media = yield media_scrape(buf);
     if (!media || media.length == 0)
         throw interactive_error("No media found.");

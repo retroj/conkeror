@@ -372,63 +372,6 @@ function open_in_browser(buffer, target, lspec)
     }
 }
 
-interactive("find-alternate-url",
-            "Edit the current URL in the minibuffer",
-            function (I) {
-                var target = I.browse_target("find-url");
-                check_buffer(I.buffer, content_buffer);
-                open_in_browser(I.buffer, target,
-                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target),
-                                                             $initial_value = I.buffer.display_URI_string)));
-            });
-
-interactive("find-url",
-            "Open a URL in the current buffer",
-            function (I) {
-                var target = I.browse_target("find-url");
-                open_in_browser(I.buffer, target,
-                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
-            });
-default_browse_targets["find-url"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-
-
-interactive("find-url-new-buffer",
-            "Open a URL in a new buffer",
-            function (I) {
-                var target = I.browse_target("find-url-new-buffer");
-                open_in_browser(I.buffer, target,
-                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
-            });
-default_browse_targets["find-url-new-buffer"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-
-interactive("find-url-new-window",
-            "Open a URL in a new window",
-            function (I) {
-                var target = I.browse_target("find-url-new-window");
-                open_in_browser(I.buffer, target,
-                                (yield I.minibuffer.read_url($prompt = browse_target_prompt(target))));
-            });
-default_browse_targets["find-url-new-window"] = [OPEN_NEW_WINDOW];
-
-function go_up (b, target)
-{
-    var url = Cc["@mozilla.org/network/standard-url;1"]
-        .createInstance (Ci.nsIURL);
-    url.spec = b.current_URI.spec;
-    var up;
-    if (url.param != "" || url.query != "")
-        up = url.filePath;
-    else if (url.fileName != "")
-        up = ".";
-    else
-        up = "..";
-    open_in_browser(b, target, b.current_URI.resolve (up));
-}
-interactive("go-up",
-            "Go to the parent directory of the current URL",
-            function (I) { go_up(check_buffer(I.buffer, content_buffer),  I.browse_target("go-up")); });
-default_browse_targets["go-up"] = "find-url";
-
 
 function go_back (b, prefix)
 {

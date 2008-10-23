@@ -63,12 +63,8 @@ interactive("delete-window",
 
 interactive("jsconsole",
             "Open the JavaScript console.",
-            function (I) {
-                open_in_browser(I.buffer,
-                                I.browse_target("jsconsole"),
-                                "chrome://global/content/console.xul");
-            });
-default_browse_targets["jsconsole"] = "find-url-new-buffer";
+            "find-url-new-buffer",
+            $browser_objects = ["chrome://global/content/console.xul"]);
 
 /**
  * Given a callback func and an interactive context I, call func, passing either
@@ -394,3 +390,325 @@ interactive("network-go-online", "Work online.",
             function (I) {network_set_online_status (true);});
 interactive("network-go-offline", "Work offline.",
             function (I) {network_set_online_status (false);});
+
+
+/*
+ * Browser Object Commands
+ */
+interactive("follow", null, follow,
+            $browser_objects = [browser_object_links,
+                                browser_object_any]);
+
+interactive("follow-top", null, follow_top,
+            $browser_objects = [browser_object_frames,
+                                browser_object_any]);
+
+
+interactive("find-url", "Open a URL in the current buffer", "follow",
+            $browser_objects = [browser_object_url,
+                                browser_object_any]);
+default_browse_targets["find-url"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+
+
+interactive("find-url-new-buffer",
+            "Open a URL in a new buffer",
+            follow_new_buffer,
+            $browser_objects = [browser_object_url,
+                                browser_object_any]);
+default_browse_targets["find-url-new-buffer"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+
+
+interactive("find-url-new-window", "Open a URL in a new window",
+            follow_new_window,
+            $browser_objects = [browser_object_url,
+                                browser_object_any]);
+default_browse_targets["find-url-new-window"] = [OPEN_NEW_WINDOW];
+
+
+interactive("find-alternate-url", "Edit the current URL in the minibuffer", "follow",
+            $browser_objects = [
+                new browser_object_class(
+                    "alternate-url", null, null,
+                    function (buf, prompt) {
+                        check_buffer (buf, content_buffer);
+                        var result = yield buf.window.minibuffer.read_url (
+                            $prompt = prompt,
+                            $initial_value = buf.display_URI_string);
+                        yield co_return (result);
+                    }),
+                browser_object_any]);
+
+
+interactive("go-up", "Go to the parent directory of the current URL", "follow",
+            $browser_objects = [
+                new browser_object_class(
+                    "up-url", null, null,
+                    function (buf, prompt) {
+                        check_buffer (buf, content_buffer);
+                        var up = compute_url_up_path (buf.current_URI.spec);
+                        return buf.current_URI.resolve (up);
+                    })]);
+default_browse_targets["go-up"] = "find-url";
+
+
+interactive("focus", null,
+            function (I) {
+                var element = yield I.read_browser_object("focus");
+                browser_element_focus(I.buffer, element);
+            },
+            $browser_objects = [browser_object_frames,
+                                browser_object_any]);
+
+interactive("save", null, function (I) {
+    var element = yield I.read_browser_object("save", "Save");
+
+    var spec = element_get_load_spec(element);
+    if (spec == null)
+        throw interactive_error("Element has no associated URI");
+
+    var panel;
+    panel = create_info_panel(I.window, "download-panel",
+                              [["downloading",
+                                element_get_operation_label(element, "Saving"),
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+    try {
+        var file = yield I.minibuffer.read_file_check_overwrite(
+            $prompt = "Save as:",
+            $initial_value = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer),
+            $history = "save");
+
+    } finally {
+        panel.destroy();
+    }
+
+    save_uri(spec, file,
+             $buffer = I.buffer,
+             $use_cache = false);
+});
+
+
+interactive("copy", null,
+            function (I) {
+                var element = yield I.read_browser_object("copy");
+                browser_element_copy(I.buffer, element);
+            },
+            $browser_objects = [browser_object_links,
+                                browser_object_any]);
+
+interactive("view-source", null,
+            function (I) {
+                var target = I.browse_target("follow");
+                var element = yield I.read_browser_object("view-source", target);
+                yield browser_element_view_source(I.buffer, target, element);
+            },
+            $browser_objects = [browser_object_frames,
+                                browser_object_any]);
+
+interactive("shell-command-on-url", null, function (I) {
+    var cwd = I.cwd;
+    var element = yield I.read_browser_object("shell_command_url");
+    var spec = element_get_load_spec(element);
+    if (spec == null)
+        throw interactive_error("Unable to obtain URI from element");
+
+    var uri = load_spec_uri_string(spec);
+
+    var panel;
+    panel = create_info_panel(I.window, "download-panel",
+                              [["downloading",
+                                element_get_operation_label(element, "Running on", "URI"),
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+    try {
+        var cmd = yield I.minibuffer.read_shell_command(
+            $cwd = cwd,
+            $initial_value = load_spec_default_shell_command(spec));
+    } finally {
+        panel.destroy();
+    }
+
+    shell_command_with_argument_blind(cmd, uri, $cwd = cwd);
+});
+
+
+interactive("shell-command-on-file", null, function (I) {
+    var cwd = I.cwd;
+    var element = yield I.read_browser_object("shell_command");
+
+    var spec = element_get_load_spec(element);
+    if (spec == null)
+        throw interactive_error("Unable to obtain URI from element");
+
+    var uri = load_spec_uri_string(spec);
+
+    var panel;
+    panel = create_info_panel(I.window, "download-panel",
+                              [["downloading",
+                                element_get_operation_label(element, "Running on"),
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+    try {
+
+        var cmd = yield I.minibuffer.read_shell_command(
+            $cwd = cwd,
+            $initial_value = load_spec_default_shell_command(spec));
+    } finally {
+        panel.destroy();
+    }
+
+    /* FIXME: specify cwd as well */
+    yield browser_element_shell_command(I.buffer, element, cmd);
+});
+
+interactive("bookmark", null, function (I) {
+    var element = yield I.read_browser_object("bookmark");
+    var spec = element_get_load_spec(element);
+    if (!spec)
+        throw interactive_error("Element has no associated URI");
+    var uri_string = load_spec_uri_string(spec);
+    var panel;
+    panel = create_info_panel(I.window, "bookmark-panel",
+                              [["bookmarking",
+                                element_get_operation_label(element, "Bookmarking"),
+                                uri_string]]);
+    try {
+        var title = yield I.minibuffer.read($prompt = "Bookmark with title:", $initial_value = load_spec_title(spec) || "");
+    } finally {
+        panel.destroy();
+    }
+    add_bookmark(uri_string, title);
+    I.minibuffer.message("Added bookmark: " + uri_string + " - " + title);
+});
+
+interactive("save-page", null, function (I) {
+    check_buffer(I.buffer, content_buffer);
+    var element = yield I.read_browser_object("save_page");
+    var spec = element_get_load_spec(element);
+    if (!spec || !load_spec_document(spec))
+        throw interactive_error("Element is not associated with a document.");
+    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer);
+
+    var panel;
+    panel = create_info_panel(I.window, "download-panel",
+                              [["downloading",
+                                element_get_operation_label(element, "Saving"),
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+    try {
+        var file = yield I.minibuffer.read_file_check_overwrite(
+            $prompt = "Save page as:",
+            $history = "save",
+            $initial_value = suggested_path);
+    } finally {
+        panel.destroy();
+    }
+
+    save_uri(spec, file, $buffer = I.buffer);
+});
+
+interactive("save-page-as-text", null, function (I) {
+    check_buffer(I.buffer, content_buffer);
+    var element = yield I.read_browser_object("save_page_as_text");
+    var spec = element_get_load_spec(element);
+    var doc;
+    if (!spec || !(doc = load_spec_document(spec)))
+        throw interactive_error("Element is not associated with a document.");
+    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec, "txt"), I.buffer);
+
+    var panel;
+    panel = create_info_panel(I.window, "download-panel",
+                              [["downloading",
+                                element_get_operation_label(element, "Saving", "as text"),
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+    try {
+        var file = yield I.minibuffer.read_file_check_overwrite(
+            $prompt = "Save page as text:",
+            $history = "save",
+            $initial_value = suggested_path);
+    } finally {
+        panel.destroy();
+    }
+
+    save_document_as_text(doc, file, $buffer = I.buffer);
+});
+
+interactive("save-page-complete", null, function (I) {
+    check_buffer(I.buffer, content_buffer);
+    var element = yield I.read_browser_object("save_page_complete");
+    var spec = element_get_load_spec(element);
+    var doc;
+    if (!spec || !(doc = load_spec_document(spec)))
+        throw interactive_error("Element is not associated with a document.");
+    var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer);
+
+    var panel;
+    panel = create_info_panel(I.window, "download-panel",
+                              [["downloading",
+                                element_get_operation_label(element, "Saving complete"),
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+    try {
+        var file = yield I.minibuffer.read_file_check_overwrite(
+            $prompt = "Save page complete:",
+            $history = "save",
+            $initial_value = suggested_path);
+        // FIXME: use proper read function
+        var dir = yield I.minibuffer.read_file(
+            $prompt = "Data Directory:",
+            $history = "save",
+            $initial_value = file.path + ".support");
+    } finally {
+        panel.destroy();
+    }
+
+    save_document_complete(doc, file, dir, $buffer = I.buffer);
+});
+
+default_browse_targets["view-as-mime-type"] = [FOLLOW_CURRENT_FRAME, OPEN_CURRENT_BUFFER,
+                                               OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+interactive("view-as-mime-type",
+            "Display a browser object in the browser using the specified MIME type.",
+            function (I) {
+                var element = yield I.read_browser_object("view_as_mime_type");
+                var spec = element_get_load_spec(element);
+
+                var target = I.browse_target("view-as-mime-type");
+
+                if (!spec)
+                    throw interactive_error("Element is not associated with a URI");
+
+                if (!can_override_mime_type_for_uri(load_spec_uri(spec)))
+                    throw interactive_error("Overriding the MIME type is not currently supported for non-HTTP URLs.");
+
+                var panel;
+
+                var mime_type = load_spec_mime_type(spec);
+                panel = create_info_panel(I.window, "download-panel",
+                                          [["downloading",
+                                            element_get_operation_label(element, "View in browser"),
+                                            load_spec_uri_string(spec)],
+                                           ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+
+                try {
+                    let suggested_type = mime_type;
+                    if (gecko_viewable_mime_type_list.indexOf(suggested_type) == -1)
+                        suggested_type = "text/plain";
+                    mime_type = yield I.minibuffer.read_gecko_viewable_mime_type(
+                        $prompt = "View internally as",
+                        $initial_value = suggested_type,
+                        $select);
+                    override_mime_type_for_next_load(load_spec_uri(spec), mime_type);
+                    browser_element_follow(I.buffer, target, spec);
+                } finally {
+                    panel.destroy();
+                }
+            });

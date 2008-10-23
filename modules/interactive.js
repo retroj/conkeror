@@ -20,13 +20,14 @@ var interactive_commands = new string_hashmap();
  * The $prefix keyword, when true, means that the command
  * is a prefix-command.
  */
-define_keywords("$prefix");
+define_keywords("$prefix", "$browser_objects");
 function interactive(name, doc, handler)
 {
     keywords(arguments);
     var cmd = {
         name: name,
         handler: handler,
+        browser_objects: arguments.$browser_objects,
         prefix: arguments.$prefix,
         doc: doc,
         shortdoc: get_shortdoc_string(doc),
@@ -100,6 +101,14 @@ function call_interactively(I, command)
     var handler = cmd.handler;
 
     try {
+        while (typeof(handler) == "string") {
+            let parent = interactive_commands.get(handler);
+            handler = parent.handler;
+            if (handler == command) {
+                throw (interactive_error("circular command alias, "+command));
+            }
+        }
+
         var result = handler(I);
         if (is_coroutine(result)) {
             co_call(function() {

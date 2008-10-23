@@ -9,29 +9,29 @@
 require("bindings/default/content-buffer/normal.js");
 require("element.js");
 
-define_key(content_buffer_normal_keymap, "i", "browser-object-class-images");
+define_key(content_buffer_normal_keymap, "i", "browser-object-images");
 
-define_key(content_buffer_normal_keymap, "n", "browser-object-class-links");
+define_key(content_buffer_normal_keymap, "n", "browser-object-links");
 
-define_key(content_buffer_normal_keymap, "m", "browser-object-class-frames");
+define_key(content_buffer_normal_keymap, "m", "browser-object-frames");
 
-define_key(content_buffer_normal_keymap, "e", "browser-object-class-media");
+define_key(content_buffer_normal_keymap, "e", "browser-object-media");
 
-define_key(content_buffer_normal_keymap, "S-8 e", "browser-object-class-media");
+define_key(content_buffer_normal_keymap, "S-8 e", "browser-object-media");
 
-define_key(content_buffer_normal_keymap, "S-8 i", "browser-object-class-images");
+define_key(content_buffer_normal_keymap, "S-8 i", "browser-object-images");
 
-define_key(content_buffer_normal_keymap, "S-8 n", "browser-object-class-links");
+define_key(content_buffer_normal_keymap, "S-8 n", "browser-object-links");
 
-define_key(content_buffer_normal_keymap, "S-8 m", "browser-object-class-frames");
+define_key(content_buffer_normal_keymap, "S-8 m", "browser-object-frames");
 
-define_key(content_buffer_normal_keymap, "S-8 M", "browser-object-class-mathml");
+define_key(content_buffer_normal_keymap, "S-8 M", "browser-object-mathml");
 
-define_key(content_buffer_normal_keymap, "S-8 u", "browser-object-class-url");
+define_key(content_buffer_normal_keymap, "S-8 u", "browser-object-url");
 
-define_key(content_buffer_normal_keymap, "S-8 a", "browser-object-class-alt");
-define_key(content_buffer_normal_keymap, "S-8 t", "browser-object-class-title");
-define_key(content_buffer_normal_keymap, "S-8 T", "browser-object-class-title-or-alt");
+define_key(content_buffer_normal_keymap, "S-8 a", "browser-object-alt");
+define_key(content_buffer_normal_keymap, "S-8 t", "browser-object-title");
+define_key(content_buffer_normal_keymap, "S-8 T", "browser-object-title-or-alt");
 
 
 function bind_element_operations(keymap) {

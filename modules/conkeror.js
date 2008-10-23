@@ -28,6 +28,7 @@ require("buffer.js");
 require("window.js");
 require("download-manager.js");
 
+require("element.js");
 
 require("universal-argument.js");
 require("commands.js"); // depends: interactive.js
@@ -37,7 +38,6 @@ require("history.js");
 require("save.js");
 
 require("zoom.js");
-require("element.js");
 require("follow-relationship.js");
 
 require("find.js");
