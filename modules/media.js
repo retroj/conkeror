@@ -66,36 +66,38 @@ function media_scrape(buffer) {
     yield co_return(results);
 }
 
-function media_setup_local_object_classes(buffer) {
-    buffer.local_variables.default_browser_object_classes = {
-        __proto__: default_browser_object_classes,
-        save: "media",
-        shell_command: "media",
-        shell_command_url: "media"
-    };
-}
 
 define_browser_object_class(
     "media", null, null,
     function (buf, prompt) {
-    let media = yield media_scrape(buf);
-    if (!media || media.length == 0)
-        throw interactive_error("No media found.");
+        let media = yield media_scrape(buf);
+        if (!media || media.length == 0)
+            throw interactive_error("No media found.");
 
-    if (media.length == 1)
-        yield co_return(media[0]);
+        if (media.length == 1)
+            yield co_return(media[0]);
 
-    let completer = all_word_completer(
-        $completions = media,
-        $get_string = function (x) load_spec_uri_string(x),
-        $get_description = function (x) load_spec_title(x) || "");
+        let completer = all_word_completer(
+            $completions = media,
+            $get_string = function (x) load_spec_uri_string(x),
+            $get_description = function (x) load_spec_title(x) || "");
 
-    let result = yield buf.window.minibuffer.read(
-        $prompt = prompt,
-        $match_required,
-        $completer = completer,
-        $auto_complete_initial,
-        $auto_complete = "media");
+        let result = yield buf.window.minibuffer.read(
+            $prompt = prompt,
+            $match_required,
+            $completer = completer,
+            $auto_complete_initial,
+            $auto_complete = "media");
 
-    yield co_return(result);
-});
+        yield co_return(result);
+    });
+
+
+function media_setup_local_object_classes(buffer) {
+    buffer.local_variables.default_browser_object_classes = {
+        save: browser_object_media,
+        shell_command: browser_object_media,
+        shell_command_url: browser_object_media
+    };
+}
+

@@ -381,25 +381,25 @@ interactive("network-go-offline", "Work offline.",
  */
 interactive("follow", null, follow,
             $browser_object = browser_object_links);
+default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
-interactive("follow-top", null, follow_top,
+interactive("follow-top", null, follow,
             $browser_object = browser_object_frames);
-
+default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
 
 interactive("find-url", "Open a URL in the current buffer", "follow",
             $browser_object = browser_object_url);
 default_browse_targets["find-url"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
-
 interactive("find-url-new-buffer",
             "Open a URL in a new buffer",
-            follow_new_buffer,
+            follow,
             $browser_object = browser_object_url);
 default_browse_targets["find-url-new-buffer"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 
 interactive("find-url-new-window", "Open a URL in a new window",
-            follow_new_window,
+            follow,
             $browser_object = browser_object_url);
 default_browse_targets["find-url-new-window"] = [OPEN_NEW_WINDOW];
 

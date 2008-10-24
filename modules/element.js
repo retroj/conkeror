@@ -27,7 +27,7 @@ function browser_object_class (name, label, doc, handler) {
 }
 
 function define_browser_object_class (name, label, doc, handler) {
-    var varname = 'browser_object_'+name.replace('-','_');
+    var varname = 'browser_object_'+name.replace('-','_','g');
     var ob = conkeror[varname] =
         new browser_object_class (name, label, doc, handler);
     interactive(
@@ -360,31 +360,7 @@ function element_get_load_spec(elem) {
 
 
 function follow (I) {
-    //dumpln(dump_obj(I._browser_object_class));
-    var target = I.browse_target("follow");
-    var element = yield I.read_browser_object(I.command, target);
-    // XXX: to follow in the current buffer requires that the current
-    // buffer be a content_buffer.  this is perhaps not the best place
-    // for this check, because FOLLOW_DEFAULT could signify new buffer
-    // or new window.
-    check_buffer (I.buffer, content_buffer);
-    browser_object_follow(I.buffer, target, element);
-}
-
-function follow_new_buffer (I) {
-    var target = I.browse_target("find-url-new-buffer");
-    var element = yield I.read_browser_object(I.command, target);
-    browser_object_follow(I.buffer, target, element);
-}
-
-function follow_new_window (I) {
-    var target = I.browse_target("find-url-new-window");
-    var element = yield I.read_browser_object(I.command, target);
-    browser_object_follow(I.buffer, target, element);
-}
-
-function follow_top (I) {
-    var target = I.browse_target("follow-top");
+    var target = I.browse_target(I.command) || I.browse_target("follow");
     var element = yield I.read_browser_object(I.command, target);
     // XXX: to follow in the current buffer requires that the current
     // buffer be a content_buffer.  this is perhaps not the best place

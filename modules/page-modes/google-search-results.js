@@ -21,19 +21,21 @@ define_key(google_search_results_keymap, "return", "ensure-content-focused", $fa
  * Note: escape already does the same thing as the Google key binding.
  */
 
-define_browser_object_class("google_search_results_links", $label = "Google search result",
-                            $xpath_expression = "//a[@class='l']");
+define_browser_object_class(
+    "google-search-results-links",
+    "Google search result",
+    null,
+    xpath_browser_object_handler("//a[@class='l']"));
 
 define_page_mode("google_search_results_mode", "Google Search Results",
                  $enable = function (buffer) {
                      buffer.local_variables.content_buffer_normal_keymap = google_search_results_keymap;
                      buffer.local_variables.default_browser_object_classes = {
-                         __proto__: default_browser_object_classes,
-                         follow: "google_search_results_links",
-                         copy: "google_search_results_links",
-                         save: "google_search_results_links",
-                         shell_command: "google_search_results_links",
-                         shell_command_url: "google_search_results_links" };
+                         follow: browser_object_google_search_results_links,
+                         copy: browser_object_google_search_results_links,
+                         save: browser_object_google_search_results_links,
+                         shell_command: browser_object_google_search_results_links,
+                         shell_command_url: browser_object_google_search_results_links };
                  });
 
 var google_search_re = build_url_regex($domain = "google",

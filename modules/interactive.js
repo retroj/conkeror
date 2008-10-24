@@ -97,7 +97,22 @@ function call_interactively(I, command)
     }
 
     I.command = command;
-    I.browser_object = cmd.browser_object;
+    
+    // check for buffer-local override of default browser-object
+    // class.
+    //
+    // XXX: we're not going through the official `get' method for
+    // local variables because it can only override objects in
+    // `conkeror'.
+    //
+    if ('default_browser_object_classes' in I.buffer.local_variables &&
+        command in I.buffer.local_variables.default_browser_object_classes)
+    {
+        I.browser_object = I.buffer.local_variables.
+            default_browser_object_classes[command];
+    } else {
+        I.browser_object = cmd.browser_object;
+    }
 
     var handler = cmd.handler;
 

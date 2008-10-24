@@ -494,14 +494,14 @@ function browse_target_prompt(target, prefix) {
 
 
 var default_browse_targets = {};
-default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
 
 interactive_context.prototype.browse_target = function (action) {
     var prefix = this.prefix_argument;
     var targets = action;
     while (typeof(targets) == "string")
         targets = default_browse_targets[targets];
+    if (! targets)
+        return null;
     if (prefix == null || typeof(prefix) != "object")
         return targets[0];
     var num = prefix[0];
