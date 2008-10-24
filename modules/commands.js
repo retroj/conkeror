@@ -45,14 +45,6 @@ interactive("scroll-end-of-line",
             "Scroll the current frame all the way to the right.",
             function (I) {scroll_horiz_complete(I.buffer, 1);});
 
-interactive("make-window",
-            "Make a new window.",
-            function (I) {
-                make_window(buffer_creator(content_buffer,
-                                           $load = homepage,
-                                           $configuration = I.buffer.configuration));
-            });
-
 function delete_window (window)
 {
     window.window.close();
@@ -435,6 +427,12 @@ interactive("go-up", "Go to the parent directory of the current URL", "follow",
                         return buf.current_URI.resolve (up);
                     }));
 default_browse_targets["go-up"] = "find-url";
+
+
+interactive("make-window",
+            "Make a new window with the homepage.",
+            "find-url-new-window",
+            $browser_object = function () { return homepage; });
 
 
 interactive("focus", null,

@@ -132,6 +132,8 @@ interactive_context.prototype.read_browser_object = function(action, target)
 {
     var browser_object = this.browser_object; //default
     // literals cannot be overridden
+    if (browser_object instanceof Function)
+        yield co_return(browser_object());
     if (! (browser_object instanceof browser_object_class))
         yield co_return(browser_object);
 
