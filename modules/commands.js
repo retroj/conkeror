@@ -256,19 +256,11 @@ interactive ("reinit",
                  reinit(I.window, get_pref("conkeror.rcfile"));
              });
 
-interactive("help-page",
-            "Open the Conkeror help page.",
-            function (I) {
-                open_in_browser(I.buffer, I.browse_target("find-url"),
-                                "chrome://conkeror/content/help.html");
-            });
+interactive("help-page", "Open the Conkeror help page.", "follow",
+            $browser_object = "chrome://conkeror/content/help.html");
 
-interactive("help-with-tutorial",
-            "Open the Conkeror tutorial.",
-            function (I) {
-                open_in_browser(I.buffer, I.browse_target("find-url"),
-                                "chrome://conkeror/content/tutorial.html");
-            });
+interactive("help-with-tutorial", "Open the Conkeror tutorial.", "follow",
+            $browser_object = "chrome://conkeror/content/tutorial.html");
 
 function univ_arg_to_number(prefix, default_value)
 {
