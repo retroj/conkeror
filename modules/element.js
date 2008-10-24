@@ -127,35 +127,6 @@ define_browser_object_class(
         yield (co_return (result.title ? result.title : result.alt));
     });
 
-/*
-define_variable(
-    "default_browser_object_classes",
-    {
-        follow: "links",
-        follow_top: "frames",
-        focus: "frames",
-        save: "links",
-        copy: "links",
-        view_source: "frames",
-        bookmark: "frames",
-        save_page: "frames",
-        save_page_complete: "top",
-        save_page_as_text: "frames",
-        default: "links"
-    },
-    "Specifies the default object class for each operation.\n" +
-        "This variable should be an object literal with string-valued properties that specify one of the defined browser object classes.  If a property named after the operation is not present, the \"default\" property is consulted instead.");
-*/
-
-/*
-interactive_context.prototype.browser_object_class = function (action_name) {
-    var cls =
-        this._browser_object_class ||
-        this.get("default_browser_object_classes")[action_name] ||
-        this.get("default_browser_object_classes")["default"];
-    return cls;
-};
-*/
 
 /* browser object predicates
  */
