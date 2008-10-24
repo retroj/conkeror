@@ -485,7 +485,9 @@ browser_dom_window.prototype = {
              * in the URL being loaded as the top-level document,
              * instead of within a browser buffer.  Instead, we can
              * rely on Mozilla using browser.chromeURL. */
-            window_set_extra_arguments({initial_buffer_configuration: config});
+            window_set_extra_arguments(
+                {initial_buffer_creator: buffer_creator(content_buffer, $configuration = config)}
+            );
             return null;
         }
     }
