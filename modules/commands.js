@@ -134,7 +134,7 @@ interactive("execute-extended-command",
                 var boc = I._browser_object_class;
                 var prompt = "";
                 if (boc)
-                    prompt += ' ['+boc+']';
+                    prompt += ' ['+boc.name+']';
                 if (prefix !== null && prefix !== undefined) {
                     if (typeof prefix == "object")
                         prompt += prefix[0] == 4 ? " C-u" : " "+prefix[0];
