@@ -610,12 +610,12 @@ interactive("switch-to-buffer",
                         $prompt = "Switch to buffer:",
                         $default = (I.window.buffers.count > 1 ?
                                     I.window.buffers.buffer_list[1] :
-                                    I.buffer)))
-                )
+                                    I.buffer))));
             });
 
 define_variable("can_kill_last_buffer", true,
-                     "If this is set to true, kill-buffer can kill the last remaining buffer, and close the window.");
+                "If this is set to true, kill-buffer can kill the last "+
+                "remaining buffer, and close the window.");
 
 function kill_buffer(buffer, force)
 {
