@@ -690,7 +690,7 @@ interactive("view-as-mime-type",
                         $initial_value = suggested_type,
                         $select);
                     override_mime_type_for_next_load(load_spec_uri(spec), mime_type);
-                    browser_element_follow(I.buffer, target, spec);
+                    browser_object_follow(I.buffer, target, spec);
                 } finally {
                     panel.destroy();
                 }

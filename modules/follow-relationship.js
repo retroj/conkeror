@@ -88,7 +88,7 @@ function browser_follow_relationship(buffer, relationship, target) {
         let elem = document_get_element_by_relationship(
             buffer, frame.document, relationship);
         if (elem) {
-            browser_element_follow(buffer, target, elem);
+            browser_object_follow(buffer, target, elem);
             return;
         }
     }

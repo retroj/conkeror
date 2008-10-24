@@ -244,7 +244,7 @@ function browser_element_focus(buffer, elem)
     elem.dispatchEvent(evt);
 }
 
-function browser_element_follow(buffer, target, elem)
+function browser_object_follow(buffer, target, elem)
 {
     browser_set_element_focus(buffer, elem, true /* no scroll */);
 
@@ -400,19 +400,19 @@ function follow (I) {
     // for this check, because FOLLOW_DEFAULT could signify new buffer
     // or new window.
     check_buffer (I.buffer, content_buffer);
-    browser_element_follow(I.buffer, target, element);
+    browser_object_follow(I.buffer, target, element);
 }
 
 function follow_new_buffer (I) {
     var target = I.browse_target("find-url-new-buffer");
     var element = yield I.read_browser_object(I.command, target);
-    browser_element_follow(I.buffer, target, element);
+    browser_object_follow(I.buffer, target, element);
 }
 
 function follow_new_window (I) {
     var target = I.browse_target("find-url-new-window");
     var element = yield I.read_browser_object(I.command, target);
-    browser_element_follow(I.buffer, target, element);
+    browser_object_follow(I.buffer, target, element);
 }
 
 function follow_top (I) {
@@ -423,7 +423,7 @@ function follow_top (I) {
     // for this check, because FOLLOW_DEFAULT could signify new buffer
     // or new window.
     check_buffer (I.buffer, content_buffer);
-    browser_element_follow(I.buffer, target, element);
+    browser_object_follow(I.buffer, target, element);
 }
 
 function follow_current_frame (I) {
@@ -434,7 +434,7 @@ function follow_current_frame (I) {
     // for this check, because FOLLOW_DEFAULT could signify new buffer
     // or new window.
     check_buffer (I.buffer, content_buffer);
-    browser_element_follow(I.buffer, target, element);
+    browser_object_follow(I.buffer, target, element);
 }
 
 
@@ -534,7 +534,7 @@ function browser_element_view_source(buffer, target, elem)
     var url_s = win.location.href;
     if (url_s.substring (0,12) != "view-source:") {
         try {
-            browser_element_follow(buffer, target, "view-source:" + url_s);
+            browser_object_follow(buffer, target, "view-source:" + url_s);
         } catch(e) { dump_error(e); }
     } else {
         window.minibuffer.message ("Already viewing source");
