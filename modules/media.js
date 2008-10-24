@@ -75,7 +75,7 @@ function media_setup_local_object_classes(buffer) {
     };
 }
 
-var browser_object_media = new browser_object_class(
+define_browser_object_class(
     "media", null, null,
     function (buf, prompt) {
     let media = yield media_scrape(buf);

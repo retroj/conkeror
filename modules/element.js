@@ -24,13 +24,19 @@ function browser_object_class (name, label, doc, handler) {
     this.handler = handler;
     if (doc) this.doc = doc;
     if (label) this.label = label;
-    var self = this;
+}
+
+function define_browser_object_class (name, label, doc, handler) {
+    var varname = 'browser_object_'+name.replace('-','_');
+    var ob = conkeror[varname] =
+        new browser_object_class (name, label, doc, handler);
     interactive(
         "browser-object-"+name,
         "A prefix command to specify that the following command operate "+
             "on objects of type: "+name+".",
-        function (ctx) { ctx._browser_object_class = self; },
+        function (ctx) { ctx._browser_object_class = ob; },
         $prefix = true);
+    return ob;
 }
 
 function xpath_browser_object_handler (xpath_expression) {
@@ -43,11 +49,11 @@ function xpath_browser_object_handler (xpath_expression) {
     };
 }
 
-var browser_object_images = new browser_object_class(
+define_browser_object_class(
     "images", "image", null,
     xpath_browser_object_handler ("//img | //xhtml:img"));
 
-var browser_object_frames = new browser_object_class(
+define_browser_object_class(
     "frames","frame", null,
     function (buf, prompt) {
         check_buffer(buf, content_buffer);
@@ -65,7 +71,7 @@ var browser_object_frames = new browser_object_class(
         yield co_return(result);
     });
 
-var browser_object_links = new browser_object_class(
+define_browser_object_class(
     "links", "link", null,
     xpath_browser_object_handler (
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
@@ -75,15 +81,15 @@ var browser_object_links = new browser_object_class(
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
         "//xhtml:button | //xhtml:select"));
 
-var browser_object_mathml = new browser_object_class(
+define_browser_object_class(
     "mathml", "MathML element", null,
     xpath_browser_object_handler ("//m:math"));
 
-var browser_object_top = new browser_object_class(
+define_browser_object_class(
     "top", null, null,
     function (buf, prompt) { yield co_return(buf.top_frame); });
 
-var browser_object_url = new browser_object_class(
+define_browser_object_class(
     "url", null, null,
     function (buf, prompt) {
         check_buffer (buf, content_buffer);
@@ -91,7 +97,7 @@ var browser_object_url = new browser_object_class(
         yield co_return (result);
     });
 
-var browser_object_alt = new browser_object_class(
+define_browser_object_class(
     "alt", "Image Alt-text", null,
     function (buf, prompt) {
         var result = yield buf.window.minibuffer.read_hinted_element(
@@ -101,7 +107,7 @@ var browser_object_alt = new browser_object_class(
         yield (co_return (result.alt));
     });
 
-var browser_object_title = new browser_object_class(
+define_browser_object_class(
     "title", "Element Title", null,
     function (buf, prompt) {
         var result = yield buf.window.minibuffer.read_hinted_element(
@@ -111,7 +117,7 @@ var browser_object_title = new browser_object_class(
         yield (co_return (result.title));
     });
 
-var browser_object_title_or_alt = new browser_object_class(
+define_browser_object_class(
     "title-or-alt", "Element Title or Alt-text", null,
     function (buf, prompt) {
         var result = yield buf.window.minibuffer.read_hinted_element(
@@ -158,29 +164,14 @@ function browser_object_any (o) { return true; }
 
 interactive_context.prototype.read_browser_object = function(action, target)
 {
-    var browser_objects = interactive_commands.get(action).browser_objects;
+    var browser_object = this.browser_object; //default
+    // literals cannot be overridden
+    if (! (browser_object instanceof browser_object_class))
+        yield co_return(browser_object);
 
-    var object_class = this._browser_object_class;
-    if (! object_class) {
-        object_class = browser_objects[0];
-    } else {
-        // make sure object class matches an allowed browser object
-        // class for this action
-        var pass = false;
-        for (var i = 0; i < browser_objects.length; i++) {
-            // it can be a predicate or a constant
-            if (typeof (browser_objects[i]) == 'function') {
-                pass = browser_objects[i] (object_class);
-            } else {
-                pass = (browser_objects[i] == object_class);
-            }
-            if (pass) break;
-        }
-        if (! pass) {
-            throw (interactive_error ('given browser object is not supported by this command'));
-        }
-    }
-
+    var object_class = this._browser_object_class; //override
+    if (! object_class)
+        object_class = browser_object;
     var prompt = action.split(/-|_/).join(" ");
     prompt = prompt[0].toUpperCase() + prompt.substring(1);
     if (target != null)
@@ -189,13 +180,8 @@ interactive_context.prototype.read_browser_object = function(action, target)
         prompt += " (select " + object_class.label + ")";
     prompt += ":";
 
-    if (object_class instanceof browser_object_class) {
-        var result = yield object_class.handler.call(null, this.buffer, prompt);
-        yield co_return(result);
-    } else {
-        // handler is a simple constant
-        yield co_return(object_class);
-    }
+    var result = yield object_class.handler.call(null, this.buffer, prompt);
+    yield co_return(result);
 }
 
 

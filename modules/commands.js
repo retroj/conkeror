@@ -64,7 +64,7 @@ interactive("delete-window",
 interactive("jsconsole",
             "Open the JavaScript console.",
             "find-url-new-buffer",
-            $browser_objects = ["chrome://global/content/console.xul"]);
+            $browser_object = "chrome://global/content/console.xul");
 
 /**
  * Given a callback func and an interactive context I, call func, passing either
@@ -396,38 +396,33 @@ interactive("network-go-offline", "Work offline.",
  * Browser Object Commands
  */
 interactive("follow", null, follow,
-            $browser_objects = [browser_object_links,
-                                browser_object_any]);
+            $browser_object = browser_object_links);
 
 interactive("follow-top", null, follow_top,
-            $browser_objects = [browser_object_frames,
-                                browser_object_any]);
+            $browser_object = browser_object_frames);
 
 
 interactive("find-url", "Open a URL in the current buffer", "follow",
-            $browser_objects = [browser_object_url,
-                                browser_object_any]);
+            $browser_object = browser_object_url);
 default_browse_targets["find-url"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 
 interactive("find-url-new-buffer",
             "Open a URL in a new buffer",
             follow_new_buffer,
-            $browser_objects = [browser_object_url,
-                                browser_object_any]);
+            $browser_object = browser_object_url);
 default_browse_targets["find-url-new-buffer"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 
 interactive("find-url-new-window", "Open a URL in a new window",
             follow_new_window,
-            $browser_objects = [browser_object_url,
-                                browser_object_any]);
+            $browser_object = browser_object_url);
 default_browse_targets["find-url-new-window"] = [OPEN_NEW_WINDOW];
 
 
 interactive("find-alternate-url", "Edit the current URL in the minibuffer", "follow",
-            $browser_objects = [
-                new browser_object_class(
+            $browser_object =
+                define_browser_object_class(
                     "alternate-url", null, null,
                     function (buf, prompt) {
                         check_buffer (buf, content_buffer);
@@ -435,19 +430,18 @@ interactive("find-alternate-url", "Edit the current URL in the minibuffer", "fol
                             $prompt = prompt,
                             $initial_value = buf.display_URI_string);
                         yield co_return (result);
-                    }),
-                browser_object_any]);
+                    }));
 
 
 interactive("go-up", "Go to the parent directory of the current URL", "follow",
-            $browser_objects = [
-                new browser_object_class(
+            $browser_object =
+                define_browser_object_class(
                     "up-url", null, null,
                     function (buf, prompt) {
                         check_buffer (buf, content_buffer);
                         var up = compute_url_up_path (buf.current_URI.spec);
                         return buf.current_URI.resolve (up);
-                    })]);
+                    }));
 default_browse_targets["go-up"] = "find-url";
 
 
@@ -456,8 +450,7 @@ interactive("focus", null,
                 var element = yield I.read_browser_object("focus");
                 browser_element_focus(I.buffer, element);
             },
-            $browser_objects = [browser_object_frames,
-                                browser_object_any]);
+            $browser_object = browser_object_frames);
 
 interactive("save", null, function (I) {
     var element = yield I.read_browser_object("save", "Save");
@@ -494,8 +487,7 @@ interactive("copy", null,
                 var element = yield I.read_browser_object("copy");
                 browser_element_copy(I.buffer, element);
             },
-            $browser_objects = [browser_object_links,
-                                browser_object_any]);
+            $browser_object = browser_object_links);
 
 interactive("view-source", null,
             function (I) {
@@ -503,8 +495,7 @@ interactive("view-source", null,
                 var element = yield I.read_browser_object("view-source", target);
                 yield browser_element_view_source(I.buffer, target, element);
             },
-            $browser_objects = [browser_object_frames,
-                                browser_object_any]);
+            $browser_object = browser_object_frames);
 
 interactive("shell-command-on-url", null, function (I) {
     var cwd = I.cwd;
