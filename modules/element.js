@@ -128,11 +128,6 @@ define_browser_object_class(
     });
 
 
-/* browser object predicates
- */
-function browser_object_any (o) { return true; }
-
-
 interactive_context.prototype.read_browser_object = function(action, target)
 {
     var browser_object = this.browser_object; //default
