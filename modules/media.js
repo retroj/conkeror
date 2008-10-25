@@ -94,7 +94,7 @@ define_browser_object_class(
 
 
 function media_setup_local_object_classes(buffer) {
-    buffer.local_variables.default_browser_object_classes = {
+    buffer.default_browser_object_classes = {
         save: browser_object_media,
         shell_command: browser_object_media,
         shell_command_url: browser_object_media

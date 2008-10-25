@@ -30,7 +30,7 @@ define_browser_object_class(
 define_page_mode("google_search_results_mode", "Google Search Results",
                  $enable = function (buffer) {
                      buffer.local_variables.content_buffer_normal_keymap = google_search_results_keymap;
-                     buffer.local_variables.default_browser_object_classes = {
+                     buffer.default_browser_object_classes = {
                          follow: browser_object_google_search_results_links,
                          copy: browser_object_google_search_results_links,
                          save: browser_object_google_search_results_links,

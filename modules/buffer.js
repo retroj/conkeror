@@ -108,6 +108,7 @@ function buffer(window, element)
 
     this.enabled_modes = [];
     this.local_variables = {};
+    this.default_browser_object_classes = {};
 
     var buffer = this;
 
