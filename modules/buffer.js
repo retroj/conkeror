@@ -494,26 +494,6 @@ function browse_target_prompt(target, prefix) {
 }
 
 
-var default_browse_targets = {};
-
-interactive_context.prototype.browse_target = function (action) {
-    var prefix = this.prefix_argument;
-    var targets = action;
-    while (typeof(targets) == "string")
-        targets = default_browse_targets[targets];
-    if (! targets)
-        return null;
-    if (prefix == null || typeof(prefix) != "object")
-        return targets[0];
-    var num = prefix[0];
-    var index = 0;
-    while (num >= 4 && index + 1 < targets.length) {
-        num = num / 4;
-        index++;
-    }
-    return targets[index];
-};
-
 function create_buffer(window, creator, target) {
     switch (target) {
     case OPEN_NEW_BUFFER:

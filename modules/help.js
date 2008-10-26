@@ -258,8 +258,14 @@ function describe_bindings(buffer, target) {
                                                 $binding_list = list),
                   target);
 }
-interactive("describe-bindings", null, function (I) {describe_bindings(I.buffer, I.browse_target("describe-bindings"));});
-default_browse_targets["describe-bindings"] = "find-url-new-buffer";
+function describe_bindings_new_buffer (I) {
+    describe_bindings(I.buffer, OPEN_NEW_BUFFER);
+}
+function describe_bindings_new_window (I) {
+    describe_bindings(I.buffer, OPEN_NEW_WINDOW);
+}
+interactive("describe-bindings", null,
+            alternates(describe_bindings_new_buffer, describe_bindings_new_window));
 
 
 define_keywords("$command_list");
@@ -341,14 +347,20 @@ function apropos_command(buffer, substring, target) {
                   target);
 }
 
-interactive("apropos-command", "List commands whose names contain a given substring.",
-    function (I) {
-        apropos_command(I.buffer,
+function apropos_command_new_buffer (I) {
+    apropos_command(I.buffer,
                     (yield I.minibuffer.read($prompt = "Apropos command:",
                                              $history = "apropos")),
-                    I.browse_target("apropos-command"));
-});
-default_browse_targets["apropos-command"] = "find-url-new-buffer";
+                    OPEN_NEW_BUFFER);
+}
+function apropos_command_new_window (I) {
+    apropos_command(I.buffer,
+                    (yield I.minibuffer.read($prompt = "Apropos command:",
+                                             $history = "apropos")),
+                    OPEN_NEW_WINDOW);
+}
+interactive("apropos-command", "List commands whose names contain a given substring.",
+            alternates(apropos_command_new_buffer, apropos_command_new_window));
 
 
 
@@ -423,11 +435,16 @@ function describe_command(buffer, command, target) {
                                  $bindings = bindings),
                   target);
 }
-interactive("describe-command", null, function (I) {
+function describe_command_new_buffer (I) {
     describe_command(I.buffer, (yield I.minibuffer.read_command($prompt = "Describe command:")),
-                     I.browse_target("describe-command"));
-});
-default_browse_targets["describe-command"] = "find-url-new-buffer";
+                     OPEN_NEW_BUFFER);
+}
+function describe_command_new_window (I) {
+    describe_command(I.buffer, (yield I.minibuffer.read_command($prompt = "Describe command:")),
+                     OPEN_NEW_WINDOW);
+}
+interactive("describe-command", null,
+            alternates(describe_command_new_buffer, describe_command_new_window));
 
 
 
@@ -538,6 +555,16 @@ function describe_key(buffer, key_info, target) {
                                  $binding = bind),
                   target);
 }
+function describe_key_new_buffer (I) {
+    describe_key(I.buffer,
+                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
+                 OPEN_NEW_BUFFER);
+}
+function describe_key_new_window (I) {
+    describe_key(I.buffer,
+                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
+                 OPEN_NEW_WINDOW);
+}
 
 function describe_key_briefly(buffer, key_info) {
     var bindings;
@@ -547,16 +574,13 @@ function describe_key_briefly(buffer, key_info) {
     buffer.window.minibuffer.message(seq.join(" ") + " runs the command " + bind.command);
 }
 
-interactive("describe-key", null, function (I) {
-    describe_key(I.buffer,
-                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
-                 I.browse_target("describe-key"));
-});
+interactive("describe-key", null,
+            alternates(describe_key_new_buffer, describe_key_new_window));
 interactive("describe-key-briefly", null, function (I) {
-    describe_key_briefly(I.buffer,
-                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
+    describe_key_briefly(
+        I.buffer,
+        (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
 });
-default_browse_targets["describe-key"] = "find-url-new-buffer";
 
 
 
@@ -657,19 +681,31 @@ function describe_variable(buffer, variable, target) {
                                  $variable = variable),
                   target);
 }
-interactive("describe-variable", null, function (I) {
+function describe_variable_new_buffer (I) {
     describe_variable(I.buffer, (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
-                     I.browse_target("describe-variable"));
-});
-default_browse_targets["describe-variable"] = "find-url-new-buffer";
+                      OPEN_NEW_BUFFER);
+}
+function describe_variable_new_window (I) {
+    describe_variable(I.buffer, (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
+                      OPEN_NEW_WINDOW);
+}
+interactive("describe-variable", null,
+            alternates(describe_variable_new_buffer, describe_variable_new_window));
+
+
 
 function describe_preference(buffer, preference, target) {
     let key = preference.charAt(0).toUpperCase() + preference.substring(1);
     let url = "http://kb.mozillazine.org/" + key;
     browser_object_follow(buffer, target, url);
 }
-interactive("describe-preference", null, function (I) {
+function describe_preference_new_buffer (I) {
     describe_preference(I.buffer, (yield I.minibuffer.read_preference($prompt = "Describe preference:")),
-                     I.browse_target("describe-preference"));
-});
-default_browse_targets["describe-preference"] = "find-url-new-buffer";
+                        OPEN_NEW_BUFFER);
+}
+function describe_preference_new_window (I) {
+    describe_preference(I.buffer, (yield I.minibuffer.read_preference($prompt = "Describe preference:")),
+                        OPEN_NEW_WINDOW);
+}
+interactive("describe-preference", null,
+            alternates(describe_preference_new_buffer, describe_preference_new_window));

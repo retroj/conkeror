@@ -381,32 +381,34 @@ interactive("network-go-offline", "Work offline.",
 /*
  * Browser Object Commands
  */
-interactive("follow", null, follow,
+interactive("follow", null,
+            alternates(follow, follow_new_buffer, follow_new_window),
             $browser_object = browser_object_links);
-default_browse_targets["follow"] = [FOLLOW_DEFAULT, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
-interactive("follow-top", null, follow,
+interactive("follow-top", null,
+            alternates(follow_top, follow_current_frame),
             $browser_object = browser_object_frames);
-default_browse_targets["follow-top"] = [FOLLOW_TOP_FRAME, FOLLOW_CURRENT_FRAME];
 
-interactive("find-url", "Open a URL in the current buffer", "follow",
+interactive("follow-new-buffer-background",
+            "Follow a link in a new buffer in the background",
+            alternates(follow_new_buffer_background, follow_new_window),
+            $browser_object = browser_object_links);
+
+interactive("find-url", "Open a URL in the current buffer",
+            alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
             $browser_object = browser_object_url);
-default_browse_targets["find-url"] = [OPEN_CURRENT_BUFFER, OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
 
 interactive("find-url-new-buffer",
             "Open a URL in a new buffer",
-            follow,
+            alternates(follow_new_buffer, follow_new_window),
             $browser_object = browser_object_url);
-default_browse_targets["find-url-new-buffer"] = [OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
-
 
 interactive("find-url-new-window", "Open a URL in a new window",
-            follow,
+            follow_new_window,
             $browser_object = browser_object_url);
-default_browse_targets["find-url-new-window"] = [OPEN_NEW_WINDOW];
 
-
-interactive("find-alternate-url", "Edit the current URL in the minibuffer", "follow",
+interactive("find-alternate-url", "Edit the current URL in the minibuffer",
+            "find-url",
             $browser_object =
                 define_browser_object_class(
                     "alternate-url", null, null,
@@ -419,7 +421,8 @@ interactive("find-alternate-url", "Edit the current URL in the minibuffer", "fol
                     }));
 
 
-interactive("go-up", "Go to the parent directory of the current URL", "follow",
+interactive("go-up", "Go to the parent directory of the current URL",
+            "find-url",
             $browser_object =
                 define_browser_object_class(
                     "up-url", null, null,
@@ -428,12 +431,10 @@ interactive("go-up", "Go to the parent directory of the current URL", "follow",
                         var up = compute_url_up_path (buf.current_URI.spec);
                         return buf.current_URI.resolve (up);
                     }));
-default_browse_targets["go-up"] = "find-url";
-
 
 interactive("make-window",
             "Make a new window with the homepage.",
-            "find-url-new-window",
+            follow_new_window,
             $browser_object = function () { return homepage; });
 
 
@@ -481,6 +482,12 @@ interactive("copy", null,
             },
             $browser_object = browser_object_links);
 
+//FIXME: write view-source in terms of alternates The view-source: url
+//should be provided as a browser object.  In order to do this
+//robustly, we need to be able to compose browser objects, so that the
+//view-source: scheme can be prepended to any url supplied by any
+//other browser object.
+//
 interactive("view-source", null,
             function (I) {
                 var target = I.browse_target("follow");
@@ -655,43 +662,52 @@ interactive("save-page-complete", null, function (I) {
     save_document_complete(doc, file, dir, $buffer = I.buffer);
 });
 
-default_browse_targets["view-as-mime-type"] = [FOLLOW_CURRENT_FRAME, OPEN_CURRENT_BUFFER,
-                                               OPEN_NEW_BUFFER, OPEN_NEW_WINDOW];
+
+function view_as_mime_type (I, target) {
+    var element = yield I.read_browser_object("view_as_mime_type");
+    var spec = element_get_load_spec(element);
+
+    target = target || FOLLOW_CURRENT_FRAME;
+
+    if (!spec)
+        throw interactive_error("Element is not associated with a URI");
+
+    if (!can_override_mime_type_for_uri(load_spec_uri(spec)))
+        throw interactive_error("Overriding the MIME type is not currently supported for non-HTTP URLs.");
+
+    var panel;
+
+    var mime_type = load_spec_mime_type(spec);
+    panel = create_info_panel(I.window, "download-panel",
+                              [["downloading",
+                                element_get_operation_label(element, "View in browser"),
+                                load_spec_uri_string(spec)],
+                               ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
+
+
+    try {
+        let suggested_type = mime_type;
+        if (gecko_viewable_mime_type_list.indexOf(suggested_type) == -1)
+            suggested_type = "text/plain";
+        mime_type = yield I.minibuffer.read_gecko_viewable_mime_type(
+            $prompt = "View internally as",
+            $initial_value = suggested_type,
+            $select);
+        override_mime_type_for_next_load(load_spec_uri(spec), mime_type);
+        browser_object_follow(I.buffer, target, spec);
+    } finally {
+        panel.destroy();
+    }
+}
+function view_as_mime_type_new_buffer (I) {
+    yield view_as_mime_type(I, OPEN_NEW_BUFFER);
+}
+function view_as_mime_type_new_window (I) {
+    yield view_as_mime_type(I, OPEN_NEW_WINDOW);
+}
 interactive("view-as-mime-type",
             "Display a browser object in the browser using the specified MIME type.",
-            function (I) {
-                var element = yield I.read_browser_object("view_as_mime_type");
-                var spec = element_get_load_spec(element);
+            alternates(view_as_mime_type,
+                       view_as_mime_type_new_buffer,
+                       view_as_mime_type_new_window));
 
-                var target = I.browse_target("view-as-mime-type");
-
-                if (!spec)
-                    throw interactive_error("Element is not associated with a URI");
-
-                if (!can_override_mime_type_for_uri(load_spec_uri(spec)))
-                    throw interactive_error("Overriding the MIME type is not currently supported for non-HTTP URLs.");
-
-                var panel;
-
-                var mime_type = load_spec_mime_type(spec);
-                panel = create_info_panel(I.window, "download-panel",
-                                          [["downloading",
-                                            element_get_operation_label(element, "View in browser"),
-                                            load_spec_uri_string(spec)],
-                                           ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
-
-
-                try {
-                    let suggested_type = mime_type;
-                    if (gecko_viewable_mime_type_list.indexOf(suggested_type) == -1)
-                        suggested_type = "text/plain";
-                    mime_type = yield I.minibuffer.read_gecko_viewable_mime_type(
-                        $prompt = "View internally as",
-                        $initial_value = suggested_type,
-                        $select);
-                    override_mime_type_for_next_load(load_spec_uri(spec), mime_type);
-                    browser_object_follow(I.buffer, target, spec);
-                } finally {
-                    panel.destroy();
-                }
-            });

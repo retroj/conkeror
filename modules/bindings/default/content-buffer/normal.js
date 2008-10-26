@@ -36,9 +36,6 @@ define_key(content_buffer_normal_keymap, "M-escape", "unfocus");
 define_key(content_buffer_normal_keymap, "C-q", "quote-next-input-mode");
 define_key(content_buffer_normal_keymap, "C-M-q", "quote-input-mode");
 
-define_key(content_buffer_normal_keymap, "close_bracket close_bracket", "follow-next");
-define_key(content_buffer_normal_keymap, "open_bracket open_bracket", "follow-previous");
-
 define_key(content_buffer_normal_keymap, "return", null, $fallthrough);
 
 define_key(content_buffer_normal_keymap, "tab", "browser-focus-next-form-field");

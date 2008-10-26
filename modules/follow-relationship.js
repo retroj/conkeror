@@ -82,26 +82,29 @@ function document_get_element_by_relationship(buffer, doc, relationship) {
     return null;
 }
 
-function browser_follow_relationship(buffer, relationship, target) {
-    check_buffer(buffer, content_buffer);
-    for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
-        let elem = document_get_element_by_relationship(
-            buffer, frame.document, relationship);
-        if (elem) {
-            browser_object_follow(buffer, target, elem);
-            return;
+define_browser_object_class(
+    "relationship-next", "Relationship-Next", null,
+    function (buf, prompt) {
+        check_buffer(buf, content_buffer);
+        var doc = buf.document;
+        for (let frame in frame_iterator(buf.top_frame, buf.focused_frame)) {
+            let elem = document_get_element_by_relationship(
+                buf, frame.document, RELATIONSHIP_NEXT);
+            if (elem)
+                yield co_return(elem);
         }
-    }
-    throw interactive_error("No \"" + browser_relationship_rel_name[relationship]
-                            + "\" link found");
-}
+    });
 
-default_browse_targets["follow-relationship"] = "follow";
+define_browser_object_class(
+    "relationship-previous", "Relationship-Previous", null,
+    function (buf, prompt) {
+        check_buffer(buf, content_buffer);
+        var doc = buf.document;
+        for (let frame in frame_iterator(buf.top_frame, buf.focused_frame)) {
+            let elem = document_get_element_by_relationship(
+                buf, frame.document, RELATIONSHIP_PREVIOUS);
+            if (elem)
+                yield co_return(elem);
+        }
+    });
 
-interactive("follow-next", null, function (I) {
-    browser_follow_relationship(I.buffer, RELATIONSHIP_NEXT, I.browse_target("follow-relationship"))
-});
-
-interactive("follow-previous", null, function (I) {
-    browser_follow_relationship(I.buffer, RELATIONSHIP_PREVIOUS, I.browse_target("follow-relationship"))
-});

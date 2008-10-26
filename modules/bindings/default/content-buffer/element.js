@@ -10,41 +10,32 @@ require("bindings/default/content-buffer/normal.js");
 require("element.js");
 
 define_key(content_buffer_normal_keymap, "i", "browser-object-images");
-
 define_key(content_buffer_normal_keymap, "n", "browser-object-links");
-
 define_key(content_buffer_normal_keymap, "m", "browser-object-frames");
-
 define_key(content_buffer_normal_keymap, "e", "browser-object-media");
+define_key(content_buffer_normal_keymap, "open_bracket", "browser-object-relationship-previous");
+define_key(content_buffer_normal_keymap, "close_bracket", "browser-object-relationship-next");
+
 
 define_key(content_buffer_normal_keymap, "S-8 e", "browser-object-media");
-
 define_key(content_buffer_normal_keymap, "S-8 i", "browser-object-images");
-
 define_key(content_buffer_normal_keymap, "S-8 n", "browser-object-links");
-
 define_key(content_buffer_normal_keymap, "S-8 m", "browser-object-frames");
-
 define_key(content_buffer_normal_keymap, "S-8 M", "browser-object-mathml");
-
 define_key(content_buffer_normal_keymap, "S-8 u", "browser-object-url");
-
 define_key(content_buffer_normal_keymap, "S-8 a", "browser-object-alt");
 define_key(content_buffer_normal_keymap, "S-8 t", "browser-object-title");
 define_key(content_buffer_normal_keymap, "S-8 T", "browser-object-title-or-alt");
 
 
-function bind_element_operations(keymap) {
-    define_key(keymap, "f", "follow", $category = "Browser object");
-    define_key(keymap, ";", "focus", $category = "Browser object");
-    define_key(keymap, "t", "follow-top", $category = "Browser object");
-    define_key(keymap, "s", "save", $category = "Browser object");
-    define_key(keymap, "c", "copy", $category = "Browser object");
-    define_key(keymap, "back_slash", "view-source", $category = "Browser object");
-    define_key(keymap, "x", "shell-command-on-file", $category = "Browser object");
-    define_key(keymap, "X", "shell-command-on-url", $category = "Browser object");
-    define_key(keymap, "b", "bookmark", $category = "Browser object");
-    define_key(keymap, "v", "view-as-mime-type", $category = "Browser object");
-}
+define_key(content_buffer_normal_keymap, "f", "follow", $category = "Browser object");
+define_key(content_buffer_normal_keymap, ";", "focus", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "t", "follow-top", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "s", "save", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "c", "copy", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "back_slash", "view-source", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "x", "shell-command-on-file", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "X", "shell-command-on-url", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "b", "bookmark", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "v", "view-as-mime-type", $category = "Browser object");
 
-bind_element_operations(content_buffer_normal_keymap);

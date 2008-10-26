@@ -13,8 +13,6 @@ require("bindings/default/content-buffer/normal.js");
  * a reddit-remake.
  */
 var reddit_highlight_color = "#BFB";
-default_browse_targets["reddit-open"] = "find-url";
-default_browse_targets["reddit-open-comments"] = "find-url";
 
 
 function reddit_highlight(elem) {
@@ -178,20 +176,32 @@ function reddit_getArticleId(buffer) {
 }
 
 
-function reddit_open(I) {
+function reddit_open(I, target) {
     var articleId = reddit_getArticleId(I.buffer);
     if(articleId) {
         var dest = "http://reddit.com/goto?id=" + articleId;
-        open_in_browser(I.buffer, I.browse_target("reddit-open"), dest);
+        browser_object_follow(I.buffer, target || OPEN_CURRENT_BUFFER, dest);
     }
 }
+function reddit_open_new_buffer (I) {
+    reddit_open(I, OPEN_NEW_BUFFER);
+}
+function reddit_open_new_window (I) {
+    reddit_open(I, OPEN_NEW_WINDOW);
+}
 
-function reddit_open_comments(I) {
+function reddit_open_comments(I, target) {
     var articleId = reddit_getArticleId(I.buffer);
     if(articleId) {
         var dest = "http://reddit.com/info/" + articleId + "/comments/";
-        open_in_browser(I.buffer, I.browse_target("reddit-open-comments"), dest);
+        browser_object_follow(I.buffer, target || OPEN_CURRENT_BUFFER, dest);
     }
+}
+function reddit_open_comments_new_buffer (I) {
+    redditn_comments_open(I, OPEN_NEW_BUFFER);
+}
+function reddit_open_comments_new_window (I) {
+    redditn_comments_open(I, OPEN_NEW_WINDOW);
 }
 
 function reddit_mod_up (I) {
@@ -216,11 +226,15 @@ interactive("reddit-prev-link",
 
 interactive("reddit-open-current",
             "Open the currently selected link.",
-            reddit_open);
+            alternates(reddit_open,
+                       reddit_open_new_buffer,
+                       reddit_open_new_window));
 
 interactive("reddit-open-comments",
             "Open the comments-page associated with the currently selected link.",
-            reddit_open_comments);
+            alternates(reddit_open_comments,
+                       reddit_open_comments_new_buffer,
+                       reddit_open_comments_new_window));
 
 interactive("reddit-vote-up",
             "Vote the currently selected link up.",

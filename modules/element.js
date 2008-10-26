@@ -359,8 +359,8 @@ function element_get_load_spec(elem) {
 }
 
 
-function follow (I) {
-    var target = I.browse_target(I.command) || I.browse_target("follow");
+function follow (I, target) {
+    target = target || FOLLOW_DEFAULT;
     var element = yield I.read_browser_object(I.command, target);
     // XXX: to follow in the current buffer requires that the current
     // buffer be a content_buffer.  this is perhaps not the best place
@@ -370,15 +370,28 @@ function follow (I) {
     browser_object_follow(I.buffer, target, element);
 }
 
+function follow_new_buffer (I) {
+    yield follow(I, OPEN_NEW_BUFFER);
+}
+
+function follow_new_buffer_background (I) {
+    yield follow(I, OPEN_NEW_BUFFER_BACKGROUND);
+}
+
+function follow_new_window (I) {
+    yield follow(I, OPEN_NEW_WINDOW);
+}
+
+function follow_top (I) {
+    yield follow(I, FOLLOW_TOP_FRAME);
+}
+
 function follow_current_frame (I) {
-    var target = FOLLOW_CURRENT_FRAME; //XXX: what does this target mean?
-    var element = yield I.read_browser_object(I.command, target);
-    // XXX: to follow in the current buffer requires that the current
-    // buffer be a content_buffer.  this is perhaps not the best place
-    // for this check, because FOLLOW_DEFAULT could signify new buffer
-    // or new window.
-    check_buffer (I.buffer, content_buffer);
-    browser_object_follow(I.buffer, target, element);
+    yield follow(I, FOLLOW_CURRENT_FRAME);
+}
+
+function follow_current_buffer (I) {
+    yield follow(I, OPEN_CURRENT_BUFFER);
 }
 
 
