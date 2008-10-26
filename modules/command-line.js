@@ -41,7 +41,7 @@ function load_url_in_new_buffer(url, ctx) {
 function  load_url_in_current_buffer(url,ctx) {
     var win;
     if (win = get_recent_conkeror_window()) {
-        open_in_browser(win.buffers.current, OPEN_CURRENT_BUFFER, url);
+        browser_object_follow(win.buffers.current, OPEN_CURRENT_BUFFER, url);
     } else {
         load_url_in_new_window(url, ctx);
     }

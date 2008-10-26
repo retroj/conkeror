@@ -349,29 +349,6 @@ define_global_mode("overlink_mode",
 
 overlink_mode(true);
 
-function open_in_browser(buffer, target, lspec)
-{
-    switch (target) {
-    case OPEN_CURRENT_BUFFER:
-    case FOLLOW_DEFAULT:
-    case FOLLOW_CURRENT_FRAME:
-    case FOLLOW_TOP_FRAME:
-        if (buffer instanceof content_buffer)  {
-            apply_load_spec(buffer, lspec);
-            break;
-        }
-        target = OPEN_NEW_BUFFER;
-        // If the current buffer is not a content_buffer, use a new buffer.
-    default:
-        create_buffer(buffer.window,
-                      buffer_creator(content_buffer,
-                                     $load = lspec,
-                                     $configuration = buffer.configuration),
-                      target);
-        break;
-    }
-}
-
 
 function go_back (b, prefix)
 {
