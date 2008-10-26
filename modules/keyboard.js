@@ -336,6 +336,22 @@ function kbd (spec, mods)
     return results;
 }
 
+function context_case () {
+    this.cases = [];
+    for (var i = 0; i < arguments.length; i += 2) {
+        this.cases[this.cases.length] = [arguments[i], arguments[i+1]];
+    }
+}
+context_case.prototype = {
+    match: function (I) {
+        for (var i = 0; i < this.cases.length; i++) {
+            if (this.cases[i][0](I))
+                return this.cases[i][1];
+        }
+    }
+};
+
+
 define_keywords("$fallthrough", "$category");
 function define_key_internal(ref, kmap, keys, new_command, new_keymap)
 {
@@ -461,7 +477,7 @@ function define_key(kmap, keys, cmd)
             keys = [keys];
 
         var new_command = null, new_keymap = null;
-        if (typeof(cmd) == "string" || typeof(cmd) == "function")
+        if (typeof(cmd) == "string" || typeof(cmd) == "function" || cmd instanceof context_case)
             new_command = cmd;
         else if (cmd instanceof keymap)
             new_keymap = cmd;
@@ -633,10 +649,14 @@ function key_press_handler(true_event)
                 // We're going for another round
                 done = false;
             } else if (binding.command) {
-                call_interactively(ctx, binding.command);
-                if (typeof(binding.command) == "string" &&
-                    interactive_commands.get(binding.command).prefix) {
-                    
+                let command = binding.command;
+                if (binding.command instanceof context_case) {
+                    command = binding.command.match(ctx);
+                }
+                call_interactively(ctx, command);
+                if (typeof(command) == "string" &&
+                    interactive_commands.get(command).prefix)
+                {
                     state.active_keymap = null;
                     show_partial_key_sequence(window, state, ctx);
                     done = false;

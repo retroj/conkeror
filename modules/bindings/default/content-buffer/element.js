@@ -13,8 +13,6 @@ define_key(content_buffer_normal_keymap, "i", "browser-object-images");
 define_key(content_buffer_normal_keymap, "n", "browser-object-links");
 define_key(content_buffer_normal_keymap, "m", "browser-object-frames");
 define_key(content_buffer_normal_keymap, "e", "browser-object-media");
-define_key(content_buffer_normal_keymap, "open_bracket", "browser-object-relationship-previous");
-define_key(content_buffer_normal_keymap, "close_bracket", "browser-object-relationship-next");
 
 
 define_key(content_buffer_normal_keymap, "S-8 e", "browser-object-media");
@@ -26,6 +24,16 @@ define_key(content_buffer_normal_keymap, "S-8 u", "browser-object-url");
 define_key(content_buffer_normal_keymap, "S-8 a", "browser-object-alt");
 define_key(content_buffer_normal_keymap, "S-8 t", "browser-object-title");
 define_key(content_buffer_normal_keymap, "S-8 T", "browser-object-title-or-alt");
+
+
+define_key(content_buffer_normal_keymap, "open_bracket",
+           new context_case(
+               function (I) { return I._browser_object_class; }, "follow",
+               function (I) { return true; }, "browser-object-relationship-previous"));
+define_key(content_buffer_normal_keymap, "close_bracket",
+           new context_case(
+               function (I) { return I._browser_object_class; }, "follow",
+               function (I) { return true; }, "browser-object-relationship-next"));
 
 
 define_key(content_buffer_normal_keymap, "f", "follow", $category = "Browser object");
