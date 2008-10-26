@@ -128,6 +128,25 @@ function call_interactively(I, command)
     }
 }
 
+
+function alternates () {
+    let alts = Array.prototype.slice.call(arguments, 0);
+    return function (I) {
+        var index = 0;
+        if (I.prefix_argument instanceof Array) {
+            let num = I.prefix_argument = I.prefix_argument[0];
+            while (num >= 4 && index + 1 < alts.length) {
+                num = num / 4;
+                index++;
+            }
+        }
+        var result = alts[index](I);
+        if (is_coroutine(result)) {
+            co_call(function() { yield result; }());
+        }
+    }
+}
+
 /*
 I.f = interactive_method(
     $doc = "Existing file",
