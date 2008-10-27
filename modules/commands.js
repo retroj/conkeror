@@ -482,7 +482,8 @@ interactive("save", null, function (I) {
     save_uri(spec, file,
              $buffer = I.buffer,
              $use_cache = false);
-});
+},
+           $browser_object = browser_object_frames);
 
 
 interactive("copy", null,
