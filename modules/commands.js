@@ -389,9 +389,19 @@ interactive("follow-top", null,
             alternates(follow_top, follow_current_frame),
             $browser_object = browser_object_frames);
 
+interactive("follow-new-buffer",
+            "Follow a link in a new buffer",
+            alternates(follow_new_buffer, follow_new_window),
+            $browser_object = browser_object_links);
+
 interactive("follow-new-buffer-background",
             "Follow a link in a new buffer in the background",
             alternates(follow_new_buffer_background, follow_new_window),
+            $browser_object = browser_object_links);
+
+interactive("follow-new-window",
+            "Follow a link in a new window",
+            follow_new_window,
             $browser_object = browser_object_links);
 
 interactive("find-url", "Open a URL in the current buffer",
