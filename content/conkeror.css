@@ -88,6 +88,10 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
   font-weight: bold;
 }
 
+.panel .url-panel-label {
+  font-weight: bold;
+}
+
 
 /* tab bar */
 

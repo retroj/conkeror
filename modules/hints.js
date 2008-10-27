@@ -328,6 +328,33 @@ hint_manager.prototype = {
     }
 };
 
+/* Show panel with currently selected URL below the minibuffer. */
+function hints_url_panel(hints, window) {
+    var g = new dom_generator(window.document, XUL_NS);
+
+    var p = g.element("hbox", "class", "panel url", "flex", "0");
+    g.element("label", p, "value", "URL:", "class", "url-panel-label");
+    var url_value = g.text("label", p, "class", "url-panel-value");
+    window.minibuffer.insert_before(p);
+
+    p.update = function() {
+	url_value.nodeValue = "";
+	if (hints.manager && hints.manager.last_selected_hint) {
+	    var elem = hints.manager.last_selected_hint.elem;
+	    if (elem instanceof Ci.nsIDOMHTMLAnchorElement)
+		url_value.nodeValue = elem;
+	}
+    }
+
+    p.destroy = function() {
+        this.parentNode.removeChild(this);
+    };
+
+    return p;
+}
+
+define_variable("hints_display_url_panel", false, "When selecting a hint, the URL can be displayed in a panel above the minibuffer.  This is useful for confirming that the correct link is selected and that the URL is not evil.  This option is most useful when hints_auto_exit_delay is long or disabled.");
+
 /**
  * keyword arguments:
  *
@@ -340,6 +367,8 @@ function hints_minibuffer_state(continuation, buffer)
 {
     keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, $prompt = arguments.$prompt);
+    if (hints_display_url_panel)
+	this.url_panel = hints_url_panel(this, buffer.window);
     this.original_prompt = arguments.$prompt;
     this.continuation = continuation;
     this.keymap = arguments.$keymap;
@@ -362,6 +391,8 @@ hints_minibuffer_state.prototype = {
                                             this.focused_frame, this.focused_element);
         }
         this.manager.update_valid_hints();
+        if (this.url_panel)
+            this.url_panel.update();
     },
     unload : function (window) {
         if (this.auto_exit_timer_ID) {
@@ -376,12 +407,16 @@ hints_minibuffer_state.prototype = {
             this.auto_exit_timer_ID = null;
         }
         this.manager.remove();
+        if (this.url_panel)
+            this.url_panel.destroy();
     },
     update_minibuffer : function (m) {
         if (this.typed_number.length > 0)
             m.prompt = this.original_prompt + " #" + this.typed_number;
         else
             m.prompt = this.original_prompt;
+        if (this.url_panel)
+            this.url_panel.update();
     },
 
     handle_auto_exit : function (m, delay) {
