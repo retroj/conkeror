@@ -482,18 +482,8 @@ interactive("copy", null,
             },
             $browser_object = browser_object_links);
 
-//FIXME: write view-source in terms of alternates The view-source: url
-//should be provided as a browser object.  In order to do this
-//robustly, we need to be able to compose browser objects, so that the
-//view-source: scheme can be prepended to any url supplied by any
-//other browser object.
-//
 interactive("view-source", null,
-            function (I) {
-                var target = I.browse_target("follow");
-                var element = yield I.read_browser_object("view-source", target);
-                yield browser_element_view_source(I.buffer, target, element);
-            },
+            alternates(view_source, view_source_new_buffer, view_source_new_window),
             $browser_object = browser_object_frames);
 
 interactive("shell-command-on-url", null, function (I) {

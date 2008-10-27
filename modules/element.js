@@ -451,7 +451,7 @@ function browser_element_copy(buffer, elem)
 
 
 var view_source_use_external_editor = false, view_source_function = null;
-function browser_element_view_source(buffer, target, elem)
+function browser_object_view_source(buffer, target, elem)
 {
     if (view_source_use_external_editor || view_source_function)
     {
@@ -496,6 +496,19 @@ function browser_element_view_source(buffer, target, elem)
     } else {
         window.minibuffer.message ("Already viewing source");
     }
+}
+
+function view_source (I, target) {
+    var element = yield I.read_browser_object(I.command, target);
+    yield browser_object_view_source(I.buffer, target || OPEN_CURRENT_BUFFER, element);
+}
+
+function view_source_new_buffer (I) {
+    yield view_source(I, OPEN_NEW_BUFFER);
+}
+
+function view_source_new_window (I) {
+    yield view_source(I, OPEN_NEW_WINDOW);
 }
 
 
