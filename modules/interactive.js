@@ -34,6 +34,7 @@ function interactive(name, doc, handler)
         source_code_reference: get_caller_source_code_reference() };
 
     interactive_commands.put(name, cmd);
+    return name;
 }
 
 function interactive_error(str) {
