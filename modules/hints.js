@@ -334,15 +334,15 @@ function hints_url_panel(hints, window) {
 
     var p = g.element("hbox", "class", "panel url", "flex", "0");
     g.element("label", p, "value", "URL:", "class", "url-panel-label");
-    var url_value = g.text("label", p, "class", "url-panel-value");
+    var url_value = g.element("label", p, "class", "url-panel-value");
     window.minibuffer.insert_before(p);
 
     p.update = function() {
-	url_value.nodeValue = "";
+	url_value.value = "";
 	if (hints.manager && hints.manager.last_selected_hint) {
 	    var elem = hints.manager.last_selected_hint.elem;
 	    if (elem instanceof Ci.nsIDOMHTMLAnchorElement)
-		url_value.nodeValue = elem;
+		url_value.value = elem;
 	}
     }
 
