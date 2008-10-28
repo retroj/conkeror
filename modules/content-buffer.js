@@ -52,8 +52,11 @@ function content_buffer(window, element)
                                       }, true /* capture */, false /* ignore untrusted events */);
 
         this.browser.addEventListener("mouseover", function (event) {
-                                          if (event.target instanceof Ci.nsIDOMHTMLAnchorElement) {
-                                              content_buffer_overlink_change_hook.run(buffer, event.target.href);
+                                          var node = event.target;
+                                          while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
+                                              node = node.parentNode;
+                                          if (node) {
+                                              content_buffer_overlink_change_hook.run(buffer, node.href);
                                               buffer.current_overlink = event.target;
                                           }
                                       }, true, false);
