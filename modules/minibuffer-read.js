@@ -422,7 +422,7 @@ function exit_minibuffer(window)
 
     if (s.history)
     {
-        s.history.push(val);
+        s.history.push(s.match_required ? match : val);
         if (s.history.length > minibuffer_history_max_items)
             s.history.splice(0, s.history.length - minibuffer_history_max_items);
     }
