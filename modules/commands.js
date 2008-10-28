@@ -483,7 +483,7 @@ interactive("save", null, function (I) {
              $buffer = I.buffer,
              $use_cache = false);
 },
-           $browser_object = browser_object_frames);
+           $browser_object = browser_object_links);
 
 
 interactive("copy", null,
@@ -573,7 +573,8 @@ interactive("bookmark", null, function (I) {
     }
     add_bookmark(uri_string, title);
     I.minibuffer.message("Added bookmark: " + uri_string + " - " + title);
-});
+},
+            $browser_object = browser_object_frames);
 
 interactive("save-page", null, function (I) {
     check_buffer(I.buffer, content_buffer);
@@ -600,7 +601,8 @@ interactive("save-page", null, function (I) {
     }
 
     save_uri(spec, file, $buffer = I.buffer);
-});
+},
+            $browser_object = browser_object_frames);
 
 interactive("save-page-as-text", null, function (I) {
     check_buffer(I.buffer, content_buffer);
@@ -628,7 +630,8 @@ interactive("save-page-as-text", null, function (I) {
     }
 
     save_document_as_text(doc, file, $buffer = I.buffer);
-});
+},
+            $browser_object = browser_object_frames);
 
 interactive("save-page-complete", null, function (I) {
     check_buffer(I.buffer, content_buffer);
@@ -661,7 +664,8 @@ interactive("save-page-complete", null, function (I) {
     }
 
     save_document_complete(doc, file, dir, $buffer = I.buffer);
-});
+},
+            $browser_object = browser_object_frames);
 
 
 function view_as_mime_type (I, target) {
