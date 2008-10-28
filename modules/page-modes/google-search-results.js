@@ -36,6 +36,9 @@ define_page_mode("google_search_results_mode", "Google Search Results",
                          save: browser_object_google_search_results_links,
                          shell_command: browser_object_google_search_results_links,
                          shell_command_url: browser_object_google_search_results_links };
+                 },
+                 $disable = function (buffer) {
+                     buffer.default_browser_object_classes = {};
                  });
 
 var google_search_re = build_url_regex($domain = "google",
