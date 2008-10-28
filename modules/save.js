@@ -140,6 +140,7 @@ function save_document_as_text(document, output_file)
 
 define_keywords("$use_cache", "$buffer", "$prepare_download");
 function save_document_complete(document, output_file, output_dir) {
+    keywords(arguments);
 
     var mime_type = document.contentType;
 
