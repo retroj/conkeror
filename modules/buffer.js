@@ -598,6 +598,24 @@ define_variable("can_kill_last_buffer", true,
                 "If this is set to true, kill-buffer can kill the last "+
                 "remaining buffer, and close the window.");
 
+function kill_other_buffers(buffer)
+{
+    if (!buffer)
+        return;
+    var bs = buffer.window.buffers;
+    var b;
+
+    while ((b = bs.get_buffer(0)) != buffer)
+	    bs.kill_buffer(b);
+    var count = bs.count;
+    while (--count)
+	    bs.kill_buffer(bs.get_buffer(1));
+}
+interactive("kill-other-buffers",
+            "Kill all buffers except current one.\n",
+            function (I) {kill_other_buffers(I.buffer)});
+
+
 function kill_buffer(buffer, force)
 {
     if (!buffer)
