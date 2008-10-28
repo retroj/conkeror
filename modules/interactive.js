@@ -149,11 +149,18 @@ function alternates () {
 }
 
 
-/* set_handler is a utility for use in the rc.
+/*
+ * Utility functions for use in the rc to alter the behavior
+ * of interactive commands.
  */
 function set_handler (name, handler) {
     var cmd = interactive_commands.get(name);
     cmd.handler = handler;
+}
+
+function set_default_browser_object (name, browser_object) {
+    var cmd = interactive_commands.get(name);
+    cmd.browser_object = browser_object;
 }
 
 /*
