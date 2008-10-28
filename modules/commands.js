@@ -672,7 +672,8 @@ function view_as_mime_type (I, target) {
     var element = yield I.read_browser_object("view_as_mime_type");
     var spec = element_get_load_spec(element);
 
-    target = target || FOLLOW_CURRENT_FRAME;
+    if (target == null)
+        target = FOLLOW_CURRENT_FRAME;
 
     if (!spec)
         throw interactive_error("Element is not associated with a URI");

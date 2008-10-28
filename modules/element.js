@@ -360,7 +360,8 @@ function element_get_load_spec(elem) {
 
 
 function follow (I, target) {
-    target = target || FOLLOW_DEFAULT;
+    if (target == null)
+        target = FOLLOW_DEFAULT;
     var element = yield I.read_browser_object(I.command, target);
     // XXX: to follow in the current buffer requires that the current
     // buffer be a content_buffer.  this is perhaps not the best place
