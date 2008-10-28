@@ -148,6 +148,14 @@ function alternates () {
     }
 }
 
+
+/* set_handler is a utility for use in the rc.
+ */
+function set_handler (name, handler) {
+    var cmd = interactive_commands.get(name);
+    cmd.handler = handler;
+}
+
 /*
 I.f = interactive_method(
     $doc = "Existing file",
