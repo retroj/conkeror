@@ -72,6 +72,11 @@ function make_window(initial_buffer_creator, tag)
     var result = make_chrome_window(conkeror_chrome_URI, null);
     result.args = args;
     make_window_hook.run(result);
+    let closefn = result.close;
+    result.close = function () {
+      if (window_before_close_hook.run(result))
+        closefn();
+    };
     return result;
 }
 
