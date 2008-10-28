@@ -485,6 +485,7 @@ function define_page_mode(name, display_name) {
                            if (disable)
                                disable(buffer);
                            buffer.local_variables = {};
+                           buffer.default_browser_object_classes = {};
                        },
                        $doc = doc);
 }
