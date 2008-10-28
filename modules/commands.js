@@ -456,7 +456,7 @@ interactive("focus", null,
             $browser_object = browser_object_frames);
 
 interactive("save", null, function (I) {
-    var element = yield I.read_browser_object("save", "Save");
+    var element = yield I.read_browser_object("save");
 
     var spec = element_get_load_spec(element);
     if (spec == null)
