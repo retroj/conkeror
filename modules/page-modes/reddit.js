@@ -50,7 +50,7 @@ function reddit_mode_setup(buffer) {
     var document = buffer.document;
     if(document.reddit_mode_loaded) return;
     else document.reddit_mode_loaded = true;
-    siteTable = document.getElementById("siteTable");
+    var siteTable = document.getElementById("siteTable");
     if (!siteTable) {
         /* siteTable not found, abort. This happens e.g. when browsing the
        preferences */

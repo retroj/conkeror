@@ -28,7 +28,7 @@ function inspect_javascript_object(obj) {
 }
 
 interactive("inspector", "Open the DOM Inspector in a new window.",
-            function (I) {open_dom_inspector()});
+            function (I) { open_dom_inspector(); });
 
 interactive("inspect-chrome", "Inspect the chrome document for the current Conkeror window.",
             function (I) {inspect_dom_document(I.window.document);});

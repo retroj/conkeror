@@ -486,7 +486,7 @@ function define_key(kmap, keys, cmd)
 
         var args = arguments;
 
-        var input_keys = keys.map(function(x) kbd(x));
+        var input_keys = keys.map(function(x) { return kbd(x); });
 
         function helper(index, output_keys) {
             if (index == input_keys.length) {
@@ -624,7 +624,7 @@ function key_press_handler(true_event)
 
         binding =
             (overlay_keymap && lookup_key_binding(overlay_keymap, event)) ||
-            lookup_key_binding(active_keymap, event) ;
+            lookup_key_binding(active_keymap, event);
 
         // Should we stop this event from being processed by the gui?
         //

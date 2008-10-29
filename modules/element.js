@@ -206,7 +206,6 @@ function browser_element_focus(buffer, elem)
 
     var doc = elem.ownerDocument;
     var evt = doc.createEvent("MouseEvents");
-    var doc = elem.ownerDocument;
 
     evt.initMouseEvent("mouseover", true, true, doc.defaultView, 1, x, y, 0, 0, 0, 0, 0, 0, 0, null);
     elem.dispatchEvent(evt);

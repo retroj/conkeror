@@ -28,13 +28,13 @@ minibuffer.prototype.read_explicit_option = function () {
             return true;
         });
     yield co_return(result);
-}
+};
 
 minibuffer.prototype.read_yes_or_no = function () {
     keywords(arguments);
     var result = yield this.read_explicit_option(forward_keywords(arguments), $options = ["yes", "no"]);
     yield co_return(result == "yes");
-}
+};
 
 function single_character_options_minibuffer_state(continuation) {
     keywords(arguments);
@@ -77,4 +77,4 @@ minibuffer.prototype.read_single_character_option = function () {
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);
-}
+};

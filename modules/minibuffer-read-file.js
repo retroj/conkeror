@@ -69,7 +69,7 @@ function file_path_completer() {
         } catch(e) {
             return null;
         }
-        function id(x) { return x};
+        function id(x) { return x; };
         return prefix_completer($completions = ents,
                                 $get_string  = id,
                                 $get_description = id,

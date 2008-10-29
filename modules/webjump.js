@@ -21,7 +21,7 @@ function define_webjump(key, handler) {
         let template = handler;
         let b = template.indexOf('%s');
         if (b == -1)
-            no_argument = true;        
+            no_argument = true;
         handler = function (arg) {
             var a = b + 2;
             // Just return the same string if it doesn't contain a %s
@@ -168,5 +168,5 @@ function webjump_completer()
             }
         }
         yield co_return(base_completer(input, pos, conservative));
-    }
+    };
 }

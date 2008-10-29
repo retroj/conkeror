@@ -116,7 +116,7 @@ const OPENSEARCH_PARAM_OPTIONAL     = /\{(?:\w+:)?\w+\?\}/g;
 var OPENSEARCH_UNSUPPORTED_PARAMS = [
   [OPENSEARCH_PARAM_COUNT, OPENSEARCH_PARAM_COUNT_DEF],
   [OPENSEARCH_PARAM_START_INDEX, OPENSEARCH_PARAM_START_INDEX_DEF],
-  [OPENSEARCH_PARAM_START_PAGE, OPENSEARCH_PARAM_START_PAGE_DEF],
+  [OPENSEARCH_PARAM_START_PAGE, OPENSEARCH_PARAM_START_PAGE_DEF]
 ];
 
 
@@ -215,7 +215,7 @@ search_engine.prototype.get_query_load_spec = function search_engine__get_query_
         return load_spec({uri: url_string, raw_post_data: data,
                           request_mime_type: "application/x-www-form-urlencoded"});
     }
-}
+};
 
 search_engine.prototype.__defineGetter__("completer", function () {
     const response_type_json = "application/x-suggestions+json";

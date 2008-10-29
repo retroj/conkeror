@@ -162,7 +162,7 @@ function window_initialize(window)
     window.conkeror = conkeror;
 
     // Used by get_window_from_frame to get an unwrapped window reference
-    window.escape_wrapper = function (x) { x(window); }
+    window.escape_wrapper = function (x) { x(window); };
 
     window_setup_args(window);
 

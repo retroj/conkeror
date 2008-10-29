@@ -277,7 +277,7 @@ function xpath_lookup_namespace(prefix) {
 function method_caller(obj, func) {
     return function () {
         func.apply(obj, arguments);
-    }
+    };
 }
 
 function shell_quote(str) {

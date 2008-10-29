@@ -40,13 +40,13 @@ tab_bar.prototype.destroy = function () {
         });
     this.selected_buffer = null;
     this.element.parentNode.removeChild(this.element);
-}
+};
 tab_bar.prototype.update_multiple_attribute = function () {
     if (this.window.buffers.count > 1)
         this.element.setAttribute("multiple", "true");
     else
         this.element.setAttribute("multiple", "false");
-}
+};
 
 function tab_bar_add_buffer(b) {
     var t = b.window.tab_bar;

@@ -347,7 +347,7 @@ function hints_url_panel(hints, window) {
                 if (uri) url_value.value = uri;
             }
 	}
-    }
+    };
 
     p.destroy = function() {
         this.parentNode.removeChild(this);

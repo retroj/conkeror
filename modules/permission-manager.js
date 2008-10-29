@@ -17,7 +17,7 @@ let get_spaces = function get_spaces(n) {
     var x = "";
     while (x.length < n) x += " ";
     return x;
-}
+};
 
 let word_wrap = function word_wrap(str, line_length, line_prefix_first, line_prefix) {
     if (line_prefix === undefined)
@@ -53,12 +53,12 @@ let word_wrap = function word_wrap(str, line_length, line_prefix_first, line_pre
     if (str.length > 0)
         out += cur_prefix + str + "\n";
     return out;
-}
+};
 
 let permission_types = {
     popup : {desc: "specifies a whitelist and blacklist for the popup blocker",
              values: [ ["allow", Ci.nsIPermissionManager.ALLOW_ACTION],
-                       ["deny", Ci.nsIPermissionManager.DENY_ACTION], ],
+                       ["deny", Ci.nsIPermissionManager.DENY_ACTION] ],
              related_prefs: [
                  [ "dom.disable_open_during_load",
                    "This preference defines the default behavior of whether " +
@@ -70,7 +70,7 @@ let permission_types = {
               values: [
                   ["allow", Ci.nsIPermissionManager.ALLOW_ACTION],
                   ["session", Ci.nsICookiePermission.ACCESS_SESSION, "expire matching cookies when the browser exits"],
-                  ["deny", Ci.nsIPermissionManager.DENY_ACTION], ],
+                  ["deny", Ci.nsIPermissionManager.DENY_ACTION] ],
               related_prefs: [
                   [ "network.cookie.lifetime.behavior.enabled" ],
                   [ "network.cookie.cookieBehavior",
@@ -89,7 +89,7 @@ let permission_types = {
     image : {desc: "specifies per-host image automatic loading policies",
               values: [
                   ["allow", Ci.nsIPermissionManager.ALLOW_ACTION],
-                  ["deny", Ci.nsIPermissionManager.DENY_ACTION], ],
+                  ["deny", Ci.nsIPermissionManager.DENY_ACTION] ],
               related_prefs: [
                   [ "permissions.default.image", "This prefreence defines the default image loading policy "
                                                  + "for sites not listed in the permission list.  The value "
@@ -191,7 +191,7 @@ interactive("permission-manager", "View or edit the host-specific "
                         file_buf += "\n";
                     }
                     if (data.related_prefs && data.related_prefs.length > 0) {
-                        file_buf += "\n#     Related Mozilla preferences:\n"
+                        file_buf += "\n#     Related Mozilla preferences:\n";
                         for (let i = 0; i < data.related_prefs.length; ++i) {
                             let x = data.related_prefs[i];
                             file_buf += "#       " + x[0] + " = " + get_pref(x[0]) + "\n";

@@ -57,9 +57,9 @@ function minibuffer_state(keymap, use_input_mode)
     this.keymap = keymap;
     this.use_input_mode = use_input_mode;
 }
-minibuffer_state.prototype.load = function () {}
-minibuffer_state.prototype.unload = function () {}
-minibuffer_state.prototype.destroy = function () {}
+minibuffer_state.prototype.load = function () {};
+minibuffer_state.prototype.unload = function () {};
+minibuffer_state.prototype.destroy = function () {};
 
 function minibuffer_message_state(keymap, message, destroy_function)
 {

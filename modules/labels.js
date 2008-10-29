@@ -67,7 +67,7 @@ function define_label(name) {
             write_keywords(o, arguments, required_args.length);
         }
         return o;
-    }
+    };
     result._name = name;
     result._id = result;
     result.$ = [];

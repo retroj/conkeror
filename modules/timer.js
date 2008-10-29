@@ -14,7 +14,7 @@ timer_callback.prototype = {
     notify : function(timer) {
         this.callback.call(null, timer);
     }
-}
+};
 function call_after_timeout(callback, timeout) {
     var timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
     timer.initWithCallback(new timer_callback(callback), timeout, Ci.nsITimer.TYPE_ONE_SHOT);

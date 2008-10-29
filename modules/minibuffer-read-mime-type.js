@@ -26,4 +26,4 @@ minibuffer.prototype.read_gecko_viewable_mime_type = function () {
                                  $match_required,
                                  $completer = prefix_completer($completions = gecko_viewable_mime_type_list));
     yield co_return(result);
-}
+};

@@ -48,7 +48,7 @@ function buffer_creator(type) {
     var args = forward_keywords(arguments);
     return function (window, element) {
         return new type(window, element, args);
-    }
+    };
 }
 
 define_variable("allow_browser_window_close", true,
@@ -613,7 +613,7 @@ function kill_other_buffers(buffer)
 }
 interactive("kill-other-buffers",
             "Kill all buffers except current one.\n",
-            function (I) {kill_other_buffers(I.buffer)});
+            function (I) { kill_other_buffers(I.buffer); });
 
 
 function kill_buffer(buffer, force)
@@ -635,13 +635,13 @@ interactive("kill-buffer",
             "Kill a buffer specified in the minibuffer.\n" +
             "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
             "buffer in a window will cause the window to be closed.",
-            function (I) {kill_buffer((yield I.minibuffer.read_buffer($prompt = "Kill buffer:")))});
+            function (I) { kill_buffer((yield I.minibuffer.read_buffer($prompt = "Kill buffer:"))); });
 
 interactive("kill-current-buffer",
             "Kill the current buffer.\n" +
             "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
             "buffer in a window will cause the window to be closed.",
-            function (I) {kill_buffer(I.buffer)});
+            function (I) { kill_buffer(I.buffer); });
 
 interactive("bury-buffer",
             "Bury the current buffer.\n Put the current buffer at the end of " +

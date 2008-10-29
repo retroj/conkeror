@@ -483,7 +483,7 @@ minibuffer.prototype.read = function () {
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);
-}
+};
 
 minibuffer.prototype.read_command = function () {
     keywords(
@@ -497,7 +497,7 @@ minibuffer.prototype.read_command = function () {
         $match_required = true);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
-}
+};
 
 minibuffer.prototype.read_user_variable = function () {
     keywords(
@@ -511,7 +511,7 @@ minibuffer.prototype.read_user_variable = function () {
         $match_required = true);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
-}
+};
 
 minibuffer.prototype.read_preference = function minibuffer__read_preference () {
     keywords(arguments,

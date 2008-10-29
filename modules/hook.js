@@ -138,7 +138,7 @@ var hook_simple_local_prototype = {
 function simple_local_hook_definer(extra_doc_string) {
     return function (hook_name, hook_type, doc_string) {
         initialize_hook(hook_simple_local_prototype, hook_name, hook_type, doc_string, extra_doc_string);
-    }
+    };
 }
 
 /* This function is called with a variable number of string arguments
@@ -168,7 +168,7 @@ function local_hook_definer(prop_name, extra_doc_string) {
     };
     return function (hook_name, hook_type, doc_string) {
         initialize_hook(prototype, hook_name, hook_type, doc_string, extra_doc_string);
-    }
+    };
 }
 
 function remove_hook(hook_name, func)

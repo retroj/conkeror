@@ -98,11 +98,11 @@ function call_interactively(I, command)
     }
 
     I.command = command;
-    
+
     I.browser_object = I.buffer.default_browser_object_classes[command] ||
         cmd.browser_object;
 
-    var handler = cmd.handler;
+    handler = cmd.handler;
 
     try {
         while (typeof(handler) == "string") {
@@ -145,7 +145,7 @@ function alternates () {
         if (is_coroutine(result)) {
             co_call(function() { yield result; }());
         }
-    }
+    };
 }
 
 
