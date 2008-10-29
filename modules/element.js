@@ -330,16 +330,18 @@ function element_get_load_spec(elem) {
             var node = elem;
             while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
                 node = node.parentNode;
-            if (node && !node.hasAttribute("href"))
-                node = null;
-            else
-                url = node.href;
+            if (node) {
+                if (node.hasAttribute("href"))
+                    url = node.href;
+                else
+                    node = null;
+            }
             if (!node) {
                 // Try simple XLink
                 node = elem;
                 while (node) {
                     if (node.nodeType == Ci.nsIDOMNode.ELEMENT_NODE) {
-                        url = linkNode.getAttributeNS(XLINK_NS, "href");
+                        url = node.getAttributeNS(XLINK_NS, "href");
                         break;
                     }
                     node = node.parentNode;
