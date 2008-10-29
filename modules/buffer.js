@@ -470,14 +470,6 @@ const FOLLOW_DEFAULT = 4; // for open, implies OPEN_CURRENT_BUFFER
 const FOLLOW_CURRENT_FRAME = 5; // for open, implies OPEN_CURRENT_BUFFER
 const FOLLOW_TOP_FRAME = 6; // for open, implies OPEN_CURRENT_BUFFER
 
-var TARGET_PROMPTS = [" in current buffer",
-                      " in new buffer",
-                      " in new buffer (background)",
-                      " in new window",
-                      "",
-                      " in current frame",
-                      " in top frame"];
-
 var TARGET_NAMES = ["current buffer",
                     "new buffer",
                     "new buffer (background)",
@@ -485,13 +477,6 @@ var TARGET_NAMES = ["current buffer",
                     "default",
                     "current frame",
                     "top frame"];
-
-
-function browse_target_prompt(target, prefix) {
-    if (prefix == null)
-        prefix = "Open URL";
-    return prefix + TARGET_PROMPTS[target] + ":";
-}
 
 
 function create_buffer(window, creator, target) {

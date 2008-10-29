@@ -140,10 +140,9 @@ interactive_context.prototype.read_browser_object = function(action, target)
     var object_class = this._browser_object_class; //override
     if (! object_class)
         object_class = browser_object;
-    var prompt = action.split(/-|_/).join(" ");
-    prompt = prompt[0].toUpperCase() + prompt.substring(1);
+    var prompt = action;
     if (target != null)
-        prompt += TARGET_PROMPTS[target];
+        prompt += " ("+TARGET_NAMES[target]+")";
     if (object_class.label)
         prompt += " (select " + object_class.label + ")";
     prompt += ":";
