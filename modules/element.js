@@ -244,16 +244,17 @@ function browser_object_follow(buffer, target, elem)
     }
 
     if (load_spec_uri_string(spec).match(/^\s*javascript:/)) {
-        // This URL won't work
-        throw interactive_error("Can't load javascript URL");
-    }
-
-    if (!(buffer instanceof content_buffer) &&
+        // it is nonsensical to follow a javascript url in a different
+        // buffer or window
+        target = FOLLOW_DEFAULT;
+    } else if (!(buffer instanceof content_buffer) &&
         (target == FOLLOW_CURRENT_FRAME ||
          target == FOLLOW_DEFAULT ||
          target == FOLLOW_TOP_FRAME ||
          target == OPEN_CURRENT_BUFFER))
+    {
         target = OPEN_NEW_BUFFER;
+    }
 
     switch (target) {
     case FOLLOW_CURRENT_FRAME:
