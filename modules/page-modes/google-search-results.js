@@ -33,9 +33,11 @@ define_page_mode("google_search_results_mode", "Google Search Results",
                      buffer.default_browser_object_classes = {
                          follow: browser_object_google_search_results_links,
                          copy: browser_object_google_search_results_links,
-                         save: browser_object_google_search_results_links,
-                         shell_command: browser_object_google_search_results_links,
-                         shell_command_url: browser_object_google_search_results_links };
+                         save: browser_object_google_search_results_links };
+                     buffer.default_browser_object_classes['shell-command-on-file'] =
+                         browser_object_google_search_results_links;
+                     buffer.default_browser_object_classes['shell-command-on-url'] =
+                         browser_object_google_search_results_links;
                  });
 
 var google_search_re = build_url_regex($domain = "google",

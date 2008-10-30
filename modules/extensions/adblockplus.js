@@ -26,7 +26,7 @@ interactive("adblockplus-settings", "Show the Adblock Plus settings dialog.",
 
 interactive("adblockplus-add", "Add a pattern to Adblock Plus.",
             function (I) {
-    var element = yield I.read_browser_object("adblockplus-add", "Adblock");
+    var element = yield read_browser_object(I);
 
     var spec = element_get_load_spec(element);
     if (spec == null)
@@ -41,5 +41,6 @@ interactive("adblockplus-add", "Add a pattern to Adblock Plus.",
 
     I.buffer.web_navigation.reload(Ci.nsIWebNavigation.LOAD_FLAGS_NONE);
 },
-            $browser_object = browser_object_images);
+            $browser_object = browser_object_images,
+            $prompt = "Adblock");
 

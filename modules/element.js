@@ -98,6 +98,15 @@ define_browser_object_class(
     });
 
 define_browser_object_class(
+    "file", null, null,
+    function (buf, prompt) {
+        var result = yield buf.window.minibuffer.read_file(
+            $prompt = prompt,
+            $initial_value = buf.cwd.path);
+        yield co_return (result);
+    });
+
+define_browser_object_class(
     "alt", "Image Alt-text", null,
     function (buf, prompt) {
         var result = yield buf.window.minibuffer.read_hinted_element(
@@ -128,26 +137,30 @@ define_browser_object_class(
     });
 
 
-interactive_context.prototype.read_browser_object = function(action, target)
+function read_browser_object (I, target)
 {
-    var browser_object = this.browser_object; //default
+    var browser_object = I.browser_object; //default
     // literals cannot be overridden
     if (browser_object instanceof Function)
         yield co_return(browser_object());
     if (! (browser_object instanceof browser_object_class))
         yield co_return(browser_object);
 
-    var object_class = this._browser_object_class; //override
+    var object_class = I._browser_object_class; //override
     if (! object_class)
         object_class = browser_object;
-    var prompt = action;
+    var prompt = I.command.prompt;
+    if (! prompt) {
+        prompt = I.command.name.split(/-|_/).join(" ");
+        prompt = prompt[0].toUpperCase() + prompt.substring(1);
+    }
     if (target != null)
-        prompt += " ("+TARGET_NAMES[target]+")";
+        prompt += TARGET_PROMPTS[target];
     if (object_class.label)
         prompt += " (select " + object_class.label + ")";
     prompt += ":";
 
-    var result = yield object_class.handler.call(null, this.buffer, prompt);
+    var result = yield object_class.handler.call(null, I.buffer, prompt);
     yield co_return(result);
 }
 
@@ -363,7 +376,7 @@ function element_get_load_spec(elem) {
 function follow (I, target) {
     if (target == null)
         target = FOLLOW_DEFAULT;
-    var element = yield I.read_browser_object(I.command, target);
+    var element = yield read_browser_object(I, target);
     // XXX: to follow in the current buffer requires that the current
     // buffer be a content_buffer.  this is perhaps not the best place
     // for this check, because FOLLOW_DEFAULT could signify new buffer
@@ -501,8 +514,8 @@ function browser_object_view_source(buffer, target, elem)
 }
 
 function view_source (I, target) {
-    var element = yield I.read_browser_object(I.command, target);
-    yield browser_object_view_source(I.buffer, target || OPEN_CURRENT_BUFFER, element);
+    var element = yield read_browser_object(I, target);
+    yield browser_object_view_source(I.buffer, (target == null ? OPEN_CURRENT_BUFFER : target), element);
 }
 
 function view_source_new_buffer (I) {

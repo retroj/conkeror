@@ -387,22 +387,26 @@ interactive("follow", null,
 
 interactive("follow-top", null,
             alternates(follow_top, follow_current_frame),
-            $browser_object = browser_object_frames);
+            $browser_object = browser_object_frames,
+            $prompt = "Follow");
 
 interactive("follow-new-buffer",
             "Follow a link in a new buffer",
             alternates(follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_links);
+            $browser_object = browser_object_links,
+            $prompt = "Follow");
 
 interactive("follow-new-buffer-background",
             "Follow a link in a new buffer in the background",
             alternates(follow_new_buffer_background, follow_new_window),
-            $browser_object = browser_object_links);
+            $browser_object = browser_object_links,
+            $prompt = "Follow");
 
 interactive("follow-new-window",
             "Follow a link in a new window",
             follow_new_window,
-            $browser_object = browser_object_links);
+            $browser_object = browser_object_links,
+            $prompt = "Follow");
 
 interactive("find-url", "Open a URL in the current buffer",
             alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
@@ -411,11 +415,13 @@ interactive("find-url", "Open a URL in the current buffer",
 interactive("find-url-new-buffer",
             "Open a URL in a new buffer",
             alternates(follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_url);
+            $browser_object = browser_object_url,
+            $prompt = "Find url");
 
 interactive("find-url-new-window", "Open a URL in a new window",
             follow_new_window,
-            $browser_object = browser_object_url);
+            $browser_object = browser_object_url,
+            $prompt = "Find url");
 
 interactive("find-alternate-url", "Edit the current URL in the minibuffer",
             "find-url",
@@ -428,7 +434,8 @@ interactive("find-alternate-url", "Edit the current URL in the minibuffer",
                             $prompt = prompt,
                             $initial_value = buf.display_URI_string);
                         yield co_return (result);
-                    }));
+                    }),
+            $prompt = "Find url");
 
 
 interactive("go-up", "Go to the parent directory of the current URL",
@@ -450,13 +457,13 @@ interactive("make-window",
 
 interactive("focus", null,
             function (I) {
-                var element = yield I.read_browser_object("focus");
+                var element = yield read_browser_object(I);
                 browser_element_focus(I.buffer, element);
             },
             $browser_object = browser_object_frames);
 
 interactive("save", null, function (I) {
-    var element = yield I.read_browser_object("save");
+    var element = yield read_browser_object(I);
 
     var spec = element_get_load_spec(element);
     if (spec == null)
@@ -488,7 +495,7 @@ interactive("save", null, function (I) {
 
 interactive("copy", null,
             function (I) {
-                var element = yield I.read_browser_object("copy");
+                var element = yield read_browser_object(I);
                 browser_element_copy(I.buffer, element);
             },
             $browser_object = browser_object_links);
@@ -499,7 +506,7 @@ interactive("view-source", null,
 
 interactive("shell-command-on-url", null, function (I) {
     var cwd = I.cwd;
-    var element = yield I.read_browser_object("shell_command_url");
+    var element = yield read_browser_object(I);
     var spec = element_get_load_spec(element);
     if (spec == null)
         throw interactive_error("Unable to obtain URI from element");
@@ -522,12 +529,14 @@ interactive("shell-command-on-url", null, function (I) {
     }
 
     shell_command_with_argument_blind(cmd, uri, $cwd = cwd);
-});
+},
+            $browser_object = browser_object_url,
+            $prompt = "Shell command");
 
 
 interactive("shell-command-on-file", null, function (I) {
     var cwd = I.cwd;
-    var element = yield I.read_browser_object("shell_command");
+    var element = yield read_browser_object(I);
 
     var spec = element_get_load_spec(element);
     if (spec == null)
@@ -553,10 +562,12 @@ interactive("shell-command-on-file", null, function (I) {
 
     /* FIXME: specify cwd as well */
     yield browser_element_shell_command(I.buffer, element, cmd);
-});
+},
+            $browser_object = browser_object_links,
+            $prompt = "Shell command");
 
 interactive("bookmark", null, function (I) {
-    var element = yield I.read_browser_object("bookmark");
+    var element = yield read_browser_object(I);
     var spec = element_get_load_spec(element);
     if (!spec)
         throw interactive_error("Element has no associated URI");
@@ -578,7 +589,7 @@ interactive("bookmark", null, function (I) {
 
 interactive("save-page", null, function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_browser_object("save_page");
+    var element = yield read_browser_object(I);
     var spec = element_get_load_spec(element);
     if (!spec || !load_spec_document(spec))
         throw interactive_error("Element is not associated with a document.");
@@ -606,7 +617,7 @@ interactive("save-page", null, function (I) {
 
 interactive("save-page-as-text", null, function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_browser_object("save_page_as_text");
+    var element = yield read_browser_object(I);
     var spec = element_get_load_spec(element);
     var doc;
     if (!spec || !(doc = load_spec_document(spec)))
@@ -635,7 +646,7 @@ interactive("save-page-as-text", null, function (I) {
 
 interactive("save-page-complete", null, function (I) {
     check_buffer(I.buffer, content_buffer);
-    var element = yield I.read_browser_object("save_page_complete");
+    var element = yield read_browser_object(I);
     var spec = element_get_load_spec(element);
     var doc;
     if (!spec || !(doc = load_spec_document(spec)))
@@ -669,7 +680,7 @@ interactive("save-page-complete", null, function (I) {
 
 
 function view_as_mime_type (I, target) {
-    var element = yield I.read_browser_object("view_as_mime_type");
+    var element = yield read_browser_object(I);
     var spec = element_get_load_spec(element);
 
     if (target == null)

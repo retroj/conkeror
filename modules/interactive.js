@@ -20,7 +20,7 @@ var interactive_commands = new string_hashmap();
  * The $prefix keyword, when true, means that the command
  * is a prefix-command.
  */
-define_keywords("$prefix", "$browser_object");
+define_keywords("$prefix", "$browser_object", "$prompt");
 function interactive(name, doc, handler)
 {
     keywords(arguments);
@@ -31,6 +31,7 @@ function interactive(name, doc, handler)
         prefix: arguments.$prefix,
         doc: doc,
         shortdoc: get_shortdoc_string(doc),
+        prompt: arguments.$prompt,
         source_code_reference: get_caller_source_code_reference() };
 
     interactive_commands.put(name, cmd);
@@ -69,7 +70,6 @@ function handle_interactive_error(window, e) {
     }
 }
 
-// Any additional arguments specify "given" arguments to the function.
 function call_interactively(I, command)
 {
     var handler;
@@ -97,7 +97,7 @@ function call_interactively(I, command)
         return;
     }
 
-    I.command = command;
+    I.command = cmd;
 
     I.browser_object = I.buffer.default_browser_object_classes[command] ||
         cmd.browser_object;

@@ -18,7 +18,7 @@ minibuffer.prototype.read_file_path = function () {
         $completer = file_path_completer(),
         $auto_complete = true);
     yield co_return(result);
-}
+};
 
 minibuffer.prototype.read_file = function () {
     var result = yield this.read_file_path(forward_keywords(arguments));
