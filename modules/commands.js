@@ -680,6 +680,7 @@ interactive("save-page-complete", null, function (I) {
 
 
 function view_as_mime_type (I, target) {
+    I.target = target;
     var element = yield read_browser_object(I);
     var spec = element_get_load_spec(element);
 

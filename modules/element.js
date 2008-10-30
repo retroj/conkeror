@@ -137,7 +137,7 @@ define_browser_object_class(
     });
 
 
-function read_browser_object (I, target)
+function read_browser_object (I)
 {
     var browser_object = I.browser_object; //default
     // literals cannot be overridden
@@ -154,8 +154,8 @@ function read_browser_object (I, target)
         prompt = I.command.name.split(/-|_/).join(" ");
         prompt = prompt[0].toUpperCase() + prompt.substring(1);
     }
-    if (target != null)
-        prompt += TARGET_PROMPTS[target];
+    if (I.target != null)
+        prompt += TARGET_PROMPTS[I.target];
     if (object_class.label)
         prompt += " (select " + object_class.label + ")";
     prompt += ":";
@@ -376,7 +376,8 @@ function element_get_load_spec(elem) {
 function follow (I, target) {
     if (target == null)
         target = FOLLOW_DEFAULT;
-    var element = yield read_browser_object(I, target);
+    I.target = target;
+    var element = yield read_browser_object(I);
     // XXX: to follow in the current buffer requires that the current
     // buffer be a content_buffer.  this is perhaps not the best place
     // for this check, because FOLLOW_DEFAULT could signify new buffer
@@ -514,7 +515,8 @@ function browser_object_view_source(buffer, target, elem)
 }
 
 function view_source (I, target) {
-    var element = yield read_browser_object(I, target);
+    I.target = target;
+    var element = yield read_browser_object(I);
     yield browser_object_view_source(I.buffer, (target == null ? OPEN_CURRENT_BUFFER : target), element);
 }
 
