@@ -34,7 +34,7 @@ function define_browser_object_class (name, label, doc, handler) {
         "browser-object-"+name,
         "A prefix command to specify that the following command operate "+
             "on objects of type: "+name+".",
-        function (ctx) { ctx._browser_object_class = ob; },
+        function (ctx) { ctx.browser_object = ob; },
         $prefix = true);
     return ob;
 }
@@ -139,16 +139,13 @@ define_browser_object_class(
 
 function read_browser_object (I)
 {
-    var browser_object = I.browser_object; //default
+    var browser_object = I.browser_object;
     // literals cannot be overridden
     if (browser_object instanceof Function)
         yield co_return(browser_object());
     if (! (browser_object instanceof browser_object_class))
         yield co_return(browser_object);
 
-    var object_class = I._browser_object_class; //override
-    if (! object_class)
-        object_class = browser_object;
     var prompt = I.command.prompt;
     if (! prompt) {
         prompt = I.command.name.split(/-|_/).join(" ");
@@ -156,11 +153,11 @@ function read_browser_object (I)
     }
     if (I.target != null)
         prompt += TARGET_PROMPTS[I.target];
-    if (object_class.label)
-        prompt += " (select " + object_class.label + ")";
+    if (browser_object.label)
+        prompt += " (select " + browser_object.label + ")";
     prompt += ":";
 
-    var result = yield object_class.handler.call(null, I.buffer, prompt);
+    var result = yield browser_object.handler.call(null, I.buffer, prompt);
     yield co_return(result);
 }
 

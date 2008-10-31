@@ -113,17 +113,17 @@ interactive(
   function (I) call_on_focused_field(I, open_line)
 );
 
-function meta_x (window, prefix, command, browser_object_class)
+function meta_x (window, prefix, command, browser_object)
 {
     call_interactively({window: window,
                         prefix_argument: prefix,
-                        _browser_object_class: browser_object_class}, command);
+                        browser_object: browser_object}, command);
 }
 interactive("execute-extended-command",
             "Execute a Conkeror command specified in the minibuffer.",
             function (I) {
                 var prefix = I.P;
-                var boc = I._browser_object_class;
+                var boc = I.browser_object;
                 var prompt = "";
                 if (boc)
                     prompt += ' ['+boc.name+']';

@@ -99,8 +99,20 @@ function call_interactively(I, command)
 
     I.command = cmd;
 
-    I.browser_object = I.buffer.default_browser_object_classes[command] ||
-        cmd.browser_object;
+    // if the default is a non-null literal, it always overrides.
+    if (cmd.browser_object != null &&
+        (! (cmd.browser_object instanceof browser_object_class)))
+    {
+        I.browser_object = cmd.browser_object;
+    }
+
+    // if no browser-object was specified interactively, use a
+    // default, possibly specified by the page-mode.
+    if (I.browser_object == null) {
+        I.browser_object =
+            I.buffer.default_browser_object_classes[command] ||
+            cmd.browser_object;
+    }
 
     handler = cmd.handler;
 
