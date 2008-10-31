@@ -27,13 +27,11 @@ define_key(content_buffer_normal_keymap, "S-8 T", "browser-object-title-or-alt")
 
 
 define_key(content_buffer_normal_keymap, "open_bracket",
-           new context_case(
-               function (I) { return I._browser_object_class; }, "follow",
-               function (I) { return true; }, "browser-object-relationship-previous"));
+           "browser-object-relationship-previous",
+           $repeat = "follow");
 define_key(content_buffer_normal_keymap, "close_bracket",
-           new context_case(
-               function (I) { return I._browser_object_class; }, "follow",
-               function (I) { return true; }, "browser-object-relationship-next"));
+           "browser-object-relationship-next",
+           $repeat = "follow");
 
 
 define_key(content_buffer_normal_keymap, "f", "follow", $category = "Browser object");
