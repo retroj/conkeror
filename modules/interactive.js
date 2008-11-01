@@ -175,23 +175,3 @@ function set_default_browser_object (name, browser_object) {
     cmd.browser_object = browser_object;
 }
 
-/*
-I.f = interactive_method(
-    $doc = "Existing file",
-    $async = function (ctx, cont) {
-        keywords(arguments, $prompt = "File:", $initial_value = default_directory.path,
-                 $history = "file");
-        ctx.window.minibuffer.read(
-            $prompt = arguments.$prompt,
-            $initial_value = arguments.$initial_value,
-            $history = arguments.$history,
-            $callback = function(s) {
-                var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-                f.initWithPath(s);
-                cont(f);
-            });
-    });
-
-// FIXME: eventually they will differ, when completion for files is added
-I.F = I.f;
-*/
