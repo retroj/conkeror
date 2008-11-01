@@ -40,9 +40,9 @@ function define_browser_object_class (name, label, doc, handler) {
 }
 
 function xpath_browser_object_handler (xpath_expression) {
-    return function (buf, prompt) {
-        var result = yield buf.window.minibuffer.read_hinted_element(
-            $buffer = buf,
+    return function (I, prompt) {
+        var result = yield I.buffer.window.minibuffer.read_hinted_element(
+            $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = xpath_expression);
         yield co_return(result);
@@ -55,17 +55,17 @@ define_browser_object_class(
 
 define_browser_object_class(
     "frames","frame", null,
-    function (buf, prompt) {
-        check_buffer(buf, content_buffer);
-        var doc = buf.document;
+    function (I, prompt) {
+        check_buffer(I.buffer, content_buffer);
+        var doc = I.buffer.document;
         if (doc.getElementsByTagName("frame").length == 0 &&
             doc.getElementsByTagName("iframe").length == 0)
         {
             // only one frame (the top-level one), no need to use the hints system
-            yield co_return(buf.top_frame);
+            yield co_return(I.buffer.top_frame);
         }
-        var result = yield buf.window.minibuffer.read_hinted_element(
-            $buffer = buf,
+        var result = yield I.buffer.window.minibuffer.read_hinted_element(
+            $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//iframe | //frame | //xhtml:iframe | //xhtml:frame");
         yield co_return(result);
@@ -87,30 +87,30 @@ define_browser_object_class(
 
 define_browser_object_class(
     "top", null, null,
-    function (buf, prompt) { yield co_return(buf.top_frame); });
+    function (I, prompt) { yield co_return(I.buffer.top_frame); });
 
 define_browser_object_class(
     "url", null, null,
-    function (buf, prompt) {
-        check_buffer (buf, content_buffer);
-        var result = yield buf.window.minibuffer.read_url ($prompt = prompt);
+    function (I, prompt) {
+        check_buffer (I.buffer, content_buffer);
+        var result = yield I.buffer.window.minibuffer.read_url ($prompt = prompt);
         yield co_return (result);
     });
 
 define_browser_object_class(
     "file", null, null,
-    function (buf, prompt) {
-        var result = yield buf.window.minibuffer.read_file(
+    function (I, prompt) {
+        var result = yield I.buffer.window.minibuffer.read_file(
             $prompt = prompt,
-            $initial_value = buf.cwd.path);
+            $initial_value = I.buffer.cwd.path);
         yield co_return (result);
     });
 
 define_browser_object_class(
     "alt", "Image Alt-text", null,
-    function (buf, prompt) {
-        var result = yield buf.window.minibuffer.read_hinted_element(
-            $buffer = buf,
+    function (I, prompt) {
+        var result = yield I.buffer.window.minibuffer.read_hinted_element(
+            $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//img[@alt]");
         yield (co_return (result.alt));
@@ -118,9 +118,9 @@ define_browser_object_class(
 
 define_browser_object_class(
     "title", "Element Title", null,
-    function (buf, prompt) {
-        var result = yield buf.window.minibuffer.read_hinted_element(
-            $buffer = buf,
+    function (I, prompt) {
+        var result = yield I.buffer.window.minibuffer.read_hinted_element(
+            $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//*[@title]");
         yield (co_return (result.title));
@@ -128,9 +128,9 @@ define_browser_object_class(
 
 define_browser_object_class(
     "title-or-alt", "Element Title or Alt-text", null,
-    function (buf, prompt) {
-        var result = yield buf.window.minibuffer.read_hinted_element(
-            $buffer = buf,
+    function (I, prompt) {
+        var result = yield I.buffer.window.minibuffer.read_hinted_element(
+            $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//img[@alt] | //*[@title]");
         yield (co_return (result.title ? result.title : result.alt));
@@ -139,13 +139,13 @@ define_browser_object_class(
 define_browser_object_class(
     "scrape-url", "url",
     "Scrapes urls from the source code of the top-level document of buffer.",
-    function (buf, prompt) {
-        check_buffer (buf, content_buffer);
-        var completions = buf.document.documentElement.innerHTML
+    function (I, prompt) {
+        check_buffer (I.buffer, content_buffer);
+        var completions = I.buffer.document.documentElement.innerHTML
             .match(/http:[^\s>"]*/g)
             .filter(remove_duplicates_filter());
         var completer = prefix_completer($completions = completions);
-        var result = yield buf.window.minibuffer.read(
+        var result = yield I.buffer.window.minibuffer.read(
             $prompt = prompt,
             $completer = completer,
             $initial_value = null,
@@ -176,7 +176,7 @@ function read_browser_object (I)
         prompt += " (select " + browser_object.label + ")";
     prompt += ":";
 
-    var result = yield browser_object.handler.call(null, I.buffer, prompt);
+    var result = yield browser_object.handler.call(null, I, prompt);
     yield co_return(result);
 }
 

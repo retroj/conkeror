@@ -69,8 +69,8 @@ function media_scrape(buffer) {
 
 define_browser_object_class(
     "media", null, null,
-    function (buf, prompt) {
-        let media = yield media_scrape(buf);
+    function (I, prompt) {
+        let media = yield media_scrape(I.buffer);
         if (!media || media.length == 0)
             throw interactive_error("No media found.");
 
@@ -82,7 +82,7 @@ define_browser_object_class(
             $get_string = function (x) load_spec_uri_string(x),
             $get_description = function (x) load_spec_title(x) || "");
 
-        let result = yield buf.window.minibuffer.read(
+        let result = yield I.buffer.window.minibuffer.read(
             $prompt = prompt,
             $match_required,
             $completer = completer,

@@ -84,12 +84,12 @@ function document_get_element_by_relationship(buffer, doc, relationship) {
 
 define_browser_object_class(
     "relationship-next", "Relationship-Next", null,
-    function (buf, prompt) {
-        check_buffer(buf, content_buffer);
-        var doc = buf.document;
-        for (let frame in frame_iterator(buf.top_frame, buf.focused_frame)) {
+    function (I, prompt) {
+        check_buffer(I.buffer, content_buffer);
+        var doc = I.buffer.document;
+        for (let frame in frame_iterator(I.buffer.top_frame, I.buffer.focused_frame)) {
             let elem = document_get_element_by_relationship(
-                buf, frame.document, RELATIONSHIP_NEXT);
+                I.buffer, frame.document, RELATIONSHIP_NEXT);
             if (elem)
                 yield co_return(elem);
         }
@@ -97,12 +97,12 @@ define_browser_object_class(
 
 define_browser_object_class(
     "relationship-previous", "Relationship-Previous", null,
-    function (buf, prompt) {
-        check_buffer(buf, content_buffer);
-        var doc = buf.document;
-        for (let frame in frame_iterator(buf.top_frame, buf.focused_frame)) {
+    function (I, prompt) {
+        check_buffer(I.buffer, content_buffer);
+        var doc = I.buffer.document;
+        for (let frame in frame_iterator(I.buffer.top_frame, I.buffer.focused_frame)) {
             let elem = document_get_element_by_relationship(
-                buf, frame.document, RELATIONSHIP_PREVIOUS);
+                I.buffer, frame.document, RELATIONSHIP_PREVIOUS);
             if (elem)
                 yield co_return(elem);
         }
