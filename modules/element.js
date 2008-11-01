@@ -136,6 +136,25 @@ define_browser_object_class(
         yield (co_return (result.title ? result.title : result.alt));
     });
 
+define_browser_object_class(
+    "scrape-url", "url",
+    "Scrapes urls from the source code of the top-level document of buffer.",
+    function (buf, prompt) {
+        check_buffer (buf, content_buffer);
+        var completions = buf.document.documentElement.innerHTML
+            .match(/http:[^\s>"]*/g)
+            .filter(remove_duplicates_filter());
+        var completer = prefix_completer($completions = completions);
+        var result = yield buf.window.minibuffer.read(
+            $prompt = prompt,
+            $completer = completer,
+            $initial_value = null,
+            $auto_complete = "url",
+            $select,
+            $match_required = false);
+        yield co_return (result);
+    });
+
 
 function read_browser_object (I)
 {

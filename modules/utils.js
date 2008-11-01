@@ -1264,3 +1264,16 @@ function compute_url_up_path (url)
         up = "..";
     return up;
 }
+
+
+/* remove_duplicates_filter returns a function that can be
+ * used in Array.filter.  It removes duplicates.
+ */
+function remove_duplicates_filter () {
+    var acc = {};
+    return function (x) {
+        if (acc[x]) return false;
+        acc[x] = 1;
+        return true;
+    };
+}
