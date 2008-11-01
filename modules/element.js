@@ -102,6 +102,7 @@ define_browser_object_class(
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_file(
             $prompt = prompt,
+            $history = I.command.name+"/file",
             $initial_value = I.buffer.cwd.path);
         yield co_return (result);
     });
