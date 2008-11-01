@@ -378,6 +378,15 @@ interactive("network-go-offline", "Work offline.",
             function (I) {network_set_online_status (false);});
 
 
+interactive("submit-form", null,
+           function (I) {
+               var el = I.buffer.focused_element.parentNode;
+               while (el && el.tagName != "FORM")
+                   el = el.parentNode;
+               if (el)
+                   el.submit();
+           });
+
 /*
  * Browser Object Commands
  */

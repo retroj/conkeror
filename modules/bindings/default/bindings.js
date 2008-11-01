@@ -8,6 +8,7 @@
 // Simply load the other modules
 
 require("bindings/default/content-buffer/normal.js");
+require("bindings/default/content-buffer/form.js");
 require("bindings/default/content-buffer/text.js");
 require("bindings/default/content-buffer/checkbox.js");
 require("bindings/default/content-buffer/textarea.js");
