@@ -397,18 +397,18 @@ hints_minibuffer_state.prototype = {
         if (this.url_panel)
             this.url_panel.update();
     },
-    unload : function (window) {
-        if (this.auto_exit_timer_ID) {
-            window.clearTimeout(this.auto_exit_timer_ID);
-            this.auto_exit_timer_ID = null;
-        }
-        this.manager.hide_hints();
-    },
-    destroy : function () {
+    clear_auto_exit_timer : function () {
         if (this.auto_exit_timer_ID) {
             this.manager.window.clearTimeout(this.auto_exit_timer_ID);
             this.auto_exit_timer_ID = null;
         }
+    },
+    unload : function (window) {
+        this.clear_auto_exit_timer();
+        this.manager.hide_hints();
+    },
+    destroy : function () {
+        this.clear_auto_exit_timer();
         this.manager.remove();
         if (this.url_panel)
             this.url_panel.destroy();
@@ -422,31 +422,30 @@ hints_minibuffer_state.prototype = {
             this.url_panel.update();
     },
 
-    handle_auto_exit : function (m, delay) {
+    handle_auto_exit : function (m, ambiguous) {
         let window = m.window;
         var num = this.manager.current_hint_number;
-        if (this.auto_exit_timer_ID)
-            window.clearTimeout(this.auto_exit_timer_ID);
+        if (!this.auto_exit)
+            return;
         let s = this;
-        this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
-                                                    delay);
+        let delay = ambiguous ? hints_ambiguous_auto_exit_delay : hints_auto_exit_delay;
+        if (delay > 0)
+            this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
+                                                        delay);
     },
 
     handle_input : function (m) {
         m._set_selection();
-
+        this.clear_auto_exit_timer();
         this.typed_number = "";
         this.typed_string = m._input_text;
         this.manager.current_hint_string = this.typed_string;
         this.manager.current_hint_number = -1;
         this.manager.update_valid_hints();
-        if (this.auto_exit) {
-            if (this.manager.valid_hints.length == 1)
-                this.handle_auto_exit(m, hints_auto_exit_delay);
-            else if (this.manager.valid_hints.length > 1
-                     && hints_ambiguous_auto_exit_delay > 0)
-                this.handle_auto_exit(m, hints_ambiguous_auto_exit_delay);
-        }
+        if (this.manager.valid_hints.length == 1)
+            this.handle_auto_exit(m, false /* unambiguous */);
+        else if (this.manager.valid_hints.length > 1)
+        this.handle_auto_exit(m, true /* ambiguous */);
         this.update_minibuffer(m);
     }
 };
@@ -456,41 +455,33 @@ define_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the
 define_variable("hints_ambiguous_auto_exit_delay", 0, "Delay (in milliseconds) after the most recent key stroke before the first of an ambiguous match is automatically selected.  If this is set to 0, automatic selection in ambiguous matches is disabled.");
 
 interactive("hints-handle-number", null, function (I) {
-    let s = I.minibuffer.check_state(hints_minibuffer_state);
-    var ch = String.fromCharCode(I.event.charCode);
-    var auto_exit = false;
-    /* TODO: implement number escaping */
-    // Number entered
-    s.typed_number += ch;
+                let s = I.minibuffer.check_state(hints_minibuffer_state);
+                s.clear_auto_exit_timer();
+                var ch = String.fromCharCode(I.event.charCode);
+                var auto_exit_ambiguous = null; // null -> no auto exit; false -> not ambiguous; true -> ambiguous
+                /* TODO: implement number escaping */
+                // Number entered
+                s.typed_number += ch;
 
-    s.manager.select_hint(parseInt(s.typed_number));
-    var num = s.manager.current_hint_number;
-    if (s.auto_exit) {
-        if (num > 0 && num <= s.manager.valid_hints.length) {
-            if (num * 10 > s.manager.valid_hints.length)
-                auto_exit = hints_auto_exit_delay;
-            else if (hints_ambiguous_auto_exit_delay > 0)
-                auto_exit = hints_ambiguous_auto_exit_delay;
-        }
-        if (num == 0) {
-            if (!s.multiple) {
-                hints_exit(I.window, s);
-                return;
-            }
-            auto_exit = hints_auto_exit_delay;
-        }
-    }
-    if (auto_exit)
-        s.handle_auto_exit(I.minibuffer, auto_exit);
-    s.update_minibuffer(I.minibuffer);
-});
+                s.manager.select_hint(parseInt(s.typed_number));
+                var num = s.manager.current_hint_number;
+                if (num > 0 && num <= s.manager.valid_hints.length)
+                    auto_exit_ambiguous = num * 10 > s.manager.valid_hints.length ? false : true;
+                else if (num == 0) {
+                    if (!s.multiple) {
+                        hints_exit(I.window, s);
+                        return;
+                    }
+                    auto_exit_ambiguous = false;
+                }
+                if (auto_exit_ambiguous !== null)
+                    s.handle_auto_exit(I.minibuffer, auto_exit_ambiguous);
+                s.update_minibuffer(I.minibuffer);
+            });
 
 function hints_backspace(window, s) {
     let m = window.minibuffer;
-    if (s.auto_exit_timer_ID) {
-        window.clearTimeout(s.auto_exit_timer_ID);
-        s.auto_exit_timer_ID = null;
-    }
+    s.clear_auto_exit_timer();
     if (s.typed_number.length > 0) {
         s.typed_number = s.typed_number.substring(0, s.typed_number.length - 1);
         var num = s.typed_number.length > 0 ? parseInt(s.typed_number) : 1;
@@ -510,10 +501,7 @@ interactive("hints-backspace", null, function (I) {
 });
 
 function hints_next(window, s, count) {
-    if (s.auto_exit_timer_ID) {
-        window.clearTimeout(s.auto_exit_timer_ID);
-        s.auto_exit_timer_ID = null;
-    }
+    s.clear_auto_exit_timer();
     s.typed_number = "";
     var cur = s.manager.current_hint_number - 1;
     var vh = s.manager.valid_hints;
@@ -535,17 +523,13 @@ interactive("hints-previous", null, function (I) {
 
 function hints_exit(window, s)
 {
-    if (s.auto_exit_timer_ID) {
-        window.clearTimeout(s.auto_exit_timer_ID);
-        s.auto_exit_timer_ID = null;
-    }
     var cur = s.manager.current_hint_number;
     var elem = null;
     if (cur > 0 && cur <= s.manager.valid_hints.length)
         elem = s.manager.valid_hints[cur - 1].elem;
     else if (cur == 0)
         elem = window.buffers.current.top_frame;
-    if (elem) {
+    if (elem !== null) {
         var c = s.continuation;
         delete s.continuation;
         window.minibuffer.pop_state();
@@ -558,24 +542,6 @@ interactive("hints-exit", null, function (I) {
     hints_exit(I.window, I.minibuffer.check_state(hints_minibuffer_state));
 });
 
-
-/* FIXME: figure out why this needs to have a bunch of duplication */
-define_variable(
-    "hints_xpath_expressions",
-    {
-        images: {def: "//img | //xhtml:img"},
-        frames: {def: "//iframe | //frame | //xhtml:iframe | //xhtml:frame"},
-        links: {def:
-                "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-                "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
-                "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @class='lk' or @class='s'] | " +
-                "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
-                "//xhtml:button | //xhtml:select"},
-        mathml: {def: "//m:math"}
-    },
-    "XPath expressions for each object class.");
-
-minibuffer_auto_complete_preferences["media"] = true;
 
 define_keywords("$buffer");
 minibuffer.prototype.read_hinted_element = function () {

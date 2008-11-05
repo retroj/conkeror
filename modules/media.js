@@ -91,7 +91,7 @@ define_browser_object_class(
 
         yield co_return(result);
     });
-
+minibuffer_auto_complete_preferences["media"] = true;
 
 function media_setup_local_object_classes(buffer) {
     buffer.default_browser_object_classes = {
