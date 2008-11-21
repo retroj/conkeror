@@ -15,19 +15,8 @@ require("bindings/default/content-buffer/textarea.js");
 
 define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
 
-function gmail_label_go(buffer, label)
-{
-    buffer.window.content.location.hash = "#label/" + encodeURIComponent(label);
-}
-interactive("gmail-label-go",
-            "Go to a GMail label.",
-            function(I) {
-              gmail_label_go(I.buffer, (yield I.minibuffer.read($prompt = "Go to label: ")));
-            });
-
 {
     let gmail_bind_common = function (keymap) {
-        define_key(keymap, "C-c C-g", "gmail-label-go");
 
         // Rebind overridden commands
         define_key(keymap, "C-c g", "find-url");
