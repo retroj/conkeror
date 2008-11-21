@@ -42,5 +42,7 @@ define_page_mode("google_search_results_mode", "Google Search Results",
 
 var google_search_re = build_url_regex($domain = "google",
                                        $allow_www = true,
-                                       $path = "search?");
+                                       $path = "search?",
+                                       $tlds = ["com", "co.uk", "de", "dk", "es",
+                                                "fr", "it", "no", "sv", "uk"]);
 auto_mode_list.push([google_search_re, google_search_results_mode]);
