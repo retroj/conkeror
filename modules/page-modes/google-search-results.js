@@ -27,6 +27,34 @@ define_browser_object_class(
     null,
     xpath_browser_object_handler("//a[@class='l']"));
 
+
+// Bind keys 1 through 9 to follow corresponding results links
+//
+define_browser_object_class(
+    "google-search-result-by-digit", "Google Search Result", null,
+    function (I, prompt) {
+        check_buffer(I.buffer, content_buffer);
+        var doc = I.buffer.document;
+        var digit = I.event.charCode - 48;
+        var res = doc.evaluate("//a[parent::node()/@class='r']", doc, null,
+                               Ci.nsIDOMXPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+                               null);
+        yield co_return(res.snapshotItem(digit - 1));
+    });
+
+function google_search_bind_number_shortcuts () {
+    for (var j = 1; j <= 9; j++) {
+        let o = j;
+        var function_name = "gsearch-follow-result-" + j;
+        interactive(function_name,
+                    "Follow google search result number " + j,
+                    "follow",
+                    $browser_object = browser_object_google_search_result_by_digit);
+        define_key(google_search_results_keymap, String(j), function_name);
+    }
+}
+
+
 define_page_mode("google_search_results_mode", "Google Search Results",
                  $enable = function (buffer) {
                      buffer.local_variables.content_buffer_normal_keymap = google_search_results_keymap;
