@@ -62,9 +62,7 @@ function chan_add_image(I) {
     // path to that file.
     if (res == nsIFilePicker.returnOK) {
 	var file = doc.getElementsByName("upfile")[0];
-	if (norm != "undefined") {
-	    file.value = fp.file.path;
-	}
+	file.value = fp.file.path;
     }
 }
 
