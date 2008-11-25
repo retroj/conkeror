@@ -14,29 +14,58 @@ require("bindings/default/content-buffer/normal.js");
 define_keymap("chan_keymap", $parent = content_buffer_normal_keymap);
 
 
+/**
+ * Focus the reply/new thread form.
+ */
 function chan_make_reply(I) {
     var doc = I.buffer.document;
     var name = doc.getElementsByClassName("inputtext");
-    dumpln(name[0]);
-    if (name) {
+    if (name.length > 0) {
 	name[0].scrollIntoView(true);
 	name[0].focus();
     }
 }
 
 
+/**
+ * Submit the reply/new thread.
+ */
 function chan_post_reply(I) {
     var doc = I.buffer.document;
     var form = doc.getElementsByName("post");
-    dumpln(form[0]);
-    if (form) {
+    if (form.length > 0) {
 	form[0].submit();
     }
 }
 
 
+/**
+ * Adds an attached image to the current form.
+ */
 function chan_add_image(I) {
-    
+    var doc = I.buffer.document;
+    var file = doc.getElementsByName("upfile");
+
+    // The length of the array should be 1, otherwise we're doing something silly.
+    if (file.length != 1) return;
+
+    // Otherwise, get the input element.
+    file = file[0];
+
+    // Open the filepicker.
+    var nsIFilePicker = Components.interfaces.nsIFilePicker;
+    var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+    fp.init(I.window, "Select a File", nsIFilePicker.modeOpen);
+    var res = fp.show();
+
+    // If the user chose a file, set the value of the file field to the full
+    // path to that file.
+    if (res == nsIFilePicker.returnOK) {
+	var file = doc.getElementsByName("upfile")[0];
+	if (norm != "undefined") {
+	    file.value = fp.file.path;
+	}
+    }
 }
 
 
@@ -46,8 +75,6 @@ interactive("chan-add-image", "Adds an image attachment to the form.", chan_add_
 
 
 function chanmaster(buffer) {
-
-    dumpln("Defined.");
 
     define_key(chan_keymap, "C-c C-r", "chan-make-reply");
     define_key(chan_keymap, "C-c C-p", "chan-post-reply");
