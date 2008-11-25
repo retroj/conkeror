@@ -69,16 +69,66 @@ function chan_add_image(I) {
 }
 
 
+/**
+ * Scrolls the buffer to the previous thread.
+ */
+function chan_previous_thread(I) {
+    var doc = I.buffer.document,
+	threads = doc.getElementsByTagName("HR"),
+	viewportOff = -(doc.body.getBoundingClientRect().top),
+	curT = -1,
+	curD = 99999;
+
+    // TODO: Eliminate non-thread HRs, probably using XPath.
+    for (t in threads) {
+	if (threads[t].offsetTop < viewportOff &&
+	    Math.abs(threads[t].offsetTop - viewportOff) < curD) {
+	    curT = threads[t];
+	    curD = Math.abs(threads[t].offsetTop - viewportOff);
+	}
+    }
+    if (curT == -1) return;
+    curT.scrollIntoView();
+}
+
+
+/**
+ * Scrolls the buffer to the next thread.
+ */
+function chan_next_thread(I) {
+    var doc = I.buffer.document,
+	threads = doc.getElementsByTagName("HR"),
+	viewportOff = -(doc.body.getBoundingClientRect().top),
+	curT = -1,
+	curD = 99999;
+
+    // TODO: Eliminate non-thread HRs, probably using XPath.
+    for (t in threads) {
+	if (threads[t].offsetTop - 6 > viewportOff && // "-6 hack" because of scrollIntoView()
+	    Math.abs(threads[t].offsetTop - viewportOff) < curD) {
+	    curT = threads[t];
+	    curD = Math.abs(threads[t].offsetTop - viewportOff);
+	}
+    }
+    if (curT == -1) return;
+    curT.scrollIntoView();
+}
+
+
 interactive("chan-make-reply", "Puts the focus to the reply/new thread form.", chan_make_reply);
 interactive("chan-post-reply", "Submits the reply form.", chan_post_reply);
 interactive("chan-add-image", "Adds an image attachment to the form.", chan_add_image);
+interactive("chan-previous-thread", "Scrolls the buffer to the previous thread.", chan_previous_thread);
+interactive("chan-next-thread", "Scrolls the buffer to the next thread.", chan_next_thread);
 
 
 function chanmaster(buffer) {
 
-    define_key(chan_keymap, "C-c C-r", "chan-make-reply");
-    define_key(chan_keymap, "C-c C-p", "chan-post-reply");
+    define_key(chan_keymap, "C-c C-c", "chan-post-reply");
     define_key(chan_keymap, "C-c C-i", "chan-add-image");
+    define_key(chan_keymap, "C-c C-n", "chan-next-thread");
+    define_key(chan_keymap, "C-c C-p", "chan-previous-thread");
+    define_key(chan_keymap, "C-c C-r", "chan-make-reply");
 
     var doc = buffer.document;
     var xpr = doc.evaluate("//img[@md5]", doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
