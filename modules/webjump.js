@@ -45,7 +45,7 @@ function add_delicious_webjumps (username)
 {
     add_webjump("delicious", "http://del.icio.us/" + username);
     add_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
-    add_webjump("sdelicious", "http://delicious.com/search?p=hehe&u=" + username + "&chk=&context=userposts&fr=del_icio_us&lc=1");
+    add_webjump("sdelicious", "http://delicious.com/search?p=%s&u=" + username + "&chk=&context=userposts&fr=del_icio_us&lc=1");
     add_webjump("sadelicious", "http://del.icio.us/search/all?search=%s");
 }
 
