@@ -23,6 +23,7 @@ define_key(content_buffer_normal_keymap, "l", "go-back");
 define_key(content_buffer_normal_keymap, "r", "reload");
 define_key(content_buffer_normal_keymap, "g", "find-url");
 define_key(content_buffer_normal_keymap, "C-x C-v", "find-alternate-url");
+define_key(content_buffer_normal_keymap, "C-x C-s", "save-page");
 
 
 define_key(content_buffer_normal_keymap, "C-g", "stop-loading");
