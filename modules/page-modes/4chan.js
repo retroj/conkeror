@@ -218,5 +218,5 @@ define_page_mode("chan_mode", "4chan mode",
 
 
 // This regular expression should match just about anything but the main page.
-var chan_re = new RegExp("http://(rs|zip|cgi|img).4chan.org/.+/", "i");
+var chan_re = new RegExp("http://(orz|rs|zip|cgi|img).4chan.org/.+/", "i");
 auto_mode_list.push([chan_re, chan_mode]);
