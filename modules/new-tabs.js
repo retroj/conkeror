@@ -81,18 +81,17 @@ function tab_bar_add_buffer(buffer) {
     label.setAttribute("class", "tab2-label");
     label.setAttribute("crop", "end");
 
-    // Create the close button
-//     var button = create_XUL(buffer.window, "image");
-//     button.setAttribute("class", "tab2-close-button");
-//     button.addEventListener("click", function (event) {
-//             kill_buffer(buffer);
-//             event.stopPropagation();
-//         }, false /* not capturing */);
+    // No close button, just use right-click
+    tab.addEventListener("click", function (event) {
+	    if (event.button == 2) { // Right mouse button
+		kill_buffer(buffer);
+		event.stopPropagation();
+	    }
+        }, false /* not capturing */);
 
     // Add all the stuff to the new tab
     tab.appendChild(iconlabel);
     tab.appendChild(label);
-//     tab.appendChild(button);
     tab.tab_label = label;
     tab.tab_icon = iconlabel;
     tabbar.element.appendChild(tab);
