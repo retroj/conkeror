@@ -98,6 +98,14 @@ define_browser_object_class(
     });
 
 define_browser_object_class(
+    "pasteurl", null, null,
+    function (I, url) {
+        check_buffer (I.buffer, content_buffer);
+	let url = read_from_x_primary_selection();
+        yield co_return (url);
+    });
+
+define_browser_object_class(
     "file", null, null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_file(
