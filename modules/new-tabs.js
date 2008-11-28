@@ -113,17 +113,29 @@ function tab_bar_kill_buffer(b) {
     t = b.window.tab_bar;
     delete b.tab;
 
+    // Renumber the tabs.
     for (var i = 0; i < t.element.childNodes.length; i++) {
 	t.element.childNodes[i].childNodes[0].value = i + 1;
     }
 }
 
 function tab_bar_select_buffer(b) {
+
     var t = b.window.tab_bar;
     if (t.selected_buffer != null)
         t.selected_buffer.tab.setAttribute("selected", "false");
     t.selected_buffer = b;
     b.tab.setAttribute("selected", "true");
+
+    // The following makes sure that:
+    // a) The selected tab is visible.
+    // b) As much of the rest of the tabs as possible is visible.
+    for (var i = 0; i < t.element.childNodes.length; i++) {
+	if (t.element.childNodes[i] == b.tab) {
+	} else {
+	    t.element.ensureElementIsVisible(t.element.childNodes[i]);
+	}
+    }
     t.element.ensureElementIsVisible(b.tab);
 }
 
