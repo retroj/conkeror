@@ -15,6 +15,8 @@ function bind_scroll_keys(keymap)
     define_key(keymap, "C-v","cmd_scrollPageDown", $category = "Scrolling");
     define_key(keymap, "page_up","cmd_scrollPageUp", $category = "Scrolling");
     define_key(keymap, "page_down","cmd_scrollPageDown", $category = "Scrolling");
+    define_key(keymap, "C-page_up","cmd_scrollLeft", $category = "Scrolling");
+    define_key(keymap, "C-page_down","cmd_scrollRight", $category = "Scrolling");
     define_key(keymap, "C-p","cmd_scrollLineUp", $category = "Scrolling");
     define_key(keymap, "C-n","cmd_scrollLineDown", $category = "Scrolling");
 
