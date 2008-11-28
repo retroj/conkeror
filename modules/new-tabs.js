@@ -14,13 +14,13 @@ require("mode.js");
 
 function tab_bar(window) {
     window.tab_bar = this;
-    var element = create_XUL(window, "arrowscrollbox");
-    element.setAttribute("id", "tab2-bar");
-    element.setAttribute("orient", "horizontal");
+    var scrollbox = create_XUL(window, "arrowscrollbox");
+    scrollbox.setAttribute("id", "tab2-bar");
+    scrollbox.setAttribute("orient", "horizontal");
     var after = window.buffers.container;
     this.window = window;
-    this.element = element;
-    after.parentNode.insertBefore(element, after);
+    this.element = scrollbox;
+    after.parentNode.insertBefore(scrollbox, after);
 
     add_hook.call(window, "select_buffer_hook", tab_bar_select_buffer);
     add_hook.call(window, "create_buffer_hook", tab_bar_add_buffer);
