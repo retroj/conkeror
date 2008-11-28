@@ -71,6 +71,7 @@ function define_default_webjumps()
                 "xulplanet.png%3BALC%3Ablue%3BLW%3A215%3BAWFID%3A0979f384d5"+
                 "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go");
     add_webjump("image",      "http://images.google.com/images?q=%s");
+    add_webjump("imdb",       "http://www.imdb.com/find?s=all&q=%s&x=0&y=0");
     add_webjump("clhs",       "http://www.xach.com/clhs?q=%s");
     add_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
     add_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
