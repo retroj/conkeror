@@ -1266,6 +1266,15 @@ function compute_url_up_path (url)
 }
 
 
+function compute_url_pre_path (url)
+{
+    var new_url = Cc["@mozilla.org/network/standard-url;1"]
+        .createInstance (Ci.nsIURL);
+    new_url.spec = url;
+    return new_url.prePath;
+}
+
+
 /* remove_duplicates_filter returns a function that can be
  * used in Array.filter.  It removes duplicates.
  */

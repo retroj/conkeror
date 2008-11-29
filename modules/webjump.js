@@ -17,20 +17,31 @@ function define_webjump(key, handler) {
 
     var no_argument = arguments.$no_argument;
 
-    if (typeof(handler) == "string") {
-        let template = handler;
+    make_handler = function(template, alternative) {
         let b = template.indexOf('%s');
         if (b == -1)
             no_argument = true;
-        handler = function (arg) {
+        if (alternative == null)
+            alternative = compute_url_pre_path(template);
+        if (alternative && !no_argument)
+            no_argument = "maybe";
+        return function (arg) {
             var a = b + 2;
+            if (arg == null)
+                return alternative;
             // Just return the same string if it doesn't contain a %s
             if (b == -1)
                 return template;
-            else
-                return template.substr(0,b) + encodeURIComponent(arg) + template.substring(a);
+            return template.substr(0,b) + encodeURIComponent(arg) + template.substring(a);
         };
     }
+
+    if (typeof(handler) == "string")
+        handler = make_handler(handler);
+    if (typeof(handler) == "object")
+        // An array of a template and an alternative url (for no args)
+        handler = make_handler(handler[0], handler[1]);
+
     webjumps.put(key,
                  {key: key,
                   handler: handler, completer: arguments.$completer,
@@ -65,14 +76,15 @@ function define_default_webjumps()
     add_webjump("clusty",     "http://www.clusty.com/search?query=%s");
     add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
-    add_webjump("xulplanet",  "http://www.google.com/custom?q=%s&cof=S%3A"+
+    add_webjump("xulplanet",  ["http://www.google.com/custom?q=%s&cof=S%3A"+
                 "http%3A%2F%2Fwww.xulplanet.com%3BAH%3Aleft%3BLH%3A65%3BLC"+
                 "%3A4682B4%3BL%3Ahttp%3A%2F%2Fwww.xulplanet.com%2Fimages%2F"+
                 "xulplanet.png%3BALC%3Ablue%3BLW%3A215%3BAWFID%3A0979f384d5"+
-                "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go");
+                "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go",
+                "http://xulplanet.com"]);
     add_webjump("image",      "http://images.google.com/images?q=%s");
     add_webjump("imdb",       "http://www.imdb.com/find?s=all&q=%s&x=0&y=0");
-    add_webjump("clhs",       "http://www.xach.com/clhs?q=%s");
+    add_webjump("clhs",       ["http://www.xach.com/clhs?q=%s", "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm"]);
     add_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
     add_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
     add_webjump("ratpoisonwiki", "http://ratpoison.antidesktop.net/?search=%s");
@@ -96,6 +108,8 @@ function match_webjump(str) {
     } else {
         key = str.substring(0, sp);
         arg = str.substring(sp + 1);
+        if (/^\s*$/.test(arg))
+            arg = null;
     }
 
     // Look for an exact match
@@ -150,7 +164,7 @@ function webjump_completer()
 {
     let base_completer = prefix_completer(
         $completions = [ v for ([k,v] in webjumps.iterator()) ],
-        $get_string = function (x) x.key + (x.no_argument ? "" : " "),
+        $get_string = function (x) x.key + (x.no_argument==true ? "" : " "),
         $get_description = function (x) x.description || "");
 
     return function(input, pos, conservative) {
