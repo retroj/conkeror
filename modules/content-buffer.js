@@ -292,6 +292,9 @@ define_variable("url_completion_use_bookmarks", true, "Specifies whether URL com
 define_variable("url_completion_use_history", false,
                      "Specifies whether URL completion should complete using browser history.");
 
+define_variable("minibuffer_read_url_select_initial", true,
+                "Specifies whether a URL  presented in the minibuffer for editing should be selected.  This affects find-alternate-url.");
+
 minibuffer_auto_complete_preferences["url"] = true;
 minibuffer.prototype.read_url = function () {
     keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "",
@@ -307,7 +310,7 @@ minibuffer.prototype.read_url = function () {
         $completer = completer,
         $initial_value = arguments.$initial_value,
         $auto_complete = "url",
-        $select,
+        $select = minibuffer_read_url_select_initial,
         $match_required = false);
     if (result == "") // well-formedness check. (could be better!)
         throw ("invalid url or webjump (\""+ result +"\")");
