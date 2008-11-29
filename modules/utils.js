@@ -1275,6 +1275,16 @@ function compute_url_pre_path (url)
 }
 
 
+/* possibly_valid_url returns true if the string might be a valid
+ * thing to pass to nsIWebNavigation.loadURI.  Currently just checks
+ * that there's no whitespace in the middle and that it's not entirely
+ * whitespace.
+ */
+function possibly_valid_url (url) {
+    return !(/\S\s+\S/.test(url)) && !(/^\s*$/.test(url));
+}
+
+
 /* remove_duplicates_filter returns a function that can be
  * used in Array.filter.  It removes duplicates.
  */
