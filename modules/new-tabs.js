@@ -126,16 +126,6 @@ function tab_bar_select_buffer(b) {
         t.selected_buffer.tab.setAttribute("selected", "false");
     t.selected_buffer = b;
     b.tab.setAttribute("selected", "true");
-
-    // The following makes sure that:
-    // a) The selected tab is visible.
-    // b) As much of the rest of the tabs as possible is visible.
-    for (var i = 0; i < t.element.childNodes.length; i++) {
-	if (t.element.childNodes[i] == b.tab) {
-	} else {
-	    t.element.ensureElementIsVisible(t.element.childNodes[i]);
-	}
-    }
     t.element.ensureElementIsVisible(b.tab);
 }
 
