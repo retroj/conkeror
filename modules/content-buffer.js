@@ -287,6 +287,44 @@ add_hook("current_content_buffer_status_change_hook",
          });
 */
 
+
+define_variable("read_url_handler_list", [],
+    "A list of handler functions which transform a typed url into a valid " +
+    "url or webjump.  If the typed input is not valid then each function " +
+    "on this list is tried in turn.  The handler function is called with " +
+    "a single string argument and it should return either a string or " +
+    "null.  The result of the first function on the list that returns a " +
+    "string is used in place of the input.");
+
+/* read_url_make_default_webjump_handler returns a function that
+ * transforms any input into the given webjump.  It should be the last
+ * handler on read_url_handler_list (because any input is
+ * accepted). */
+function read_url_make_default_webjump_handler(default_webjump) {
+    return function(input) {
+	return default_webjump + " " + input;
+    }
+}
+
+/* read_url_make_blank_url_handler returns a function that replaces a
+ * blank (empty) input with the given url (or webjump).  The url may
+ * perform some function, eg. "javascript:location.reload()". */
+function read_url_make_blank_url_handler(url) {
+    return function(input) {
+	if (input.length == 0)
+	    return url;
+	return null;
+    }
+}
+
+minibuffer.prototype.try_read_url_handlers = function(input) {
+    var result;
+    for (var i = 0; i < read_url_handler_list.length; ++i)
+        if (result = read_url_handler_list[i](input))
+            return result;
+    return input;
+}
+
 define_variable("url_completion_use_webjumps", true, "Specifies whether URL completion should complete webjumps.");
 define_variable("url_completion_use_bookmarks", true, "Specifies whether URL completion should complete bookmarks.");
 define_variable("url_completion_use_history", false,
@@ -312,6 +350,8 @@ minibuffer.prototype.read_url = function () {
         $auto_complete = "url",
         $select = minibuffer_read_url_select_initial,
         $match_required = false);
+    if (!possibly_valid_url(result) && !getWebJump(result))
+        result = this.try_read_url_handlers(result);
     if (result == "") // well-formedness check. (could be better!)
         throw ("invalid url or webjump (\""+ result +"\")");
     yield co_return(result);
