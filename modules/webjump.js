@@ -60,6 +60,17 @@ function add_delicious_webjumps (username)
     add_webjump("sadelicious", "http://del.icio.us/search/all?search=%s");
 }
 
+function add_lastfm_webjumps(username)
+{
+    add_webjump("lastfm", "http://www.last.fm/user/" + (username ? username : ""));
+    add_webjump("lastfm-user", "http://www.last.fm/user/%s");
+    add_webjump("lastfm-music", "http://www.last.fm/search?m=all&q=%s");
+    add_webjump("lastfm-group", "http://www.last.fm/users/groups?s_bio=%s");
+    add_webjump("lastfm-tag", "http://www.last.fm/search?m=tag&q=%s");
+    add_webjump("lastfm-label", "http://www.last.fm/search?m=label&q=%s");
+    add_webjump("lastfm-event", "http://www.last.fm/events?by=artists&q=%s");
+}
+
 function clear_webjumps()
 {
     webjumps = {};
