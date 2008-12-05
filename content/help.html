@@ -1,249 +1,258 @@
-<!DOCTYPE html
-  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
-(C) Copyright 2004-2006 Shawn Betts
-(C) Copyright 2007-2008 John J. Foerch 
+    (C) Copyright 2004-2006 Shawn Betts
+    (C) Copyright 2007-2008 John J. Foerch
+    (C) Copyright 2008 Deniz Dogan
 
-Use, modification, and distribution are subject to the terms specified in the
-COPYING file.
--->
+    Use, modification, and distribution are subject to the terms specified in the
+    COPYING file.
+  -->
 
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>Conkeror User Manual</title>
-</head>
-<body>
-<h1>Conkeror User Manual</h1>
+  <head>
+    <title>Conkeror User Manual</title>
+    <link rel="stylesheet" type="text/css" href="chrome://conkeror/content/manual.css" />
+  </head>
+  <body>
 
-<h2>Introduction</h2>
+    <h1>Conkeror User Manual</h1>
 
-<p>
-  Conkeror is a Mozilla-based web browser whose design is inspired by
-  <a href="http://www.gnu.org/software/emacs">GNU Emacs</a>.
-</p>
+    <hr />
 
+    <h2>Introduction</h2>
 
-<p>
-  You can learn Conkeror's key bindings by <a
-  href="chrome://conkeror/content/tutorial.html">reading the
-  tutorial</a>.  The keyboard shortcut to visit the tutorial is
-  <code>Control-h t</code>.  That is, first press Control-h, then
-  release those keys, and press t.
-</p>
+    <p>
+      Conkeror is a Mozilla-based web browser whose design is inspired by
+      <a href="http://www.gnu.org/software/emacs">GNU
+      Emacs</a>.
+    </p>
 
+    <p>
+      You can learn Conkeror's key bindings
+      by <a href="chrome://conkeror/content/tutorial.html">reading the
+      tutorial</a>. The keyboard shortcut to visit the tutorial
+      is <span class="key">C-h t</span>. That is, first
+      press <span class="key">Ctrl-h</span>, then release those keys, and
+      press <span class="key">t</span>.
+    </p>
 
-<h2>Overview of the Keys</h2>
+    <hr />
 
+    <h2>Overview of the Keys</h2>
 
-<h3>Browsing</h3>
-<table border="1">
-  <tr>
-    <td><b>key</b></td>
-    <td><b>M-x command</b></td>
-    <td><b>meaning</b></td>
-  </tr>
-  <tr>
-    <td>g</td>
-    <td>find-url</td>
-    <td>open new URL</td>
-  </tr>
-  <tr>
-    <td>B</td>
-    <td>go-back</td>
-    <td>&nbsp;</td>
-  </tr>
-  <tr>
-    <td>F</td>
-    <td>go-forward</td>
-    <td>&nbsp;</td>
-  </tr>
-  <tr>
-    <td>r</td>
-    <td>revert-buffer</td>
-    <td>reload</td>
-  </tr>
-  <tr>
-    <td>C-g</td>
-    <td>abort</td>
-    <td>stop</td>
-  </tr>
-  <tr>
-    <td>C-h i</td>
-    <td>help-page</td>
-    <td>Show this page.</td>
-  </tr>
-  <tr>
-    <td>C-h t</td>
-    <td>tutorial</td>
-    <td>Show the Conkeror tutorial.</td>
-  </tr>
-</table>
+    <h3>Browsing</h3>
+    <table>
+      <thead>
+        <tr>
+          <th><b>key</b></th>
+          <th><b>M-x command</b></th>
+          <th><b>meaning</b></th>
+        </tr>
+      </thead>
+      <tbody>
+	<tr>
+          <td><span class="key">g</span></td>
+          <td>find-url</td>
+          <td>open new URL</td>
+	</tr>
+	<tr>
+          <td><span class="key">B</span></td>
+          <td>go-back</td>
+          <td>&nbsp;</td>
+	</tr>
+	<tr>
+          <td><span class="key">F</span></td>
+          <td>go-forward</td>
+          <td>&nbsp;</td>
+	</tr>
+	<tr>
+          <td><span class="key">r</span></td>
+          <td>revert-buffer</td>
+          <td>reload</td>
+	</tr>
+	<tr>
+          <td><span class="key">C-g</span></td>
+          <td>abort</td>
+          <td>stop</td>
+	</tr>
+	<tr>
+          <td><span class="key">C-h i</span></td>
+          <td>help-page</td>
+          <td>Show this page.</td>
+	</tr>
+	<tr>
+          <td><span class="key">C-h t</span></td>
+          <td>tutorial</td>
+          <td>Show the Conkeror tutorial.</td>
+	</tr>
+      </tbody>
+    </table>
 
-<h3>Movement</h3>
-<table border="1">
-<tr><td>C-a</td><td>beginning of line</td></tr>
-<tr><td>C-e</td><td>end of line</td></tr>
-<tr><td>C-f</td><td>Forward a column</td></tr>
-<tr><td>C-b</td><td>backward a column</td></tr>
-<tr><td>C-n</td><td>Forward a line</td></tr>
-<tr><td>C-p</td><td>backward a line</td></tr>
-<tr><td>C-v</td><td>Page down</td></tr>
-<tr><td>M-v</td><td>Page up</td></tr>
-<tr><td>M-&lt;</td><td>Beginning of document</td></tr>
-<tr><td>M-&gt;</td><td>End of document</td></tr>
-<tr><td>C-s</td><td>Open i-search forward</td></tr>
-<tr><td>C-r</td><td>Open i-search backward</td></tr>
-</table>
+    <h3>Movement</h3>
+    <table>
+      <tr><td><span class="key">C-a</span></td><td>beginning of line</td></tr>
+      <tr><td><span class="key">C-e</span></td><td>end of line</td></tr>
+      <tr><td><span class="key">C-f</span></td><td>Forward a column</td></tr>
+      <tr><td><span class="key">C-b</span></td><td>backward a column</td></tr>
+      <tr><td><span class="key">C-n</span></td><td>Forward a line</td></tr>
+      <tr><td><span class="key">C-p</span></td><td>backward a line</td></tr>
+      <tr><td><span class="key">C-v</span></td><td>Page down</td></tr>
+      <tr><td><span class="key">M-v</span></td><td>Page up</td></tr>
+      <tr><td><span class="key">M-&lt;</span></td><td>Beginning of document</td></tr>
+      <tr><td><span class="key">M-&gt;</span></td><td>End of document</td></tr>
+      <tr><td><span class="key">C-s</span></td><td>Open i-search forward</td></tr>
+      <tr><td><span class="key">C-r</span></td><td>Open i-search backward</td></tr>
+    </table>
 
-<h3>I-Search</h3>
-<table border="1">
-<tr><td>C-s</td><td>search forward</td></tr>
-<tr><td>C-r</td><td>search backward</td></tr>
-<tr><td>C-g</td><td>quit i-search (jump back to where i-search started)</td></tr>
-<tr><td>backspace</td><td>undo search</td></tr>
-<tr><td>any modifier plus a key, enter or tab</td><td>close i-search</td></tr>
-</table>
+    <h3>I-Search</h3>
+    <table>
+      <tr><td><span class="key">C-s</span></td><td>Search forward</td></tr>
+      <tr><td><span class="key">C-r</span></td><td>Search backward</td></tr>
+      <tr><td><span class="key">C-g</span></td><td>Quit i-search (jump back to where i-search started)</td></tr>
+      <tr><td><span class="key">backspace</span></td><td>Undo search</td></tr>
+      <tr><td>any modifier plus a key, RET or TAB</td><td>Close i-search</td></tr>
+    </table>
 
+    <h3>Webjumps</h3>
+    <p>
+      Webjumps are similar to, but potentially more powerful than Firefox's
+      bookmark keywords.  You type a webjump name into the location prompt,
+      followed by one or more search terms.  Conkeror substitutes your search
+      terms into an url associated with the webjump.
+    </p>
 
-<h3>Webjumps</h3>
-<p>
-Webjumps are similar to, but potentially more powerful than Firefox's
-bookmark keywords.  You type a webjump name into the location prompt,
-followed by one or more search terms.  Conkeror substitutes your
-search terms into an url associated with the webjump.
-</p>
+    <p>
+      Conkeror has a few webjumps already, but you can find many more, and share
+      your own at <a href="http://conkeror.org/Webjumps">the
+      webjumps page of the conkeror wiki</a>.
+    </p>
 
-<p>
-Conkeror has a few webjumps already, but you can find many more, and
-share your own at <a href="http://conkeror.org/Webjumps">the webjumps
-page of the conkeror wiki</a>.
-</p>
+    <table>
+      <tr><td>google</td><td>Search with google</td></tr>
+      <tr><td>image</td><td>Search google images</td></tr>
+      <tr><td>wikipedia</td><td>Search wikipedia.org</td></tr>
+      <tr><td>slang</td><td>Search urbandictionary.com</td></tr>
+      <tr><td>dictionary</td><td>Search dictionary.reference.com</td></tr>
+      <tr><td>scholar</td><td>search google scholar</td></tr>
+      <tr><td>clusty</td><td>search the internet with clusty</td></tr>
+      <tr><td>xulplanet</td><td>search xulplanet.com</td></tr>
+      <tr><td>bugzilla</td><td>search the mozilla bug database</td></tr>
+      <tr><td>clhs</td><td>search the Common Lisp Hyper Spec</td></tr>
+      <tr><td>emacswiki</td><td>search the emacswiki</td></tr>
+      <tr><td>cliki</td><td>search the Common Lisp wiki</td></tr>
+      <tr><td>ratpoisonwiki</td><td>search the ratpoison wiki</td></tr>
+      <tr><td>stumpwmwiki</td><td>search the StumpWM wiki</td></tr>
+      <tr><td>savannah</td><td>search savannah.gnu.org</td></tr>
+      <tr><td>sourceforge</td><td>search sourceforge.net</td></tr>
+      <tr><td>freshmeat</td><td>search freshmeat.net</td></tr>
+      <tr><td>slashdot</td><td>search slashdot.com</td></tr>
+      <tr><td>kuro5hin</td><td>search kuro5hin.com</td></tr>
+      <tr><td>sheldonbrown</td><td>Search sheldonbrown.com</td></tr>
+    </table>
 
-<table border="1">
-<tr><td>google</td><td>Search with google</td></tr>
-<tr><td>image</td><td>Search google images</td></tr>
-<tr><td>wikipedia</td><td>Search wikipedia.org</td></tr>
-<tr><td>slang</td><td>Search urbandictionary.com</td></tr>
-<tr><td>dictionary</td><td>Search dictionary.reference.com</td></tr>
-<tr><td>scholar</td><td>search google scholar</td></tr>
-<tr><td>clusty</td><td>search the internet with clusty</td></tr>
-<tr><td>xulplanet</td><td>search xulplanet.com</td></tr>
-<tr><td>bugzilla</td><td>search the mozilla bug database</td></tr>
-<tr><td>clhs</td><td>search the Common Lisp Hyper Spec</td></tr>
-<tr><td>emacswiki</td><td>search the emacswiki</td></tr>
-<tr><td>cliki</td><td>search the Common Lisp wiki</td></tr>
-<tr><td>ratpoisonwiki</td><td>search the ratpoison wiki</td></tr>
-<tr><td>stumpwmwiki</td><td>search the StumpWM wiki</td></tr>
-<tr><td>savannah</td><td>search savannah.gnu.org</td></tr>
-<tr><td>sourceforge</td><td>search sourceforge.net</td></tr>
-<tr><td>freshmeat</td><td>search freshmeat.net</td></tr>
-<tr><td>slashdot</td><td>search slashdot.com</td></tr>
-<tr><td>kuro5hin</td><td>search kuro5hin.com</td></tr>
-<tr><td>sheldonbrown</td><td>Search sheldonbrown.com</td></tr>
-</table>
+    <p>
+      delicious webjumps can be added by putting the following in your rc file:
+    </p>
 
-<p>
-  delicious webjumps can be added by putting the following in your rc file:
-</p>
+    <pre>add_delicious_webjumps ("myusername");</pre>
 
-<pre>
-add_delicious_webjumps ("myusername");
-</pre>
+    <p>
+      this will create the following webjumps:
+    </p>
 
-<p>
-  this will create the following webjumps:
-</p>
+    <table>
+      <tr><td>adelicious</td><td>Add a delicious bookmark.</td></tr>
+      <tr><td>delicious</td><td>View your delicious bookmarks</td></tr>
+      <tr><td>sdelicious</td><td>Search your delicious bookmarks</td></tr>
+      <tr><td>sadelicious</td><td>Search all delicious bookmarks</td></tr>
+    </table>
 
-<table border="1">
-<tr><td>adelicious</td><td>Add a delicious bookmark.</td></tr>
-<tr><td>delicious</td><td>View your delicious bookmarks</td></tr>
-<tr><td>sdelicious</td><td>Search your delicious bookmarks</td></tr>
-<tr><td>sadelicious</td><td>Search all delicious bookmarks</td></tr>
-</table>
+    <p>
+      You can easily add your own custom webjumps as such:
+    </p>
 
+    <pre>define_webjump("reddit", "http://www.reddit.com/search?q=%s");</pre>
 
-<h3>Buffer Management</h3>
-<table border="1">
-<tr><td>C-u g</td><td>Open an URL in a new buffer</td></tr>
-<tr><td>C-x b</td><td>Select a buffer based on it's name.</td></tr>
-<tr><td>M-p</td><td>previous buffer</td></tr>
-<tr><td>M-n</td><td>Next bufer</td></tr>
-<tr><td>C-x k</td><td>kill buffer</td></tr>
-<tr><td>C-x 5 f, C-u C-u g</td><td>Open an URL in a new frame</td></tr>
-<tr><td>C-x 5 0</td><td>Close the current frame (all buffers in the
-frame are lost, at this point)</td></tr>
-<tr><td>C-x C-c</td><td>Quit conkeror</td></tr>
-</table>
+    <p>
+      The above will define the "reddit" webjump which
+      searches <a href="http://www.reddit.org">reddit</a>
+      threads. The "%s" in the URL will be replaced by the search term you enter
+      after the webjump name. I.e. entering "reddit haskell compiler" in the
+      minibuffer will redirect you to the search results for reddit threads
+      matching "haskell compiler" as a search string.
+    </p>
 
+    <p>
+      <span class="key">add_webjump</span> is an alias
+      for <span class="key">define_webjump</span>, but we encourage the use of
+      the latter.
+    </p>
 
-<h2>Universal Argument</h2>
+    <h3>Buffer Management</h3>
+    <table>
+      <tr><td><span class="key">C-u g</span></td><td>Open an URL in a new buffer</td></tr>
+      <tr><td><span class="key">C-x b</span></td><td>Select a buffer based on it's name.</td></tr>
+      <tr><td><span class="key">M-p</span></td><td>previous buffer</td></tr>
+      <tr><td><span class="key">M-n</span></td><td>Next bufer</td></tr>
+      <tr><td><span class="key">C-x k</span></td><td>kill buffer</td></tr>
+      <tr><td><span class="key">C-x 5 f</span> or <span class="key">C-u C-u g</span></td><td>Open an URL in a new frame</td></tr>
+      <tr><td><span class="key">C-x 5 0</span></td><td>Close the current frame (all buffers in the frame
+          are lost, at this point)</td></tr>
+      <tr><td><span class="key">C-x C-c</span></td><td>Quit conkeror</td></tr>
+    </table>
 
-<p>
-  Conkeror support the universal argument, C-u. It's a prefix binding
-  that changes how a command behaves. In Conkeror, C-u has two main
-  effects. The first effect is that the command will be executed
-  multiple times. For example, typing the following:
-</p>
-<pre>
-C-u C-n
-</pre>
-<p>
-  will cause conkeror to scroll down 4 lines.
-</p>
-<pre>
-C-u 12 C-n
-</pre>
-<p>
-  will cause conkeror to scroll down 12 lines.
-</p>
+    <hr />
 
-<p>
-  The second effect is to open in a new buffer or a new window.
-</p>
-<pre>
-C-u g conkeror.org RET
-</pre>
-<p>
-  This opens the conkeror project web page in a new buffer.
-</p>
-<pre>
-C-u C-u n 12 RET
-</pre>
-<p>
-  This opens link number 12 in a new window.
-</p>
+    <h2>Universal Argument</h2>
 
-<p>
-  There are some commands where the effect is ambiguous. Does
-  <code>C-u B</code> go back four pages in the history or does it go
-  back one and open the result in a new buffer? I am working on adding
-  a second universal argument that would allow you to do both.
-</p>
+    <p>
+      Conkeror support the universal
+      argument, <span class="key">C-u</span>. It's a prefix binding that changes
+      how a command behaves. In Conkeror, <span class="key">C-u</span> has two
+      main effects. The first effect is that the command will be executed
+      multiple times. For example, typing <span class="key">C-u C-n</span> will
+      cause conkeror to scroll down 4 lines. <span class="key">C-u 12 C-n</span>
+      will cause conkeror to scroll down 12 lines.  The second effect is to open
+      in a new buffer or a new window. <span class="key">C-u g conkeror.org
+      RET</span> This opens the conkeror project web page in a new
+      buffer. <span class="key">C-u C-u n 12 RET</span> will open link no. 12 in
+      a new window.
+    </p>
 
-<h2>toggle-eod-space</h2>
+    <p>
+      There are some commands where the effect is ambiguous. Does
+      <code>C-u B</code> go back four pages in the history or does it go back
+      one and open the result in a new buffer? We are working on adding a second
+      universal argument that would allow you to do both.
+    </p>
 
-<p>
-  <code>toggle-eod-space</code> is a slightly ugly hack that should
-  help you read articles more smoothly. Imagine you're reading an
-  article. You start reading the beginning. Your eyes get to the
-  bottom of the screen, so you press Space to page down. You continue
-  until near the end of the article. You press Space to read the last
-  part and your browser only scrolls down part of a page, leaving
-  where you left off somwhere in the middle of the screen and not at
-  the top where you expected it. You spend the next couple seconds
-  searching for where you left off. <code>toggle-eod-space</code> adds
-  1 page of blank space to the end of the web page, so your last page
-  down is a full one. Note, <code>toggle-eod-space</code> turns the
-  feature on (or off) but the space won't be added to (or removed
-  from) the current page. It affects the subsequently loaded pages.
-</p>
+    <hr />
 
+    <h2>toggle-eod-space</h2>
 
-<h2>Conkeror Resources</h2>
-<ul>
-<li><a href="http://conkeror.org">Conkeror homepage</a></li>
-</ul>
+    <p>
+      <code>toggle-eod-space</code> is a slightly ugly hack that should help you
+      read articles more smoothly. Imagine you're reading an article. You start
+      reading the beginning. Your eyes get to the bottom of the screen, so you
+      press Space to page down. You continue until near the end of the
+      article. You press Space to read the last part and your browser only
+      scrolls down part of a page, leaving where you left off somwhere in the
+      middle of the screen and not at the top where you expected it. You spend
+      the next couple seconds searching for where you left
+      off. <code>toggle-eod-space</code> adds 1 page of blank space to the end
+      of the web page, so your last page down is a full
+      one. Note, <code>toggle-eod-space</code> turns the feature on (or off) but
+      the space won't be added to (or removed from) the current page. It affects
+      the subsequently loaded pages.
+    </p>
 
-</body>
+    <hr />
+
+    <h2>Conkeror Resources</h2>
+
+    <ul>
+      <li><a href="http://conkeror.org">Conkeror homepage</a></li>
+    </ul>
+
+  </body>
 </html>

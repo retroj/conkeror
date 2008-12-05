@@ -1,0 +1,54 @@
+* {
+    font: 14px sans-serif;
+    color: black;
+}
+
+body {
+    background: #eee;
+    padding: 20px;
+}
+
+h1, h2, h3 {
+    margin-bottom: 5px;
+}
+
+h1 {
+    font-size: 250%;
+}
+
+h2 {
+    font-size: 180%
+}
+
+h3 {
+    font-size: 150%;
+}
+
+hr {
+    border: 1px solid #888;
+    margin: 20px 0 20px 0;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 2px;
+    border: 1px solid #888;
+}
+
+pre, .key {
+    background: #ccc;
+    font-family: "Courier New", Courier, monospace;
+}
+
+pre {
+    margin: 5px;
+    padding: 5px;
+}
+
+.key {
+    padding-left: 2px;
+    padding-right: 2px;
+}
