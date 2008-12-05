@@ -54,21 +54,21 @@ var add_webjump = define_webjump;
 
 function add_delicious_webjumps (username)
 {
-    add_webjump("delicious", "http://del.icio.us/" + username);
-    add_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
-    add_webjump("sdelicious", "http://delicious.com/search?p=%s&u=" + username + "&chk=&context=userposts&fr=del_icio_us&lc=1");
-    add_webjump("sadelicious", "http://del.icio.us/search/all?search=%s");
+    define_webjump("delicious", "http://del.icio.us/" + username);
+    define_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
+    define_webjump("sdelicious", "http://delicious.com/search?p=%s&u=" + username + "&chk=&context=userposts&fr=del_icio_us&lc=1");
+    define_webjump("sadelicious", "http://del.icio.us/search/all?search=%s");
 }
 
 function add_lastfm_webjumps(username)
 {
-    add_webjump("lastfm", "http://www.last.fm/user/" + (username ? username : ""));
-    add_webjump("lastfm-user", "http://www.last.fm/user/%s");
-    add_webjump("lastfm-music", "http://www.last.fm/search?m=all&q=%s");
-    add_webjump("lastfm-group", "http://www.last.fm/users/groups?s_bio=%s");
-    add_webjump("lastfm-tag", "http://www.last.fm/search?m=tag&q=%s");
-    add_webjump("lastfm-label", "http://www.last.fm/search?m=label&q=%s");
-    add_webjump("lastfm-event", "http://www.last.fm/events?by=artists&q=%s");
+    define_webjump("lastfm", "http://www.last.fm/user/" + (username ? username : ""));
+    define_webjump("lastfm-user", "http://www.last.fm/user/%s");
+    define_webjump("lastfm-music", "http://www.last.fm/search?m=all&q=%s");
+    define_webjump("lastfm-group", "http://www.last.fm/users/groups?s_bio=%s");
+    define_webjump("lastfm-tag", "http://www.last.fm/search?m=tag&q=%s");
+    define_webjump("lastfm-label", "http://www.last.fm/search?m=label&q=%s");
+    define_webjump("lastfm-event", "http://www.last.fm/events?by=artists&q=%s");
 }
 
 function clear_webjumps()
@@ -79,34 +79,34 @@ function clear_webjumps()
 // Some built in web jumps
 function define_default_webjumps()
 {
-    add_webjump("conkerorwiki",
+    define_webjump("conkerorwiki",
                 "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
-    add_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
-    add_webjump("maps",       "http://maps.google.com/?q=%s");
-    add_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
-    add_webjump("clusty",     "http://www.clusty.com/search?query=%s");
-    add_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
-    add_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
-    add_webjump("xulplanet",  ["http://www.google.com/custom?q=%s&cof=S%3A"+
-                "http%3A%2F%2Fwww.xulplanet.com%3BAH%3Aleft%3BLH%3A65%3BLC"+
-                "%3A4682B4%3BL%3Ahttp%3A%2F%2Fwww.xulplanet.com%2Fimages%2F"+
-                "xulplanet.png%3BALC%3Ablue%3BLW%3A215%3BAWFID%3A0979f384d5"+
-                "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go",
-                "http://xulplanet.com"]);
-    add_webjump("image",      "http://images.google.com/images?q=%s");
-    add_webjump("imdb",       "http://www.imdb.com/find?s=all&q=%s&x=0&y=0");
-    add_webjump("clhs",       ["http://www.xach.com/clhs?q=%s", "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm"]);
-    add_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
-    add_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
-    add_webjump("ratpoisonwiki", "http://ratpoison.antidesktop.net/?search=%s");
-    add_webjump("stumpwmwiki", "http://stumpwm.antidesktop.net/wiki?search=%s");
-    add_webjump("savannah", "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
-    add_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
-    add_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
-    add_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
-    add_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
-    add_webjump("sheldonbrown",     "http://www.google.com/search?q=site:sheldonbrown.com %s");
-    add_webjump("youtube", "http://www.youtube.com/results?search_query=%s&search=Search");
+    define_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
+    define_webjump("maps",       "http://maps.google.com/?q=%s");
+    define_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
+    define_webjump("clusty",     "http://www.clusty.com/search?query=%s");
+    define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
+    define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
+    define_webjump("xulplanet",  ["http://www.google.com/custom?q=%s&cof=S%3A"+
+				  "http%3A%2F%2Fwww.xulplanet.com%3BAH%3Aleft%3BLH%3A65%3BLC"+
+				  "%3A4682B4%3BL%3Ahttp%3A%2F%2Fwww.xulplanet.com%2Fimages%2F"+
+				  "xulplanet.png%3BALC%3Ablue%3BLW%3A215%3BAWFID%3A0979f384d5"+
+				  "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go",
+				  "http://xulplanet.com"]);
+    define_webjump("image",      "http://images.google.com/images?q=%s");
+    define_webjump("imdb",       "http://www.imdb.com/find?s=all&q=%s&x=0&y=0");
+    define_webjump("clhs",       ["http://www.xach.com/clhs?q=%s", "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm"]);
+    define_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
+    define_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
+    define_webjump("ratpoisonwiki", "http://ratpoison.antidesktop.net/?search=%s");
+    define_webjump("stumpwmwiki", "http://stumpwm.antidesktop.net/wiki?search=%s");
+    define_webjump("savannah", "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
+    define_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
+    define_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
+    define_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
+    define_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
+    define_webjump("sheldonbrown",     "http://www.google.com/search?q=site:sheldonbrown.com %s");
+    define_webjump("youtube", "http://www.youtube.com/results?search_query=%s&search=Search");
 }
 
 function match_webjump(str) {
