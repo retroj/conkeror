@@ -23,7 +23,7 @@ function dump_obj_r(obj, name, indent, depth) {
                 child = "<Unable to Evaluate>";
             }
             if (typeof child == "object") {
-                output += dump_obj(child, item, indent, depth + 1);
+                output += dump_obj_r(child, item, indent, depth + 1);
             } else {
                 output += indent + item + ": " + child + "\n";
             }
