@@ -215,11 +215,7 @@ define_page_mode("chan_mode", "4chan mode",
                      buffer.local_variables.content_buffer_normal_keymap = chan_keymap;
                      buffer.local_variables.content_buffer_textarea_keymap = chan_keymap_textarea;
                      buffer.local_variables.content_buffer_text_keymap = chan_keymap_text;
-		     if(buffer.browser.webProgress.isLoadingDocument) {
-			 add_hook.call(buffer, "buffer_dom_content_loaded_hook", chanmaster);
-		     } else {
-			 chanmaster(buffer);
-		     }
+                     add_hook.call(buffer, "buffer_dom_content_loaded_hook", chanmaster);
 		 },
 		 $disable = function (buffer) {
 		     remove_hook.call(buffer, "buffer_dom_content_loaded_hook", chanmaster);
