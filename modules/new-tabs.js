@@ -1,6 +1,8 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
  * (C) Copyright 2008 Deniz Dogan
+ * (C) Copyright 2008 Nicholas A. Zigarovich
+ * (C) Copyright 2008 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -11,6 +13,59 @@
  **/
 
 require("mode.js");
+
+define_variable("tab_bar_button_select", 1,
+                "which mouse button should select tabs. " +
+                "0 = left, 1 = middle, 2 = right, null = disabled. " +
+                "Default is 1.");
+
+define_variable("tab_bar_button_close", 2,
+                "Which mouse button should close tabs. " +
+                "0 = left, 1 = middle, 2 = right, null = disabled. " +
+                "Default is 2.");
+
+var TAB_BAR_STYLE_DEFAULT = "data:text/css," +
+    escape (
+        "#tab2-bar {"+
+        "    background: #ccc;"+
+        "}"+
+
+        "#tab2-bar .tab2 {"+
+        "    margin: 2px 0 0;"+
+        "    padding: 0;"+
+        "    height: 19px;"+
+        "    border: 1px solid #ccc;"+
+        "    min-width: 200px;"+
+        "    max-width: 300px;"+
+        "    margin-left: 2px;"+
+        "    background: #eee;"+
+        "    overflow: hidden;"+ // Chops the end of labels
+        "}"+
+
+        "#tab2-bar .tab2-label {"+
+        "    margin: 0;"+
+        "    color: #000;"+
+        "    font: 11px Tahoma;"+
+        "}"+
+
+        "#tab2-bar .tab2-icon {"+
+        "    height: 16px;"+
+        "    width: 16px;"+
+        "    background: #222;"+
+        "    color: white;"+
+        "    border: 1px solid white;"+
+        "    font: 900 11px Tahoma;"+
+        "    text-align: center;"+
+        "}"+
+
+        // Selected stuff
+        "#tab2-bar .tab2[selected=true] {"+
+        "   border: 1px solid black;"+
+        "}"+
+
+        "#tab2-bar .tab2[selected=true] .tab2-label {"+
+        "}"
+    );
 
 function tab_bar(window) {
     window.tab_bar = this;
@@ -65,8 +120,10 @@ function tab_bar_add_buffer(buffer) {
     var tab = create_XUL(buffer.window, "hbox");
     tab.setAttribute("class", "tab2");
     tab.addEventListener("click", function () {
-            if (!buffer.dead)
-                buffer.window.buffers.current = buffer;
+            if (event.button == tab_bar_button_select) {
+                if (!buffer.dead)
+                    buffer.window.buffers.current = buffer;
+            }
         }, false /* not capturing */);
     tab.setAttribute("selected", "false");
 
@@ -83,7 +140,7 @@ function tab_bar_add_buffer(buffer) {
 
     // No close button, just use right-click
     tab.addEventListener("click", function (event) {
-	    if (event.button == 2) { // Right mouse button
+	    if (event.button == tab_bar_button_close) {
 		kill_buffer(buffer);
 		event.stopPropagation();
 	    }
@@ -136,6 +193,20 @@ function tab_bar_update_buffer_title(b) {
     b.tab.tab_label.setAttribute("value", title);
 }
 
+{
+    let _tab_bar_style_last = null;
+
+    function tab_bar_style_apply(style) {
+        if (_tab_bar_style_last)
+            unregister_user_stylesheet(_tab_bar_style_last);
+        _tab_bar_style_last = null;
+        if (style) {
+            register_user_stylesheet(style);
+            _tab_bar_style_last = style;
+        }
+    }
+}
+
 function tab_bar_install(window) {
     if (window.tab_bar)
         throw new Error("tab bar already initialized for window");
@@ -159,4 +230,5 @@ define_global_mode("tab_bar_mode",
                        for_each_window(tab_bar_uninstall);
                    });
 
+tab_bar_style_apply(TAB_BAR_STYLE_DEFAULT);
 tab_bar_mode(true);
