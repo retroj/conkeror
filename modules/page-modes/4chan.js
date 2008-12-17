@@ -8,10 +8,14 @@
 
 require("content-buffer.js");
 require("bindings/default/content-buffer/normal.js");
+require("bindings/default/content-buffer/text.js");
+require("bindings/default/content-buffer/textarea.js");
 
 
 // Define the keymap to use.
-define_keymap("chan_keymap", $parent = content_buffer_normal_keymap);
+define_keymap("chan_keymap",           $parent = content_buffer_normal_keymap);
+define_keymap("chan_keymap_textarea",  $parent = content_buffer_textarea_keymap);
+define_keymap("chan_keymap_text",      $parent = content_buffer_text_keymap);
 
 
 /**
@@ -122,11 +126,15 @@ interactive("chan-next-thread", "Scrolls the buffer to the next thread.", chan_n
 
 function chanmaster(buffer) {
 
-    define_key(chan_keymap, "C-c C-c", "chan-post-reply");
-    define_key(chan_keymap, "C-c C-i", "chan-add-image");
-    define_key(chan_keymap, "C-c C-n", "chan-next-thread");
-    define_key(chan_keymap, "C-c C-p", "chan-previous-thread");
-    define_key(chan_keymap, "C-c C-r", "chan-make-reply");
+    // Define the same keys for all keymaps.
+    var maps = [chan_keymap, chan_keymap_text, chan_keymap_textarea];
+    for (i in maps) {
+        define_key(maps[i], "C-c C-c", "chan-post-reply");
+        define_key(maps[i], "C-c C-i", "chan-add-image");
+        define_key(maps[i], "C-c C-n", "chan-next-thread");
+        define_key(maps[i], "C-c C-p", "chan-previous-thread");
+        define_key(maps[i], "C-c C-r", "chan-make-reply");
+    }
 
     var doc = buffer.document;
     var xpr = doc.evaluate("//img[@md5]", doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
@@ -205,6 +213,8 @@ function dechanmaster(buffer) {
 define_page_mode("chan_mode", "4chan mode",
 		 $enable = function (buffer) {
                      buffer.local_variables.content_buffer_normal_keymap = chan_keymap;
+                     buffer.local_variables.content_buffer_textarea_keymap = chan_keymap_textarea;
+                     buffer.local_variables.content_buffer_text_keymap = chan_keymap_text;
 		     if(buffer.browser.webProgress.isLoadingDocument) {
 			 add_hook.call(buffer, "buffer_dom_content_loaded_hook", chanmaster);
 		     } else {
