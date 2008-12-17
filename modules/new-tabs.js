@@ -14,7 +14,7 @@
 
 require("mode.js");
 
-define_variable("tab_bar_button_select", 1,
+define_variable("tab_bar_button_select", 0,
                 "which mouse button should select tabs. " +
                 "0 = left, 1 = middle, 2 = right, null = disabled. " +
                 "Default is 1.");
@@ -119,7 +119,7 @@ function tab_bar_add_buffer(buffer) {
     // Create a tab and add it to the tab bar
     var tab = create_XUL(buffer.window, "hbox");
     tab.setAttribute("class", "tab2");
-    tab.addEventListener("click", function () {
+    tab.addEventListener("click", function (event) {
             if (event.button == tab_bar_button_select) {
                 if (!buffer.dead)
                     buffer.window.buffers.current = buffer;
