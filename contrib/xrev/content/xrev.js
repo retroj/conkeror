@@ -28,39 +28,59 @@ function str_pad (chr, len) {
 String.prototype.pad = str_pad;
 
 
-
 function key_event_handler (event) {
-    dumpln([event[k].toString().pad(' ',11)
-            for each (k in key_event_props)].join(''));
     var table = document.getElementById('event-table');
     var row = document.createElementNS(XULNS,"listitem");
-    var cap;
-    var k;
-    for each (k in key_event_props) {
-        cap = document.createElementNS(XULNS,"listcell");
-        cap.setAttribute("label", event[k]);
+
+    function addcell (text) {
+        var cap = document.createElementNS(XULNS,"listcell");
+        cap.setAttribute("label", text);
         row.appendChild(cap);
     }
+
+    var k;
+    for each (k in key_event_props) { addcell(event[k]); }
+    var combo = '';
+    if (event.type == 'keypress' &&
+        event.charCode)
+    {
+        if (event.ctrlKey) combo += 'C-';
+        if (event.metaKey || event.altKey) combo += 'M-';
+        combo += String.fromCharCode(event.charCode);
+    }
+    addcell(combo);
     table.appendChild(row);
     table.ensureElementIsVisible(row);
+    // text output
+    dump([event[k].toString().pad(' ',11)
+          for each (k in key_event_props)].join(''));
+    dumpln(combo);
 }
 
 
 function onload_handler () {
-    dumpln([k.pad(' ',11) for each (k in key_event_props)].join(''));
+    var headings = key_event_props.concat("combo");
     var table = document.getElementById('event-table');
     var head = document.createElementNS(XULNS,"listhead");
     var coldef = document.createElementNS(XULNS,"listcols");
-    var t, u;
-    for each (k in key_event_props) {
+
+    function addcol (name) {
+        var t,u;
         t = document.createElementNS(XULNS,"listheader");
-        t.setAttribute("label", k);
+        t.setAttribute("label", name);
         u = document.createElementNS(XULNS,"listcol");
         u.setAttribute("flex", "1");
         head.appendChild(t);
         coldef.appendChild(u);
     }
+
+    var t, u;
+    for each (k in headings) {
+        addcol(k);
+    }
     table.appendChild(head);
     table.appendChild(coldef);
+    // text output
+    dumpln([k.pad(' ',11) for each (k in headings)].join(''));
 }
 
