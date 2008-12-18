@@ -4,7 +4,7 @@
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
    id="main"
    title="Xulrunner Event Viewer"
-   width="300"
+   width="400"
    height="300"
    onkeydown="key_event_handler(event);"
    onkeypress="key_event_handler(event);"
