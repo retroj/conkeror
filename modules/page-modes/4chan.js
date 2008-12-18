@@ -25,7 +25,6 @@ function chan_make_reply(I) {
     var doc = I.buffer.document;
     var name = doc.getElementsByClassName("inputtext");
     if (name.length > 0) {
-	name[0].scrollIntoView(true);
 	name[0].focus();
     }
 }
