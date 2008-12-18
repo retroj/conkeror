@@ -31,13 +31,12 @@ var TAB_BAR_STYLE_DEFAULT = "data:text/css," +
         "}"+
 
         "#tab2-bar .tab2 {"+
-        "    margin: 2px 0 0;"+
+        "    margin: 2px 0 0 2px;"+
         "    padding: 0;"+
         "    height: 19px;"+
         "    border: 1px solid #ccc;"+
         "    min-width: 200px;"+
         "    max-width: 300px;"+
-        "    margin-left: 2px;"+
         "    background: #eee;"+
         "    overflow: hidden;"+ // Chops the end of labels
         "}"+
