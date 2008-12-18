@@ -7,8 +7,13 @@
 
 require("content-buffer.js");
 
+define_variable(
+    'xkcd_add_title', false,
+    "When true, xkcd-mode will insert the title caption of the comic "+
+    "into the page, below the comic.");
+
 /* Add the XKCD <img> title text below the image in the page */
-function xkcd_add_title(buffer) {
+function xkcd_do_add_title(buffer) {
     var document = buffer.document;
     // Find the <img> tag
     var img = document.evaluate(
@@ -36,10 +41,12 @@ function xkcd_add_title(buffer) {
 
 define_page_mode("xkcd_mode","XKCD",
     $enable = function (buffer) {
-        if(buffer.browser.webProgress.isLoadingDocument) {
-            add_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_add_title);
-        } else {
-            xkcd_add_title(buffer);
+        if (xkcd_add_title) {
+            if(buffer.browser.webProgress.isLoadingDocument) {
+                add_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_do_add_title);
+            } else {
+                xkcd_do_add_title(buffer);
+            }
         }
         buffer.local_variables.browser_relationship_patterns = {};
         buffer.local_variables.browser_relationship_patterns[RELATIONSHIP_NEXT] =
@@ -49,7 +56,7 @@ define_page_mode("xkcd_mode","XKCD",
     },
     // When we disable the mode, remove the <span>
     $disable = function(buffer) {
-        remove_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_add_title);
+        remove_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_do_add_title);
         var span = buffer.document.getElementById('conkeror:xkcd-title-text');
         if(span) {
             span.parentNode.removeChild(span);
