@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<window
+   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+   id="main"
+   title="Xulrunner Event Viewer"
+   width="300"
+   height="300"
+   onkeydown="key_event_handler(event);"
+   onkeypress="key_event_handler(event);"
+   onkeyup="key_event_handler(event);">
+
+<script src="xrev.js"/>
+
+<caption>
+Xulrunner Event Viewer is for inspecting keyboard events.
+</caption>
+
+</window>
