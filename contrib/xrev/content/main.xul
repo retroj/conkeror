@@ -4,16 +4,19 @@
    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
    id="main"
    title="Xulrunner Event Viewer"
-   width="400"
+   width="800"
    height="300"
    onkeydown="key_event_handler(event);"
    onkeypress="key_event_handler(event);"
-   onkeyup="key_event_handler(event);">
+   onkeyup="key_event_handler(event);"
+   onload="onload_handler();">
 
 <script src="xrev.js"/>
 
 <caption>
 Xulrunner Event Viewer is for inspecting keyboard events.
 </caption>
+
+<listbox id="event-table"/>
 
 </window>
