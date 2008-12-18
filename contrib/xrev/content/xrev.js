@@ -5,7 +5,29 @@
  * COPYING file.
 **/
 
-var XULNS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+// const KeyEvent = Components.interfaces.nsIDOMKeyEvent;
+
+/* Generate vk name table  */
+var keycode_to_vk_name = [];
+var vk_name_to_keycode = {};
+var name;
+var code;
+var prefix;
+{
+    prefix = "DOM_VK_";
+    for (i in KeyEvent)
+    {
+        /* Check if this is a key binding */
+        if (i.substr(0, prefix.length) == prefix)
+        {
+            name = i.substr(prefix.length).toLowerCase();
+            code = KeyEvent[i];
+            keycode_to_vk_name[code] = name;
+            vk_name_to_keycode[name] = code;
+        }
+    }
+}
 
 // key_event_props: what properties of keyboard events do we care about?
 var key_event_props = [
@@ -30,10 +52,10 @@ String.prototype.pad = str_pad;
 
 function key_event_handler (event) {
     var table = document.getElementById('event-table');
-    var row = document.createElementNS(XULNS,"listitem");
+    var row = document.createElementNS(XUL_NS,"listitem");
 
     function addcell (text) {
-        var cap = document.createElementNS(XULNS,"listcell");
+        var cap = document.createElementNS(XUL_NS,"listcell");
         cap.setAttribute("label", text);
         row.appendChild(cap);
     }
@@ -42,11 +64,16 @@ function key_event_handler (event) {
     for each (k in key_event_props) { addcell(event[k]); }
     var combo = '';
     if (event.type == 'keypress' &&
-        event.charCode)
+        (event.charCode || event.keyCode))
     {
         if (event.ctrlKey) combo += 'C-';
         if (event.metaKey || event.altKey) combo += 'M-';
-        combo += String.fromCharCode(event.charCode);
+        if (event.charCode) {
+            combo += String.fromCharCode(event.charCode);
+        } else if (event.keyCode) {
+            combo += keycode_to_vk_name[event.keyCode];
+        }
+
     }
     addcell(combo);
     table.appendChild(row);
@@ -61,14 +88,14 @@ function key_event_handler (event) {
 function onload_handler () {
     var headings = key_event_props.concat("combo");
     var table = document.getElementById('event-table');
-    var head = document.createElementNS(XULNS,"listhead");
-    var coldef = document.createElementNS(XULNS,"listcols");
+    var head = document.createElementNS(XUL_NS,"listhead");
+    var coldef = document.createElementNS(XUL_NS,"listcols");
 
     function addcol (name) {
         var t,u;
-        t = document.createElementNS(XULNS,"listheader");
+        t = document.createElementNS(XUL_NS,"listheader");
         t.setAttribute("label", name);
-        u = document.createElementNS(XULNS,"listcol");
+        u = document.createElementNS(XUL_NS,"listcol");
         u.setAttribute("flex", "1");
         head.appendChild(t);
         coldef.appendChild(u);
