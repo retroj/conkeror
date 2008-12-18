@@ -61,9 +61,6 @@ var TAB_BAR_STYLE_DEFAULT = "data:text/css," +
         // Selected stuff
         "#tab2-bar .tab2[selected=true] {"+
         "   border: 1px solid black;"+
-        "}"+
-
-        "#tab2-bar .tab2[selected=true] .tab2-label {"+
         "}"
     );
 
