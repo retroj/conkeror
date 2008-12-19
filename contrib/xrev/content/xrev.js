@@ -32,7 +32,7 @@ var prefix;
 // key_event_props: what properties of keyboard events do we care about?
 var key_event_props = [
     'type', 'charCode', 'keyCode', 'altKey',
-    'ctrlKey', 'shiftKey', 'metaKey', 'eventPhase',
+    'ctrlKey', 'shiftKey', 'metaKey',
     'isChar', 'which'];
 
 
