@@ -75,7 +75,11 @@ function key_event_handler (event) {
             combo += 'S-';
         }
         if (event.charCode) {
-            combo += String.fromCharCode(event.charCode);
+            if (event.charCode == 32) {
+                combo += 'space';
+            } else {
+                combo += String.fromCharCode(event.charCode);
+            }
         } else if (event.keyCode) {
             combo += keycode_to_vk_name[event.keyCode];
         }
