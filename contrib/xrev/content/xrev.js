@@ -68,6 +68,12 @@ function key_event_handler (event) {
     {
         if (event.ctrlKey) combo += 'C-';
         if (event.metaKey || event.altKey) combo += 'M-';
+        if (event.keyCode &&
+            event.charCode == 0 &&
+            event.shiftKey)
+        {
+            combo += 'S-';
+        }
         if (event.charCode) {
             combo += String.fromCharCode(event.charCode);
         } else if (event.keyCode) {
