@@ -13,6 +13,14 @@
 
 <script src="xrev.js"/>
 
+<keyset>
+  <!-- this suppresses an issue on OS X whereby some key combos
+       involving the Command key cause a beep, and other send
+       extra keypress events. (Cmd-., Cmd-=, Cmd-<, Cmd-b, etc)
+    -->
+  <key oncommand="return;"/>
+</keyset>
+
 <caption>
 Xulrunner Event Viewer is for inspecting keyboard events.
 </caption>
