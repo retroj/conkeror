@@ -1,5 +1,5 @@
 content conkeror-gui file:../content/
-content conkeror-modules file:../modules/
+content conkeror file:../modules/
 locale conkeror-gui en-US file:../locale/en-US/
 locale branding en-US file:../branding/
 override chrome://global/locale/netErrorApp.dtd chrome://conkeror-gui/locale/netError.dtd
