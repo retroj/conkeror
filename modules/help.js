@@ -133,7 +133,7 @@ help_document_generator.prototype = {
     },
 
     add_help_stylesheet : function () {
-        this.add_stylesheet("chrome://conkeror/content/help.css");
+        this.add_stylesheet("chrome://conkeror-gui/content/help.css");
     }
 };
 

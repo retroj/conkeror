@@ -5,7 +5,7 @@
  * COPYING file.
 **/
 
-pref("browser.chromeURL", "chrome://conkeror/content/conkeror.xul");
+pref("browser.chromeURL", "chrome://conkeror-gui/content/conkeror.xul");
 
 pref("accessibility.typeaheadfind",               false);
 

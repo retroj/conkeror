@@ -699,7 +699,7 @@ download_buffer.prototype = {
 
         d.body.setAttribute("class", "download-buffer");
 
-        g.add_stylesheet("chrome://conkeror/content/downloads.css");
+        g.add_stylesheet("chrome://conkeror-gui/content/downloads.css");
 
         var div;
         var label, value;

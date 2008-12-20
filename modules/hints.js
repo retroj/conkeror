@@ -16,7 +16,7 @@ define_variable("hint_background_color", "yellow", "Color for the inactive hint.
 /**
  * Register hints style sheet
  */
-const hints_stylesheet = "chrome://conkeror/content/hints.css";
+const hints_stylesheet = "chrome://conkeror-gui/content/hints.css";
 register_user_stylesheet(hints_stylesheet);
 
 /**

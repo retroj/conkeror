@@ -16,7 +16,7 @@ COPYING file.
     width="640" height="480"
     persist="screenX screenY width height sizemode">
 
-    <script type="application/javascript;version=1.8" src="chrome://conkeror/content/keyboard-setup.js"/>
+    <script type="application/javascript;version=1.8" src="chrome://conkeror-gui/content/keyboard-setup.js"/>
 
     <vbox flex="1">
       <description>

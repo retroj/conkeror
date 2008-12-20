@@ -135,7 +135,7 @@ application.prototype = {
     },
 
     version: "$CONKEROR_VERSION$", // preprocessor variable
-    homepage: "chrome://conkeror/content/help.html",
+    homepage: "chrome://conkeror-gui/content/help.html",
 
     /* nsISupports */
     QueryInterface: XPCOMUtils.generateQI([]),

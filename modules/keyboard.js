@@ -139,11 +139,11 @@ function load_charcode_mapping_table()
 load_charcode_mapping_table();
 
 interactive("keyboard-setup", null, function (I) {
-    make_chrome_window("chrome://conkeror/content/keyboard-setup.xul");
+    make_chrome_window("chrome://conkeror-gui/content/keyboard-setup.xul");
 });
 
 command_line_handler("keyboard-setup", true, function () {
-    make_chrome_window("chrome://conkeror/content/keyboard-setup.xul");
+    make_chrome_window("chrome://conkeror-gui/content/keyboard-setup.xul");
 });
 
 

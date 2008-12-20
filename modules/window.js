@@ -63,7 +63,7 @@ function make_chrome_window(chrome_URI, args)
                                      "chrome,dialog=no,all,resizable", args);
 }
 
-var conkeror_chrome_URI = "chrome://conkeror/content/conkeror.xul";
+var conkeror_chrome_URI = "chrome://conkeror-gui/content/conkeror.xul";
 
 function make_window(initial_buffer_creator, tag)
 {
