@@ -250,11 +250,11 @@ interactive ("reinit",
 
 interactive("help-page", "Open the Conkeror help page.",
             "find-url-new-buffer",
-            $browser_object = "chrome://conkeror-gui/content/help.html");
+            $browser_object = "chrome://conkeror-help/content/help.html");
 
 interactive("help-with-tutorial", "Open the Conkeror tutorial.",
             "find-url-new-buffer",
-            $browser_object = "chrome://conkeror-gui/content/tutorial.html");
+            $browser_object = "chrome://conkeror-help/content/tutorial.html");
 
 function univ_arg_to_number(prefix, default_value)
 {
