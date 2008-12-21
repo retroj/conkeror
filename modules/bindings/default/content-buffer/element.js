@@ -15,33 +15,33 @@ define_key(content_buffer_normal_keymap, "m", "browser-object-frames");
 define_key(content_buffer_normal_keymap, "e", "browser-object-media");
 
 
-define_key(content_buffer_normal_keymap, "S-8 e", "browser-object-media");
-define_key(content_buffer_normal_keymap, "S-8 i", "browser-object-images");
-define_key(content_buffer_normal_keymap, "S-8 n", "browser-object-links");
-define_key(content_buffer_normal_keymap, "S-8 m", "browser-object-frames");
-define_key(content_buffer_normal_keymap, "S-8 M", "browser-object-mathml");
-define_key(content_buffer_normal_keymap, "S-8 u", "browser-object-url");
-define_key(content_buffer_normal_keymap, "S-8 a", "browser-object-alt");
-define_key(content_buffer_normal_keymap, "S-8 t", "browser-object-title");
-define_key(content_buffer_normal_keymap, "S-8 T", "browser-object-title-or-alt");
+define_key(content_buffer_normal_keymap, "* e", "browser-object-media");
+define_key(content_buffer_normal_keymap, "* i", "browser-object-images");
+define_key(content_buffer_normal_keymap, "* n", "browser-object-links");
+define_key(content_buffer_normal_keymap, "* m", "browser-object-frames");
+define_key(content_buffer_normal_keymap, "* M", "browser-object-mathml");
+define_key(content_buffer_normal_keymap, "* u", "browser-object-url");
+define_key(content_buffer_normal_keymap, "* a", "browser-object-alt");
+define_key(content_buffer_normal_keymap, "* t", "browser-object-title");
+define_key(content_buffer_normal_keymap, "* T", "browser-object-title-or-alt");
 
 
-define_key(content_buffer_normal_keymap, "open_bracket",
+define_key(content_buffer_normal_keymap, "[",
            "browser-object-relationship-previous",
            $repeat = "follow");
-define_key(content_buffer_normal_keymap, "close_bracket",
+define_key(content_buffer_normal_keymap, "]",
            "browser-object-relationship-next",
            $repeat = "follow");
 
 
-define_key(content_buffer_normal_keymap, "f", "follow", $category = "Browser object");
-define_key(content_buffer_normal_keymap, ";", "focus", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "t", "follow-top", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "s", "save", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "c", "copy", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "back_slash", "view-source", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "x", "shell-command-on-file", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "X", "shell-command-on-url", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "b", "bookmark", $category = "Browser object");
-define_key(content_buffer_normal_keymap, "v", "view-as-mime-type", $category = "Browser object");
+define_key(content_buffer_normal_keymap, "f", "follow");
+define_key(content_buffer_normal_keymap, ";", "focus");
+define_key(content_buffer_normal_keymap, "t", "follow-top");
+define_key(content_buffer_normal_keymap, "s", "save");
+define_key(content_buffer_normal_keymap, "c", "copy");
+define_key(content_buffer_normal_keymap, "\\", "view-source");
+define_key(content_buffer_normal_keymap, "x", "shell-command-on-file");
+define_key(content_buffer_normal_keymap, "X", "shell-command-on-url");
+define_key(content_buffer_normal_keymap, "b", "bookmark");
+define_key(content_buffer_normal_keymap, "v", "view-as-mime-type");
 

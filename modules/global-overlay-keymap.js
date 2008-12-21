@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -10,7 +11,7 @@ require("keyboard.js");
 var global_overlay_keymap = new keymap();
 
 function global_overlay_keymap_handler(window, ctx, true_event) {
-    var binding = lookup_key_binding(global_overlay_keymap, ctx.event);
+    var binding = lookup_key_binding(global_overlay_keymap, ctx.combo, ctx.event);
     if (!binding)
         return false;
     if (!binding.fallthrough)
@@ -33,16 +34,17 @@ define_global_mode("global_overlay_keymap_mode",
                        remove_hook("key_press_hook", global_overlay_keymap_handler);
                    });
 
-function define_key_alias(typed_key, generated_key) {
-    typed_key = kbd(typed_key);
-    generated_key = kbd(generated_key);
-    var formatted = format_key_spec(generated_key[0]);
-    var name = "generate-key-event:" + formatted;
-    interactive(name,
-                "Generate a fake key press event for the key: " + formatted,
-                function (I) {
-                    send_key_as_event(I.window, I.buffer.focused_element, generated_key);
-                });
+function define_key_alias (typed_key, generated_key) {
+    var name = "generate-key-event:"+generated_key;
+    interactive(
+        name,
+        "Generate a fake key press event for the key: "+generated_key,
+        function (I) {
+            send_key_as_event(
+                I.window,
+                I.buffer.focused_element,
+                generated_key);
+        });
     define_key(global_overlay_keymap, typed_key, name);
     global_overlay_keymap_mode(true);
 }
@@ -50,7 +52,7 @@ ignore_function_for_get_caller_source_code_reference("define_key_alias");
 
 
 function define_sticky_modifier(typed_key, modifiers) {
-    typed_key = kbd(typed_key);
+    typed_key = typed_key;
     var mod_str = "";
     for (var i = 0; i < modifier_names.length; ++i)
     {

@@ -10,73 +10,15 @@
 require("window.js");
 require("command-line.js");
 
-function get_default_keycode_to_charcode_tables() {
-
-    const KeyEvent = Ci.nsIDOMKeyEvent;
-
-    var unshifted_table = [];
-    var shifted_table = [];
-    for (var i = 0; i < 26; ++i) {
-        var keycode = KeyEvent.DOM_VK_A + i;
-        var charcode = keycode; // keycodes A-Z are same as ascii
-        shifted_table[keycode] = charcode;
-
-        unshifted_table[keycode] = "a".charCodeAt(0) + i;
-    }
-
-    for (var i = 0; i <= 9; ++i) {
-        var keycode = KeyEvent.DOM_VK_0 + i;
-        var numpad_keycode = KeyEvent.DOM_VK_NUMPAD0 + i;
-        var charcode = keycode; // keycodes 0-9 are same as ascii
-        unshifted_table[keycode] = charcode;
-        unshifted_table[numpad_keycode] = charcode;
-    }
-
-    function map(table, keycode, str) {
-        table[keycode] = str.charCodeAt(0);
-    }
-
-    map(unshifted_table, KeyEvent.DOM_VK_BACK_SLASH, "\\");
-    map(unshifted_table, KeyEvent.DOM_VK_OPEN_BRACKET, "[");
-    map(unshifted_table, KeyEvent.DOM_VK_CLOSE_BRACKET, "]");
-    map(unshifted_table, KeyEvent.DOM_VK_SEMICOLON, ";");
-    map(unshifted_table, KeyEvent.DOM_VK_COMMA, ",");
-    map(unshifted_table, KeyEvent.DOM_VK_PERIOD, ".");
-    map(unshifted_table, KeyEvent.DOM_VK_SLASH, "/");
-    map(unshifted_table, KeyEvent.DOM_VK_SUBTRACT, "-");
-    map(unshifted_table, KeyEvent.DOM_VK_EQUALS, "=");
-
-    map(shifted_table, KeyEvent.DOM_VK_SEMICOLON, ":");
-    map(shifted_table, KeyEvent.DOM_VK_1, "!");
-    map(shifted_table, KeyEvent.DOM_VK_2, "@");
-    map(shifted_table, KeyEvent.DOM_VK_3, "#");
-    map(shifted_table, KeyEvent.DOM_VK_4, "$");
-    map(shifted_table, KeyEvent.DOM_VK_5, "%");
-    map(shifted_table, KeyEvent.DOM_VK_6, "^");
-    map(shifted_table, KeyEvent.DOM_VK_7, "&");
-    map(shifted_table, KeyEvent.DOM_VK_8, "*");
-    map(shifted_table, KeyEvent.DOM_VK_9, "(");
-    map(shifted_table, KeyEvent.DOM_VK_0, ")");
-    map(shifted_table, KeyEvent.DOM_VK_EQUALS, "+");
-    map(shifted_table, KeyEvent.DOM_VK_SUBTRACT, "_");
-    map(shifted_table, KeyEvent.DOM_VK_COMMA, "<");
-    map(shifted_table, KeyEvent.DOM_VK_PERIOD, ">");
-    map(shifted_table, KeyEvent.DOM_VK_SLASH, "?");
-
-    return [unshifted_table, shifted_table];
-}
-
 /* Generate vk name table  */
 var keycode_to_vk_name = [];
 var vk_name_to_keycode = {};
 {
     let KeyEvent = Ci.nsIDOMKeyEvent;
     let prefix = "DOM_VK_";
-    for (i in KeyEvent)
-    {
+    for (var i in KeyEvent) {
         /* Check if this is a key binding */
-        if (i.substr(0, prefix.length) == prefix)
-        {
+        if (i.substr(0, prefix.length) == prefix) {
             let name = i.substr(prefix.length).toLowerCase();
             let code = KeyEvent[i];
             keycode_to_vk_name[code] = name;
@@ -85,430 +27,42 @@ var vk_name_to_keycode = {};
     }
 }
 
-function get_charcode_mapping_table_from_preferences()
-{
-    var vals = conkeror.get_pref("conkeror.charCodeMappingTable");
-    if (!vals)
-        return null;
-    try {
-        return eval(vals);
-    } catch (e) {
-        return null;
-    }
-}
-
-var unshifted_keycode_to_charcode = null;
-var shifted_keycode_to_charcode = null;
-var charcode_to_keycodes = null;
-
-var keycode_to_name = null;
-var shifted_keycode_to_name = null;
-function load_charcode_mapping_table()
-{
-    var tables = get_charcode_mapping_table_from_preferences();
-    if (!tables)
-        tables = get_default_keycode_to_charcode_tables();
-    let [unshifted_table, shifted_table] = tables;
-    unshifted_keycode_to_charcode = unshifted_table;
-    shifted_keycode_to_charcode = shifted_table;
-    charcode_to_keycodes = [];
-    for each (let table in tables) {
-        var shifted = (table == tables[1]);
-        for (let x in table) {
-            let charcode = table[x];
-            if (charcode == null)
-                continue;
-            var obj = charcode_to_keycodes[charcode];
-            if (obj == null)
-                obj = charcode_to_keycodes[charcode] = [];
-            obj[obj.length] = [x, shifted];
-        }
-    }
-
-    keycode_to_name = keycode_to_vk_name.slice();
-    shifted_keycode_to_name = [];
-    for (let charcode in charcode_to_keycodes) {
-        let arr = charcode_to_keycodes[charcode];
-        if (arr.length != 1)
-            continue;
-        let [keycode, shift] = arr[0];
-        let table = shift ? shifted_keycode_to_name : keycode_to_name;
-        table[keycode] = String.fromCharCode(charcode);
-    }
-}
-load_charcode_mapping_table();
-
-interactive("keyboard-setup", null, function (I) {
-    make_chrome_window("chrome://conkeror-gui/content/keyboard-setup.xul");
-});
-
-command_line_handler("keyboard-setup", true, function () {
-    make_chrome_window("chrome://conkeror-gui/content/keyboard-setup.xul");
-});
-
-
 var abort_key = null;
 
-const MOD_CTRL = 0x1;
-const MOD_META = 0x2;
-const MOD_SHIFT = 0x4;
-
-// Note: For elements of the modifier_names array, an element at index
-// i should correspond to the modifier mask (1 << i).
-var modifier_names = ["C", "M", "S"];
-
-function format_key_press(code, modifiers)
-{
-    if (code == 0)
-        return "<invalid>";
-    var name;
-    if ((modifiers & MOD_SHIFT) && (name = shifted_keycode_to_name[code]))  {
-        modifiers &= ~MOD_SHIFT;
-    } else
-        name = keycode_to_name[code] || ("<" + code + ">");
-    var out = "";
-    if (modifiers)
-    {
-        for (var i = 0; i < modifier_names.length; ++i)
-        {
-            if (modifiers & (1 << i))
-                out = out + modifier_names[i] + "-";
-        }
-    }
-    out = out + name;
-    return out;
+var modifiers = {
+    A: [function (event) { return event.altKey; },
+        function (event) { event.altKey = true; }],
+    C: [function (event) { return event.ctrlKey; },
+        function (event) { event.ctrlKey = true; }],
+    M: [function (event) { return event.metaKey; },
+        function (event) { event.metaKey = true; }],
+    S: [function (event) {
+            return (event.keyCode &&
+                    event.charCode == 0 &&
+                    event.shiftKey);
+        },
+        function (event) { event.shiftKey = true; }]
+};
+// check the platform and guess whether we should treat Alt as Meta
+if (get_os() != 'Darwin') {
+    modifiers.M = modifiers.A;
 }
-
-function format_key_spec(key) {
-    if (key.match_function) {
-        if (key.match_function == match_any_key)
-            return "<any-key>";
-        if (key.match_function == match_any_unmodified_key)
-            return "<any-unmodified-key>";
-        return "<match-function>";
-    }
-    return format_key_press(key.keyCode, key.modifiers);
-}
-
-function format_key_event(event)
-{
-    return format_key_press(event.keyCode, get_modifiers(event));
-}
-
-function format_binding_sequence(seq) {
-    return seq.map(function (x) {
-            return format_key_spec(x.key);
-        }).join(" ");
-}
-
-// Key Matching Functions.  These are functions that may be passed to kbd
-// in place of key code or char code.  They take an event object as their
-// argument and turn true if the event matches the class of keys that they
-// represent.
-//
-function match_any_key (event)
-{
-    return true;
-}
-
-function meta_pressed (event)
-{
-    return event.altKey || event.metaKey;
-}
-
-function get_modifiers(event)
-{
-    // Shift is always included in the modifiers, if it is included in
-    // the event.
-    return (event.ctrlKey ? MOD_CTRL:0) |
-        (meta_pressed(event) ? MOD_META:0) |
-        (event.shiftKey ? MOD_SHIFT: 0) |
-        event.sticky_modifiers;
-}
-
-/* This function is no longer used for normal keymap lookups.  It is
- * only used to check if the current key matches the abort key. */
-function match_binding(key, event)
-{
-    return (key.keyCode
-            && event.keyCode == key.keyCode
-            && get_modifiers(event) == key.modifiers)
-        || (key.match_function && key.match_function (event));
-}
-
-function lookup_key_binding(kmap, event)
-{
-    do {
-        // Check if the key matches the keycode table
-        var mods = get_modifiers(event);
-        var keycode_binds = kmap.keycode_bindings;
-        var arr;;
-        var bind;
-        if ((arr = keycode_binds[event.keyCode]) != null &&
-            (bind = arr[mods]) != null)
-            return bind;
-
-        // Check if the key matches a predicate
-        var pred_binds = kmap.predicate_bindings;
-        for (var i = 0; i < pred_binds.length; ++i)
-        {
-            var bind = pred_binds[i];
-            if (bind.key.match_function(event))
-                return bind;
-        }
-        kmap = kmap.parent;
-    } while (kmap);
-    return null;
-}
-
-function match_any_unmodified_key (event)
-{
-    try {
-        return event.charCode
-            && !meta_pressed(event)
-            && !event.ctrlKey
-            && !event.sticky_modifiers;
-    } catch (e) {return false; }
-}
-
-function kbd (spec, mods)
-{
-    if (spec.is_kbd)
-        return spec;
-
-    var results = [];
-    results.is_kbd = true;
-
-    if (typeof spec == "function")
-        results[0] = {match_function: spec};
-
-    else if (typeof spec == "string")
-    {
-        /* Attempt to parse a key specification.  In order to allow
-         * the user to specify the "-" key literally, special case the
-         * parsing of that. */
-        var parts;
-        if (spec.substr(spec.length - 1) == "-")
-        {
-            parts = spec.substr(0, spec.length - 1).split("-");
-            parts.push("-");
-        } else
-            parts = spec.split("-");
-        var parsed_modifiers = 0;
-        if (parts.length > 1)
-        {
-            // Attempt to parse modifiers
-            for (var i = 0; i < parts.length - 1; ++i)
-            {
-                var k = modifier_names.indexOf(parts[i]);
-                if (k < 0)
-                    continue;
-                var mod = 1 << k;
-                parsed_modifiers |= mod;
-            }
-        }
-        // Attempt to lookup keycode
-        var name = parts[parts.length - 1];
-
-        if (mods)
-            parsed_modifiers |= mods;
-
-        if (name.length == 1) {
-            // Charcode, handle specially
-
-            var codes = charcode_to_keycodes[name.charCodeAt(0)];
-            if (!codes)
-                throw "Invalid key specification: " + spec;
-
-            for each (let [keycode, shift] in codes) {
-                results[results.length] = {keyCode: keycode, modifiers: parsed_modifiers | (shift ? MOD_SHIFT : 0)};
-            }
-        } else {
-            var code = vk_name_to_keycode[name];
-            if (code == null)
-                throw "Invalid key specification: " + spec;
-            results[0] = {keyCode: code, modifiers: parsed_modifiers};
-        }
-    }
-    else {
-        results[0] = {keyCode: spec, modifiers: ((mods != null)? mods : 0)};
-    }
-    return results;
-}
+var modifier_order = ['C', 'M', 'S'];
 
 
-define_keywords("$fallthrough", "$category", "$repeat");
-function define_key_internal(ref, kmap, keys, new_command, new_keymap)
-{
-    keywords(arguments);
-
-    var args = arguments;
-
-    var parent_kmap = kmap.parent;
-
-outer:
-    for (var i = 0; i < keys.length; ++i) {
-        var key = keys[i];
-        var final_binding = (i == keys.length - 1);
-
-        /* Replace `bind' with the binding specified by (cmd, fallthrough) */
-        function replace_binding(bind)
-        {
-            if (final_binding) {
-                bind.command = new_command;
-                bind.keymap = new_keymap;
-                bind.fallthrough = args.$fallthrough;
-                bind.source_code_reference = ref;
-                bind.category = args.$category;
-                bind.repeat = args.$repeat;
-            } else {
-                if (!bind.keymap)
-                    throw new Error("Key sequence has a non-keymap in prefix");
-                kmap = bind.keymap;
-            }
-        }
-
-        function make_binding()
-        {
-            if (final_binding) {
-                return {key: key, fallthrough: args.$fallthrough,
-                        command: new_command, keymap: new_keymap,
-                        source_code_reference: ref,
-                        category: args.$category,
-                        repeat: args.$repeat,
-                        bound_in: kmap};
-            }
-            else
-            {
-                let old_kmap = kmap;
-                // Check for a corresponding binding a parent
-                kmap = new keymap($parent = parent_kmap);
-                kmap.bound_in = old_kmap;
-                return {key: key, keymap: kmap,
-                        source_code_reference: ref,
-                        bound_in: old_kmap};
-            }
-        }
-
-        // Check if the specified binding is already present in the kmap
-        if (key.match_function)
-        {
-            var pred_binds = kmap.predicate_bindings;
-            for (var i = 0; i < pred_binds.length; i++)
-            {
-                var cur_bind = pred_binds[i];
-                if (cur_bind.key.match_function == key.match_function)
-                {
-                    replace_binding(cur_bind);
-                    continue outer;
-                }
-            }
-
-            if (!final_binding && parent_kmap) {
-                var parent_pred_binds = parent_kmap.predicate_bindings;
-                parent_kmap = null;
-                for (var i = 0; i < parent_pred_binds.length; i++)
-                {
-                    var cur_bind = parent_pred_binds[i];
-                    if (cur_bind.key.match_function == key.match_function && cur_bind.keymap)
-                    {
-                        parent_kmap = cur_bind.keymap;
-                        break;
-                    }
-                }
-            }
-            // Not already present, must be added
-            pred_binds.push(make_binding());
-        } else
-        {
-            // This is a binding by keycode: look it up in the table
-            var keycode_binds = kmap.keycode_bindings;
-            var arr = keycode_binds[key.keyCode];
-
-            if (arr && arr[key.modifiers])
-            {
-                replace_binding(arr[key.modifiers]);
-                continue outer;
-            }
-
-            if (!final_binding && parent_kmap) {
-                var p_keycode_binds = parent_kmap.keycode_bindings;
-                parent_kmap = null;
-                var p_arr = p_keycode_binds[key.keyCode];
-                var p_bind;
-                if (p_arr && (p_bind = p_arr[key.modifiers]) != null && p_bind.keymap)
-                    parent_kmap = p_bind.keymap;
-            }
-
-            if (!arr)
-                arr = (keycode_binds[key.keyCode] = []);
-
-            arr[key.modifiers] = make_binding();
-        }
-    }
-}
-
-// bind key to either the keymap or command in the keymap, kmap
-define_keywords("$fallthrough", "$category", "$repeat");
-function define_key(kmap, keys, cmd)
-{
-    keywords(arguments);
-    var orig_keys = keys;
-    try {
-        var ref = get_caller_source_code_reference();
-
-        if (typeof(keys) == "string" && keys.length > 1)
-            keys = keys.split(" ");
-
-        if (!(typeof(keys) == "object") || ('is_kbd' in keys) || !(keys instanceof Array))
-            keys = [keys];
-
-        var new_command = null, new_keymap = null;
-        if (typeof(cmd) == "string" || typeof(cmd) == "function")
-            new_command = cmd;
-        else if (cmd instanceof keymap)
-            new_keymap = cmd;
-        else if (cmd != null)
-            throw new Error("Invalid `cmd' argument: " + cmd);
-
-        var args = arguments;
-
-        var input_keys = keys.map(function(x) { return kbd(x); });
-
-        function helper(index, output_keys) {
-            if (index == input_keys.length) {
-                define_key_internal(ref, kmap, output_keys, new_command, new_keymap,
-                                    forward_keywords(args));
-                return;
-            }
-            var key = input_keys[index];
-            for (let i = 0; i < key.length; ++i)
-                helper(index + 1, output_keys.concat(key[i]));
-        }
-
-        helper(0, []);
-    } catch (e if (typeof(e) == "string")) {
-        dumpln("Warning: Error occurred while binding keys: " + orig_keys);
-        dumpln(e);
-        dumpln("This may be due to an incorrect keyboard setup.");
-        dumpln("You may want to use the -keyboard-setup command-line option to fix your keyboard setup.");
-    }
-}
+/*
+ * Keymap datatype
+ */
 
 define_keywords("$parent", "$help", "$name");
 function keymap ()
 {
     keywords(arguments);
-    /* For efficiency, a table indexed by the key code, and then by
-     * the modifiers is used to lookup key bindings, rather than
-     * looping through all bindings in the key map to find one.  The
-     * array keycode_bindings is indexed by the keyCode; if the
-     * corresponding element for a keyCode is non-null, it is itself
-     * an array indexed by the result of get_modifiers (i.e. from 0 to 7).
-     * As before, match_function-based bindings are stored as a simple
-     * list, predicate_bindings. */
     this.parent = arguments.$parent;
-    this.keycode_bindings = [];
+    //JJF: bindings was formerly an ordered collection, in keycode order.
+    //     changed it to an unordered collection, indexed by the binding
+    //     string representation.
+    this.bindings = {};
     this.predicate_bindings = [];
     this.help = arguments.$help;
     this.name = arguments.$name;
@@ -519,8 +73,248 @@ function define_keymap(name) {
     this[name] = new keymap($name = name, forward_keywords(arguments));
 }
 
-function copy_event(event)
+
+
+/*
+ * Key Match Predicates.
+ *
+ *  Predicate bindings are tried for a match after the ordinary key-combo
+ * bindings.  They are predicate functions on the keypress event object.
+ * When such a predicate returns a true value, its associated command,
+ * keymap, or fallthrough declaration is performed.
+ */
+
+function match_any_key (event)
 {
+    return true;
+}
+
+function match_any_unmodified_key (event)
+{
+    //XXX: the meaning of "unmodified" is platform dependent. for example,
+    // on OS X, Alt is used in combination with the character keys to type
+    // an alternate character.  A possible solution is to set the altKey
+    // property of the event to null for all keypress events on OS X.
+    try {
+        return event.charCode
+            && !event.altKey
+            && !event.metaKey
+            && !event.ctrlKey
+            && !event.sticky_modifiers;
+    } catch (e) {return false; }
+}
+
+
+/*
+ */
+
+function format_key_spec(key) {
+    if (key.match_function) {
+        if (key.match_function == match_any_key)
+            return "<any-key>";
+        if (key.match_function == match_any_unmodified_key)
+            return "<any-unmodified-key>";
+        return "<match-function>";
+    }
+    return key;
+}
+
+function format_binding_sequence(seq) {
+    return seq.map(function (x) {
+            return format_key_spec(x.key);
+        }).join(" ");
+}
+
+
+function lookup_key_binding(kmap, combo, event)
+{
+    do {
+        // Check if the key matches the keycode table
+        // var mods = get_modifiers(event);
+        var bindings = kmap.bindings;
+        var bind;
+        if ((bind = bindings[combo]) != null)
+            return bind;
+
+        // Check if the key matches a predicate
+        var pred_binds = kmap.predicate_bindings;
+        for (var i = 0; i < pred_binds.length; ++i) {
+            bind = pred_binds[i];
+            if (bind.key(event))
+                return bind;
+        }
+        kmap = kmap.parent;
+    } while (kmap);
+    return null;
+}
+
+
+/*
+ * $fallthrough and $repeat are as for define_key.
+ *
+ * ref is the source code reference of the call to define_key.
+ *
+ * kmap is the keymap in which the binding is to be defined.
+ *
+ * keys is the key sequence being bound.  it may be necessary
+ * to auto-generate new keymaps to accomodate the key sequence.
+ *
+ * only one of new_command and new_keymap will be given.
+ * the one that is given is the thing being bound to.
+ */
+define_keywords("$fallthrough", "$repeat");
+function define_key_internal(ref, kmap, keys, new_command, new_keymap)
+{
+    keywords(arguments);
+    var args = arguments;
+    var parent_kmap = kmap.parent;
+    var final_binding; // flag to indicate the final key combo in the sequence.
+    var key; // current key combo as we iterate through the sequence.
+
+    /* Replace `bind' with the binding specified by (cmd, fallthrough) */
+    function replace_binding (bind) {
+        if (final_binding) {
+            bind.command = new_command;
+            bind.keymap = new_keymap;
+            bind.fallthrough = args.$fallthrough;
+            bind.source_code_reference = ref;
+            bind.repeat = args.$repeat;
+        } else {
+            if (!bind.keymap)
+                throw new Error("Key sequence has a non-keymap in prefix");
+            kmap = bind.keymap;
+        }
+    }
+
+    function make_binding () {
+        if (final_binding) {
+            return {key: key,
+                    fallthrough: args.$fallthrough,
+                    command: new_command,
+                    keymap: new_keymap,
+                    source_code_reference: ref,
+                    repeat: args.$repeat,
+                    bound_in: kmap};
+        } else {
+            let old_kmap = kmap;
+            // Check for a corresponding binding a parent
+            kmap = new keymap($parent = parent_kmap);
+            kmap.bound_in = old_kmap;
+            return {key: key,
+                    keymap: kmap,
+                    source_code_reference: ref,
+                    bound_in: old_kmap};
+        }
+    }
+
+outer:
+    for (var i = 0; i < keys.length; ++i) {
+        key = keys[i];
+        final_binding = (i == keys.length - 1);
+
+        // Check if the specified binding is already present in the kmap
+        if (typeof(key) == "function") { // it's a match predicate
+            var pred_binds = kmap.predicate_bindings;
+            for (var j = 0; j < pred_binds.length; j++) {
+                if (pred_binds[j].key == key) {
+                    replace_binding(pred_binds[j]);
+                    continue outer;
+                }
+            }
+
+            if (!final_binding && parent_kmap) {
+                var parent_pred_binds = parent_kmap.predicate_bindings;
+                parent_kmap = null;
+                for (j = 0; j < parent_pred_binds.length; j++) {
+                    if (parent_pred_binds[j].key == key &&
+                        parent_pred_binds[j].keymap)
+                    {
+                        parent_kmap = parent_pred_binds[j].keymap;
+                        break;
+                    }
+                }
+            }
+            // Not already present, must be added
+            pred_binds.push(make_binding());
+        } else {
+            var bindings = kmap.bindings;
+            var binding = bindings[key];
+
+            if (binding) {
+                replace_binding(binding);
+                continue outer;
+            }
+
+            if (!final_binding && parent_kmap) {
+                var p_bindings = parent_kmap.bindings;
+                parent_kmap = null;
+                var p_binding = p_bindings[key];
+                if (p_binding && p_binding.keymap)
+                    parent_kmap = p_binding.keymap;
+            }
+
+            bindings[key] = make_binding();
+        }
+    }
+}
+
+// bind key to either the keymap or command in the keymap, kmap
+// keywords:
+//
+//  $fallthrough: (bool) let this key be process by the web page
+//      or gecko.
+//
+//  $repeat: (commnand name) shortcut command to call if a prefix
+//      command key is pressed twice in a row.
+//
+define_keywords("$fallthrough", "$repeat");
+function define_key(kmap, keys, cmd)
+{
+    keywords(arguments);
+    var orig_keys = keys;
+    try {
+        var ref = get_caller_source_code_reference();
+
+        if (typeof(keys) == "string" && keys.length > 1)
+            keys = keys.split(" ");
+
+        if (!(typeof(keys) == "object") || !(keys instanceof Array))
+            keys = [keys];
+
+        var new_command = null, new_keymap = null;
+        if (typeof(cmd) == "string" || typeof(cmd) == "function")
+            new_command = cmd;
+        else if (cmd instanceof keymap)
+            new_keymap = cmd;
+        else if (cmd != null)
+            throw new Error("Invalid `cmd' argument: " + cmd);
+
+        define_key_internal(ref, kmap, keys, new_command, new_keymap,
+                            forward_keywords(arguments));
+
+    } catch (e if (typeof(e) == "string")) {
+        dumpln("Warning: Error occurred while binding keys: " + orig_keys);
+        dumpln(e);
+        dumpln("This may be due to an incorrect keyboard setup.");
+        dumpln("You may want to use the -keyboard-setup command-line option to fix your keyboard setup.");
+    }
+}
+
+
+
+/*
+ * Keypress Handler
+ */
+
+define_variable("keyboard_key_sequence_help_timeout", 0,
+                "Delay (in millseconds) before the current key sequence "+
+                "prefix is displayed in the minibuffer.");
+
+define_window_local_hook("key_press_hook", RUN_HOOK_UNTIL_SUCCESS);
+
+
+
+function copy_event (event) {
     var ev = {};
     ev.keyCode = event.keyCode;
     ev.charCode = event.charCode;
@@ -532,58 +326,83 @@ function copy_event(event)
     return ev;
 }
 
-function key_down_handler(event)
-{
-    var window = this;
-    //window.dumpln("key down: " + conkeror.format_key_press(event.keyCode, conkeror.get_modifiers(event)));
-
-    var state = window.keyboard;
-    state.last_key_down_event = copy_event(event);
-    state.last_char_code = null;
-    state.last_key_code = null;
-}
-
-define_variable("keyboard_key_sequence_help_timeout", 0,
-                "Delay (in millseconds) before the current key sequence prefix is displayed in the minibuffer.");
-
-define_window_local_hook("key_press_hook", RUN_HOOK_UNTIL_SUCCESS);
-
-function key_press_handler(true_event)
-{
-    function show_partial_key_sequence (window, state, ctx) {
-        if (!state.help_displayed)
-        {
-            state.help_timer_ID = window.setTimeout(function () {
+function show_partial_key_sequence (window, state, ctx) {
+    if (!state.help_displayed)
+    {
+        state.help_timer_ID = window.setTimeout(
+            function () {
                 window.minibuffer.show(ctx.key_sequence.join(" "));
                 state.help_displayed = true;
                 state.help_timer_ID = null;
             }, keyboard_key_sequence_help_timeout);
-        }
-        else
-            window.minibuffer.show(ctx.key_sequence.join(" "));
     }
+    else
+        window.minibuffer.show(ctx.key_sequence.join(" "));
+}
+
+function format_key_combo (event) {
+    var combo = '';
+    for each (var M in modifier_order) {
+        if (modifiers[M][0](event)) {
+            combo += (M + '-');
+        }
+    }
+    if (event.charCode) {
+        if (event.charCode == 32) {
+            combo += 'space';
+        } else {
+            combo += String.fromCharCode(event.charCode);
+        }
+    } else if (event.keyCode) {
+        combo += keycode_to_vk_name[event.keyCode];
+    }
+    return combo;
+}
+
+function unformat_key_combo (combo) {
+    var event = {
+        keyCode: 0,
+        charCode: 0,
+        altKey: false,
+        ctrlKey: false,
+        metaKey: false,
+        shiftKey: false
+    };
+    var M;
+    var i = 0;
+    while (combo[i+1] == '-') {
+        M = combo[i];
+        modifiers[M][1](event);
+        i+=2;
+    }
+    var key = combo.substring(i);
+    if (key.length == 1) {
+        event.charCode = key.charCodeAt(0);
+    } else if (key == 'space') {
+        event.charCode = 32;
+    } else {
+        event.keyCode = vk_name_to_keycode[key];
+    }
+    return event;
+}
+
+function key_press_handler (true_event) {
     try{
         var window = this;
         var state = window.keyboard;
+        var combo = format_key_combo(true_event);
 
-        /* ASSERT(state.last_key_down_event != null); */
-
-        var event = state.last_key_down_event;
-        event.charCode = true_event.charCode;
-
-        // If the true_event includes a keyCode, we can just use that
-        if (true_event.keyCode)
-            event.keyCode = true_event.keyCode;
+        var event = copy_event(true_event);
 
         /* Filter out events from keys like the Windows/Super/Hyper key */
-        if (event.keyCode == 0)
+        if (event.keyCode == 0 && event.charCode == 0)
             return;
 
         /* Clear minibuffer message */
         window.minibuffer.clear();
 
         var binding = null;
-        var done = true;
+        var done = true; // flag for end of key sequence
 
         var ctx;
         if (!state.current_context)
@@ -594,8 +413,10 @@ function key_press_handler(true_event)
         event.sticky_modifiers = ctx.sticky_modifiers;
         ctx.sticky_modifiers = 0;
 
+        ctx.combo = combo;
         ctx.event = event;
 
+        // key_press_hook is used, for example, by key aliases
         if (key_press_hook.run(window, ctx, true_event))
             return;
 
@@ -610,8 +431,8 @@ function key_press_handler(true_event)
         var overlay_keymap = ctx.overlay_keymap;
 
         binding =
-            (overlay_keymap && lookup_key_binding(overlay_keymap, event)) ||
-            lookup_key_binding(active_keymap, event);
+            (overlay_keymap && lookup_key_binding(overlay_keymap, combo, event)) ||
+            lookup_key_binding(active_keymap, combo, event);
 
         // Should we stop this event from being processed by the gui?
         //
@@ -628,7 +449,7 @@ function key_press_handler(true_event)
         }
 
         // Finally, process the binding.
-        ctx.key_sequence.push(format_key_event(event));
+        ctx.key_sequence.push(combo);
         if (binding) {
             if (binding.keymap) {
                 state.active_keymap = binding.keymap;
@@ -703,8 +524,6 @@ function keyboard_initialize_window(window)
 {
     window.keyboard = new keyboard(window);
 
-    window.addEventListener ("keydown", key_down_handler, true /* capture */,
-                            false /* ignore untrusted events */);
     window.addEventListener ("keypress", key_press_handler, true /* capture */,
                             false /* ignore untrusted events */);
 }
@@ -733,31 +552,18 @@ function for_each_key_binding(keymap_or_buffer, callback) {
         binding_stack.pop();
     }
     function helper() {
-        var unmodified_keys_masked = false;
-        var keycode_masks = [];
         while (true) {
             var keymap = keymap_stack[keymap_stack.length - 1];
-            for (var i in keymap.keycode_bindings) {
-                var b = keymap.keycode_bindings[i];
-                if (!(i in keycode_masks))
-                    keycode_masks[i] = [];
-                for (var j in b) {
-                    if (unmodified_keys_masked && ((j & MOD_SHIFT) == j))
-                        continue;
-                    if (!keycode_masks[i][j]) {
-                        helper2(b[j]);
-                        keycode_masks[i][j] = true;
-                    }
-                }
+            for (var i in keymap.bindings) {
+                var b = keymap.bindings[i];
+                helper2(b);
             }
-            for (var i in  keymap.predicate_bindings) {
+            for (i in  keymap.predicate_bindings) {
                 var bind = keymap.predicate_bindings[i];
                 helper2(bind);
-                var p = bind.key.match_function;
+                var p = bind.key;
                 if (p == match_any_key)
                     return;
-                if (p == match_any_unmodified_key)
-                    unmodified_keys_masked = true;
             }
             if (keymap.parent)
                 keymap_stack[keymap_stack.length - 1] = keymap.parent;
@@ -819,9 +625,10 @@ invalid_key_binding.prototype = {
 };
 
 function read_key_binding_key(window, state, event) {
-    var binding = lookup_key_binding(state.target_keymap, event);
+    var combo = format_key_combo(event);
+    var binding = lookup_key_binding(state.target_keymap, combo, event);
 
-    state.key_sequence.push(format_key_event(event));
+    state.key_sequence.push(combo);
 
     if (binding == null) {
         var c = state.continuation;
