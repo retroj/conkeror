@@ -31,6 +31,7 @@ define_key(content_buffer_text_keymap, "C-right", "forward-word", $category = "M
 define_key(content_buffer_text_keymap, "M-right", "forward-word", $category = "Movement");
 define_key(content_buffer_text_keymap, "M-w", "cmd_copy", $category = "Selection");
 define_key(content_buffer_text_keymap, "C-k", "cut-to-end-of-line", $category = "Editing");
+define_key(content_buffer_text_keymap, "C-t", "transpose-chars", $category = "Editing");
 
 // 101 keys
 define_key(content_buffer_text_keymap, "home", "beginning-of-line", $category = "Movement");

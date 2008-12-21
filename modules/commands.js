@@ -106,11 +106,43 @@ interactive (
 function open_line(field) {
   modify_region(field, function() "\n", true);
 }
+
 interactive(
   "open-line",
   "If there is an active region, replace is with a newline, otherwise just " +
   "insert a newline. In both cases leave point before the inserted newline.",
   function (I) call_on_focused_field(I, open_line)
+);
+
+function transpose_chars(field) {
+    var value = field.value;
+    var caret = field.selectionStart; // Caret position.
+    var length = value.length;
+
+    // If we have less than two character in the field or if we are at the
+    // beginning of the field, do nothing.
+    if (length <= 2 || caret == 0)
+        return;
+
+    // If we are at the end of the field, switch places on the two last
+    // characters. TODO: This should happen at the end of every line, not only
+    // at the end of the field.
+    if (caret == length)
+        caret--;
+
+    // Do the transposing.
+    field.value = switchSubArrays(value, caret - 1, caret, caret, caret + 1);
+
+    // Increment the caret position. If this is not done, the caret is left at
+    // the end of the field as a result of the replacing of contents.
+    field.selectionStart = caret + 1;
+    field.selectionEnd = caret + 1;
+}
+
+interactive(
+  "transpose-chars",
+  "Interchange characters around point, moving forward one character.",
+  function (I) call_on_focused_field(I, transpose_chars)
 );
 
 function meta_x (window, prefix, command, browser_object)
