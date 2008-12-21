@@ -1296,3 +1296,18 @@ function remove_duplicates_filter () {
         return true;
     };
 }
+
+
+/* get_current_profile returns the name of the current profile.
+ */
+function get_current_profile () {
+    if ("@mozilla.org/profile/manager;1" in Cc) {
+        return Cc["@mozilla.org/profile/manager;1"]
+            .getService(Ci.nsIProfile)
+            .currentProfile;
+    } else {
+        return Cc["@mozilla.org/toolkit/profile-service;1"]
+            .getService(Components.interfaces.nsIToolkitProfileService)
+            .selectedProfile.name;
+    }
+}
