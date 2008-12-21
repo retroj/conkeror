@@ -1316,7 +1316,7 @@ function get_current_profile () {
  * Given an array, switches places on the subarrays at index i1 to i2 and j1 to
  * j2. Leaves the rest of the array unchanged.
  */
-function switchSubArrays(arr, i1, i2, j1, j2) {
+function switch_subarrays(arr, i1, i2, j1, j2) {
     return arr.slice(0, i1) +
         arr.slice(j1, j2) +
         arr.slice(i2, j1) +

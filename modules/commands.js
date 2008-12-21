@@ -131,7 +131,7 @@ function transpose_chars(field) {
         caret--;
 
     // Do the transposing.
-    field.value = switchSubArrays(value, caret - 1, caret, caret, caret + 1);
+    field.value = switch_subarrays(value, caret - 1, caret, caret, caret + 1);
 
     // Increment the caret position. If this is not done, the caret is left at
     // the end of the field as a result of the replacing of contents.
