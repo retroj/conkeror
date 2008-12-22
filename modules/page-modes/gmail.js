@@ -104,5 +104,6 @@ define_page_mode("gmail_mode", "GMail",
                      remove_hook.call(buffer, "buffer_dom_content_loaded_hook", gmail_focus_primary_frame);
                  });
 
-var gmail_re = build_url_regex($domain = "mail.google");
+var gmail_re = build_url_regex($domain = "mail.google",
+                               $path = new RegExp('(?!support)'));
 auto_mode_list.push([gmail_re, gmail_mode]);
