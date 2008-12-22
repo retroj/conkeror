@@ -14,7 +14,7 @@ require("suggest-file-name.js");
 /* buffer is used only to associate with the download */
 define_keywords("$use_cache", "$buffer", "$prepare_download");
 function save_uri(lspec, output_file) {
-    keywords(arguments, $use_cache = false);
+    keywords(arguments, $use_cache = true);
 
     var use_cache = arguments.$use_cache;
 
