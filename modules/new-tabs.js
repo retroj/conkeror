@@ -134,7 +134,7 @@ function tab_bar_add_buffer(buffer) {
     label.setAttribute("class", "tab2-label");
     label.setAttribute("crop", "end");
 
-    // No close button, just use right-click
+    // No close button, just use the designated mouse button.
     tab.addEventListener("click", function (event) {
 	    if (event.button == tab_bar_button_close) {
 		kill_buffer(buffer);
