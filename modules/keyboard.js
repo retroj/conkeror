@@ -59,9 +59,6 @@ function keymap ()
 {
     keywords(arguments);
     this.parent = arguments.$parent;
-    //JJF: bindings was formerly an ordered collection, in keycode order.
-    //     changed it to an unordered collection, indexed by the binding
-    //     string representation.
     this.bindings = {};
     this.predicate_bindings = [];
     this.help = arguments.$help;
@@ -343,7 +340,10 @@ function show_partial_key_sequence (window, state, ctx) {
 function format_key_combo (event) {
     var combo = '';
     for each (var M in modifier_order) {
-        if (modifiers[M][0](event)) {
+        if (modifiers[M][0](event) ||
+            (event.sticky_modifiers &&
+             event.sticky_modifiers.indexOf(M) != -1))
+        {
             combo += (M + '-');
         }
     }
@@ -390,7 +390,6 @@ function key_press_handler (true_event) {
     try{
         var window = this;
         var state = window.keyboard;
-        var combo = format_key_combo(true_event);
 
         var event = copy_event(true_event);
 
@@ -413,6 +412,7 @@ function key_press_handler (true_event) {
         event.sticky_modifiers = ctx.sticky_modifiers;
         ctx.sticky_modifiers = 0;
 
+        var combo = format_key_combo(event);
         ctx.combo = combo;
         ctx.event = event;
 
