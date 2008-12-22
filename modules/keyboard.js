@@ -292,8 +292,6 @@ function define_key(kmap, keys, cmd)
     } catch (e if (typeof(e) == "string")) {
         dumpln("Warning: Error occurred while binding keys: " + orig_keys);
         dumpln(e);
-        dumpln("This may be due to an incorrect keyboard setup.");
-        dumpln("You may want to use the -keyboard-setup command-line option to fix your keyboard setup.");
     }
 }
 
