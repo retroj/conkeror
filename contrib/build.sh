@@ -183,7 +183,7 @@ function do_target_xulapp () {
     if [ -n "$CONKEROR_APP_NAME" ]; then
         sed -i -e "s/Name=conkeror/Name=${CONKEROR_APP_NAME}/" "${SCRATCH}/application.ini"
     fi
-    for x in branding chrome components content defaults locale modules search-engines; do
+    for x in branding chrome components content defaults locale modules search-engines help; do
         copy_tree_sans_boring "$x" "$SCRATCH/$x"
     done
     cp conkeror-spawn-helper "${SCRATCH}"
