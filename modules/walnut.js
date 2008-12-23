@@ -5,6 +5,13 @@
  * COPYING file.
 **/
 
+function assert (got, name) {
+    if (name == null) name = "unnamed";
+    if (! got)
+        throw new Error(name+" failed. got <"+got+">.");
+    return true;
+}
+
 function assert_equals (got, expect, name) {
     if (name == null) name = "unnamed";
     if (got != expect) {
@@ -22,5 +29,10 @@ function assert_equals (got, expect, name) {
   failed = false;
   try { assert_equals(1,1); } catch (e) { failed = true; }
   assert_equals(failed, false, "walnut sanity check 2");
+
+  assert(true, "walnut sanity check 3");
+  failed = false;
+  try { assert(false); } catch (e) { failed = true; }
+  assert(failed, "walnut sanity check 4");
 }
 
