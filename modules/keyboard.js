@@ -278,6 +278,15 @@ function define_key(kmap, keys, cmd)
         if (!(typeof(keys) == "object") || !(keys instanceof Array))
             keys = [keys];
 
+        // normalize the order of modifiers in string key combos
+        keys = keys.map(
+            function (k) {
+                if (typeof(k) == "string")
+                    return format_key_combo(unformat_key_combo(k));
+                else
+                    return k;
+            });
+
         var new_command = null, new_keymap = null;
         if (typeof(cmd) == "string" || typeof(cmd) == "function")
             new_command = cmd;
