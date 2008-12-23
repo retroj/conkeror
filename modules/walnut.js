@@ -5,27 +5,22 @@
  * COPYING file.
 **/
 
-var walnut_output = dumpln;
-
-function is (got, expect, name) {
-    if (name == null) name = "unnamed test";
+function assert_equals (got, expect, name) {
+    if (name == null) name = "unnamed";
     if (got != expect) {
-        walnut_output(name+" failed. expected <"+expect+">, got <"+got+">.");
-        return false;
+        throw new Error(name+" failed. expected <"+expect+">, got <"+got+">.");
     }
-    walnut_output(name);
     return true;
 }
 
-function quiet_is (got, expect, name) {
-    var out = walnut_output;
-    walnut_output = function () {};
-    var res = is(got, expect, name);
-    walnut_output = out;
-    return res;
-}
 
-// sanity check
-is(quiet_is(1,0), false, "walnut sanity check 1");
-is(quiet_is(1,1), true, "walnut sanity check 2");
+// sanity checks
+{ let failed = false;
+  try { assert_equals(1,0); } catch (e) { failed = true; }
+  assert_equals(failed, true, "walnut sanity check 1");
+
+  failed = false;
+  try { assert_equals(1,1); } catch (e) { failed = true; }
+  assert_equals(failed, false, "walnut sanity check 2");
+}
 
