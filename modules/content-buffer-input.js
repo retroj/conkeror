@@ -18,8 +18,9 @@ function define_input_mode(base_name, display_name, keymap_name, doc) {
     define_buffer_mode(name,
                        display_name,
                        $class = "input_mode",
-                       $enable = function (buffer) { check_buffer(buffer, content_buffer);
-                                                     content_buffer_update_keymap_for_input_mode(buffer); },
+                       $enable = function (buffer) {
+                           check_buffer(buffer, content_buffer);
+                           content_buffer_update_keymap_for_input_mode(buffer); },
                        $disable = false,
                        $doc = doc);
 }
@@ -34,18 +35,18 @@ add_hook("page_mode_change_hook", content_buffer_update_keymap_for_input_mode);
 
 add_hook("content_buffer_location_change_hook", function (buf) { normal_input_mode(buf, true); });
 
+
+// Input mode for "normal" view mode
 define_input_mode("normal", null, "content_buffer_normal_keymap");
 
-// For SELECT elements
+// Input modes for form elements
 define_input_mode("select", "input:SELECT", "content_buffer_select_keymap");
-
-// For text INPUT and TEXTAREA elements
 define_input_mode("text", "input:TEXT", "content_buffer_text_keymap");
 define_input_mode("textarea", "input:TEXTAREA", "content_buffer_textarea_keymap");
 define_input_mode("richedit", "input:RICHEDIT", "content_buffer_richedit_keymap");
-
 define_input_mode("checkbox", "input:CHECKBOX/RADIOBUTTON", "content_buffer_checkbox_keymap");
 
+// Input modes for sending key events to gecko
 define_input_mode(
     "quote_next", "input:PASS-THROUGH(next)", "content_buffer_quote_next_keymap",
     "This input mode sends the next key combo to the buffer, "+
@@ -57,7 +58,9 @@ define_input_mode(
         "bypassing Conkeror's normal key handling, until the "+
         "Escape key is pressed.");
 
+// Input mode for the visible caret
 define_input_mode("caret", null, "content_buffer_caret_keymap");
+
 
 function content_buffer_update_input_mode_for_focus(buffer, force) {
     var mode = buffer.input_mode;
@@ -130,7 +133,10 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
     }
 }
 
-add_hook("content_buffer_focus_change_hook", function (buf) { content_buffer_update_input_mode_for_focus(buf, false); } );
+add_hook("content_buffer_focus_change_hook",
+         function (buf) {
+             content_buffer_update_input_mode_for_focus(buf, false);
+         });
 
 define_buffer_mode('caret_mode', 'CARET',
                    $enable = function(buffer) {
@@ -148,6 +154,7 @@ define_buffer_mode('caret_mode', 'CARET',
                        content_buffer_update_input_mode_for_focus(buffer, true);
                    });
 
+//XXX: CARET_PREF is defined in find.js---why?
 watch_pref(CARET_PREF, function() {
                if (get_pref(CARET_PREF)) {
                    session_pref(CARET_PREF, false);
@@ -186,7 +193,11 @@ define_global_window_mode("minibuffer_input_mode_indicator", "window_initialize_
 minibuffer_input_mode_indicator_mode(true);
 
 // Milliseconds
-define_variable("browser_automatic_form_focus_window_duration", 20, "Time window (in milliseconds) during which a form element is allowed to gain focus following a mouse click or key press, if `browser_prevent_automatic_form_focus_mode' is enabled.");;
+define_variable("browser_automatic_form_focus_window_duration", 20,
+                "Time window (in milliseconds) during which a form element "+
+                "is allowed to gain focus following a mouse click or key "+
+                "press, if `browser_prevent_automatic_form_focus_mode' is "+
+                "enabled.");;
 
 define_global_mode("browser_prevent_automatic_form_focus_mode",
                    function () {}, // enable
@@ -273,14 +284,20 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
         throw interactive_error("No form field found");
 }
 
-interactive("browser-focus-next-form-field", "Focus the next element matching `browser_form_field_xpath_expression'.",
+interactive("browser-focus-next-form-field",
+            "Focus the next element matching "+
+            "`browser_form_field_xpath_expression'.",
             function (I) {
-                browser_focus_next_form_field(I.buffer, I.p, browser_form_field_xpath_expression);
+                browser_focus_next_form_field(
+                    I.buffer, I.p, browser_form_field_xpath_expression);
             });
 
-interactive("browser-focus-previous-form-field",  "Focus the previous element matching `browser_form_field_xpath_expression'.",
+interactive("browser-focus-previous-form-field",
+            "Focus the previous element matching "+
+            "`browser_form_field_xpath_expression'.",
             function (I) {
-                browser_focus_next_form_field(I.buffer, -I.p, browser_form_field_xpath_expression);
+                browser_focus_next_form_field(
+                    I.buffer, -I.p, browser_form_field_xpath_expression);
             });
 
 function edit_field_in_external_editor(buffer, elem) {
@@ -326,14 +343,16 @@ function edit_field_in_external_editor(buffer, elem) {
         file.remove(false);
     }
 }
-interactive("edit-current-field-in-external-editor", "Edit the contents of the currently-focused text field in an external editor.",
+interactive("edit-current-field-in-external-editor",
+            "Edit the contents of the currently-focused text field in an external editor.",
             function (I) {
                 var buf = I.buffer;
                 yield edit_field_in_external_editor(buf, buf.focused_element);
                 unfocus(I.window, buf);
             });
 
-define_variable("kill_whole_line", false, "If true, `kill-line' with no arg at beg of line kills the whole line.");
+define_variable("kill_whole_line", false,
+                "If true, `kill-line' with no arg at beg of line kills the whole line.");
 
 function cut_to_end_of_line (buffer) {
     var elem = buffer.focused_element;
