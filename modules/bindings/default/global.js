@@ -15,7 +15,7 @@ define_keymap("default_base_keymap");
 define_keymap("default_global_keymap", $parent = default_base_keymap);
 define_keymap("default_help_keymap");
 
-define_key(default_global_keymap, "M-S-;","eval-expression");
+define_key(default_global_keymap, "M-:","eval-expression");
 
 define_key(default_global_keymap, "C-x C-c", "quit");
 
@@ -46,7 +46,7 @@ define_key(default_global_keymap, "M-n", "buffer-next");
 
 define_key(default_global_keymap, "C-x C-f", "find-url-new-buffer");
 
-define_key(default_global_keymap, "M-S-1", "shell-command");
+define_key(default_global_keymap, "M-!", "shell-command");
 
 // I-search
 define_key(default_global_keymap, "C-s", "isearch-forward");

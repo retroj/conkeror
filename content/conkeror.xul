@@ -24,12 +24,16 @@ COPYING file.
   <stringbundleset id="stringbundleset">
   </stringbundleset>
 
-  <!-- put a "Quit" item in the OS X Application Menu -->
+  <!-- put a "Quit" item in the OS X Application Menu.  The id
+    "menu_FileQuitItem" on the menuitem is the magic cookie. -->
   <menubar id="menubar" hidden="true">
     <menu label="Conkeror" hidden="true">
       <menupopup>
-        <!-- the id of the quit menu item is a special identifier for OS X -->
-        <menuitem id="menu_FileQuitItem" label="Quit" hidden="true" oncommand="conkeror.quit();"/>
+        <menuitem
+           id="menu_FileQuitItem"
+           label="Quit Conkeror"
+           hidden="true"
+           oncommand="conkeror.quit();"/>
       </menupopup>
     </menu>
   </menubar>

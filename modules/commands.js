@@ -361,22 +361,20 @@ function  view_mathml_source (window, charset, target) {
 }
 
 
-function send_key_as_event (window, element, key) {
-    key = kbd (key)[0];
-    var event = window.document.createEvent ("KeyboardEvent");
-    event.initKeyEvent (
+function send_key_as_event (window, element, combo) {
+    var split = unformat_key_combo(combo);
+    var event = window.document.createEvent("KeyboardEvent");
+    event.initKeyEvent(
         "keypress",
         true,
         true,
         null,
-        key.modifiers & MOD_CTRL, // ctrl
-        key.modifiers & MOD_META, // alt
-        key.modifiers & MOD_SHIFT, // shift
-        key.modifiers & MOD_META, // meta
-        key.keyCode,
-        null);    // charcode
-    // bit of a hack here.. we have to fake a keydown event for conkeror
-    window.keyboard.last_key_down_event = copy_event (event);
+        split.ctrlKey,
+        split.altKey,
+        split.shiftKey,
+        split.metaKey,
+        split.keyCode,
+        split.charCode);
     if (element) {
         return element.dispatchEvent (event);
     } else {
@@ -387,7 +385,7 @@ interactive (
     "send-ret",
     null,
     function (I) {
-        send_key_as_event (I.window, I.buffer.focused_element, "return");
+        send_key_as_event(I.window, I.buffer.focused_element, "return");
     });
 
 function ensure_content_focused(buffer) {
@@ -410,7 +408,8 @@ interactive("network-go-offline", "Work offline.",
             function (I) {network_set_online_status (false);});
 
 
-interactive("submit-form", null,
+interactive("submit-form",
+            "Submit the form to which the focused element belongs.",
            function (I) {
                var el = I.buffer.focused_element.parentNode;
                while (el && el.tagName != "FORM")

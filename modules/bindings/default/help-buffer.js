@@ -12,4 +12,4 @@ define_keymap("help_buffer_keymap", $parent = default_global_keymap);
 bind_scroll_keys(help_buffer_keymap);
 bind_selection_keys(help_buffer_keymap);
 
-define_key(help_buffer_keymap, "back_slash", "view-referenced-source-code");
+define_key(help_buffer_keymap, "\\", "view-referenced-source-code");
