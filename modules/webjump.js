@@ -17,7 +17,7 @@ function define_webjump(key, handler) {
 
     var no_argument = arguments.$no_argument;
 
-    make_handler = function(template, alternative) {
+    function make_handler (template, alternative) {
         let b = template.indexOf('%s');
         if (b == -1)
             no_argument = true;
@@ -54,15 +54,20 @@ var add_webjump = define_webjump;
 
 function add_delicious_webjumps (username)
 {
-    define_webjump("delicious", "http://del.icio.us/" + username);
-    define_webjump("adelicious", "javascript:location.href='http://del.icio.us/" + username + "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);");
-    define_webjump("sdelicious", "http://delicious.com/search?p=%s&u=" + username + "&chk=&context=userposts&fr=del_icio_us&lc=1");
+    var delicious_url = "http://del.icio.us/" + username;
+    var adelicious_url = "javascript:location.href='http://del.icio.us/"+username+
+        "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);";
+    define_webjump("delicious", [delicious_url, delicious_url]);
+    define_webjump("adelicious", [adelicious_url, adelicious_url]);
+    define_webjump("sdelicious", "http://delicious.com/search?p=%s&u="+username+
+                   "&chk=&context=userposts&fr=del_icio_us&lc=1");
     define_webjump("sadelicious", "http://del.icio.us/search/all?search=%s");
 }
 
 function add_lastfm_webjumps(username)
 {
-    define_webjump("lastfm", "http://www.last.fm/user/" + (username ? username : ""));
+    var lastfm_url = "http://www.last.fm/user/" + (username ? username : "");
+    define_webjump("lastfm", [lastfm_url, lastfm_url]);
     define_webjump("lastfm-user", "http://www.last.fm/user/%s");
     define_webjump("lastfm-music", "http://www.last.fm/search?m=all&q=%s");
     define_webjump("lastfm-group", "http://www.last.fm/users/groups?s_bio=%s");
@@ -175,8 +180,8 @@ function webjump_completer()
 {
     let base_completer = prefix_completer(
         $completions = [ v for ([k,v] in webjumps.iterator()) ],
-        $get_string = function (x) x.key + (x.no_argument==true ? "" : " "),
-        $get_description = function (x) x.description || "");
+        $get_string = function (x) { return x.key + (x.no_argument==true ? "" : " "); },
+        $get_description = function (x) { return x.description || ""; });
 
     return function(input, pos, conservative) {
         let str = input.substring(0,pos);
