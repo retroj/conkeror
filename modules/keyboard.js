@@ -29,19 +29,23 @@ var vk_name_to_keycode = {};
 
 var abort_key = null;
 
+function modifier (in_event_p, set_in_event) {
+    this.in_event_p = in_event_p;
+    this.set_in_event = set_in_event;
+}
 var modifiers = {
-    A: [function (event) { return event.altKey; },
-        function (event) { event.altKey = true; }],
-    C: [function (event) { return event.ctrlKey; },
-        function (event) { event.ctrlKey = true; }],
-    M: [function (event) { return event.metaKey; },
-        function (event) { event.metaKey = true; }],
-    S: [function (event) {
-            return (event.keyCode &&
-                    event.charCode == 0 &&
-                    event.shiftKey);
-        },
-        function (event) { event.shiftKey = true; }]
+    A: new modifier(function (event) { return event.altKey; },
+                    function (event) { event.altKey = true; }),
+    C: new modifier(function (event) { return event.ctrlKey; },
+                    function (event) { event.ctrlKey = true; }),
+    M: new modifier(function (event) { return event.metaKey; },
+                    function (event) { event.metaKey = true; }),
+    S: new modifier(function (event) {
+                        return (event.keyCode &&
+                                event.charCode == 0 &&
+                                event.shiftKey);
+                    },
+                    function (event) { event.shiftKey = true; })
 };
 // check the platform and guess whether we should treat Alt as Meta
 if (get_os() != 'Darwin') {
@@ -347,7 +351,7 @@ function show_partial_key_sequence (window, state, ctx) {
 function format_key_combo (event) {
     var combo = '';
     for each (var M in modifier_order) {
-        if (modifiers[M][0](event) ||
+        if (modifiers[M].in_event_p(event) ||
             (event.sticky_modifiers &&
              event.sticky_modifiers.indexOf(M) != -1))
         {
@@ -379,7 +383,7 @@ function unformat_key_combo (combo) {
     var i = 0;
     while (combo[i+1] == '-') {
         M = combo[i];
-        modifiers[M][1](event);
+        modifiers[M].set_in_event(event);
         i+=2;
     }
     var key = combo.substring(i);
