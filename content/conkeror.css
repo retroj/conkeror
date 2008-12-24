@@ -36,6 +36,7 @@ window * { margin: 0px; padding: 0px; }
 }
 
 .mode-line {
+  padding: 2px;
   border-left: 1px solid rgb(230,230,230);
   border-top: 1px solid rgb(230,230,230);
   border-right: 1px solid rgb(100,100,100);
@@ -44,6 +45,7 @@ window * { margin: 0px; padding: 0px; }
 }
 
 .mode-line label {
+  margin: 0px 4px 0px 4px;
   color: black;
 }
 
