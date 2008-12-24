@@ -56,6 +56,9 @@ String.prototype.pad = str_pad;
 
 
 function key_event_handler (event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     var table = document.getElementById('event-table');
     var row = document.createElementNS(XUL_NS,"listitem");
 
@@ -98,6 +101,8 @@ function key_event_handler (event) {
           for each (k in key_event_props)].join(''));
     dumpln(combo);
 }
+window.addEventListener("keypress", key_event_handler, true /* capture */,
+                        false /* ignore untrusted events */);
 
 
 function onload_handler () {

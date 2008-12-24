@@ -6,9 +6,6 @@
    title="Xulrunner Event Viewer"
    width="800"
    height="300"
-   onkeydown="key_event_handler(event);"
-   onkeypress="key_event_handler(event);"
-   onkeyup="key_event_handler(event);"
    onload="onload_handler();">
 
 <script src="xrev.js"/>
@@ -26,14 +23,6 @@
     </menupopup>
   </menu>
 </menubar>
-
-<keyset>
-  <!-- this suppresses an issue on OS X whereby some key combos
-       involving the Command key cause a beep, and other send
-       extra keypress events. (Cmd-., Cmd-=, Cmd-<, Cmd-b, etc)
-    -->
-  <key oncommand="return;"/>
-</keyset>
 
 <caption>
 Xulrunner Event Viewer is for inspecting keyboard events.
