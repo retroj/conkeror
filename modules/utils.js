@@ -1266,14 +1266,12 @@ function compute_url_up_path (url)
 }
 
 
-function compute_url_pre_path (url)
-{
-    var new_url = Cc["@mozilla.org/network/standard-url;1"]
-        .createInstance (Ci.nsIURL);
-    new_url.spec = url;
-    return new_url.prePath;
+function url_path_trim (url) {
+    var uri = make_uri(url);
+    uri.spec = url;
+    uri.path = "";
+    return uri.spec;
 }
-
 
 /* possibly_valid_url returns true if the string might be a valid
  * thing to pass to nsIWebNavigation.loadURI.  Currently just checks

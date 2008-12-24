@@ -22,7 +22,7 @@ function define_webjump(key, handler) {
         if (b == -1)
             no_argument = true;
         if (alternative == null)
-            alternative = compute_url_pre_path(template);
+            alternative = url_path_trim(template);
         if (alternative && !no_argument)
             no_argument = "maybe";
         return function (arg) {
