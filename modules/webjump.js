@@ -7,27 +7,45 @@
  * COPYING file.
 **/
 
-//// web jump stuff
-
 var webjumps = new string_hashmap();
 
 define_keywords("$completer", "$description", "$no_argument");
 function define_webjump(key, handler) {
     keywords(arguments);
+    var no_argument;
 
-    var no_argument = arguments.$no_argument;
+    // handler may be a function, a string, or an array
+    // of a string and a "no args" alternate string.
+    //
+    // if the no_argument property is set on a webjump,
+    // completing on the name of the webjump will not
+    // result in a space being appended.
+    //
+    // we only pay attention to the no_argument keyword
+    // if the handler is a function.  for string webjumps,
+    // we simply see if there is a "%s" in the string.
+    //
+    if (typeof(handler) == "object" &&
+        handler[0].indexOf('%s') == -1)
+    {
+        // we discard the alternate if the main webjump does
+        // not take an arg.
+        handler=handler[0];
+        no_argument = true;
+    } else if (typeof(handler) == "function") {
+        no_argument = arguments.$no_argument;
+    } else if (typeof(handler) == "string") {
+        if (handler.indexOf('%s') == -1)
+            no_argument = true;
+    }
 
     function make_handler (template, alternative) {
-        let b = template.indexOf('%s');
-        if (b == -1)
-            no_argument = true;
         if (alternative == null)
             alternative = url_path_trim(template);
-        if (alternative && !no_argument)
-            no_argument = "maybe";
+        var b = template.indexOf('%s');
         return function (arg) {
             var a = b + 2;
-            if (arg == null)
+            if (arg == null && b > -1)
                 return alternative;
             // Just return the same string if it doesn't contain a %s
             if (b == -1)
@@ -54,11 +72,10 @@ var add_webjump = define_webjump;
 
 function add_delicious_webjumps (username)
 {
-    var delicious_url = "http://del.icio.us/" + username;
-    var adelicious_url = "javascript:location.href='http://del.icio.us/"+username+
-        "?v=2&url='+encodeURIComponent(location.href)+'&title='+encodeURIComponent(document.title);";
-    define_webjump("delicious", [delicious_url, delicious_url]);
-    define_webjump("adelicious", [adelicious_url, adelicious_url]);
+    define_webjump("delicious", "http://del.icio.us/" + username);
+    define_webjump("adelicious", "javascript:location.href='http://del.icio.us/"+username+
+                   "?v=2&url='+encodeURIComponent(location.href)+'&title='+"+
+                   "encodeURIComponent(document.title);");
     define_webjump("sdelicious", "http://delicious.com/search?p=%s&u="+username+
                    "&chk=&context=userposts&fr=del_icio_us&lc=1");
     define_webjump("sadelicious", "http://del.icio.us/search/all?search=%s");
@@ -66,8 +83,8 @@ function add_delicious_webjumps (username)
 
 function add_lastfm_webjumps(username)
 {
-    var lastfm_url = "http://www.last.fm/user/" + (username ? username : "");
-    define_webjump("lastfm", [lastfm_url, lastfm_url]);
+    if (! username) username = "";
+    define_webjump("lastfm", "http://www.last.fm/user/"+username);
     define_webjump("lastfm-user", "http://www.last.fm/user/%s");
     define_webjump("lastfm-music", "http://www.last.fm/search?m=all&q=%s");
     define_webjump("lastfm-group", "http://www.last.fm/users/groups?s_bio=%s");
