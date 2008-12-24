@@ -28,10 +28,10 @@ function global_overlay_keymap_handler(window, ctx, true_event) {
 
 define_global_mode("global_overlay_keymap_mode",
                    function () {
-                       add_hook("key_press_hook", global_overlay_keymap_handler);
+                       add_hook("keypress_hook", global_overlay_keymap_handler);
                    },
                    function () {
-                       remove_hook("key_press_hook", global_overlay_keymap_handler);
+                       remove_hook("keypress_hook", global_overlay_keymap_handler);
                    });
 
 function define_key_alias (typed_key, generated_key) {

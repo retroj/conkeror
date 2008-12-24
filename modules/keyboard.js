@@ -318,7 +318,7 @@ define_variable("keyboard_key_sequence_help_timeout", 0,
                 "Delay (in millseconds) before the current key sequence "+
                 "prefix is displayed in the minibuffer.");
 
-define_window_local_hook("key_press_hook", RUN_HOOK_UNTIL_SUCCESS);
+define_window_local_hook("keypress_hook", RUN_HOOK_UNTIL_SUCCESS);
 
 
 
@@ -397,7 +397,7 @@ function unformat_key_combo (combo) {
     return event;
 }
 
-function key_press_handler (true_event) {
+function keypress_handler (true_event) {
     try{
         var window = this;
         var state = window.keyboard;
@@ -427,8 +427,8 @@ function key_press_handler (true_event) {
         ctx.combo = combo;
         ctx.event = event;
 
-        // key_press_hook is used, for example, by key aliases
-        if (key_press_hook.run(window, ctx, true_event))
+        // keypress_hook is used, for example, by key aliases
+        if (keypress_hook.run(window, ctx, true_event))
             return;
 
         var top_keymap =
@@ -535,7 +535,7 @@ function keyboard_initialize_window(window)
 {
     window.keyboard = new keyboard(window);
 
-    window.addEventListener ("keypress", key_press_handler, true /* capture */,
+    window.addEventListener ("keypress", keypress_handler, true /* capture */,
                             false /* ignore untrusted events */);
 }
 
