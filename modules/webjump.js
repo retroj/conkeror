@@ -25,14 +25,7 @@ function define_webjump(key, handler) {
     // if the handler is a function.  for string webjumps,
     // we simply see if there is a "%s" in the string.
     //
-    if (typeof(handler) == "object" &&
-        handler[0].indexOf('%s') == -1)
-    {
-        // we discard the alternate if the main webjump does
-        // not take an arg.
-        handler=handler[0];
-        no_argument = true;
-    } else if (typeof(handler) == "function") {
+    if (typeof(handler) == "function") {
         no_argument = arguments.$no_argument;
     } else if (typeof(handler) == "string") {
         if (handler.indexOf('%s') == -1)
