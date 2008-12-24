@@ -15,12 +15,12 @@
 require("mode.js");
 
 define_variable("tab_bar_button_select", 0,
-                "which mouse button should select tabs. " +
+                "The mouse button that selects tabs. " +
                 "0 = left, 1 = middle, 2 = right, null = disabled. " +
-                "Default is 1.");
+                "Default is 0.");
 
 define_variable("tab_bar_button_close", 2,
-                "Which mouse button should close tabs. " +
+                "The mouse button that closes tabs.. " +
                 "0 = left, 1 = middle, 2 = right, null = disabled. " +
                 "Default is 2.");
 
