@@ -13,6 +13,20 @@
 
 <script src="xrev.js"/>
 
+<!-- put a "Quit" item in the OS X Application Menu.  The id
+  "menu_FileQuitItem" on the menuitem is the magic cookie. -->
+<menubar id="menubar" hidden="true">
+  <menu label="xrev" hidden="true">
+    <menupopup>
+      <menuitem
+         id="menu_FileQuitItem"
+         label="Quit Xulrunner Event Viewer"
+         hidden="true"
+         oncommand="quit();"/>
+    </menupopup>
+  </menu>
+</menubar>
+
 <keyset>
   <!-- this suppresses an issue on OS X whereby some key combos
        involving the Command key cause a beep, and other send

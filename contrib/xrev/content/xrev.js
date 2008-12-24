@@ -35,6 +35,11 @@ var key_event_props = [
     'ctrlKey', 'shiftKey', 'metaKey',
     'isChar', 'which'];
 
+function quit () {
+    var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
+        .getService(Components.interfaces.nsIAppStartup);
+    appStartup.quit(appStartup.eAttemptQuit);
+}
 
 function dumpln (line) {
     dump(line + "\n");
