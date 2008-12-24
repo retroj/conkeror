@@ -139,7 +139,7 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
 .tab-close-button {
   -moz-appearance: none !important;
   list-style-image: url("chrome://global/skin/icons/close.png") !important;
-  -moz-image-region: rect(0px, 16px, 16px, 0px);
+  -moz-image-region: rect(0px, 14px, 14px, 0px);
   border: none !important;
 }
 
@@ -148,11 +148,11 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
 }
 
 .tab-close-button:hover {
-  -moz-image-region: rect(0px, 32px, 16px, 16px);
+  -moz-image-region: rect(0px, 28px, 14px, 14px);
 }
 
 .tab-close-button:active:hover {
-  -moz-image-region: rect(0px, 48px, 16px, 32px);
+  -moz-image-region: rect(0px, 42px, 14px, 28px);
 }
 
 .tab-label {
