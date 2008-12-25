@@ -450,8 +450,9 @@ interactive("stop-loading",
 function reload (b, bypass_cache)
 {
     check_buffer(b, content_buffer);
-    var flags = bypass_cache != null ?
-        Ci.nsIWebNavigation.LOAD_FLAGS_NONE : Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
+    var flags = bypass_cache == null ?
+        Ci.nsIWebNavigation.LOAD_FLAGS_NONE :
+        Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
     b.web_navigation.reload(flags);
 }
 interactive("reload",
