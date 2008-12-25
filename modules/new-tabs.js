@@ -24,44 +24,6 @@ define_variable("tab_bar_button_close", 2,
                 "0 = left, 1 = middle, 2 = right, null = disabled. " +
                 "Default is 2.");
 
-var TAB_BAR_STYLE_DEFAULT = "data:text/css," +
-    escape (
-        "#tab2-bar {"+
-        "    background: #ccc;"+
-        "}"+
-
-        "#tab2-bar .tab2 {"+
-        "    margin: 2px 0 0 2px;"+
-        "    padding: 0;"+
-        "    height: 19px;"+
-        "    border: 1px solid #ccc;"+
-        "    min-width: 200px;"+
-        "    max-width: 300px;"+
-        "    background: #eee;"+
-        "    overflow: hidden;"+ // Chops the end of labels
-        "}"+
-
-        "#tab2-bar .tab2-label {"+
-        "    margin: 0;"+
-        "    color: #000;"+
-        "    font: 11px Tahoma;"+
-        "}"+
-
-        "#tab2-bar .tab2-icon {"+
-        "    height: 16px;"+
-        "    width: 16px;"+
-        "    background: #222;"+
-        "    color: white;"+
-        "    border: 1px solid white;"+
-        "    font: 900 11px Tahoma;"+
-        "    text-align: center;"+
-        "}"+
-
-        // Selected stuff
-        "#tab2-bar .tab2[selected=true] {"+
-        "   border: 1px solid black;"+
-        "}"
-    );
 
 function tab_bar(window) {
     window.tab_bar = this;
@@ -226,5 +188,4 @@ define_global_mode("tab_bar_mode",
                        for_each_window(tab_bar_uninstall);
                    });
 
-tab_bar_style_apply(TAB_BAR_STYLE_DEFAULT);
 tab_bar_mode(true);

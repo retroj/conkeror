@@ -173,3 +173,42 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
   -moz-margin-start: 4px;
   -moz-margin-end: 3px;
 }
+
+
+/* tab2-bar, a.k.a. "new-tabs" */
+#tab2-bar {
+    background: #ccc;
+}
+
+#tab2-bar .tab2 {
+    margin: 2px 0px 0px 2px;
+    padding: 0px;
+    height: 19px;
+    border: 1px solid #ccc;
+    min-width: 200px;
+    max-width: 300px;
+    background: #eee;
+    overflow: hidden; /* Chops end of label */
+}
+
+.tab2 .tab2-label {
+    margin-left: 4px;
+    margin-top: 2px;
+    color: #000;
+    font: 11px Tahoma;
+}
+
+#tab2-bar .tab2-icon {
+    height: 16px;
+    width: 16px;
+    background: #222;
+    color: white;
+    border: 1px solid white;
+    font: 900 11px Tahoma;
+    text-align: center;
+}
+
+#tab2-bar .tab2[selected=true] {
+   border: 1px solid black;
+}
+
