@@ -303,7 +303,7 @@ define_variable("read_url_handler_list", [],
 function read_url_make_default_webjump_handler(default_webjump) {
     return function(input) {
 	return default_webjump + " " + input;
-    }
+    };
 }
 
 /* read_url_make_blank_url_handler returns a function that replaces a
@@ -314,13 +314,13 @@ function read_url_make_blank_url_handler(url) {
 	if (input.length == 0)
 	    return url;
 	return null;
-    }
+    };
 }
 
 minibuffer.prototype.try_read_url_handlers = function(input) {
     var result;
     for (var i = 0; i < read_url_handler_list.length; ++i)
-        if (result = read_url_handler_list[i](input))
+        if ((result = read_url_handler_list[i](input)))
             return result;
     return input;
 }
@@ -468,7 +468,12 @@ function initialize_browser_dom_window(window) {
         new browser_dom_window(window);
 }
 
-define_variable("browser_default_open_target", OPEN_NEW_BUFFER, "Specifies how new window requests by content pages (e.g. by window.open from JavaScript or by using the target attribute of anchor and form elements) will be handled.  This will generally be `OPEN_NEW_BUFFER', `OPEN_NEW_BUFFER_BACKGROUND', or `OPEN_NEW_WINDOW'.");
+define_variable("browser_default_open_target", OPEN_NEW_BUFFER,
+                "Specifies how new window requests by content pages "+
+                "(e.g. by window.open from JavaScript or by using the "+
+                "target attribute of anchor and form elements) will be "+
+                "handled.  This will generally be `OPEN_NEW_BUFFER', "+
+                "`OPEN_NEW_BUFFER_BACKGROUND', or `OPEN_NEW_WINDOW'.");
 
 function browser_dom_window(window) {
     this.window = window;
