@@ -201,11 +201,15 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
 #tab2-bar .tab2-icon {
     height: 16px;
     width: 16px;
-    background: #222;
+    padding-top: 2px;
+    background: #555;
     color: white;
-    border: 1px solid white;
     font: 900 11px Tahoma;
     text-align: center;
+}
+
+#tab2-bar .tab2[selected=true] .tab2-icon {
+    background: #252525;
 }
 
 #tab2-bar .tab2[selected=true] {
