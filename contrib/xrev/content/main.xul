@@ -30,4 +30,6 @@ Xulrunner Event Viewer is for inspecting keyboard events.
 
 <listbox id="event-table"/>
 
+<textbox/>
+
 </window>
