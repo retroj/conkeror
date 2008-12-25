@@ -29,10 +29,16 @@ var vk_name_to_keycode = {};
 
 var abort_key = null;
 
+
+/*
+ * Modifiers
+ */
+
 function modifier (in_event_p, set_in_event) {
     this.in_event_p = in_event_p;
     this.set_in_event = set_in_event;
 }
+
 var modifiers = {
     A: new modifier(function (event) { return event.altKey; },
                     function (event) { event.altKey = true; }),
@@ -47,11 +53,24 @@ var modifiers = {
                     },
                     function (event) { event.shiftKey = true; })
 };
+var modifier_order = ['C', 'M', 'S'];
+
 // check the platform and guess whether we should treat Alt as Meta
-if (get_os() != 'Darwin') {
+if (get_os() == 'Darwin') {
+    // In OS X, alt is a shift-like modifier, in that we
+    // only care about it for non-character events.
+    modifiers.A = new modifier(
+        function (event) {
+            return (event.keyCode &&
+                    event.charCode == 0 &&
+                    event.altKey);
+        },
+        function (event) { event.altKey = true; });
+    modifier_order = ['C', 'M', 'A', 'S'];
+} else {
     modifiers.M = modifiers.A;
 }
-var modifier_order = ['C', 'M', 'S'];
+
 
 
 /*
