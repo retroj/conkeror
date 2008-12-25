@@ -43,6 +43,7 @@ function bind_selection_keys(keymap)
     define_key(keymap, "S-page_down", "cmd_selectPageDown");
     define_key(keymap, "C-delete", "cmd_copy");
     define_key(keymap, "C-space", "set-mark");
+    define_key(keymap, "C-@", "set-mark");
     define_key(keymap, "C-insert", "cmd_copy");
     define_key(keymap, "C-S-home", "cmd_selectTop");
     define_key(keymap, "C-S-end", "cmd_selectBottom");

@@ -32,6 +32,7 @@ define_key(content_buffer_caret_keymap, "C-S-left", "cmd_selectWordPrevious");
 define_key(content_buffer_caret_keymap, "C-S-right", "cmd_selectWordNext");
 
 define_key(content_buffer_caret_keymap, "C-space", "set-mark");
+define_key(content_buffer_caret_keymap, "C-@", "set-mark");
 
 define_key(content_buffer_caret_keymap, "C-n", "caret-forward-line");
 define_key(content_buffer_caret_keymap, "down", "caret-forward-line");

@@ -57,6 +57,7 @@ define_key(content_buffer_text_keymap, "S-delete", "cmd_cut");
 define_key(content_buffer_text_keymap, "C-x h", "cmd_selectAll");
 
 define_key(content_buffer_text_keymap, "C-space", "set-mark");
+define_key(content_buffer_text_keymap, "C-@", "set-mark");
 
 define_key(content_buffer_text_keymap, "C-i", "edit-current-field-in-external-editor");
 

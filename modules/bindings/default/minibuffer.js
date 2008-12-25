@@ -48,6 +48,7 @@ define_key(minibuffer_base_keymap, "C-S-right", "minibuffer-cmd_selectWordNext")
 define_key(minibuffer_base_keymap, "S-insert", "paste-x-primary-selection");
 
 define_key(minibuffer_base_keymap, "C-space", "minibuffer-set-mark");
+define_key(minibuffer_base_keymap, "C-@", "minibuffer-set-mark");
 
 
 // Nasty keys
