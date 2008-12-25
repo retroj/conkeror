@@ -447,18 +447,27 @@ interactive("stop-loading",
             "Stop loading the current document.",
             function (I) {stop_loading(I.buffer);});
 
-function reload (b, bypass_cache)
+function reload (b, bypass_cache, element)
 {
     check_buffer(b, content_buffer);
-    var flags = bypass_cache == null ?
-        Ci.nsIWebNavigation.LOAD_FLAGS_NONE :
-        Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
-    b.web_navigation.reload(flags);
+    if (element) {
+        element.parentNode.replaceChild(element.cloneNode(true), element);
+    } else {
+        var flags = bypass_cache == null ?
+            Ci.nsIWebNavigation.LOAD_FLAGS_NONE :
+            Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
+        b.web_navigation.reload(flags);
+    }
 }
 interactive("reload",
             "Reload the current document.\n" +
-            "If a prefix argument is specified, the cache is bypassed.",
-            function (I) {reload(I.buffer, I.P);});
+            "If a prefix argument is specified, the cache is bypassed.  If a "+
+            "DOM node is supplied via browser object, that node will be "+
+            "reloaded.",
+            function (I) {
+                var element = yield read_browser_object(I);
+                reload(I.buffer, I.P, element);
+            });
 
 /**
  * browserDOMWindow: intercept window opening
