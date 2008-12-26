@@ -6,6 +6,10 @@
 **/
 
 
+var chan_thumbnail_xpath = '//a[@target="_blank"]';
+
+
+require("utils.js");
 require("content-buffer.js");
 require("bindings/default/content-buffer/normal.js");
 require("bindings/default/content-buffer/text.js");
@@ -64,7 +68,7 @@ function chan_add_image(I) {
     // If the user chose a file, set the value of the file field to the full
     // path to that file.
     if (res == nsIFilePicker.returnOK) {
-	var file = doc.getElementsByName("upfile")[0];
+	file = doc.getElementsByName("upfile")[0];
 	file.value = fp.file.path;
     }
 }
@@ -136,34 +140,18 @@ function chanmaster(buffer) {
     }
 
     var doc = buffer.document;
-    var xpr = doc.evaluate("//img[@md5]", doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
-    let img, i = 0;
+    var xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    let link, i = 0;
 
     // Make buffer local arrays for the event listeners so that we can properly
     // remove them when the mode is disabled.
     buffer.local_variables.overlisteners = new Array();
     buffer.local_variables.outlisteners = new Array();
 
-    // For each thumbnail picture...
-    while (img = xpr.iterateNext()) {
+    // For each link...
+    while ((link = xpr.iterateNext())) {
 
-	buffer.local_variables.overlisteners[i] = function (event) {
-
-	    // Find out what the URL to the image is.
-	    let img = event.currentTarget;
-	    let href = img.parentNode.href;
-	    let el = doc.createElement("img");
-
-	    // Find out the maximum dimensions still making the image visible.
-	    let maxw = doc.width - img.x - img.clientWidth - 10;
-	    let maxh = buffer.browser.contentWindow.innerHeight - 4;
-
-	    // Set up the element and add it to the document's DOM.
-	    el.src = href;
-	    el.setAttribute("class", "4chan-preview");
-	    el.setAttribute("style", "border: 2px solid red; position: fixed; top: 0; right: 0; max-width: " + maxw + "px; max-height: " + maxh + "px;");
-	    doc.body.appendChild(el);
-	};
+	buffer.local_variables.overlisteners[i] = chan_show_preview(buffer, doc, link.href);
 
 	buffer.local_variables.outlisteners[i] = function (event) {
 	    // Loop through all the 4chan previews just in case somethin went
@@ -174,12 +162,35 @@ function chanmaster(buffer) {
 	    }
 	};
 
-	img.addEventListener("mouseover", buffer.local_variables.overlisteners[i], true);
-	img.addEventListener("mouseout",  buffer.local_variables.outlisteners[i],  true);
+	link.addEventListener("mouseover", buffer.local_variables.overlisteners[i], true);
+	link.addEventListener("mouseout",  buffer.local_variables.outlisteners[i],  true);
 
 	i++;
     }
 
+}
+
+
+/**
+ * Given the URI to an image, shows it as a preview in the top right hand side
+ * corner of the browser.
+ */
+function chan_show_preview(buffer, doc, uri) {
+    return function(event) {
+
+        // Get the information needed to prevent the preview image from covering
+        // the cursor or the thumbnail.
+        let targ = event.currentTarget.firstChild; // IMG or SPAN (if "Thumbnail unavailable")
+        let maxw = doc.width - targ.clientWidth - abs_point(targ).x - 10;
+        let maxh = buffer.browser.contentWindow.innerHeight - 4;
+
+        // Set up the element and add it to the document's DOM.
+        let el = doc.createElement("img");
+        el.src = uri;
+        el.setAttribute("class", "4chan-preview");
+        el.setAttribute("style", "border: 2px solid red; position: fixed; top: 0; right: 0; max-width: " + maxw + "px; max-height: " + maxh + "px;");
+        doc.body.appendChild(el);
+    }
 }
 
 
@@ -190,11 +201,11 @@ function chanmaster(buffer) {
 function dechanmaster(buffer) {
 
     var doc = buffer.document;
-    var xpr = doc.evaluate("//img[@md5]", doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    var xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
 
     // Remove all of the event listeners.
     let img, i = 0;
-    while (img = xpr.iterateNext()) {
+    while ((img = xpr.iterateNext())) {
 	img.removeEventListener("mouseover", buffer.local_variables.overlisteners[i], true);
 	img.removeEventListener("mouseout",  buffer.local_variables.outlisteners[i],  true);
 	i++;
