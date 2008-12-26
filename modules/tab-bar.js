@@ -136,4 +136,5 @@ define_global_mode("tab_bar_mode",
                        for_each_window(tab_bar_uninstall);
                    });
 
+register_agent_stylesheet('chrome://conkeror-gui/skin/tab-bar.css');
 tab_bar_mode(true);

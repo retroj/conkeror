@@ -151,20 +151,6 @@ function tab_bar_update_buffer_title(b) {
     b.tab.tab_label.setAttribute("value", title);
 }
 
-{
-    let _tab_bar_style_last = null;
-
-    function tab_bar_style_apply(style) {
-        if (_tab_bar_style_last)
-            unregister_user_stylesheet(_tab_bar_style_last);
-        _tab_bar_style_last = null;
-        if (style) {
-            register_user_stylesheet(style);
-            _tab_bar_style_last = style;
-        }
-    }
-}
-
 function tab_bar_install(window) {
     if (window.tab_bar)
         throw new Error("tab bar already initialized for window");
@@ -188,4 +174,5 @@ define_global_mode("tab_bar_mode",
                        for_each_window(tab_bar_uninstall);
                    });
 
+register_agent_stylesheet('chrome://conkeror-gui/skin/tab2-bar.css');
 tab_bar_mode(true);

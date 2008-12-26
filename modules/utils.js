@@ -905,20 +905,40 @@ define_variable("load_paths", load_paths,
                 "Array of URL prefixes searched in order when loading a module.\n" +
                 "Each entry must end in a slash, and should begin with file:// or chrome://.");
 
+/*
+ * Stylesheets
+ */
 function register_user_stylesheet(url)
 {
-    var uri = makeURL(url);
+    var uri = make_uri(url);
     var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
     sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
 }
 
 function unregister_user_stylesheet(url)
 {
-    var uri = makeURL(url);
+    var uri = make_uri(url);
     var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
     if (sss.sheetRegistered(uri, sss.USER_SHEET))
         sss.unregisterSheet(uri, sss.USER_SHEET);
 }
+
+function register_agent_stylesheet(url)
+{
+    var uri = make_uri(url);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    sss.loadAndRegisterSheet(uri, sss.AGENT_SHEET);
+}
+
+function unregister_agent_stylesheet(url)
+{
+    var uri = make_uri(url);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    if (sss.sheetRegistered(uri, sss.AGENT_SHEET))
+        sss.unregisterSheet(uri, sss.AGENT_SHEET);
+}
+
+
 
 function predicate_alist_match(alist, key) {
     for each (let i in alist) {
