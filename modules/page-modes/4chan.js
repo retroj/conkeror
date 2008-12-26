@@ -12,13 +12,6 @@ require("bindings/default/content-buffer/text.js");
 require("bindings/default/content-buffer/textarea.js");
 
 
-// Make a browser class out of 4chan images so that we can follow them to
-// preview them. TODO: Following not yet implemented.
-define_browser_object_class(
-    "images", "image", null,
-    xpath_browser_object_handler ("//img[@md5]"));
-
-
 // Define the different keymaps to use.
 define_keymap("chan_keymap", $parent = content_buffer_normal_keymap);
 define_keymap("chan_keymap_textarea", $parent = content_buffer_textarea_keymap);
