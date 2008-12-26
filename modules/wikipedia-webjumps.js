@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2008 Deniz Dogan
+ * (C) Copyright 2008 Shawn Betts
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.

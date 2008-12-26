@@ -1,6 +1,5 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
- * (C) Copyright 2008 Deniz Dogan
  * (C) Copyright 2008 Nicholas A. Zigarovich
  * (C) Copyright 2008 John J. Foerch
  *
