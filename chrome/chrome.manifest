@@ -1,7 +1,7 @@
 content  conkeror                file:../modules/
 
 content  conkeror-gui            file:../content/
-skin     conkeror-gui   default  file:../skin/
+skin     conkeror-gui   default  file:../style/
 locale   conkeror-gui   en-US    file:../locale/en-US/
 
 content  conkeror-help           file:../help/
