@@ -180,7 +180,7 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
     background: #ccc;
 }
 
-#tab2-bar .tab2 {
+.tab2 {
     margin: 2px 0px 0px 2px;
     padding: 0px;
     height: 19px;
@@ -191,14 +191,14 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
     overflow: hidden; /* Chops end of label */
 }
 
-.tab2 .tab2-label {
+.tab2-label {
     margin-left: 4px;
     margin-top: 2px;
     color: #000;
     font: 11px Tahoma;
 }
 
-#tab2-bar .tab2-icon {
+.tab2-icon {
     height: 16px;
     width: 16px;
     padding-top: 2px;
@@ -208,11 +208,11 @@ tree.completions treechildren::-moz-tree-cell-text(current) {
     text-align: center;
 }
 
-#tab2-bar .tab2[selected=true] .tab2-icon {
+.tab2[selected=true] .tab2-icon {
     background: #252525;
 }
 
-#tab2-bar .tab2[selected=true] {
+.tab2[selected=true] {
    border: 1px solid black;
 }
 
