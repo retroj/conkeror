@@ -20,19 +20,38 @@ function assert_equals (got, expect, name) {
     return true;
 }
 
+function assert_error (fn, name) {
+    if (name == null) name = "unnamed";
+    var got_error = false;
+    try {
+        fn();
+    } catch (e) {
+        got_error = true;
+    }
+    if (! got_error)
+        throw new Error(name+" failed. expected an error calling <"+fn+">.");
+    return true;
+}
 
 // sanity checks
 { let failed = false;
   try { assert_equals(1,0); } catch (e) { failed = true; }
-  assert_equals(failed, true, "walnut sanity check 1");
+  assert_equals(failed, true, "assert_equals: sanity check 1");
 
   failed = false;
   try { assert_equals(1,1); } catch (e) { failed = true; }
-  assert_equals(failed, false, "walnut sanity check 2");
+  assert_equals(failed, false, "assert_equals: sanity check 2");
 
-  assert(true, "walnut sanity check 3");
+  assert(true, "assert: sanity check 1");
   failed = false;
   try { assert(false); } catch (e) { failed = true; }
-  assert(failed, "walnut sanity check 4");
+  assert(failed, "assert: sanity check 2");
+
+  assert(assert_error(function () { throw new Error("an error"); }),
+         "assert_error: sanity check 1");
+
+  failed = false;
+  try { assert_error(function () {}); } catch (e) { failed = true; }
+  assert(failed, "assert_error: sanity check 2");
 }
 
