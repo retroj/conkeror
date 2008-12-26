@@ -146,5 +146,6 @@ application.prototype = {
     contractID: "@conkeror.mozdev.org/application;1"
 };
 
-function NSGetModule(compMgr, fileSpec)
+function NSGetModule(compMgr, fileSpec) {
     XPCOMUtils.generateModule([application]);
+}
