@@ -18,6 +18,8 @@ define_key(content_buffer_textarea_keymap, "C-p", "backward-line");
 define_key(content_buffer_textarea_keymap, "up", "backward-line");
 define_key(content_buffer_textarea_keymap, "M-<", "beginning-of-first-line");
 define_key(content_buffer_textarea_keymap, "M->", "end-of-last-line");
+define_key(content_buffer_textarea_keymap, "C-home", "beginning-of-first-line");
+define_key(content_buffer_textarea_keymap, "C-end", "end-of-last-line");
 define_key(content_buffer_textarea_keymap, "M-v", "backward-page");
 define_key(content_buffer_textarea_keymap, "page_up", "backward-page");
 define_key(content_buffer_textarea_keymap, "C-o", "open-line");
