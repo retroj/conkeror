@@ -7,6 +7,7 @@
 
 
 var chan_thumbnail_xpath = '//a[@target="_blank"]';
+var chan_message_reply_xpath = '//a[@class="quotelink"]';
 
 
 require("utils.js");
@@ -146,7 +147,7 @@ interactive("chan-clear-fields", "Clears the form fields on 4chan.", chan_clear_
 function chanmaster(buffer) {
 
     // Define the same keys for all keymaps.
-    var maps = [chan_keymap, chan_keymap_text, chan_keymap_textarea];
+    let maps = [chan_keymap, chan_keymap_text, chan_keymap_textarea];
     for (i in maps) {
         define_key(maps[i], "C-c C-c", "chan-post-reply");
         define_key(maps[i], "C-c C-i", "chan-add-image");
@@ -156,8 +157,11 @@ function chanmaster(buffer) {
         define_key(maps[i], "C-c C-l", "chan-clear-fields");
     }
 
-    var doc = buffer.document;
-    var xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    // -------------------------------------------------------------------------
+    // PREVIEWING OF IMAGES FROM THUMBNAILS
+    // -------------------------------------------------------------------------
+    let doc = buffer.document;
+    let xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
     let link, i = 0;
 
     // Make buffer local arrays for the event listeners so that we can properly
@@ -165,15 +169,15 @@ function chanmaster(buffer) {
     buffer.local_variables.overlisteners = new Array();
     buffer.local_variables.outlisteners = new Array();
 
-    // For each link...
+    // For each link to an image...
     while ((link = xpr.iterateNext())) {
 
-	buffer.local_variables.overlisteners[i] = chan_show_preview(buffer, doc, link.href);
+	buffer.local_variables.overlisteners[i] = chan_preview_image(buffer, doc, link.href);
 
 	buffer.local_variables.outlisteners[i] = function (event) {
 	    // Loop through all the 4chan previews just in case somethin went
 	    // terribly wrong. I have yet to see this happen.
-	    var previews = doc.getElementsByClassName("4chan-preview");
+	    let previews = doc.getElementsByClassName("4chan-preview");
 	    for (let j = 0; j < previews.length; j++) {
 		previews[j].parentNode.removeChild(previews[j]);
 	    }
@@ -185,6 +189,83 @@ function chanmaster(buffer) {
 	i++;
     }
 
+    // -------------------------------------------------------------------------
+    // PREVIEWING OF MESSAGES THAT HAVE BEEN REPLIED TO
+    // -------------------------------------------------------------------------
+
+    let links = doc.evaluate(chan_message_reply_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    let temp;
+
+    // For each reply link to an original message...
+    while ((link = links.iterateNext())) {
+
+        // Compute the message number from the quote by removing the leading
+        // ">>". We start at character 8, because ">>" is really "&gt;&gt;".
+        temp = link.innerHTML.substring(8);
+
+        buffer.local_variables.overlisteners[i] = chan_preview_message(buffer, doc, temp);
+
+        buffer.local_variables.outlisteners[i] = function (event) {
+            // Loop through all the 4chan previews just in case somethin went
+            // terribly wrong. I have yet to see this happen.
+            let previews = doc.getElementsByClassName("4chan-preview");
+            for (let j = 0; j < previews.length; j++) {
+        	previews[j].parentNode.removeChild(previews[j]);
+            }
+        };
+
+        link.addEventListener("mouseover", buffer.local_variables.overlisteners[i], true);
+        link.addEventListener("mouseout",  buffer.local_variables.outlisteners[i],  true);
+
+        i++;
+    }
+
+}
+
+
+/**
+ * Previews a message that has been replied to. Searches the current document
+ * for the quote using some hot XPath. If the quote wasn't found in the
+ * document, uses AJAX to fetch the target document. If the target document
+ * doesn't have it, we give up.
+ *
+ * TODO: Implement the AJAX stuff.
+ */
+function chan_preview_message(buffer, doc, no) {
+    return function (event) {
+
+        // Returns a suitable offset from the document top for the preview.
+        let suitable_top_offset = function (link)  {
+            return abs_point(link.parentNode.parentNode).y;
+        };
+
+        // This XPath expression uniquely fetches the message that the reply was
+        // for. It intelligently handles both OP and non-OP posts, as the DOM
+        // looks a bit different depending on that. Don't fear... This is such a
+        // huge XPath expression merely because 4chan in its entirety is just a
+        // shitty hack.
+        let blockquote_xpath = '//blockquote[preceding-sibling::span[position() = 1 and a[@class="quotejs" and . = "' + no + '"]]]';
+        let found = doc.evaluate(blockquote_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+        let content;
+
+        // If we found the quote...
+        if ((found = found.iterateNext())) {
+            content = found.innerHTML;
+        } else {
+            content = "Not found in the current document.";
+        }
+
+        // Calculate the positioning of the preview.
+        let left = abs_point(event.target).x + event.target.offsetWidth + 10;
+        let top_off = abs_point(event.target).y;
+
+        // Set up the element holding the quote and show it.
+        let el = doc.createElement("div");
+        el.setAttribute("class", "4chan-preview");
+        el.setAttribute("style", "background: white; color: black; padding: 5px; border: 2px solid red; position: absolute; top: " + top_off + "px; left: " + left + "px");
+        el.innerHTML = content;
+        doc.body.appendChild(el);
+    };
 }
 
 
@@ -192,7 +273,7 @@ function chanmaster(buffer) {
  * Given the URI to an image, shows it as a preview in the top right hand side
  * corner of the browser.
  */
-function chan_show_preview(buffer, doc, uri) {
+function chan_preview_image(buffer, doc, uri) {
     return function(event) {
 
         // Get the information needed to prevent the preview image from covering
@@ -207,7 +288,7 @@ function chan_show_preview(buffer, doc, uri) {
         el.setAttribute("class", "4chan-preview");
         el.setAttribute("style", "border: 2px solid red; position: fixed; top: 0; right: 0; max-width: " + maxw + "px; max-height: " + maxh + "px;");
         doc.body.appendChild(el);
-    }
+    };
 }
 
 
@@ -217,8 +298,8 @@ function chan_show_preview(buffer, doc, uri) {
  */
 function dechanmaster(buffer) {
 
-    var doc = buffer.document;
-    var xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    let doc = buffer.document;
+    let xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
 
     // Remove all of the event listeners.
     let img, i = 0;
