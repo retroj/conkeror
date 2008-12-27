@@ -27,10 +27,9 @@ define_keymap("chan_keymap_text", $parent = content_buffer_text_keymap);
  */
 function chan_make_reply(I) {
     var doc = I.buffer.document;
-    var name = doc.getElementsByClassName("inputtext");
-    if (name.length > 0) {
-	name[0].focus();
-    }
+    var comment = doc.getElementsByName("com");
+    if (comment.length > 0)
+	comment[0].focus();
 }
 
 
@@ -120,11 +119,28 @@ function chan_next_thread(I) {
 }
 
 
+/**
+ * Clears every field in the reply form. Useful for when you've posted in a
+ * thread, go backwards in the history and want to post something new. Also
+ * focuses the comment field.
+ */
+function chan_clear_fields(I) {
+    var doc = I.buffer.document;
+    var form = doc.getElementsByName("post");
+    var comment = doc.getElementsByName("com");
+    if (form.length > 0)
+        form[0].reset();
+    if (comment.length > 0)
+        comment[0].focus();
+}
+
+
 interactive("chan-make-reply", "Puts the focus to the reply/new thread form.", chan_make_reply);
 interactive("chan-post-reply", "Submits the reply form.", chan_post_reply);
 interactive("chan-add-image", "Adds an image attachment to the form.", chan_add_image);
 interactive("chan-previous-thread", "Scrolls the buffer to the previous thread.", chan_previous_thread);
 interactive("chan-next-thread", "Scrolls the buffer to the next thread.", chan_next_thread);
+interactive("chan-clear-fields", "Clears the form fields on 4chan.", chan_clear_fields);
 
 
 function chanmaster(buffer) {
@@ -137,6 +153,7 @@ function chanmaster(buffer) {
         define_key(maps[i], "C-c C-n", "chan-next-thread");
         define_key(maps[i], "C-c C-p", "chan-previous-thread");
         define_key(maps[i], "C-c C-r", "chan-make-reply");
+        define_key(maps[i], "C-c C-l", "chan-clear-fields");
     }
 
     var doc = buffer.document;
@@ -212,7 +229,7 @@ function dechanmaster(buffer) {
     }
 
     // Remove any left over preview images.
-    var previews = doc.getElementsByClassName("4chan-preview");
+    let previews = doc.getElementsByClassName("4chan-preview");
     for (let j = 0; j < previews.length; j++) {
 	previews[j].parentNode.removeChild(previews[j]);
     }
