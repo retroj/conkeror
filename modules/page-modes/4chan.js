@@ -171,21 +171,10 @@ function chanmaster(buffer) {
 
     // For each link to an image...
     while ((link = xpr.iterateNext())) {
-
 	buffer.local_variables.overlisteners[i] = chan_preview_image(buffer, doc, link.href);
-
-	buffer.local_variables.outlisteners[i] = function (event) {
-	    // Loop through all the 4chan previews just in case somethin went
-	    // terribly wrong. I have yet to see this happen.
-	    let previews = doc.getElementsByClassName("4chan-preview");
-	    for (let j = 0; j < previews.length; j++) {
-		previews[j].parentNode.removeChild(previews[j]);
-	    }
-	};
-
+	buffer.local_variables.outlisteners[i] = chan_cleanup_previews(doc);
 	link.addEventListener("mouseover", buffer.local_variables.overlisteners[i], true);
 	link.addEventListener("mouseout",  buffer.local_variables.outlisteners[i],  true);
-
 	i++;
     }
 
@@ -198,25 +187,13 @@ function chanmaster(buffer) {
 
     // For each reply link to an original message...
     while ((link = links.iterateNext())) {
-
         // Compute the message number from the quote by removing the leading
         // ">>". We start at character 8, because ">>" is really "&gt;&gt;".
         temp = link.innerHTML.substring(8);
-
         buffer.local_variables.overlisteners[i] = chan_preview_message(buffer, doc, temp);
-
-        buffer.local_variables.outlisteners[i] = function (event) {
-            // Loop through all the 4chan previews just in case somethin went
-            // terribly wrong. I have yet to see this happen.
-            let previews = doc.getElementsByClassName("4chan-preview");
-            for (let j = 0; j < previews.length; j++) {
-        	previews[j].parentNode.removeChild(previews[j]);
-            }
-        };
-
+        buffer.local_variables.outlisteners[i] = chan_cleanup_previews(doc);
         link.addEventListener("mouseover", buffer.local_variables.overlisteners[i], true);
         link.addEventListener("mouseout",  buffer.local_variables.outlisteners[i],  true);
-
         i++;
     }
 
@@ -252,6 +229,7 @@ function chan_preview_message(buffer, doc, no) {
         if ((found = found.iterateNext())) {
             content = found.innerHTML;
         } else {
+            // http://img.4chan.org/b/res/105618188.html#105618721
             content = "Not found in the current document.";
         }
 
@@ -288,6 +266,21 @@ function chan_preview_image(buffer, doc, uri) {
         el.setAttribute("class", "4chan-preview");
         el.setAttribute("style", "border: 2px solid red; position: fixed; top: 0; right: 0; max-width: " + maxw + "px; max-height: " + maxh + "px;");
         doc.body.appendChild(el);
+    };
+}
+
+
+/**
+ * Returns a function which removes any preview elements from the DOM.
+ */
+function chan_cleanup_previews(doc) {
+    return function (event) {
+        // Loop through all the 4chan previews just in case somethin went
+        // terribly wrong. I have yet to see this happen.
+        let previews = doc.getElementsByClassName("4chan-preview");
+        for (let j = 0; j < previews.length; j++) {
+            previews[j].parentNode.removeChild(previews[j]);
+        }
     };
 }
 
