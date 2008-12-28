@@ -140,7 +140,7 @@ function chan_clear_fields(I) {
     if (comment.length > 0)
         comment[0].focus();
 }
-
+ 
 
 interactive("chan-make-reply", "Puts the focus to the reply/new thread form.", chan_make_reply);
 interactive("chan-post-reply", "Submits the reply form.", chan_post_reply);
@@ -155,7 +155,6 @@ function chanmaster(buffer) {
     // Define the same keys for all keymaps.
     let maps = [chan_keymap, chan_keymap_text, chan_keymap_textarea];
     for (i in maps) {
-        define_key(maps[i], "C-c C-c", "chan-post-reply");
         define_key(maps[i], "C-c C-i", "chan-add-image");
         define_key(maps[i], "C-c C-n", "chan-next-thread");
         define_key(maps[i], "C-c C-p", "chan-previous-thread");
@@ -166,6 +165,7 @@ function chanmaster(buffer) {
     // -------------------------------------------------------------------------
     // PREVIEWING OF IMAGES FROM THUMBNAILS
     // -------------------------------------------------------------------------
+
     let doc = buffer.document;
     let xpr = xpath_lookup(doc, chan_thumbnail_xpath);
     let link, i = 0;
