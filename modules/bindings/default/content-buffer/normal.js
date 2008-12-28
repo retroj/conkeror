@@ -25,6 +25,7 @@ define_key(content_buffer_normal_keymap, "g", "find-url");
 define_key(content_buffer_normal_keymap, "C-y", "paste-url");
 define_key(content_buffer_normal_keymap, "C-x C-v", "find-alternate-url");
 define_key(content_buffer_normal_keymap, "C-x C-s", "save-page");
+define_key(content_buffer_normal_keymap, "C-x h", "cmd_selectAll");
 
 
 define_key(content_buffer_normal_keymap, "C-g", "stop-loading");
