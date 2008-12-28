@@ -1341,3 +1341,40 @@ function switch_subarrays(arr, i1, i2, j1, j2) {
         arr.slice(i1, i2) +
         arr.slice(j2, arr.length);
 }
+
+/**
+ * Makes an AJAX request to the given URI and calls the callback function upon
+ * retrieval. In the callback function, the XMLHttpRequest can be accessed
+ * through, assuming that the first parameter is called "evt", evt.target.
+ *
+ * @param uri The URI to make the request to.
+ * @param callback The callback function.
+ * @param s (Optional) Settings object.
+ */
+function ajax_request(uri, callback, s) {
+
+    // Set up the default settings.
+    var sets = {
+        method : 'GET',
+        data   : null
+    };
+
+    // Let the user's provided settings override our defaults.
+    if (s)
+        sets = {
+            method : s.method ? s.method : 'GET',
+            data   : s.data   ? s.data   : null
+        };
+
+    var httpRequest = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
+        .createInstance(Components.interfaces.nsIXMLHttpRequest);
+    httpRequest.onreadystatechange = callback;
+
+    // If we're POSTing something, we should make sure the headers are set
+    // correctly.
+    if (sets.method == 'POST')
+        httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    httpRequest.open(sets.method, uri, true);
+    httpRequest.send(sets.data);
+}
