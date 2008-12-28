@@ -1378,3 +1378,15 @@ function ajax_request(uri, callback, s) {
     httpRequest.open(sets.method, uri, true);
     httpRequest.send(sets.data);
 }
+
+
+/**
+ * Convenience function for making simple XPath lookups in a document.
+ *
+ * @param doc The document to look in.
+ * @param exp The XPath expression to search for.
+ * @return The XPathResult object representing the set of found nodes.
+ */
+function xpath_lookup(doc, exp) {
+    return doc.evaluate(exp, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+}

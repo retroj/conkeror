@@ -161,7 +161,7 @@ function chanmaster(buffer) {
     // PREVIEWING OF IMAGES FROM THUMBNAILS
     // -------------------------------------------------------------------------
     let doc = buffer.document;
-    let xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    let xpr = xpath_lookup(doc, chan_thumbnail_xpath);
     let link, i = 0;
 
     // Make buffer local arrays for the event listeners so that we can properly
@@ -182,7 +182,7 @@ function chanmaster(buffer) {
     // PREVIEWING OF MESSAGES THAT HAVE BEEN REPLIED TO
     // -------------------------------------------------------------------------
 
-    let links = doc.evaluate(chan_message_reply_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    let links = xpath_lookup(doc, chan_message_reply_xpath);
     let temp;
 
     // For each reply link to an original message...
