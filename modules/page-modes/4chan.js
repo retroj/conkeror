@@ -8,6 +8,7 @@
 
 var chan_thumbnail_xpath = '//a[@target="_blank"]';
 var chan_message_reply_xpath = '//a[@class="quotelink"]';
+var chan_thread_top_xpath = '//span[@class="filesize"]/following-sibling::hr | //form[@name="delform"]/preceding-sibling::hr[1]';
 
 
 require("utils.js");
@@ -29,8 +30,9 @@ define_keymap("chan_keymap_text", $parent = content_buffer_text_keymap);
 function chan_make_reply(I) {
     var doc = I.buffer.document;
     var comment = doc.getElementsByName("com");
-    if (comment.length > 0)
+    if (comment.length > 0) {
 	comment[0].focus();
+    }
 }
 
 
@@ -54,7 +56,8 @@ function chan_add_image(I) {
     var file = doc.getElementsByName("upfile");
 
     // The length of the array should be 1, otherwise we're doing something silly.
-    if (file.length != 1) return;
+    if (file.length != 1)
+        return;
 
     // Otherwise, get the input element.
     file = file[0];
@@ -75,25 +78,27 @@ function chan_add_image(I) {
 
 
 /**
- * Scrolls the buffer to the previous thread.
+ * Scrolls the buffer to the previous thread. If no previous thread was found,
+ * doesn't scroll at all.
  */
 function chan_previous_thread(I) {
-    var doc = I.buffer.document,
-	threads = doc.getElementsByTagName("HR"),
-	viewportOff = -(doc.body.getBoundingClientRect().top),
-	curT = -1,
-	curD = 99999;
+    let doc = I.buffer.document,
+        xpr = xpath_lookup(doc, chan_thread_top_xpath);
 
-    // TODO: Eliminate non-thread HRs, probably using XPath.
-    for (t in threads) {
-	if (threads[t].offsetTop < viewportOff &&
-	    Math.abs(threads[t].offsetTop - viewportOff) < curD) {
-	    curT = threads[t];
-	    curD = Math.abs(threads[t].offsetTop - viewportOff);
-	}
+    let viewportOff = -(doc.body.getBoundingClientRect().top),
+	found = -1,
+	distance = 9999999;
+
+    while ((thr = xpr.iterateNext())) {
+        if (thr.offsetTop < viewportOff &&
+            Math.abs(thr.offsetTop - viewportOff) < distance) {
+            found = thr;
+            distance = Math.abs(thr.offsetTop - viewportOff);
+        }
     }
-    if (curT == -1) return;
-    curT.scrollIntoView();
+
+    if (found == -1) return;
+    found.scrollIntoView();
 }
 
 
@@ -101,22 +106,23 @@ function chan_previous_thread(I) {
  * Scrolls the buffer to the next thread.
  */
 function chan_next_thread(I) {
-    var doc = I.buffer.document,
-	threads = doc.getElementsByTagName("HR"),
-	viewportOff = -(doc.body.getBoundingClientRect().top),
-	curT = -1,
-	curD = 99999;
+    let doc = I.buffer.document,
+        xpr = xpath_lookup(doc, chan_thread_top_xpath);
 
-    // TODO: Eliminate non-thread HRs, probably using XPath.
-    for (t in threads) {
-	if (threads[t].offsetTop - 6 > viewportOff && // "-6 hack" because of scrollIntoView()
-	    Math.abs(threads[t].offsetTop - viewportOff) < curD) {
-	    curT = threads[t];
-	    curD = Math.abs(threads[t].offsetTop - viewportOff);
-	}
+    let viewportOff = -(doc.body.getBoundingClientRect().top),
+	found = -1,
+	distance = 9999999;
+
+    while ((thr = xpr.iterateNext())) {
+        if (thr.offsetTop - 6 > viewportOff &&
+            Math.abs(thr.offsetTop - viewportOff) < distance) {
+            found = thr;
+            distance = Math.abs(thr.offsetTop - viewportOff);
+        }
     }
-    if (curT == -1) return;
-    curT.scrollIntoView();
+
+    if (found == -1) return;
+    found.scrollIntoView();
 }
 
 
@@ -222,7 +228,7 @@ function chan_preview_message(buffer, doc, no) {
         // huge XPath expression merely because 4chan in its entirety is just a
         // shitty hack.
         let blockquote_xpath = '//blockquote[preceding-sibling::span[position() = 1 and a[@class="quotejs" and . = "' + no + '"]]]';
-        let found = doc.evaluate(blockquote_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+        let found = xpath_lookup(doc, blockquote_xpath);
         let content;
 
         // If we found the quote...
@@ -292,7 +298,7 @@ function chan_cleanup_previews(doc) {
 function dechanmaster(buffer) {
 
     let doc = buffer.document;
-    let xpr = doc.evaluate(chan_thumbnail_xpath, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
+    let xpr = xpath_lookup(doc, chan_thumbnail_xpath);
 
     // Remove all of the event listeners.
     let img, i = 0;
