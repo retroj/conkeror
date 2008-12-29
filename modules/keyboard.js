@@ -267,12 +267,19 @@ outer:
                 continue outer;
             }
 
-            if (!final_binding && parent_kmap) {
-                var p_bindings = parent_kmap.bindings;
+            if (!final_binding) {
+                let temp_parent = parent_kmap;
                 parent_kmap = null;
-                var p_binding = p_bindings[key];
-                if (p_binding && p_binding.keymap)
-                    parent_kmap = p_binding.keymap;
+                while (temp_parent) {
+                    let p_bindings = temp_parent.bindings;
+                    let p_binding = p_bindings[key];
+                    if (p_binding && p_binding.keymap) {
+                        parent_kmap = p_binding.keymap;
+                        break;
+                    } else {
+                        temp_parent = temp_parent.parent;
+                    }
+                }
             }
 
             bindings[key] = make_binding();
