@@ -1,0 +1,119 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# Generating a xulrunner build id and other strings
+UPSTREAM_VERSION := $(shell grep ^Version= application.ini | sed -e 's/^Version=//')
+DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
+
+COMMIT  := $(shell echo -n `cat debian/commit.id`)
+BUILDID := $(COMMIT)_$(shell date +%s)
+
+include /usr/share/quilt/quilt.make
+
+configure: configure-stamp
+configure-stamp: $(QUILT_STAMPFN)
+	dh_testdir
+	# Add here commands to configure the package.
+
+	touch configure-stamp
+
+# Architecture
+build: build-arch build-indep
+
+build-arch: build-arch-stamp 
+build-arch-stamp: configure-stamp
+	# Add here commands to compile the arch part of the package.
+	make
+
+	touch $@
+
+build-indep: build-indep-stamp
+build-indep-stamp: configure-stamp
+	# Add here commands to compile the indep part of the package.
+	#$(MAKE) doc
+
+	touch $@
+
+clean: unpatch
+	dh_testdir
+	dh_testroot
+	rm -f build-arch-stamp build-indep-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	$(MAKE) clean
+
+	dh_clean
+
+install: install-indep install-arch
+install-indep:
+	dh_testdir
+	dh_testroot
+	dh_clean -k -i
+	dh_installdirs -i
+	dh_desktop
+
+	# Add here commands to install the indep part of the package into
+	# debian/<package>
+	cp -pr branding chrome components content contrib defaults	\
+	       locale modules search-engines help style			\
+	       $(CURDIR)/debian/conkeror/usr/share/conkeror/
+	# Add generated Build ID and Debian version to version output
+	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (commit ${COMMIT}, Debian-${DEBIAN_VERSION})/' application.ini \
+	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/application.ini
+	# Use Debian version for M-x version output
+	sed -e 's/\$$CONKEROR_VERSION\$$/${UPSTREAM_VERSION} (commit ${COMMIT}, Debian-${DEBIAN_VERSION})/' components/application.js \
+	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
+	cp -p debian/conkeror.bin $(CURDIR)/debian/conkeror/usr/bin/conkeror
+	cp -p debian/conkeror.desktop $(CURDIR)/debian/conkeror/usr/share/applications/
+	dh_install -i
+
+install-arch:
+	dh_testdir
+	dh_testroot
+	dh_clean -k -s
+	dh_installdirs -s
+
+	# Add here commands to install the arch part of the package into
+	# debian/tmp.
+	cp -p conkeror-spawn-helper $(CURDIR)/debian/conkeror-spawn-process-helper/usr/lib/conkeror/
+	ln -s /usr/lib/conkeror/conkeror-spawn-helper $(CURDIR)/debian/conkeror-spawn-process-helper/usr/share/conkeror/
+
+	dh_install -s
+
+# Must not depend on anything. This is to be called by
+# binary-arch/binary-indep in another 'make' thread.
+binary-common:
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+#	dh_installexamples
+	dh_installmenu
+#	dh_installemacsen
+	dh_installman
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+# Build architecture independant packages using the common target.
+binary-indep: build-indep install-indep
+	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
+
+# Build architecture dependant packages using the common target.
+binary-arch: build-arch install-arch
+	$(MAKE) -f debian/rules DH_OPTIONS=-s binary-common
+
+binary: binary-arch binary-indep
+.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure

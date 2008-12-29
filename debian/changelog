@@ -1,0 +1,73 @@
+conkeror (0.9~git081226-1) UNRELEASED; urgency=low
+
+  * Based on new snapshot (commit
+    2f6b12413a43c0df163c94d48d7e91c3ab924e2d)
+    - spawn-process-helper has been renamed upstream to
+      conkeror-spawn-helper -- package names remain unchanged
+    - Changes to the behaviour of the universal argument C-u.
+    - Loads now ~/.conkerorrc as the default rc file
+    - gmane-mode added
+    - gmail-mode disabled by default
+    - Links on mouse over images now shown
+    - command switch -uu for universal-arg of following -f command
+    - pasting current paste buffer content bound to `C-y'
+    - new command `submit-form' bound to `C-c C-c' in forms
+    - new last.fm mode
+  * TODO: Documented more command-line switches in man page and --help
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Tue, 23 Dec 2008 00:49:45 +0100
+
+conkeror (0.9~git080629-2) unstable; urgency=low
+
+  * Don't suppress conkeror's output if we don't have to change it in the
+    wrapper [conkeror.bin]. (Closes: #498515)
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Thu, 25 Sep 2008 01:40:07 +0200
+
+conkeror (0.9~git080629-1) unstable; urgency=low
+
+  * Based on new snapshot (commit
+    6944096a1af033d0aa70d8b4cc19b271e0d832b1)
+  * Uses now quilt for patch management, added appropriate build-deps.
+  * Use sensible-editor instead of emacs by default.
+  * Changed default desktop icon from "web-browser.png" to
+    "browser". (Closes: #491880; fixes a desktop-file-validate warning)
+  * Made M-x conkeror-version show the Debian version instead of
+    '$CONKEROR_VERSION$'.
+  * Remove suggestion of zile since conkeror currently can't handle
+    text-mode only editors. Suggest the virtual package emacsen instead.
+  * Depends now on "xulrunner (>= 1.9~) | xulrunner-1.9" instead of solely
+    "xulrunner-1.9".
+  * Added a lintian override for debian-watch-file-is-missing since there
+    are no upstream releases to watch (yet).
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Thu, 24 Jul 2008 00:49:28 +0200
+
+conkeror (0.9~git080522-2) unstable; urgency=low
+
+  * Initial release for Debian (Closes: #394566)
+  * Cleaned up and removed files and directories not in the upstream git
+    repository.
+  * Unified file names in the debian directory.
+  * Bumped standards version to 3.8.0.
+  * Removed -height and -width options from man page and --help since them
+    being documented but not working is an open bug in Mozilla since 2000.
+    (See #267344 and https://bugzilla.mozilla.org/show_bug.cgi?id=50201)
+  * Added some more details to the man page.
+  * Added a CREDITS.Debian file.
+  * Added an automatically generated build id to application.ini. (See
+    http://developer.mozilla.org/en/docs/application.ini#The_.5BApp.5D_section)
+  * Added the Debian version to the version string in application.ini.
+  * Added a desktop file for conkeror.
+  * Made several several cosmetic changes to docs, etc.
+  * Added Luca Capello as co-maintainer.
+  * conkeror-spawn-process-helper now suggests conkeror.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Thu, 26 Jun 2008 01:31:32 +0200
+
+conkeror (0.9~git080522-1) unstable; urgency=low
+
+  * Initial release for beta testers
+  * Based on commit fead87b7fa1156e750dcb01f903e6b8a35e43a37
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 08 Jun 2008 23:08:34 +0200

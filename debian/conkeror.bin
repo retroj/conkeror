@@ -1,0 +1,38 @@
+#!/bin/sh
+# Wrapper around xulrunner to start the xulrunner application conkeror
+# Written by Axel Beckert <abe@deuxchevaux.org> for the Debian Project
+
+# Find an appropriate xulrunner binary
+XULRUNNER=''
+for xr in xulrunner-1.9 xulrunner; do
+    XRTMP=`which $xr`
+    if [ -n "$XRTMP" -a -x "$XRTMP" ]; then
+	if expr `$XRTMP --gre-version | cut -d . -f 1,2` '>=' 1.9 > /dev/null; then
+	    # xulrunner is version 1.9 or higher, take it
+	    XULRUNNER=$XRTMP
+	    break
+	else
+	    # xulrunner is older than version 1.9, forget it
+	    XRTMP=/usr/lib/$xr/xulrunner
+	    if [ -x $XRTMP ]; then
+		if expr `$XRTMP --gre-version | cut -d . -f 1,2` '>=' 1.9 > /dev/null; then
+		    # xulrunner is a 1.9 version, take it
+		    XULRUNNER=$XRTMP
+		    break
+		fi
+	    fi
+	fi
+    fi
+done
+
+if [ -z "$XULRUNNER" ]; then
+    echo "xulrunner version 1.9 required, but not found. Bailing out." 1>&2
+    exit 1;
+fi
+
+if [ "$*" = "--help" ]; then
+    errormsg="`exec $XULRUNNER /usr/share/conkeror/application.ini \"$@\" 2>&1`"
+    echo "$errormsg" | sed -e "s:/[^ ]*/xulrunner-bin:$0:; /-\(width\|height\)/d" 1>&2
+else
+    exec $XULRUNNER /usr/share/conkeror/application.ini "$@"
+fi

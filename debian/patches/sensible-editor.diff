@@ -1,0 +1,13 @@
+Index: conkeror-0.9~git080819/modules/external-editor.js
+===================================================================
+--- conkeror-0.9~git080819.orig/modules/external-editor.js	2008-08-19 20:37:21.000000000 +0200
++++ conkeror-0.9~git080819/modules/external-editor.js	2008-08-19 20:44:21.000000000 +0200
+@@ -5,7 +5,7 @@
+  * COPYING file.
+ **/
+ 
+-define_variable("editor_shell_command", getenv("VISUAL") || getenv("EDITOR") || "emacs",
++define_variable("editor_shell_command", "/usr/bin/sensible-editor",
+                      "Shell command used to invoke an external editor.\n" +
+                      "This defaults to the value of the EDITOR environment variable.  If " +
+                      "`run_external_editor_function' is non-null, it is used instead to " +

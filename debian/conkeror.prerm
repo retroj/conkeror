@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "remove" -o "$1" = "deconfigure" ] ; then
+	update-alternatives --remove x-www-browser /usr/bin/conkeror
+fi
+
+#DEBHELPER#
+
+exit 0

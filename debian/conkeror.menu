@@ -1,0 +1,3 @@
+?package(conkeror):needs="X11" section="Applications/Network/Web Browsing"\
+  longtitle="Conkeror, a keyboard-focused web browser modelled after Emacs and Lynx"\
+  title="Conkeror" command="/usr/bin/conkeror"
