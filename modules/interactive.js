@@ -153,10 +153,7 @@ function alternates () {
                 index++;
             }
         }
-        var result = alts[index](I);
-        if (is_coroutine(result)) {
-            co_call(function() { yield result; }());
-        }
+        yield alts[index](I);
     };
 }
 
