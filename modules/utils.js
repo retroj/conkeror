@@ -908,37 +908,49 @@ define_variable("load_paths", load_paths,
 /*
  * Stylesheets
  */
-function register_user_stylesheet(url)
-{
+function register_user_stylesheet (url) {
     var uri = make_uri(url);
-    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"]
+        .getService(Ci.nsIStyleSheetService);
     sss.loadAndRegisterSheet(uri, sss.USER_SHEET);
 }
 
-function unregister_user_stylesheet(url)
-{
+function unregister_user_stylesheet (url) {
     var uri = make_uri(url);
-    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"]
+        .getService(Ci.nsIStyleSheetService);
     if (sss.sheetRegistered(uri, sss.USER_SHEET))
         sss.unregisterSheet(uri, sss.USER_SHEET);
 }
 
-function register_agent_stylesheet(url)
-{
+function register_agent_stylesheet (url) {
     var uri = make_uri(url);
-    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"]
+        .getService(Ci.nsIStyleSheetService);
     sss.loadAndRegisterSheet(uri, sss.AGENT_SHEET);
 }
 
-function unregister_agent_stylesheet(url)
-{
+function unregister_agent_stylesheet (url) {
     var uri = make_uri(url);
-    var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"]
+        .getService(Ci.nsIStyleSheetService);
     if (sss.sheetRegistered(uri, sss.AGENT_SHEET))
         sss.unregisterSheet(uri, sss.AGENT_SHEET);
 }
 
+function agent_stylesheet_registered_p (url) {
+    var uri = make_uri(url);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"]
+        .getService(Ci.nsIStyleSheetService);
+    return sss.sheetRegistered(uri, sss.AGENT_SHEET);
+}
 
+function user_stylesheet_registered_p (url) {
+    var uri = make_uri(url);
+    var sss = Cc["@mozilla.org/content/style-sheet-service;1"]
+        .getService(Ci.nsIStyleSheetService);
+    return sss.sheetRegistered(uri, sss.USER_SHEET);
+}
 
 function predicate_alist_match(alist, key) {
     for each (let i in alist) {
@@ -1390,3 +1402,29 @@ function ajax_request(uri, callback, s) {
 function xpath_lookup(doc, exp) {
     return doc.evaluate(exp, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
 }
+
+
+/* get_contents_synchronously returns the contents of the given
+ * string-url as a string on success, or null on failure.
+ */
+function get_contents_synchronously (url) {
+    var ioService=Components.classes["@mozilla.org/network/io-service;1"]
+        .getService(Components.interfaces.nsIIOService);
+    var scriptableStream=Components
+        .classes["@mozilla.org/scriptableinputstream;1"]
+        .getService(Components.interfaces.nsIScriptableInputStream);
+    var channel;
+    var input;
+    try {
+        channel=ioService.newChannel(url,null,null);
+        input=channel.open();
+    } catch (e) {
+        return null;
+    }
+    scriptableStream.init(input);
+    var str=scriptableStream.read(input.available());
+    scriptableStream.close();
+    input.close();
+    return str;
+}
+
