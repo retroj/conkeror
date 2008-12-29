@@ -436,6 +436,10 @@ hints_minibuffer_state.prototype = {
                                                         delay);
     },
 
+    ran_minibuffer_command : function (m) {
+        this.handle_input(m);
+    },
+
     handle_input : function (m) {
         m._set_selection();
         this.clear_auto_exit_timer();
