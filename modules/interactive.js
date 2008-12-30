@@ -60,16 +60,19 @@ interactive_context.prototype = {
 };
 
 function handle_interactive_error(window, e) {
-    var write_message = dumpln;
-    if (window)
-        write_message = window.minibuffer.message;
-    if (e instanceof interactive_error)
-        write_message(e.message);
-    else if (e instanceof abort)
-        write_message("Quit");
-    else {
+    if (e instanceof interactive_error) {
+        if (window)
+            window.minibuffer.message(e.message);
+        else
+            dumpln(e.message);
+    } else if (e instanceof abort && window) {
+        window.minibuffer.message("Quit");
+    } else {
         dump_error(e);
-        write_message("call interactively: " + e);
+        if (window)
+            window.minibuffer.message("call interactively: " + e);
+        else
+            dumpln("call interactively: " + e);
     }
 }
 
