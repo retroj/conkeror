@@ -241,30 +241,37 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
             null /* existing results */);
         var length = res.snapshotLength;
         if (length > 0) {
-            var index = null;
-            if (focused_elem != null) {
-                for (var i = 0; i < length; ++i) {
-                    if (res.snapshotItem(i) == focused_elem) {
-                        index = i;
-                        break;
-                    }
+            let valid_nodes = [];
+            for (let i = 0; i < length; ++i) {
+                let elem = res.snapshotItem(i);
+                if (elem.clientWidth == 0 &&
+                    elem.clientHeight == 0)
+                    continue;
+                let style = win.getComputedStyle(elem, "");
+                if (style.display == "none" || style.visibility == "hidden")
+                    continue;
+                valid_nodes.push(elem);
+            }
+
+            if (valid_nodes.length > 0) {
+                var index = -1;
+                if (focused_elem != null)
+                    index = valid_nodes.indexOf(focused_elem);
+                if (index == -1) {
+                    if (count > 0)
+                        index = count - 1;
+                    else
+                        index = -count;
                 }
-            }
-            if (index == null) {
-                if (count > 0)
-                    index = count - 1;
                 else
-                    index = -count;
+                    index = index + count;
+                index = index % valid_nodes.length;
+                if (index < 0)
+                    index += valid_nodes.length;
+
+                return valid_nodes[index];
             }
-            else
-                index = index + count;
-            index = index % length;
-            if (index < 0)
-                index += length;
-
-            return res.snapshotItem(index);
         }
-
         // Recurse on sub-frames
         for (var i = 0; i < win.frames.length; ++i) {
             var elem = helper(win.frames[i], skip_win);
