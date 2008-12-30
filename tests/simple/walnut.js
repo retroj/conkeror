@@ -1,0 +1,46 @@
+
+require('walnut.js');
+
+// sanity checks
+{ let failed = false;
+  try { assert_equals(1,0); } catch (e) { failed = true; }
+  assert_equals(failed, true);
+
+  failed = false;
+  try { assert_equals(1,1); } catch (e) { failed = true; }
+  assert_equals(failed, false);
+
+  assert(true, "assert: sanity check 1");
+  failed = false;
+  try { assert(false); } catch (e) { failed = true; }
+  assert(failed);
+
+  assert(assert_error(function () { throw new Error("an error"); }));
+
+  failed = false;
+  try { assert_error(function () {}); } catch (e) { failed = true; }
+  assert(failed);
+
+  assert_null(null);
+  assert_error(function () { assert_null(false); });
+}
+
+{ let suite = {
+      did_setup: 0,
+      did_teardown: 0,
+      setup: function () {
+          this.did_setup++;
+      },
+      teardown: function () {
+          this.did_teardown++;
+      },
+      test_was_run: function () {
+          this.was_run = true;
+      }
+  };
+  let results = walnut_run(suite);
+  assert(suite.was_run);
+  assert_equals(suite.did_setup, results.run);
+  assert_equals(suite.did_teardown, results.run);
+}
+

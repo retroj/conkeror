@@ -1,26 +1,52 @@
 
 require('walnut.js');
 
-// get_contents_synchronously
-assert(get_contents_synchronously("chrome://conkeror/content/conkeror.js"),
-       "get_contents_synchronously 1");
-assert_null(get_contents_synchronously("chrome://conkeror/content/non-existent.file"),
-            "get_contents_synchronously 2");
-
-// themes
-assert(theme_load, "theme module was loaded");
-assert_error(function () { theme_load(" nonexistent theme name!"); }, "theme 1");
-assert(theme_load_paths, "theme_load_paths exists");
-assert(theme_find("default"), "default theme exists");
-assert(theme_find("default").location, "(theme).location exists");
-assert(theme_find("default").sheets, "(theme).sheets exists");
-{ let th1 = theme_find("default");
-  let th2 = theme_find("default");
-  assert_equals(th1, th2, "theme_find returns already loaded theme when possible");
+{ let suite = {
+      test_get_contents_asynchronously_1: function () {
+          assert(get_contents_synchronously("chrome://conkeror/content/conkeror.js"));
+      },
+      test_get_contents_asynchronously_2: function () {
+          assert_null(get_contents_synchronously("chrome://conkeror/content/non-existent.file"));
+      },
+      test_theme_module_was_loaded: function () {
+          assert(theme_load, "theme module was loaded");
+      },
+      test_theme1: function () {
+          assert_error(function () { theme_load(" nonexistent theme name!"); });
+      },
+      test_theme_load_paths_exists: function () {
+          assert(theme_load_paths);
+      },
+      test_default_theme_exists: function () {
+          assert(theme_find("default"));
+      },
+      test_theme_location_prop_exists: function () {
+          assert(theme_find("default").location);
+      },
+      test_theme_sheets_prop_exists: function () {
+          assert(theme_find("default").sheets);
+      },
+      test_theme_find_recycles: function () {
+          let th1 = theme_find("default");
+          let th2 = theme_find("default");
+          assert_equals(th1, th2);
+      },
+      test_theme_cssfile_module_1: function () {
+          assert_equals(theme_cssfile_module("foo.css"), "foo");
+      },
+      test_theme_cssfile_module_2: function () {
+          assert_equals(theme_cssfile_module("foo--bar.css"), "foo");
+      },
+      test_theme_unregister_method_exists: function () {
+          assert(theme_find("default").unregister);
+      },
+      test_theme_register_method_exists: function () {
+          assert(theme_find("default").register);
+      },
+      test_theme_registered_p_method_exists: function () {
+          assert(theme_find("default").registered_p);
+      }
+  };
+  walnut_run(suite);
 }
-assert_equals(theme_cssfile_module("foo.css"), "foo", "theme_cssfile_module 1");
-assert_equals(theme_cssfile_module("foo--bar.css"), "foo", "theme_cssfile_module 2");
-assert(theme_find("default").unregister, "theme has unregister method");
-assert(theme_find("default").register, "theme has register method");
-assert(theme_find("default").registered_p, "theme has registered_p method");
 
