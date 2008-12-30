@@ -60,13 +60,16 @@ interactive_context.prototype = {
 };
 
 function handle_interactive_error(window, e) {
+    var write_message = dumpln;
+    if (window)
+        write_message = window.minibuffer.message;
     if (e instanceof interactive_error)
-        window.minibuffer.message(e.message);
+        write_message(e.message);
     else if (e instanceof abort)
-        window.minibuffer.message("Quit");
+        write_message("Quit");
     else {
         dump_error(e);
-        window.minibuffer.message("call interactively: " + e);
+        write_message("call interactively: " + e);
     }
 }
 
@@ -77,10 +80,12 @@ function call_interactively(I, command)
 
     I.__proto__ = interactive_context.prototype;
 
-    if (I.buffer == null)
-        I.buffer = I.window.buffers.current;
-    else if (I.window == null)
+    if (I.window) {
+        if (I.buffer == null)
+            I.buffer = I.window.buffers.current;
+    } else if (I.buffer) {
         I.window = I.buffer.window;
+    }
 
     var window = I.window;
 
@@ -91,9 +96,10 @@ function call_interactively(I, command)
     }
 
     var cmd = interactive_commands.get(command);
-    if (!cmd)
-    {
-        window.minibuffer.message("Invalid command: " + command);
+    if (!cmd) {
+        handle_interactive_error(
+            window,
+            interactive_error("Invalid command: " + command));
         return;
     }
 
@@ -110,7 +116,7 @@ function call_interactively(I, command)
     // default, possibly specified by the page-mode.
     if (I.browser_object == null) {
         I.browser_object =
-            I.buffer.default_browser_object_classes[command] ||
+            (I.buffer && I.buffer.default_browser_object_classes[command]) ||
             cmd.browser_object;
     }
 
