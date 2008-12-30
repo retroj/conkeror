@@ -77,7 +77,7 @@ if (get_os() == 'Darwin') {
  * Keymap datatype
  */
 
-define_keywords("$parent", "$help", "$name");
+define_keywords("$parent", "$help", "$name", "$anonymous");
 function keymap ()
 {
     keywords(arguments);
@@ -86,6 +86,7 @@ function keymap ()
     this.predicate_bindings = [];
     this.help = arguments.$help;
     this.name = arguments.$name;
+    this.anonymous = arguments.$anonymous;
 }
 
 function define_keymap(name) {
@@ -218,7 +219,8 @@ function define_key_internal(ref, kmap, keys, new_command, new_keymap)
         } else {
             let old_kmap = kmap;
             // Check for a corresponding binding a parent
-            kmap = new keymap($parent = parent_kmap);
+            kmap = new keymap($parent = parent_kmap, $anonymous,
+                              $name = old_kmap.name + " " + format_key_spec(key));
             kmap.bound_in = old_kmap;
             return {key: key,
                     keymap: kmap,
@@ -265,12 +267,19 @@ outer:
                 continue outer;
             }
 
-            if (!final_binding && parent_kmap) {
-                var p_bindings = parent_kmap.bindings;
+            if (!final_binding) {
+                let temp_parent = parent_kmap;
                 parent_kmap = null;
-                var p_binding = p_bindings[key];
-                if (p_binding && p_binding.keymap)
-                    parent_kmap = p_binding.keymap;
+                while (temp_parent) {
+                    let p_bindings = temp_parent.bindings;
+                    let p_binding = p_bindings[key];
+                    if (p_binding && p_binding.keymap) {
+                        parent_kmap = p_binding.keymap;
+                        break;
+                    } else {
+                        temp_parent = temp_parent.parent;
+                    }
+                }
             }
 
             bindings[key] = make_binding();

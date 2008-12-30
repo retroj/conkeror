@@ -394,18 +394,20 @@ hints_minibuffer_state.prototype = {
                                             this.focused_frame, this.focused_element);
         }
         this.manager.update_valid_hints();
+        this.window = window;
         if (this.url_panel)
             this.url_panel.update();
     },
     clear_auto_exit_timer : function () {
-        if (this.auto_exit_timer_ID) {
-            this.manager.window.clearTimeout(this.auto_exit_timer_ID);
+        if (this.auto_exit_timer_ID != null) {
+            this.window.clearTimeout(this.auto_exit_timer_ID);
             this.auto_exit_timer_ID = null;
         }
     },
     unload : function (window) {
         this.clear_auto_exit_timer();
         this.manager.hide_hints();
+        delete this.window;
     },
     destroy : function () {
         this.clear_auto_exit_timer();
@@ -432,6 +434,10 @@ hints_minibuffer_state.prototype = {
         if (delay > 0)
             this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
                                                         delay);
+    },
+
+    ran_minibuffer_command : function (m) {
+        this.handle_input(m);
     },
 
     handle_input : function (m) {

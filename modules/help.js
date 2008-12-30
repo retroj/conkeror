@@ -240,7 +240,7 @@ function describe_bindings(buffer, target) {
             for (let i = binding_stack.length - 1; i >= 0; --i) {
                 bound_in = binding_stack[i].bound_in;
                 while (bound_in) {
-                    if (bound_in.name)
+                    if (bound_in.name && !bound_in.anonymous)
                         break outer;
                     bound_in = bound_in.bound_in;
                 }

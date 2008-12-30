@@ -37,7 +37,7 @@ define_builtin_commands(
                 }
                 var s = m.current_state;
                 if (s.ran_minibuffer_command)
-                    s.ran_minibuffer_command(command);
+                    s.ran_minibuffer_command(m, command);
             }
         } catch (e)
         {
