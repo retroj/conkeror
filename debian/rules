@@ -10,7 +10,7 @@ export DH_OPTIONS
 UPSTREAM_VERSION := $(shell grep ^Version= application.ini | sed -e 's/^Version=//')
 DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
 
-COMMIT  := $(shell echo -n `cat debian/commit.id`)
+COMMIT  := $(shell echo -n `git log | head -1 | awk '{print $2}'`)
 BUILDID := $(COMMIT)_$(shell date +%s)
 
 include /usr/share/quilt/quilt.make
