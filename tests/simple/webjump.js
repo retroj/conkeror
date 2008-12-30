@@ -17,6 +17,14 @@ require('walnut.js');
       test_webjump_2: function () {
           define_webjump("test2", "http://www.example.com/with/a/path");
           assert_equals(webjumps.get("test2").handler(), "http://www.example.com/with/a/path");
+      },
+      test_string_webjump_optional_arg_3: function () {
+          define_webjump("test1", "http://www.example.com/search?term=%s");
+          assert_equals(webjumps.get("test1").handler("foo"),
+                        "http://www.example.com/search?term=foo");
+          assert_equals(webjumps.get("test1").handler(),
+                        "http://www.example.com/");
+          assert_equals(webjumps.get("test1").no_argument, "maybe");
       }
   };
   walnut_run(suite);
