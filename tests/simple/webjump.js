@@ -24,7 +24,7 @@ require('walnut.js');
                         "http://www.example.com/search?term=foo");
           assert_equals(webjumps["test1"].handler(),
                         "http://www.example.com/");
-          assert_equals(webjumps["test1"].no_argument, "maybe");
+          assert_equals(webjumps["test1"].argument, "optional");
       }
   };
   walnut_run(suite);
