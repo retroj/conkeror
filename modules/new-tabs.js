@@ -23,6 +23,23 @@ define_variable("tab_bar_button_close", 2,
                 "0 = left, 1 = middle, 2 = right, null = disabled. " +
                 "Default is 2.");
 
+interactive("toggle-tab-bar",
+            "Toggles the visibility of the tab bar.",
+            toggle_tab_bar);
+
+/**
+ * Toggles the visibility of the tab bar.
+ *
+ * TODO: Better code maybe?
+ */
+function toggle_tab_bar(I) {
+    let el = I.window.tab_bar.element;
+    if (el.style.display != "none") {
+        el.style.display = "none";
+    } else {
+        el.style.removeProperty("display");
+    }
+}
 
 function tab_bar(window) {
     window.tab_bar = this;
