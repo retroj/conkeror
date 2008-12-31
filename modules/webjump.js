@@ -63,8 +63,6 @@ function define_webjump(key, handler) {
                       argument: argument };
 }
 
-// Compatibility
-var add_webjump = define_webjump;
 
 function add_delicious_webjumps (username)
 {
