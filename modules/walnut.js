@@ -32,6 +32,12 @@ function assert_null (got) {
     return true;
 }
 
+function assert_not (got) {
+    if (got)
+        throw new Error("expected a false value, got <"+got+">.");
+    return true;
+}
+
 
 function walnut_results () {
     this.run = 0;
