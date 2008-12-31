@@ -7,7 +7,7 @@
  * COPYING file.
 **/
 
-var webjumps = new string_hashmap();
+var webjumps = {};
 
 define_keywords("$completer", "$description", "$no_argument");
 function define_webjump(key, handler) {
@@ -57,11 +57,11 @@ function define_webjump(key, handler) {
         // An array of a template and an alternative url (for no args)
         handler = make_handler(handler[0], handler[1]);
 
-    webjumps.put(key,
-                 {key: key,
-                  handler: handler, completer: arguments.$completer,
-                  description: arguments.$description,
-                  no_argument: no_argument});
+    webjumps[key] = { key: key,
+                      handler: handler,
+                      completer: arguments.$completer,
+                      description: arguments.$description,
+                      no_argument: no_argument };
 }
 
 // Compatibility
@@ -145,11 +145,11 @@ function match_webjump(str) {
     }
 
     // Look for an exact match
-    var match = webjumps.get(key);
+    var match = webjumps[key];
 
     // Look for a partial match
     if (!match) {
-        for (let [k,v] in webjumps.iterator()) {
+        for (let [k,v] in Iterator(webjumps)) {
             if (k.substring(0, key.length) == key) {
                 if (match) {
                     // key is not a unique prefix, as there are multiple partial matches
@@ -195,7 +195,7 @@ define_default_webjumps();
 function webjump_completer()
 {
     let base_completer = prefix_completer(
-        $completions = [ v for ([k,v] in webjumps.iterator()) ],
+        $completions = [ v for ([k,v] in Iterator(webjumps)) ],
         $get_string = function (x) { return x.key + (x.no_argument==true ? "" : " "); },
         $get_description = function (x) { return x.description || ""; });
 
