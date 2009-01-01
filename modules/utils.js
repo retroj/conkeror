@@ -1428,3 +1428,8 @@ function get_contents_synchronously (url) {
     return str;
 }
 
+
+function string_format (spec, substitutions) {
+    return spec.replace(/%(.)/g, function (a,b) { return substitutions[b]; });
+}
+
