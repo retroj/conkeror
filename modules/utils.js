@@ -1465,6 +1465,12 @@ function get_contents_synchronously (url) {
 }
 
 
+/**
+ * string_format takes a format-string containing %X style format codes,
+ * and an object mapping the code-letters to replacement text.  It
+ * returns a string with the formatting codes replaced by the replacement
+ * text.
+ */
 function string_format (spec, substitutions) {
     return spec.replace(/%(.)/g, function (a,b) { return substitutions[b]; });
 }
