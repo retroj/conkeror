@@ -1114,6 +1114,42 @@ var xml_http_request_load_listener = {
 };
 
 
+/**
+ * Coroutine interface for sending an HTTP request and waiting for the
+ * response. (This includes so-called "AJAX" requests.)
+ *
+ * @param lspec (required) a load_spec object or URI string (see load-spec.js)
+ *
+ * The request URI is obtained from this argument. In addition, if the
+ * load spec specifies post data, a POST request is made instead of a
+ * GET request, and the post data included in the load spec is
+ * sent. Specifically, the request_mime_type and raw_post_data
+ * properties of the load spec are used.
+ *
+ * @param $user (optional) HTTP user name to include in the request headers
+ * @param $password (optional) HTTP password to include in the request headers
+ *
+ * @param $override_mime_type (optional) Force the response to be interpreted
+ *                            as having the specified MIME type.  This is only
+ *                            really useful for forcing the MIME type to be
+ *                            text/xml or something similar, such that it is
+ *                            automatically parsed into a DOM document.
+ * @param $headers (optional) an array of [name,value] pairs (each specified as
+ *                 a two-element array) specifying additional headers to add to
+ *                 the request.
+ *
+ * @returns After the request completes (either successfully or with an error),
+ *          the nsIXMLHttpRequest object is returned.  Its responseText (for any
+ *          arbitrary document) or responseXML (if the response type is an XML
+ *          content type) properties can be accessed to examine the response
+ *          document.
+ *
+ * If an exception is thrown to the continutation (which can be obtained by the
+ * caller by calling yield CONTINUATION prior to calling this function) while the
+ * request is in progress (i.e. before this coroutine returns), the request will
+ * be aborted, and the exception will be propagated to the caller.
+ *
+ **/
 define_keywords("$user", "$password", "$override_mime_type", "$headers");
 function send_http_request(lspec) {
     // why do we get warnings in jsconsole unless we initialize the
