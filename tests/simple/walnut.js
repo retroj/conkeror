@@ -44,3 +44,20 @@ require('walnut.js');
   assert_equals(suite.did_teardown, results.run);
 }
 
+{ let suite = {
+      test_assert_objects_equal_1: function () {
+          assert_error(function () { assert_objects_equal([1], []); });
+      },
+      test_assert_objects_equal_2: function () {
+          assert_error(function () { assert_objects_equal([1], {0: 1}); });
+      },
+      test_assert_objects_equal_3: function () {
+          assert_error(function () { assert_objects_equal([1], [2]); });
+      },
+      test_assert_objects_equal_4: function () {
+          assert_error(function () { assert_objects_equal([undefined], [null]); });
+      }
+  };
+  walnut_run(suite);
+}
+

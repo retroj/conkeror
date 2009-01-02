@@ -38,6 +38,20 @@ function assert_not (got) {
     return true;
 }
 
+function assert_objects_equal (got, expect) {
+    if (got.constructor !== expect.constructor)
+        throw new Error("objects are of different type");
+    var expectkeys = [i for (i in expect)];
+    var gotkeys = [i for (i in got)];
+    if (gotkeys.length != expectkeys.length)
+        throw new Error("objects have different property counts");
+    for (var i in expectkeys) {
+        if (got[i] !== expect[i])
+            throw new Error("objects are different");
+    }
+    return true;
+}
+
 
 function walnut_results () {
     this.run = 0;
