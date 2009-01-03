@@ -538,11 +538,9 @@ function watch_pref(pref, hook) {
     let match = pref.match(/^(.*[.])?([^.]*)$/);
     let br = match[1];
     let key = match[2];
-    dumpln("watch:" + br + ":" + key);
     let branch = preferences.getBranch(br).QueryInterface(Ci.nsIPrefBranch2);
     let observer = {
         observe: function (subject, topic, data) {
-            dumpln("watch_pref: " + subject + ":" + topic + ":" + data);
             if (topic == "nsPref:changed" && data == key) {
                 hook();
             }
