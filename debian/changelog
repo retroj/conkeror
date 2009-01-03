@@ -3,7 +3,8 @@ conkeror (0.9~git081226-1) UNRELEASED; urgency=low
   * Based on new snapshot (commit
     2f6b12413a43c0df163c94d48d7e91c3ab924e2d)
     - spawn-process-helper has been renamed upstream to
-      conkeror-spawn-helper -- package names remain unchanged
+      conkeror-spawn-helper -- package names remain unchanged, conflict to
+      earlier versions of conkeror-spawn-process-helper
     - Changes to the behaviour of the universal argument C-u.
     - Loads now ~/.conkerorrc as the default rc file
     - gmane-mode added

@@ -13,7 +13,7 @@ Package: conkeror
 Architecture: all
 Depends: xulrunner (>= 1.9~) | xulrunner-1.9
 Recommends: conkeror-spawn-process-helper
-Conflicts: conkeror-spawn-process-helper (< 0.9~080901-1)
+Conflicts: conkeror-spawn-process-helper (< 0.9~git080901-1)
 Suggests: emacs | emacsen
 Provides: www-browser
 Description: keyboard focused web browser with Emacs look and feel
