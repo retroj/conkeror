@@ -27,5 +27,6 @@ cmdline.prototype = {
         }]
 };
 
-function NSGetModule(compMgr, fileSpec)
-    XPCOMUtils.generateModule([cmdline]);
+function NSGetModule(compMgr, fileSpec) {
+    return XPCOMUtils.generateModule([cmdline]);
+}
