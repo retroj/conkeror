@@ -83,12 +83,3 @@ function load_rc(path_s)
     }
 }
 
-require_later("command-line.js");
-
-call_after_load("command-line.js", function () {
-        command_line_param_handler("l", false, function (path) {
-                try {
-                    load_rc (path);
-                } catch (e) { dump_error(e);  }
-            });
-    });

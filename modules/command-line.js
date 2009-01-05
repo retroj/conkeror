@@ -86,6 +86,12 @@ command_line_param_handler("f", true, function (command, ctx) {
         call_interactively(ctx, command);
     });
 
+command_line_param_handler("l", false, function (path, ctx) {
+        try {
+            load_rc(ctx.command_line.resolveFile(path).path);
+        } catch (e) { dump_error(e);  }
+    });
+
 command_line_handler("uu", false, function (ctx) {
         if (! ctx.window)
             ctx.window = window_watcher.activeWindow;
@@ -146,7 +152,7 @@ function handle_command_line(cmdline)
         } else if (suppress_rc && ! initial_launch) {
             dumpln ("w: attempt to suppress load_rc in remote invocation");
         }
-        var ctx = {}; // command-line processing context
+        var ctx = {command_line: cmdline}; // command-line processing context
 
         for (; i < cmdline.length; ++i)
         {
