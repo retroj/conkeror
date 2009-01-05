@@ -96,7 +96,7 @@ function clear_webjumps()
 function define_default_webjumps()
 {
     define_webjump("conkerorwiki",
-                "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
+                   "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
     define_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
     define_webjump("maps",       "http://maps.google.com/?q=%s");
     define_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
@@ -117,14 +117,12 @@ function define_default_webjumps()
     define_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
     define_webjump("ratpoisonwiki", "http://ratpoison.antidesktop.net/?search=%s");
     define_webjump("stumpwmwiki", "http://stumpwm.antidesktop.net/wiki?search=%s");
-    define_webjump("savannah", "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
+    define_webjump("savannah",
+                   "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
     define_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
     define_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
     define_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
     define_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
-    define_webjump("sheldonbrown", ["http://www.google.com/search?q=site:sheldonbrown.com %s",
-                                    "http://sheldonbrown.com"]);
-    define_webjump("youtube", "http://www.youtube.com/results?search_query=%s&search=Search");
 }
 
 function match_webjump(str) {
