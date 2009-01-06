@@ -1362,19 +1362,43 @@ function remove_duplicates_filter () {
 }
 
 
-/* get_current_profile returns the name of the current profile.
+/* get_current_profile returns the name of the current profile, or null
+ * if that information cannot be found.  The result is cached in the
+ * variable profile_name, for quick repeat lookup.  This is safe because
+ * xulrunner does not support switching profiles on the fly.
+ *
+ * Profiles don't necessarily have a name--as such this information should
+ * not be depended on for anything important.  It is mainly intended for
+ * decoration of the window title and mode-line.
  */
+var profile_name;
 function get_current_profile () {
+    if (profile_name)
+        return profile_name;
     if ("@mozilla.org/profile/manager;1" in Cc) {
-        return Cc["@mozilla.org/profile/manager;1"]
+        profile_name = Cc["@mozilla.org/profile/manager;1"]
             .getService(Ci.nsIProfile)
             .currentProfile;
-    } else {
-        return Cc["@mozilla.org/toolkit/profile-service;1"]
-            .getService(Components.interfaces.nsIToolkitProfileService)
-            .selectedProfile.name;
+        return profile_name;
     }
+    var current_profile_path = Cc["@mozilla.org/file/directory_service;1"]
+        .getService(Ci.nsIProperties)
+        .get("ProfD", Ci.nsIFile).path;
+    var profile_service = Cc["@mozilla.org/toolkit/profile-service;1"]
+        .getService(Components.interfaces.nsIToolkitProfileService);
+    var profiles = profile_service.profiles;
+    while (profiles.hasMoreElements()) {
+        var p = profiles.getNext().QueryInterface(Ci.nsIToolkitProfile);
+        if (current_profile_path == p.localDir.path ||
+            current_profile_path == p.rootDir.path)
+        {
+            profile_name = p.name;
+            return p.name;
+        }
+    }
+    return null;
 }
+
 
 /**
  * Given an array, switches places on the subarrays at index i1 to i2 and j1 to
