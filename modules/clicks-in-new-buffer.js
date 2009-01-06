@@ -70,10 +70,6 @@ function clicks_in_new_buffer_remove_listener(buffer) {
                                        true);
 }
 
-function for_each_buffer(f) {
-    for_each_window(function (w) { w.buffers.for_each(f); });
-}
-
 function clicks_in_new_buffer_mode_enable() {
     add_hook("create_buffer_hook",
              clicks_in_new_buffer_add_listener);

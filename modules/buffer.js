@@ -679,6 +679,10 @@ interactive("unfocus", null, function (I) {
     I.window.minibuffer.message("unfocus");
 });
 
+function for_each_buffer(f) {
+    for_each_window(function (w) { w.buffers.for_each(f); });
+}
+
 require_later("content-buffer.js");
 
 var mode_functions = {};
