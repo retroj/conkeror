@@ -14,31 +14,21 @@
 require("mode.js");
 
 define_variable("tab_bar_button_select", 0,
-                "The mouse button that selects tabs. " +
-                "0 = left, 1 = middle, 2 = right, null = disabled. " +
-                "Default is 0.");
+                "The mouse button that selects tabs." +
+                "0 = left, 1 = middle, 2 = right, null = disabled.");
 
 define_variable("tab_bar_button_close", 2,
-                "The mouse button that closes tabs.. " +
-                "0 = left, 1 = middle, 2 = right, null = disabled. " +
-                "Default is 2.");
+                "The mouse button that closes tabs." +
+                "0 = left, 1 = middle, 2 = right, null = disabled.");
 
 interactive("toggle-tab-bar",
             "Toggles the visibility of the tab bar.",
             toggle_tab_bar);
 
-/**
- * Toggles the visibility of the tab bar.
- *
- * TODO: Better code maybe?
- */
+// Toggle tab bar visibility.
 function toggle_tab_bar(I) {
-    let el = I.window.tab_bar.element;
-    if (el.style.display != "none") {
-        el.style.display = "none";
-    } else {
-        el.style.removeProperty("display");
-    }
+    let s = I.window.tab_bar.element.style;
+    s.display = s.display == 'none' ? '' : 'none';
 }
 
 function tab_bar(window) {
