@@ -21,16 +21,6 @@ define_variable("tab_bar_button_close", 2,
                 "The mouse button that closes tabs." +
                 "0 = left, 1 = middle, 2 = right, null = disabled.");
 
-interactive("toggle-tab-bar",
-            "Toggles the visibility of the tab bar.",
-            toggle_tab_bar);
-
-// Toggle tab bar visibility.
-function toggle_tab_bar(I) {
-    let s = I.window.tab_bar.element.style;
-    s.display = s.display == 'none' ? '' : 'none';
-}
-
 function tab_bar(window) {
     window.tab_bar = this;
     var scrollbox = create_XUL(window, "arrowscrollbox");
