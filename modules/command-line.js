@@ -75,12 +75,6 @@ command_line_param_handler("q", false, function () {
         dumpln ("w: -q may only be used as the first argument.");
     });
 
-command_line_param_handler("cwd", false, function (dir, ctx) {
-        if (ctx.config == null)
-            ctx.config = {};
-        ctx.config.cwd = dir;
-    });
-
 command_line_param_handler("f", true, function (command, ctx) {
         ctx.window = window_watcher.activeWindow;
         call_interactively(ctx, command);
@@ -152,7 +146,11 @@ function handle_command_line(cmdline)
         } else if (suppress_rc && ! initial_launch) {
             dumpln ("w: attempt to suppress load_rc in remote invocation");
         }
-        var ctx = {command_line: cmdline}; // command-line processing context
+        var ctx = {command_line: cmdline,
+                   config: {
+                       cwd: cmdline.resolveFile(".").path
+                   }
+                  }; // command-line processing context
 
         for (; i < cmdline.length; ++i)
         {
