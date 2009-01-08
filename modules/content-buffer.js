@@ -11,6 +11,9 @@ require("load-spec.js");
 
 require_later("content-buffer-input.js");
 
+define_variable("homepage", "chrome://conkeror-help/content/help.html",
+                "The url loaded by default for new content buffers.");
+
 define_buffer_local_hook("content_buffer_finished_loading_hook");
 define_buffer_local_hook("content_buffer_started_loading_hook");
 define_buffer_local_hook("content_buffer_progress_change_hook");
