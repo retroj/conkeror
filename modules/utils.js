@@ -238,16 +238,28 @@ function getenv (variable) {
 }
 
 function get_home_directory () {
+    var dir = Cc["@mozilla.org/file/local;1"]
+        .createInstance(Ci.nsILocalFile);
     if (get_os() == "WINNT")
-        return (getenv ('USERPROFILE') ||
-                getenv ('HOMEDRIVE') + getenv ('HOMEPATH'));
+        dir.initWithPath(getenv('USERPROFILE') ||
+                         getenv('HOMEDRIVE') + getenv('HOMEPATH'));
     else
-        return getenv ('HOME');
+        dir.initWithPath(getenv('HOME'));
+    return dir;
 }
 
-function set_default_directory(directory_s) {
-    default_directory = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-    default_directory.initWithPath(directory_s || get_home_directory());
+function set_default_directory (directory) {
+    if (directory) {
+        if (directory instanceof nsILocalFile)
+            default_directory = directory.clone();
+        else {
+            default_directory = Cc["@mozilla.org/file/local;1"]
+                .createInstance(Ci.nsILocalFile);
+            default_directory.initWithPath(directory);
+        }
+    } else {
+        default_directory = get_home_directory();
+    }
 }
 
 set_default_directory();

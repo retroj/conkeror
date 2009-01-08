@@ -64,8 +64,7 @@ function load_rc(path_s)
             else
                 return;
         } else {
-            var default_rc = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-            default_rc.initWithPath(get_home_directory());
+            var default_rc = get_home_directory();
             default_rc.appendRelativePath(".conkerorrc");
             if (default_rc.exists())
                 path_s = default_rc.path;
