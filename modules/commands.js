@@ -22,6 +22,15 @@ interactive("quit",
             "Quit Conkeror",
             quit);
 
+interactive("confirm-quit",
+            "Quit Conkeror with confirmation",
+            function (I) {
+                let result = yield I.window.minibuffer.read_single_character_option(
+                    $prompt = "Quit Conkeror? (y/n)",
+                    $options = ["y", "n"]);
+                if (result == "y")
+                    quit();
+            });
 
 function show_conkeror_version (window)
 {
