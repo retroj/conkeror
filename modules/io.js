@@ -93,12 +93,6 @@ function write_binary_file(file, buf)
     }
 }
 
-function get_file(path) {
-    var f = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-    f.initWithPath(path);
-    return f;
-}
-
 var thread_manager = Cc["@mozilla.org/thread-manager;1"].getService(Ci.nsIThreadManager);
 
 function input_stream_async_wait(stream, callback, requested_count) {

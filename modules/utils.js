@@ -129,6 +129,13 @@ function get_link_location (element)
 }
 
 
+function make_file(path) {
+    var f = Cc["@mozilla.org/file/local;1"]
+        .createInstance(Ci.nsILocalFile);
+    f.initWithPath(path);
+    return f;
+}
+
 var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService2);
 
 function make_uri(uri, charset, base_uri) {

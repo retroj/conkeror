@@ -22,7 +22,7 @@ minibuffer.prototype.read_file_path = function () {
 
 minibuffer.prototype.read_file = function () {
     var result = yield this.read_file_path(forward_keywords(arguments));
-    yield co_return(get_file(result));
+    yield co_return(make_file(result));
 };
 
 // FIXME
@@ -36,7 +36,7 @@ minibuffer.prototype.read_file_check_overwrite = function () {
     do {
         var path = yield this.read_file_path(forward_keywords(arguments), $initial_value = initial_value);
 
-        var file = get_file(path);
+        var file = make_file(path);
 
         if (file.exists()) {
             var overwrite = yield this.read_yes_or_no($prompt = "Overwrite existing file " + path + "?");

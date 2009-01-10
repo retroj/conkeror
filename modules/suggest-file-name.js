@@ -270,7 +270,7 @@ function suggest_file_name(spec, extension) {
 
 function suggest_save_path_from_file_name(file_name, buffer) {
     var cwd = (buffer && buffer.cwd) || default_directory.path;
-    var file = get_file(cwd);
+    var file = make_file(cwd);
     file.append(file_name);
     return file.path;
 }
