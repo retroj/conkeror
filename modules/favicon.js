@@ -42,7 +42,7 @@ function favicon_content_buffer_finished_loading(buffer) {
     if (!uri.schemeIs("http") && !uri.schemeIs("https"))
         return;
 
-    var icon_url = makeURL(uri.prePath + "/favicon.ico");
+    var icon_url = make_uri(uri.prePath + "/favicon.ico");
     if (!favicon_service.isFailedFavicon(icon_url))
         favicon_set(buffer, icon_url);
 }

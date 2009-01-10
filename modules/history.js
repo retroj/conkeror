@@ -62,5 +62,5 @@ const nav_bookmarks_service = Cc["@mozilla.org/browser/nav-bookmarks-service;1"]
 
 function add_bookmark(url, title) {
     nav_bookmarks_service.insertBookmark(nav_bookmarks_service.unfiledBookmarksFolder,
-                                         makeURL(url), -1, title);
+                                         make_uri(url), -1, title);
 }

@@ -29,9 +29,10 @@ function save_uri(lspec, output_file) {
     if (use_cache)
         cache_key = load_spec_cache_key(lspec);
 
-    var file_uri = makeFileURL(output_file);
+    var file_uri = make_uri(output_file);
 
-    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
+    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+        .createInstance(Ci.nsIWebBrowserPersist);
 
     persist.persistFlags =
         Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
@@ -99,9 +100,10 @@ function save_document_as_text(document, output_file)
 
     var uri = document.documentURIObject;
 
-    var file_uri = makeFileURL(output_file);
+    var file_uri = make_uri(output_file);
 
-    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
+    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+        .createInstance(Ci.nsIWebBrowserPersist);
 
     persist.persistFlags =
         Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |
@@ -156,9 +158,10 @@ function save_document_complete(document, output_file, output_dir) {
 
     var uri = document.documentURIObject;
 
-    var file_uri = makeFileURL(output_file);
+    var file_uri = make_uri(output_file);
 
-    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"].createInstance(Ci.nsIWebBrowserPersist);
+    var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+        .createInstance(Ci.nsIWebBrowserPersist);
 
     persist.persistFlags =
         Ci.nsIWebBrowserPersist.PERSIST_FLAGS_REPLACE_EXISTING_FILES |

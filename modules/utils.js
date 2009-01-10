@@ -134,14 +134,9 @@ var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOServ
 function make_uri(uri, charset, base_uri) {
     if (uri instanceof Ci.nsIURI)
         return uri;
+    if (uri instanceof Ci.nsIFile)
+        return io_service.newFileURI(uri);
     return io_service.newURI(uri, charset, base_uri);
-}
-
-var makeURL = make_uri; // until all callers are fixed
-
-function makeFileURL(aFile)
-{
-    return io_service.newFileURI(aFile).QueryInterface(Ci.nsIURL);
 }
 
 
