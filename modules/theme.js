@@ -10,8 +10,10 @@
     let loaded_themes = {};
 
     define_variable('theme_load_paths', ['chrome://conkeror-gui/skin/'],
-                    "List of directories and chrome urls within which themes"+
-                    " may be found.");
+                    "List of directories and chrome urls within which themes "+
+                    "may be found.  The items can be represented as strings, "+
+                    "nsIURI's, or nsIFile's. Chrome urls must be given as "+
+                    "strings.");
 
     function theme_cssfile_module (cssfile) {
         cssfile = cssfile.substring(0, cssfile.indexOf('.'));
@@ -42,21 +44,26 @@
         if (loaded_themes[name])
             return loaded_themes[name];
         for each (var path in theme_load_paths) {
-            if (path.substr(0, 7) == 'chrome:') {
-                let def = get_contents_synchronously(path+name+'/theme.json');
-                if (def === null)
-                    continue;
-                def = eval('('+def+')');
-                loaded_themes[name] = new theme(path+name+'/', def.sheets);
-                return loaded_themes[name];
-            } else {
-                let def = get_contents_synchronously('file:'+path+name+'/theme.json');
-                if (def === null)
-                    continue;
-                def = eval('('+def+')');
-                loaded_themes[name] = new theme('file:'+path+name+'/', def.sheets);
-                return loaded_themes[name];
+            var url;
+            if (path instanceof Ci.nsIURI) {
+                url = path.spec;
+            } else if (path instanceof Ci.nsIFile) {
+                url = make_uri(path).spec;
+            } else if (typeof(path) == "string") {
+                if (path.substr(0, 7) == 'chrome:')
+                    url = path;
+                else
+                    url = make_uri(make_file(path)).spec;
             }
+            if (url.substr(-1) != '/')
+                url += '/';
+            url += name + '/';
+            let def = get_contents_synchronously(url+'theme.json');
+            if (def === null)
+                continue;
+            def = eval('('+def+')');
+            loaded_themes[name] = new theme(url, def.sheets);
+            return loaded_themes[name];
         }
         return null;
     }

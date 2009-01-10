@@ -8,6 +8,9 @@ require('walnut.js');
       test_get_contents_asynchronously_2: function () {
           assert_null(get_contents_synchronously("chrome://conkeror/content/non-existent.file"));
       },
+      test_get_contents_asynchronously_3: function () {
+          assert(get_contents_synchronously(make_uri("chrome://conkeror/content/conkeror.js")));
+      },
       test_theme_module_was_loaded: function () {
           assert(theme_load, "theme module was loaded");
       },

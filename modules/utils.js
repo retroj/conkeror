@@ -1477,18 +1477,20 @@ function xpath_lookup(doc, exp) {
 
 
 /* get_contents_synchronously returns the contents of the given
- * string-url as a string on success, or null on failure.
+ * url (string or nsIURI) as a string on success, or null on failure.
  */
 function get_contents_synchronously (url) {
-    var ioService=Components.classes["@mozilla.org/network/io-service;1"]
-        .getService(Components.interfaces.nsIIOService);
-    var scriptableStream=Components
-        .classes["@mozilla.org/scriptableinputstream;1"]
-        .getService(Components.interfaces.nsIScriptableInputStream);
+    var ioService=Cc["@mozilla.org/network/io-service;1"]
+        .getService(Ci.nsIIOService);
+    var scriptableStream=Cc["@mozilla.org/scriptableinputstream;1"]
+        .getService(Ci.nsIScriptableInputStream);
     var channel;
     var input;
     try {
-        channel=ioService.newChannel(url,null,null);
+        if (url instanceof Ci.nsIURI)
+            channel = ioService.newChannelFromURI(url);
+        else
+            channel = ioService.newChannel(url, null, null);
         input=channel.open();
     } catch (e) {
         return null;
