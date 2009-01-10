@@ -102,8 +102,8 @@ string_hashmap.prototype = {
 // Put the string on the clipboard
 function writeToClipboard(str)
 {
-    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"]
-	.getService(Components.interfaces.nsIClipboardHelper);
+    var gClipboardHelper = Cc["@mozilla.org/widget/clipboardhelper;1"]
+	.getService(Ci.nsIClipboardHelper);
     gClipboardHelper.copyString(str);
 }
 

@@ -356,7 +356,12 @@ function hints_url_panel(hints, window) {
     return p;
 }
 
-define_variable("hints_display_url_panel", false, "When selecting a hint, the URL can be displayed in a panel above the minibuffer.  This is useful for confirming that the correct link is selected and that the URL is not evil.  This option is most useful when hints_auto_exit_delay is long or disabled.");
+define_variable("hints_display_url_panel", false,
+                "When selecting a hint, the URL can be displayed in a panel "+
+                "above the minibuffer.  This is useful for confirming that "+
+                "the correct link is selected and that the URL is not evil. "+
+                "This option is most useful when hints_auto_exit_delay is "+
+                "long or disabled.");
 
 /**
  * keyword arguments:
