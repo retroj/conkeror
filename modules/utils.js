@@ -252,7 +252,7 @@ function get_home_directory () {
 
 function set_default_directory (directory) {
     if (directory) {
-        if (directory instanceof nsILocalFile)
+        if (directory instanceof Ci.nsILocalFile)
             default_directory = directory.clone();
         else {
             default_directory = Cc["@mozilla.org/file/local;1"]
