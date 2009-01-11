@@ -68,7 +68,7 @@ var module = {
         }
     },
 
-    canUnload: function(compMgr) { return true; },
+    canUnload: function(compMgr) { return true; }
 };
 
 function NSGetModule(compMgr, fileSpec) {
