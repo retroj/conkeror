@@ -8,7 +8,12 @@
 
 var command_line_handlers = [];
 
-define_variable("url_remoting_fn", load_url_in_new_window);
+define_variable("url_remoting_fn", load_url_in_new_window,
+    "The function given as the value of this variable gets called for "+
+    "each datum given on the command-line not a switch or the value of "+
+    "a switch.  Such data are typically urls.  Some typical values are "+
+    "load_url_in_new_window (default), load_url_in_new_buffer, or "+
+    "load_url_in_current_buffer.");
 
 /*
  * load_url_in_new_window is a function intended for use as
