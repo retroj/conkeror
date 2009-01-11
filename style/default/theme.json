@@ -1,5 +1,6 @@
 
 { "sheets": [
+      "content-buffer-input.css",
       "tab-bar.css",
       "new-tabs.css"
   ]

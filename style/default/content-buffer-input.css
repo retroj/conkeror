@@ -1,0 +1,13 @@
+/**
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
+@namespace url("http://www.w3.org/1999/xhtml");
+
+.__conkeror_textbox_edited_externally {
+  background-color: #bbbbbb;
+  -moz-appearance: none;
+}
