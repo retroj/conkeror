@@ -72,5 +72,5 @@ var google_search_re = build_url_regex($domain = "google",
                                        $allow_www = true,
                                        $path = "search?",
                                        $tlds = ["com", "co.uk", "de", "dk", "es",
-                                                "fr", "it", "no", "sv", "uk"]);
+                                                "fr", "it", "no", "se", "uk"]);
 auto_mode_list.push([google_search_re, google_search_results_mode]);
