@@ -8,10 +8,18 @@
  * COPYING file.
 **/
 
-define_variable("active_img_hint_background_color", "#88FF00", "Color for the active image hint background.");
-define_variable("img_hint_background_color", "yellow", "Color for inactive image hint backgrounds.");
-define_variable("active_hint_background_color", "#88FF00", "Color for the active hint background.");
-define_variable("hint_background_color", "yellow", "Color for the inactive hint.");
+define_variable("active_img_hint_background_color", "#88FF00",
+    "Color for the active image hint background.");
+
+define_variable("img_hint_background_color", "yellow",
+    "Color for inactive image hint backgrounds.");
+
+define_variable("active_hint_background_color", "#88FF00",
+    "Color for the active hint background.");
+
+define_variable("hint_background_color", "yellow",
+    "Color for the inactive hint.");
+
 
 /**
  * Register hints style sheet
@@ -357,11 +365,10 @@ function hints_url_panel(hints, window) {
 }
 
 define_variable("hints_display_url_panel", false,
-                "When selecting a hint, the URL can be displayed in a panel "+
-                "above the minibuffer.  This is useful for confirming that "+
-                "the correct link is selected and that the URL is not evil. "+
-                "This option is most useful when hints_auto_exit_delay is "+
-                "long or disabled.");
+    "When selecting a hint, the URL can be displayed in a panel above "+
+    "the minibuffer.  This is useful for confirming that the correct "+
+    "link is selected and that the URL is not evil.  This option is "+
+    "most useful when hints_auto_exit_delay is long or disabled.");
 
 /**
  * keyword arguments:
@@ -461,9 +468,15 @@ hints_minibuffer_state.prototype = {
     }
 };
 
-define_variable("hints_auto_exit_delay", 500, "Delay (in milliseconds) after the most recent key stroke before a sole matching element is automatically selected.  If this is set to 0, automatic selection is disabled.");
+define_variable("hints_auto_exit_delay", 500,
+    "Delay (in milliseconds) after the most recent key stroke before a "+
+    "sole matching element is automatically selected.  If this is set to "+
+    "0, automatic selection is disabled.");
 
-define_variable("hints_ambiguous_auto_exit_delay", 0, "Delay (in milliseconds) after the most recent key stroke before the first of an ambiguous match is automatically selected.  If this is set to 0, automatic selection in ambiguous matches is disabled.");
+define_variable("hints_ambiguous_auto_exit_delay", 0,
+    "Delay (in milliseconds) after the most recent key stroke before the "+
+    "first of an ambiguous match is automatically selected.  If this is "+
+    "set to 0, automatic selection in ambiguous matches is disabled.");
 
 interactive("hints-handle-number", null, function (I) {
                 let s = I.minibuffer.check_state(hints_minibuffer_state);
