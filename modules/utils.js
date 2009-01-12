@@ -136,7 +136,8 @@ function make_file(path) {
     return f;
 }
 
-var io_service = Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService2);
+var io_service = Cc["@mozilla.org/network/io-service;1"]
+    .getService(Ci.nsIIOService2);
 
 function make_uri(uri, charset, base_uri) {
     if (uri instanceof Ci.nsIURI)
@@ -220,8 +221,10 @@ function abs_point (node)
     return pt;
 }
 
-var xul_app_info = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
-var xul_runtime = Cc['@mozilla.org/xre/app-info;1'].getService(Ci.nsIXULRuntime);
+var xul_app_info = Cc["@mozilla.org/xre/app-info;1"]
+    .getService(Ci.nsIXULAppInfo);
+var xul_runtime = Cc['@mozilla.org/xre/app-info;1']
+    .getService(Ci.nsIXULRuntime);
 
 
 function get_os ()
@@ -339,7 +342,8 @@ function get_buffer_from_frame(window, frame) {
     return null;
 }
 
-var file_locator = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties);
+var file_locator = Cc["@mozilla.org/file/directory_service;1"]
+    .getService(Ci.nsIProperties);
 
 function get_shortdoc_string(doc) {
     var shortdoc = null;
@@ -981,12 +985,14 @@ function get_meta_title(doc) {
     return null;
 }
 
-var rdf_service = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
+var rdf_service = Cc["@mozilla.org/rdf/rdf-service;1"]
+    .getService(Ci.nsIRDFService);
 
 const PREFIX_ITEM_URI     = "urn:mozilla:item:";
 const PREFIX_NS_EM        = "http://www.mozilla.org/2004/em-rdf#";
 
-var extension_manager = Cc["@mozilla.org/extensions/manager;1"].getService(Ci.nsIExtensionManager);
+var extension_manager = Cc["@mozilla.org/extensions/manager;1"]
+    .getService(Ci.nsIExtensionManager);
 
 function get_extension_rdf_property(id, name, type) {
     var value = extension_manager.datasource.GetTarget(
@@ -1094,7 +1100,10 @@ function frame_iterator(root_frame, start_with) {
 }
 
 function xml_http_request() {
-    return Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance(Ci.nsIXMLHttpRequest).QueryInterface(Ci.nsIJSXMLHttpRequest).QueryInterface(Ci.nsIDOMEventTarget);
+    return Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+        .createInstance(Ci.nsIXMLHttpRequest)
+        .QueryInterface(Ci.nsIJSXMLHttpRequest)
+        .QueryInterface(Ci.nsIDOMEventTarget);
 }
 
 var xml_http_request_load_listener = {
@@ -1212,11 +1221,13 @@ function send_http_request(lspec) {
 }
 
 
-var JSON = ("@mozilla.org/dom/json;1" in Cc) && Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
+var JSON = ("@mozilla.org/dom/json;1" in Cc) &&
+    Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
 
 
 
-var console_service = Cc["@mozilla.org/consoleservice;1"].getService(Ci.nsIConsoleService);
+var console_service = Cc["@mozilla.org/consoleservice;1"]
+    .getService(Ci.nsIConsoleService);
 
 console_service.registerListener(
     {observe: function (msg) {
@@ -1450,8 +1461,8 @@ function ajax_request(uri, callback, s) {
             data   : s.data   ? s.data   : null
         };
 
-    var httpRequest = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"]
-        .createInstance(Components.interfaces.nsIXMLHttpRequest);
+    var httpRequest = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
+        .createInstance(Ci.nsIXMLHttpRequest);
     httpRequest.onreadystatechange = callback;
 
     // If we're POSTing something, we should make sure the headers are set

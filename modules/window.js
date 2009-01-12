@@ -13,7 +13,8 @@ var define_window_local_hook = simple_local_hook_definer();
 
 define_hook("make_window_hook");
 
-var window_watcher = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
+var window_watcher = Cc["@mozilla.org/embedcomp/window-watcher;1"]
+    .getService(Ci.nsIWindowWatcher);
 
 function generate_new_window_tag(tag)
 {
