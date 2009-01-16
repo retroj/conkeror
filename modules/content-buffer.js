@@ -202,8 +202,8 @@ content_buffer.prototype = {
                  aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
             if (this.loading == true)  {
                 //dumpln("*** finished loading");
-                content_buffer_finished_loading_hook.run(this);
                 this.loading = false;
+                content_buffer_finished_loading_hook.run(this);
             }
         }
 
