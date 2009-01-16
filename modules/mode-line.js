@@ -206,6 +206,24 @@ buffer_count_widget.prototype.update = function () {
                       this.window.buffers.count + "]");
 };
 
+function loading_count_widget(window) {
+    this.name = "loading-count-widget";
+    text_widget.call(this, window);
+    var obj = this;
+    this.add_hook("content_buffer_started_loading_hook");
+    this.add_hook("content_buffer_finished_loading_hook");
+    this.add_hook("kill_buffer_hook");
+}
+loading_count_widget.prototype.__proto__ = text_widget.prototype;
+loading_count_widget.prototype.update = function () {
+    var count = 0;
+    for_each_buffer(function(b) {if (b.loading) count++;});
+    if (count)
+        this.view.text = "(" + count + " loading)";
+    else
+        this.view.text = "";
+};
+
 function mode_line_adder(widget_constructor) {
     if (!('mode_line_adder' in widget_constructor))
         widget_constructor.mode_line_adder = function (window) {
