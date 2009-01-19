@@ -64,7 +64,7 @@ function define_webjump(key, handler) {
 }
 
 
-function add_delicious_webjumps (username)
+function define_delicious_webjumps (username)
 {
     define_webjump("delicious", "http://del.icio.us/" + username);
     define_webjump("adelicious", "javascript:location.href='http://del.icio.us/"+username+
@@ -75,7 +75,9 @@ function add_delicious_webjumps (username)
     define_webjump("sadelicious", "http://del.icio.us/search/all?search=%s");
 }
 
-function add_lastfm_webjumps(username)
+add_delicious_webjumps = define_delicious_webjumps;
+
+function define_lastfm_webjumps(username)
 {
     if (! username) username = "";
     define_webjump("lastfm", "http://www.last.fm/user/"+username);
@@ -86,6 +88,8 @@ function add_lastfm_webjumps(username)
     define_webjump("lastfm-label", "http://www.last.fm/search?m=label&q=%s");
     define_webjump("lastfm-event", "http://www.last.fm/events?by=artists&q=%s");
 }
+
+add_lastfm_webjumps = define_lastfm_webjumps;
 
 function clear_webjumps()
 {
