@@ -32,6 +32,9 @@ define_key(content_buffer_normal_keymap, "[",
 define_key(content_buffer_normal_keymap, "]",
            "browser-object-relationship-next",
            $repeat = "follow");
+define_key(content_buffer_normal_keymap, "^",
+           "browser-object-up-url",
+           $repeat = "follow");
 
 
 define_key(content_buffer_normal_keymap, "f", "follow");

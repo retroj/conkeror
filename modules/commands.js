@@ -489,14 +489,7 @@ interactive("find-alternate-url", "Edit the current URL in the minibuffer",
 
 interactive("go-up", "Go to the parent directory of the current URL",
             "find-url",
-            $browser_object =
-                define_browser_object_class(
-                    "up-url", null, null,
-                    function (I, prompt) {
-                        check_buffer (I.buffer, content_buffer);
-                        var up = compute_url_up_path (I.buffer.current_URI.spec);
-                        return I.buffer.current_URI.resolve (up);
-                    }));
+            $browser_object = browser_object_up_url);
 
 interactive("make-window",
             "Make a new window with the homepage.",

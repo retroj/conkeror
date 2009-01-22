@@ -164,6 +164,14 @@ define_browser_object_class(
         yield co_return (result);
     });
 
+define_browser_object_class(
+    "up-url", "Up Url", null,
+    function (I, prompt) {
+        check_buffer(I.buffer, content_buffer);
+        var up = compute_url_up_path(I.buffer.current_URI.spec);
+        return I.buffer.current_URI.resolve(up);
+    });
+
 
 function read_browser_object (I)
 {
