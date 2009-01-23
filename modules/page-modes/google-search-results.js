@@ -56,15 +56,18 @@ function google_search_bind_number_shortcuts () {
 
 define_page_mode("google_search_results_mode", "Google Search Results",
                  $enable = function (buffer) {
-                     buffer.local_variables.content_buffer_normal_keymap = google_search_results_keymap;
-                     buffer.default_browser_object_classes = {
-                         follow: browser_object_google_search_results_links,
-                         copy: browser_object_google_search_results_links,
-                         save: browser_object_google_search_results_links };
-                     buffer.default_browser_object_classes['shell-command-on-file'] =
-                         browser_object_google_search_results_links;
-                     buffer.default_browser_object_classes['shell-command-on-url'] =
-                         browser_object_google_search_results_links;
+                     buffer.local_variables.content_buffer_normal_keymap =
+		         google_search_results_keymap;
+		     var link_using_commands = ["follow",
+						"follow-new-buffer",
+						"follow-new-buffer-background",
+						"follow-new-window",
+						"save",
+						"copy",
+						"shell-command-on-file"];
+		     for each (var c in link_using_commands)
+			 buffer.default_browser_object_classes[c] =
+			     browser_object_google_search_results_links;
                  });
 
 let (google_search_re = build_url_regex(
