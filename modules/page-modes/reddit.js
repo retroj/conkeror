@@ -198,10 +198,10 @@ function reddit_open_comments(I, target) {
     }
 }
 function reddit_open_comments_new_buffer (I) {
-    redditn_comments_open(I, OPEN_NEW_BUFFER);
+    reddit_open_comments(I, OPEN_NEW_BUFFER);
 }
 function reddit_open_comments_new_window (I) {
-    redditn_comments_open(I, OPEN_NEW_WINDOW);
+    reddit_open_comments(I, OPEN_NEW_WINDOW);
 }
 
 function reddit_mod_up (I) {
