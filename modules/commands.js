@@ -492,11 +492,8 @@ interactive("go-up", "Go to the parent directory of the current URL",
             $browser_object = browser_object_up_url);
 
 interactive("go-home",
-            "Go to the homepage in the current buffer.",
-            function (I) {
-                check_buffer(I.buffer, content_buffer);
-                browser_object_follow(I.buffer, OPEN_CURRENT_BUFFER, homepage);
-            });
+            "Go to the homepage in the current buffer.", "follow",
+            $browser_object = function () { return homepage; });
 
 interactive("make-window",
             "Make a new window with the homepage.",
