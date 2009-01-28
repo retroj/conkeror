@@ -439,7 +439,8 @@ function keypress_handler (true_event) {
         var event = copy_event(true_event);
 
         /* Filter out events from keys like the Windows/Super/Hyper key */
-        if (event.keyCode == 0 && event.charCode == 0)
+        if (event.keyCode == 0 && event.charCode == 0 ||
+            event.keyCode == vk_name_to_keycode.caps_lock)
             return;
 
         if (key_bindings_ignore_capslock && event.charCode) {
