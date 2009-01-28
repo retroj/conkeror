@@ -10,6 +10,12 @@
 require("window.js");
 require("command-line.js");
 
+define_variable("key_bindings_ignore_capslock", false,
+    "When true, the case of characters in key bindings will be based "+
+    "only on whether shift was pressed--upper-case if yes, lower-case if "+
+    "no.  Effectively, this overrides the capslock key.  This option has "+
+    "no effect on ordinary typing in input fields.");
+
 /* Generate vk name table  */
 var keycode_to_vk_name = [];
 var vk_name_to_keycode = {};
@@ -435,6 +441,14 @@ function keypress_handler (true_event) {
         /* Filter out events from keys like the Windows/Super/Hyper key */
         if (event.keyCode == 0 && event.charCode == 0)
             return;
+
+        if (key_bindings_ignore_capslock && event.charCode) {
+            let c = String.fromCharCode(event.charCode);
+            if (event.shiftKey)
+                event.charCode = c.toUpperCase().charCodeAt(0);
+            else
+                event.charCode = c.toLowerCase().charCodeAt(0);
+        }
 
         /* Clear minibuffer message */
         window.minibuffer.clear();
