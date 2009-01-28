@@ -13,6 +13,7 @@ define_keymap("content_buffer_text_keymap", $parent = content_buffer_form_keymap
 
 define_key(content_buffer_text_keymap, "C-a", "beginning-of-line");
 define_key(content_buffer_text_keymap, "C-e", "end-of-line");
+define_key(content_buffer_text_keymap, "S-back_space", "cmd_deleteCharBackward");
 define_key(content_buffer_text_keymap, "back_space", "cmd_deleteCharBackward");
 define_key(content_buffer_text_keymap, "M-back_space", "cmd_deleteWordBackward");
 define_key(content_buffer_text_keymap, "C-d", "cmd_deleteCharForward");
