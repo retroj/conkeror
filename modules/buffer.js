@@ -645,7 +645,7 @@ interactive("bury-buffer",
 function change_directory(buffer, dir) {
     buffer.configuration.cwd = dir;
 }
-interactive("change-current-directory",
+interactive("change-directory",
             "Change the current directory of the selected buffer.",
             function (I) {
                 change_directory(
