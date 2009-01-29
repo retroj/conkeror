@@ -1,0 +1,19 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+.mode-line {
+  padding: 2px;
+  border-left: 1px solid rgb(230,230,230);
+  border-top: 1px solid rgb(230,230,230);
+  border-right: 1px solid rgb(100,100,100);
+  border-bottom: 1px solid rgb(100,100,100);
+  background-color: rgb(200,200,200);
+}
+
+.mode-line label {
+  color: black;
+}
+
+.mode-line label.current-buffer-name-widget {
+  -moz-box-flex: 1;
+}
