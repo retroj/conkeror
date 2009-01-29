@@ -1,0 +1,14 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+.minibuffer-text-input-mode[minibuffermode="message"],
+.minibuffer-textarea-input-mode[minibuffermode="message"],
+.minibuffer-select-input-mode[minibuffermode="message"],
+.minibuffer-checkbox-input-mode[minibuffermode="message"],
+.minibuffer-richedit-input-mode[minibuffermode="message"],
+.minibuffer-quote-next-input-mode[minibuffermode="message"],
+.minibuffer-quote-input-mode[minibuffermode="message"]{
+  background-color: #999999;
+  color: black;
+}
+
