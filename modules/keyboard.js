@@ -415,7 +415,8 @@ function unformat_key_combo (combo) {
     };
     var M;
     var i = 0;
-    while (combo[i+1] == '-') {
+    var len = combo.length - 2;
+    while (i < len && combo[i+1] == '-') {
         M = combo[i];
         modifiers[M].set_in_event(event);
         i+=2;
