@@ -17,11 +17,9 @@ function selectively_unstyle (buffer) {
     var uri = buffer.current_URI.spec;
     for each (let entry in selectively_unstyle_alist) {
         if (entry[0](uri)) {
-            let pred = entry[1];
+            let func = entry[1];
             for each (var sheet in buffer.document.styleSheets) {
-                if (pred(sheet)) {
-                    sheet.disabled = true;
-                }
+                func(sheet);
             }
         }
     }
