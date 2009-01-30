@@ -114,7 +114,6 @@ function define_default_webjumps()
 				  "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go",
 				  "http://xulplanet.com"]);
     define_webjump("image",      "http://images.google.com/images?q=%s");
-    define_webjump("imdb",       "http://www.imdb.com/find?s=all&q=%s&x=0&y=0");
     define_webjump("clhs",       ["http://www.xach.com/clhs?q=%s",
                                   "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm"]);
     define_webjump("emacswiki",  "http://www.emacswiki.org/cgi-bin/wiki?search=%s");
