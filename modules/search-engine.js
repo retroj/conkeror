@@ -321,7 +321,6 @@ function define_search_engine_webjump(search_engine_name, key) {
 
 define_search_engine_webjump("google.xml", "google");
 define_search_engine_webjump("mozilla-bugzilla.xml", "bugzilla");
-define_search_engine_webjump("amazondotcom.xml", "amazon");
 define_search_engine_webjump("wikipedia.xml", "wikipedia");
 define_search_engine_webjump("answers.xml", "answers");
 define_search_engine_webjump("yahoo.xml", "yahoo");
