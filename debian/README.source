@@ -1,0 +1,29 @@
+Packaging Conkeror for Debian
+-----------------------------
+
+Since end of 2008, the Conkeror Debian packaging code is hosted in the
+upstream git repository at http://repo.or.cz/w/conkeror.git.
+
+Generating the Debian source package from a git working copy is done
+by the script in contrib/debian/update.sh. It
+
+* pulls all changes from the git repository at
+  http://repo.or.cz/w/conkeror.git,
+* renames the directory of the working copy according to the current
+  date and
+* generates a source package which then includes everything except the
+  .git directories and the debian directories.
+
+Packages built that way and released into the public (either as
+official debian package or via some personal but public repository)
+should be tagged in the git repository appropriately:
+
+  * Official Debian packages should be tagged "debian-$debian_package_version"
+  * Other package should be tagged "$person-$package_version"
+  * Automatically built daily snapshots shouldn't be tagged in the
+    repository as they include enough information to determine what
+    state they're based upon.
+
+That way we can always easily identify which state has been packaged.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 01 Feb 2009 21:01:15 +0100
