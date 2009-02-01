@@ -9,7 +9,7 @@ git fetch
 git log HEAD..origin  #optional, shows you the changes
 echo -n "Hit enter to continue and merge changes or hit Ctrl-C to abort."
 read line
-git merge origin
+git rebase origin/master
 version=0.9~git`date +%y%m%d`
 echo -n "Hit enter to rename directory from $olddir to conkeror-$version
 and generate source tar ball or hit Ctrl-C to abort."
