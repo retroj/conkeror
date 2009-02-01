@@ -1,11 +1,13 @@
 #!/bin/sh
+
 # Script to prepare Debian packages of conkeror including the creation
-# of the so called source package.
+# of the so called source package. Do not move away from its current
+# location -- it depends on it.
 #
 # Copyright (C) 2008-2009 Axel Beckert <abe@deuxchevaux.org>
 
 # Find the full path of the current packaging directory and cd to it
-currdir=`dirname $0`/..
+currdir=`dirname $0`/../..
 cd $currdir
 olddir=$(basename $(pwd -P))
 echo currdir=$currdir olddir=$olddir
