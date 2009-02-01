@@ -1,0 +1,18 @@
+conkeror (0.9~git090201-1) UNRELEASED; urgency=low
+
+  There were a few changes since the last conkeror version in Debian which
+  may cause troubles to users of the previous version:
+  * Changes to the behaviour of the universal argument C-u.
+  * Loads now ~/.conkerorrc as the default rc file
+  * Many simple webjumps previously enabled by default have been removed
+    from upstream. Non-default webjumps are now collected and shared at
+    http://conkeror.org/Webjumps
+  * Many additional keybindings, e.g.
+      - pasting current paste buffer content bound to `C-y'
+      - new command `submit-form' bound to `C-c C-c' in forms
+  * Incremental search for URLs in the mini-buffer can currently include
+    _either_ the history or the bookmarks, but not both at the same
+    time. See http://bugs.conkeror.org/issue10 for details on choosing
+    which one to use.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 01 Feb 2009 15:20:04 +0100

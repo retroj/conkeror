@@ -1,21 +1,15 @@
-conkeror (0.9~git090103-1) UNRELEASED; urgency=low
+conkeror (0.9~git090201-1) UNRELEASED; urgency=low
 
   * Debian packaging is now hosted in the upstream repository at
     http://repo.or.cz/w/conkeror.git -- adjust the Vcs-* headers in
     debian/control.
-  * Based on new snapshot (tagged with debian-0.9~git090103-1)
+  * Based on new snapshot (tagged with debian-0.9~git090201-1)
     - spawn-process-helper has been renamed upstream to
       conkeror-spawn-helper -- package names remain unchanged, conflict to
       earlier versions of conkeror-spawn-process-helper
-    - Changes to the behaviour of the universal argument C-u.
-    - Loads now ~/.conkerorrc as the default rc file
-    - gmane-mode added
-    - gmail-mode disabled by default
     - Links on mouse over images now shown
     - command switch -uu for universal-arg of following -f command
-    - pasting current paste buffer content bound to `C-y'
-    - new command `submit-form' bound to `C-c C-c' in forms
-    - new last.fm mode
+  * Added NEWS.Debian to list changes relevant for users.
   * TODO: Documented more command-line switches in man page and --help
 
  -- Axel Beckert <abe@deuxchevaux.org>  Tue, 23 Dec 2008 00:49:45 +0100
