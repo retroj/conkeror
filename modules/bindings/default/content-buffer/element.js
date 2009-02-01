@@ -48,3 +48,12 @@ define_key(content_buffer_normal_keymap, "X", "shell-command-on-url");
 define_key(content_buffer_normal_keymap, "b", "bookmark");
 define_key(content_buffer_normal_keymap, "v", "view-as-mime-type");
 
+
+// Scrolling
+define_key(content_buffer_normal_keymap, "<",
+           "browser-object-previous-heading",
+           $repeat = "scroll");
+define_key(content_buffer_normal_keymap, ">",
+           "browser-object-next-heading",
+           $repeat = "scroll");
+

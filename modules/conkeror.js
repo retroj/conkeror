@@ -34,6 +34,7 @@ require("universal-argument.js");
 require("commands.js"); // depends: interactive.js
 require("webjump.js"); // depends: interactive.js
 require("history.js");
+require("scroll.js");
 
 require("save.js");
 
