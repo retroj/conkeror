@@ -102,12 +102,8 @@ cp -priv $MASTERDIR $DATEDIR
 cd $BUILDDIR
 tar cvzf conkeror_$VERSION.orig.tar.gz --exclude=.git conkeror-$VERSION
 
-# Add an appropriate commit.id (probably obsolete soon)
-cd $DATEDIR
-git log | head -1 | awk '{print $2}' > debian/commit.id
-
 # Add an appropriate changelog entry
-cd debian
+cd $DATEDIR/debian
 mv changelog changelog.tmp
 echo "conkeror ($RELEASE) UNRELEASED; urgency=low
 
