@@ -1,8 +1,10 @@
 conkeror (0.9~git090201-1) UNRELEASED; urgency=low
 
   * Debian packaging is now hosted in the upstream repository at
-    http://repo.or.cz/w/conkeror.git -- adjusted the Vcs-* headers in
-    debian/control.
+    http://repo.or.cz/w/conkeror.git:
+    - Adjusted the Vcs-* headers in debian/control.
+    - Changed the build id to contain username and hostname instead of
+      commit id.
   * Based on new snapshot (tagged with debian-0.9~git090201-1)
     - spawn-process-helper has been renamed upstream to
       conkeror-spawn-helper -- package names remain unchanged, conflict to

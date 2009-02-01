@@ -10,8 +10,7 @@ export DH_OPTIONS
 UPSTREAM_VERSION := $(shell grep ^Version= application.ini | sed -e 's/^Version=//')
 DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
 
-COMMIT  := $(shell echo -n `git log | head -1 | awk '{print $2}'`)
-BUILDID := $(COMMIT)_$(shell date +%s)
+BUILDID := $(shell echo -n `whoami`@`hostname`)_$(shell date +%s)
 
 include /usr/share/quilt/quilt.make
 
@@ -63,10 +62,10 @@ install-indep:
 	       locale modules search-engines help style			\
 	       $(CURDIR)/debian/conkeror/usr/share/conkeror/
 	# Add generated Build ID and Debian version to version output
-	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (commit ${COMMIT}, Debian-${DEBIAN_VERSION})/' application.ini \
+	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' application.ini \
 	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/application.ini
 	# Use Debian version for M-x version output
-	sed -e 's/\$$CONKEROR_VERSION\$$/${UPSTREAM_VERSION} (commit ${COMMIT}, Debian-${DEBIAN_VERSION})/' components/application.js \
+	sed -e 's/\$$CONKEROR_VERSION\$$/${UPSTREAM_VERSION} (Debian-${DEBIAN_VERSION})/' components/application.js \
 	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
 	cp -p debian/conkeror.bin $(CURDIR)/debian/conkeror/usr/bin/conkeror
 	cp -p debian/conkeror.desktop $(CURDIR)/debian/conkeror/usr/share/applications/
