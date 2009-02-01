@@ -11,7 +11,8 @@ echo -n "Hit enter to continue and merge changes or hit Ctrl-C to abort."
 read line
 git merge origin
 version=0.9~git`date +%y%m%d`
-echo -n "Hit enter to rename directory from $olddir to conkeror-$version\nand generate source tar ball or hit Ctrl-C to abort."
+echo -n "Hit enter to rename directory from $olddir to conkeror-$version
+and generate source tar ball or hit Ctrl-C to abort."
 read line
 rm -f spawn-process-helper conkeror-spawn-helper
 make clean
