@@ -4,19 +4,21 @@ Sat, 19 Apr 2008 03:39:31 +0200.
 It was downloaded from its GIT repository at
 http://repo.or.cz/w/conkeror.git
 
-Upstream Author:
+Upstream Authors:
 
     Jeremy Maitin-Shepard <jeremy@jeremyms.com>
+    John Foerch <jjfoerch@earthlink.net>
+    Shawn Betts
 
-    See CREDITS file for more details on contributors
+    See the CREDITS file for more details on contributors.
 
 Copyright:
 
-    Copyright (C) 2004-2007 Shawn Betts
+    Copyright (C) 2004-2009 Shawn Betts
     Copyright (C) 2006-2008 Martin Stubenschrott
     Copyright (C) 2006 	    Sylvain Pasche
-    Copyright (C) 2007-2008 John J. Foerch
-    Copyright (C) 2007-2008 Jeremy Maitin-Shepard
+    Copyright (C) 2007-2009 John J. Foerch
+    Copyright (C) 2007-2009 Jeremy Maitin-Shepard
     Copyright (C) 2007 	    Doug Kearns
     Copyright (C) 2008 	    Ævar Arnfjörð Bjarmason
     Copyright (C) 2008 	    David Glasser
@@ -24,6 +26,7 @@ Copyright:
     Copyright (C) 2008 	    Martin Dybdal
     Copyright (C) 2008 	    Nelson Elhage
     Copyright (C) 2008 	    Will Farrington
+    Copyright (C) 2008 	    David Kettler
 
 License:
 
@@ -31,9 +34,9 @@ License:
     `/usr/share/common-licenses/GPL-2') or LGPL 2.1 (see
     `/usr/share/common-licenses/LGPL-2.1') at your option.
 
-The Debian packaging is Copyright 2008 by Axel Beckert
-<abe@deuxchevaux.org> and is licensed under the GPL 2, see
-`/usr/share/common-licenses/GPL-2'.
+The Debian packaging is Copyright 2008-2009 by Axel Beckert
+<abe@deuxchevaux.org> and is licensed under the same terms as Conkeror
+itself.
 
 
 ********************************************************************************
