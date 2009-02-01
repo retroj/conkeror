@@ -8,6 +8,6 @@ The conkeror package is split up into two packages:
   spawn external commands like editors, etc.
 
 + conkeror-spawn-process-helper including the helper binary
-  spawn-process-helper
+  conkeror-spawn-helper (formerly spawn-process-helper)
 
- -- Axel Beckert <abe@deuxchevaux.org>, Fri, 23 May 2008 23:36:07 +0200
+ -- Axel Beckert <abe@deuxchevaux.org>, Sun,  1 Feb 2009 20:48:59 +0100
