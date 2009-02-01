@@ -10,6 +10,9 @@ conkeror (0.9~git090201-1) UNRELEASED; urgency=low
     - Links on mouse over images now shown
     - command switch -uu for universal-arg of following -f command
   * Added NEWS.Debian to list changes relevant for users.
+  * Changed licencing of packaging from GPLv2 to the same licencing terms
+    as Conkeror itself.
+  * Updated debian/copyright to reflect current state of the project
   * TODO: Documented more command-line switches in man page and --help
 
  -- Axel Beckert <abe@deuxchevaux.org>  Sun, 01 Feb 2009 16:40:22 +0100
