@@ -1,4 +1,8 @@
 #!/bin/sh
+# Script to prepare Debian packages of conkeror including the creation
+# of the so called source package.
+#
+# Copyright (C) 2008-2009 Axel Beckert <abe@deuxchevaux.org>
 
 currdir=`dirname $0`/..
 cd $currdir
