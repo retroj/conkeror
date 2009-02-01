@@ -1,7 +1,7 @@
 conkeror (0.9~git090201-1) UNRELEASED; urgency=low
 
   * Debian packaging is now hosted in the upstream repository at
-    http://repo.or.cz/w/conkeror.git -- adjust the Vcs-* headers in
+    http://repo.or.cz/w/conkeror.git -- adjusted the Vcs-* headers in
     debian/control.
   * Based on new snapshot (tagged with debian-0.9~git090201-1)
     - spawn-process-helper has been renamed upstream to
@@ -12,7 +12,7 @@ conkeror (0.9~git090201-1) UNRELEASED; urgency=low
   * Added NEWS.Debian to list changes relevant for users.
   * TODO: Documented more command-line switches in man page and --help
 
- -- Axel Beckert <abe@deuxchevaux.org>  Tue, 23 Dec 2008 00:49:45 +0100
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 01 Feb 2009 16:40:22 +0100
 
 conkeror (0.9~git080629-2) unstable; urgency=low
 
