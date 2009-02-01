@@ -4,23 +4,42 @@
 #
 # Copyright (C) 2008-2009 Axel Beckert <abe@deuxchevaux.org>
 
+# Find the full path of the current packaging directory and cd to it
 currdir=`dirname $0`/..
 cd $currdir
 olddir=$(basename $(pwd -P))
 echo currdir=$currdir olddir=$olddir
+
+# Unapply all patches if there are any
 quilt pop -a
+
+# Update the code from the git repository
 git fetch
-git log HEAD..origin  #optional, shows you the changes
+
+# Display the changes and ask if we should continue
+git log HEAD..origin
 echo -n "Hit enter to continue and merge changes or hit Ctrl-C to abort."
 read line
+
+# Merge in the fetched changes
 git rebase origin/master
+
+# Rename the packaging directory to reflect the new version number
 version=0.9~git`date +%y%m%d`
 echo -n "Hit enter to rename directory from $olddir to conkeror-$version
 and generate source tar ball or hit Ctrl-C to abort."
 read line
+
+# Clean up before renaming
 rm -f spawn-process-helper conkeror-spawn-helper
 make clean
+
+# Do the rename
 cd ..
 mv -vi $olddir conkeror-$version
+
+# Create source package out of the git working copy
 tar cvzf conkeror_$version.orig.tar.gz --exclude=debian --exclude=.git --exclude=.pc --exclude=configure-stamp conkeror-$version
+
+# Change back to the packaging directory
 cd conkeror-$version
