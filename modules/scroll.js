@@ -77,6 +77,7 @@ function scroll (I) {
         return;
     element.scrollIntoView();
     I.window.minibuffer.message(element.textContent);
+    dom_node_flash(element, "__conkeror_scroll_into_view");
 }
 
 

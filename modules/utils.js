@@ -1524,3 +1524,38 @@ function string_format (spec, substitutions) {
     return spec.replace(/%(.)/g, function (a,b) { return substitutions[b]; });
 }
 
+
+/**
+ * dom_add_class adds a css class to the given dom node.
+ */
+function dom_add_class (node, cssclass) {
+    if (node.className)
+        node.className += " "+cssclass;
+    else
+        node.className = cssclass;
+}
+
+/**
+ * dom_remove_class removes the given css class from the given dom node.
+ */
+function dom_remove_class (node, cssclass) {
+    if (! node.className)
+        return;
+    var classes = node.className.split(" ");
+    classes = classes.filter(function (x) { return x != cssclass; });
+    node.className = classes.join(" ");
+}
+
+
+/**
+ * dom_node_flash adds the given cssclass to the node for a brief interval.
+ * this class can be styled, to create a flashing effect.
+ */
+function dom_node_flash (node, cssclass) {
+    dom_add_class(node, cssclass);
+    call_after_timeout(
+        function () {
+            dom_remove_class(node, cssclass);
+        },
+        400);
+}
