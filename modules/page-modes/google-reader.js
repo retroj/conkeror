@@ -19,11 +19,11 @@ define_key(google_reader_keymap, "k", null, $fallthrough);
 define_key(google_reader_keymap, "space", null, $fallthrough);
 define_key(google_reader_keymap, "S-space", null, $fallthrough);
 define_key(google_reader_keymap, "n", null, $fallthrough);
-define_key(google_reader_keymap, "S-n", null, $fallthrough);
+define_key(google_reader_keymap, "N", null, $fallthrough);
 define_key(google_reader_keymap, "p", null, $fallthrough);
-define_key(google_reader_keymap, "S-p", null, $fallthrough);
-define_key(google_reader_keymap, "S-x", null, $fallthrough);
-define_key(google_reader_keymap, "S-o", null, $fallthrough);
+define_key(google_reader_keymap, "P", null, $fallthrough);
+define_key(google_reader_keymap, "X", null, $fallthrough);
+define_key(google_reader_keymap, "O", null, $fallthrough);
 
 // Jumping
 define_key(google_reader_keymap, "g", null, $fallthrough);
@@ -31,14 +31,14 @@ define_key(google_reader_keymap, "C-c g", "find-url");
 
 // Acting
 define_key(google_reader_keymap, "s", null, $fallthrough);
-define_key(google_reader_keymap, "S-s", null, $fallthrough);
+define_key(google_reader_keymap, "S", null, $fallthrough);
 define_key(google_reader_keymap, "C-c s", "save");
 define_key(google_reader_keymap, "v", null, $fallthrough);
 define_key(google_reader_keymap, "t", null, $fallthrough);
 define_key(google_reader_keymap, "C-c t", "follow-top");
 define_key(google_reader_keymap, "m", null, $fallthrough);
 define_key(google_reader_keymap, "o", null, $fallthrough);
-define_key(google_reader_keymap, "S-a", null, $fallthrough);
+define_key(google_reader_keymap, "A", null, $fallthrough);
 define_key(google_reader_keymap, "e", null, $fallthrough);
 
 // Application
