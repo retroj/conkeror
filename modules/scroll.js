@@ -7,65 +7,62 @@
 **/
 
 
+define_variable("headings_xpath", "//h1 | //h2 | //h3 | //h4 | //h5 | //h6",
+    "The xpath expression used by next-heading and previous-heading to find "+
+    "headings.  Users will rarely need to change the value of this, but it "+
+    "exists especially for page-modes to override with a site-specific "+
+    "xpath expression.");
+
+
 define_browser_object_class(
     "next-heading", null, null,
     function (I) {
-        let headings_xpath = "//h1 | //h2 | //h3 | //h4 | //h5 | //h6";
-        let doc = I.buffer.document,
-            xpr = doc.evaluate(
-                headings_xpath, doc, null,
+        let xpr = I.buffer.document.evaluate(
+                I.buffer.get('headings_xpath'), I.buffer.document, null,
                 Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
-            heading, first = null, current = null, found = null,
-            eod = true;
-        // we have to look at all headings because if the heading of our
-        // current scroll-location is positioned vertically higher than a
-        // heading earlier in document order, then we must take care to
-        // skip past those earlier headings to get the correct *next*
-        // heading.
+            heading, found = null, foundtop = null,
+            first = null, firsttop = null;
         while ((heading = xpr.iterateNext())) {
-            if (! first)
-                first = heading;
             let rect = heading.getBoundingClientRect();
             if (rect.bottom - rect.top < 2)
                 continue;
-            if (current) {
+            if (! first || rect.top < firsttop) {
+                first = heading;
+                firsttop = rect.top;
+            }
+            if (rect.top > 2 && (! found || rect.top < foundtop)) {
                 found = heading;
-                eod = false;
-                break;
-            } else if (rect.top > 2) {
-                if (! found)
-                    found = heading;
-                if (rect.top > I.window.innerHeight)
-                    eod = false;
-            } else if (rect.top >= -1 && rect.top <= 2) {
-                current = heading;
+                foundtop = rect.top;
             }
         }
+        // scrollY can exceed scrollMaxY
+        let eod = I.buffer.scrollY - I.buffer.scrollMaxY >= 0;
         if (! found || eod)
             found = first;
         yield co_return(found);
     });
 
+
 define_browser_object_class(
     "previous-heading", null, null,
     function (I) {
-        let headings_xpath = "//h1 | //h2 | //h3 | //h4 | //h5 | //h6";
-        let doc = I.buffer.document,
-            xpr = doc.evaluate(
-                headings_xpath, doc, null,
+        let xpr = I.buffer.document.evaluate(
+                I.buffer.get('headings_xpath'), I.buffer.document, null,
                 Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
-            heading, found = false, last = null;
+            heading, found = null, foundtop = null,
+            last = null, lasttop = null;
         while ((heading = xpr.iterateNext())) {
             let rect = heading.getBoundingClientRect();
             if (rect.bottom - rect.top < 2)
                 continue;
-            if (rect.top >= -1 && rect.top <= 2) {
-                // this is our current heading
-                found = last;
-            } else if (rect.top >= -1 && found === false) {
-                found = last;
+            if (rect.top < -1 && (! found || rect.top > foundtop)) {
+                found = heading;
+                foundtop = rect.top;
             }
-            last = heading;
+            if (! last || rect.top > lasttop) {
+                last = heading;
+                lasttop = rect.top;
+            }
         }
         if (! found)
             found = last;
@@ -84,7 +81,10 @@ function scroll (I) {
 
 
 interactive("scroll",
-    "Scroll the DOM node provided as a browser object to the top of the view port.",
+    "Generalized scroll command.  The amount of scrolling is determined by "+
+    "the object passed to the command as a browser-object.  If the object "+
+    "is a DOM node, that node will be scrolled to the top of the viewport "+
+    "if possible.",
     scroll);
 
 
