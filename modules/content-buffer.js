@@ -468,6 +468,7 @@ interactive("reload",
             "DOM node is supplied via browser object, that node will be "+
             "reloaded.",
             function (I) {
+                check_buffer(I.buffer, content_buffer);
                 var element = yield read_browser_object(I);
                 reload(I.buffer, I.P, element);
             });

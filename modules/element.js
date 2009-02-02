@@ -56,7 +56,6 @@ define_browser_object_class(
 define_browser_object_class(
     "frames","frame", null,
     function (I, prompt) {
-        check_buffer(I.buffer, content_buffer);
         var doc = I.buffer.document;
         if (doc.getElementsByTagName("frame").length == 0 &&
             doc.getElementsByTagName("iframe").length == 0)
@@ -92,17 +91,15 @@ define_browser_object_class(
 define_browser_object_class(
     "url", null, null,
     function (I, prompt) {
-        check_buffer (I.buffer, content_buffer);
-        var result = yield I.buffer.window.minibuffer.read_url ($prompt = prompt);
-        yield co_return (result);
+        var result = yield I.buffer.window.minibuffer.read_url($prompt = prompt);
+        yield co_return(result);
     });
 
 define_browser_object_class(
     "pasteurl", null, null,
     function (I, url) {
-        check_buffer (I.buffer, content_buffer);
 	let url = read_from_x_primary_selection();
-        yield co_return (url);
+        yield co_return(url);
     });
 
 define_browser_object_class(
@@ -149,7 +146,6 @@ define_browser_object_class(
     "scrape-url", "url",
     "Scrapes urls from the source code of the top-level document of buffer.",
     function (I, prompt) {
-        check_buffer (I.buffer, content_buffer);
         var completions = I.buffer.document.documentElement.innerHTML
             .match(/http:[^\s>"]*/g)
             .filter(remove_duplicates_filter());
@@ -161,13 +157,12 @@ define_browser_object_class(
             $auto_complete = "url",
             $select,
             $match_required = false);
-        yield co_return (result);
+        yield co_return(result);
     });
 
 define_browser_object_class(
     "up-url", "Up Url", null,
     function (I, prompt) {
-        check_buffer(I.buffer, content_buffer);
         var up = compute_url_up_path(I.buffer.current_URI.spec);
         return I.buffer.current_URI.resolve(up);
     });
@@ -414,12 +409,9 @@ function follow (I, target) {
     if (target == null)
         target = FOLLOW_DEFAULT;
     I.target = target;
+    if (target == OPEN_CURRENT_BUFFER)
+        check_buffer (I.buffer, content_buffer);
     var element = yield read_browser_object(I);
-    // XXX: to follow in the current buffer requires that the current
-    // buffer be a content_buffer.  this is perhaps not the best place
-    // for this check, because FOLLOW_DEFAULT could signify new buffer
-    // or new window.
-    check_buffer (I.buffer, content_buffer);
     browser_object_follow(I.buffer, target, element);
 }
 

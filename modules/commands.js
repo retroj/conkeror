@@ -478,11 +478,11 @@ interactive("find-alternate-url", "Edit the current URL in the minibuffer",
                 define_browser_object_class(
                     "alternate-url", null, null,
                     function (I, prompt) {
-                        check_buffer (I.buffer, content_buffer);
-                        var result = yield I.buffer.window.minibuffer.read_url (
+                        check_buffer(I.buffer, content_buffer);
+                        var result = yield I.buffer.window.minibuffer.read_url(
                             $prompt = prompt,
                             $initial_value = I.buffer.display_URI_string);
-                        yield co_return (result);
+                        yield co_return(result);
                     }),
             $prompt = "Find url");
 

@@ -33,7 +33,6 @@ define_browser_object_class(
 define_browser_object_class(
     "google-search-result-by-digit", "Google Search Result", null,
     function (I, prompt) {
-        check_buffer(I.buffer, content_buffer);
         var doc = I.buffer.document;
         var digit = I.event.charCode - 48;
         var res = doc.evaluate("//a[parent::node()/@class='r']", doc, null,

@@ -85,7 +85,6 @@ function document_get_element_by_relationship(buffer, doc, relationship) {
 define_browser_object_class(
     "relationship-next", "Relationship-Next", null,
     function (I, prompt) {
-        check_buffer(I.buffer, content_buffer);
         var doc = I.buffer.document;
         for (let frame in frame_iterator(I.buffer.top_frame, I.buffer.focused_frame)) {
             let elem = document_get_element_by_relationship(
@@ -98,7 +97,6 @@ define_browser_object_class(
 define_browser_object_class(
     "relationship-previous", "Relationship-Previous", null,
     function (I, prompt) {
-        check_buffer(I.buffer, content_buffer);
         var doc = I.buffer.document;
         for (let frame in frame_iterator(I.buffer.top_frame, I.buffer.focused_frame)) {
             let elem = document_get_element_by_relationship(
