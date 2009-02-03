@@ -36,12 +36,12 @@ function show_conkeror_version (window)
 {
     window.minibuffer.message (conkeror.version);
 }
-interactive ("conkeror-version",
-             "Show version information for Conkeror.",
-             function (I) {show_conkeror_version(I.window);});
-interactive ("version",
-             "Show version information for Conkeror.",
-             function (I) {show_conkeror_version(I.window);});
+interactive("conkeror-version",
+            "Show version information for Conkeror.",
+            function (I) {show_conkeror_version(I.window);});
+interactive("version",
+            "Show version information for Conkeror.",
+            "conkeror-version");
 
 /* FIXME: maybe this should be supported for non-browser buffers */
 function scroll_horiz_complete (buffer, n)
