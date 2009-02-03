@@ -171,9 +171,7 @@ function load_spec_source_frame(x) {
     return null;
 }
 
-function load_spec_uri_string(x) {
-    if (typeof(x) == "string")
-        x = get_url_or_webjump(x);
+function load_spec_uri_string_bypass_webjump(x) {
     if (typeof(x) == "string")
        return x;
     if (x.uri)
@@ -183,6 +181,12 @@ function load_spec_uri_string(x) {
     if (x.document)
         return x.document.documentURI;
     return null;
+}
+
+function load_spec_uri_string(x) {
+    if (typeof(x) == "string")
+        x = get_url_or_webjump(x);
+    return load_spec_uri_string_bypass_webjump(x);
 }
 
 function load_spec_uri(x) {
@@ -209,7 +213,9 @@ function load_spec_default_shell_command(x) {
 
 /* Target can be either a content_buffer or an nsIWebNavigation */
 function apply_load_spec(target, spec) {
-    var uri = load_spec_uri_string(spec);
+    if (typeof(spec) == "string")
+        spec = get_url_or_webjump(spec);
+    var uri = load_spec_uri_string_bypass_webjump(spec);
     var flags = load_spec_flags(spec);
     var referrer = load_spec_referrer(spec);
     var post_data = load_spec_post_data(spec);
