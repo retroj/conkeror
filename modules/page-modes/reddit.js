@@ -6,7 +6,6 @@
 **/
 
 require("content-buffer.js");
-require("bindings/default/content-buffer/normal.js");
 
 /* Initially based on the greasemonkey userscript "Reddit keyboard
  * shortcuts", found on userscripts.org. But much has changed because of
