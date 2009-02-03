@@ -59,10 +59,9 @@ function reddit_mode_setup(buffer) {
     // Get all divs that have a id that starts with "thingrow"
     var links = siteTable.getElementsByTagName("div");
     links = Array.filter(links, function (element) {
-        var start = element.id.substr(0, 12);
-        if (start === "thingrow_t3_") {
-
-            element.articleId  = element.id.substr(12, element.id.length-12);
+        var start = element.className.substr(0, 12);
+        if (start === "thing id-t3_") {
+            element.articleId  = element.className.substr(12, 5);
             element.highlighted = false;
             if(element.style.backgroundColor == "")
                 element.originalBackgroundColor = "transparent";
