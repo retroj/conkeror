@@ -513,9 +513,7 @@ interactive("focus", null,
 interactive("save", null, function (I) {
     var element = yield read_browser_object(I);
 
-    var spec = element_get_load_spec(element);
-    if (spec == null)
-        throw interactive_error("Element has no associated URI");
+    var spec = load_spec(element);
 
     var panel;
     panel = create_info_panel(I.window, "download-panel",
@@ -567,9 +565,7 @@ interactive("view-source", null,
 interactive("shell-command-on-url", null, function (I) {
     var cwd = I.cwd;
     var element = yield read_browser_object(I);
-    var spec = element_get_load_spec(element);
-    if (spec == null)
-        throw interactive_error("Unable to obtain URI from element");
+    var spec = load_spec(element);
 
     var uri = load_spec_uri_string(spec);
 
@@ -598,9 +594,7 @@ interactive("shell-command-on-file", null, function (I) {
     var cwd = I.cwd;
     var element = yield read_browser_object(I);
 
-    var spec = element_get_load_spec(element);
-    if (spec == null)
-        throw interactive_error("Unable to obtain URI from element");
+    var spec = load_spec(element);
 
     var uri = load_spec_uri_string(spec);
 
@@ -628,9 +622,7 @@ interactive("shell-command-on-file", null, function (I) {
 
 interactive("bookmark", null, function (I) {
     var element = yield read_browser_object(I);
-    var spec = element_get_load_spec(element);
-    if (!spec)
-        throw interactive_error("Element has no associated URI");
+    var spec = load_spec(element);
     var uri_string = load_spec_uri_string(spec);
     var panel;
     panel = create_info_panel(I.window, "bookmark-panel",
@@ -650,8 +642,8 @@ interactive("bookmark", null, function (I) {
 interactive("save-page", null, function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield read_browser_object(I);
-    var spec = element_get_load_spec(element);
-    if (!spec || !load_spec_document(spec))
+    var spec = load_spec(element);
+    if (!load_spec_document(spec))
         throw interactive_error("Element is not associated with a document.");
     var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer);
 
@@ -678,9 +670,9 @@ interactive("save-page", null, function (I) {
 interactive("save-page-as-text", null, function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield read_browser_object(I);
-    var spec = element_get_load_spec(element);
+    var spec = load_spec(element);
     var doc;
-    if (!spec || !(doc = load_spec_document(spec)))
+    if (!(doc = load_spec_document(spec)))
         throw interactive_error("Element is not associated with a document.");
     var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec, "txt"), I.buffer);
 
@@ -707,9 +699,9 @@ interactive("save-page-as-text", null, function (I) {
 interactive("save-page-complete", null, function (I) {
     check_buffer(I.buffer, content_buffer);
     var element = yield read_browser_object(I);
-    var spec = element_get_load_spec(element);
+    var spec = load_spec(element);
     var doc;
-    if (!spec || !(doc = load_spec_document(spec)))
+    if (!(doc = load_spec_document(spec)))
         throw interactive_error("Element is not associated with a document.");
     var suggested_path = suggest_save_path_from_file_name(suggest_file_name(spec), I.buffer);
 
@@ -742,13 +734,10 @@ interactive("save-page-complete", null, function (I) {
 function view_as_mime_type (I, target) {
     I.target = target;
     var element = yield read_browser_object(I);
-    var spec = element_get_load_spec(element);
+    var spec = load_spec(element);
 
     if (target == null)
         target = FOLLOW_CURRENT_FRAME;
-
-    if (!spec)
-        throw interactive_error("Element is not associated with a URI");
 
     if (!can_override_mime_type_for_uri(load_spec_uri(spec)))
         throw interactive_error("Overriding the MIME type is not currently supported for non-HTTP URLs.");

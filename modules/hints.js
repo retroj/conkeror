@@ -348,8 +348,10 @@ function hints_url_panel(hints, window) {
     p.update = function() {
 	url_value.value = "";
 	if (hints.manager && hints.manager.last_selected_hint) {
-            var spec = element_get_load_spec(
-                hints.manager.last_selected_hint.elem);
+            var spec;
+            try {
+                spec = load_spec(hints.manager.last_selected_hint.elem);
+            } catch (e) {}
             if (spec) {
                 var uri = load_spec_uri_string(spec);
                 if (uri) url_value.value = uri;

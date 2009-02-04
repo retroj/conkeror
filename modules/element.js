@@ -259,7 +259,7 @@ function browser_object_follow(buffer, target, elem)
     if (elem instanceof Ci.nsILocalFile)
         elem = elem.path;
 
-    var no_click = (is_load_spec(elem) ||
+    var no_click = ((elem instanceof load_spec) ||
                     (elem instanceof Ci.nsIDOMWindow) ||
                     (elem instanceof Ci.nsIDOMHTMLFrameElement) ||
                     (elem instanceof Ci.nsIDOMHTMLIFrameElement) ||
@@ -280,11 +280,7 @@ function browser_object_follow(buffer, target, elem)
         return;
     }
 
-    var spec = element_get_load_spec(elem);
-    if (spec == null) {
-        throw interactive_error("Element has no associated URL");
-        return;
-    }
+    var spec = load_spec(elem);
 
     if (load_spec_uri_string(spec).match(/^\s*javascript:/)) {
         // it is nonsensical to follow a javascript url in a different
@@ -338,70 +334,6 @@ function browser_follow_link_with_click(buffer, elem, x, y) {
     evt.initMouseEvent("click", true, true, view, 1, x, y, 0, 0, /*ctrl*/ 0, /*event.altKey*/0,
                        /*event.shiftKey*/ 0, /*event.metaKey*/ 0, 0, null);
     elem.dispatchEvent(evt);
-}
-
-function element_get_load_spec(elem) {
-
-    if (is_load_spec(elem))
-        return elem;
-
-    var spec = null;
-
-    if (elem instanceof Ci.nsIDOMWindow)
-        spec = load_spec({document: elem.document});
-
-    else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
-             elem instanceof Ci.nsIDOMHTMLIFrameElement)
-        spec = load_spec({document: elem.contentDocument});
-
-    else {
-        var url = null;
-        var title = null;
-
-        if (elem instanceof Ci.nsIDOMHTMLAnchorElement ||
-            elem instanceof Ci.nsIDOMHTMLAreaElement ||
-            elem instanceof Ci.nsIDOMHTMLLinkElement) {
-            if (!elem.hasAttribute("href"))
-                return null; // nothing can be done, as no nesting within these elements is allowed
-            url = elem.href;
-            title = elem.title || elem.textContent;
-        }
-        else if (elem instanceof Ci.nsIDOMHTMLImageElement) {
-            url = elem.src;
-            title = elem.title || elem.alt;
-        }
-        else {
-            var node = elem;
-            while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
-                node = node.parentNode;
-            if (node) {
-                if (node.hasAttribute("href"))
-                    url = node.href;
-                else
-                    node = null;
-            }
-            if (!node) {
-                // Try simple XLink
-                node = elem;
-                while (node) {
-                    if (node.nodeType == Ci.nsIDOMNode.ELEMENT_NODE) {
-                        url = node.getAttributeNS(XLINK_NS, "href");
-                        break;
-                    }
-                    node = node.parentNode;
-                }
-                if (url)
-                    url = makeURLAbsolute(node.baseURI, url);
-                title = node.title || node.textContent;
-            }
-        }
-        if (url && url.length > 0) {
-            if (title && title.length == 0)
-                title = null;
-            spec = load_spec({uri: url, source_frame: elem.ownerDocument.defaultView, title: title});
-        }
-    }
-    return spec;
 }
 
 
@@ -468,7 +400,10 @@ function element_get_operation_label(element, op_name, suffix) {
 
 function browser_element_copy(buffer, elem)
 {
-    var spec = element_get_load_spec(elem);
+    var spec;
+    try {
+       spec = load_spec(elem);
+    } catch (e) {}
     var text = null;
     if (spec)
         text = load_spec_uri_string(spec);
@@ -500,11 +435,7 @@ function browser_object_view_source(buffer, target, elem)
 {
     if (view_source_use_external_editor || view_source_function)
     {
-        var spec = element_get_load_spec(elem);
-        if (spec == null) {
-            throw interactive_error("Element has no associated URL");
-            return;
-        }
+        var spec = load_spec(elem);
 
         let [file, temp] = yield download_as_temporary(spec,
                                                        $buffer = buffer,
@@ -559,11 +490,7 @@ function view_source_new_window (I) {
 
 
 function browser_element_shell_command(buffer, elem, command) {
-    var spec = element_get_load_spec(elem);
-    if (spec == null) {
-        throw interactive_error("Element has no associated URL");
-        return;
-    }
+    var spec = load_spec(elem);
     yield download_as_temporary(spec,
                                 $buffer = buffer,
                                 $shell_command = command,

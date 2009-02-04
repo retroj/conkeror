@@ -79,8 +79,14 @@ define_browser_object_class(
 
         let completer = all_word_completer(
             $completions = media,
-            $get_string = function (x) load_spec_uri_string(x),
-            $get_description = function (x) load_spec_title(x) || "");
+            $get_string = function (x) {
+                x = load_spec(x);
+                return load_spec_uri_string(x);
+            },
+            $get_description = function (x) {
+                x = load_spec(x);
+                return load_spec_title(x) || "";
+            });
 
         let result = yield I.buffer.window.minibuffer.read(
             $prompt = prompt,

@@ -52,11 +52,85 @@
 
 require("webjump.js");
 
-function load_spec(x) { x.__proto__ = load_spec.prototype; return x; }
+function load_spec_from_element (elem) {
+    var spec = {};
+    if (elem instanceof Ci.nsIDOMWindow)
+        spec.document = elem.document;
 
-function is_load_spec(x) {
-    return (typeof(x) == "string") || (x instanceof load_spec);
+    else if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
+             elem instanceof Ci.nsIDOMHTMLIFrameElement)
+        spec.document = elem.contentDocument;
+
+    else {
+        var url = null;
+        var title = null;
+
+        if (elem instanceof Ci.nsIDOMHTMLAnchorElement ||
+            elem instanceof Ci.nsIDOMHTMLAreaElement ||
+            elem instanceof Ci.nsIDOMHTMLLinkElement) {
+            if (elem.hasAttribute("href"))
+                url = elem.href;
+            title = elem.title || elem.textContent;
+        }
+        else if (elem instanceof Ci.nsIDOMHTMLImageElement) {
+            url = elem.src;
+            title = elem.title || elem.alt;
+        }
+        else {
+            var node = elem;
+            while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
+                node = node.parentNode;
+            if (node) {
+                if (node.hasAttribute("href"))
+                    url = node.href;
+                else
+                    node = null;
+            }
+            if (!node) {
+                // Try simple XLink
+                node = elem;
+                while (node) {
+                    if (node.nodeType == Ci.nsIDOMNode.ELEMENT_NODE) {
+                        url = node.getAttributeNS(XLINK_NS, "href");
+                        break;
+                    }
+                    node = node.parentNode;
+                }
+                if (url)
+                    url = makeURLAbsolute(node.baseURI, url);
+                title = node.title || node.textContent;
+            }
+        }
+        if (url && url.length > 0) {
+            if (title && title.length == 0)
+                title = null;
+            spec.uri = url;
+            spec.source_frame = elem.ownerDocument.defaultView;
+            spec.title = title;
+        }
+    }
+    return spec;
 }
+
+function load_spec (x) {
+    var spec;
+    if (typeof(x) == "string")
+        x = get_url_or_webjump(x);
+    if (typeof(x) == "string")
+        spec = { uri: x };
+    else if ((x instanceof Ci.nsIDOMNode) ||
+             (x instanceof Ci.nsIDOMWindow))
+    {
+        spec = load_spec_from_element(x);
+    } else if (typeof(x) == "object") {
+        spec = x;
+    }
+    if (! load_spec_uri_string(spec))
+        throw new Error("Invalid load-spec");
+    spec.__proto__ = load_spec.prototype;
+    return spec;
+}
+load_spec.prototype = {};
 
 function load_spec_document(x) {
     return x.document;
@@ -71,12 +145,10 @@ function load_spec_title(x) {
 }
 
 function load_spec_mime_type(x) {
-    if (typeof(x) == "object") {
-        if (x.mime_type)
-            return x.mime_type;
-        if (x.document)
-            return x.document.contentType || "application/octet-stream";
-    }
+    if (x.mime_type)
+        return x.mime_type;
+    if (x.document)
+        return x.document.contentType || "application/octet-stream";
     return mime_type_from_uri(load_spec_uri(x));
 }
 
@@ -171,9 +243,7 @@ function load_spec_source_frame(x) {
     return null;
 }
 
-function load_spec_uri_string_bypass_webjump(x) {
-    if (typeof(x) == "string")
-       return x;
+function load_spec_uri_string(x) {
     if (x.uri)
         return x.uri;
     if (x.document && x.document.defaultView)
@@ -181,12 +251,6 @@ function load_spec_uri_string_bypass_webjump(x) {
     if (x.document)
         return x.document.documentURI;
     return null;
-}
-
-function load_spec_uri_string(x) {
-    if (typeof(x) == "string")
-        x = get_url_or_webjump(x);
-    return load_spec_uri_string_bypass_webjump(x);
 }
 
 function load_spec_uri(x) {
@@ -213,9 +277,9 @@ function load_spec_default_shell_command(x) {
 
 /* Target can be either a content_buffer or an nsIWebNavigation */
 function apply_load_spec(target, spec) {
-    if (typeof(spec) == "string")
-        spec = get_url_or_webjump(spec);
-    var uri = load_spec_uri_string_bypass_webjump(spec);
+    if (! (spec instanceof load_spec))
+        spec = load_spec(spec);
+    var uri = load_spec_uri_string(spec);
     var flags = load_spec_flags(spec);
     var referrer = load_spec_referrer(spec);
     var post_data = load_spec_post_data(spec);

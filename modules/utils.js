@@ -1177,6 +1177,8 @@ function send_http_request(lspec) {
     // following keywords?
     keywords(arguments, $user = undefined, $password = undefined,
              $override_mime_type = undefined, $headers = undefined);
+    if (! (lspec instanceof load_spec))
+        lspec = load_spec(lspec);
     var req = xml_http_request();
     var cc = yield CONTINUATION;
     var aborting = false;
@@ -1558,4 +1560,22 @@ function dom_node_flash (node, cssclass) {
             dom_remove_class(node, cssclass);
         },
         400);
+}
+
+
+/**
+ * data is an an alist (array of 2 element arrays) where each pair is a key
+ * and a value.
+ *
+ * The return type is a mime input stream that can be passed as postData to
+ * nsIWebNavigation.loadURI.  In terms of Conkeror's API, the return value
+ * of this function is of the correct type for the `post_data' field of a
+ * load_spec.
+ */
+function make_post_data (data) {
+    data = [(encodeURIComponent(pair[0])+'='+encodeURIComponent(pair[1]))
+            for each (pair in data)].join('&');
+    data = string_input_stream(data);
+    return mime_input_stream(
+        data, [["Content-Type", "application/x-www-form-urlencoded"]]);
 }

@@ -213,7 +213,7 @@ search_engine.prototype.get_query_load_spec = function search_engine__get_query_
         return load_spec({uri: url_string});
     } else {
         return load_spec({uri: url_string, raw_post_data: data,
-                          request_mime_type: "application/x-www-form-urlencoded"});
+                               request_mime_type: "application/x-www-form-urlencoded"});
     }
 };
 

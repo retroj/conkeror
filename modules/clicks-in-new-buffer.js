@@ -49,7 +49,7 @@ function open_link_in_new_buffer(event) {
     event.preventDefault();
     if (clicks_in_new_buffer_ev_stop_prop)
         event.stopPropagation();
-    let spec = element_get_load_spec(anchor);
+    let spec = load_spec(anchor);
     // FIXME Is there a better way to get the window?
     let window = window_watcher.activeWindow;
     let buffer = window.buffers.current;

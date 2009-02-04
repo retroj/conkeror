@@ -28,9 +28,7 @@ interactive("adblockplus-add", "Add a pattern to Adblock Plus.",
             function (I) {
     var element = yield read_browser_object(I);
 
-    var spec = element_get_load_spec(element);
-    if (spec == null)
-        throw interactive_error("Element has no associated URI");
+    var spec = load_spec(element);
 
     var pattern = yield I.minibuffer.read_url(
         $prompt = "Adblock:",

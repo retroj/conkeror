@@ -223,8 +223,8 @@ function suggest_file_name(spec, extension) {
     var uri;
     var content_type;
 
-    if (spec instanceof Ci.nsIDOMDocument)
-        spec = {document: spec};
+    if (typeof(spec) == "string" || spec instanceof Ci.nsIDOMDocument)
+        spec = load_spec(spec);
 
     var file_name = load_spec_filename(spec);
 
