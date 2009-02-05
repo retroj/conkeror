@@ -292,6 +292,21 @@ search_engine.prototype.__defineGetter__("completer", function () {
     }
 });
 
+/**
+ * Guess the url of a home page to correspond with the search engine.
+ * Take the text/html url for the search engine, trim off the path and
+ * any "search." prefix on the domain.
+ * This works for all the provided search engines.
+ */
+function search_engine_get_homepage(search_engine) {
+    var url = search_engine.urls.get("text/html");
+    if (!url)
+        return null;
+    url = url_path_trim(url.template);
+    url = url.replace("//search.", "//");
+    return url;
+}
+
 // Load search engines from default directories
 {
     let dir = file_locator.get("CurProcD", Ci.nsIFile);
@@ -305,16 +320,25 @@ search_engine.prototype.__defineGetter__("completer", function () {
         load_search_engines_in_directory(dir);
 }
 
+define_keywords("$alternative");
 function define_search_engine_webjump(search_engine_name, key) {
+    keywords(arguments);
     var eng = search_engines.get(search_engine_name);
+    let alternative = arguments.$alternative;
 
     if (key == null)
         key = search_engine_name;
+    if (alternative == null)
+        alternative = search_engine_get_homepage(eng);
 
     define_webjump(key,
                    function (arg) {
-                       return eng.get_query_load_spec(arg);
+                       if (arg == null && alternative)
+                           return alternative
+                       else
+                           return eng.get_query_load_spec(arg);
                    },
+                   $alternative = alternative,
                    $description = eng.description,
                    $completer = eng.completer);
 }
