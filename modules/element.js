@@ -343,7 +343,7 @@ function follow (I, target) {
     I.target = target;
     if (target == OPEN_CURRENT_BUFFER)
         check_buffer (I.buffer, content_buffer);
-    var element = yield read_browser_object(I);
+    var element = load_spec((yield read_browser_object(I)));
     browser_object_follow(I.buffer, target, element);
 }
 
