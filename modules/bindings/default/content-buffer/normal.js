@@ -49,3 +49,5 @@ define_key(content_buffer_normal_keymap, "S-tab", "browser-focus-previous-form-f
 // isearch (non-interactive)
 define_key(content_buffer_normal_keymap, "S", "isearch-continue-forward");
 define_key(content_buffer_normal_keymap, "R", "isearch-continue-backward");
+
+define_key(content_buffer_normal_keymap, "C-x return r", "reload-with-charset");

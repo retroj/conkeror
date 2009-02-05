@@ -275,6 +275,10 @@ function load_spec_default_shell_command(x) {
     return get_mime_type_external_handler(mime_type);
 }
 
+function load_spec_forced_charset (x) {
+    return x.forced_charset;
+}
+
 /* Target can be either a content_buffer or an nsIWebNavigation */
 function apply_load_spec(target, spec) {
     if (! (spec instanceof load_spec))
@@ -283,9 +287,19 @@ function apply_load_spec(target, spec) {
     var flags = load_spec_flags(spec);
     var referrer = load_spec_referrer(spec);
     var post_data = load_spec_post_data(spec);
+    var forced_charset = load_spec_forced_charset(spec);
 
     if (flags == null)
         flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
+
+    if (forced_charset) {
+        try {
+            var atomservice = Cc['@mozilla.org/atom-service;1']
+                .getService(Ci.nsIAtomService);
+            target.web_navigation.documentCharsetInfo.forcedCharset =
+                atomservice.getAtom(forced_charset);
+        } catch (e) {}
+    }
 
     if (target instanceof content_buffer) {
         try {

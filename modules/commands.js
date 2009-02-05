@@ -778,3 +778,10 @@ interactive("view-as-mime-type",
                        view_as_mime_type_new_buffer,
                        view_as_mime_type_new_window));
 
+
+interactive("reload-with-charset",
+    null,
+    function (I) {
+        var forced_charset = yield I.minibuffer.read($prompt = "Charset:");
+        reload(I.buffer, false, null, forced_charset);
+    });

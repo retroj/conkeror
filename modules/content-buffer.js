@@ -450,7 +450,7 @@ interactive("stop-loading",
             "Stop loading the current document.",
             function (I) {stop_loading(I.buffer);});
 
-function reload (b, bypass_cache, element)
+function reload (b, bypass_cache, element, forced_charset)
 {
     check_buffer(b, content_buffer);
     if (element) {
@@ -459,6 +459,14 @@ function reload (b, bypass_cache, element)
         var flags = bypass_cache == null ?
             Ci.nsIWebNavigation.LOAD_FLAGS_NONE :
             Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
+        if (forced_charset) {
+            try {
+                var atomservice = Cc['@mozilla.org/atom-service;1']
+                    .getService(Ci.nsIAtomService);
+                b.web_navigation.documentCharsetInfo.forcedCharset =
+                    atomservice.getAtom(forced_charset);
+            } catch (e) {}
+        }
         b.web_navigation.reload(flags);
     }
 }
