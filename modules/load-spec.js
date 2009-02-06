@@ -279,6 +279,10 @@ function load_spec_forced_charset (x) {
     return x.forced_charset;
 }
 
+define_variable('forced_charset_list', null,
+    "Alist mapping url-regexps to forced charsets.  The first match "+
+    "will be used.");
+
 /* Target can be either a content_buffer or an nsIWebNavigation */
 function apply_load_spec(target, spec) {
     if (! (spec instanceof load_spec))
@@ -289,8 +293,8 @@ function apply_load_spec(target, spec) {
     var post_data = load_spec_post_data(spec);
     var forced_charset = load_spec_forced_charset(spec);
 
-    if (flags == null)
-        flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
+    if (! forced_charset && forced_charset_list)
+        forced_charset = predicate_alist_match(forced_charset_list, uri);
 
     if (forced_charset) {
         try {
@@ -300,6 +304,9 @@ function apply_load_spec(target, spec) {
                 atomservice.getAtom(forced_charset);
         } catch (e) {}
     }
+
+    if (flags == null)
+        flags = Ci.nsIWebNavigation.LOAD_FLAGS_NONE;
 
     if (target instanceof content_buffer) {
         try {
