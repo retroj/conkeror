@@ -189,6 +189,13 @@ function trim_whitespace (str)
     return tmp.replace (/^\s+/, "").replace (/\s+$/, "");
 }
 
+/**
+ * Given a node, returns its position relative to the document.
+ *
+ * @param node The node to get the position of.
+ * @return An object with properties "x" and "y" representing its offset from
+ *         the left and top of the document, respectively.
+ */
 function abs_point (node)
 {
     var orig = node;
@@ -1578,4 +1585,12 @@ function make_post_data (data) {
     data = string_input_stream(data);
     return mime_input_stream(
         data, [["Content-Type", "application/x-www-form-urlencoded"]]);
+}
+
+
+/**
+ * Centers the viewport around a given element.
+ */
+function centerInViewport(elem) {
+    
 }
