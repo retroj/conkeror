@@ -343,10 +343,13 @@ function follow (I, target) {
     I.target = target;
     if (target == OPEN_CURRENT_BUFFER)
         check_buffer (I.buffer, content_buffer);
-    var spec = load_spec((yield read_browser_object(I)));
-    if (I.forced_charset)
-        spec.forced_charset = I.forced_charset;
-    browser_object_follow(I.buffer, target, spec);
+    var element = yield read_browser_object(I);
+    try {
+        element = load_spec(element);
+        if (I.forced_charset)
+            element.forced_charset = I.forced_charset;
+    } catch (e) {}
+    browser_object_follow(I.buffer, target, element);
 }
 
 function follow_new_buffer (I) {
