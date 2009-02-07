@@ -1590,7 +1590,15 @@ function make_post_data (data) {
 
 /**
  * Centers the viewport around a given element.
+ *
+ * @param win  The window to scroll.
+ * @param elem The element arund which we put the viewport.
  */
-function centerInViewport(elem) {
-    
+function center_in_viewport(win, elem) {
+    let point = abs_point(elem);
+
+    point.x -= win.innerWidth / 2;
+    point.y -= win.innerHeight / 2;
+
+    win.scrollTo(point.x, point.y);
 }
