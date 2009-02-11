@@ -39,7 +39,8 @@ function chase () {
 ## doom.
 ##
 function check-gre () {
-    grep -h GRE_PATH  $(grep -l '\[1\.9' "${1%/}"/*.conf) | cut -d= -f2 | head -n 1
+    # this takes the latest version
+    grep -h GRE_PATH  $(grep -l '\[1\.9' "${1%/}"/*.conf) | cut -d= -f2 | tail -n 1
 }
 
 if [[ -d "$HOME/.gre.d" ]]; then
