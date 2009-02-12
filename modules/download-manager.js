@@ -339,8 +339,8 @@ download_info.prototype = {
         try {
             this.target_file.remove(false);
         } catch (e) {
-            if (result in e) {
-                switch (e) {
+            if ("result" in e) {
+                switch (e.result) {
                 case Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST:
                     throw interactive_error("File has already been deleted.");
                 case Cr.NS_ERROR_FILE_ACCESS_DENIED:
