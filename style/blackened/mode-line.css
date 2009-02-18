@@ -1,0 +1,14 @@
+.mode-line {
+    font: 11px Tahoma;
+    padding: 0px;
+    border: 1px solid #444;
+    background-color: #000;
+}
+
+.mode-line label {
+    color: white;
+}
+
+.mode-line label.current-buffer-name-widget {
+    -moz-box-flex: 1;
+}

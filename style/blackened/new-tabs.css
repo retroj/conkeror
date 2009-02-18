@@ -1,0 +1,40 @@
+#tab2-bar {
+    background: #222;
+}
+
+.tab2 {
+    margin: 2px 0px 0px 2px;
+    padding: 0px;
+    height: 19px;
+    border: 1px solid #aaa;
+    border-bottom: 0;
+    background: #333;
+    min-width: 200px;
+    max-width: 200px;
+    overflow: hidden; /* Chops end of label */
+}
+
+.tab2-label {
+    margin-left: 4px;
+    padding-top: 1px;
+    color: #fff;
+    font: 11px Tahoma;
+}
+
+.tab2-icon {
+    margin: 0px !important;
+    height: 16px;
+    width: 20px;
+    padding-top: 2px;
+    background: #000;
+    color: white;
+    font: 900 11px Tahoma;
+    text-align: center;
+}
+
+.tab2[selected=true] {
+    border: 1px solid #888;
+    border-bottom: 0;
+    background: #666;
+}
+
