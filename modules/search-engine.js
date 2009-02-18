@@ -333,10 +333,7 @@ function define_search_engine_webjump(search_engine_name, key) {
 
     define_webjump(key,
                    function (arg) {
-                       if (arg == null && alternative)
-                           return alternative
-                       else
-                           return eng.get_query_load_spec(arg);
+                       return eng.get_query_load_spec(arg);
                    },
                    $alternative = alternative,
                    $description = eng.description,
