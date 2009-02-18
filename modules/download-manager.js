@@ -169,17 +169,24 @@ const DOWNLOAD_NOT_TEMPORARY = 0;
 const DOWNLOAD_TEMPORARY_FOR_ACTION = 1;
 const DOWNLOAD_TEMPORARY_FOR_COMMAND = 2;
 
-function download_info(source_buffer, mozilla_info) {
+function download_info(source_buffer, mozilla_info, target_file) {
     this.source_buffer = source_buffer;
+    this.target_file = target_file;
     if (mozilla_info != null)
         this.attach(mozilla_info);
 }
 download_info.prototype = {
     attach : function (mozilla_info) {
+        if (!this.target_file)
+            target_file = this.mozilla_info.targetFile;
+        else if (this.target_file.path != mozilla_info.targetFile.path)
+            throw interactive_error("Download target file unexpected.");
         this.mozilla_info = mozilla_info;
         id_to_download_info[mozilla_info.id] = this;
         download_added_hook.run(this);
     },
+
+    target_file : null,
 
     shell_command : null,
 
@@ -202,7 +209,7 @@ download_info.prototype = {
 
     // Reflectors to properties of nsIDownload
     get state () { return this.mozilla_info.state; },
-    get target_file () { return this.mozilla_info.targetFile; },
+    get display_name () { return this.mozilla_info.displayName; },
     get amount_transferred () { return this.mozilla_info.amountTransferred; },
     get percent_complete () { return this.mozilla_info.percentComplete; },
     get size () {
@@ -226,6 +233,14 @@ download_info.prototype = {
     },
     get id () { return this.mozilla_info.id; },
     get referrer () { return this.mozilla_info.referrer; },
+
+    target_file_text : function() {
+        let target = this.target_file.path;
+        let display = this.display_name;
+        if (target.indexOf(display, target.length - display.length) == -1)
+            target += " (" + display + ")";
+        return target;
+    },
 
     throw_if_removed : function () {
         if (this.removed)
@@ -357,8 +372,8 @@ download_info.prototype = {
 var define_download_local_hook = simple_local_hook_definer();
 
 // FIXME: add more parameters
-function register_download(buffer, source_uri) {
-    var info = new download_info(buffer);
+function register_download(buffer, source_uri, target_file) {
+    var info = new download_info(buffer, null, target_file);
     info.registered_time_stamp = Date.now();
     info.registered_source_uri = source_uri;
     unmanaged_download_info_list.push(info);
@@ -599,6 +614,7 @@ download_buffer.prototype = {
 
         // Remove all node references
         delete this.status_textnode;
+        delete this.target_file_node;
         delete this.transferred_div_node;
         delete this.transferred_textnode;
         delete this.progress_container_node;
@@ -719,7 +735,7 @@ download_buffer.prototype = {
             target_label = "Target:";
         g.text(target_label, label);
         value = g.element("div", div, "class", "download-value");
-        g.text(info.target_file.path, value);
+        this.target_file_node = g.text("", value);
 
         div = g.element("div", d.body, "class", "download-info", "id", "download-mime-type");
         label = g.element("div", div, "class", "download-label");
@@ -791,6 +807,7 @@ download_buffer.prototype = {
             break;
         }
         this.status_textnode.nodeValue = label + ":";
+        this.target_file_node.nodeValue = info.target_file_text();
         this.update_time_field();
 
         var tran_text = "";
