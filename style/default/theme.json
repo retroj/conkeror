@@ -4,6 +4,7 @@
       "minibuffer.css",
       "mode-line.css",
       "tab-bar.css",
-      "new-tabs.css"
+      "new-tabs.css",
+      "hints--url-panel.css"
   ]
 }

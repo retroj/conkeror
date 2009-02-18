@@ -1,6 +1,7 @@
 { "sheets" : [
     "new-tabs.css",
     "minibuffer.css",
-    "mode-line.css"
+    "mode-line.css",
+    "hints--url-panel.css"
   ]
 }

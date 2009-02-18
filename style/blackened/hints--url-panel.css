@@ -1,0 +1,17 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+.panel {
+  border-top: 4px double #333333;
+  color: white;
+  background-color: black;
+}
+
+.panel .panel-row-label {
+  font-weight: bold;
+}
+
+.panel .url-panel-label {
+  font-weight: bold;
+}
+
