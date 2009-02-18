@@ -12,7 +12,7 @@ require("load-spec.js");
 require("suggest-file-name.js");
 
 /* buffer is used only to associate with the download */
-define_keywords("$use_cache", "$buffer", "$prepare_download");
+define_keywords("$use_cache", "$buffer", "$prepare_download", "$temp_file");
 function save_uri(lspec, output_file) {
     keywords(arguments, $use_cache = true);
 
@@ -22,6 +22,19 @@ function save_uri(lspec, output_file) {
 
     var prepare_download = arguments.$prepare_download;
 
+    var download_file = output_file;
+
+    var temp_file = arguments.$temp_file;
+    if (temp_file === true) {
+        temp_file = Cc["@mozilla.org/file/local;1"]
+            .createInstance(Ci.nsILocalFile);
+        temp_file.initWithFile(output_file);
+        temp_file.leafName = "temp";
+        temp_file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
+    }
+    if (temp_file)
+        download_file = temp_file;
+
     var cache_key = null;
     var uri = load_spec_uri(lspec);
     var referrer_uri = load_spec_referrer(lspec);
@@ -29,7 +42,7 @@ function save_uri(lspec, output_file) {
     if (use_cache)
         cache_key = load_spec_cache_key(lspec);
 
-    var file_uri = make_uri(output_file);
+    var file_uri = make_uri(download_file);
 
     var persist = Cc["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
         .createInstance(Ci.nsIWebBrowserPersist);
@@ -44,7 +57,16 @@ function save_uri(lspec, output_file) {
     else
         persist.persistFlags |= Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE;
 
-    var info = register_download(buffer, uri);
+    var info = register_download(buffer, uri, download_file);
+    if (temp_file) {
+        // We want this hook so that we run before the download buffer updates.
+        add_hook.call(info, "download_state_change_hook", function() {
+            if (info.state == DOWNLOAD_FINISHED) {
+                temp_file.moveTo(null, output_file.leafName);
+                info.target_file.leafName = output_file.leafName;
+            }
+        });
+    }
     if (prepare_download)
         prepare_download(info);
 
