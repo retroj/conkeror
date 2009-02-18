@@ -8,7 +8,7 @@
 require("content-buffer.js");
 require("media.js");
 
-let media_youtube_content_key_regexp = /t=[\w-]{10,}/i;
+let media_youtube_content_key_regexp = /"t": "([^"]+)"/;
 let media_youtube_content_title_regexp = new RegExp("&title=([^\"'&]+)");
 
 function media_scrape_youtube_document_text(source_frame, code, text, results) {
@@ -21,7 +21,7 @@ function media_scrape_youtube_document_text(source_frame, code, text, results) {
     let res = media_youtube_content_key_regexp.exec(text);
     if (!res)
         return;
-    results.push(load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&' + res[0],
+    results.push(load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&' + res[1],
                             suggest_filename_from_uri: false,
                             title: decodeURIComponent(title_match[1]),
                             filename_extension: "flv",
