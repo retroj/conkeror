@@ -16,7 +16,7 @@
 
 define_variable("eye_guide_interval", 800,
     "Interval during which the eye guide is visible (in ms). "+
-    "When true, the eye guide will remain visible.");
+    "When 0, the eye guide will remain visible.");
 
 define_variable("eye_guide_context_size", 50,
     "Context size in pixels for eye-guide-scroll-down and "+
@@ -49,7 +49,7 @@ interactive("eye-guide-scroll-down",
             win.clearTimeout(win.eye_guide_timer);
             win.eye_guide_timer = null;
         }
-        if (eye_guide_interval !== true)
+        if (eye_guide_interval != 0)
             win.eye_guide_timer = win.setTimeout(
                 function () {
                     guide.style.display = "none";
@@ -84,7 +84,7 @@ interactive("eye-guide-scroll-up",
             win.clearTimeout(win.eye_guide_timer);
             win.eye_guide_timer = null;
         }
-        if (eye_guide_interval !== true)
+        if (eye_guide_interval != 0)
             win.eye_guide_timer = win.setTimeout(
                 function () {
                     guide.style.display = "none";
