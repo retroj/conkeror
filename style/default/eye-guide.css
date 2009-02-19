@@ -1,0 +1,22 @@
+
+@namespace url("http://www.w3.org/1999/xhtml");
+
+#__conkeror_eye_guide {
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  background: black;
+  opacity: 0.1;
+  z-index: 100000;
+}
+
+/*
+ *  Note, the following selectors can be styled with a
+ * border-top and border-bottom respectively to achieve
+ * the effect of a single line scroll-guide:
+ *
+ *  #__conkeror_eye_guide.__conkeror_eye_guide_scroll_down
+ *  #__conkeror_eye_guide.__conkeror_eye_guide_scroll_up
+ *
+ */
