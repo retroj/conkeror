@@ -203,7 +203,6 @@ define_global_mode("browser_prevent_automatic_form_focus_mode",
                    function () {}, // enable
                    function () {} // disable
                   );
-browser_prevent_automatic_form_focus_mode(true);
 
 define_variable(
     "browser_form_field_xpath_expression",
