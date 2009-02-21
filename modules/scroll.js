@@ -14,6 +14,12 @@ define_variable("headings_xpath", "//h1 | //h2 | //h3 | //h4 | //h5 | //h6",
     "xpath expression.");
 
 
+define_variable("scroll_to_heading_wrap", true,
+    "If true, will wrap to the topmost heading when the viewport is at the"+
+    "bottom of the document and the user tries to access the next heading."+
+    "  Does the equivalent thing for \"previous heading\" as well.");
+
+
 define_browser_object_class(
     "next-heading", null, null,
     function (I) {
@@ -37,7 +43,7 @@ define_browser_object_class(
         }
         // scrollY can exceed scrollMaxY
         let eod = I.buffer.scrollY - I.buffer.scrollMaxY >= 0;
-        if (! found || eod)
+        if ((!found || eod) && scroll_to_heading_wrap)
             found = first;
         yield co_return(found);
     });
@@ -64,7 +70,7 @@ define_browser_object_class(
                 lasttop = rect.top;
             }
         }
-        if (! found)
+        if (! found && scroll_to_heading_wrap)
             found = last;
         yield co_return(found);
     });
