@@ -18,6 +18,8 @@ conkeror (0.9~git090222-1) UNRELEASED; urgency=low
     as Conkeror itself.
   * Updated debian/copyright to reflect current state of the project
   * man page conkeror.1 now part of upstream.
+  * Added a call to dh_desktop (Thanks, Lintian 2.x!)
+  * Added a description to patches/sensible-editor.diff (Thanks, Lintian 2.x!)
 
  -- Axel Beckert <abe@deuxchevaux.org>  Sun, 22 Feb 2009 20:02:02 +0100
 

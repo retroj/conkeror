@@ -95,6 +95,7 @@ binary-common:
 	dh_installmenu
 #	dh_installemacsen
 	dh_installman
+	dh_desktop
 	dh_link
 	dh_strip
 	dh_compress

@@ -1,3 +1,4 @@
+Let Debian's sensible-editor guess the editor.
 Index: conkeror-0.9~git080819/modules/external-editor.js
 ===================================================================
 --- conkeror-0.9~git080819.orig/modules/external-editor.js	2008-08-19 20:37:21.000000000 +0200
