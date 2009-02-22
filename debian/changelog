@@ -1,4 +1,4 @@
-conkeror (0.9~git090201-1) UNRELEASED; urgency=low
+conkeror (0.9~git090222-1) UNRELEASED; urgency=low
 
   * Debian packaging is now hosted in the upstream repository at
     http://repo.or.cz/w/conkeror.git:
@@ -17,9 +17,9 @@ conkeror (0.9~git090201-1) UNRELEASED; urgency=low
   * Changed licencing of packaging from GPLv2 to the same licencing terms
     as Conkeror itself.
   * Updated debian/copyright to reflect current state of the project
-  * TODO: Documented more command-line switches in man page and --help
+  * man page conkeror.1 now part of upstream.
 
- -- Axel Beckert <abe@deuxchevaux.org>  Sun, 01 Feb 2009 21:01:15 +0100
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 22 Feb 2009 18:35:25 +0100
 
 conkeror (0.9~git080629-2) unstable; urgency=low
 

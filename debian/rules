@@ -94,7 +94,7 @@ binary-common:
 #	dh_installexamples
 	dh_installmenu
 #	dh_installemacsen
-	dh_installman
+	dh_installman contrib/man/conkeror.1
 	dh_link
 	dh_strip
 	dh_compress
