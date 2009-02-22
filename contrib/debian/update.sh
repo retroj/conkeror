@@ -41,7 +41,7 @@ cd ..
 mv -vi $olddir conkeror-$version
 
 # Create source package out of the git working copy
-tar cvzf conkeror_$version.orig.tar.gz --exclude=debian --exclude=.git --exclude=.pc --exclude=configure-stamp conkeror-$version
+tar cvzf conkeror_$version.orig.tar.gz --exclude=conkeror-$version/debian --exclude=.git --exclude=.pc --exclude=configure-stamp conkeror-$version
 
 # Change back to the packaging directory
 cd conkeror-$version
