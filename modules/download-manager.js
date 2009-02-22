@@ -178,7 +178,9 @@ function download_info(source_buffer, mozilla_info, target_file) {
 download_info.prototype = {
     attach : function (mozilla_info) {
         if (!this.target_file)
-            target_file = this.mozilla_info.targetFile;
+            this.__defineGetter__("target_file", function(){
+                    return this.mozilla_info.targetFile;
+                });
         else if (this.target_file.path != mozilla_info.targetFile.path)
             throw interactive_error("Download target file unexpected.");
         this.mozilla_info = mozilla_info;
