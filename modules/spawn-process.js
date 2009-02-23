@@ -108,34 +108,39 @@ spawn_process_helper_program.append("conkeror-spawn-helper");
 
 /**
  * @param program_name
- *                 Specifies the full path to the program.
+ *        Specifies the full path to the program.
  * @param args
- *                 An array of strings to pass as the arguments to the program.
- *                 The first argument should be the program name.  These strings must not have
- *                 any NUL bytes in them.
- * @param working_dir
- *                 If non-null, switch to the specified path before running the program.
+ *        An array of strings to pass as the arguments to the program.  The
+ *        first argument should be the program name.  These strings must not
+ *        have any NUL bytes in them.
+ * @param working_dir       
+ *        If non-null, switch to the specified path before running the program.
  * @param finished_callback
- *                 Called with a single argument, the exit code of the process, as returned by the wait system call.
+ *        Called with a single argument, the exit code of the process, as
+ *        returned by the wait system call.
  * @param failure_callback
- *                 Called with a single argument, an exception, if one occurs.
+ *        Called with a single argument, an exception, if one occurs.
  * @param fds
- *                 If non-null, must be an object with only non-negative integer properties set.  Each such property
- *                 specifies that the corresponding file descriptor in the spawned process should be redirected.  Note that
- *                 0 corresponds to STDIN, 1 corresponds to STDOUT, and 2 corresponds to STDERR.  Note that every redirected
- *                 file descriptor can be used for both input and output, although STDIN, STDOUT, and STDERR are typically
- *                 used only unidirectionally.  Each property must be an object itself, with an input and/or output property
- *                 specifying callback functions that are called with an nsIAsyncInputStream or nsIAsyncOutputStream when the
- *                 stream for that file descriptor is available.
+ *        If non-null, must be an object with only non-negative integer
+ *        properties set.  Each such property specifies that the corresponding
+ *        file descriptor in the spawned process should be redirected.  Note
+ *        that 0 corresponds to STDIN, 1 corresponds to STDOUT, and 2
+ *        corresponds to STDERR.  Note that every redirected file descriptor can
+ *        be used for both input and output, although STDIN, STDOUT, and STDERR
+ *        are typically used only unidirectionally.  Each property must be an
+ *        object itself, with an input and/or output property specifying
+ *        callback functions that are called with an nsIAsyncInputStream or
+ *        nsIAsyncOutputStream when the stream for that file descriptor is
+ *        available.
  * @param fd_wait_timeout
- *                 Specifies the number of milliseconds to wait for the file descriptor redirection sockets to be closed after
- *                 the control socket indicates the process has exited before they are closed forcefully.  A negative value
- *                 means to wait indefinitely.  If fd_wait_timeout is null, spawn_process_helper_default_fd_wait_timeout
- *                 is used instead.
- *
- *
- * @returns
- *                 A function that can be called to prematurely terminate the spawned process.
+ *        Specifies the number of milliseconds to wait for the file descriptor
+ *        redirection sockets to be closed after the control socket indicates
+ *        the process has exited before they are closed forcefully.  A negative
+ *        value means to wait indefinitely.  If fd_wait_timeout is null,
+ *        spawn_process_helper_default_fd_wait_timeout is used instead.
+ * @return
+ *        A function that can be called to prematurely terminate the spawned
+ *        process.
  */
 function spawn_process(program_name, args, working_dir,
                        success_callback, failure_callback, fds,
@@ -611,7 +616,11 @@ function shell_command_with_argument_blind(command, arg) {
     shell_command_blind(substitute_shell_command_argument(command, arg), forward_keywords(arguments));
 }
 
-// Keyword arguments: $cwd, $fds
+/**
+ * Keyword arguments:
+ * $cwd: The current working directory for the process.
+ * $fds: File descriptors to use.
+ */
 function shell_command(command) {
     if (!POSIX)
         throw new Error("shell_command: Your OS is not yet supported");
