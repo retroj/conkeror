@@ -1,11 +1,11 @@
-conkeror (0.9~git090222-1) UNRELEASED; urgency=low
+conkeror (0.9~git090223-1) UNRELEASED; urgency=low
 
   * Debian packaging is now hosted in the upstream repository at
     http://repo.or.cz/w/conkeror.git:
     - Adjusted the Vcs-* headers in debian/control.
     - Changed the build id to contain username and hostname instead of
       commit id.
-  * Based on new snapshot (tagged with debian-0.9~git090222-1)
+  * Based on new snapshot (tagged with debian-0.9--git090223-1)
     - spawn-process-helper has been renamed upstream to
       conkeror-spawn-helper -- package names remain unchanged, conflict to
       earlier versions of conkeror-spawn-process-helper
@@ -21,7 +21,7 @@ conkeror (0.9~git090222-1) UNRELEASED; urgency=low
   * Added a call to dh_desktop (Thanks, Lintian 2.x!)
   * Added a description to patches/sensible-editor.diff (Thanks, Lintian 2.x!)
 
- -- Axel Beckert <abe@deuxchevaux.org>  Sun, 22 Feb 2009 20:02:02 +0100
+ -- Axel Beckert <abe@deuxchevaux.org>  Mon, 23 Feb 2009 19:19:19 +0100
 
 conkeror (0.9~git080629-2) unstable; urgency=low
 

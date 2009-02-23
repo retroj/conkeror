@@ -20,6 +20,8 @@ should be tagged in the git repository appropriately:
 
   * Official Debian packages should be tagged "debian-$debian_package_version"
   * Other package should be tagged "$person-$package_version"
+  * Tilde ("~") is not a valid character in Git tag names, so it
+    should be replaced by two dashes ("--") in tag names.
   * Automatically built daily snapshots shouldn't be tagged in the
     repository as they include enough information to determine what
     state they're based upon.
