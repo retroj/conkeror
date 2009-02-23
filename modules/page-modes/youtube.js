@@ -21,7 +21,7 @@ function media_scrape_youtube_document_text(source_frame, code, text, results) {
     let res = media_youtube_content_key_regexp.exec(text);
     if (!res)
         return;
-    results.push(load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&' + res[1],
+    results.push(load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&t=' + res[1],
                             suggest_filename_from_uri: false,
                             title: decodeURIComponent(title_match[1]),
                             filename_extension: "flv",
