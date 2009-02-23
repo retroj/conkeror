@@ -1,4 +1,4 @@
-conkeror (0.9~git090201-1) UNRELEASED; urgency=low
+conkeror (0.9~git090223-1) unstable; urgency=low
 
   There were a few changes since the last conkeror version in Debian which
   may cause troubles to users of the previous version:
@@ -15,4 +15,4 @@ conkeror (0.9~git090201-1) UNRELEASED; urgency=low
     time. See http://bugs.conkeror.org/issue10 for details on choosing
     which one to use.
 
- -- Axel Beckert <abe@deuxchevaux.org>  Sun, 01 Feb 2009 15:20:04 +0100
+ -- Axel Beckert <abe@deuxchevaux.org>  Mon, 23 Feb 2009 21:04:41 +0100

@@ -1,4 +1,4 @@
-conkeror (0.9~git090223-1) UNRELEASED; urgency=low
+conkeror (0.9~git090223-1) unstable; urgency=low
 
   * Debian packaging is now hosted in the upstream repository at
     http://repo.or.cz/w/conkeror.git:
