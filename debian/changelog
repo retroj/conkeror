@@ -20,6 +20,7 @@ conkeror (0.9~git090223-1) UNRELEASED; urgency=low
   * man page conkeror.1 now part of upstream.
   * Added a call to dh_desktop (Thanks, Lintian 2.x!)
   * Added a description to patches/sensible-editor.diff (Thanks, Lintian 2.x!)
+  * Replaced lintian overrides by an empty watch file with comment.
 
  -- Axel Beckert <abe@deuxchevaux.org>  Mon, 23 Feb 2009 19:19:19 +0100
 
