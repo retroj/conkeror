@@ -37,7 +37,8 @@ Depends: ${shlibs:Depends}
 Suggests: conkeror
 Conflicts: conkeror (< 0.9~080901-1)
 Description: spawn external processes in Conkeror
- This helper tool is necessary to let the Conkeror web browser spawn
- external process, e.g. to edit form fields in an external program.
+ This helper tool named conkeror-spawn-helper is necessary to let the
+ Conkeror web browser spawn external process, e.g. to edit form fields
+ in an external program. It was previously named spawn-process-helper.
  .
  Maybe helpful for other XULRunner based applications, too.
