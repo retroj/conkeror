@@ -13,7 +13,7 @@ conkeror (0.9~git090222-1) UNRELEASED; urgency=low
     - command switch -uu for universal-arg of following -f command
   * Added NEWS.Debian to list changes relevant for users.
   * Added README.source which documents how to build a Debian (source)
-    package from a git working copy.
+    package from a Git working copy.
   * Changed licencing of packaging from GPLv2 to the same licencing terms
     as Conkeror itself.
   * Updated debian/copyright to reflect current state of the project
