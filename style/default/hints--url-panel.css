@@ -14,3 +14,6 @@
   font-weight: bold;
 }
 
+.url-panel-value {
+  -moz-box-flex: 1;
+}

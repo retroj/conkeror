@@ -342,7 +342,7 @@ function hints_url_panel(hints, window) {
 
     var p = g.element("hbox", "class", "panel url", "flex", "0");
     g.element("label", p, "value", "URL:", "class", "url-panel-label");
-    var url_value = g.element("label", p, "class", "url-panel-value");
+    var url_value = g.element("label", p, "class", "url-panel-value", "crop", "end");
     window.minibuffer.insert_before(p);
 
     p.update = function() {
