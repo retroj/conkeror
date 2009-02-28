@@ -843,7 +843,8 @@ function create_info_panel(window, panel_class, row_arr) {
                   "class", "panel-row-label");
         g.element("label", row,
                   "value", row_value,
-                  "class", "panel-row-value");
+                  "class", "panel-row-value",
+                  "crop", "end");
     }
     window.minibuffer.insert_before(p);
 

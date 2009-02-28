@@ -8,7 +8,3 @@
 .mode-line label {
     color: white;
 }
-
-.mode-line label.current-buffer-name-widget {
-    -moz-box-flex: 1;
-}

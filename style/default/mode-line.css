@@ -13,7 +13,3 @@
 .mode-line label {
   color: black;
 }
-
-.mode-line label.current-buffer-name-widget {
-  -moz-box-flex: 1;
-}

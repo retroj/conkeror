@@ -18,22 +18,21 @@ function generic_element_widget_container(window, container)
 define_keywords("$flex", "$align", "$class", "$crop");
 generic_element_widget_container.prototype = {
     add_text_widget : function (widget) {
-        keywords(arguments);
+        keywords(arguments, $flex = widget.flex,
+                 $class = widget.class_name, $crop = widget.crop);
         var flex = arguments.$flex;
         var class_name = arguments.$class;
         var align = arguments.$align;
         var crop = arguments.$crop;
         var element = create_XUL(this.window, "label");
-        if (flex != null)
+        if (flex)
             element.setAttribute("flex", flex);
-        if (align != null)
+        if (align)
             element.setAttribute("align", align);
-        if (class_name == null)
-            class_name = widget.name;
-        element.setAttribute("class", class_name);
-        if (crop == null)
-            crop = widget.crop;
-        element.setAttribute("crop", crop);
+        if (class_name)
+            element.setAttribute("class", class_name);
+        if (crop)
+            element.setAttribute("crop", crop);
         element.conkeror_widget = new generic_widget_element(element, widget);
         this.container.appendChild(element);
         return element.conkeror_widget;
@@ -133,8 +132,9 @@ text_widget.prototype = {
 define_global_window_mode("mode_line", "window_initialize_early_hook");
 
 function current_buffer_name_widget(window) {
-    this.name = "current-buffer-name-widget";
+    this.class_name = "current-buffer-name-widget";
     text_widget.call(this, window);
+    this.flex = "1";
     this.crop = "end";
     this.add_hook("current_content_buffer_location_change_hook");
     this.add_hook("select_buffer_hook");
@@ -145,7 +145,7 @@ current_buffer_name_widget.prototype.update = function () {
 };
 
 function current_buffer_scroll_position_widget(window) {
-    this.name = "current-buffer-scroll-position-widget";
+    this.class_name = "current-buffer-scroll-position-widget";
     text_widget.call(this, window);
     this.add_hook("current_buffer_scroll_hook");
     this.add_hook("select_buffer_hook");
@@ -177,7 +177,7 @@ current_buffer_scroll_position_widget.prototype.update = function () {
 
 function clock_widget(window)
 {
-    this.name = "clock-widget";
+    this.class_name = "clock-widget";
     text_widget.call(this, window);
     var obj = this;
     this.timer_ID = window.setInterval(function () { obj.update(); }, 60000);
@@ -194,7 +194,7 @@ clock_widget.prototype.destroy = function () {
 };
 
 function buffer_count_widget(window) {
-    this.name = "buffer-count-widget";
+    this.class_name = "buffer-count-widget";
     text_widget.call(this, window);
     this.add_hook("select_buffer_hook");
     this.add_hook("create_buffer_hook");
@@ -207,7 +207,7 @@ buffer_count_widget.prototype.update = function () {
 };
 
 function loading_count_widget(window) {
-    this.name = "loading-count-widget";
+    this.class_name = "loading-count-widget";
     text_widget.call(this, window);
     var obj = this;
     this.add_hook("content_buffer_started_loading_hook");
