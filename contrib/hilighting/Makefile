@@ -1,10 +1,15 @@
-default: dirs elisp
+default: dirs elisp javascript
 
 dirs:
 	-mkdir bin
 
-elisp: alex
+elisp:
+	alex -g syntaxes/emacs-lisp.x
 	ghc -ihaskell --make -O -o bin/emacs-lisp syntaxes/emacs-lisp.hs
+
+javascript:
+	alex -g syntaxes/javascript.x
+	ghc -ihaskell --make -O -o bin/javascript syntaxes/javascript.hs
 
 clean:
 	rm -f elisp.hs
@@ -13,6 +18,3 @@ clean:
 	rm -f haskell/*.hi haskell/*.o
 	rm -rf bin/*
 	rm -f syntaxes/*.hi syntaxes/*.o
-
-alex:
-	alex -g syntaxes/*.x

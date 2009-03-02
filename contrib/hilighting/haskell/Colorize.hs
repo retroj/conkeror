@@ -1,14 +1,10 @@
 -- (C) Copyright 2009 Deniz Dogan
 
-module Colorize (keywordC,
-                 variableC,
-                 specialC,
-                 stringC,
-                 commentC)
-    where
+module Colorize where
 
-stringC s = "<span class=\"string\">" ++ s ++ "</span>"
-commentC s = "<span class=\"comment\">" ++ s ++ "</span>"
-keywordC s = "<span class=\"keyword\">" ++ s ++ "</span>"
-variableC s = "<span class=\"variable\">" ++ s ++ "</span>"
-specialC s = "<span class=\"special\">" ++ s ++ "</span>"
+stringC s   = "<span style=\"color: yellow\">" ++ s ++ "</span>"
+commentC s  = "<span style=\"color: orange\">" ++ s ++ "</span>"
+keywordC s  = "<span style=\"color: green\">"  ++ s ++ "</span>"
+variableC s = "<span style=\"color: red\">"    ++ s ++ "</span>"
+specialC s  = "<span style=\"color: blue\">"   ++ s ++ "</span>"
+operatorC s = "<span style=\"color: purple\">" ++ s ++ "</span>"
