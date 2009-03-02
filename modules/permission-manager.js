@@ -46,7 +46,7 @@ let word_wrap = function word_wrap(str, line_length, line_prefix_first, line_pre
             out += cur_prefix + str.substr(0, i) + "\n";
             while (i < str.length && str.charAt(i) ==  " ")
                 ++i;
-            str = str.substr(i + 1);
+            str = str.substr(i);
         }
         cur_prefix = line_prefix;
     }
@@ -196,8 +196,9 @@ interactive("permission-manager", "View or edit the host-specific "
                             let x = data.related_prefs[i];
                             file_buf += "#       " + x[0] + " = " + get_pref(x[0]) + "\n";
                             if (x.length > 1) {
-                                file_buf += word_wrap(x[1], 80, "#         ", "#") + "\n";
+                                file_buf += word_wrap(x[1], 80, "#         ", "#");
                             }
+                            file_buf += "\n";
                         }
                     }
                 }
