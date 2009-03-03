@@ -28,8 +28,11 @@ const hints_stylesheet = "chrome://conkeror-gui/content/hints.css";
 register_user_stylesheet(hints_stylesheet);
 
 /**
- * buffer is a content_buffer
- *
+ *   In the hints interaction, a node can be selected either by typing
+ * the number of its associated hint, or by typing substrings of the
+ * text content of the node.  In the case of selecting by text
+ * content, multiple substrings can be given by separating them with
+ * spaces.
  */
 function hint_manager(window, xpath_expr, focused_frame, focused_element)
 {
