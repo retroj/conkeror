@@ -13,13 +13,13 @@
 
 let permission_manager = Cc["@mozilla.org/permissionmanager;1"].getService(Ci.nsIPermissionManager);
 
-let get_spaces = function get_spaces(n) {
+function get_spaces (n) {
     var x = "";
     while (x.length < n) x += " ";
     return x;
-};
+}
 
-let word_wrap = function word_wrap(str, line_length, line_prefix_first, line_prefix) {
+function word_wrap (str, line_length, line_prefix_first, line_prefix) {
     if (line_prefix === undefined)
         line_prefix = line_prefix_first;
     else if (line_prefix.length < line_prefix_first.length) {
@@ -53,7 +53,7 @@ let word_wrap = function word_wrap(str, line_length, line_prefix_first, line_pre
     if (str.length > 0)
         out += cur_prefix + str + "\n";
     return out;
-};
+}
 
 let permission_types = {
     popup : {desc: "specifies a whitelist and blacklist for the popup blocker",
