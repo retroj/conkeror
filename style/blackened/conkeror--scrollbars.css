@@ -1,0 +1,25 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+scrollbar {
+  background-color: black;
+}
+
+scrollcorner {
+  background-color: black;
+}
+
+thumb, scrollbarbutton {
+  -moz-border-top-colors: ThreeDLightShadow ThreeDHighlight;
+  -moz-border-right-colors: ThreeDDarkShadow ThreeDShadow;
+  -moz-border-bottom-colors: ThreeDDarkShadow ThreeDShadow;
+  -moz-border-left-colors: ThreeDLightShadow ThreeDHighlight;
+  background-color: black;
+}
+
+scrollbarbutton:hover:active, scrollbarbutton[active="true"] {
+  -moz-border-top-colors: ThreeDShadow black;
+  -moz-border-right-colors: ThreeDShadow black;
+  -moz-border-bottom-colors: ThreeDShadow black;
+  -moz-border-left-colors: ThreeDShadow black;
+}

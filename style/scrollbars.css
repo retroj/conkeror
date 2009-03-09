@@ -1,0 +1,78 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+scrollbar {
+  -moz-binding: url("chrome://global/content/bindings/scrollbar.xml#scrollbar");
+  cursor: default;
+}
+
+thumb, scrollbarbutton {
+  border: 2px solid;
+}
+
+thumb {
+  min-height: 8px;
+}
+
+thumb[orient="horizontal"] {
+  min-width: 8px;
+}
+
+thumb > gripper {
+  -moz-appearance: scrollbargripper-vertical;
+}
+
+thumb[orient="horizontal"] > gripper {
+  -moz-appearance: scrollbargripper-horizontal;
+}
+
+scrollbarbutton {
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  min-width: 16px;
+  min-height: 16px;
+}
+
+scrollbarbutton:hover:active, scrollbarbutton[active="true"] {
+  background-position: 51% 51%;
+}
+
+scrollcorner { 
+  -moz-binding: url(chrome://global/content/bindings/scrollbar.xml#scrollbar-base);
+  width: 16px;
+  cursor: default;
+}
+
+scrollbarbutton[type="increment"] {
+  background-image: url("chrome://global/skin/arrow/arrow-rit.gif")
+}
+
+scrollbarbutton[type="increment"][disabled="true"] {
+  background-image: url("chrome://global/skin/arrow/arrow-rit-dis.gif")
+}
+
+scrollbar[orient="vertical"] > scrollbarbutton[type="increment"] {
+  background-image: url("chrome://global/skin/arrow/arrow-dn.gif")
+}
+
+scrollbar[orient="vertical"] > scrollbarbutton[type="increment"][disabled="true"] {
+  background-image: url("chrome://global/skin/arrow/arrow-dn-dis.gif")
+}
+
+scrollbarbutton[type="decrement"] {
+   background-image: url("chrome://global/skin/arrow/arrow-lft.gif")
+}
+
+scrollbarbutton[type="decrement"][disabled="true"] {
+   background-image: url("chrome://global/skin/arrow/arrow-lft-dis.gif")
+}
+
+scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"] {
+   background-image: url("chrome://global/skin/arrow/arrow-up.gif")
+}
+
+scrollbar[orient="vertical"] > scrollbarbutton[type="decrement"][disabled="true"] {
+   background-image: url("chrome://global/skin/arrow/arrow-up-dis.gif")
+}
+
+
