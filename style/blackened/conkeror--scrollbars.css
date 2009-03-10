@@ -6,12 +6,7 @@ scrollbar {
     background-color: #333;
 }
 
-/* I commented this out as I think users would only find it distracting. */
-/* scrollbar:active { */
-/*     background-color: #111; */
-/* } */
-
-/* TODO: What is this for? */
+/* corner between horizontal and vertical scrollbars */
 scrollcorner {
     background-color: black;
 }
