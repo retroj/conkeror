@@ -3,7 +3,7 @@
 
 scrollbar {
   -moz-appearance: scrollbar;
-  background-color: #c4c2bd;
+  background-color: scrollbar;
 }
 
 scrollcorner {
