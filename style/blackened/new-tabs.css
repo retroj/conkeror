@@ -5,13 +5,32 @@
 .tab2 {
     margin: 2px 0px 0px 2px;
     padding: 0px;
-    height: 19px;
-    border: 1px solid #aaa;
-    border-bottom: 0;
+    height: 22px;
+    border-width: 2px;
+    border-bottom-width: 0;
+    border-style: solid;
+    -moz-border-radius: 3px 3px 0 0;
+    -moz-border-left-colors: #888 #555;
+    -moz-border-right-colors: #000 #171717;
+    -moz-border-top-colors: #888 #555;
     background: #333;
     min-width: 200px;
     max-width: 200px;
     overflow: hidden; /* Chops end of label */
+}
+
+.tab2[selected=true] {
+    -moz-border-left-colors: #aaa #888;
+    -moz-border-right-colors: #000 #333;
+    -moz-border-top-colors: #aaa #888;
+    background: #666;
+}
+
+.tab2:hover {
+    -moz-border-left-colors: #eee #bbb;
+    -moz-border-right-colors: #333 #666;
+    -moz-border-top-colors: #eee #bbb;
+    background: #999;
 }
 
 .tab2-label {
@@ -22,19 +41,14 @@
 }
 
 .tab2-icon {
-    margin: 0px !important;
-    height: 16px;
+    margin: 1px !important;
+    padding: 1px;
     width: 20px;
-    padding-top: 2px;
-    background: #000;
+    height: 15px;
+    max-height: 15px;
+    -moz-border-radius: 1px;
+    background: black;
     color: white;
     font: 900 11px Tahoma;
     text-align: center;
 }
-
-.tab2[selected=true] {
-    border: 1px solid #888;
-    border-bottom: 0;
-    background: #666;
-}
-
