@@ -28,7 +28,7 @@ tree.completions treechildren::-moz-tree-row {
 }
 
 tree.completions treechildren::-moz-tree-row(current) {
-  background-color: blue;
+  background-color: blue !important;
   color: white;
 }
 
