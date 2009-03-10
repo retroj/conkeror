@@ -28,6 +28,7 @@ tree.completions {
 }
 
 tree.completions treechildren::-moz-tree-row {
+  background-color: #dcdad5 !important;
   border: none;
 }
 

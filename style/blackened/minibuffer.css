@@ -24,6 +24,7 @@ tree.completions {
 }
 
 tree.completions treechildren::-moz-tree-row {
+  background-color: black !important;
   border: none;
 }
 
