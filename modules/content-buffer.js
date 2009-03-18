@@ -454,6 +454,11 @@ function reload (b, bypass_cache, element, forced_charset)
 {
     check_buffer(b, content_buffer);
     if (element) {
+        if (element instanceof Ci.nsIDOMHTMLImageElement) {
+            var cache = Cc['@mozilla.org/image/cache;1']
+                .getService(Ci.imgICache);
+            cache.removeEntry(make_uri(element.src));
+        }
         element.parentNode.replaceChild(element.cloneNode(true), element);
     } else {
         var flags = bypass_cache == null ?
