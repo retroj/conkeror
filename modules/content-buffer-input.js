@@ -306,6 +306,27 @@ interactive("browser-focus-previous-form-field",
                     I.buffer, -I.p, browser_form_field_xpath_expression);
             });
 
+
+define_variable('edit_field_in_external_editor_extension', "txt",
+    "File extension for the temp files created by "+
+    "edit-current-field-in-external-editor.");
+
+function get_filename_for_current_textfield(doc, elem) {
+    var name = doc.URL
+        + "-"
+        + ( elem.getAttribute("name")
+            || elem.getAttribute("id")
+            || "textarea" );
+
+    // get rid filesystem unfriendly chars
+    name = name.replace(doc.location.protocol, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/(^-+|-+$)/g, "")
+        + '.' + edit_field_in_external_editor_extension;
+
+    return name;
+}
+
 function edit_field_in_external_editor(buffer, elem) {
     if (elem instanceof Ci.nsIDOMHTMLInputElement) {
         var type = elem.getAttribute("type");
@@ -316,15 +337,7 @@ function edit_field_in_external_editor(buffer, elem) {
     } else if (!(elem instanceof Ci.nsIDOMHTMLTextAreaElement))
         throw interactive_error("Element is not a text field.");
 
-    var name = elem.getAttribute("name");
-    if (!name || name.length == 0)
-        name = elem.getAttribute("id");
-    if (!name)
-        name = "";
-    name = name.replace(/[^a-zA-Z0-9\-_]/g, "");
-    if (name.length == 0)
-        name = "text";
-    name += ".txt";
+    var name = get_filename_for_current_textfield(buffer.document, elem);
     var file = get_temporary_file(name);
 
     // Write to file
@@ -349,6 +362,7 @@ function edit_field_in_external_editor(buffer, elem) {
         file.remove(false);
     }
 }
+
 interactive("edit-current-field-in-external-editor",
             "Edit the contents of the currently-focused text field in an external editor.",
             function (I) {
