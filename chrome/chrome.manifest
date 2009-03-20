@@ -9,5 +9,3 @@ content  conkeror-help           file:../help/
 locale   branding       en-US    file:../branding/
 
 override chrome://global/locale/netErrorApp.dtd chrome://conkeror-gui/locale/netError.dtd
-
-override chrome://global/skin/scrollbars.css chrome://conkeror-gui/skin/scrollbars.css

@@ -15,8 +15,3 @@
 #minibuffer[minibuffermode="input"] #minibuffer-mode-indicator {
   visibility: collapse;
 }
-
-window {
-  background-color: white;
-}
-

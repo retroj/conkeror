@@ -1,6 +1,5 @@
 
 { "sheets": [
-      "conkeror--scrollbars.css",
       "content-buffer-input.css",
       "minibuffer.css",
       "mode-line.css",

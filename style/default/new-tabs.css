@@ -2,12 +2,11 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 #tab2-bar {
-    background: #ccc;
+  border-bottom: 1px solid threedshadow;
 }
 
 .tab2 {
     -moz-appearance: tab;
-    margin: 2px 0 0 2px;
     min-width: 200px;
     max-width: 300px;
     overflow: hidden; /* Chops end of label */
@@ -16,23 +15,11 @@
 .tab2-label {
     margin-left: 4px;
     padding-top: 1px;
-    color: #000;
-    font: 11px Tahoma;
+    font: 11px Sans;
 }
 
 .tab2-icon {
-    margin: 1px !important;
-    padding: 1px;
-    width: 20px;
-    height: 15px;
-    max-height: 15px;
-    -moz-border-radius: 1px;
-    background: black;
-    color: white;
-    font: 900 11px Tahoma;
+    padding: 0px 2px 0px 3px;
+    font: 900 11px Sans;
     text-align: center;
-}
-
-.tab2[selected=true] .tab2-icon {
-    background: #060;
 }
