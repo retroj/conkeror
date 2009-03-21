@@ -134,6 +134,11 @@ function define_default_webjumps()
     define_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
 }
 
+define_variable("webjump_partial_match", true,
+                "When entering a url, if the input is not a webjump, " +
+                "but would uniquely complete to a webjump, then accept " +
+                "that webjump only if this is true.");
+
 function match_webjump(str) {
     var sp = str.indexOf(' ');
 
@@ -152,7 +157,7 @@ function match_webjump(str) {
     var match = webjumps[key];
 
     // Look for a partial match
-    if (!match) {
+    if (!match && webjump_partial_match) {
         for (let [k,v] in Iterator(webjumps)) {
             if (k.substring(0, key.length) == key) {
                 if (match) {
