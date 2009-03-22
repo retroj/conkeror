@@ -466,6 +466,11 @@ function reload (b, bypass_cache, element, forced_charset)
         var flags = bypass_cache == null ?
             Ci.nsIWebNavigation.LOAD_FLAGS_NONE :
             Ci.nsIWebNavigation.LOAD_FLAGS_BYPASS_CACHE;
+
+        if (! forced_charset && forced_charset_list)
+            forced_charset = predicate_alist_match(forced_charset_list,
+                                                   b.current_URI.spec);
+
         if (forced_charset) {
             try {
                 var atomservice = Cc['@mozilla.org/atom-service;1']
