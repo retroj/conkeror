@@ -15,9 +15,9 @@ define_variable("headings_xpath", "//h1 | //h2 | //h3 | //h4 | //h5 | //h6",
 
 
 define_variable("scroll_to_heading_wrap", true,
-    "If true, will wrap to the topmost heading when the viewport is at the"+
-    "bottom of the document and the user tries to access the next heading."+
-    "  Does the equivalent thing for \"previous heading\" as well.");
+    "If true, will wrap to the topmost heading when the viewport is at the "+
+    "bottom of the document and the user tries to access the next heading. "+
+    "Does the equivalent thing for \"previous heading\" as well.");
 
 
 define_browser_object_class(
