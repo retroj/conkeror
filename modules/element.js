@@ -259,24 +259,30 @@ function browser_object_follow(buffer, target, elem)
     if (elem instanceof Ci.nsILocalFile)
         elem = elem.path;
 
-    var no_click = ((elem instanceof load_spec) ||
-                    (elem instanceof Ci.nsIDOMWindow) ||
-                    (elem instanceof Ci.nsIDOMHTMLFrameElement) ||
-                    (elem instanceof Ci.nsIDOMHTMLIFrameElement) ||
-                    (elem instanceof Ci.nsIDOMHTMLLinkElement) ||
-                    (elem instanceof Ci.nsIDOMHTMLImageElement &&
-                     !elem.hasAttribute("onmousedown") && !elem.hasAttribute("onclick")));
+    var e;
+    if (elem instanceof load_spec)
+        e = load_spec_element(elem);
+    if (! e)
+        e = elem;
+
+    var no_click = ((e instanceof load_spec) ||
+                    (e instanceof Ci.nsIDOMWindow) ||
+                    (e instanceof Ci.nsIDOMHTMLFrameElement) ||
+                    (e instanceof Ci.nsIDOMHTMLIFrameElement) ||
+                    (e instanceof Ci.nsIDOMHTMLLinkElement) ||
+                    (e instanceof Ci.nsIDOMHTMLImageElement &&
+                     !e.hasAttribute("onmousedown") && !e.hasAttribute("onclick")));
 
     if (target == FOLLOW_DEFAULT && !no_click) {
         var x = 1, y = 1;
-        if (elem instanceof Ci.nsIDOMHTMLAreaElement) {
-            var coords = elem.getAttribute("coords").split(",");
+        if (e instanceof Ci.nsIDOMHTMLAreaElement) {
+            var coords = e.getAttribute("coords").split(",");
             if (coords.length >= 2) {
                 x = Number(coords[0]) + 1;
                 y = Number(coords[1]) + 1;
             }
         }
-        browser_follow_link_with_click(buffer, elem, x, y);
+        browser_follow_link_with_click(buffer, e, x, y);
         return;
     }
 

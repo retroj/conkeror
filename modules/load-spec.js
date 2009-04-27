@@ -16,6 +16,8 @@
  *                                          Can also provide a default value for the mime_type property,
  *                                          the title property, and the source_frame property.
  *
+ * element      optional    nsIDOMNode      The DOM node of a load_spec created by load_spec_from_element.
+ *
  * flags        optional    number          Specifies flags to pass to nsIWebNavigation.loadURI
  *
  * cache_key    optional    nsISHEntry      Specifies a key for accessing the target from the cache.
@@ -108,6 +110,7 @@ function load_spec_from_element (elem) {
             spec.source_frame = elem.ownerDocument.defaultView;
             spec.title = title;
         }
+        spec.element = elem;
     }
     return spec;
 }
@@ -134,6 +137,10 @@ load_spec.prototype = {};
 
 function load_spec_document(x) {
     return x.document;
+}
+
+function load_spec_element(x) {
+    return x.element;
 }
 
 function load_spec_title(x) {
