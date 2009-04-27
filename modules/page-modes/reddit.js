@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Martin Dybdal
+ * (C) Copyright 2009 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -7,193 +8,177 @@
 
 require("content-buffer.js");
 
-/* Initially based on the greasemonkey userscript "Reddit keyboard
- * shortcuts", found on userscripts.org. But much has changed because of
- * a reddit-remake.
+define_variable("reddit_end_behavior", "stop",
+    "Controls the behavior of the commands reddit-next-link and "+
+    "reddit-prev-link when at the last or first link, respectively. "+
+    "Given as a string, the supported values are 'stop', 'wrap', "+
+    "and 'page'.  'stop' means to not move the highlight in any "+
+    "way.  'wrap' means to wrap around to the first (or last) "+
+    "link.  'page' means to navigate the buffer to the next (or "+
+    "previous) page on reddit.");
+
+register_user_stylesheet(
+    "data:text/css," +
+        escape (
+            "@-moz-document url-prefix(http://www.reddit.com/) {" +
+                ".last-clicked {" +
+                " background-color: #bfb !important;" +
+                " border: 0px !important;"+
+                "}}"));
+
+
+/* Scroll, if necessary, to make the given element visible */
+function reddit_scroll_into_view (window, element) {
+    var rect = element.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight)
+        element.scrollIntoView();
+}
+
+
+/* Move select the next link down from the currently highlighted one.
+ * When the end of the page is reached, the behavior is controlled by
+ * the variable reddit_end_behavior.
  */
-var reddit_highlight_color = "#BFB";
-
-
-function reddit_highlight(elem) {
-    elem.highlighted = true;
-    elem.style.backgroundColor = reddit_highlight_color;
-}
-
-function reddit_dehighlight(elem) {
-    elem.style.backgroundColor = elem.originalBackgroundColor;
-    elem.highlighted = false;
-}
-
-function reddit_toggleHighlight(elem) {
-    if(elem) {
-      if(elem.highlighted)
-        reddit_dehighlight(elem);
-      else
-        reddit_highlight(elem);
-    }
-}
-
-function reddit_addGlobalStyle(document, css) {
-    var head, style;
-    head = document.getElementsByTagName('head')[0];
-    if (!head) { return; }
-    style = document.createElement('style');
-    style.type = 'text/css';
-    style.innerHTML = css;
-    head.appendChild(style);
-}
-
-
-/* Sets up the reddit-mode for the given buffer. */
-function reddit_mode_setup(buffer) {
-    var document = buffer.document;
-    if(document.reddit_mode_loaded) return;
-    else document.reddit_mode_loaded = true;
-    var siteTable = document.getElementById("siteTable");
-    if (!siteTable) {
-        /* siteTable not found, abort. This happens e.g. when browsing the
-       preferences */
-        return;
-    }
-
-    // Get all divs that have a id that starts with "thingrow"
-    var links = siteTable.getElementsByTagName("div");
-    links = Array.filter(links, function (element) {
-        var start = element.className.substr(0, 12);
-        if (start === "thing id-t3_") {
-            element.articleId  = element.className.substr(12, 5);
-            element.highlighted = false;
-            if(element.style.backgroundColor == "")
-                element.originalBackgroundColor = "transparent";
-            else
-                element.originalBackgroundColor = element.style.backgroundColor;
-            return true;
+function reddit_next (I) {
+    var doc = I.buffer.document;
+    // the behavior of this command depends on whether we have downloaded
+    // enough of the page to include all of the article links.
+    var complete = doc.getElementsByClassName('footer').length > 0;
+    var links = doc.getElementsByClassName('link');
+    var first = null;
+    var current = null;
+    var next = null;
+    for (var i = 0; i < links.length; i++) {
+        if (links[i].style.display == 'none')
+            continue;
+        if (! first)
+            first = links[i];
+        if (current) {
+            next = links[i];
+            break;
         }
-        return false;
-    });
-
-    /* Get the last links on the page titled "next" and "prev" */
-    var anchors = document.getElementsByTagName("a");
-    var nextLinks = Array.filter(anchors, function (element) {
-        return element.textContent && "next" === element.textContent;
-    });
-    var previousLinks = Array.filter(anchors, function (element) {
-        return element.textContent && "prev" === element.textContent;
-    });
-    document.redditNextPage = nextLinks[nextLinks.length-1];
-    document.redditPrevPage = previousLinks[previousLinks.length-1];
-
-    if (!links || !links.length) {
+        if (links[i].className.indexOf("last-clicked") >= 0)
+            current = links[i];
+    }
+    // The following situations are null-ops:
+    //  1) there are no links on the page.
+    //  2) page is incomplete and the current link is the last link.
+    if (!first || (current && !next && !complete))
         return;
+    if (! next) {
+        if (current) {
+            if (reddit_end_behavior == 'stop')
+                return;
+            if (reddit_end_behavior == 'wrap')
+                next = first;
+            if (reddit_end_behavior == 'page') {
+                let (xpr = doc.evaluate(
+                    '//p[@class="nextprev"]/a[text()="next"]', doc, null,
+                    Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null))
+                {
+                    let nextpage;
+                    if (xpr && (nextpage = xpr.iterateNext())) {
+                        dom_remove_class(current, "last-clicked");
+                        browser_object_follow(I.buffer, FOLLOW_DEFAULT, nextpage);
+                        return;
+                    }
+                }
+            }
+        } else {
+            // Page may or may not be complete.  If the page is not
+            // complete, it is safe to assume that there is no current
+            // link because a current link can only persist on a
+            // cached page, which would load instantaneously, not
+            // giving the user the opportunity to run this command.
+            //
+            next = first;
+        }
     }
-    // remove ugly white background (error in their css)
-    reddit_addGlobalStyle(document, ".linkcompressed .entry .buttons li { background-color: inherit !important; }");
-
-    var current = 0;
-    var beforeLinkRegex = /^https?:\/\/([a-zA-Z0-9\-]*\.)*reddit\.com\/.*before=.*/;
-    if(beforeLinkRegex.test(buffer.current_URI.spec)) {
-      current = links.length-1;
-      reddit_showElement(buffer, links[current]);
-    }
-    reddit_toggleHighlight(links[current]);
-
-    document.redditCurrent = current;
-    document.redditLinkDivs = links;
+    // ordinaries (highlight new, maybe dehighlight old)
+    if (current)
+        dom_remove_class(current, "last-clicked");
+    dom_add_class(next, "last-clicked");
+    reddit_scroll_into_view(I.buffer.focused_frame, next);
 }
+interactive("reddit-next-link",
+            "Move the 'cursor' to the next reddit entry.",
+            reddit_next);
 
-/* Scroll the buffer down to the specified element */
-function reddit_showElement(buffer, element) {
-    function getElementY(element) {
-        var offsetY = 0;
-        var parent;
-        for (parent = element; parent; parent = parent.offsetParent) {
-            if (parent.offsetTop) {
-                offsetY += parent.offsetTop;
+
+/* Select the link before the currently highlighted one.  When the
+ * beginning of the page is reached, behavior is controlled by the
+ * variable reddit_end_behavior.
+ */
+function reddit_prev (I) {
+    var doc = I.buffer.document;
+    // the behavior of this command depends on whether we have downloaded
+    // enough of the page to include all of the article links.
+    var complete = doc.getElementsByClassName('footer').length > 0;
+    var links = doc.getElementsByClassName('link');
+    var first = null;
+    var prev = null;
+    var current = null;
+    for (var i = 0; i < links.length; i++) {
+        if (links[i].style.display == 'none')
+            continue;
+        if (! first)
+            first = links[i];
+        if (links[i].className.indexOf("last-clicked") >= 0) {
+            current = links[i];
+            break;
+        }
+        prev = links[i];
+    }
+    if (! first || // no links were found at all.
+        (!current && !complete)) // don't know where current is.
+        return;
+    if (! prev) {
+        // the first visible link is the `current' link.
+        // dispatch on reddit_end_behavior.
+        if (reddit_end_behavior == 'stop')
+            return;
+        else if (reddit_end_behavior == 'wrap') {
+            // need to get last link on page.
+            if (complete) {
+                for (var i = 0; i < links.length; i++) {
+                    if (links[i].style.display == 'none')
+                        continue;
+                    prev = links[i];
+                }
+            }
+        } else if (reddit_end_behavior == 'page') {
+            let (xpr = doc.evaluate(
+                '//p[@class="nextprev"]/a[text()="prev"]', doc, null,
+                Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null))
+            {
+                let prevpage;
+                if (xpr && (prevpage = xpr.iterateNext())) {
+                    dom_remove_class(current, "last-clicked");
+                    browser_object_follow(I.buffer, FOLLOW_DEFAULT, prevpage);
+                    return;
+                }
             }
         }
-        return offsetY;
     }
-
-    if(element) {
-        var position = getElementY(element);
-        var height = buffer.document.body.offsetHeight;
-        var scrollPosition = buffer.top_frame.pageYOffset;
-        if ((height + scrollPosition - position) < 10 || (position - scrollPosition) < 10) {
-            buffer.top_frame.scroll(0, position);
-        }
-    }
+    // ordinaries (highlight new, maybe dehighlight old)
+    if (current)
+        dom_remove_class(current, "last-clicked");
+    dom_add_class(prev, "last-clicked");
+    reddit_scroll_into_view(I.buffer.focused_frame, prev);
 }
-
-/* Go to the next link (eventually the next page).
- */
-function reddit_next(I) {
-    var document = I.buffer.document;
-    var links = document.redditLinkDivs;
-    var current = document.redditCurrent;
-    if(links !== undefined && current !== undefined) {
-        if (current < (links.length - 1)) {
-            reddit_toggleHighlight(links[current]);
-            current++;
-            reddit_toggleHighlight(links[current]);
-            reddit_showElement(I.buffer, links[current]);
-        }
-        else if (document.redditNextPage) {
-            I.buffer.window.content.location.href = document.redditNextPage.href;
-        }
-        document.redditCurrent = current;
-    }
-}
-
-/* Go to the previous link (above). Change to the previous page if we
- * are at the top.
- */
-function reddit_prev(I) {
-    var document = I.buffer.document;
-    var links = document.redditLinkDivs;
-    var current = document.redditCurrent;
-    if(links !== undefined && current !== undefined) {
-        if (current > 0) {
-            reddit_toggleHighlight(links[current]);
-            current--;
-            reddit_toggleHighlight(links[current]);
-            reddit_showElement(I.buffer, links[current]);
-        }
-        else if (document.redditPrevPage) {
-            I.buffer.window.content.location.href = document.redditPrevPage.href;
-        }
-        document.redditCurrent = current;
-    }
-}
-
-function reddit_getArticleId(buffer) {
-    if(buffer.document.redditLinkDivs !== undefined &&
-       buffer.document.redditCurrent !== undefined)
-        return buffer.document.redditLinkDivs[buffer.document.redditCurrent].articleId;
-    else
-        return false;
-}
+interactive("reddit-prev-link",
+            "Move the 'cursor' to the previous reddit entry.",
+            reddit_prev);
 
 
-function reddit_open(I, target) {
-    var articleId = reddit_getArticleId(I.buffer);
-    if(articleId) {
-        var dest = "http://reddit.com/goto?id=" + articleId;
-        browser_object_follow(I.buffer, target || OPEN_CURRENT_BUFFER, dest);
-    }
-}
-function reddit_open_new_buffer (I) {
-    reddit_open(I, OPEN_NEW_BUFFER);
-}
-function reddit_open_new_window (I) {
-    reddit_open(I, OPEN_NEW_WINDOW);
-}
-
-function reddit_open_comments(I, target) {
-    var articleId = reddit_getArticleId(I.buffer);
-    if(articleId) {
-        var dest = "http://reddit.com/info/" + articleId + "/comments/";
-        browser_object_follow(I.buffer, target || OPEN_CURRENT_BUFFER, dest);
-    }
+function reddit_open_comments (I, target) {
+    var xpr = I.buffer.document.evaluate(
+        '//*[contains(@class,"last-clicked")]/descendant::a[@class="comments"]',
+        I.buffer.document, null,
+        Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+    let link;
+    if (xpr && (link = xpr.iterateNext()))
+        browser_object_follow(I.buffer, target || FOLLOW_DEFAULT, link);
 }
 function reddit_open_comments_new_buffer (I) {
     reddit_open_comments(I, OPEN_NEW_BUFFER);
@@ -201,79 +186,80 @@ function reddit_open_comments_new_buffer (I) {
 function reddit_open_comments_new_window (I) {
     reddit_open_comments(I, OPEN_NEW_WINDOW);
 }
-
-function reddit_mod_up (I) {
-    var articleId = reddit_getArticleId(I.buffer);
-    if(articleId)
-        I.buffer.top_frame.wrappedJSObject.mod("t3_" + articleId, 1);
-}
-
-function reddit_mod_down(I) {
-    var articleId = reddit_getArticleId(I.buffer);
-    if(articleId)
-        I.buffer.top_frame.wrappedJSObject.mod("t3_" + articleId, 0);
-}
-
-interactive("reddit-next-link",
-            "Move the 'cursor' to the next reddit entry.",
-            reddit_next);
-
-interactive("reddit-prev-link",
-            "Move the 'cursor' to the previous reddit entry.",
-            reddit_prev);
-
-interactive("reddit-open-current",
-            "Open the currently selected link.",
-            alternates(reddit_open,
-                       reddit_open_new_buffer,
-                       reddit_open_new_window));
-
 interactive("reddit-open-comments",
             "Open the comments-page associated with the currently selected link.",
             alternates(reddit_open_comments,
                        reddit_open_comments_new_buffer,
                        reddit_open_comments_new_window));
 
+
+function reddit_vote_up (I) {
+    // get the current article and send a click to its vote-up button.
+    var xpr = I.buffer.document.evaluate(
+        '//*[contains(@class,"last-clicked")]/div[@class="midcol"]/div[contains(@class,"up")]',
+        I.buffer.document, null,
+        Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+    let link;
+    if (xpr && (link = xpr.iterateNext()))
+        browser_object_follow(I.buffer, FOLLOW_DEFAULT, link);
+}
 interactive("reddit-vote-up",
             "Vote the currently selected link up.",
-            reddit_mod_up);
+            reddit_vote_up);
 
+
+function reddit_vote_down (I) {
+    // get the current article and send a click to its vote-down button.
+    var xpr = I.buffer.document.evaluate(
+        '//*[contains(@class,"last-clicked")]/div[@class="midcol"]/div[contains(@class,"down")]',
+        I.buffer.document, null,
+        Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+    let link;
+    if (xpr && (link = xpr.iterateNext()))
+        browser_object_follow(I.buffer, FOLLOW_DEFAULT, link);
+}
 interactive("reddit-vote-down",
             "Vote the currently selected link down.",
-            reddit_mod_down);
+            reddit_vote_down);
 
-/* Creating the keymap */
+
+define_browser_object_class(
+    "reddit-current",
+    "Reddit current link",
+    null,
+    function (I, prompt) {
+        var xpr = I.buffer.document.evaluate(
+            '//*[contains(@class,"last-clicked")]/*[@class="entry"]/p[@class="title"]/a',
+            I.buffer.document, null,
+            Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+        yield co_return(xpr.iterateNext());
+    });
+
+
 define_keymap("reddit_keymap", $parent = content_buffer_normal_keymap);
 define_key(reddit_keymap, "j", "reddit-next-link");
 define_key(reddit_keymap, "k", "reddit-prev-link");
 define_key(reddit_keymap, ",", "reddit-vote-up");
 define_key(reddit_keymap, ".", "reddit-vote-down");
-
-define_key(reddit_keymap, "o", "reddit-open-current");
 define_key(reddit_keymap, "h", "reddit-open-comments");
 
-/* Setting up and tearing down the mode */
-
-function enable_reddit_mode(buffer) {
-  var doc = buffer.document;
-  if(doc.redditCurrent != null)
-    reddit_highlight(doc.redditLinkDivs[doc.redditCurrent]);
-  buffer.local_variables.content_buffer_normal_keymap = reddit_keymap;
-  add_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
-}
-
-function disable_reddit_mode(buffer) {
-  var doc = buffer.document;
-
-  if(doc.redditCurrent != null)
-    reddit_dehighlight(doc.redditLinkDivs[doc.redditCurrent]);
-  remove_hook.call(buffer, "content_buffer_finished_loading_hook", reddit_mode_setup);
-}
 
 define_page_mode("reddit_mode", "reddit",
-                 $enable = enable_reddit_mode,
-                 $disable = disable_reddit_mode,
+                 $enable = function (buffer) {
+                     buffer.local_variables.content_buffer_normal_keymap = reddit_keymap;
+                     let (cmds = ["follow-current",
+                                  "follow-current-new-buffer",
+                                  "follow-current-new-buffer-background",
+                                  "follow-current-new-window",
+                                  "copy"]) {
+                         for each (var c in cmds) {
+                             buffer.default_browser_object_classes[c] =
+                                 browser_object_reddit_current;
+                         }
+                     }
+                 },
                  $doc = "reddit page-mode: keyboard navigation for reddit.");
 
-var reddit_re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/);
-auto_mode_list.push([reddit_re, reddit_mode]);
+let (re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/)) {
+    auto_mode_list.push([re, reddit_mode]);
+};
