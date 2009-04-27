@@ -47,6 +47,8 @@ define_key(content_buffer_normal_keymap, "x", "shell-command-on-file");
 define_key(content_buffer_normal_keymap, "X", "shell-command-on-url");
 define_key(content_buffer_normal_keymap, "b", "bookmark");
 define_key(content_buffer_normal_keymap, "v", "view-as-mime-type");
+define_key(content_buffer_normal_keymap, "return", "follow-current");
+define_key(content_buffer_normal_keymap, "o", "follow-current-new-buffer");
 
 
 // Scrolling

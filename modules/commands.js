@@ -460,6 +460,32 @@ interactive("follow-new-window",
             $browser_object = browser_object_links,
             $prompt = "Follow");
 
+interactive("follow-current",
+            "Follow current object, normally the focused element.",
+            alternates(follow, follow_new_buffer, follow_new_window),
+            $browser_object = browser_object_focused_element);
+
+interactive("follow-current-new-buffer",
+            "Follow current object, normally the focused element, in "+
+            "a new buffer.",
+            alternates(follow_new_buffer, follow_new_window),
+            $browser_object = browser_object_focused_element,
+            $prompt = "Follow");
+
+interactive("follow-current-new-buffer-background",
+            "Follow current object, normally the focused element, in "+
+            "a new background buffer.",
+            alternates(follow_new_buffer_background, follow_new_window),
+            $browser_object = browser_object_focused_element,
+            $prompt = "Follow");
+
+interactive("follow-current-new-window",
+            "Follow current object, normally the focused element, in "+
+            "a new window.",
+            follow_new_window,
+            $browser_object = browser_object_focused_element,
+            $prompt = "Follow");
+
 interactive("find-url", "Open a URL in the current buffer",
             alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
             $browser_object = browser_object_url);

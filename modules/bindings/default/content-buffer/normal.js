@@ -32,8 +32,6 @@ define_key(content_buffer_normal_keymap, "C-x h", "cmd_selectAll");
 define_key(content_buffer_normal_keymap, "C-g", "stop-loading");
 
 
-define_key(content_buffer_normal_keymap, "C-return", "follow-link-in-new-buffer");
-
 define_key(content_buffer_normal_keymap, "escape", "unfocus");
 define_key(content_buffer_normal_keymap, "M-escape", "unfocus");
 

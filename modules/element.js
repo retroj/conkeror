@@ -167,6 +167,11 @@ define_browser_object_class(
         return I.buffer.current_URI.resolve(up);
     });
 
+define_browser_object_class(
+    "focused-element", "Focused element", null,
+    function (I, prompt) {
+        return I.buffer.focused_element;
+    });
 
 function read_browser_object (I)
 {
