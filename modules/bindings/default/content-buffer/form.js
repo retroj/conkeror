@@ -9,5 +9,6 @@ require("bindings/default/content-buffer/normal.js");
 
 define_keymap("content_buffer_form_keymap", $parent = content_buffer_normal_keymap);
 
+define_key(content_buffer_form_keymap, "return", null, $fallthrough);
 define_key(content_buffer_form_keymap, "C-c C-c", "submit-form");
 
