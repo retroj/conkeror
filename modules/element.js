@@ -258,8 +258,6 @@ function browser_element_focus(buffer, elem)
 
 function browser_object_follow(buffer, target, elem)
 {
-    browser_set_element_focus(buffer, elem, true /* no scroll */);
-
     // XXX: would be better to let nsILocalFile objects be load_specs
     if (elem instanceof Ci.nsILocalFile)
         elem = elem.path;
@@ -269,6 +267,8 @@ function browser_object_follow(buffer, target, elem)
         e = load_spec_element(elem);
     if (! e)
         e = elem;
+
+    browser_set_element_focus(buffer, e, true /* no scroll */);
 
     var no_click = ((e instanceof load_spec) ||
                     (e instanceof Ci.nsIDOMWindow) ||
