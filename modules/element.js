@@ -342,6 +342,7 @@ function browser_follow_link_with_click(buffer, elem, x, y) {
                        /*event.shiftKey*/ 0, /*event.metaKey*/ 0, 0, null);
     elem.dispatchEvent(evt);
 
+    evt = doc.createEvent("MouseEvents");
     evt.initMouseEvent("click", true, true, view, 1, x, y, 0, 0, /*ctrl*/ 0, /*event.altKey*/0,
                        /*event.shiftKey*/ 0, /*event.metaKey*/ 0, 0, null);
     elem.dispatchEvent(evt);
