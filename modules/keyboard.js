@@ -111,37 +111,42 @@ function define_keymap(name) {
  * keymap, or fallthrough declaration is performed.
  */
 
-function match_any_key (event)
-{
-    return true;
+function define_key_match_predicate (name, description, predicate) {
+    conkeror[name] = predicate;
+    conkeror[name].name = name;
+    conkeror[name].description = description;
 }
 
-function match_any_unmodified_key (event)
-{
-    //XXX: the meaning of "unmodified" is platform dependent. for example,
-    // on OS X, Alt is used in combination with the character keys to type
-    // an alternate character.  A possible solution is to set the altKey
-    // property of the event to null for all keypress events on OS X.
-    try {
-        return event.charCode
-            && !event.altKey
-            && !event.metaKey
-            && !event.ctrlKey
-            && !event.sticky_modifiers;
-    } catch (e) {return false; }
-}
+define_key_match_predicate('match_any_key', 'any key',
+    function (event) { return true; });
+
+define_key_match_predicate('match_any_unmodified_key', 'any unmodified key',
+    function (event) {
+        //XXX: the meaning of "unmodified" is platform dependent. for
+        // example, on OS X, Alt is used in combination with the
+        // character keys to type an alternate character.  A possible
+        // solution is to set the altKey property of the event to null
+        // for all keypress events on OS X.
+        try {
+            return event.charCode
+                && !event.altKey
+                && !event.metaKey
+                && !event.ctrlKey
+                && !event.sticky_modifiers;
+        } catch (e) {return false; }
+    });
 
 
 /*
  */
 
 function format_key_spec(key) {
-    if (key.match_function) {
-        if (key.match_function == match_any_key)
-            return "<any-key>";
-        if (key.match_function == match_any_unmodified_key)
-            return "<any-unmodified-key>";
-        return "<match-function>";
+    if (key instanceof Function) {
+        if (key.description)
+            return "<"+key.description+">";
+        if (key.name)
+            return "<"+key.name+">";
+        return "<anonymous match function>";
     }
     return key;
 }
