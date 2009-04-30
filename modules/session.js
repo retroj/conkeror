@@ -25,6 +25,12 @@
  * - Manually restore sessions in new windows by default, optionally instead
  *   recycling the existing window (without clobbering existing buffers).
  *   Currently we always use the latter case.
+ * - Rename session_{path,auto_save_path}.
+ * - session_auto_save_path should be either a string filename considered to be
+     relative to session_path, or a nsIFile instance representing an absolute
+     path.
+ * - Replace session_auto_save_prompt with a variable
+ *   session_auto_save_auto_load, which can be true, false, or "prompt".
  */
 
 {
@@ -42,7 +48,7 @@
 
     define_variable("session_auto_save_path", _session_auto_save_path_default);
 
-    define_variable("session_auto_save_prompt", true);
+    define_variable("session_auto_save_prompt", false);
 
     define_variable("session_auto_save_auto_load", true);
 
