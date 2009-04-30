@@ -17,21 +17,11 @@
  *   Currently we do this in some places, but not others.
  * - Implement interactive functions.
  * - Add application startup and shutdown hooks.
- * - Optionally prompt on auto-load.
- * - Optionally auto-save, but not auto-load.
  * - Add missing docstrings.
  * - Handle case where conkeror is started with urls given on the command-line.
  * - Handle daemon mode.
- * - Manually restore sessions in new windows by default, optionally instead
- *   recycling the existing window (without clobbering existing buffers).
- *   Currently we always use the latter case.
- * - Rename session_{path,auto_save_path}.
- * - session_auto_save_path should be either a string filename considered to be
-     relative to session_path, or a nsIFile instance representing an absolute
-     path.
- * - Replace session_auto_save_prompt with a variable
- *   session_auto_save_auto_load, which can be true, false, or "prompt".
  */
+
 
 {
     var json_service = Cc["@mozilla.org/dom/json;1"]
@@ -39,20 +29,27 @@
 
     define_variable("session_open_target", OPEN_NEW_BUFFER_BACKGROUND);
     
-    define_variable("session_path",
+    define_variable("session_dir",
                     Cc["@mozilla.org/file/directory_service;1"]
                         .getService(Ci.nsIProperties).get("ProfD", Ci.nsIFile));
 
-    let _session_auto_save_path_default = session_path.clone();
-     _session_auto_save_path_default.append("session-auto-save.json");
+    define_variable("session_auto_save_file", "auto-save.session");
 
-    define_variable("session_auto_save_path", _session_auto_save_path_default);
+    let _get_session_auto_save_file = function () {
+        if (session_auto_save_file instanceof Ci.nsIFile)
+            return session_auto_save_file;
+        let f = session_dir.clone();
+        f.append(session_auto_save_file);
+        return f;
+    }
 
-    define_variable("session_auto_save_prompt", false);
+    define_variable("session_auto_save_auto_load", true,
+                    'Whether to auto-load when session-auto-save-mode is ' +
+                    'activated. May be true, false, or "prompt".');
 
-    define_variable("session_auto_save_auto_load", true);
-
-    let session_auto_save_bootstrapped = false;
+    define_variable("session_auto_save_use_current_window", false,
+                    "Whether to load the auto-saved session in the current " +
+                    "window or in a new window. May be true or false.");
 
     function session_get() {
         let windows = {};
@@ -61,28 +58,25 @@
             let buffers = {};
             let y = 0;
             w.buffers.for_each(function (b) {
-		// FIXME I don't know what b.generated is or means. This was
-		// in dmhouse's code so I figured what the hell.
-                if (! b.browser || b.generated || ! b instanceof content_buffer)
-		    return;
-		buffers[y] = b.browser.contentDocument.location.href;
-		y++;
+                if (! b.browser || ! b instanceof content_buffer) return;
+                buffers[y] = b.browser.contentDocument.location.href;
+                y++;
             });
             windows[x] = buffers;
-	    x++;
+            x++;
         });
         return windows;
     }
 
     function session_restore(session, window, use_current_buf) {
-	if (! session[0][0]) return;
+        if (! session[0][0]) return;
         let s = 0;
         if (window) {
             let i = 0;
             if (use_current_buf) {
                 window.buffers.current.load(session[s][i]);
-		i++;
-	    }
+                i++;
+            }
             for (; session[s][i]; ++i) {
                 let c = buffer_creator(content_buffer, $load = session[s][i]);
                 create_buffer(window, c, session_open_target);
@@ -121,71 +115,89 @@
         return json_service.decode(read_text_file(path));
     }
 
-    interactive("session-load",
-                "Load a session under a particular name.",
-                function (I) {});
+    interactive("session-load", "Load a session from a file.", function (I) {
+        
+    });
 
-    interactive("session-load-path",
-                "Load a session from the file at the specified path.",
-                function (I) {});
-
-    interactive("session-store",
-                "Store a session under a particular name.",
-                function (I) {});
-
-    interactive("session-store-path",
-                "Store a session in a file at the specified path.",
-                function (I) {});
+    interactive("session-store", "Store a session to a file.", function (I) {
+        
+    });
 
     function session_auto_save_store() {
-        session_store(session_auto_save_path, session_get());
+        let f = _get_session_auto_save_file();
+        session_store(f, session_get());
     }
 
-    function session_auto_save_load(use_current_buf) {
-        if (session_auto_save_path.exists()) {
-	    let window = get_recent_conkeror_window();
-            session_restore(session_load(session_auto_save_path), window, 
-                            use_current_buf);
-	}
+    function session_auto_save_load() {
+        let f = _get_session_auto_save_file();
+        if (! f.exists()) return;
+        let window = session_auto_save_use_current_window ?
+            get_recent_conkeror_window() : null;
+        session_restore(session_load(f), window, false); 
+    }
+
+    let _session_auto_save_auto_load = function (use_current_win, use_current_buf) {
+        if (session_auto_save_auto_load == false) return;
+        let f = _get_session_auto_save_file();
+        if (! f.exists()) return;
+        // FIXME Hack for prompting.
+        let session = session_load(f);
+        let do_load = false;
+        if (session_auto_save_auto_load == true) do_load = true;
+        else if (session_auto_save_auto_load == "prompt") {
+            let w = get_recent_conkeror_window();
+            do_load = (yield w.minibuffer.read_single_character_option(
+                $prompt = "Restore auto-saved session? (y/n)",
+                $options = ["y", "n"]
+            )) == "y";
+        }
+        else
+            throw new Error("Invalid value for session_auto_save_load: " +
+                            session_auto_save_load);
+        if (! do_load) return;
+        let window = use_current_win ? get_recent_conkeror_window() : null;
+        session_restore(session, window, use_current_buf);
     }
 
     function session_auto_save_clear() {
-	if (session_auto_save_path.exists())
-            session_auto_save_path.remove(false);
+        let f = _get_session_auto_save_file();
+        if (f.exists()) f.remove(false);
     }
 
     interactive("session-auto-save-load", "Load the last auto-saved session",
-		function (I) { session_auto_save_load(false); });
+                session_auto_save_load);
 
     interactive("session-auto-save-clear", "Clear the auto-save session",
-		session_auto_save_clear);
+                session_auto_save_clear);
+
+    let _session_auto_save_mode_bootstrap = function (b) {
+        remove_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
+        // FIXME Hack for prompting.
+        co_call(_session_auto_save_auto_load(true, true));
+        add_hook("create_buffer_hook", session_auto_save_store);
+        add_hook("kill_buffer_hook", session_auto_save_store);
+        add_hook("content_buffer_location_change_hook", session_auto_save_store);
+        session_auto_save_store();
+    }
 
     function session_auto_save_mode_enable() {
         if (conkeror_started) {
             add_hook("create_buffer_hook", session_auto_save_store);
             add_hook("kill_buffer_hook", session_auto_save_store);
             add_hook("content_buffer_location_change_hook", session_auto_save_store);
-	    session_auto_save_load(false);
+            co_call(_session_auto_save_auto_load(session_auto_save_use_current_window,
+                                                 ! session_auto_save_use_current_window));
         }
-        else {
-	    function session_auto_save_bootstrap(b) {
-	        remove_hook("create_buffer_hook", session_auto_save_bootstrap);
-                add_hook("create_buffer_hook", session_auto_save_store);
-                add_hook("kill_buffer_hook", session_auto_save_store);
-                add_hook("content_buffer_location_change_hook", session_auto_save_store);
-		// FIXME If urls were given on the command line, pass false.
-	        session_auto_save_load(true);
-	    }
-            // Wait for the initial buffer to be created in the initial window,
-            // then add our hooks and load the session.
-	    add_hook("create_buffer_hook", session_auto_save_bootstrap);
-        }
+        else
+            add_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
     }
 
     function session_auto_save_mode_disable() {
         remove_hook("create_buffer_hook", session_auto_save_store);
         remove_hook("kill_buffer_hook", session_auto_save_store);
         remove_hook("content_buffer_location_change_hook", session_auto_save_store);
+        // Just in case.
+        remove_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
     }
 
     define_global_mode("session_auto_save_mode",
