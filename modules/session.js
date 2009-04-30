@@ -155,7 +155,7 @@
     }
 
     interactive("session-auto-save-load", "Load the last auto-saved session",
-		session_auto_save_load);
+		function (I) { session_auto_save_load(false); });
 
     interactive("session-auto-save-clear", "Clear the auto-save session",
 		session_auto_save_clear);
