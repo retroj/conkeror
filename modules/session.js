@@ -23,23 +23,28 @@
  * - session_dir should be $PROFILE_DIR/sessions rather than $PROFILE_DIR.
  * - Currently setting session_auto_save_auto_load to false is not useful.
  *   Find a way to make it work, else rename it to session_auto_save_prompt.
+ * - 'myvar instanceof Ci.nsIFile' seems to evaluate to 'true' if myvar is
+ *   a string - wtf?!
  */
-
 
 {
     var json_service = Cc["@mozilla.org/dom/json;1"]
         .createInstance(Ci.nsIJSON);
 
     define_variable("session_open_target", OPEN_NEW_BUFFER_BACKGROUND);
-    
-    define_variable("session_dir",
-                    Cc["@mozilla.org/file/directory_service;1"]
-                        .getService(Ci.nsIProperties).get("ProfD", Ci.nsIFile));
 
-    define_variable("session_auto_save_file", "auto-save.session");
+    let _session_dir_default = Cc["@mozilla.org/file/directory_service;1"]
+        .getService(Ci.nsIProperties).get("ProfD", Ci.nsIFile);
+    _session_dir_default.append("sessions");
+    if (! _session_dir_default.exists())
+        _session_dir_default.create(Ci.nsIFile.DIRECTORY_TYPE, 0755);
+
+    define_variable("session_dir", _session_dir_default);
+                    
+    define_variable("session_auto_save_file", "auto-save");
 
     let _get_session_auto_save_file = function () {
-        if (session_auto_save_file instanceof Ci.nsIFile)
+        if (session_auto_save_file instanceof Ci.nsILocalFile)
             return session_auto_save_file;
         let f = session_dir.clone();
         f.append(session_auto_save_file);
@@ -119,11 +124,19 @@
     }
 
     interactive("session-load", "Load a session from a file.", function (I) {
-        
+        let file = yield I.minibuffer.read_file_path(
+            $prompt = "Session file:",
+            $initial_value = session_dir.path,
+            $history = "save");
+        session_restore(session_load(make_file(file)), null, false);
     });
 
     interactive("session-store", "Store a session to a file.", function (I) {
-        
+        let file = yield I.minibuffer.read_file_path(
+            $prompt = "Session file:",
+            $initial_value = session_dir.path,
+            $history = "save");
+        session_store(make_file(file), session_get());
     });
 
     function session_auto_save_store() {
