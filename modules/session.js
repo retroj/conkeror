@@ -8,19 +8,16 @@
 /* TODO
  *
  * - json_service doesn't belong in this file.
- * - Tab complete existing session names/paths in minibuffer prompts.
  * - Ensure loading of homepage in new buffers is inhibited in all situations.
  *   Currently I think we catch all but one.
  * - We make a buffer_creator for each call to create_window and
  *   create_buffer. It'd be better if we used one to create all buffers.
  * - When working with existing buffers, ensure they're content_buffers.
  *   Currently we do this in some places, but not others.
- * - Implement interactive functions.
  * - Add application startup and shutdown hooks.
  * - Add missing docstrings.
  * - Handle case where conkeror is started with urls given on the command-line.
  * - Handle daemon mode.
- * - session_dir should be $PROFILE_DIR/sessions rather than $PROFILE_DIR.
  * - Currently setting session_auto_save_auto_load to false is not useful.
  *   Find a way to make it work, else rename it to session_auto_save_prompt.
  * - 'myvar instanceof Ci.nsIFile' seems to evaluate to 'true' if myvar is
