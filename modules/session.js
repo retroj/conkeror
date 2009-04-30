@@ -30,6 +30,12 @@
  *   - Only auto-load session on un-clean shutdown.
  *   - On clean shutdown, optionally do not auto-save the session (for
  *     greater privacy).
+ * - Add a session_use_current_window variable for manual sessions. I would
+ *   prefer a way to let the user specify this value on a per-use basis,
+ *   but I think that a single global setting will satisfy almost all use-
+ *   cases.
+ * - session_auto_save_mode_{enable,disable} should be local to this module
+ *   (i.e., let'ed).
  */
 
 {
