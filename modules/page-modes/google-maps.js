@@ -11,7 +11,7 @@ function google_maps_control(buffer, control) {
     let node = iter.singleNodeValue;
     if(node) {
         var rect = node.getBoundingClientRect();
-        browser_follow_link_with_click(buffer, node, rect.left + 1, rect.top + 1);
+        dom_node_click(node, rect.left + 1, rect.top + 1);
     }
 }
 

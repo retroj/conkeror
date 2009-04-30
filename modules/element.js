@@ -287,7 +287,7 @@ function browser_object_follow(buffer, target, elem)
                 y = Number(coords[1]) + 1;
             }
         }
-        browser_follow_link_with_click(buffer, e, x, y);
+        dom_node_click(e, x, y);
         return;
     }
 
@@ -333,7 +333,7 @@ function browser_object_follow(buffer, target, elem)
 /**
  * Follow a link-like element by generating fake mouse events.
  */
-function browser_follow_link_with_click(buffer, elem, x, y) {
+function dom_node_click (elem, x, y) {
     var doc = elem.ownerDocument;
     var view = doc.defaultView;
 
