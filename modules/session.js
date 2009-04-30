@@ -20,6 +20,10 @@
  * - Add missing docstrings.
  * - Handle case where conkeror is started with urls given on the command-line.
  * - Handle daemon mode.
+ * - session_dir should be $PROFILE_DIR/sessions rather than $PROFILE_DIR.
+ * - Switch session_auto_save_auto_load back to session_auto_save_prompt as
+ *   optionally not loading the session at startup does not appear to be
+ *   useful.
  */
 
 
