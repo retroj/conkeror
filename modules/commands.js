@@ -276,21 +276,19 @@ interactive("source",
             "Load a JavaScript file.",
             function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 */
-function reinit (window, fn)
-{
+function reinit (window) {
+    var path;
     try {
-        load_rc (fn);
-        window.minibuffer.message ("Loaded: " + fn);
+        path = load_rc();
+        window.minibuffer.message ("Loaded: " + path);
     } catch (e) {
-        window.minibuffer.message ("Failed to load: "+fn);
+        window.minibuffer.message ("Failed to load: "+path);
     }
 }
 
 interactive ("reinit",
              "Reload the Conkeror rc file.",
-             function (I) {
-                 reinit(I.window, get_pref("conkeror.rcfile"));
-             });
+             function (I) { reinit(I.window); });
 
 interactive("help-page", "Open the Conkeror help page.",
             "find-url-new-buffer",

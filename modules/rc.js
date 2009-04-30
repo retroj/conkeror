@@ -53,10 +53,8 @@ function load_rc_directory (file_o) {
  *   all `.js' files in that directory will be loaded.  if it is null,
  *   the preference `conkeror.rcfile' will be read for the default.
  */
-function load_rc(path_s)
-{
-    if (! path_s)
-    {
+function load_rc (path_s) {
+    if (! path_s) {
         if (pref_has_user_value("conkeror.rcfile")) {
             var rcfile = get_pref("conkeror.rcfile");
             if (rcfile.length)
@@ -73,12 +71,14 @@ function load_rc(path_s)
         }
     }
 
-    var file_o = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
+    var file_o = Cc["@mozilla.org/file/local;1"]
+        .createInstance(Ci.nsILocalFile);
     file_o.initWithPath(path_s);
     if (file_o.isDirectory()) {
-        load_rc_directory (file_o);
+        load_rc_directory(file_o);
     } else {
-        load_rc_file (path_s);
+        load_rc_file(path_s);
     }
+    return file_o.path;
 }
 
