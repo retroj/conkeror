@@ -22,6 +22,14 @@
  *   Find a way to make it work, else rename it to session_auto_save_prompt.
  * - 'myvar instanceof Ci.nsIFile' seems to evaluate to 'true' if myvar is
  *   a string - wtf?!
+ * - Auto-save the session when the last conkeror window is closed by a
+ *   window manager event (like clicking the 'x' in the window deco to
+ *   close the window). Currently we save an empty session when this
+ *   happens.
+ * - Add support for using auto-save mode purely as a recovery mode:
+ *   - Only auto-load session on un-clean shutdown.
+ *   - On clean shutdown, optionally do not auto-save the session (for
+ *     greater privacy).
  */
 
 {
