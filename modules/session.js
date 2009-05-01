@@ -168,7 +168,7 @@
         if (session_auto_save_auto_load == false) return;
         let f = _get_session_auto_save_file();
         if (! f.exists()) return;
-        // FIXME Hack for prompting.
+        // FIXME Hack for prompting. We shouldn't grab the session at this point.
         let session = session_load(f);
         let do_load = false;
         if (session_auto_save_auto_load == true) do_load = true;
@@ -200,8 +200,19 @@
 
     let _session_auto_save_mode_bootstrap = function (b) {
         remove_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
-        // FIXME Hack for prompting.
-        co_call(_session_auto_save_auto_load(true, true));
+        // FIXME Hack for prompting. This should happen later, and we shouldn't
+        // need to call session_auto_save_store() later.
+        let user_gave_urls = false;
+        for (let i = 0; i < command_line.length; ++i) {
+            if (command_line[i][0] != '-') {
+                user_gave_urls = true;
+                break;
+            }
+        }
+        if (user_gave_urls)
+            co_call(_session_auto_save_auto_load(false, true));
+        else
+            co_call(_session_auto_save_auto_load(true, true));
         add_hook("create_buffer_hook", session_auto_save_store);
         add_hook("kill_buffer_hook", session_auto_save_store);
         add_hook("content_buffer_location_change_hook", session_auto_save_store);
