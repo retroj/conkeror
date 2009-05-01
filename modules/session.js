@@ -36,6 +36,7 @@
  *   cases.
  * - session_auto_save_mode_{enable,disable} should be local to this module
  *   (i.e., let'ed).
+ * - Create a wiki page detailing this module's typical usage, api, etc.
  */
 
 {
