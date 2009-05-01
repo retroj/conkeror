@@ -179,7 +179,7 @@
             )) == "y";
         }
         else
-            throw new Error("Invalid value for session_auto_save_load: " +
+            throw new Error("Invalid value for session_auto_save_auto_load: " +
                             session_auto_save_load);
         if (! do_load) return;
         let window = use_current_win ? get_recent_conkeror_window() : null;
