@@ -103,6 +103,10 @@ command_line_handler("uu", false, function (ctx) {
 function handle_command_line(cmdline)
 {
     try {
+        this.command_line = [];
+        for (let i = 0; i < cmdline.length; ++i)
+            command_line.push(cmdline.getArgument(i));
+
         var suppress_default = false;
         var suppress_rc = false;
 
