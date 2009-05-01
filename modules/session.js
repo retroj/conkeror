@@ -16,7 +16,6 @@
  *   Currently we do this in some places, but not others.
  * - Add application startup and shutdown hooks.
  * - Add missing docstrings.
- * - Handle case where conkeror is started with urls given on the command-line.
  * - Handle daemon mode.
  * - Currently setting session_auto_save_auto_load to false is not useful.
  *   Find a way to make it work, else rename it to session_auto_save_prompt.
@@ -39,6 +38,10 @@
  * - Create a wiki page detailing this module's typical usage, api, etc.
  * - Take care to prevent windows with zero buffers from being saved as part
  *   of a session.
+ * - Need more testing of support for sessions when loading urls on the
+ *   command-line. Particularly when prompting is enabled.
+ * - Need to explicitly outline all intended use cases and rigorously test
+ *   to ensure each behaves as expected.
  */
 
 {
