@@ -529,7 +529,6 @@ browser_dom_window.prototype = {
 
         switch (browser_default_open_target) {
         case OPEN_CURRENT_BUFFER:
-        case FOLLOW_TOP_FRAME:
             return aOpener.top;
         case FOLLOW_CURRENT_FRAME:
             return aOpener;

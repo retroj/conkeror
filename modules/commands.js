@@ -436,7 +436,7 @@ interactive("follow", null,
             $browser_object = browser_object_links);
 
 interactive("follow-top", null,
-            alternates(follow_top, follow_current_frame),
+            alternates(follow_current_buffer, follow_current_frame),
             $browser_object = browser_object_frames,
             $prompt = "Follow");
 

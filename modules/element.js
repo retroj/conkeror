@@ -300,7 +300,6 @@ function browser_object_follow(buffer, target, elem)
     } else if (!(buffer instanceof content_buffer) &&
         (target == FOLLOW_CURRENT_FRAME ||
          target == FOLLOW_DEFAULT ||
-         target == FOLLOW_TOP_FRAME ||
          target == OPEN_CURRENT_BUFFER))
     {
         target = OPEN_NEW_BUFFER;
@@ -315,7 +314,6 @@ function browser_object_follow(buffer, target, elem)
             break;
         }
     case FOLLOW_DEFAULT:
-    case FOLLOW_TOP_FRAME:
     case OPEN_CURRENT_BUFFER:
         buffer.load(spec);
         break;
@@ -374,10 +372,6 @@ function follow_new_buffer_background (I) {
 
 function follow_new_window (I) {
     yield follow(I, OPEN_NEW_WINDOW);
-}
-
-function follow_top (I) {
-    yield follow(I, FOLLOW_TOP_FRAME);
 }
 
 function follow_current_frame (I) {

@@ -459,32 +459,27 @@ add_hook("window_close_hook", buffer_window_close_handler);
 
 /* open/follow targets */
 const OPEN_CURRENT_BUFFER = 0; // only valid for open if the current
-                               // buffer is a content_buffer; for
-                               // follow, equivalent to
-                               // FOLLOW_TOP_FRAME.
+                               // buffer is a content_buffer.
 const OPEN_NEW_BUFFER = 1;
 const OPEN_NEW_BUFFER_BACKGROUND = 2;
 const OPEN_NEW_WINDOW = 3;
 
 const FOLLOW_DEFAULT = 4; // for open, implies OPEN_CURRENT_BUFFER
 const FOLLOW_CURRENT_FRAME = 5; // for open, implies OPEN_CURRENT_BUFFER
-const FOLLOW_TOP_FRAME = 6; // for open, implies OPEN_CURRENT_BUFFER
 
 var TARGET_PROMPTS = [" in current buffer",
                       " in new buffer",
                       " in new buffer (background)",
                       " in new window",
                       "",
-                      " in current frame",
-                      " in top frame"];
+                      " in current frame"];
 
 var TARGET_NAMES = ["current buffer",
                     "new buffer",
                     "new buffer (background)",
                     "new window",
                     "default",
-                    "current frame",
-                    "top frame"];
+                    "current frame"];
 
 
 function create_buffer(window, creator, target) {
