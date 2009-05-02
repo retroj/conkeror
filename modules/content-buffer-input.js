@@ -204,6 +204,9 @@ define_global_mode("browser_prevent_automatic_form_focus_mode",
                    function () {} // disable
                   );
 
+// note: The apparent misspellings here are not a bug.
+// see https://developer.mozilla.org/en/XPath/Functions/translate
+//
 define_variable(
     "browser_form_field_xpath_expression",
     "//input[" + (
