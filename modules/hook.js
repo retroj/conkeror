@@ -60,11 +60,16 @@ function run_hooks_until_failure(hook, args)
 
 var hook_type_doc_strings = [
     /* RUN_HOOK */
-    "Each hook function added is run in sequence.",
+    "Each hook function is run in sequence.",
+
     /* RUN_HOOK_UNTIL_SUCCESS */
-    "Only boolean-valued hook functions may be added.  Each hook function added is run in sequence until a value that conerts to true is returned.",
+    "Each hook function is run in sequence until one returns a "+
+        "logically true value.",
+
     /* RUN_HOOK_UNTIL_FAILURE */
-    "Only boolean-valued hook functions may be added.  Each hook function added is run in sequence until a value that conerts to false is returned."];
+    "Each hook function is run in sequence until one returns a "+
+        "logically false value.  If no function returns such a "+
+        "value, then the result of the hook will be `true'."];
 
 
 /* This should only be used by define_hook functions */
