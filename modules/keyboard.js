@@ -550,8 +550,15 @@ function keypress_handler (true_event) {
     } catch(e) { dump_error(e);}
 }
 
-function keyboard(window)
-{
+function keydown_handler (event) {
+    event.stopPropagation();
+}
+
+function keyup_handler (event) {
+    event.stopPropagation();
+}
+
+function keyboard (window) {
     this.window = window;
 }
 
@@ -580,12 +587,12 @@ keyboard.prototype = {
 };
 
 
-function keyboard_initialize_window(window)
-{
+function keyboard_initialize_window (window) {
     window.keyboard = new keyboard(window);
-
-    window.addEventListener ("keypress", keypress_handler, true /* capture */,
+    window.addEventListener("keypress", keypress_handler, true /* capture */,
                             false /* ignore untrusted events */);
+    window.addEventListener("keydown", keydown_handler, true, false);
+    window.addEventListener("keyup", keyup_handler, true, false);
 }
 
 add_hook("window_initialize_hook", keyboard_initialize_window);
