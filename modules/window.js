@@ -177,10 +177,10 @@ function window_initialize(window)
     window.getBrowser = window_get_this_browser;
 
     window_initialize_early_hook.run(window);
-    delete window.initialize_early_hook; // used only once
+    delete window.window_initialize_early_hook; // used only once
 
     window_initialize_hook.run(window);
-    delete window.initialize_hook; // used only once
+    delete window.window_initialize_hook; // used only once
 
     window.setTimeout(function(){
             window_initialize_late_hook.run(window);
