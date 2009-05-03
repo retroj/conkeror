@@ -341,7 +341,7 @@ function _do_call(f) {
             }
 
             /**
-             * `f' yielde to us a value without any special
+             * `f' yielded to us a value without any special
              * interpretation. Most likely, this is due to `f' calling
              * a normal function as if it were a coroutine, in which
              * case `x' simply contains the return value of that
