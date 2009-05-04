@@ -7,16 +7,22 @@
 **/
 
 define_variable("default_minibuffer_auto_complete_delay", 150,
-                     "Delay (in milliseconds) after the most recent key stroke before auto-completing.");
+    "Delay (in milliseconds) after the most recent key-stroke "+
+    "before auto-completing.");
 
 define_variable("minibuffer_auto_complete_preferences", {});
 
-define_variable("minibuffer_auto_complete_default", false, "Boolean specifying whether to auto-complete by default.\nThe user variable `minibuffer_auto_complete_preferences' overrides this.");
+define_variable("minibuffer_auto_complete_default", false,
+    "Boolean specifying whether to auto-complete by default. "+
+    "The user variable `minibuffer_auto_complete_preferences' "+
+    "overrides this.");
 
 var minibuffer_history_data = new string_hashmap();
 
 /* FIXME: These should possibly be saved to disk somewhere */
-define_variable("minibuffer_history_max_items", 100, "Maximum number of minibuffer history entries stored.\nOlder history entries are truncated after this limit is reached.");
+define_variable("minibuffer_history_max_items", 100,
+    "Maximum number of minibuffer history entries stored. Older "+
+    "history entries are truncated after this limit is reached.");
 
 
 /* The parameter `args' specifies the arguments.  In addition, the
@@ -34,7 +40,6 @@ define_variable("minibuffer_history_max_items", 100, "Maximum number of minibuff
  *          specifies a function
  */
 define_keywords("$history", "$validator",
-
                 "$completer", "$match_required", "$default_completion",
                 "$auto_complete", "$auto_complete_initial", "$auto_complete_conservative",
                 "$auto_complete_delay",
@@ -386,8 +391,10 @@ function minibuffer_complete(window, count)
     if (new_index != -1)
         s.select_completion(new_index);
 }
-interactive("minibuffer-complete", null, function (I) {minibuffer_complete(I.window, I.p);});
-interactive("minibuffer-complete-previous", null, function (I) {minibuffer_complete(I.window, -I.p);});
+interactive("minibuffer-complete", null,
+    function (I) { minibuffer_complete(I.window, I.p); });
+interactive("minibuffer-complete-previous", null,
+    function (I) { minibuffer_complete(I.window, -I.p); });
 
 function exit_minibuffer(window)
 {
@@ -436,7 +443,8 @@ function exit_minibuffer(window)
             cont(val);
     }
 }
-interactive("exit-minibuffer", null, function (I) {exit_minibuffer(I.window);});
+interactive("exit-minibuffer", null,
+    function (I) { exit_minibuffer(I.window); });
 
 function minibuffer_history_next (window, count)
 {
@@ -474,8 +482,10 @@ function minibuffer_history_next (window, count)
     m._set_selection();
     s.handle_input();
 }
-interactive("minibuffer-history-next", null, function (I) {minibuffer_history_next(I.window, I.p);});
-interactive("minibuffer-history-previous", null, function (I) {minibuffer_history_next(I.window, -I.p);});
+interactive("minibuffer-history-next", null,
+    function (I) { minibuffer_history_next(I.window, I.p); });
+interactive("minibuffer-history-previous", null,
+    function (I) { minibuffer_history_next(I.window, -I.p); });
 
 // Define the asynchronous minibuffer.read function
 minibuffer.prototype.read = function () {
