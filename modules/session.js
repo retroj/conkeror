@@ -7,47 +7,43 @@
 
 /* TODO
  *
- * - json_service doesn't belong in this file.
- * - Ensure loading of homepage in new buffers is inhibited in all situations.
- *   Currently I think we catch all but one.
- * - We make a buffer_creator for each call to create_window and
- *   create_buffer. It'd be better if we used one to create all buffers.
- * - When working with existing buffers, ensure they're content_buffers.
- *   Currently we do this in some places, but not others.
- * - Add application startup and shutdown hooks.
- * - Add missing docstrings.
- * - Handle daemon mode.
- * - Currently setting session_auto_save_auto_load to false is not useful.
- *   Find a way to make it work, else rename it to session_auto_save_prompt.
- * - 'myvar instanceof Ci.nsIFile' seems to evaluate to 'true' if myvar is
- *   a string - wtf?!
- * - Auto-save the session when the last conkeror window is closed by a
- *   window manager event (like clicking the 'x' in the window deco to
- *   close the window). Currently we save an empty session when this
- *   happens.
+ * Features:
+ *
+ * - Handle daemon mode. It might already work - need to test.
  * - Add support for using auto-save mode purely as a recovery mode:
  *   - Only auto-load session on un-clean shutdown.
  *   - On clean shutdown, optionally do not auto-save the session (for
  *     greater privacy).
- * - Add a session_use_current_window variable for manual sessions. I would
- *   prefer a way to let the user specify this value on a per-use basis,
- *   but I think that a single global setting will satisfy almost all use-
- *   cases.
- * - session_auto_save_mode_{enable,disable} should be local to this module
- *   (i.e., let'ed).
+ * - Explore retroj's session-switch idea.
+ * - Replace session_auto_save_use_current_window with functions appropriate
+ *   to each behavior. Manual sessions will need the same functions.
+ *
+ * Bugs:
+ *
+ * - Ensure loading of homepage in new buffers is inhibited in all situations.
+ *   Currently I think we catch all but one.
+ * - When working with existing buffers, ensure they're content_buffers.
+ *   Currently we do this in some places, but not others.
+ * - Auto-save the session when the last conkeror window is closed by a
+ *   window manager event (like clicking the 'x' in the window deco to
+ *   close the window). Currently no session is saved.
+ * - Setting session_auto_save_auto_load to false is not currently useful.
+ * - Fix the small hacks for prompting in _session_auto_save_auto_load
+ *   and _session_auto_save_bootstrap.
+ * - The fix for the previous two bugs is probably to to persist the
+ *   auto-save session that is loaded at startup for the life of the
+ *   application, or at least until session_auto_save_load or
+ *   _session_auto_save_auto_load are called for the first time.
+ * - session_auto_save_use_current_window should probably be eliminated.
+ *   We should add variant functions 
+ *
+ * Misc:
+ *
+ * - Add missing docstrings.
  * - Create a wiki page detailing this module's typical usage, api, etc.
- * - Take care to prevent windows with zero buffers from being saved as part
- *   of a session.
- * - Need more testing of support for sessions when loading urls on the
- *   command-line. Particularly when prompting is enabled.
- * - Need to explicitly outline all intended use cases and rigorously test
- *   to ensure each behaves as expected.
  */
 
 {
-    var json_service = Cc["@mozilla.org/dom/json;1"]
-        .createInstance(Ci.nsIJSON);
-
     define_variable("session_open_target", OPEN_NEW_BUFFER_BACKGROUND);
 
     let _session_dir_default = Cc["@mozilla.org/file/directory_service;1"]
@@ -57,11 +53,11 @@
         _session_dir_default.create(Ci.nsIFile.DIRECTORY_TYPE, 0755);
 
     define_variable("session_dir", _session_dir_default);
-                    
+
     define_variable("session_auto_save_file", "auto-save");
 
-    let _get_session_auto_save_file = function () {
-        if (session_auto_save_file instanceof Ci.nsILocalFile)
+    let _session_auto_save_file_get = function () {
+        if (session_auto_save_file instanceof Ci.nsIFile)
             return session_auto_save_file;
         let f = session_dir.clone();
         f.append(session_auto_save_file);
@@ -76,6 +72,8 @@
                     "Whether to load the auto-saved session in the current " +
                     "window or in a new window. May be true or false.");
 
+    let _json = Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
+
     function session_get() {
         let windows = {};
         let x = 0;
@@ -87,6 +85,7 @@
                 buffers[y] = b.browser.contentDocument.location.href;
                 y++;
             });
+            if (y == 0) return;
             windows[x] = buffers;
             x++;
         });
@@ -94,7 +93,6 @@
     }
 
     function session_restore(session, window, use_current_buf) {
-        if (! session[0][0]) return;
         let s = 0;
         if (window) {
             let i = 0;
@@ -128,25 +126,23 @@
     }
 
     function session_store(path, session) {
-        if (! path instanceof Ci.nsIFile)
+        if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
         if (! session) session = session_get();
-        write_text_file(path, json_service.encode(session));
+        write_text_file(path, _json.encode(session));
     }
 
     function session_load(path) {
-        if (! path instanceof Ci.nsIFile)
+        if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
-        return json_service.decode(read_text_file(path));
+        return _json.decode(read_text_file(path));
     }
 
-    interactive("session-load", "Load a session from a file.", function (I) {
-        let file = yield I.minibuffer.read_file_path(
-            $prompt = "Session file:",
-            $initial_value = session_dir.path,
-            $history = "save");
-        session_restore(session_load(make_file(file)), null, false);
-    });
+    function session_remove(path) {
+        if (! (path instanceof Ci.nsIFile))
+            path = make_file(path);
+        path.remove(false);
+    }
 
     interactive("session-store", "Store a session to a file.", function (I) {
         let file = yield I.minibuffer.read_file_path(
@@ -156,22 +152,42 @@
         session_store(make_file(file), session_get());
     });
 
+    interactive("session-load", "Load a session from a file.", function (I) {
+        let file = yield I.minibuffer.read_file_path(
+            $prompt = "Session file:",
+            $initial_value = session_dir.path,
+            $history = "save");
+        let w = make_window(buffer_creator(content_buffer,
+                                           $load = "about:blank"));
+        add_hook.call(w, "window_initialize_late_hook", function (w) {
+            session_restore(session_load(make_file(file)), w, true);
+        });
+    });
+
+    interactive("session-remove", "Remove a session file.", function (I) {
+        let file = yield I.minibuffer.read_file_path(
+            $prompt = "Session file:",
+            $initial_value = session_dir.path,
+            $history = "save");
+        session_remove(make_file(file));
+    });
+
     function session_auto_save_store() {
-        let f = _get_session_auto_save_file();
-        session_store(f, session_get());
+        let f = _session_auto_save_file_get();
+        let s = session_get();
+        if (s[0]) session_store(f, s);
+        else if (f.exists()) f.remove(false);
     }
 
     function session_auto_save_load() {
-        let f = _get_session_auto_save_file();
+        let f = _session_auto_save_file_get();
         if (! f.exists()) return;
-        let window = session_auto_save_use_current_window ?
-            get_recent_conkeror_window() : null;
-        session_restore(session_load(f), window, false); 
+        session_restore(session_load(f), null, true); 
     }
 
     let _session_auto_save_auto_load = function (use_current_win, use_current_buf) {
         if (session_auto_save_auto_load == false) return;
-        let f = _get_session_auto_save_file();
+        let f = _session_auto_save_file_get();
         if (! f.exists()) return;
         // FIXME Hack for prompting. We shouldn't grab the session at this point.
         let session = session_load(f);
@@ -193,7 +209,7 @@
     }
 
     function session_auto_save_clear() {
-        let f = _get_session_auto_save_file();
+        let f = _session_auto_save_file_get();
         if (f.exists()) f.remove(false);
     }
 
@@ -224,7 +240,7 @@
         session_auto_save_store();
     }
 
-    function session_auto_save_mode_enable() {
+    let _session_auto_save_mode_enable = function () {
         if (conkeror_started) {
             add_hook("create_buffer_hook", session_auto_save_store);
             add_hook("kill_buffer_hook", session_auto_save_store);
@@ -236,7 +252,7 @@
             add_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
     }
 
-    function session_auto_save_mode_disable() {
+    let _session_auto_save_mode_disable = function () {
         remove_hook("create_buffer_hook", session_auto_save_store);
         remove_hook("kill_buffer_hook", session_auto_save_store);
         remove_hook("content_buffer_location_change_hook", session_auto_save_store);
@@ -245,6 +261,6 @@
     }
 
     define_global_mode("session_auto_save_mode",
-                       session_auto_save_mode_enable,
-                       session_auto_save_mode_disable);
+                       _session_auto_save_mode_enable,
+                       _session_auto_save_mode_disable);
 }
