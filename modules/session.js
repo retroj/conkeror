@@ -30,12 +30,13 @@
  * - Setting session_auto_save_auto_load to false is not currently useful.
  * - Fix the small hacks for prompting in _session_auto_save_auto_load
  *   and _session_auto_save_bootstrap.
- * - The fix for the previous two bugs is probably to to persist the
+ * - The fix for the previous two bugs is probably to persist the
  *   auto-save session that is loaded at startup for the life of the
  *   application, or at least until session_auto_save_load or
  *   _session_auto_save_auto_load are called for the first time.
- * - session_auto_save_use_current_window should probably be eliminated.
- *   We should add variant functions 
+ * - session_auto_save_use_current_window should probably be eliminated
+ *   in favor of variant functions. 
+ * - session_open_target should perhaps be more strictly adhered to.
  *
  * Misc:
  *
