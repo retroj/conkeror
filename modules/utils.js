@@ -378,7 +378,8 @@ source_code_reference.prototype = {
     },
 
     open_in_editor : function() {
-        yield open_with_external_editor(this.best_uri, $line = this.line_number);
+        yield open_with_external_editor(load_spec(this.best_uri),
+                                        $line = this.line_number);
     }
 };
 
