@@ -44,12 +44,18 @@ help_document_generator.prototype = {
     source_code_reference : function (ref, parent) {
         var f = this.document.createDocumentFragment();
         var module_name = ref.module_name;
+        var buffer = this.buffer;
         //f.appendChild(this.text(module_name != null ? "module " : "file "));
         var x = this.element("a",
                              "class", "source-code-reference",
                              "href", "javascript:");
         x.addEventListener("click", function (event) {
-            co_call(ref.open_in_editor());
+            co_call(function () {
+                try {
+                    yield ref.open_in_editor();
+                } catch (e) {
+                    handle_interactive_error(buffer.window, e);
+                }}());
             event.preventDefault();
             event.stopPropagation();
         }, false /* capture */);

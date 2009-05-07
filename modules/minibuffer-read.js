@@ -269,6 +269,8 @@ text_entry_minibuffer_state.prototype = {
                 var x;
                 try {
                     x = yield c;
+                } catch (e) {
+                    handle_interactive_error(m.window, e);
                 } finally {
                     s.completions_cont = null;
                     already_done = true;

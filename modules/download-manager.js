@@ -318,6 +318,8 @@ var download_progress_listener = {
                                 yield shell_command_with_argument(info.shell_command,
                                                                   info.target_file.path,
                                                                   $cwd = info.shell_command_cwd);
+                            } catch (e) {
+                                handle_interactive_error(info.source_buffer.window, e);
                             } finally  {
                                 if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
                                     if(delete_temporary_files_for_command) {
