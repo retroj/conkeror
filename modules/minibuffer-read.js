@@ -80,6 +80,7 @@ function text_entry_minibuffer_state (window, continuation) {
         this.completions_display_element = null;
         this.selected_completion_index = -1;
         this.match_required  = !!arguments.$match_required;
+        this.match_required_default = this.match_required;
         if (this.match_required)
             this.default_completion = arguments.$default_completion;
     }
@@ -294,6 +295,11 @@ text_entry_minibuffer_state.prototype = {
         this.completions = c;
         this.completions_valid = true;
         this.applied_common_prefix = false;
+
+        if (c && ("get_match_required" in c))
+            this.match_required = c.get_match_required();
+        if (this.match_required == null)
+            this.match_required = this.match_required_default;
 
         let i = -1;
         if (c && c.count > 0) {

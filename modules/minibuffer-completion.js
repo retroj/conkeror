@@ -268,7 +268,7 @@ function merge_completers (completers) {
         var count = 0;
         for (let i = 0; i < completers.length; ++i) {
             let r = yield completers[i](input, pos, conservative);
-            if (r != null && r.count > 0) {
+            if (r != null && (r.count > 0 || "get_match_required" in r)) {
                 results.push(r);
                 count += r.count;
             }
@@ -290,11 +290,24 @@ function merge_completers (completers) {
                 return null;
             }
         }
+        function combine_or(name) {
+            return function() {
+                var b = false;
+                for (var j=0; j < results.length; j++) {
+                    var r = results[j];
+                    if (name in r && r[name] != null) {
+                        b = b || r[name].apply(this, arguments);
+                    }
+                }
+                return b;
+            }
+        }
         yield co_return({count: count,
                          get_string: forward('get_string'),
                          get_description: forward('get_description'),
                          get_input_state: forward('get_input_state'),
-                         destroy: forward('destroy')
+                         destroy: forward('destroy'),
+                         get_match_required: combine_or('get_match_required')
                         });
     };
 }

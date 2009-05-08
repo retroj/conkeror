@@ -9,11 +9,13 @@
 const nav_history_service = Cc["@mozilla.org/browser/nav-history-service;1"]
     .getService(Ci.nsINavHistoryService);
 
-define_keywords("$use_webjumps", "$use_history", "$use_bookmarks");
+define_keywords("$use_webjumps", "$use_history", "$use_bookmarks",
+                "$match_required");
 function history_completer () {
     keywords(arguments);
     var use_history = arguments.$use_history;
     var use_bookmarks = arguments.$use_bookmarks;
+    let match_required = arguments.$match_required;
     return function (input, pos, conservative) {
         if (conservative && input.length == 0)
             return null;
@@ -36,7 +38,8 @@ function history_completer () {
                 get_string: function (i) root.getChild(i).uri,
                 get_description: function (i) root.getChild(i).title,
                 get_input_state: function (i) [root.getChild(i).uri],
-                destroy: function () { root.containerOpen = false; }
+                destroy: function () { root.containerOpen = false; },
+                get_match_required: function() match_required
                };
     }
 }
