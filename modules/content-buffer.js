@@ -438,7 +438,7 @@ function go_forward (b, prefix)
         throw interactive_error("Can't go forward");
 }
 interactive("go-forward",
-            "Go back in the session hisory for the current buffer.",
+            "Go back in the session history for the current buffer.",
             function (I) {go_forward(I.buffer, I.p);});
 
 function stop_loading (b)
