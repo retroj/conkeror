@@ -8,6 +8,8 @@
 
 require("content-buffer.js");
 
+define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
+
 var content_buffer_input_mode_keymaps = {};
 
 function define_input_mode(base_name, display_name, keymap_name, doc) {
@@ -170,6 +172,7 @@ function minibuffer_input_mode_indicator(window) {
     this.window = window;
     this.hook_func = method_caller(this, this.update);
     add_hook.call(window, "select_buffer_hook", this.hook_func);
+    add_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
     this.update();
 }
 
@@ -182,6 +185,7 @@ minibuffer_input_mode_indicator.prototype = {
     },
     uninstall : function () {
         remove_hook.call(window, "select_buffer_hook", this.hook_func);
+        remove_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
     }
 };
 
