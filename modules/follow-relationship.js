@@ -92,6 +92,7 @@ define_browser_object_class(
             if (elem)
                 yield co_return(elem);
         }
+        throw interactive_error("No \"next\" link found.");
     });
 
 define_browser_object_class(
@@ -104,5 +105,6 @@ define_browser_object_class(
             if (elem)
                 yield co_return(elem);
         }
+        throw interactive_error("No \"previous\" link found.");
     });
 
