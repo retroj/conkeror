@@ -616,9 +616,6 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         /*
          * cmd_scrollBeginLine and cmd_scrollEndLine don't do what I
          * want, either in or out of caret mode...
-         *
-         * cmd_scrollBottom and cmd_scrollTop have been defined multiple times
-         * here, why is that?  /Deniz
          */
         S(D("beginning-of-line", "Move or extend the selection to the beginning of the current line."),
           D("cmd_beginLine", "Move point to the beginning of the current line."),
@@ -630,12 +627,6 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
           D("cmd_selectEndLine", "Extend selection to the end of the current line."),
           D("cmd_endLine", "Scroll to the end of the current line."),
           D("cmd_endLine", "Scroll to the end of the current line.")),
-        D("cmd_copy", "Copy the selection into the clipboard."),
-        "cmd_copyOrDelete",
-        D("cmd_cut", "Cut the selection into the clipboard."),
-        "cmd_cutOrDelete",
-        D("cmd_deleteToBeginningOfLine", "Delete to the beginning of the current line."),
-        D("cmd_deleteToEndOfLine", "Delete to the end of the current line."),
         S(D("beginning-of-first-line", "Move or extend the selection to the beginning of the first line."),
           D("cmd_moveTop", "Move point to the beginning of the first line."),
           D("cmd_selectTop", "Extend selection to the beginning of the first line."),
@@ -646,9 +637,15 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
           D("cmd_selectBottom", "Extend selection to the end of the last line."),
           D("cmd_scrollBottom", "Scroll to the bottom of the buffer"),
           D("cmd_scrollBottom", "Move point to the end of the last line.")),
-        D("cmd_selectAll", "Select all."),
+        "cmd_copyOrDelete",
         "cmd_scrollBeginLine",
         "cmd_scrollEndLine",
+        "cmd_cutOrDelete",
+        D("cmd_copy", "Copy the selection into the clipboard."),
+        D("cmd_cut", "Cut the selection into the clipboard."),
+        D("cmd_deleteToBeginningOfLine", "Delete to the beginning of the current line."),
+        D("cmd_deleteToEndOfLine", "Delete to the end of the current line."),
+        D("cmd_selectAll", "Select all."),
         D("cmd_scrollTop", "Scroll to the top of the buffer."),
         D("cmd_scrollBottom", "Scroll to the bottom of the buffer.")];
 
