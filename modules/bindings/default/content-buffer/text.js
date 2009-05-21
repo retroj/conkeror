@@ -62,5 +62,9 @@ define_key(content_buffer_text_keymap, "C-@", "set-mark");
 
 define_key(content_buffer_text_keymap, "C-i", "edit-current-field-in-external-editor");
 
+define_key(content_buffer_text_keymap, "M-l", "downcase-word");
+define_key(content_buffer_text_keymap, "M-u", "upcase-word");
+define_key(content_buffer_text_keymap, "M-c", "capitalize-word");
+
 // This must be at the end of content_buffer_text_keymap defs so it's matched last.
 define_key(content_buffer_text_keymap, match_any_unmodified_key, null, $fallthrough);

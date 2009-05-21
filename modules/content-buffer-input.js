@@ -410,3 +410,32 @@ interactive (
     function (I) {
         cut_to_end_of_line (I.buffer);
     });
+
+interactive("downcase-word",
+            "Convert following word to lower case, moving over.",
+            downcase_word);
+
+interactive("upcase-word",
+            "Convert following word to upper case, moving over.",
+            upcase_word);
+
+interactive("capitalize-word",
+            "Capitalize the following word (or arg words), moving over.",
+            capitalize_word);
+
+function downcase_word(I) {
+    modify_word_at_point(I, function () { return this.toLocaleLowerCase(); });
+}
+
+function upcase_word(I) {
+    modify_word_at_point(I, function () { return this.toLocaleUpperCase(); });
+}
+
+function capitalize_word(I) {
+    modify_word_at_point(I, function () {
+        if (this.length > 0) {
+            return this[0].toLocaleUpperCase() + this.substring(1);
+        }
+        return this;
+    });
+}

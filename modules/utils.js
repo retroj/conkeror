@@ -616,6 +616,9 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
         /*
          * cmd_scrollBeginLine and cmd_scrollEndLine don't do what I
          * want, either in or out of caret mode...
+         *
+         * cmd_scrollBottom and cmd_scrollTop have been defined multiple times
+         * here, why is that?  /Deniz
          */
         S(D("beginning-of-line", "Move or extend the selection to the beginning of the current line."),
           D("cmd_beginLine", "Move point to the beginning of the current line."),
@@ -798,6 +801,7 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
             });
         }
     }
+
 }
 
 var observer_service = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
@@ -1602,4 +1606,43 @@ function center_in_viewport(win, elem) {
     point.y -= win.innerHeight / 2;
 
     win.scrollTo(point.x, point.y);
+}
+
+
+/**
+ * The first parameter is the magical "I" thingie in Conkeror.  The second
+ * parameter is a function to call with the word at point as its context, i.e. a
+ * string containing the word at point will be "this" in the callback function.
+ */
+function modify_word_at_point(I, func) {
+    var focused = I.buffer.focused_element;
+
+    // Skip any whitespaces at point and move point to the right place.
+    var point = focused.selectionStart;
+    var rest = focused.value.substring(point);
+
+    // Skip any whitespaces.
+    for (var i = 0; i < rest.length; i++) {
+        if (" \n".indexOf(rest.charAt(i)) == -1) {
+            point += i;
+            break;
+        }
+    }
+
+    // Find the next whitespace, as it is the end of the word.  If no next
+    // whitespace is found, we're at the end of input.  TODO: Add "\n" support.
+    goal = focused.value.indexOf(" ", point);
+    if (goal == -1)
+        goal = focused.value.length;
+
+    // Change the value of the text field.
+    var input = focused.value;
+    focused.value =
+        input.substring(0, point) +
+        func.call(input.substring(point, goal)) +
+        input.substring(goal);
+
+    // Move point.
+    focused.selectionStart = goal;
+    focused.selectionEnd = goal;
 }
