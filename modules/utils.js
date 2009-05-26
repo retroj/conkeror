@@ -1607,11 +1607,11 @@ function center_in_viewport(win, elem) {
 
 
 /**
- * The first parameter is the magical "I" thingie in Conkeror.  The second
- * parameter is a function to call with the word at point as its context, i.e. a
- * string containing the word at point will be "this" in the callback function.
+ * Takes an interactive context and a function to call with the word
+ * at point as its context, i.e. a string containing the word at point
+ * will be "this" in the callback function.
  */
-function modify_word_at_point(I, func) {
+function modify_word_at_point (I, func) {
     var focused = I.buffer.focused_element;
 
     // Skip any whitespaces at point and move point to the right place.
