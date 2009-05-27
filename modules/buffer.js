@@ -633,7 +633,7 @@ interactive("change-directory",
                 change_directory(
                     I.buffer,
                     (yield I.minibuffer.read_existing_directory_path(
-                        $prompt = "New current directory:",
+                        $prompt = "Change to directory:",
                         $initial_value = I.cwd)));
             });
 
