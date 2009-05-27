@@ -1608,8 +1608,7 @@ function center_in_viewport(win, elem) {
 
 /**
  * Takes an interactive context and a function to call with the word
- * at point as its context, i.e. a string containing the word at point
- * will be "this" in the callback function.
+ * at point as its sole argument, and which returns a modified word.
  */
 function modify_word_at_point (I, func) {
     var focused = I.buffer.focused_element;
@@ -1636,7 +1635,7 @@ function modify_word_at_point (I, func) {
     var input = focused.value;
     focused.value =
         input.substring(0, point) +
-        func.call(input.substring(point, goal)) +
+        func(input.substring(point, goal)) +
         input.substring(goal);
 
     // Move point.

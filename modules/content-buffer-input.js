@@ -403,39 +403,38 @@ function cut_to_end_of_line (buffer) {
         /* FIXME: Make this work for richedit mode as well */
     }
 }
-
-interactive (
-    "cut-to-end-of-line",
+interactive("cut-to-end-of-line",
     null,
     function (I) {
         cut_to_end_of_line (I.buffer);
     });
 
+
+function downcase_word(I) {
+    modify_word_at_point(I, function (word) { return word.toLocaleLowerCase(); });
+}
 interactive("downcase-word",
             "Convert following word to lower case, moving over.",
             downcase_word);
 
+
+function upcase_word(I) {
+    modify_word_at_point(I, function (word) { return word.toLocaleUpperCase(); });
+}
 interactive("upcase-word",
             "Convert following word to upper case, moving over.",
             upcase_word);
 
+
+function capitalize_word(I) {
+    modify_word_at_point(I, function (word) {
+        if (word.length > 0) {
+            return word[0].toLocaleUpperCase() + word.substring(1);
+        }
+        return word;
+    });
+}
 interactive("capitalize-word",
             "Capitalize the following word (or arg words), moving over.",
             capitalize_word);
 
-function downcase_word(I) {
-    modify_word_at_point(I, function () { return this.toLocaleLowerCase(); });
-}
-
-function upcase_word(I) {
-    modify_word_at_point(I, function () { return this.toLocaleUpperCase(); });
-}
-
-function capitalize_word(I) {
-    modify_word_at_point(I, function () {
-        if (this.length > 0) {
-            return this[0].toLocaleUpperCase() + this.substring(1);
-        }
-        return this;
-    });
-}
