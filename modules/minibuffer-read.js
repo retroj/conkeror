@@ -514,9 +514,11 @@ minibuffer.prototype.read_user_variable = function () {
         arguments,
         $prompt = "User variable", $history = "user_variable",
         $completer = prefix_completer(
-            $completions = function (visitor) user_variables.for_each(visitor),
+            $completions = function (visitor) {
+                [visitor(i, user_variables[i]) for (i in user_variables)];
+            },
             $get_string = function (x) x,
-            $get_description = function (x) user_variables.get(x).shortdoc || "",
+            $get_description = function (x) user_variables[x].shortdoc || "",
             $get_value = function (x) x),
         $match_required = true);
     var result = yield this.read(forward_keywords(arguments));

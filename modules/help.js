@@ -591,7 +591,7 @@ function describe_variable_buffer(window, element) {
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.variable = arguments.$variable;
-    this.cmd = user_variables.get(this.variable);
+    this.cmd = user_variables[this.variable];
     this.source_code_reference = this.cmd.source_code_reference;
     this.constructor_end();
 }
@@ -636,7 +636,7 @@ describe_variable_buffer.prototype = {
 
         p = g.element("p", d.body);
         g.variable_reference(this.variable, p);
-        var uvar = user_variables.get(this.variable);
+        var uvar = user_variables[this.variable];
         if (uvar.source_code_reference)  {
             g.text(" is a user variable in ", p);
             g.source_code_reference(uvar.source_code_reference, p);
