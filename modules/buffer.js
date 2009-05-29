@@ -716,9 +716,15 @@ function define_buffer_mode (name, display_name) {
         var cur_state = (old_state == name);
         var new_state = (arg == null) ? !cur_state : (arg > 0);
         if ((new_state == cur_state) || (!can_disable && !new_state))
+            // perhaps show a message if (!can_disable && !new_state)
+            // to tell the user that this mode cannot be disabled.  do
+            // we have any existing modes that would benefit by it?
             return null;
         if (new_state) {
             if (mode_class && old_state != null)  {
+                // Another buffer-mode of our same mode-class is
+                // enabled.  Buffer-modes within a mode-class are
+                // mutually exclusive, so turn the old one off.
                 buffer.enabled_modes.splice(buffer.enabled_modes.indexOf(old_state), 1);
                 let x = mode_functions[old_state];
                 let y = x.disable;
@@ -740,7 +746,8 @@ function define_buffer_mode (name, display_name) {
             conkeror[change_hook_name].run(buffer, buffer[state]);
         buffer_mode_change_hook.run(buffer);
         return new_state;
-    };
+    }
+
     conkeror[name] = func;
     interactive(hyphen_name, arguments.$doc, function (I) {
         var arg = I.P;
