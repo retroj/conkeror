@@ -463,21 +463,23 @@ function keypress_handler (true_event) {
         var binding = null;
         var done = true; // flag for end of key sequence
 
-        var ctx;
-        if (!state.current_context)
-            ctx = state.current_context = { window: window, key_sequence: [], sticky_modifiers: 0 };
-        else
-            ctx = state.current_context;
+        if (! state.current_context) {
+            state.current_context = new interactive_context(window.buffers.current);
+            state.current_context.key_sequence = [];
+            state.current_context.sticky_modifiers = 0;
+        }
+        var I = state.current_context;
 
-        event.sticky_modifiers = ctx.sticky_modifiers;
-        ctx.sticky_modifiers = 0;
+        event.sticky_modifiers = I.sticky_modifiers;
+        I.sticky_modifiers = 0;
 
         var combo = format_key_combo(event);
-        ctx.combo = combo;
-        ctx.event = event;
+        I.key_sequence.push(combo);
+        I.combo = combo;
+        I.event = event;
 
         // keypress_hook is used, for example, by key aliases
-        if (keypress_hook.run(window, ctx, true_event))
+        if (keypress_hook.run(window, I, true_event))
             return;
 
         var top_keymap =
@@ -488,7 +490,7 @@ function keypress_handler (true_event) {
             state.active_keymap ||
             top_keymap;
 
-        var overlay_keymap = ctx.overlay_keymap;
+        var overlay_keymap = I.overlay_keymap;
 
         binding =
             (overlay_keymap && lookup_key_binding(overlay_keymap, combo, event)) ||
@@ -508,30 +510,29 @@ function keypress_handler (true_event) {
         }
 
         // Finally, process the binding.
-        ctx.key_sequence.push(combo);
         if (binding) {
             if (binding.keymap) {
                 state.active_keymap = binding.keymap;
-                show_partial_key_sequence(window, state, ctx);
+                show_partial_key_sequence(window, state, I);
                 // We're going for another round
                 done = false;
             } else if (binding.command) {
                 let command = binding.command;
-                if (ctx.repeat == command)
+                if (I.repeat == command)
                     command = binding.repeat;
-                call_interactively(ctx, command);
+                call_interactively(I, command);
                 if (typeof(command) == "string" &&
                     interactive_commands.get(command).prefix)
                 {
                     state.active_keymap = null;
-                    show_partial_key_sequence(window, state, ctx);
+                    show_partial_key_sequence(window, state, I);
                     if (binding.repeat)
-                        ctx.repeat = command;
+                        I.repeat = command;
                     done = false;
                 }
             }
         } else {
-            window.minibuffer.message(ctx.key_sequence.join(" ") + " is undefined");
+            window.minibuffer.message(I.key_sequence.join(" ") + " is undefined");
         }
 
         // Clean up if we're done

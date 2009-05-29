@@ -44,7 +44,13 @@ function interactive_error (str) {
 }
 interactive_error.prototype.__proto__ = Error.prototype;
 
-function interactive_context() {}
+
+function interactive_context (buffer) {
+    this.buffer = buffer;
+    if (buffer) {
+        this.window = this.buffer.window;
+    }
+}
 interactive_context.prototype = {
 
     get P () this.prefix_argument,
@@ -75,16 +81,6 @@ function handle_interactive_error (window, e) {
 function call_interactively (I, command) {
     var handler;
     var top_args;
-
-    I.__proto__ = interactive_context.prototype;
-
-    if (I.window) {
-        if (I.buffer == null)
-            I.buffer = I.window.buffers.current;
-    } else if (I.buffer) {
-        I.window = I.buffer.window;
-    }
-
     var window = I.window;
 
     if (typeof(command) == "function") {

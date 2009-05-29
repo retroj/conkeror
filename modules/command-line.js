@@ -81,7 +81,9 @@ command_line_param_handler("q", false, function () {
     });
 
 command_line_param_handler("f", true, function (command, ctx) {
-        ctx.window = window_watcher.activeWindow;
+        // hack to make sure we send this command to a window
+        ctx.window = get_recent_conkeror_window();
+        ctx.buffer = ctx.window.buffers.current;
         call_interactively(ctx, command);
     });
 
@@ -91,9 +93,13 @@ command_line_param_handler("l", false, function (path, ctx) {
         } catch (e) { dump_error(e);  }
     });
 
-command_line_handler("uu", false, function (ctx) {
-        if (! ctx.window)
-            ctx.window = window_watcher.activeWindow;
+// note `u' must be called as +u because Mozilla consumes -u
+command_line_handler("u", false, function (ctx) {
+        // hack to make sure we send this command to a window
+        if (! ctx.window) {
+            ctx.window = get_recent_conkeror_window();
+            ctx.buffer = ctx.window.buffers.current;
+        }
         call_interactively(ctx, "universal-argument");
     });
 
@@ -148,16 +154,12 @@ function handle_command_line (cmdline) {
         } else if (suppress_rc && ! initial_launch) {
             dumpln ("w: attempt to suppress load_rc in remote invocation");
         }
-        var ctx = {command_line: cmdline,
-                   config: {
-                       cwd: cmdline.resolveFile(".").path
-                   }
-                  }; // command-line processing context
+        var ctx = new interactive_context();
+        ctx.command_line = cmdline;
 
-        for (; i < cmdline.length; ++i)
-        {
+        for (; i < cmdline.length; ++i) {
             var arg = cmdline.getArgument(i);
-            if (arg[0] == '-') {
+            if (arg[0] == '-' || arg[0] == '+') {
                 var arg1 = arg.substring(1);
                 if (arg1 in command_line_handlers) {
                     var handler = command_line_handlers[arg1];

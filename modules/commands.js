@@ -157,11 +157,11 @@ interactive(
   function (I) call_on_focused_field(I, transpose_chars)
 );
 
-function meta_x (window, prefix, command, browser_object)
-{
-    call_interactively({window: window,
-                        prefix_argument: prefix,
-                        browser_object: browser_object}, command);
+function meta_x (buffer, prefix, command, browser_object) {
+    var I = new interactive_context(buffer);
+    I.prefix_argument = prefix;
+    I.browser_object = browser_object;
+    call_interactively(I, command);
 }
 interactive("execute-extended-command",
             "Execute a Conkeror command specified in the minibuffer.",
@@ -177,7 +177,7 @@ interactive("execute-extended-command",
                     else
                         prompt += " "+prefix;
                 }
-                meta_x(I.window, I.P,
+                meta_x(I.buffer, I.P,
                        (yield I.minibuffer.read_command(
                            $prompt = "M-x" + prompt)),
                        boc);
