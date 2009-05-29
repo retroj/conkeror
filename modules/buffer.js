@@ -487,30 +487,32 @@ function create_buffer (window, creator, target) {
     }
 }
 
-var queued_buffer_creators = null;
-function _process_queued_buffer_creators (window) {
-    for (var i = 0; i < queued_buffer_creators.length; ++i) {
-        var x = queued_buffer_creators[i];
-        create_buffer(window, x[0], x[1]);
+let (queued_buffer_creators = null) {
+    function create_buffer_in_current_window (creator, target, focus_existing) {
+        function process_queued_buffer_creators (window) {
+            for (var i = 0; i < queued_buffer_creators.length; ++i) {
+                var x = queued_buffer_creators[i];
+                create_buffer(window, x[0], x[1]);
+            }
+            queued_buffer_creators = null;
+        }
+
+        if (target == OPEN_NEW_WINDOW)
+            throw new Error("invalid target");
+        var window = get_recent_conkeror_window();
+        if (window) {
+            if (focus_existing)
+                window.focus();
+            create_buffer(window, creator, target);
+        } else if (queued_buffer_creators != null) {
+            queued_buffer_creators.push([creator,target]);
+        } else {
+            queued_buffer_creators = [];
+            window = make_window(creator);
+            add_hook.call(window, "window_initialize_late_hook", process_queued_buffer_creators);
+        }
     }
-    queued_buffer_creators = null;
-}
-function create_buffer_in_current_window (creator, target, focus_existing) {
-    if (target == OPEN_NEW_WINDOW)
-        throw new Error("invalid target");
-    var window = get_recent_conkeror_window();
-    if (window) {
-        if (focus_existing)
-            window.focus();
-        create_buffer(window, creator, target);
-    } else if (queued_buffer_creators != null) {
-        queued_buffer_creators.push([creator,target]);
-    } else {
-        queued_buffer_creators = [];
-        window = make_window(creator);
-        add_hook.call(window, "window_initialize_late_hook", _process_queued_buffer_creators);
-    }
-}
+};
 
 minibuffer_auto_complete_preferences["buffer"] = true;
 define_keywords("$default");
