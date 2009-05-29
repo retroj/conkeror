@@ -62,8 +62,7 @@ function buffer (window, element) {
     keywords(arguments, $configuration = null);
     this.window = window;
     this.configuration = new buffer_configuration(arguments.$configuration);
-    if (element == null)
-    {
+    if (element == null) {
         element = create_XUL(window, "vbox");
         element.setAttribute("flex", "1");
         var browser = create_XUL(window, "browser");

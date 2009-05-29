@@ -438,7 +438,7 @@ function unformat_key_combo (combo) {
 }
 
 function keypress_handler (true_event) {
-    try{
+    try {
         var window = this;
         var state = window.keyboard;
 
@@ -502,8 +502,7 @@ function keypress_handler (true_event) {
         // 2) we are in the middle of a key sequence, and we need to say that
         //    the key sequence given has no command.
         //
-        if (!binding || !binding.fallthrough)
-        {
+        if (!binding || !binding.fallthrough) {
             true_event.preventDefault();
             true_event.stopPropagation();
         }
@@ -536,10 +535,8 @@ function keypress_handler (true_event) {
         }
 
         // Clean up if we're done
-        if (done)
-        {
-            if (state.help_timer_ID != null)
-            {
+        if (done) {
+            if (state.help_timer_ID != null) {
                 window.clearTimeout(state.help_timer_ID);
                 state.help_timer_ID = null;
             }
@@ -547,7 +544,7 @@ function keypress_handler (true_event) {
             state.active_keymap = null;
             state.current_context = null;
         }
-    } catch(e) { dump_error(e);}
+    } catch (e) { dump_error(e); }
 }
 
 function keyboard(window)

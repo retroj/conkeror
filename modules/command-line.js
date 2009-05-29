@@ -97,8 +97,7 @@ command_line_handler("uu", false, function (ctx) {
         call_interactively(ctx, "universal-argument");
     });
 
-function handle_command_line(cmdline)
-{
+function handle_command_line (cmdline) {
     try {
         var suppress_default = false;
         var suppress_rc = false;
@@ -106,8 +105,7 @@ function handle_command_line(cmdline)
         var i = 0;
 
         /* -q must be the first argument, if it is given */
-        if (cmdline.length > 0 && cmdline.getArgument(0) == "-q")
-        {
+        if (cmdline.length > 0 && cmdline.getArgument(0) == "-q") {
             suppress_rc = true;
             i++;
         }
@@ -143,8 +141,7 @@ function handle_command_line(cmdline)
             } catch (e) {dump_error(e);}
         }
 
-        if (! suppress_rc && initial_launch)
-        {
+        if (! suppress_rc && initial_launch) {
             try {
                 load_rc ();
             } catch (e) { dump (e + "\n"); }
@@ -170,10 +167,10 @@ function handle_command_line(cmdline)
                         if (handler.param) {
                             i++; // increment the argument counter to skip the parameter
                             if (i >= cmdline.length) {
-                                dump ("w: ignoring command switch `"+arg+"' because no argument was provided.\n");
+                                dump("w: ignoring command switch `"+arg+"' because no argument was provided.\n");
                                 continue;
                             }
-                            var param = cmdline.getArgument (i);
+                            var param = cmdline.getArgument(i);
                             handler.func(param, ctx);
                         } else {
                             handler.func(ctx);
@@ -181,7 +178,7 @@ function handle_command_line(cmdline)
                     }
                     continue;
                 } else {
-                    dump ("w: unknown command switch `"+arg+"'.\n");
+                    dump("w: unknown command switch `"+arg+"'.\n");
                 }
             } else {
                 // something other than a switch was passed on the command
@@ -189,7 +186,7 @@ function handle_command_line(cmdline)
                 // user-configurable remoting function on it.
                 //
                 suppress_default = true;
-                url_remoting_fn (arg, ctx);
+                url_remoting_fn(arg, ctx);
             }
         }
 

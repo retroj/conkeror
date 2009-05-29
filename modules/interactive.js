@@ -21,8 +21,7 @@ var interactive_commands = new string_hashmap();
  * is a prefix-command.
  */
 define_keywords("$prefix", "$browser_object", "$prompt");
-function interactive(name, doc, handler)
-{
+function interactive (name, doc, handler) {
     keywords(arguments);
     var cmd = {
         name: name,
@@ -38,7 +37,7 @@ function interactive(name, doc, handler)
     return name;
 }
 
-function interactive_error(str) {
+function interactive_error (str) {
     var e = new Error(str);
     e.__proto__ = interactive_error.prototype;
     return e;
@@ -59,7 +58,8 @@ interactive_context.prototype = {
     get : function (x) this.buffer.get(x)
 };
 
-function handle_interactive_error(window, e) {
+
+function handle_interactive_error (window, e) {
     if (! window)
         throw e;
     if (e instanceof interactive_error) {
@@ -72,8 +72,7 @@ function handle_interactive_error(window, e) {
     }
 }
 
-function call_interactively(I, command)
-{
+function call_interactively (I, command) {
     var handler;
     var top_args;
 
