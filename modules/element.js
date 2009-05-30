@@ -29,12 +29,12 @@ function browser_object_class (name, label, doc, handler) {
 function define_browser_object_class (name, label, doc, handler) {
     var varname = 'browser_object_'+name.replace('-','_','g');
     var ob = conkeror[varname] =
-        new browser_object_class (name, label, doc, handler);
+        new browser_object_class(name, label, doc, handler);
     interactive(
         "browser-object-"+name,
         "A prefix command to specify that the following command operate "+
             "on objects of type: "+name+".",
-        function (ctx) { ctx.browser_object = ob; },
+        function (I) { I.browser_object = ob; },
         $prefix = true);
     return ob;
 }
@@ -51,7 +51,7 @@ function xpath_browser_object_handler (xpath_expression) {
 
 define_browser_object_class(
     "images", "image", null,
-    xpath_browser_object_handler ("//img | //xhtml:img"));
+    xpath_browser_object_handler("//img | //xhtml:img"));
 
 define_browser_object_class(
     "frames","frame", null,
@@ -173,8 +173,7 @@ define_browser_object_class(
         return I.buffer.focused_element;
     });
 
-function read_browser_object (I)
-{
+function read_browser_object (I) {
     var browser_object = I.browser_object;
     // literals cannot be overridden
     if (browser_object instanceof Function)
@@ -198,21 +197,13 @@ function read_browser_object (I)
 }
 
 
-function is_dom_node_or_window(elem) {
-    if (elem instanceof Ci.nsIDOMNode)
-        return true;
-    if (elem instanceof Ci.nsIDOMWindow)
-        return true;
-    return false;
-}
-
 /**
  * This is a simple wrapper function that sets focus to elem, and
  * bypasses the automatic focus prevention system, which might
  * otherwise prevent this from happening.
  */
-function browser_set_element_focus(buffer, elem, prevent_scroll) {
-    if (!is_dom_node_or_window(elem))
+function browser_set_element_focus (buffer, elem, prevent_scroll) {
+    if (!element_dom_node_or_window_p(elem))
         return;
 
     buffer.last_user_input_received = Date.now();
@@ -222,9 +213,8 @@ function browser_set_element_focus(buffer, elem, prevent_scroll) {
         elem.focus();
 }
 
-function browser_element_focus(buffer, elem)
-{
-    if (!is_dom_node_or_window(elem))
+function browser_element_focus (buffer, elem) {
+    if (!element_dom_node_or_window_p(elem))
         return;
 
     if (elem instanceof Ci.nsIDOMXULTextBoxElement)  {

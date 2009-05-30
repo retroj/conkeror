@@ -1642,3 +1642,17 @@ function modify_word_at_point (I, func) {
     focused.selectionStart = goal;
     focused.selectionEnd = goal;
 }
+
+
+/**
+ * Simple predicate returns true if elem is an nsIDOMNode or
+ * nsIDOMWindow.
+ */
+function element_dom_node_or_window_p (elem) {
+    if (elem instanceof Ci.nsIDOMNode)
+        return true;
+    if (elem instanceof Ci.nsIDOMWindow)
+        return true;
+    return false;
+}
+
