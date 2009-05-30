@@ -182,7 +182,7 @@ function lookup_key_binding(kmap, combo, event)
 
 
 /*
- * $fallthrough and $repeat are as for define_key.
+ * $fallthrough, $repeat and $browser_object are as for define_key.
  *
  * ref is the source code reference of the call to define_key.
  *
@@ -194,9 +194,8 @@ function lookup_key_binding(kmap, combo, event)
  * only one of new_command and new_keymap will be given.
  * the one that is given is the thing being bound to.
  */
-define_keywords("$fallthrough", "$repeat");
-function define_key_internal(ref, kmap, keys, new_command, new_keymap)
-{
+define_keywords("$fallthrough", "$repeat", "$browser_object");
+function define_key_internal (ref, kmap, keys, new_command, new_keymap) {
     keywords(arguments);
     var args = arguments;
     var parent_kmap = kmap.parent;
@@ -211,6 +210,7 @@ function define_key_internal(ref, kmap, keys, new_command, new_keymap)
             bind.fallthrough = args.$fallthrough;
             bind.source_code_reference = ref;
             bind.repeat = args.$repeat;
+            bind.browser_object = args.$browser_object;
         } else {
             if (!bind.keymap)
                 throw new Error("Key sequence has a non-keymap in prefix");
@@ -226,6 +226,7 @@ function define_key_internal(ref, kmap, keys, new_command, new_keymap)
                     keymap: new_keymap,
                     source_code_reference: ref,
                     repeat: args.$repeat,
+                    browser_object: args.$browser_object,
                     bound_in: kmap};
         } else {
             let old_kmap = kmap;
@@ -307,9 +308,11 @@ outer:
 //  $repeat: (commnand name) shortcut command to call if a prefix
 //      command key is pressed twice in a row.
 //
-define_keywords("$fallthrough", "$repeat");
-function define_key(kmap, keys, cmd)
-{
+//  $browser_object: (browser object) Override the default
+//      browser-object for the command.
+//
+define_keywords("$fallthrough", "$repeat", "$browser_object");
+function define_key (kmap, keys, cmd) {
     keywords(arguments);
     var orig_keys = keys;
     try {
@@ -511,6 +514,8 @@ function keypress_handler (true_event) {
 
         // Finally, process the binding.
         if (binding) {
+            if (binding.browser_object != null)
+                I.binding_browser_object = binding.browser_object;
             if (binding.keymap) {
                 state.active_keymap = binding.keymap;
                 show_partial_key_sequence(window, state, I);

@@ -52,10 +52,7 @@ define_key(content_buffer_normal_keymap, "o", "follow-current-new-buffer");
 
 
 // Scrolling
-define_key(content_buffer_normal_keymap, "<",
-           "browser-object-previous-heading",
-           $repeat = "scroll");
-define_key(content_buffer_normal_keymap, ">",
-           "browser-object-next-heading",
-           $repeat = "scroll");
-
+define_key(content_buffer_normal_keymap, "<", "scroll",
+           $browser_object = browser_object_previous_heading);
+define_key(content_buffer_normal_keymap, ">", "scroll",
+           $browser_object = browser_object_next_heading);

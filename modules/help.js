@@ -499,6 +499,18 @@ describe_key_buffer.prototype = {
             g.command_name("[pass through]", p);
         else
             g.command_reference(command, p);
+        if (this.bind.browser_object != null) {
+            g.text(" with the browser object, ", p);
+            if (this.bind.browser_object instanceof Function) {
+                g.text("<anonymous browser-object function>", p);
+            } else if (this.bind.browser_object instanceof browser_object_class) {
+                g.text(this.bind.browser_object.name, p);
+            } else if (typeof(this.bind.browser_object) == "string") {
+                g.text('"'+this.bind.browser_object+'"', p);
+            } else {
+                g.text(this.bind.browser_object, p);
+            }
+        }
         if (this.source_code_reference) {
             g.text(" in ", p);
             g.source_code_reference(this.source_code_reference, p);
@@ -570,8 +582,20 @@ function describe_key_briefly(buffer, key_info) {
     var bindings;
     var seq = key_info[0];
     var bind = key_info[1];
-
-    buffer.window.minibuffer.message(seq.join(" ") + " runs the command " + bind.command);
+    var browser_object = "";
+    if (bind.browser_object != null) {
+        browser_object += " on the browser object, ";
+        if (bind.browser_object instanceof Function) {
+            browser_object += "<anonymous browser-object function>";
+        } else if (bind.browser_object instanceof browser_object_class) {
+            browser_object += bind.browser_object.name;
+        } else if (typeof(bind.browser_object) == "string") {
+            browser_object += '"'+bind.browser_object+'"';
+        } else {
+            browser_object += bind.browser_object;
+        }
+    }
+    buffer.window.minibuffer.message(seq.join(" ") + " runs the command " + bind.command + browser_object);
 }
 
 interactive("describe-key", null,
