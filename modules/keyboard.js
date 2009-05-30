@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -32,8 +32,6 @@ var vk_name_to_keycode = {};
         }
     }
 }
-
-var abort_key = null;
 
 
 /*
@@ -84,8 +82,7 @@ if (get_os() == 'Darwin') {
  */
 
 define_keywords("$parent", "$help", "$name", "$anonymous");
-function keymap ()
-{
+function keymap () {
     keywords(arguments);
     this.parent = arguments.$parent;
     this.bindings = {};
@@ -95,7 +92,7 @@ function keymap ()
     this.anonymous = arguments.$anonymous;
 }
 
-function define_keymap(name) {
+function define_keymap (name) {
     keywords(arguments);
     this[name] = new keymap($name = name, forward_keywords(arguments));
 }
@@ -140,7 +137,7 @@ define_key_match_predicate('match_any_unmodified_key', 'any unmodified key',
 /*
  */
 
-function format_key_spec(key) {
+function format_key_spec (key) {
     if (key instanceof Function) {
         if (key.description)
             return "<"+key.description+">";
@@ -151,15 +148,14 @@ function format_key_spec(key) {
     return key;
 }
 
-function format_binding_sequence(seq) {
+function format_binding_sequence (seq) {
     return seq.map(function (x) {
             return format_key_spec(x.key);
         }).join(" ");
 }
 
 
-function lookup_key_binding(kmap, combo, event)
-{
+function lookup_key_binding (kmap, combo, event) {
     do {
         // Check if the key matches the keycode table
         // var mods = get_modifiers(event);
@@ -201,6 +197,9 @@ function define_key_internal (ref, kmap, keys, new_command, new_keymap) {
     var parent_kmap = kmap.parent;
     var final_binding; // flag to indicate the final key combo in the sequence.
     var key; // current key combo as we iterate through the sequence.
+    var undefine_key = (new_command == null) &&
+        (new_keymap == null) &&
+        (! args.$fallthrough);
 
     /* Replace `bind' with the binding specified by (cmd, fallthrough) */
     function replace_binding (bind) {
@@ -251,7 +250,11 @@ outer:
             var pred_binds = kmap.predicate_bindings;
             for (var j = 0; j < pred_binds.length; j++) {
                 if (pred_binds[j].key == key) {
-                    replace_binding(pred_binds[j]);
+                    if (final_binding && undefine_key) {
+                        delete pred_binds[j];
+                    } else {
+                        replace_binding(pred_binds[j]);
+                    }
                     continue outer;
                 }
             }
@@ -275,7 +278,11 @@ outer:
             var binding = bindings[key];
 
             if (binding) {
-                replace_binding(binding);
+                if (final_binding && undefine_key) {
+                    delete bindings[key];
+                } else {
+                    replace_binding(binding);
+                }
                 continue outer;
             }
 
@@ -350,6 +357,10 @@ function define_key (kmap, keys, cmd) {
     }
 }
 
+
+function undefine_key (kmap, keys) {
+    define_key(kmap, keys);
+}
 
 
 /*
