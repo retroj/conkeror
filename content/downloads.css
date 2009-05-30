@@ -1,54 +1,47 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
+* {
+  margin: 0px;
+  padding: 0px;
+  /* Hard coding these values is probably not good, but I can't figure
+     out how to get them as more general system preferences.  Perhaps
+     someone with better CSS-fu can figure it out. */
+  font-family: verdana;
+  font-size: 14.1px;
+}
+
 body.download-buffer {
   background-color: #bbbbbb;
+  padding: 4px;
 }
 
-div.download-info {
-  width: 100%;
+td {
+  vertical-align: top;
   white-space: nowrap;
-  overflow: hidden;
 }
 
-div.download-label {
+td.download-label {
   width: 10em;
   font-weight: bold;
 }
 
-div {
-  font-family: verdana;
-  /* Hard coding these values is probably not good, but I can't figure
-  out how to get them as more general system preferences.  Perhaps
-  someone with better CSS-fu can figure it out. */
-  font-size: 14.1px;
-}
-
-div.download-label, div.download-value {
-  float: left;
-}
-
-div.download-value {
-  width: 0px;
-}
-
 #download-percent {
-  width: auto;
-  float: right;
+  float: left;
   margin-right: 1em;
 }
 
 #download-progress-container {
-  float: right;
   width: 15em;
   height: 1em;
   border: 1px solid black;
-  padding: 0px 0px 0px 0px;
-  margin: 0px 0px 0px 0px;
+  padding: 0px;
+  margin: 0px;
   background-color: #cccccc;
   overflow: hidden;
 }
@@ -56,5 +49,5 @@ div.download-value {
 #download-progress-bar {
   height: 100%;
   background-color: #666666;
-  margin: 0px 0px 0px 0px;
+  margin: 0px;
 }

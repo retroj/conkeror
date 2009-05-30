@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -717,66 +718,66 @@ download_buffer.prototype = {
 
         g.add_stylesheet("chrome://conkeror-gui/content/downloads.css");
 
-        var div;
-        var label, value;
+        var row, cell;
+        var table = g.element("table", d.body);
 
-        div = g.element("div", d.body, "class", "download-info", "id", "download-source");
-        label = g.element("div", div, "class", "download-label");
-        this.status_textnode = g.text("", label);
-        value = g.element("div", div, "class", "download-value");
-        g.text(info.source.spec, value);
+        row = g.element("tr", table, "class", "download-info", "id", "download-source");
+        cell = g.element("td", row, "class", "download-label");
+        this.status_textnode = g.text("", cell);
+        cell = g.element("td", row, "class", "download-value");
+        g.text(info.source.spec, cell);
 
-        div = g.element("div", d.body, "class", "download-info", "id", "download-target");
-        label = g.element("div", div, "class", "download-label");
+        row = g.element("tr", table, "class", "download-info", "id", "download-target");
+        cell = g.element("td", row, "class", "download-label");
         var target_label;
         if (info.temporary_status != DOWNLOAD_NOT_TEMPORARY)
             target_label = "Temp. file:";
         else
             target_label = "Target:";
-        g.text(target_label, label);
-        value = g.element("div", div, "class", "download-value");
-        this.target_file_node = g.text("", value);
+        g.text(target_label, cell);
+        cell = g.element("td", row, "class", "download-value");
+        this.target_file_node = g.text("", cell);
 
-        div = g.element("div", d.body, "class", "download-info", "id", "download-mime-type");
-        label = g.element("div", div, "class", "download-label");
-        g.text("MIME type:", label);
-        value = g.element("div", div, "class", "download-value");
-        g.text(info.MIME_type || "unknown", value);
+        row = g.element("tr", table, "class", "download-info", "id", "download-mime-type");
+        cell = g.element("td", row, "class", "download-label");
+        g.text("MIME type:", cell);
+        cell = g.element("td", row, "class", "download-value");
+        g.text(info.MIME_type || "unknown", cell);
 
-        this.transferred_div_node = div = g.element("div", d.body,
-                                                    "class", "download-info",
-                                                    "id", "download-transferred");
-        label = g.element("div", div, "class", "download-label");
-        g.text("Transferred:", label);
-        value = g.element("div", div, "class", "download-value");
-        this.transferred_textnode = g.text("", value);
-        this.progress_container_node = value = g.element("div", div, "id", "download-progress-container");
-        this.progress_bar_node = g.element("div", value, "id", "download-progress-bar");
-        value = g.element("div", div, "class", "download-value", "id", "download-percent");
-        this.percent_textnode = g.text("", value);
+        this.transferred_div_node = row =
+            g.element("tr", table, "class", "download-info", "id", "download-transferred");
+        cell = g.element("td", row, "class", "download-label");
+        g.text("Transferred:", cell);
+        cell = g.element("td", row, "class", "download-value");
+        var sub_item = g.element("div", cell);
+        this.transferred_textnode = g.text("", sub_item);
+        sub_item = g.element("div", cell, "id", "download-percent");
+        this.percent_textnode = g.text("", sub_item);
+        this.progress_container_node = sub_item = g.element("div", cell, "id", "download-progress-container");
+        this.progress_bar_node = g.element("div", sub_item, "id", "download-progress-bar");
 
-        div = g.element("div", d.body, "class", "download-info", "id", "download-time");
-        label = g.element("div", div, "class", "download-label");
-        g.text("Time:", label);
-        value = g.element("div", div, "class", "download-value");
-        this.time_textnode = g.text("", value);
+        row = g.element("tr", table, "class", "download-info", "id", "download-time");
+        cell = g.element("td", row, "class", "download-label");
+        g.text("Time:", cell);
+        cell = g.element("td", row, "class", "download-value");
+        this.time_textnode = g.text("", cell);
 
         if (info.action_description != null) {
-            div = g.element("div", d.body, "class", "download-info", "id", "download-action");
-            label = g.element("div", div, "class", "download-label");
-            g.text("Action:", label);
-            value = g.element("div", div, "class", "download-value");
-            g.text(info.action_description, value);
-        }
+            row = g.element("tr", table, "class", "download-info", "id", "download-action");
+            cell = g.element("div", row, "class", "download-label");
+            g.text("Action:", cell);
+            cell = g.element("div", row, "class", "download-value");
+            g.text(info.action_description, cell);
+       }
 
-        this.command_div_node = div = g.element("div", d.body, "class", "download-info", "id", "download-command");
-        label = g.element("div", div, "class", "download-label");
-        this.command_label_textnode = g.text("Run command:", label);
-        value = g.element("div", div, "class", "download-value");
-        this.command_textnode = g.text("", value);
+        this.command_div_node = row = g.element("tr", table, "class", "download-info", "id", "download-command");
+        cell = g.element("td", row, "class", "download-label");
+        this.command_label_textnode = g.text("Run command:", cell);
+        cell = g.element("td", row, "class", "download-value");
+        this.command_textnode = g.text("", cell);
+
 
         this.update_fields();
-
         this.update_command_field();
     },
 
