@@ -618,6 +618,7 @@ download_buffer.prototype = {
         delete this.transferred_textnode;
         delete this.progress_container_node;
         delete this.progress_bar_node;
+        delete this.percent_textnode;
         delete this.time_textnode;
         delete this.command_div_node;
         delete this.command_label_textnode;
