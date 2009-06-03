@@ -246,7 +246,6 @@ define_key(reddit_keymap, "h", "reddit-open-comments");
 
 define_page_mode("reddit_mode", "reddit",
                  $enable = function (buffer) {
-                     buffer.local_variables.content_buffer_normal_keymap = reddit_keymap;
                      let (cmds = ["follow-current",
                                   "follow-current-new-buffer",
                                   "follow-current-new-buffer-background",
@@ -258,6 +257,7 @@ define_page_mode("reddit_mode", "reddit",
                          }
                      }
                  },
+                 $keymaps = {normal_input_mode: reddit_keymap},
                  $doc = "reddit page-mode: keyboard navigation for reddit.");
 
 let (re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/)) {

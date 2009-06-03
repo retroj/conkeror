@@ -644,8 +644,7 @@ interactive("shell-command", null, function (I) {
     yield shell_command(cmd, $cwd = cwd);
 });
 
-function unfocus(window, buffer)
-{
+function unfocus (window, buffer) {
     var elem = buffer.focused_element;
     if (elem) {
         elem.blur();

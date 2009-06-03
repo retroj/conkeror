@@ -78,9 +78,7 @@ define_key(gmane_keymap, "S", null, $fallthrough);
 
 
 define_page_mode("gmane_mode", "Gmane",
-                 $enable = function (buffer) {
-                     buffer.local_variables.content_buffer_normal_keymap = gmane_keymap;
-                 });
+                 $keymaps = {normal_input_mode: gmane_keymap});
 
 var gmane_re = build_url_regex($domain = /(news|thread)\.gmane/, $tlds = ["org"]);
 auto_mode_list.push([gmane_re, gmane_mode]);

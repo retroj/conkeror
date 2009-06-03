@@ -94,15 +94,15 @@ interactive("gmail-focus-primary-frame", "Focus the main GMail frame.",
 
 define_page_mode("gmail_mode", "GMail",
                  $enable = function (buffer) {
-                     buffer.local_variables.content_buffer_normal_keymap = gmail_keymap;
-                     buffer.local_variables.content_buffer_richedit_keymap = gmail_richedit_keymap;
-                     buffer.local_variables.content_buffer_text_keymap = gmail_richedit_keymap;
-                     buffer.local_variables.content_buffer_textarea_keymap = gmail_richedit_keymap;
                      add_hook.call(buffer, "buffer_dom_content_loaded_hook", gmail_focus_primary_frame);
                  },
                  $disable = function (buffer) {
                      remove_hook.call(buffer, "buffer_dom_content_loaded_hook", gmail_focus_primary_frame);
-                 });
+                 },
+                 $keymaps = {normal_input_mode: gmail_keymap,
+                             richedit_input_mode: gmail_richedit_keymap,
+                             text_input_mode: gmail_text_keymap,
+                             textarea_input_mode: gmail_textarea_keymap});
 
 var gmail_re = build_url_regex($domain = "mail.google",
                                $path = new RegExp('(?!support)'));

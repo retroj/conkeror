@@ -20,18 +20,17 @@ function define_input_mode(base_name, display_name, keymap_name, doc) {
                        $class = "input_mode",
                        $enable = function (buffer) {
                            check_buffer(buffer, content_buffer);
-                           content_buffer_update_keymap_for_input_mode(buffer); },
+                           content_buffer_update_keymap_for_input_mode(buffer);
+                       },
                        $disable = false,
                        $doc = doc);
 }
 ignore_function_for_get_caller_source_code_reference("define_input_mode");
 
-function content_buffer_update_keymap_for_input_mode(buffer) {
+function content_buffer_update_keymap_for_input_mode (buffer) {
     if (buffer.input_mode)
-        buffer.keymap = buffer.get(content_buffer_input_mode_keymaps[buffer.input_mode]);
+        buffer.keymap = conkeror[content_buffer_input_mode_keymaps[buffer.input_mode]];
 }
-
-add_hook("page_mode_change_hook", content_buffer_update_keymap_for_input_mode);
 
 add_hook("content_buffer_location_change_hook", function (buf) { normal_input_mode(buf, true); });
 

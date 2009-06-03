@@ -556,26 +556,47 @@ browser_dom_window.prototype = {
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
 
-define_keywords("$enable", "$disable", "$doc");
+define_keywords("$enable", "$disable", "$doc", "$keymaps");
 function define_page_mode(name, display_name) {
     keywords(arguments);
     var enable = arguments.$enable;
     var disable = arguments.$disable;
     var doc = arguments.$doc;
+    var keymaps = arguments.$keymaps;
+    function page_mode_update_keymap (buffer) {
+        if (keymaps[buffer.input_mode])
+            buffer.keymap = keymaps[buffer.input_mode];
+    }
     define_buffer_mode(name, display_name,
                        $class = "page_mode",
-                       $enable = enable,
+                       $enable = function (buffer) {
+                           if (enable)
+                               enable(buffer);
+                           if (keymaps) {
+                               add_hook.call(buffer, "input_mode_change_hook",
+                                             page_mode_update_keymap);
+                               page_mode_update_keymap(buffer);
+                           }
+                       },
                        $disable = function (buffer) {
                            if (disable)
                                disable(buffer);
                            buffer.local_variables = {};
                            buffer.default_browser_object_classes = {};
+                           if (keymaps) {
+                               remove_hook.call(buffer, "input_mode_change_hook",
+                                                page_mode_update_keymap);
+                               content_buffer_update_keymap_for_input_mode(buffer);
+                           }
                        },
                        $doc = doc);
 }
 ignore_function_for_get_caller_source_code_reference("define_page_mode");
 
-define_variable("auto_mode_list", [], "A list of mappings from URI regular expressions to page modes.");
+
+define_variable("auto_mode_list", [],
+    "A list of mappings from URI regular expressions to page modes.");
+
 function page_mode_auto_update(buffer) {
     var uri = buffer.current_URI.spec;
     var mode = predicate_alist_match(auto_mode_list, uri);

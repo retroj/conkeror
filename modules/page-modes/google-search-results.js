@@ -56,8 +56,6 @@ function google_search_bind_number_shortcuts () {
 
 define_page_mode("google_search_results_mode", "Google Search Results",
                  $enable = function (buffer) {
-                     buffer.local_variables.content_buffer_normal_keymap =
-		         google_search_results_keymap;
 		     var link_using_commands = ["follow",
 						"follow-new-buffer",
 						"follow-new-buffer-background",
@@ -68,7 +66,8 @@ define_page_mode("google_search_results_mode", "Google Search Results",
 		     for each (var c in link_using_commands)
 			 buffer.default_browser_object_classes[c] =
 			     browser_object_google_search_results_links;
-                 });
+                 },
+                 $keymaps = {normal_input_mode: google_search_results_keymap});
 
 let (google_search_re = build_url_regex(
          $domain = "google",
