@@ -196,7 +196,7 @@ interactive("reddit-open-comments",
 function reddit_vote_up (I) {
     // get the current article and send a click to its vote-up button.
     var xpr = I.buffer.document.evaluate(
-        '//*[contains(@class,"last-clicked")]/div[@class="midcol"]/div[contains(@class,"up")]',
+        '//*[contains(@class,"last-clicked")]/div[contains(@class,"midcol")]/div[contains(@class,"up")]',
         I.buffer.document, null,
         Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
     let link;
@@ -211,7 +211,7 @@ interactive("reddit-vote-up",
 function reddit_vote_down (I) {
     // get the current article and send a click to its vote-down button.
     var xpr = I.buffer.document.evaluate(
-        '//*[contains(@class,"last-clicked")]/div[@class="midcol"]/div[contains(@class,"down")]',
+        '//*[contains(@class,"last-clicked")]/div[contains(@class,"midcol")]/div[contains(@class,"down")]',
         I.buffer.document, null,
         Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
     let link;
@@ -229,7 +229,7 @@ define_browser_object_class(
     null,
     function (I, prompt) {
         var xpr = I.buffer.document.evaluate(
-            '//*[contains(@class,"last-clicked")]/*[@class="entry"]/p[@class="title"]/a',
+            '//*[contains(@class,"last-clicked")]/*[contains(@class,"entry")]/p[@class="title"]/a',
             I.buffer.document, null,
             Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
         yield co_return(xpr.iterateNext());
