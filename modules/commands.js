@@ -381,11 +381,7 @@ function send_key_as_event (window, element, combo) {
         return window.dispatchEvent (event);
     }
 }
-interactive ("send-ret",
-    null,
-    function (I) {
-        send_key_as_event(I.window, I.buffer.focused_element, "return");
-    });
+
 
 function ensure_content_focused (buffer) {
     var foc = buffer.focused_frame_or_null;
