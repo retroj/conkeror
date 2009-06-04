@@ -525,7 +525,6 @@ browser_dom_window.prototype = {
 
         /* Determine the opener buffer */
         var opener_buffer = get_buffer_from_frame(this.window, aOpener.top);
-        var config = opener_buffer ? opener_buffer.configuration : null;
 
         switch (browser_default_open_target) {
         case OPEN_CURRENT_BUFFER:
@@ -533,11 +532,11 @@ browser_dom_window.prototype = {
         case FOLLOW_CURRENT_FRAME:
             return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new content_buffer(this.window, null /* element */, $configuration = config);
+            var buffer = new content_buffer(this.window, null /* element */);
             this.window.buffers.current = buffer;
             return buffer.top_frame;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new content_buffer(this.window, null /* element */, $configuration = config);
+            var buffer = new content_buffer(this.window, null /* element */);
             return buffer.top_frame;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */
@@ -547,7 +546,7 @@ browser_dom_window.prototype = {
              * instead of within a browser buffer.  Instead, we can
              * rely on Mozilla using browser.chromeURL. */
             window_set_extra_arguments(
-                {initial_buffer_creator: buffer_creator(content_buffer, $configuration = config)}
+                {initial_buffer_creator: buffer_creator(content_buffer)}
             );
             return null;
         }
@@ -570,6 +569,9 @@ function define_page_mode(name, display_name) {
     define_buffer_mode(name, display_name,
                        $class = "page_mode",
                        $enable = function (buffer) {
+                           buffer.page = {
+                               local: { __proto__: buffer.local }
+                           };
                            if (enable)
                                enable(buffer);
                            if (keymaps) {
@@ -581,7 +583,7 @@ function define_page_mode(name, display_name) {
                        $disable = function (buffer) {
                            if (disable)
                                disable(buffer);
-                           buffer.local_variables = {};
+                           buffer.page = null;
                            buffer.default_browser_object_classes = {};
                            if (keymaps) {
                                remove_hook.call(buffer, "input_mode_change_hook",

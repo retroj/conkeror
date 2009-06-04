@@ -55,8 +55,8 @@ define_variable("media_scrapers", [media_scrape_default],
                 "Function (or coroutine) to use to scrape the current buffer for embedded media.");
 
 
-function media_scrape(buffer) {
-    var scrapers = buffer.get("media_scrapers");
+function media_scrape (I, buffer) {
+    var scrapers = I.local.media_scrapers;
     var results = [];
     if (scrapers)  {
         for each (let scraper in scrapers) {
@@ -70,7 +70,7 @@ function media_scrape(buffer) {
 define_browser_object_class(
     "media", null, null,
     function (I, prompt) {
-        let media = yield media_scrape(I.buffer);
+        let media = yield media_scrape(I, I.buffer);
         if (!media || media.length == 0)
             throw interactive_error("No media found.");
 

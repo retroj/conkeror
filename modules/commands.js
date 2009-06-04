@@ -587,7 +587,7 @@ interactive("view-source", null,
             $browser_object = browser_object_frames);
 
 interactive("shell-command-on-url", null, function (I) {
-    var cwd = I.cwd;
+    var cwd = I.local.cwd;
     var element = yield read_browser_object(I);
     var spec = load_spec(element);
 
@@ -615,7 +615,7 @@ interactive("shell-command-on-url", null, function (I) {
 
 
 interactive("shell-command-on-file", null, function (I) {
-    var cwd = I.cwd;
+    var cwd = I.local.cwd;
     var element = yield read_browser_object(I);
 
     var spec = load_spec(element);
@@ -638,8 +638,7 @@ interactive("shell-command-on-file", null, function (I) {
         panel.destroy();
     }
 
-    /* FIXME: specify cwd as well */
-    yield browser_element_shell_command(I.buffer, element, cmd);
+    yield browser_element_shell_command(I.buffer, element, cmd, cwd);
 },
             $browser_object = browser_object_links,
             $prompt = "Shell command");

@@ -36,7 +36,7 @@ function media_scrape_dailymotion(buffer, results) {
 }
 
 define_page_mode("dailymotion_mode", "Dailymotion", $enable = function (buffer) {
-    buffer.local_variables.media_scrapers = [media_scrape_dailymotion];
+    buffer.page.local.media_scrapers = [media_scrape_dailymotion];
     media_setup_local_object_classes(buffer);
 });
 

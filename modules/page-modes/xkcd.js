@@ -48,10 +48,10 @@ define_page_mode("xkcd_mode","XKCD",
                 xkcd_do_add_title(buffer);
             }
         }
-        buffer.local_variables.browser_relationship_patterns = {};
-        buffer.local_variables.browser_relationship_patterns[RELATIONSHIP_NEXT] =
+        buffer.page.local.browser_relationship_patterns = {};
+        buffer.page.local.browser_relationship_patterns[RELATIONSHIP_NEXT] =
             [new RegExp("\\bnext","i")];
-        buffer.local_variables.browser_relationship_patterns[RELATIONSHIP_PREVIOUS] =
+        buffer.page.local.browser_relationship_patterns[RELATIONSHIP_PREVIOUS] =
             [new RegExp("\\bprev","i")];
     },
     // When we disable the mode, remove the <span>
@@ -61,7 +61,6 @@ define_page_mode("xkcd_mode","XKCD",
         if(span) {
             span.parentNode.removeChild(span);
         }
-        buffer.local_variables.browser_relationship_patterns = undefined;
     });
 
 var xkcd_re = build_url_regex($domain = "xkcd",

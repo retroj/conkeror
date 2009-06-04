@@ -62,3 +62,10 @@ require("cookie.js");
 require("cache.js");
 
 require("theme.js");
+
+
+define_variable("cwd", get_home_directory(),
+    "Current working directory, also known as your default download "+
+    "and shell-command directory.  It will often have a buffer-local "+
+    "value.");
+

@@ -254,7 +254,6 @@ function describe_bindings(buffer, target) {
             list.push(bind);
         });
     create_buffer(buffer.window, buffer_creator(describe_bindings_buffer,
-                                                $configuration = buffer.configuration,
                                                 $binding_list = list),
                   target);
 }
@@ -342,7 +341,6 @@ function apropos_command(buffer, substring, target) {
                   return 0
               });
     create_buffer(buffer.window, buffer_creator(apropos_command_buffer,
-                                                $configuration = buffer.configuration,
                                                 $command_list = list),
                   target);
 }
@@ -430,7 +428,6 @@ function describe_command(buffer, command, target) {
     var bindings = find_command_in_keymap(buffer, command);
     create_buffer(buffer.window,
                   buffer_creator(describe_command_buffer,
-                                 $configuration = buffer.configuration,
                                  $command = command,
                                  $bindings = bindings),
                   target);
@@ -561,7 +558,6 @@ function describe_key(buffer, key_info, target) {
 
     create_buffer(buffer.window,
                   buffer_creator(describe_key_buffer,
-                                 $configuration = buffer.configuration,
                                  $key_sequence = seq.join(" "),
                                  $other_bindings = bindings,
                                  $binding = bind),
@@ -701,7 +697,6 @@ describe_variable_buffer.prototype = {
 function describe_variable(buffer, variable, target) {
     create_buffer(buffer.window,
                   buffer_creator(describe_variable_buffer,
-                                 $configuration = buffer.configuration,
                                  $variable = variable),
                   target);
 }

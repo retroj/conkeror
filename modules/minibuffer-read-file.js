@@ -9,7 +9,7 @@
 require("io.js");
 
 minibuffer.prototype.read_file_path = function () {
-    keywords(arguments, $prompt = "File:", $initial_value = default_directory.path,
+    keywords(arguments, $prompt = "File:", $initial_value = cwd.path,
              $history = "file");
     var result = yield this.read(
         $prompt = arguments.$prompt,

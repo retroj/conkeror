@@ -24,7 +24,7 @@ define_browser_object_class(
     "next-heading", null, null,
     function (I) {
         let xpr = I.buffer.document.evaluate(
-                I.buffer.get('headings_xpath'), I.buffer.document, null,
+                I.local.headings_xpath, I.buffer.document, null,
                 Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
             heading, found = null, foundtop = null,
             first = null, firsttop = null;
@@ -53,7 +53,7 @@ define_browser_object_class(
     "previous-heading", null, null,
     function (I) {
         let xpr = I.buffer.document.evaluate(
-                I.buffer.get('headings_xpath'), I.buffer.document, null,
+                I.local.headings_xpath, I.buffer.document, null,
                 Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
             heading, found = null, foundtop = null,
             last = null, lasttop = null;

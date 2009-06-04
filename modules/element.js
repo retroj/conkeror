@@ -108,7 +108,7 @@ define_browser_object_class(
         var result = yield I.buffer.window.minibuffer.read_file(
             $prompt = prompt,
             $history = I.command.name+"/file",
-            $initial_value = I.buffer.cwd.path);
+            $initial_value = I.local.cwd.path);
         yield co_return (result);
     });
 
@@ -312,8 +312,7 @@ function browser_object_follow(buffer, target, elem)
     case OPEN_NEW_BUFFER_BACKGROUND:
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
-                                     $load = spec,
-                                     $configuration = buffer.configuration),
+                                     $load = spec),
                       target);
     }
 }
@@ -490,11 +489,11 @@ function view_source_new_window (I) {
 }
 
 
-function browser_element_shell_command(buffer, elem, command) {
+function browser_element_shell_command (buffer, elem, command, cwd) {
     var spec = load_spec(elem);
     yield download_as_temporary(spec,
                                 $buffer = buffer,
                                 $shell_command = command,
-                                $shell_command_cwd = buffer.cwd);
+                                $shell_command_cwd = cwd);
 }
 

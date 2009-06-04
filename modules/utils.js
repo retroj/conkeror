@@ -129,7 +129,9 @@ function get_link_location (element)
 }
 
 
-function make_file(path) {
+function make_file (path) {
+    if (path instanceof Ci.nsILocalFile)
+        return path;
     var f = Cc["@mozilla.org/file/local;1"]
         .createInstance(Ci.nsILocalFile);
     f.initWithPath(path);
@@ -240,7 +242,6 @@ function get_os ()
     return xul_runtime.OS;
 }
 
-var default_directory = null;
 
 var env = Cc['@mozilla.org/process/environment;1'].getService(Ci.nsIEnvironment);
 function getenv (variable) {
@@ -260,21 +261,6 @@ function get_home_directory () {
     return dir;
 }
 
-function set_default_directory (directory) {
-    if (directory) {
-        if (directory instanceof Ci.nsILocalFile)
-            default_directory = directory.clone();
-        else {
-            default_directory = Cc["@mozilla.org/file/local;1"]
-                .createInstance(Ci.nsILocalFile);
-            default_directory.initWithPath(directory);
-        }
-    } else {
-        default_directory = get_home_directory();
-    }
-}
-
-set_default_directory();
 
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";

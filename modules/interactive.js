@@ -46,9 +46,15 @@ interactive_error.prototype.__proto__ = Error.prototype;
 
 
 function interactive_context (buffer) {
+    this.local = conkeror;
     this.buffer = buffer;
     if (buffer) {
         this.window = this.buffer.window;
+        if (buffer.page) {
+            this.local = buffer.page.local;
+        } else {
+            this.local = buffer.local;
+        }
     }
 }
 interactive_context.prototype = {
@@ -60,8 +66,6 @@ interactive_context.prototype = {
     set p (default_value) univ_arg_to_number(this.prefix_argument, default_value),
 
     get minibuffer () this.window.minibuffer,
-
-    get : function (x) this.buffer.get(x)
 };
 
 

@@ -46,7 +46,7 @@ download_helper.prototype = {
                 action_chosen = true;
 
             } else if (action == "o") {
-                var cwd = this.buffer ? this.buffer.cwd : default_directory.path;
+                var cwd = make_file(with_current_buffer(this.buffer, function (I) I.local.cwd)).path;
                 var mime_type = this.launcher.MIMEInfo.MIMEType;
                 var suggested_action = get_mime_type_external_handler(mime_type);
                 var command = yield this.window.minibuffer.read_shell_command(
@@ -62,7 +62,8 @@ download_helper.prototype = {
                 action_chosen = true;
                 this.abort(); // abort download
                 let mime_type = this.launcher.MIMEInfo.MIMEType;
-                let cwd = this.buffer ? this.buffer.cwd : this.window.buffers.current.cwd;
+                let cwd = make_file(with_current_buffer(this.buffer || this.window.buffers.current,
+                                                        function (I) I.local.cwd)).path;
                 let cmd = yield this.window.minibuffer.read_shell_command(
                     $cwd = cwd,
                     $initial_value = get_mime_type_external_handler(mime_type));
@@ -591,7 +592,7 @@ function download_buffer (window, element) {
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.info = arguments.$info;
-    this.configuration.cwd = this.info.mozilla_info.targetFile.parent.path;
+    this.local.cwd = this.info.mozilla_info.targetFile.parent.path;
     this.description = this.info.mozilla_info.source.spec;
     this.keymap = download_buffer_keymap;
     this.update_title();
@@ -990,7 +991,7 @@ interactive("download-shell-command",
             "to run when the download finishes.",
             function (I) {
                 var buffer = check_buffer(I.buffer, download_buffer);
-                var cwd = buffer.info.shell_command_cwd || buffer.cwd;
+                var cwd = buffer.info.shell_command_cwd || I.local.cwd;
                 var cmd = yield I.minibuffer.read_shell_command(
                     $cwd = cwd,
                     $initial_value = buffer.info.shell_command ||

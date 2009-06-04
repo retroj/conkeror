@@ -46,7 +46,7 @@ function media_scrape_youtube(buffer, results) {
 }
 
 define_page_mode("youtube_mode", "YouTube", $enable = function (buffer) {
-    buffer.local_variables.media_scrapers = [media_scrape_youtube];
+    buffer.page.local.media_scrapers = [media_scrape_youtube];
     media_setup_local_object_classes(buffer);
 });
 

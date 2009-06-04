@@ -30,7 +30,7 @@ function media_scrape_youporn(buffer, results) {
 }
 
 define_page_mode("youporn_mode", "YouPorn", $enable = function (buffer) {
-    buffer.local_variables.media_scrapers = [media_scrape_youporn];
+    buffer.page.local.media_scrapers = [media_scrape_youporn];
     media_setup_local_object_classes(buffer);
 });
 

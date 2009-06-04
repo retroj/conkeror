@@ -33,16 +33,8 @@ define_current_buffer_hook("current_buffer_description_change_hook", "buffer_des
 define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 define_current_buffer_hook("current_buffer_dom_content_loaded_hook", "buffer_dom_content_loaded_hook");
 
-function buffer_configuration(existing_configuration) {
-    if (existing_configuration != null) {
-        this.cwd = existing_configuration.cwd;
-    }
-    else {
-        this.cwd = default_directory.path;
-    }
-}
 
-define_keywords("$configuration", "$element");
+define_keywords("$element");
 function buffer_creator(type) {
     var args = forward_keywords(arguments);
     return function (window, element) {
@@ -59,9 +51,8 @@ define_variable("allow_browser_window_close", true,
 
 function buffer (window, element) {
     this.constructor_begin();
-    keywords(arguments, $configuration = null);
+    keywords(arguments);
     this.window = window;
-    this.configuration = new buffer_configuration(arguments.$configuration);
     if (element == null) {
         element = create_XUL(window, "vbox");
         element.setAttribute("flex", "1");
@@ -103,8 +94,9 @@ function buffer (window, element) {
     this.browser = element.firstChild;
     this.element.conkeror_buffer_object = this;
 
+    this.local = { __proto__ : conkeror };
+    this.page = null;
     this.enabled_modes = [];
-    this.local_variables = {};
     this.default_browser_object_classes = {};
 
     var buffer = this;
@@ -147,12 +139,6 @@ buffer.prototype = {
 
     default_message : "",
 
-    get : function (x) {
-        if (x in this.local_variables)
-            return this.local_variables[x];
-        return conkeror[x];
-    },
-
     set_default_message : function (str) {
         this.default_message = str;
         if (this == this.window.buffers.current)
@@ -169,9 +155,6 @@ buffer.prototype = {
         if (--this.constructors_running == 0)
             create_buffer_hook.run(this);
     },
-
-    /* General accessors */
-    get cwd () { return this.configuration.cwd; },
 
     /* Browser accessors */
     get top_frame () { return this.browser.contentWindow; },
@@ -249,6 +232,10 @@ buffer.prototype = {
         kill_buffer_hook.run(this);
     }
 };
+
+function with_current_buffer (buffer, callback) {
+    return callback(new interactive_context(buffer));
+}
 
 function check_buffer (obj, type) {
     if (!(obj instanceof type))
@@ -538,7 +525,6 @@ minibuffer.prototype.read_buffer = function () {
     yield co_return(result);
 };
 
-interactive_context.prototype.__defineGetter__("cwd", function () this.buffer.cwd);
 
 function buffer_next (window, count)
 {
@@ -625,8 +611,10 @@ interactive("bury-buffer",
             "selected by `switch-to-buffer'.",
             function (I) {I.window.buffers.bury_buffer(I.buffer);});
 
-function change_directory(buffer, dir) {
-    buffer.configuration.cwd = dir;
+function change_directory (buffer, dir) {
+    if (buffer.page != null)
+        delete buffer.page.local.cwd;
+    buffer.local.cwd = make_file(dir);
 }
 interactive("change-directory",
             "Change the current directory of the selected buffer.",
@@ -635,11 +623,11 @@ interactive("change-directory",
                     I.buffer,
                     (yield I.minibuffer.read_existing_directory_path(
                         $prompt = "Change to directory:",
-                        $initial_value = I.cwd)));
+                        $initial_value = make_file(I.local.cwd).path)));
             });
 
 interactive("shell-command", null, function (I) {
-    var cwd = I.cwd;
+    var cwd = I.local.cwd;
     var cmd = (yield I.minibuffer.read_shell_command($cwd = cwd));
     yield shell_command(cmd, $cwd = cwd);
 });
