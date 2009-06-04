@@ -11,8 +11,7 @@ require("content-buffer.js");
 
 define_hook("quit_hook");
 
-function quit ()
-{
+function quit () {
     quit_hook.run();
     var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
         .getService(Ci.nsIAppStartup);
@@ -32,38 +31,35 @@ interactive("confirm-quit",
                     quit();
             });
 
-function show_conkeror_version (window)
-{
-    window.minibuffer.message (conkeror.version);
+function show_conkeror_version (window) {
+    window.minibuffer.message(conkeror.version);
 }
 interactive("conkeror-version",
             "Show version information for Conkeror.",
-            function (I) {show_conkeror_version(I.window);});
+            function (I) { show_conkeror_version(I.window); });
 interactive("version",
             "Show version information for Conkeror.",
             "conkeror-version");
 
 /* FIXME: maybe this should be supported for non-browser buffers */
-function scroll_horiz_complete (buffer, n)
-{
+function scroll_horiz_complete (buffer, n) {
     var w = buffer.focused_frame;
     w.scrollTo (n > 0 ? w.scrollMaxX : 0, w.scrollY);
 }
 interactive("scroll-beginning-of-line",
             "Scroll the current frame all the way to the left.",
-            function (I) {scroll_horiz_complete(I.buffer, -1);});
+            function (I) { scroll_horiz_complete(I.buffer, -1); });
 
 interactive("scroll-end-of-line",
             "Scroll the current frame all the way to the right.",
-            function (I) {scroll_horiz_complete(I.buffer, 1);});
+            function (I) { scroll_horiz_complete(I.buffer, 1); });
 
-function delete_window (window)
-{
+function delete_window (window) {
     window.window.close();
 }
 interactive("delete-window",
             "Delete the current window.",
-            function (I) {delete_window(I.window);});
+            function (I) { delete_window(I.window); });
 
 interactive("jsconsole",
             "Open the JavaScript console.",
@@ -76,16 +72,18 @@ interactive("jsconsole",
  * active. Afterward, call `ensure_index_is_visible' on the field. See
  * `paste_x_primary_selection' and `open_line' for examples.
  */
-function call_on_focused_field(I, func) {
-  var m = I.window.minibuffer;
-  var s = m.current_state;
-  if (m._input_mode_enabled) {
-    m._restore_normal_state();
-    var e = m.input_element;
-  } else var e = I.buffer.focused_element;
-  func(e);
-  ensure_index_is_visible (I.window, e, e.selectionStart);
-  if (s && s.handle_input) s.handle_input(m);
+function call_on_focused_field (I, func) {
+    var m = I.window.minibuffer;
+    var s = m.current_state;
+    if (m._input_mode_enabled) {
+        m._restore_normal_state();
+        var e = m.input_element;
+    } else
+        var e = I.buffer.focused_element;
+    func(e);
+    ensure_index_is_visible(I.window, e, e.selectionStart);
+    if (s && s.handle_input)
+        s.handle_input(m);
 }
 
 /**
@@ -93,40 +91,36 @@ function call_on_focused_field(I, func) {
  * sets point to the end of the inserted text, unless keep_point is true, in
  * which case the point will be left at the beginning of the inserted text.
  */
-function modify_region(field, modifier, keep_point) {
-  var replacement =
-    modifier(field.value.substring(field.selectionStart, field.selectionEnd+1));
-  var point = field.selectionStart;
-  field.value =
-    field.value.substr(0, field.selectionStart) + replacement +
-    field.value.substr(field.selectionEnd);
-  if (!keep_point) point += replacement.length;
-  field.setSelectionRange(point, point);
+function modify_region (field, modifier, keep_point) {
+    var replacement =
+        modifier(field.value.substring(field.selectionStart, field.selectionEnd+1));
+    var point = field.selectionStart;
+    field.value =
+        field.value.substr(0, field.selectionStart) + replacement +
+        field.value.substr(field.selectionEnd);
+    if (!keep_point) point += replacement.length;
+    field.setSelectionRange(point, point);
 }
 
 function paste_x_primary_selection (field) {
-  modify_region(field, function(str) read_from_x_primary_selection());
+    modify_region(field, function (str) read_from_x_primary_selection());
 }
-interactive (
-  "paste-x-primary-selection",
-  "Insert the contents of the X primary selection into the selected field or " +
-  "minibuffer. Deactivates the region if it is active, and leaves the point " +
-  "after the inserted text.",
-  function (I) call_on_focused_field(I, paste_x_primary_selection)
-);
+interactive("paste-x-primary-selection",
+    "Insert the contents of the X primary selection into the selected field or "+
+    "minibuffer. Deactivates the region if it is active, and leaves the point "+
+    "after the inserted text.",
+    function (I) call_on_focused_field(I, paste_x_primary_selection));
 
-function open_line(field) {
-  modify_region(field, function() "\n", true);
+function open_line (field) {
+    modify_region(field, function() "\n", true);
 }
 
-interactive(
-  "open-line",
-  "If there is an active region, replace is with a newline, otherwise just " +
-  "insert a newline. In both cases leave point before the inserted newline.",
-  function (I) call_on_focused_field(I, open_line)
-);
+interactive("open-line",
+    "If there is an active region, replace is with a newline, otherwise just "+
+    "insert a newline. In both cases leave point before the inserted newline.",
+    function (I) call_on_focused_field(I, open_line));
 
-function transpose_chars(field) {
+function transpose_chars (field) {
     var value = field.value;
     var caret = field.selectionStart; // Caret position.
     var length = value.length;
@@ -151,11 +145,9 @@ function transpose_chars(field) {
     field.selectionEnd = caret + 1;
 }
 
-interactive(
-  "transpose-chars",
-  "Interchange characters around point, moving forward one character.",
-  function (I) call_on_focused_field(I, transpose_chars)
-);
+interactive("transpose-chars",
+    "Interchange characters around point, moving forward one character.",
+    function (I) call_on_focused_field(I, transpose_chars));
 
 function meta_x (buffer, prefix, command, browser_object) {
     var I = new interactive_context(buffer);
@@ -222,8 +214,7 @@ define_builtin_commands(
     function (I) I.buffer.mark_active,
     'caret');
 
-function get_link_text()
-{
+function get_link_text () {
     var e = document.commandDispatcher.focusedElement;
     if (e && e.getAttribute("href")) {
         return e.getAttribute("href");
@@ -280,15 +271,15 @@ function reinit (window) {
     var path;
     try {
         path = load_rc();
-        window.minibuffer.message ("Loaded: " + path);
+        window.minibuffer.message("Loaded: " + path);
     } catch (e) {
-        window.minibuffer.message ("Failed to load: "+path);
+        window.minibuffer.message("Failed to load: "+path);
     }
 }
 
-interactive ("reinit",
-             "Reload the Conkeror rc file.",
-             function (I) { reinit(I.window); });
+interactive("reinit",
+            "Reload the Conkeror rc file.",
+            function (I) { reinit(I.window); });
 
 interactive("help-page", "Open the Conkeror help page.",
             "find-url-new-buffer",
@@ -298,8 +289,7 @@ interactive("help-with-tutorial", "Open the Conkeror tutorial.",
             "find-url-new-buffer",
             $browser_object = "chrome://conkeror-help/content/tutorial.html");
 
-function univ_arg_to_number(prefix, default_value)
-{
+function univ_arg_to_number (prefix, default_value) {
     if (prefix == null) {
         if (default_value == null)
             return 1;
@@ -311,8 +301,7 @@ function univ_arg_to_number(prefix, default_value)
     return prefix;
 }
 
-function eval_expression(window, s)
-{
+function eval_expression (window, s) {
     // eval in the global scope.
 
     // In addition, the following variables are available:
@@ -335,7 +324,7 @@ interactive("eval-expression",
 
 
 function show_extension_manager () {
-    return conkeror.window_watcher.openWindow (
+    return conkeror.window_watcher.openWindow(
         null,
         "chrome://mozapps/content/extensions/extensions.xul?type=extensions",
         "ExtensionsWindow",
@@ -346,28 +335,29 @@ interactive("extensions",
             "Open the extensions manager in a new window.",
             show_extension_manager);
 
-function print_buffer(buffer)
-{
+function print_buffer (buffer) {
     buffer.top_frame.print();
 }
 interactive("print-buffer",
             "Print the currently loaded page.",
-            function (I) {print_buffer(I.buffer);});
+            function (I) { print_buffer(I.buffer); });
 
 function view_partial_source (window, charset, selection) {
-    if (charset) { charset = "charset=" + charset; }
+    if (charset)
+        charset = "charset=" + charset;
     window.window.openDialog("chrome://global/content/viewPartialSource.xul",
-                            "_blank", "scrollbars,resizable,chrome,dialog=no",
-                            null, charset, selection, 'selection');
+                             "_blank", "scrollbars,resizable,chrome,dialog=no",
+                             null, charset, selection, 'selection');
 }
 //interactive ('view-partial-source', view_partial_source, I.current_window, I.content_charset, I.content_selection);
 
 
 function  view_mathml_source (window, charset, target) {
-    if (charset) { charset = "charset=" + charset; }
+    if (charset)
+        charset = "charset=" + charset;
     window.window.openDialog("chrome://global/content/viewPartialSource.xul",
-                            "_blank", "scrollbars,resizable,chrome,dialog=no",
-                            null, charset, target, 'mathml');
+                             "_blank", "scrollbars,resizable,chrome,dialog=no",
+                             null, charset, target, 'mathml');
 }
 
 
@@ -391,14 +381,13 @@ function send_key_as_event (window, element, combo) {
         return window.dispatchEvent (event);
     }
 }
-interactive (
-    "send-ret",
+interactive ("send-ret",
     null,
     function (I) {
         send_key_as_event(I.window, I.buffer.focused_element, "return");
     });
 
-function ensure_content_focused(buffer) {
+function ensure_content_focused (buffer) {
     var foc = buffer.focused_frame_or_null;
     if (!foc)
         buffer.top_frame.focus();
@@ -413,20 +402,20 @@ function network_set_online_status (status) {
 }
 
 interactive("network-go-online", "Work online.",
-            function (I) {network_set_online_status (true);});
+            function (I) { network_set_online_status (true); });
 interactive("network-go-offline", "Work offline.",
-            function (I) {network_set_online_status (false);});
+            function (I) { network_set_online_status (false); });
 
 
 interactive("submit-form",
             "Submit the form to which the focused element belongs.",
-           function (I) {
-               var el = I.buffer.focused_element.parentNode;
-               while (el && el.tagName != "FORM")
-                   el = el.parentNode;
-               if (el)
-                   el.submit();
-           });
+            function (I) {
+                var el = I.buffer.focused_element.parentNode;
+                while (el && el.tagName != "FORM")
+                    el = el.parentNode;
+                if (el)
+                    el.submit();
+            });
 
 /*
  * Browser Object Commands
@@ -630,7 +619,6 @@ interactive("shell-command-on-file", null, function (I) {
                                ["mime-type", "Mime type:", load_spec_mime_type(spec)]]);
 
     try {
-
         var cmd = yield I.minibuffer.read_shell_command(
             $cwd = cwd,
             $initial_value = load_spec_default_shell_command(spec));

@@ -8,6 +8,7 @@
 
 require("io.js");
 
+/* keywords: $prompt, $initial_value, $history, $completer, $auto_complete */
 minibuffer.prototype.read_file_path = function () {
     keywords(arguments, $prompt = "File:", $initial_value = cwd.path,
              $history = "file");

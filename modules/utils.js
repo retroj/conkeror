@@ -119,8 +119,7 @@ function makeURLAbsolute (base, url)
 }
 
 
-function get_link_location (element)
-{
+function get_link_location (element) {
     if (element && element.getAttribute("href")) {
         var loc = element.getAttribute("href");
         return makeURLAbsolute(element.baseURI, loc);
@@ -141,7 +140,7 @@ function make_file (path) {
 var io_service = Cc["@mozilla.org/network/io-service;1"]
     .getService(Ci.nsIIOService2);
 
-function make_uri(uri, charset, base_uri) {
+function make_uri (uri, charset, base_uri) {
     if (uri instanceof Ci.nsIURI)
         return uri;
     if (uri instanceof Ci.nsIFile)
@@ -150,8 +149,7 @@ function make_uri(uri, charset, base_uri) {
 }
 
 
-function get_document_content_disposition (document_o)
-{
+function get_document_content_disposition (document_o) {
     var content_disposition = null;
     try {
         content_disposition =
@@ -164,20 +162,19 @@ function get_document_content_disposition (document_o)
 }
 
 
-function set_focus_no_scroll(window, element)
-{
+function set_focus_no_scroll (window, element) {
     window.document.commandDispatcher.suppressFocusScroll = true;
     element.focus();
     window.document.commandDispatcher.suppressFocusScroll = false;
 }
 
-function do_repeatedly_positive(func, n) {
+function do_repeatedly_positive (func, n) {
     var args = Array.prototype.slice.call(arguments, 2);
     while (n-- > 0)
         func.apply(null, args);
 }
 
-function do_repeatedly(func, n, positive_args, negative_args) {
+function do_repeatedly (func, n, positive_args, negative_args) {
     if (n < 0)
         do func.apply(null, negative_args); while (++n < 0);
     else
@@ -185,10 +182,9 @@ function do_repeatedly(func, n, positive_args, negative_args) {
 }
 
 // remove whitespace from the beginning and end
-function trim_whitespace (str)
-{
-    var tmp = new String (str);
-    return tmp.replace (/^\s+/, "").replace (/\s+$/, "");
+function trim_whitespace (str) {
+    var tmp = new String(str);
+    return tmp.replace(/^\s+/, "").replace(/\s+$/, "");
 }
 
 /**
@@ -198,8 +194,7 @@ function trim_whitespace (str)
  * @return An object with properties "x" and "y" representing its offset from
  *         the left and top of the document, respectively.
  */
-function abs_point (node)
-{
+function abs_point (node) {
     var orig = node;
     var pt = {};
     try {
@@ -230,26 +225,37 @@ function abs_point (node)
     return pt;
 }
 
-var xul_app_info = Cc["@mozilla.org/xre/app-info;1"]
-    .getService(Ci.nsIXULAppInfo);
-var xul_runtime = Cc['@mozilla.org/xre/app-info;1']
-    .getService(Ci.nsIXULRuntime);
+
+/**
+ * get_os returns a string identifying the current OS.
+ * possible values include 'Darwin', 'Linux' and 'WINNT'.
+ */
+let (xul_runtime = Cc['@mozilla.org/xre/app-info;1']
+         .getService(Ci.nsIXULRuntime)) {
+    function get_os () {
+        return xul_runtime.OS;
+    }
+};
 
 
-function get_os ()
-{
-    // possible return values: 'Darwin', 'Linux', 'WINNT', ...
-    return xul_runtime.OS;
+/**
+ * getenv returns the value of a named environment variable or null if
+ * the environment variable does not exist.
+ */
+let (env = Cc['@mozilla.org/process/environment;1']
+         .getService(Ci.nsIEnvironment)) {
+    function getenv (variable) {
+        if (env.exists(variable))
+            return env.get(variable);
+        return null;
+    }
 }
 
 
-var env = Cc['@mozilla.org/process/environment;1'].getService(Ci.nsIEnvironment);
-function getenv (variable) {
-    if (env.exists (variable))
-        return env.get(variable);
-    return null;
-}
-
+/**
+ * get_home_directory returns an nsILocalFile object of the user's
+ * home directory.
+ */
 function get_home_directory () {
     var dir = Cc["@mozilla.org/file/local;1"]
         .createInstance(Ci.nsILocalFile);
@@ -267,14 +273,13 @@ const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const MATHML_NS = "http://www.w3.org/1998/Math/MathML";
 const XLINK_NS = "http://www.w3.org/1999/xlink";
 
-function create_XUL(window, tag_name)
-{
+function create_XUL (window, tag_name) {
     return window.document.createElementNS(XUL_NS, tag_name);
 }
 
 
 /* Used in calls to XPath evaluate */
-function xpath_lookup_namespace(prefix) {
+function xpath_lookup_namespace (prefix) {
     if (prefix == "xhtml")
         return XHTML_NS;
     if (prefix == "m")
@@ -284,7 +289,7 @@ function xpath_lookup_namespace(prefix) {
     return null;
 }
 
-function method_caller(obj, func) {
+function method_caller (obj, func) {
     return function () {
         func.apply(obj, arguments);
     };
