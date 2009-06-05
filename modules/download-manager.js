@@ -887,7 +887,13 @@ interactive("download-cancel",
             "Cancel the current download.\n" +
             "The download can later be retried using the `download-retry' command, but any " +
             "data already transferred will be lost.",
-            function (I) {download_cancel(I.buffer);});
+            function (I) {
+                let result = yield I.window.minibuffer.read_single_character_option(
+                    $prompt = "Cancel this download? (y/n)",
+                    $options = ["y", "n"]);
+                if (result == "y")
+                    download_cancel(I.buffer);
+            });
 
 function download_retry (buffer) {
     check_buffer(buffer, download_buffer);
@@ -929,7 +935,8 @@ function download_remove (buffer) {
 }
 interactive("download-remove",
             "Remove the current download from the download manager.\n" +
-            "This command can only be used on inactive (paused, canceled, completed, or failed) downloads.",
+            "This command can only be used on inactive (paused, canceled, "+
+            "completed, or failed) downloads.",
             function (I) {download_remove(I.buffer);});
 
 function download_retry_or_resume (buffer) {
