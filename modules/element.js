@@ -312,6 +312,7 @@ function browser_object_follow(buffer, target, elem)
     case OPEN_NEW_BUFFER_BACKGROUND:
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
+                                     $opener = buffer,
                                      $load = spec),
                       target);
     }

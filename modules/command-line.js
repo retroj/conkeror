@@ -20,8 +20,10 @@ define_variable("url_remoting_fn", load_url_in_new_window,
  * a value of `url_remoting_fn'.  Every url given on the
  * command line will be loaded in a new window.
  */
-function load_url_in_new_window(url, ctx) {
-    make_window(buffer_creator(content_buffer, $load = url));
+function load_url_in_new_window (url, ctx) {
+    make_window(buffer_creator(content_buffer,
+                               $opener = ctx,
+                               $load = url));
 }
 
 /*
@@ -30,9 +32,12 @@ function load_url_in_new_window(url, ctx) {
  * command line will be loaded in a new buffer in the most
  * recently used window, or a new window if none exist.
  */
-function load_url_in_new_buffer(url, ctx) {
-    create_buffer_in_current_window(buffer_creator(content_buffer, $load = url),
-                                    OPEN_NEW_BUFFER, true /* focus the new window */);
+function load_url_in_new_buffer (url, ctx) {
+    create_buffer_in_current_window(
+        buffer_creator(content_buffer,
+                       $opener = ctx,
+                       $load = url),
+        OPEN_NEW_BUFFER, true /* focus the new window */);
 }
 
 /*
@@ -43,7 +48,7 @@ function load_url_in_new_buffer(url, ctx) {
  * one url at a time.  When there are no conkeror windows
  * open, the url will be loaded in a new window.
  */
-function  load_url_in_current_buffer(url,ctx) {
+function load_url_in_current_buffer (url, ctx) {
     var win = get_recent_conkeror_window();
     if (win) {
         browser_object_follow(win.buffers.current, OPEN_CURRENT_BUFFER, url);
@@ -52,13 +57,11 @@ function  load_url_in_current_buffer(url,ctx) {
     }
 }
 
-function command_line_handler(name, suppress_default, handler)
-{
+function command_line_handler (name, suppress_default, handler) {
     command_line_handlers[name] = { suppress_default: suppress_default, func: handler };
 }
 
-function command_line_param_handler(name, suppress_default, handler)
-{
+function command_line_param_handler (name, suppress_default, handler) {
     command_line_handlers[name] = { suppress_default: suppress_default,
                                     param: true,
                                     func: handler };
@@ -156,6 +159,8 @@ function handle_command_line (cmdline) {
         }
         var ctx = new interactive_context();
         ctx.command_line = cmdline;
+        ctx.local = { cwd: cmdline.resolveFile("."),
+                      __proto__: conkeror }
 
         for (; i < cmdline.length; ++i) {
             var arg = cmdline.getArgument(i);

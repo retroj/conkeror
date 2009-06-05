@@ -34,8 +34,8 @@ define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 define_current_buffer_hook("current_buffer_dom_content_loaded_hook", "buffer_dom_content_loaded_hook");
 
 
-define_keywords("$element");
-function buffer_creator(type) {
+define_keywords("$element", "$opener");
+function buffer_creator (type) {
     var args = forward_keywords(arguments);
     return function (window, element) {
         return new type(window, element, args);
@@ -52,6 +52,7 @@ define_variable("allow_browser_window_close", true,
 function buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
+    this.opener = arguments.$opener;
     this.window = window;
     if (element == null) {
         element = create_XUL(window, "vbox");
@@ -152,8 +153,10 @@ buffer.prototype = {
     },
 
     constructor_end : function () {
-        if (--this.constructors_running == 0)
+        if (--this.constructors_running == 0) {
             create_buffer_hook.run(this);
+            delete this.opener;
+        }
     },
 
     /* Browser accessors */

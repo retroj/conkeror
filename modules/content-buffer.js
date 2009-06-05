@@ -524,7 +524,7 @@ browser_dom_window.prototype = {
         this.next_target = null;
 
         /* Determine the opener buffer */
-        var opener_buffer = get_buffer_from_frame(this.window, aOpener.top);
+        var opener = get_buffer_from_frame(this.window, aOpener.top);
 
         switch (browser_default_open_target) {
         case OPEN_CURRENT_BUFFER:
@@ -532,11 +532,11 @@ browser_dom_window.prototype = {
         case FOLLOW_CURRENT_FRAME:
             return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new content_buffer(this.window, null /* element */);
+            var buffer = new content_buffer(this.window, null /* element */, $opener = opener);
             this.window.buffers.current = buffer;
             return buffer.top_frame;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new content_buffer(this.window, null /* element */);
+            var buffer = new content_buffer(this.window, null /* element */, $opener = opener);
             return buffer.top_frame;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */
@@ -546,7 +546,7 @@ browser_dom_window.prototype = {
              * instead of within a browser buffer.  Instead, we can
              * rely on Mozilla using browser.chromeURL. */
             window_set_extra_arguments(
-                {initial_buffer_creator: buffer_creator(content_buffer)}
+                {initial_buffer_creator: buffer_creator(content_buffer, $opener = opener)}
             );
             return null;
         }
