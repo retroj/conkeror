@@ -25,7 +25,7 @@ define_variable("mime_type_external_handlers",
 		"string. Order matters. The handler of the first RegExp to " +
 		"match a specified MIME type will be used.");
 
-function _get_mime_type_index(mime_type) {
+function _get_mime_type_index (mime_type) {
     for (let i = 0; i < mime_type_external_handlers.length; ++i) {
 	let r = mime_type_external_handlers[i][0];
 	if (mime_type.source == r.source)
@@ -34,14 +34,14 @@ function _get_mime_type_index(mime_type) {
     return -1;
 }
 
-function _get_mime_type_regexp(mime_type) {
+function _get_mime_type_regexp (mime_type) {
     if (mime_type instanceof RegExp)
 	return mime_type;
     let mt_esc = mime_type.replace(/\*/, ".*").replace(/\//, "\\/");
     return new RegExp("^" + mt_esc + "$");
 }
 
-function _get_mime_type_string(mime_type) {
+function _get_mime_type_string (mime_type) {
     if (mime_type instanceof RegExp) {
 	return mime_type.source.slice(1,-1)
 	                       .replace(/\\\//, "/")
@@ -50,7 +50,7 @@ function _get_mime_type_string(mime_type) {
     return mime_type;
 }
 
-function get_mime_type_external_handler(mime_type) {
+function get_mime_type_external_handler (mime_type) {
     if (mime_type instanceof RegExp) {
 	let mt_i = _get_mime_type_index(mime_type);
 	return mt_i != -1 ? mime_type_external_handlers[mt_i][1] : undefined;
@@ -59,7 +59,7 @@ function get_mime_type_external_handler(mime_type) {
 	return predicate_alist_match(mime_type_external_handlers, mime_type);
 }
 
-function remove_mime_type_external_handler(mime_type) {
+function remove_mime_type_external_handler (mime_type) {
     let mt_r = _get_mime_type_regexp(mime_type);
     let mt_i = _get_mime_type_index(mt_r);
     if (mt_i != -1)
@@ -75,7 +75,7 @@ function remove_mime_type_external_handler(mime_type) {
  *
  * define_mime_type_external_handler("video/ogg-theora", "mplayer", "video/*");
  */
-function define_mime_type_external_handler(mime_type, handler, before) {
+function define_mime_type_external_handler (mime_type, handler, before) {
     let eh = mime_type_external_handlers;
     let eh_len = eh.length;
     let eh_eol = eh_len > 0 && eh[eh_len-1][0].source == "^.*$" ?
@@ -85,8 +85,7 @@ function define_mime_type_external_handler(mime_type, handler, before) {
     if (mt_s == "*" && ! before) {
 	remove_mime_type_external_handler(mt_r);
 	eh.push([mt_r, handler]);
-    }
-    else if (! before) {
+    } else if (! before) {
 	let mt_i = _get_mime_type_index(mt_r);
 	if (mt_i != -1)
 	    eh[mt_i] = [mt_r, handler];
@@ -95,13 +94,11 @@ function define_mime_type_external_handler(mime_type, handler, before) {
 	    if (mt_m != null) {
 		before = mt_m[1] + "/*";
 		define_mime_type_external_handler(mime_type, handler, before);
-	    }
-	    else {
+	    } else {
 		eh.splice(eh_eol, 0, [mt_r, handler]);
 	    }
 	}
-    }
-    else {
+    } else {
 	remove_mime_type_external_handler(mt_r);
 	let bf_r = _get_mime_type_regexp(before);
 	let bf_i = _get_mime_type_index(bf_r);
@@ -111,7 +108,7 @@ function define_mime_type_external_handler(mime_type, handler, before) {
     }
 }
 
-function mime_type_from_uri(uri) {
+function mime_type_from_uri (uri) {
     var type = "application/octet-stream";
     try {
         uri = make_uri(uri);
@@ -120,7 +117,7 @@ function mime_type_from_uri(uri) {
     return type;
 }
 
-function mime_info_from_mime_type(type) {
+function mime_info_from_mime_type (type) {
     if (type == null)
         type = "application/octet-stream";
     try {

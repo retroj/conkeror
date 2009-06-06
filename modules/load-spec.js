@@ -135,15 +135,15 @@ function load_spec (x) {
 }
 load_spec.prototype = {};
 
-function load_spec_document(x) {
+function load_spec_document (x) {
     return x.document;
 }
 
-function load_spec_element(x) {
+function load_spec_element (x) {
     return x.element;
 }
 
-function load_spec_title(x) {
+function load_spec_title (x) {
     if (x.title)
         return x.title;
     if (x.document)
@@ -151,7 +151,7 @@ function load_spec_title(x) {
     return null;
 }
 
-function load_spec_mime_type(x) {
+function load_spec_mime_type (x) {
     if (x.mime_type)
         return x.mime_type;
     if (x.document)
@@ -159,23 +159,21 @@ function load_spec_mime_type(x) {
     return mime_type_from_uri(load_spec_uri(x));
 }
 
-function load_spec_filename(x) {
+function load_spec_filename (x) {
     return x.filename;
 }
 
-function load_spec_filename_extension(x) {
+function load_spec_filename_extension (x) {
     return x.filename_extension;
 }
 
-function get_web_navigation_for_frame(frame) {
+function get_web_navigation_for_frame (frame) {
     var ifr = frame.QueryInterface(Ci.nsIInterfaceRequestor);
     return ifr.getInterface(Ci.nsIWebNavigation);
 }
 
-function get_SHEntry_for_document(doc)
-{
-    try
-    {
+function get_SHEntry_for_document (doc) {
+    try {
         var frame = doc.defaultView;
         var webNav = get_web_navigation_for_frame(frame);
         var pageLoader = webNav.QueryInterface(Ci.nsIWebPageDescriptor);
@@ -184,7 +182,7 @@ function get_SHEntry_for_document(doc)
     } catch (e) { return null; }
 }
 
-function load_spec_set_properties_from_sh_entry(x) {
+function load_spec_set_properties_from_sh_entry (x) {
     var sh_entry = get_SHEntry_for_document(x.document);
     if (sh_entry != null) {
         x.cache_key = sh_entry;
@@ -193,7 +191,7 @@ function load_spec_set_properties_from_sh_entry(x) {
     }
 }
 
-function load_spec_referrer(x) {
+function load_spec_referrer (x) {
     if (x.referrer)
         return x.referrer;
     if (x.document) {
@@ -207,7 +205,7 @@ function load_spec_referrer(x) {
     return null;
 }
 
-function load_spec_post_data(x) {
+function load_spec_post_data (x) {
     if (x.post_data)
         return x.post_data;
     if (x.raw_post_data) {
@@ -224,15 +222,15 @@ function load_spec_post_data(x) {
     return null;
 }
 
-function load_spec_raw_post_data(x) {
+function load_spec_raw_post_data (x) {
     return x.raw_post_data;
 }
 
-function load_spec_request_mime_type(x) {
+function load_spec_request_mime_type (x) {
     return x.request_mime_type;
 }
 
-function load_spec_cache_key(x) {
+function load_spec_cache_key (x) {
     if (x.cache_key)
         return x.cache_key;
     if (x.document) {
@@ -242,7 +240,7 @@ function load_spec_cache_key(x) {
     return null;
 }
 
-function load_spec_source_frame(x) {
+function load_spec_source_frame (x) {
     if (x.source_frame)
         return x.source_frame;
     if (x.document)
@@ -250,7 +248,7 @@ function load_spec_source_frame(x) {
     return null;
 }
 
-function load_spec_uri_string(x) {
+function load_spec_uri_string (x) {
     if (x.uri)
         return x.uri;
     if (x.document && x.document.defaultView)
@@ -260,7 +258,7 @@ function load_spec_uri_string(x) {
     return null;
 }
 
-function load_spec_uri(x) {
+function load_spec_uri (x) {
     if (x.document && x.document.defaultView)
         return make_uri(x.document.defaultView.location.href);
     if (x.document)
@@ -268,16 +266,16 @@ function load_spec_uri(x) {
     return make_uri(load_spec_uri_string(x));
 }
 
-function load_spec_flags(x) {
+function load_spec_flags (x) {
     return x.load_spec_flags;
 }
 
-function load_spec_mime_info(x) {
+function load_spec_mime_info (x) {
     var type = load_spec_mime_type(x);
     return mime_info_from_mime_type(type);
 }
 
-function load_spec_default_shell_command(x) {
+function load_spec_default_shell_command (x) {
     var mime_type = load_spec_mime_type(x);
     return get_mime_type_external_handler(mime_type);
 }
@@ -291,7 +289,7 @@ define_variable('forced_charset_list', null,
     "will be used.");
 
 /* Target can be either a content_buffer or an nsIWebNavigation */
-function apply_load_spec(target, spec) {
+function apply_load_spec (target, spec) {
     if (! (spec instanceof load_spec))
         spec = load_spec(spec);
     var uri = load_spec_uri_string(spec);

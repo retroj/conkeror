@@ -45,8 +45,7 @@ function maybe_get_url_extension (url_o) {
  * returns null, the default extension for the given
  * content type, or the extension part of file_name_s.
  */
-function maybe_get_preferred_filename_extension (file_name_s, content_type)
-{
+function maybe_get_preferred_filename_extension (file_name_s, content_type) {
     var ext = maybe_get_filename_extension (file_name_s);
     var mimeInfo = null;
     var primary = null;
@@ -59,7 +58,7 @@ function maybe_get_preferred_filename_extension (file_name_s, content_type)
             primary = mimeInfo.primaryExtension;
         } catch (e) { }
     }
-    if (ext && mimeInfo && mimeInfo.extensionExists (ext))
+    if (ext && mimeInfo && mimeInfo.extensionExists(ext))
         return ext;
     else if (primary)
         return primary;
@@ -69,7 +68,7 @@ function maybe_get_preferred_filename_extension (file_name_s, content_type)
 
 
 function maybe_get_preferred_url_extension (url_o, content_type) {
-    var ext = maybe_get_url_extension (url_o);
+    var ext = maybe_get_url_extension(url_o);
     var mimeInfo = null;
     var primary = null;
     if (content_type) {
@@ -80,7 +79,7 @@ function maybe_get_preferred_url_extension (url_o, content_type) {
             primary = mimeInfo.primaryExtension;
         } catch (e) { }
     }
-    if (ext && mimeInfo && mimeInfo.extensionExists (ext))
+    if (ext && mimeInfo && mimeInfo.extensionExists(ext))
         return ext;
     else if (primary)
         return primary;
@@ -95,47 +94,48 @@ function get_default_extension (file_name_s, url_o, content_type) {
     {
         return "";
     }
-    return (maybe_get_preferred_filename_extension (file_name_s, content_type) ||
-            maybe_get_preferred_url_extension (url_o, content_type));
+    return (maybe_get_preferred_filename_extension(file_name_s, content_type) ||
+            maybe_get_preferred_url_extension(url_o, content_type));
 }
 
-function get_charset_for_save(aDocument)
-{
-    if (aDocument)
-        return aDocument.characterSet;
+function get_charset_for_save (doc) {
+    if (doc)
+        return doc.characterSet;
     return null;
 }
 
 
-function maybe_filename_from_content_disposition (aContentDisposition, charset) {
-    if (aContentDisposition) {
+function maybe_filename_from_content_disposition (content_disposition, charset) {
+    if (content_disposition) {
         const mhp = Components.classes["@mozilla.org/network/mime-hdrparam;1"]
             .getService(Components.interfaces.nsIMIMEHeaderParam);
         var dummy = { value: null };  // Need an out param...
 
-        var fileName = null;
+        var filename = null;
         try {
-            fileName = mhp.getParameter(aContentDisposition, "filename", charset, true, dummy);
+            filename = mhp.getParameter(content_disposition, "filename", charset, true, dummy);
         } catch (e) {
             try {
-                fileName = mhp.getParameter(aContentDisposition, "name", charset, true, dummy);
+                filename = mhp.getParameter(content_disposition, "name", charset, true, dummy);
             } catch (e) { }
         }
-        if (fileName)
-            return fileName;
+        if (filename)
+            return filename;
         else
             return null;
     }
     return null;
 }
 
-function maybe_filename_from_uri(uri) {
+function maybe_filename_from_uri (uri) {
     try {
         var url = uri.QueryInterface(Components.interfaces.nsIURL);
         if (url.fileName != "") {
             // 2) Use the actual file name, if present
-            var textToSubURI = Cc["@mozilla.org/intl/texttosuburi;1"].getService(Ci.nsITextToSubURI);
-            return textToSubURI.unEscapeURIForUI(url.originCharset || "UTF-8", url.fileName);
+            var text_to_sub_uri = Cc["@mozilla.org/intl/texttosuburi;1"].
+                getService(Ci.nsITextToSubURI);
+            return text_to_sub_uri.unEscapeURIForUI(url.originCharset ||
+                                                    "UTF-8", url.fileName);
         }
     } catch (e) {
         // This is something like a data: and so forth URI... no filename here.
@@ -143,32 +143,32 @@ function maybe_filename_from_uri(uri) {
     return null;
 }
 
-function maybe_filename_from_title(title) {
+function maybe_filename_from_title (title) {
     if (title) {
-        var docTitle = title.replace(/^\s+|\s+$/g, "");
-        if (docTitle && docTitle.length > 0) {
+        title = title.replace(/^\s+|\s+$/g, "");
+        if (title && title.length > 0) {
             // 3) Use the document title
-            return docTitle;
+            return title;
         }
     }
     return null;
 }
 
-function maybe_filename_from_url_last_directory (aURI) {
+function maybe_filename_from_url_last_directory (uri) {
     // 5) If this is a directory, use the last directory name
     try {
-    var path = aURI.path.match(/\/([^\/]+)\/$/);
-    if (path && path.length > 1)
-        return path[1];
-    return null;
+        var path = uri.path.match(/\/([^\/]+)\/$/);
+        if (path && path.length > 1)
+            return path[1];
+        return null;
     } catch (e) {
         return null;
     }
 }
 
-function maybe_filename_from_url_host (aURI) {
-    if (aURI && 'host' in aURI)
-        return aURI.host;
+function maybe_filename_from_url_host (uri) {
+    if (uri && 'host' in uri)
+        return uri.host;
     return null;
 }
 
@@ -181,20 +181,19 @@ function maybe_filename_from_localization_default () {
 }
 
 function generate_filename_safely_default (filename) {
-    return filename.replace (/[\/]+/g, '_');
+    return filename.replace(/[\/]+/g, '_');
 }
 
 function generate_filename_safely_darwin (filename) {
     return filename.replace(/[\:\/]+/g, '_');
 }
 
-function generate_filename_safely_winnt (filename)
-{
-    filename = filename.replace (/[\"]+/g,     "'");
-    filename = filename.replace (/[\*\:\?]+/g, ' ');
-    filename = filename.replace (/[\<]+/g,     '(');
-    filename = filename.replace (/[\>]+/g,     ')');
-    filename = filename.replace (/[\\\/\|]+/g, '_');
+function generate_filename_safely_winnt (filename) {
+    filename = filename.replace(/[\"]+/g,     "'");
+    filename = filename.replace(/[\*\:\?]+/g, ' ');
+    filename = filename.replace(/[\<]+/g,     '(');
+    filename = filename.replace(/[\>]+/g,     ')');
+    filename = filename.replace(/[\\\/\|]+/g, '_');
     return filename;
 }
 
@@ -218,7 +217,7 @@ default:
  *
  * extension may be null, in which case an extension is suggested as well
  */
-function suggest_file_name(spec, extension) {
+function suggest_file_name (spec, extension) {
     var document;
     var uri;
     var content_type;
@@ -234,8 +233,9 @@ function suggest_file_name(spec, extension) {
 
     if (!file_name) {
         file_name = generate_filename_safely_fn(
-            maybe_filename_from_content_disposition(document && get_document_content_disposition(document),
-                                                    get_charset_for_save(document)) ||
+            maybe_filename_from_content_disposition(
+                document && get_document_content_disposition(document),
+                get_charset_for_save(document)) ||
             ((spec.suggest_filename_from_uri != false) && maybe_filename_from_uri(uri)) ||
             maybe_filename_from_title(load_spec_title(spec)) ||
             maybe_filename_from_url_last_directory(uri) ||

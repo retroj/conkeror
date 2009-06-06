@@ -15,16 +15,14 @@ require("minibuffer.js");
  * Completions is either a visit function or an array.
  */
 define_keywords("$completions", "$get_string", "$get_description", "$get_value");
-function all_word_completer()
-{
+function all_word_completer () {
     keywords(arguments);
     var completions = arguments.$completions;
     var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
     var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
     var get_value = arguments.$get_value;
     var arr;
-    if (typeof(completions) == "function")
-    {
+    if (typeof(completions) == "function") {
         arr = [];
         completions(function (x) { arr.push(x); });
     } else
@@ -36,8 +34,7 @@ function all_word_completer()
         var data = arr.filter(function (x) {
                 var s = get_string(x);
                 var d = get_description(x);
-                for (var i = 0; i < words.length; ++i)
-                {
+                for (var i = 0; i < words.length; ++i) {
                     if (s.toLowerCase().indexOf(words[i]) == -1 && d.toLowerCase().indexOf(words[i]) == -1)
                         return false;
                 }
@@ -53,7 +50,7 @@ function all_word_completer()
     }
 }
 
-function get_common_prefix_length(a, b, len) {
+function get_common_prefix_length (a, b, len) {
     var lim;
     if (len != null && len < a.length)
         lim = len;
@@ -66,8 +63,8 @@ function get_common_prefix_length(a, b, len) {
     return i;
 }
 
-function get_partial_completion_input_state(x, prefix_end, suffix_begin, orig_str) {
-    if (suffix_begin < orig_str.length)  {
+function get_partial_completion_input_state (x, prefix_end, suffix_begin, orig_str) {
+    if (suffix_begin < orig_str.length) {
         if (orig_str[suffix_begin] == " ")
             suffix_begin++;
         let sel = x.length + prefix_end + 1;
@@ -79,16 +76,14 @@ function get_partial_completion_input_state(x, prefix_end, suffix_begin, orig_st
     }
 }
 
-function prefix_completer()
-{
+function prefix_completer () {
     keywords(arguments);
     var completions = arguments.$completions;
     var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
     var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
     var get_value = arguments.$get_value;
     var arr;
-    if (typeof(completions) == "function")
-    {
+    if (typeof(completions) == "function") {
         arr = [];
         completions(function (x) { arr.push(x); });
     } else
@@ -122,8 +117,7 @@ function prefix_completer()
                 ++i;
             return retval;
         });
-        if (data.length > 0)
-        {
+        if (data.length > 0) {
             let a = get_string(data[0]);
             let b = get_string(data[data.length - 1]);
             let i = get_common_prefix_length(a, b);
@@ -153,7 +147,7 @@ function prefix_completer()
     }
 }
 
-function javascript_completer(buffer) {
+function javascript_completer (buffer) {
     var window = buffer.window;
 
     return function (input, pos, conservative) {
@@ -167,14 +161,11 @@ function javascript_completer(buffer) {
         var offset = matches[1] ? matches[1].length : 0;
         offset += matches[2] ? matches[2].length : 0;
 
-        if (matches[2])
-        {
+        if (matches[2]) {
             let brackets = 0, parentheses = 0;
         outer:
-            for (; start >= 0; start--)
-            {
-                switch (matches[1][start])
-                {
+            for (; start >= 0; start--) {
+                switch (matches[1][start]) {
                 case ";":
                 case "{":
                     break outer;
@@ -203,21 +194,18 @@ function javascript_completer(buffer) {
         var common_prefix_len = null;
         var common_prefix = null;
 
-        function add_completion(str, desc) {
+        function add_completion (str, desc) {
             if (common_prefix != null)
                 common_prefix_len = get_common_prefix_length(common_prefix, str, common_prefix_len);
             else
                 common_prefix = str;
             data.push([str,desc]);
         }
-        if (matches[1].substr(start+1))
-        {
+        if (matches[1].substr(start+1)) {
             try {
                 source_obj = eval(matches[1].substr(start+1));
             } catch (e) {}
-        }
-        else
-        {
+        } else {
             source_obj = conkeror;
             if ("window".substring(0,filter.length) == filter)
                 add_completion("window", "object");
@@ -258,7 +246,7 @@ function javascript_completer(buffer) {
 }
 
 
-function merge_completers(completers) {
+function merge_completers (completers) {
     if(completers.length == 0)
         return null;
     return function (input, pos, conservative) {
@@ -271,13 +259,13 @@ function merge_completers(completers) {
                 count += r.count;
             }
         }
-        function forward(name) {
-            return function() {
+        function forward (name) {
+            return function () {
                 var args = Array.prototype.slice.call(arguments);
                 var i = args.shift();
-                for(var j=0; j < results.length; j++) {
+                for (var j=0; j < results.length; j++) {
                     var r = results[j];
-                    if(i < r.count) {
+                    if (i < r.count) {
                         if (name in r && r[name] != null) {
                             args.unshift(i);
                             return r[name].apply(this, args);
@@ -297,12 +285,12 @@ function merge_completers(completers) {
     };
 }
 
-function nest_completions(completions, prefix, suffix) {
+function nest_completions (completions, prefix, suffix) {
     if (prefix == null)
         prefix = "";
     if (suffix == null)
         suffix = "";
-    function nest(x) {
+    function nest (x) {
         let [s, a, b] = x;
         if (a == null)
             a = s.length;

@@ -45,15 +45,14 @@ define_keywords("$history", "$validator",
                 "$auto_complete_delay",
                 "$space_completes");
 /* FIXME: support completing in another thread */
-function text_entry_minibuffer_state(continuation) {
+function text_entry_minibuffer_state (continuation) {
     keywords(arguments);
 
     basic_minibuffer_state.call(this, forward_keywords(arguments));
     this.keymap = minibuffer_keymap;
 
     this.continuation = continuation;
-    if (arguments.$history)
-    {
+    if (arguments.$history) {
         this.history = minibuffer_history_data.get_put_default(arguments.$history, []);
         this.history_index = -1;
         this.saved_last_history_entry = null;
@@ -61,8 +60,7 @@ function text_entry_minibuffer_state(continuation) {
 
     this.validator = arguments.$validator;
 
-    if (arguments.$completer != null)
-    {
+    if (arguments.$completer != null) {
         this.completer = arguments.$completer;
         let auto = arguments.$auto_complete;
         while (typeof(auto) == "string")
@@ -88,8 +86,7 @@ function text_entry_minibuffer_state(continuation) {
     }
 }
 
-function completions_tree_view(minibuffer_state)
-{
+function completions_tree_view (minibuffer_state) {
     this.minibuffer_state = minibuffer_state;
 }
 
@@ -102,7 +99,7 @@ completions_tree_view.prototype = {
             return 0;
         return c.count;
     },
-    getCellText : function(row,column){
+    getCellText : function (row,column) {
         var c = this.minibuffer_state.completions;
         if (row >= c.count)
             return null;
@@ -112,20 +109,20 @@ completions_tree_view.prototype = {
             return c.get_description(row);
         return "";
     },
-    setTree : function(treebox){ this.treebox = treebox; },
-    isContainer: function(row){ return false; },
-    isSeparator: function(row){ return false; },
-    isSorted: function(){ return false; },
-    getLevel: function(row){ return 0; },
-    getImageSrc: function(row,col){ return null; },
-    getRowProperties: function(row,props){},
-    getCellProperties: function(row,col,props){
+    setTree : function (treebox) { this.treebox = treebox; },
+    isContainer: function (row) { return false; },
+    isSeparator: function (row) { return false; },
+    isSorted: function () { return false; },
+    getLevel: function (row) { return 0; },
+    getImageSrc: function (row, col) { return null; },
+    getRowProperties: function (row, props) {},
+    getCellProperties: function (row, col, props) {
         if (col.index == 0)
             props.AppendElement(atom_service.getAtom("completion-string"));
         else
             props.AppendElement(atom_service.getAtom("completion-description"));
     },
-    getColumnProperties: function(colid,col,props){}
+    getColumnProperties: function (colid, col, props) {}
 };
 
 // inherit from basic_minibuffer_state
@@ -135,8 +132,7 @@ text_entry_minibuffer_state.prototype = {
         this.window = window;
         if (this.completer) {
             // Create completion display element if needed
-            if (!this.completion_element)
-            {
+            if (!this.completion_element) {
                 /* FIXME: maybe use the dom_generator */
                 var tree = create_XUL(window, "tree");
                 var s = this;
@@ -192,8 +188,7 @@ text_entry_minibuffer_state.prototype = {
         delete this.completions_cont;
 
         var el = this.completions_display_element;
-        if (el)
-        {
+        if (el) {
             el.parentNode.removeChild(el);
             this.completions_display_element = null;
         }
@@ -232,10 +227,8 @@ text_entry_minibuffer_state.prototype = {
 
         var m = this.window.minibuffer;
 
-        if (m.current_state == this)
-        {
-            if (this.completions && this.completions.count > 0)
-            {
+        if (m.current_state == this) {
+            if (this.completions && this.completions.count > 0) {
                 this.completions_display_element.view = this.completions_display_element.view;
                 this.completions_display_element.setAttribute("collapsed", "false");
 
@@ -288,7 +281,7 @@ text_entry_minibuffer_state.prototype = {
             this.update_completions_done(c, update_display);
     },
 
-    update_completions_done : function update_completions_done(c, update_display) {
+    update_completions_done : function update_completions_done (c, update_display) {
 
         /* The completer should return undefined if completion was not
          * attempted due to auto being true.  Otherwise, it can return
@@ -342,8 +335,7 @@ text_entry_minibuffer_state.prototype = {
     }
 };
 
-function minibuffer_complete(window, count)
-{
+function minibuffer_complete (window, count) {
     var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
@@ -371,13 +363,11 @@ function minibuffer_complete(window, count)
 
     let common_prefix;
 
-    if (count == 1 && !s.applied_common_prefix && (common_prefix = c.common_prefix_input_state))
-    {
+    if (count == 1 && !s.applied_common_prefix && (common_prefix = c.common_prefix_input_state)) {
         m.set_input_state(common_prefix);
         s.applied_common_prefix = true;
     } else if (!just_completed_manually) {
-        if (e.currentIndex != -1)
-        {
+        if (e.currentIndex != -1) {
             new_index = (e.currentIndex + count) % c.count;
             if (new_index < 0)
                 new_index += c.count;
@@ -396,8 +386,7 @@ interactive("minibuffer-complete", null,
 interactive("minibuffer-complete-previous", null,
     function (I) { minibuffer_complete(I.window, -I.p); });
 
-function exit_minibuffer(window)
-{
+function exit_minibuffer (window) {
     var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
@@ -427,8 +416,7 @@ function exit_minibuffer(window)
         }
     }
 
-    if (s.history)
-    {
+    if (s.history) {
         s.history.push(val);
         if (s.history.length > minibuffer_history_max_items)
             s.history.splice(0, s.history.length - minibuffer_history_max_items);
@@ -446,8 +434,7 @@ function exit_minibuffer(window)
 interactive("exit-minibuffer", null,
     function (I) { exit_minibuffer(I.window); });
 
-function minibuffer_history_next (window, count)
-{
+function minibuffer_history_next (window, count) {
     var m = window.minibuffer;
     var s = m.current_state;
     if (!(s instanceof text_entry_minibuffer_state))
