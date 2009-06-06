@@ -1057,3 +1057,41 @@ function open_download_buffer_automatically (info) {
     }
 }
 add_hook("download_added_hook", open_download_buffer_automatically);
+
+
+/*
+ * Download-show
+ */ 
+
+minibuffer_auto_complete_preferences.download = true;
+
+minibuffer.prototype.read_download = function () {
+    keywords(arguments,
+             $prompt = "Download",
+             $completer = all_word_completer(
+                 $completions = //[i for (i in get_downloads())],
+                 function (visitor) {
+                     var dls = download_manager_service.activeDownloads;
+                     while (dls.hasMoreElements()) {
+                         let dl = dls.getNext();
+                         visitor(id_to_download_info[dl.id]);
+                     }
+                 },
+                 $get_string = function (x) x.display_name,
+                 $get_description = function (x) x.source.spec,
+                 $get_value = function (x) x),
+             $auto_complete = "download",
+             $auto_complete_initial = true,
+             $match_required = true);
+    var result = yield this.read(forward_keywords(arguments));
+    yield co_return(result);
+};
+
+interactive("download-show",
+    "Prompt for an ongoing download and open a download buffer "+
+    "showing its progress.",
+    function (I) {
+        open_download_buffer_automatically(
+            (yield I.minibuffer.read_download()));
+    });
+
