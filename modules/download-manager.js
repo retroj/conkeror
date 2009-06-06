@@ -903,7 +903,7 @@ function download_retry (buffer) {
 }
 interactive("download-retry",
             "Retry a failed or canceled download.\n" +
-            "This command can be used to retry a download that failed or was cancled using " +
+            "This command can be used to retry a download that failed or was canceled using " +
             "the `download-cancel' command.  The download will begin from the start again.",
             function (I) {download_retry(I.buffer);});
 
