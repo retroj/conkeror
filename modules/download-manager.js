@@ -1069,8 +1069,7 @@ minibuffer.prototype.read_download = function () {
     keywords(arguments,
              $prompt = "Download",
              $completer = all_word_completer(
-                 $completions = //[i for (i in get_downloads())],
-                 function (visitor) {
+                 $completions = function (visitor) {
                      var dls = download_manager_service.activeDownloads;
                      while (dls.hasMoreElements()) {
                          let dl = dls.getNext();
@@ -1092,6 +1091,6 @@ interactive("download-show",
     "showing its progress.",
     function (I) {
         open_download_buffer_automatically(
-            (yield I.minibuffer.read_download()));
+            (yield I.minibuffer.read_download($prompt = "Show download:")));
     });
 
