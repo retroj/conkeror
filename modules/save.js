@@ -13,7 +13,7 @@ require("suggest-file-name.js");
 
 /* buffer is used only to associate with the download */
 define_keywords("$use_cache", "$buffer", "$prepare_download", "$temp_file");
-function save_uri(lspec, output_file) {
+function save_uri (lspec, output_file) {
     keywords(arguments, $use_cache = true);
 
     var use_cache = arguments.$use_cache;
@@ -90,7 +90,7 @@ const SAVEMODE_COMPLETE_DOM  = 0x01;
 // We have a DOM which we can serialize as text.
 const SAVEMODE_COMPLETE_TEXT = 0x02;
 
-function get_save_mode_from_content_type(content_type) {
+function get_save_mode_from_content_type (content_type) {
     var mode = SAVEMODE_FILEONLY;
     switch (content_type) {
     case "text/html":
@@ -106,8 +106,7 @@ function get_save_mode_from_content_type(content_type) {
 }
 
 define_keywords("$use_cache", "$buffer", "$wrap_column", "$prepare_download");
-function save_document_as_text(document, output_file)
-{
+function save_document_as_text (document, output_file) {
     keywords(arguments, $use_cache = true, $wrap_column = 80);
 
     var mode = get_save_mode_from_content_type(document.contentType);
@@ -137,13 +136,10 @@ function save_document_as_text(document, output_file)
         Ci.nsIWebBrowserPersist.ENCODE_FLAGS_ABSOLUTE_LINKS |
         Ci.nsIWebBrowserPersist.ENCODE_FLAGS_NOFRAMES_CONTENT;
 
-
     if (use_cache)
         persist.persistFlags |= Ci.nsIWebBrowserPersist.PERSIST_FLAGS_FROM_CACHE;
     else
         persist.persistFlags |= Ci.nsIWebBrowserPersist.PERSIST_FLAGS_BYPASS_CACHE;
-
-
 
     var info = register_download(buffer, uri);
     if (prepare_download)
@@ -163,7 +159,7 @@ function save_document_as_text(document, output_file)
 }
 
 define_keywords("$use_cache", "$buffer", "$prepare_download");
-function save_document_complete(document, output_file, output_dir) {
+function save_document_complete (document, output_file, output_dir) {
     keywords(arguments);
 
     var mime_type = document.contentType;
@@ -216,7 +212,7 @@ function save_document_complete(document, output_file, output_dir) {
     return info;
 }
 
-function download_failed_error() {
+function download_failed_error () {
     var e = new Error("Download failed");
     e.__proto__ = download_failed_error.prototype;
     return e;
@@ -229,7 +225,7 @@ download_failed_error.prototype.__proto__ = Error.prototype;
  * done with it.
  */
 define_keywords("$action", "$shell_command", "$shell_command_cwd", "$buffer", "$use_cache");
-function download_as_temporary(lspec) {
+function download_as_temporary (lspec) {
     keywords(arguments, $use_cache = true);
 
     var action_description = arguments.$action;
@@ -238,19 +234,17 @@ function download_as_temporary(lspec) {
 
     var uri = load_spec_uri(lspec);
     // If it is local file, there is no need to download it
-    if (uri.scheme == "file")
-    {
+    if (uri.scheme == "file") {
         let file = uri.QueryInterface(Ci.nsIFileURL).file;
 
         yield co_return([file, false /* not temporary */]);
     }
 
-
     var file = get_temporary_file(suggest_file_name(lspec));
 
     var cc = yield CONTINUATION;
 
-    function handle_state_change(info) {
+    function handle_state_change (info) {
         var state = info.state;
         switch (state) {
         case DOWNLOAD_CANCELED:

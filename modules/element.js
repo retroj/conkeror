@@ -82,7 +82,7 @@ define_browser_object_class(
 
 define_browser_object_class(
     "mathml", "MathML element", null,
-    xpath_browser_object_handler ("//m:math"));
+    xpath_browser_object_handler("//m:math"));
 
 define_browser_object_class(
     "top", null, null,
@@ -109,7 +109,7 @@ define_browser_object_class(
             $prompt = prompt,
             $history = I.command.name+"/file",
             $initial_value = I.local.cwd.path);
-        yield co_return (result);
+        yield co_return(result);
     });
 
 define_browser_object_class(
@@ -119,7 +119,7 @@ define_browser_object_class(
             $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//img[@alt]");
-        yield (co_return (result.alt));
+        yield co_return(result.alt);
     });
 
 define_browser_object_class(
@@ -129,7 +129,7 @@ define_browser_object_class(
             $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//*[@title]");
-        yield (co_return (result.title));
+        yield co_return(result.title);
     });
 
 define_browser_object_class(
@@ -139,7 +139,7 @@ define_browser_object_class(
             $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//img[@alt] | //*[@title]");
-        yield (co_return (result.title ? result.title : result.alt));
+        yield co_return(result.title ? result.title : result.alt);
     });
 
 define_browser_object_class(
@@ -217,19 +217,19 @@ function browser_element_focus (buffer, elem) {
     if (!element_dom_node_or_window_p(elem))
         return;
 
-    if (elem instanceof Ci.nsIDOMXULTextBoxElement)  {
-        // Focus the input field instead
-        elem = elem.wrappedJSObject.inputField;
-    }
+    if (elem instanceof Ci.nsIDOMXULTextBoxElement)
+        elem = elem.wrappedJSObject.inputField; // focus the input field
 
     browser_set_element_focus(buffer, elem);
-    if (elem instanceof Ci.nsIDOMWindow) {
+    if (elem instanceof Ci.nsIDOMWindow)
         return;
-    }
+
     // If it is not a window, it must be an HTML element
     var x = 0;
     var y = 0;
-    if (elem instanceof Ci.nsIDOMHTMLFrameElement || elem instanceof Ci.nsIDOMHTMLIFrameElement) {
+    if (elem instanceof Ci.nsIDOMHTMLFrameElement ||
+        elem instanceof Ci.nsIDOMHTMLIFrameElement)
+    {
         elem.contentWindow.focus();
         return;
     }
@@ -246,8 +246,7 @@ function browser_element_focus (buffer, elem) {
     elem.dispatchEvent(evt);
 }
 
-function browser_object_follow(buffer, target, elem)
-{
+function browser_object_follow (buffer, target, elem) {
     // XXX: would be better to let nsILocalFile objects be load_specs
     if (elem instanceof Ci.nsILocalFile)
         elem = elem.path;
@@ -342,7 +341,7 @@ function follow (I, target) {
         target = FOLLOW_DEFAULT;
     I.target = target;
     if (target == OPEN_CURRENT_BUFFER)
-        check_buffer (I.buffer, content_buffer);
+        check_buffer(I.buffer, content_buffer);
     var element = yield read_browser_object(I);
     try {
         element = load_spec(element);
@@ -373,7 +372,7 @@ function follow_current_buffer (I) {
 }
 
 
-function element_get_load_target_label(element) {
+function element_get_load_target_label (element) {
     if (element instanceof Ci.nsIDOMWindow)
         return "page";
     if (element instanceof Ci.nsIDOMHTMLFrameElement)
@@ -383,7 +382,7 @@ function element_get_load_target_label(element) {
     return null;
 }
 
-function element_get_operation_label(element, op_name, suffix) {
+function element_get_operation_label (element, op_name, suffix) {
     var target_label = element_get_load_target_label(element);
     if (target_label != null)
         target_label = " " + target_label;
@@ -399,8 +398,7 @@ function element_get_operation_label(element, op_name, suffix) {
 }
 
 
-function browser_element_copy(buffer, elem)
-{
+function browser_element_copy (buffer, elem) {
     var spec;
     try {
        spec = load_spec(elem);
@@ -426,16 +424,25 @@ function browser_element_copy(buffer, elem)
         }
     }
     browser_set_element_focus(buffer, elem);
-    writeToClipboard (text);
-    buffer.window.minibuffer.message ("Copied: " + text);
+    writeToClipboard(text);
+    buffer.window.minibuffer.message("Copied: " + text);
 }
 
 
-var view_source_use_external_editor = false, view_source_function = null;
-function browser_object_view_source(buffer, target, elem)
-{
-    if (view_source_use_external_editor || view_source_function)
-    {
+define_variable("view_source_use_external_editor", false,
+    "When true, the `view-source' command will send its document to "+
+    "your external editor.");
+
+define_variable("view_source_function", null,
+    "May be set to a user-defined function for viewing source code. "+
+    "The function should accept an nsILocalFile of the filename as "+
+    "its one positional argument, and it will also be called with "+
+    "the keyword `$temporary', whose value will be true if the file "+
+    "is considered temporary, and therefore the function must take "+
+    "responsibility for deleting it.");
+
+function browser_object_view_source (buffer, target, elem) {
+    if (view_source_use_external_editor || view_source_function) {
         var spec = load_spec(elem);
 
         let [file, temp] = yield download_as_temporary(spec,
@@ -456,7 +463,7 @@ function browser_object_view_source(buffer, target, elem)
             win = elem.contentWindow;
             break;
         case "math":
-            view_mathml_source (window, charset, elem);
+            view_mathml_source(window, charset, elem);
             return;
         default:
             throw new Error("Invalid browser element");
@@ -477,8 +484,10 @@ function browser_object_view_source(buffer, target, elem)
 
 function view_source (I, target) {
     I.target = target;
+    if (target == null)
+        target = OPEN_CURRENT_BUFFER;
     var element = yield read_browser_object(I);
-    yield browser_object_view_source(I.buffer, (target == null ? OPEN_CURRENT_BUFFER : target), element);
+    yield browser_object_view_source(I.buffer, target, element);
 }
 
 function view_source_new_buffer (I) {

@@ -32,12 +32,10 @@ define_current_buffer_hook("current_content_buffer_overlink_change_hook", "conte
 
 /* If browser is null, create a new browser */
 define_keywords("$load");
-function content_buffer(window, element)
-{
+function content_buffer (window, element) {
     keywords(arguments);
     this.constructor_begin();
     try {
-
         conkeror.buffer.call(this, window, element, forward_keywords(arguments));
 
         this.browser.addProgressListener(this);
@@ -119,7 +117,6 @@ content_buffer.prototype = {
     get scrollMaxX () { return this.top_frame.scrollMaxX; },
     get scrollMaxY () { return this.top_frame.scrollMaxY; },
 
-
     /* Used to display the correct URI when the buffer opens initially
      * even before loading has progressed far enough for currentURI to
      * contain the correct URI. */
@@ -133,7 +130,7 @@ content_buffer.prototype = {
         return "";
     },
 
-    get title() { return this.browser.contentTitle; },
+    get title () { return this.browser.contentTitle; },
     get description () { return this.display_URI_string; },
 
     load : function (load_spec) {
@@ -148,7 +145,7 @@ content_buffer.prototype = {
     QueryInterface: generate_QI(Ci.nsIWebProgressListener, Ci.nsISupportsWeakReference),
 
     // This method is called to indicate state changes.
-    onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) {
+    onStateChange: function (aWebProgress, aRequest, aStateFlags, aStatus) {
 /*
         const WPL = Components.interfaces.nsIWebProgressListener;
 
@@ -173,8 +170,7 @@ content_buffer.prototype = {
 
         if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
             this._request_count++;
-        }
-        else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
+        } else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
             const NS_ERROR_UNKNOWN_HOST = 2152398878;
             if (--this._request_count > 0 && aStatus == NS_ERROR_UNKNOWN_HOST) {
                 // to prevent bug 235825: wait for the request handled
@@ -197,10 +193,9 @@ content_buffer.prototype = {
             this.loading = true;
             content_buffer_started_loading_hook.run(this);
             this.last_user_input_received = null;
-        }
-        else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
-                 aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
-            if (this.loading == true)  {
+        } else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
+                   aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
+            if (this.loading == true) {
                 //dumpln("*** finished loading");
                 this.loading = false;
                 content_buffer_finished_loading_hook.run(this);
@@ -216,14 +211,14 @@ content_buffer.prototype = {
 
     /* This method is called to indicate progress changes for the currently
        loading page. */
-    onProgressChange: function(webProgress, request, curSelf, maxSelf,
-                               curTotal, maxTotal) {
+    onProgressChange: function (webProgress, request, curSelf, maxSelf,
+                                curTotal, maxTotal) {
         content_buffer_progress_change_hook.run(this, request, curSelf, maxSelf, curTotal, maxTotal);
     },
 
     /* This method is called to indicate a change to the current location.
        The url can be gotten as location.spec. */
-    onLocationChange : function(webProgress, request, location) {
+    onLocationChange : function (webProgress, request, location) {
         /* Attempt to ignore onLocationChange calls due to the initial
          * loading of about:blank by all xul:browser elements. */
         if (location.spec == "about:blank" && this.ignore_initial_blank)
@@ -242,13 +237,13 @@ content_buffer.prototype = {
     // This method is called to indicate a status changes for the currently
     // loading page.  The message is already formatted for display.
     // Status messages could be displayed in the minibuffer output area.
-    onStatusChange: function(webProgress, request, status, msg) {
+    onStatusChange: function (webProgress, request, status, msg) {
         this.set_default_message(msg);
         content_buffer_status_change_hook.run(this, request, status, msg);
     },
 
     // This method is called when the security state of the browser changes.
-    onSecurityChange: function(webProgress, request, state) {
+    onSecurityChange: function (webProgress, request, state) {
         /* FIXME: currently this isn't used */
 
         /*
@@ -299,42 +294,54 @@ define_variable("read_url_handler_list", [],
     "null.  The result of the first function on the list that returns a " +
     "string is used in place of the input.");
 
-/* read_url_make_default_webjump_handler returns a function that
+/**
+ * read_url_make_default_webjump_handler returns a function that
  * transforms any input into the given webjump.  It should be the last
  * handler on read_url_handler_list (because any input is
- * accepted). */
-function read_url_make_default_webjump_handler(default_webjump) {
-    return function(input) {
+ * accepted).
+ */
+function read_url_make_default_webjump_handler (default_webjump) {
+    return function (input) {
 	return default_webjump + " " + input;
     };
 }
 
-/* read_url_make_blank_url_handler returns a function that replaces a
+/**
+ * read_url_make_blank_url_handler returns a function that replaces a
  * blank (empty) input with the given url (or webjump).  The url may
- * perform some function, eg. "javascript:location.reload()". */
-function read_url_make_blank_url_handler(url) {
-    return function(input) {
+ * perform some function, eg. "javascript:location.reload()".
+ */
+function read_url_make_blank_url_handler (url) {
+    return function (input) {
 	if (input.length == 0)
 	    return url;
 	return null;
     };
 }
 
-minibuffer.prototype.try_read_url_handlers = function(input) {
+minibuffer.prototype.try_read_url_handlers = function (input) {
     var result;
-    for (var i = 0; i < read_url_handler_list.length; ++i)
+    for (var i = 0; i < read_url_handler_list.length; ++i) {
         if ((result = read_url_handler_list[i](input)))
             return result;
+    }
     return input;
 }
 
-define_variable("url_completion_use_webjumps", true, "Specifies whether URL completion should complete webjumps.");
-define_variable("url_completion_use_bookmarks", true, "Specifies whether URL completion should complete bookmarks.");
+define_variable("url_completion_use_webjumps", true,
+    "Specifies whether URL completion should complete webjumps.");
+
+define_variable("url_completion_use_bookmarks", true,
+    "Specifies whether URL completion should complete bookmarks.");
+
 define_variable("url_completion_use_history", false,
-                     "Specifies whether URL completion should complete using browser history.");
+    "Specifies whether URL completion should complete using browser "+
+    "history.");
 
 define_variable("minibuffer_read_url_select_initial", true,
-                "Specifies whether a URL  presented in the minibuffer for editing should be selected.  This affects find-alternate-url.");
+    "Specifies whether a URL  presented in the minibuffer for editing "+
+    "should be selected.  This affects find-alternate-url.");
+
 
 minibuffer_auto_complete_preferences["url"] = true;
 minibuffer.prototype.read_url = function () {
@@ -342,7 +349,7 @@ minibuffer.prototype.read_url = function () {
              $use_webjumps = url_completion_use_webjumps,
              $use_history = url_completion_use_history,
              $use_bookmarks = url_completion_use_bookmarks);
-    var completer = url_completer ($use_webjumps = arguments.$use_webjumps,
+    var completer = url_completer($use_webjumps = arguments.$use_webjumps,
         $use_bookmarks = arguments.$use_bookmarks,
         $use_history = arguments.$use_history);
     var result = yield this.read(
@@ -381,7 +388,7 @@ I.content_selection = interactive_method(
         return focusedWindow.getSelection ();
     });
 */
-function overlink_update_status(buffer, text) {
+function overlink_update_status (buffer, text) {
     if (text.length > 0)
         buffer.window.minibuffer.show("Link: " + text);
     else
@@ -399,15 +406,13 @@ define_global_mode("overlink_mode",
 overlink_mode(true);
 
 
-function go_back (b, prefix)
-{
+function go_back (b, prefix) {
     if (prefix < 0)
         go_forward(b, -prefix);
 
     check_buffer(b, content_buffer);
 
-    if (b.web_navigation.canGoBack)
-    {
+    if (b.web_navigation.canGoBack) {
         var hist = b.web_navigation.sessionHistory;
         var idx = hist.index - prefix;
         if (idx < 0)
@@ -416,20 +421,19 @@ function go_back (b, prefix)
     } else
         throw interactive_error("Can't go back");
 }
-interactive(
-    "go-back",
+
+interactive("go-back",
     "Go back in the session history for the current buffer.",
     function (I) {go_back(I.buffer, I.p);});
 
-function go_forward (b, prefix)
-{
+
+function go_forward (b, prefix) {
     if (prefix < 0)
         go_back(b, -prefix);
 
     check_buffer(b, content_buffer);
 
-    if (b.web_navigation.canGoForward)
-    {
+    if (b.web_navigation.canGoForward) {
         var hist = b.web_navigation.sessionHistory;
         var idx = hist.index + prefix;
         if (idx >= hist.count) idx = hist.count-1;
@@ -437,21 +441,23 @@ function go_forward (b, prefix)
     } else
         throw interactive_error("Can't go forward");
 }
+
 interactive("go-forward",
             "Go back in the session history for the current buffer.",
             function (I) {go_forward(I.buffer, I.p);});
 
-function stop_loading (b)
-{
+
+function stop_loading (b) {
     check_buffer(b, content_buffer);
     b.web_navigation.stop(Ci.nsIWebNavigation.STOP_NETWORK);
 }
+
 interactive("stop-loading",
             "Stop loading the current document.",
             function (I) {stop_loading(I.buffer);});
 
-function reload (b, bypass_cache, element, forced_charset)
-{
+
+function reload (b, bypass_cache, element, forced_charset) {
     check_buffer(b, content_buffer);
     if (element) {
         if (element instanceof Ci.nsIDOMHTMLImageElement) {
@@ -482,40 +488,42 @@ function reload (b, bypass_cache, element, forced_charset)
         b.web_navigation.reload(flags);
     }
 }
+
 interactive("reload",
-            "Reload the current document.\n" +
-            "If a prefix argument is specified, the cache is bypassed.  If a "+
-            "DOM node is supplied via browser object, that node will be "+
-            "reloaded.",
-            function (I) {
-                check_buffer(I.buffer, content_buffer);
-                var element = yield read_browser_object(I);
-                reload(I.buffer, I.P, element);
-            });
+    "Reload the current document.\n" +
+    "If a prefix argument is specified, the cache is bypassed.  If a "+
+    "DOM node is supplied via browser object, that node will be "+
+    "reloaded.",
+    function (I) {
+        check_buffer(I.buffer, content_buffer);
+        var element = yield read_browser_object(I);
+        reload(I.buffer, I.P, element);
+    });
 
 /**
  * browserDOMWindow: intercept window opening
  */
-function initialize_browser_dom_window(window) {
+function initialize_browser_dom_window (window) {
     window.QueryInterface(Ci.nsIDOMChromeWindow).browserDOMWindow =
         new browser_dom_window(window);
 }
 
 define_variable("browser_default_open_target", OPEN_NEW_BUFFER,
-                "Specifies how new window requests by content pages "+
-                "(e.g. by window.open from JavaScript or by using the "+
-                "target attribute of anchor and form elements) will be "+
-                "handled.  This will generally be `OPEN_NEW_BUFFER', "+
-                "`OPEN_NEW_BUFFER_BACKGROUND', or `OPEN_NEW_WINDOW'.");
+    "Specifies how new window requests by content pages (e.g. by "+
+    "window.open from JavaScript or by using the target attribute of "+
+    "anchor and form elements) will be handled.  This will generally "+
+    "be `OPEN_NEW_BUFFER', `OPEN_NEW_BUFFER_BACKGROUND', or "+
+    "`OPEN_NEW_WINDOW'.");
 
-function browser_dom_window(window) {
+
+function browser_dom_window (window) {
     this.window = window;
     this.next_target = null;
 }
 browser_dom_window.prototype = {
     QueryInterface: generate_QI(Ci.nsIBrowserDOMWindow),
 
-    openURI : function(aURI, aOpener, aWhere, aContext) {
+    openURI : function (aURI, aOpener, aWhere, aContext) {
 
         // Reference: http://www.xulplanet.com/references/xpcomref/ifaces/nsIBrowserDOMWindow.html
         var target = this.next_target;
@@ -599,7 +607,7 @@ ignore_function_for_get_caller_source_code_reference("define_page_mode");
 define_variable("auto_mode_list", [],
     "A list of mappings from URI regular expressions to page modes.");
 
-function page_mode_auto_update(buffer) {
+function page_mode_auto_update (buffer) {
     var uri = buffer.current_URI.spec;
     var mode = predicate_alist_match(auto_mode_list, uri);
     if (mode)
