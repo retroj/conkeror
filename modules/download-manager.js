@@ -1030,15 +1030,23 @@ define_variable("download_temporary_file_open_buffer_delay", 500,
     "This variable takes effect only if `open_download_buffer_automatically' is in " +
     "`download_added_hook', as it is by default.");
 
-define_variable("download_buffer_automatic_open_target", OPEN_NEW_WINDOW,
-    "Target for download buffers created by the `open_download_buffer_automatically' function.\n" +
-    "This variable takes effect only if `open_download_buffer_automatically' is in " +
-    "`download_added_hook', as it is by default.");
+define_variable("download_buffer_automatic_open_target",
+                [OPEN_NEW_WINDOW, OPEN_NEW_BUFFER_BACKGROUND],
+    "Target(s) for download buffers created by "+
+    "`open_download_buffer_automatically' and `download-open'.\n"+
+    "It can be a single target or an array of two targets.  When it is an "+
+    "array, the `download-open' command will use the second target when "+
+    "called with universal-argument.");
 
 
-function open_download_buffer_automatically (info) {
+function open_download_buffer_automatically (info, target) {
     var buf = info.source_buffer;
-    var target = download_buffer_automatic_open_target;
+    if (target == null) {
+        if (typeof(download_buffer_automatic_open_target) == "object")
+            target = download_buffer_automatic_open_target[0];
+        else
+            target = download_buffer_automatic_open_target;
+    }
     if (buf == null)
         target = OPEN_NEW_WINDOW;
     if (info.temporary_status == DOWNLOAD_NOT_TEMPORARY ||
@@ -1087,10 +1095,15 @@ minibuffer.prototype.read_download = function () {
 };
 
 interactive("download-show",
-    "Prompt for an ongoing download and open a download buffer "+
-    "showing its progress.",
+    "Prompt for an ongoing download and open a download buffer showing "+
+    "its progress.  When called with universal argument, the second "+
+    "target from `download_buffer_automatic_open_target' will be used.",
     function (I) {
+        var target = null;
+        if (I.P && typeof(download_buffer_automatic_open_target) == "object")
+            target = download_buffer_automatic_open_target[1];
         open_download_buffer_automatically(
-            (yield I.minibuffer.read_download($prompt = "Show download:")));
+            (yield I.minibuffer.read_download($prompt = "Show download:")),
+            target);
     });
 
