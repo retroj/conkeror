@@ -10,7 +10,7 @@
 require("special-buffer.js");
 require("interactive.js");
 
-function where_is_command(buffer, command) {
+function where_is_command (buffer, command) {
     var list = find_command_in_keymap(buffer, command);
     var msg;
     if (list.length == 0)
@@ -24,14 +24,14 @@ interactive("where-is", null, function (I) {
                      (yield I.minibuffer.read_command($prompt = "Where is command:")));
 });
 
-function help_document_generator(document, buffer) {
+function help_document_generator (document, buffer) {
     dom_generator.call(this, document, XHTML_NS);
     this.buffer = buffer;
 }
 help_document_generator.prototype = {
     __proto__: dom_generator.prototype,
 
-    key_binding : function(str, parent) {
+    key_binding : function (str, parent) {
         var node = this.element("span", "class", "key-binding");
         this.text(str, node);
         if (parent)
@@ -39,7 +39,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    source_code_reference : function(ref, parent) {
+    source_code_reference : function (ref, parent) {
         var f = this.document.createDocumentFragment();
         var module_name = ref.module_name;
         //f.appendChild(this.text(module_name != null ? "module " : "file "));
@@ -58,7 +58,7 @@ help_document_generator.prototype = {
         return f;
     },
 
-    command_name : function(name, parent) {
+    command_name : function (name, parent) {
         var node = this.element("span", "class", "command");
         this.text(name, node);
         if (parent)
@@ -66,7 +66,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    command_reference : function(name, parent) {
+    command_reference : function (name, parent) {
         var node = this.element("a",
                                 "class", "command",
                                 "href", "javascript:");
@@ -83,7 +83,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    variable_reference : function(name, parent) {
+    variable_reference : function (name, parent) {
         var node = this.element("a", "class", "variable", "href", "#");
         /* FIXME: make this work */
         this.text(name, node);
@@ -92,7 +92,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    help_text : function(str, parent) {
+    help_text : function (str, parent) {
         var paras = str.split("\n");
         var f = this.document.createDocumentFragment();
         for (var i = 0; i < paras.length; ++i) {
@@ -127,7 +127,7 @@ help_document_generator.prototype = {
 };
 
 define_keywords("$binding_list");
-function describe_bindings_buffer(window, element) {
+function describe_bindings_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
@@ -204,8 +204,7 @@ describe_bindings_buffer.prototype = {
                             if (cmd != null)
                                 help_str = cmd.shortdoc;
                         }
-                    }
-                    else if (bind.fallthrough)
+                    } else if (bind.fallthrough)
                         g.text("[pass through]", command_td);
                     let help_td = g.element("td", tr, "class", "help");
                     g.text(help_str || "", help_td);
@@ -218,7 +217,7 @@ describe_bindings_buffer.prototype = {
 };
 
 
-function describe_bindings(buffer, target) {
+function describe_bindings (buffer, target) {
     var list = [];
     for_each_key_binding(buffer, function (binding_stack) {
             var last = binding_stack[binding_stack.length - 1];
@@ -258,7 +257,7 @@ interactive("describe-bindings", null,
 
 
 define_keywords("$command_list");
-function apropos_command_buffer(window, element) {
+function apropos_command_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
@@ -315,7 +314,7 @@ apropos_command_buffer.prototype = {
 
 
 /* TODO: support regexps/etc. */
-function apropos_command(buffer, substring, target) {
+function apropos_command (buffer, substring, target) {
     var list = [];
     interactive_commands.for_each(function (name, cmd) {
         if (name.indexOf(substring) != -1) {
@@ -354,7 +353,7 @@ interactive("apropos-command", "List commands whose names contain a given substr
 
 
 define_keywords("$command", "$bindings");
-function describe_command_buffer(window, element) {
+function describe_command_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
@@ -415,7 +414,7 @@ describe_command_buffer.prototype = {
 };
 
 
-function describe_command(buffer, command, target) {
+function describe_command (buffer, command, target) {
     var bindings = find_command_in_keymap(buffer, command);
     create_buffer(buffer.window,
                   buffer_creator(describe_command_buffer,
@@ -437,19 +436,17 @@ interactive("describe-command", null,
 
 
 
-
-
-
-function view_referenced_source_code(buffer) {
+function view_referenced_source_code (buffer) {
     if (buffer.source_code_reference == null)
         throw interactive_error("Command not valid in current buffer.");
     yield buffer.source_code_reference.open_in_editor();
 }
-interactive("view-referenced-source-code", null, function (I) {yield view_referenced_source_code(I.buffer);});
+interactive("view-referenced-source-code", null,
+            function (I) {yield view_referenced_source_code(I.buffer);});
 
 
 define_keywords("$binding", "$other_bindings", "$key_sequence");
-function describe_key_buffer(window, element) {
+function describe_key_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
@@ -538,7 +535,7 @@ describe_key_buffer.prototype = {
 };
 
 
-function describe_key(buffer, key_info, target) {
+function describe_key (buffer, key_info, target) {
     var bindings;
     var seq = key_info[0];
     var bind = key_info[1];
@@ -567,7 +564,7 @@ function describe_key_new_window (I) {
                  OPEN_NEW_WINDOW);
 }
 
-function describe_key_briefly(buffer, key_info) {
+function describe_key_briefly (buffer, key_info) {
     var bindings;
     var seq = key_info[0];
     var bind = key_info[1];
@@ -589,17 +586,19 @@ function describe_key_briefly(buffer, key_info) {
 
 interactive("describe-key", null,
             alternates(describe_key_new_buffer, describe_key_new_window));
-interactive("describe-key-briefly", null, function (I) {
-    describe_key_briefly(
-        I.buffer,
-        (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
-});
+
+interactive("describe-key-briefly", null,
+    function (I) {
+        describe_key_briefly(
+            I.buffer,
+            (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
+    });
 
 
 
 
 define_keywords("$variable");
-function describe_variable_buffer(window, element) {
+function describe_variable_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
@@ -609,7 +608,7 @@ function describe_variable_buffer(window, element) {
     this.constructor_end();
 }
 
-function pretty_print_value(value) {
+function pretty_print_value (value) {
     if (value === undefined)
         return "undefined";
     if (value === null)
@@ -687,7 +686,7 @@ describe_variable_buffer.prototype = {
 };
 
 
-function describe_variable(buffer, variable, target) {
+function describe_variable (buffer, variable, target) {
     create_buffer(buffer.window,
                   buffer_creator(describe_variable_buffer,
                                  $opener = buffer,
@@ -695,11 +694,13 @@ function describe_variable(buffer, variable, target) {
                   target);
 }
 function describe_variable_new_buffer (I) {
-    describe_variable(I.buffer, (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
+    describe_variable(I.buffer,
+                      (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
                       OPEN_NEW_BUFFER);
 }
 function describe_variable_new_window (I) {
-    describe_variable(I.buffer, (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
+    describe_variable(I.buffer,
+                      (yield I.minibuffer.read_user_variable($prompt = "Describe variable:")),
                       OPEN_NEW_WINDOW);
 }
 interactive("describe-variable", null,
@@ -707,7 +708,7 @@ interactive("describe-variable", null,
 
 
 
-function describe_preference(buffer, preference, target) {
+function describe_preference (buffer, preference, target) {
     let key = preference.charAt(0).toUpperCase() + preference.substring(1);
     let url = "http://kb.mozillazine.org/" + key;
     browser_object_follow(buffer, target, url);

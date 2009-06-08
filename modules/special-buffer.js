@@ -7,7 +7,7 @@
 
 require("buffer.js");
 
-function special_buffer(window, element) {
+function special_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     conkeror.buffer.call(this, window, element, forward_keywords(arguments));

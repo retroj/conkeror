@@ -7,16 +7,16 @@
  * COPYING file.
 **/
 
-function string_hashset() {}
+function string_hashset () {}
 
 string_hashset.prototype = {
     constructor : string_hashset,
 
-    add : function(s) {
+    add : function (s) {
         this["-" + s] = true;
     },
 
-    contains : function(s) {
+    contains : function (s) {
         return (("-" + s) in this);
     },
 
@@ -39,27 +39,26 @@ string_hashset.prototype = {
     }
 };
 
-function string_hashmap() {
-}
+function string_hashmap () {}
 
 string_hashmap.prototype = {
     constructor : string_hashmap,
 
-    put : function(s,value) {
+    put : function (s,value) {
         this["-" + s] = value;
     },
 
-    contains : function(s) {
+    contains : function (s) {
         return (("-" + s) in this);
     },
 
-    get : function(s, default_value) {
+    get : function (s, default_value) {
         if (this.contains(s))
             return this["-" + s];
         return default_value;
     },
 
-    get_put_default : function(s, default_value) {
+    get_put_default : function (s, default_value) {
         if (this.contains(s))
             return this["-" + s];
         return (this["-" + s] = default_value);
@@ -100,22 +99,19 @@ string_hashmap.prototype = {
 
 
 // Put the string on the clipboard
-function writeToClipboard(str)
-{
+function writeToClipboard (str) {
     var gClipboardHelper = Cc["@mozilla.org/widget/clipboardhelper;1"]
 	.getService(Ci.nsIClipboardHelper);
     gClipboardHelper.copyString(str);
 }
 
 
-function makeURLAbsolute (base, url)
-{
+function makeURLAbsolute (base, url) {
     // Construct nsIURL.
-    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-	.getService(Components.interfaces.nsIIOService);
+    var ioService = Cc["@mozilla.org/network/io-service;1"]
+	.getService(Ci.nsIIOService);
     var baseURI  = ioService.newURI(base, null, null);
-
-    return ioService.newURI (baseURI.resolve (url), null, null).spec;
+    return ioService.newURI(baseURI.resolve(url), null, null).spec;
 }
 
 
@@ -152,8 +148,7 @@ function make_uri (uri, charset, base_uri) {
 function get_document_content_disposition (document_o) {
     var content_disposition = null;
     try {
-        content_disposition =
-            document_o.defaultView
+        content_disposition = document_o.defaultView
             .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
             .getInterface(Components.interfaces.nsIDOMWindowUtils)
             .getDocumentMetadata("content-disposition");
@@ -295,25 +290,25 @@ function method_caller (obj, func) {
     };
 }
 
-function shell_quote(str) {
+function shell_quote (str) {
     var s = str.replace("\"", "\\\"", "g");
     s = s.replace("$", "\$", "g");
     return s;
 }
 
 /* Like perl's quotemeta. Backslash all non-alphanumerics. */
-function quotemeta(str) {
+function quotemeta (str) {
     return str.replace(/([^a-zA-Z0-9])/g, "\\$1");
 }
 
 /* Given a list of choices (strings), return a regex which matches any
    of them*/
-function choice_regex(choices) {
+function choice_regex (choices) {
     var regex = "(?:" + choices.map(quotemeta).join("|") + ")";
     return regex;
 }
 
-function get_window_from_frame(frame) {
+function get_window_from_frame (frame) {
     try {
         var window = frame.QueryInterface(Ci.nsIInterfaceRequestor)
             .getInterface(Ci.nsIWebNavigation)
@@ -330,7 +325,7 @@ function get_window_from_frame(frame) {
     }
 }
 
-function get_buffer_from_frame(window, frame) {
+function get_buffer_from_frame (window, frame) {
     var count = window.buffers.count;
     for (var i = 0; i < count; ++i) {
         var b = window.buffers.get_buffer(i);
@@ -343,7 +338,7 @@ function get_buffer_from_frame(window, frame) {
 var file_locator = Cc["@mozilla.org/file/directory_service;1"]
     .getService(Ci.nsIProperties);
 
-function get_shortdoc_string(doc) {
+function get_shortdoc_string (doc) {
     var shortdoc = null;
     if (doc != null) {
         var idx = doc.indexOf("\n");
@@ -357,7 +352,7 @@ function get_shortdoc_string(doc) {
 
 var conkeror_source_code_path = null;
 
-function source_code_reference(uri, line_number) {
+function source_code_reference (uri, line_number) {
     this.uri = uri;
     this.line_number = line_number;
 }
@@ -391,7 +386,7 @@ source_code_reference.prototype = {
 
 var get_caller_source_code_reference_ignored_functions = {};
 
-function get_caller_source_code_reference(extra_frames_back) {
+function get_caller_source_code_reference (extra_frames_back) {
     /* Skip at least this function itself and whoever called it (and
      * more if the caller wants to be skipped). */
     var frames_to_skip = 2;
@@ -411,18 +406,18 @@ function get_caller_source_code_reference(extra_frames_back) {
     return null;
 }
 
-function ignore_function_for_get_caller_source_code_reference(func_name) {
+function ignore_function_for_get_caller_source_code_reference (func_name) {
     get_caller_source_code_reference_ignored_functions[func_name] = 1;
 }
 
 require_later("external-editor.js");
 
-function dom_generator(document, ns) {
+function dom_generator (document, ns) {
     this.document = document;
     this.ns = ns;
 }
 dom_generator.prototype = {
-    element : function(tag, parent) {
+    element : function (tag, parent) {
         var node = this.document.createElementNS(this.ns, tag);
         var i = 1;
         if (parent != null && (parent instanceof Ci.nsIDOMNode)) {
@@ -434,7 +429,7 @@ dom_generator.prototype = {
         return node;
     },
 
-    text : function(str, parent) {
+    text : function (str, parent) {
         var node = this.document.createTextNode(str);
         if (parent)
             parent.appendChild(node);
@@ -442,7 +437,7 @@ dom_generator.prototype = {
     },
 
 
-    stylesheet_link : function(href, parent) {
+    stylesheet_link : function (href, parent) {
         var node = this.element("link");
         node.setAttribute("rel", "stylesheet");
         node.setAttribute("type", "text/css");
@@ -466,18 +461,18 @@ dom_generator.prototype = {
  * arguments can be either Strings or elements of
  * Components.interfaces.
  */
-function generate_QI() {
+function generate_QI () {
     var args = Array.prototype.slice.call(arguments).map(String).concat(["nsISupports"]);
     var fstr = "if(" +
-        Array.prototype.map.call(args,
-                                 function (x)
-                                     "iid.equals(Components.interfaces." + x + ")")
+        Array.prototype.map.call(args, function (x) {
+            return "iid.equals(Components.interfaces." + x + ")";
+        })
         .join("||") +
         ") return this; throw Components.results.NS_ERROR_NO_INTERFACE;";
     return new Function("iid", fstr);
 }
 
-function set_branch_pref(branch, name, value) {
+function set_branch_pref (branch, name, value) {
     if (typeof(value) == "string") {
         branch.setCharPref(name, value);
     } else if (typeof(value) == "number") {
@@ -487,17 +482,17 @@ function set_branch_pref(branch, name, value) {
     }
 }
 
-function default_pref(name, value) {
+function default_pref (name, value) {
     var branch = preferences.getDefaultBranch(null);
     set_branch_pref(branch, name, value);
 }
 
-function user_pref(name, value) {
+function user_pref (name, value) {
     var branch = preferences.getBranch(null);
     set_branch_pref(branch, name, value);
 }
 
-function get_branch_pref(branch, name) {
+function get_branch_pref (branch, name) {
     switch (branch.getPrefType(name)) {
     case branch.PREF_STRING:
         return branch.getCharPref(name);
@@ -510,7 +505,7 @@ function get_branch_pref(branch, name) {
     }
 }
 
-function get_localized_pref(name) {
+function get_localized_pref (name) {
     try {
         return preferences.getBranch(null).getComplexValue(name, Ci.nsIPrefLocalizedString).data;
     } catch (e) {
@@ -518,38 +513,39 @@ function get_localized_pref(name) {
     }
 }
 
-function get_pref(name) {
+function get_pref (name) {
     var branch = preferences.getBranch(null);
     return get_branch_pref(branch, name);
 }
 
-function get_default_pref(name) {
+function get_default_pref (name) {
     var branch = preferences.getDefaultBranch(null);
     return get_branch_pref(branch, name);
 }
 
-function clear_pref(name) {
+function clear_pref (name) {
     var branch = preferences.getBranch(null);
     return branch.clearUserPref(name);
 }
 
-function pref_has_user_value(name) {
+function pref_has_user_value (name) {
     var branch = preferences.getBranch(null);
     return branch.prefHasUserValue(name);
 }
 
-function pref_has_default_value(name) {
+function pref_has_default_value (name) {
     var branch = preferences.getDefaultBranch(null);
     return branch.prefHasUserValue(name);
 }
 
 function session_pref (name, value) {
-    try { clear_pref (name); }
-    catch (e) {}
-    return default_pref (name, value);
+    try {
+        clear_pref (name);
+    } catch (e) {}
+    return default_pref(name, value);
 }
 
-function watch_pref(pref, hook) {
+function watch_pref (pref, hook) {
     /* Extract pref into branch.pref */
     let match = pref.match(/^(.*[.])?([^.]*)$/);
     let br = match[1];
@@ -562,40 +558,39 @@ function watch_pref(pref, hook) {
             }
         }
     };
-
     branch.addObserver("", observer, false);
 }
 
 const LOCALE_PREF = "general.useragent.locale";
 
-function get_locale() {
+function get_locale () {
     return get_localized_pref(LOCALE_PREF) || get_pref(LOCALE_PREF);
 }
 
 const USER_AGENT_OVERRIDE_PREF = "general.useragent.override";
 
-function set_user_agent(str) {
+function set_user_agent (str) {
     session_pref(USER_AGENT_OVERRIDE_PREF, str);
 }
 
-function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_active_predicate, mode) {
+function define_builtin_commands (prefix, do_command_function, toggle_mark, mark_active_predicate, mode) {
 
     // Specify a docstring
-    function D(cmd, docstring) {
+    function D (cmd, docstring) {
         var o = new String(cmd);
         o.doc = docstring;
         return o;
     }
 
     // Specify a forward/reverse pair
-    function R(a, b) {
+    function R (a, b) {
         var o = [a,b];
         o.is_reverse_pair = true;
         return o;
     }
 
     // Specify a movement/select/scroll/move-caret command group.
-    function S(command, movement, select, scroll, caret) {
+    function S (command, movement, select, scroll, caret) {
         var o = [movement, select, scroll, caret];
         o.command = command;
         o.is_move_select_pair = true;
@@ -700,35 +695,35 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
                 "When the mark is active, movement commands affect the selection.",
                 toggle_mark);
 
-    function get_mode_idx() {
+    function get_mode_idx () {
         if (mode == 'scroll') return 2;
         else if (mode == 'caret') return 3;
         else return 0;
     }
 
-    function get_move_select_idx(I) {
+    function get_move_select_idx (I) {
         return mark_active_predicate(I) ? 1 : get_mode_idx();
     }
 
-    function doc_for_builtin(c) {
+    function doc_for_builtin (c) {
         var s = "";
         if (c.doc != null)
             s += c.doc + "\n";
         return s + "Run the built-in command " + c + ".";
     }
 
-    function define_simple_command(c) {
+    function define_simple_command (c) {
         interactive(prefix + c, doc_for_builtin(c), function (I) { do_command_function(I, c); });
     }
 
-    function get_move_select_doc_string(c) {
+    function get_move_select_doc_string (c) {
         return c.command.doc +
             "\nSpecifically, if the mark is active, runs `" + prefix + c[1] + "'.  " +
             "Otherwise, runs `" + prefix + c[get_mode_idx()] + "'\n" +
             "To toggle whether the mark is active, use `" + prefix + "set-mark'.";
     }
 
-    for each (let c_temp in builtin_commands)  {
+    for each (let c_temp in builtin_commands) {
         let c = c_temp;
         if (c.is_move_select_pair) {
             interactive(prefix + c.command, get_move_select_doc_string(c), function (I) {
@@ -742,14 +737,14 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
             define_simple_command(c);
     }
 
-    function get_reverse_pair_doc_string(main_doc, alt_command) {
+    function get_reverse_pair_doc_string (main_doc, alt_command) {
         return main_doc + "\n" +
             "The prefix argument specifies a repeat count for this command.  " +
             "If the count is negative, `" + prefix + alt_command + "' is performed instead with " +
             "a corresponding positive repeat count.";
     }
 
-    function define_simple_reverse_pair(a, b) {
+    function define_simple_reverse_pair (a, b) {
         interactive(prefix + a, get_reverse_pair_doc_string(doc_for_builtin(a), b),
                     function (I) {
                         do_repeatedly(do_command_function, I.p, [I, a], [I, b]);
@@ -760,8 +755,7 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
                     });
     }
 
-    for each (let c_temp in builtin_commands_with_count)
-    {
+    for each (let c_temp in builtin_commands_with_count) {
         let c = c_temp;
         if (c.is_reverse_pair) {
             if (c[0].is_move_select_pair) {
@@ -789,12 +783,12 @@ function define_builtin_commands(prefix, do_command_function, toggle_mark, mark_
             });
         }
     }
-
 }
 
-var observer_service = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+var observer_service = Cc["@mozilla.org/observer-service;1"]
+    .getService(Ci.nsIObserverService);
 
-function abort(str) {
+function abort (str) {
     var e = new Error(str);
     e.__proto__ = abort.prototype;
     return e;
@@ -802,7 +796,7 @@ function abort(str) {
 abort.prototype.__proto__ = Error.prototype;
 
 
-function get_temporary_file(name) {
+function get_temporary_file (name) {
     if (name == null)
         name = "temp.txt";
     var file = file_locator.get("TmpD", Ci.nsIFile);
@@ -814,7 +808,7 @@ function get_temporary_file(name) {
 
 
 /* FIXME: This should be moved somewhere else, perhaps. */
-function create_info_panel(window, panel_class, row_arr) {
+function create_info_panel (window, panel_class, row_arr) {
     /* Show information panel above minibuffer */
 
     var g = new dom_generator(window.document, XUL_NS);
@@ -852,8 +846,7 @@ function create_info_panel(window, panel_class, row_arr) {
  * Paste from the X primary selection, unless the system doesn't support a
  * primary selection, in which case fall back to the clipboard.
  */
-function read_from_x_primary_selection ()
-{
+function read_from_x_primary_selection () {
     // Get clipboard.
     let clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
         .getService(Components.interfaces.nsIClipboard);
@@ -895,7 +888,7 @@ function read_from_x_primary_selection ()
 
 var user_variables = {};
 
-function define_variable(name, default_value, doc) {
+function define_variable (name, default_value, doc) {
     conkeror[name] = default_value;
     user_variables[name] = {
         default_value: default_value,
@@ -905,7 +898,7 @@ function define_variable(name, default_value, doc) {
     };
 }
 
-function define_special_variable(name, getter, setter, doc) {
+function define_special_variable (name, getter, setter, doc) {
     conkeror.__defineGetter__(name, getter);
     conkeror.__defineSetter__(name, setter);
     user_variables[name] = {
@@ -968,7 +961,9 @@ function user_stylesheet_registered_p (url) {
     return sss.sheetRegistered(uri, sss.USER_SHEET);
 }
 
-function predicate_alist_match(alist, key) {
+
+
+function predicate_alist_match (alist, key) {
     for each (let i in alist) {
         if (i[0](key))
             return i[1];
@@ -977,7 +972,7 @@ function predicate_alist_match(alist, key) {
 }
 
 
-function get_meta_title(doc) {
+function get_meta_title (doc) {
     var title = doc.evaluate("//meta[@name='title']/@content", doc, xpath_lookup_namespace,
                              Ci.nsIDOMXPathResult.STRING_TYPE , null);
     if (title && title.stringValue)
@@ -988,13 +983,13 @@ function get_meta_title(doc) {
 var rdf_service = Cc["@mozilla.org/rdf/rdf-service;1"]
     .getService(Ci.nsIRDFService);
 
-const PREFIX_ITEM_URI     = "urn:mozilla:item:";
-const PREFIX_NS_EM        = "http://www.mozilla.org/2004/em-rdf#";
+const PREFIX_ITEM_URI = "urn:mozilla:item:";
+const PREFIX_NS_EM = "http://www.mozilla.org/2004/em-rdf#";
 
 var extension_manager = Cc["@mozilla.org/extensions/manager;1"]
     .getService(Ci.nsIExtensionManager);
 
-function get_extension_rdf_property(id, name, type) {
+function get_extension_rdf_property (id, name, type) {
     var value = extension_manager.datasource.GetTarget(
         rdf_service.GetResource(PREFIX_ITEM_URI + id),
         rdf_service.GetResource(PREFIX_NS_EM + name),
@@ -1004,11 +999,11 @@ function get_extension_rdf_property(id, name, type) {
     return value.QueryInterface(type || Ci.nsIRDFLiteral).Value;
 }
 
-function get_extension_update_item(id) {
+function get_extension_update_item (id) {
     return extension_manager.getItemForID(id);
 }
 
-function extension_info(id) {
+function extension_info (id) {
     this.id = id;
 }
 extension_info.prototype = {
@@ -1048,12 +1043,12 @@ extension_info.prototype = {
     get version () { return this.get_rdf_property("version"); }
 };
 
-function extension_is_enabled(id) {
+function extension_is_enabled (id) {
     var info = new extension_info(id);
     return info.update_item && (info.isDisabled == "false");
 }
 
-function queue() {
+function queue () {
     this.input = [];
     this.output = [];
 }
@@ -1079,7 +1074,7 @@ queue.prototype = {
     }
 };
 
-function frame_iterator(root_frame, start_with) {
+function frame_iterator (root_frame, start_with) {
     var q = new queue, x;
     if (start_with) {
         x = start_with;
@@ -1099,7 +1094,7 @@ function frame_iterator(root_frame, start_with) {
     } while ((x = q.pop()));
 }
 
-function xml_http_request() {
+function xml_http_request () {
     return Cc["@mozilla.org/xmlextras/xmlhttprequest;1"]
         .createInstance(Ci.nsIXMLHttpRequest)
         .QueryInterface(Ci.nsIJSXMLHttpRequest)
@@ -1108,17 +1103,17 @@ function xml_http_request() {
 
 var xml_http_request_load_listener = {
   // nsIBadCertListener2
-  notifyCertProblem: function SSLL_certProblem(socketInfo, status, targetSite) {
+  notifyCertProblem: function SSLL_certProblem (socketInfo, status, targetSite) {
     return true;
   },
 
   // nsISSLErrorListener
-  notifySSLError: function SSLL_SSLError(socketInfo, error, targetSite) {
+  notifySSLError: function SSLL_SSLError (socketInfo, error, targetSite) {
     return true;
   },
 
   // nsIInterfaceRequestor
-  getInterface: function SSLL_getInterface(iid) {
+  getInterface: function SSLL_getInterface (iid) {
     return this.QueryInterface(iid);
   },
 
@@ -1172,7 +1167,7 @@ var xml_http_request_load_listener = {
  *
  **/
 define_keywords("$user", "$password", "$override_mime_type", "$headers");
-function send_http_request(lspec) {
+function send_http_request (lspec) {
     // why do we get warnings in jsconsole unless we initialize the
     // following keywords?
     keywords(arguments, $user = undefined, $password = undefined,
@@ -1182,7 +1177,7 @@ function send_http_request(lspec) {
     var req = xml_http_request();
     var cc = yield CONTINUATION;
     var aborting = false;
-    req.onreadystatechange = function send_http_request__onreadysatechange() {
+    req.onreadystatechange = function send_http_request__onreadysatechange () {
         if (req.readyState != 4)
             return;
         if (aborting)
@@ -1227,7 +1222,6 @@ var JSON = ("@mozilla.org/dom/json;1" in Cc) &&
     Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
 
 
-
 var console_service = Cc["@mozilla.org/consoleservice;1"]
     .getService(Ci.nsIConsoleService);
 
@@ -1251,15 +1245,15 @@ console_service.registerListener(
 function ensure_index_is_visible (window, field, index) {
     var start = field.selectionStart;
     var end = field.selectionEnd;
-    field.setSelectionRange (index, index);
-    send_key_as_event (window, field, "left");
+    field.setSelectionRange(index, index);
+    send_key_as_event(window, field, "left");
     if (field.selectionStart < index) {
-        send_key_as_event (window, field, "right");
+        send_key_as_event(window, field, "right");
     }
-    field.setSelectionRange (start, end);
+    field.setSelectionRange(start, end);
 }
 
-function regex_to_string(obj) {
+function regex_to_string (obj) {
     if(obj instanceof RegExp) {
         obj = obj.source;
     } else {
@@ -1283,7 +1277,7 @@ function regex_to_string(obj) {
  *
  */
 define_keywords("$domain", "$path", "$tlds", "$allow_www");
-function build_url_regex() {
+function build_url_regex () {
     keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
     var domain = regex_to_string(arguments.$domain);
     if(arguments.$allow_www) {
@@ -1310,41 +1304,39 @@ function build_url_regex() {
  * splice_range([[1,3],[4,6],[7,10]], 2, 8)
  *  => [[1,10]]
  */
-function splice_range(arr, start, end) {
-    for(var i = 0; i < arr.length; ++i) {
+function splice_range (arr, start, end) {
+    for (var i = 0; i < arr.length; ++i) {
         let [n,m] = arr[i];
-        if(start > m)
+        if (start > m)
             continue;
-        if(end < n) {
+        if (end < n) {
             arr.splice(i, 0, [start, end]);
             break;
         }
-        if(start < n) {
+        if (start < n)
             arr[i][0] = start;
-        }
 
-        if(end >= n) {
+        if (end >= n) {
             /*
              * The range we are inserting overlaps the current
              * range. We need to scan right to see if it also contains any other
              * ranges entirely, and remove them if necessary.
              */
             var j = i;
-            while(j < arr.length && end >= arr[j][0]) j++;
+            while (j < arr.length && end >= arr[j][0])
+                j++;
             j--;
             arr[i][1] = Math.max(end, arr[j][1]);
             arr.splice(i + 1, j - i);
             break;
         }
     }
-    if(start > arr[arr.length - 1][1]) {
+    if (start > arr[arr.length - 1][1])
         arr.push([start, end]);
-    }
 }
 
 
-function compute_url_up_path (url)
-{
+function compute_url_up_path (url) {
     var new_url = Cc["@mozilla.org/network/standard-url;1"]
         .createInstance (Ci.nsIURL);
     new_url.spec = url;
@@ -1389,49 +1381,50 @@ function remove_duplicates_filter () {
 }
 
 
-/* get_current_profile returns the name of the current profile, or null
- * if that information cannot be found.  The result is cached in the
- * variable profile_name, for quick repeat lookup.  This is safe because
- * xulrunner does not support switching profiles on the fly.
+/* get_current_profile returns the name of the current profile, or
+ * null if that information cannot be found.  The result is cached for
+ * quick repeat lookup.  This is safe because xulrunner does not
+ * support switching profiles on the fly.
  *
  * Profiles don't necessarily have a name--as such this information should
  * not be depended on for anything important.  It is mainly intended for
  * decoration of the window title and mode-line.
  */
-var profile_name;
-function get_current_profile () {
-    if (profile_name)
-        return profile_name;
-    if ("@mozilla.org/profile/manager;1" in Cc) {
-        profile_name = Cc["@mozilla.org/profile/manager;1"]
-            .getService(Ci.nsIProfile)
-            .currentProfile;
-        return profile_name;
-    }
-    var current_profile_path = Cc["@mozilla.org/file/directory_service;1"]
-        .getService(Ci.nsIProperties)
-        .get("ProfD", Ci.nsIFile).path;
-    var profile_service = Cc["@mozilla.org/toolkit/profile-service;1"]
-        .getService(Components.interfaces.nsIToolkitProfileService);
-    var profiles = profile_service.profiles;
-    while (profiles.hasMoreElements()) {
-        var p = profiles.getNext().QueryInterface(Ci.nsIToolkitProfile);
-        if (current_profile_path == p.localDir.path ||
-            current_profile_path == p.rootDir.path)
-        {
-            profile_name = p.name;
-            return p.name;
+let (profile_name = null) {
+    function get_current_profile () {
+        if (profile_name)
+            return profile_name;
+        if ("@mozilla.org/profile/manager;1" in Cc) {
+            profile_name = Cc["@mozilla.org/profile/manager;1"]
+                .getService(Ci.nsIProfile)
+                .currentProfile;
+            return profile_name;
         }
+        var current_profile_path = Cc["@mozilla.org/file/directory_service;1"]
+            .getService(Ci.nsIProperties)
+            .get("ProfD", Ci.nsIFile).path;
+        var profile_service = Cc["@mozilla.org/toolkit/profile-service;1"]
+            .getService(Components.interfaces.nsIToolkitProfileService);
+        var profiles = profile_service.profiles;
+        while (profiles.hasMoreElements()) {
+            var p = profiles.getNext().QueryInterface(Ci.nsIToolkitProfile);
+            if (current_profile_path == p.localDir.path ||
+                current_profile_path == p.rootDir.path)
+            {
+                profile_name = p.name;
+                return p.name;
+            }
+        }
+        return null;
     }
-    return null;
-}
+};
 
 
 /**
  * Given an array, switches places on the subarrays at index i1 to i2 and j1 to
  * j2. Leaves the rest of the array unchanged.
  */
-function switch_subarrays(arr, i1, i2, j1, j2) {
+function switch_subarrays (arr, i1, i2, j1, j2) {
     return arr.slice(0, i1) +
         arr.slice(j1, j2) +
         arr.slice(i2, j1) +
@@ -1484,7 +1477,7 @@ function ajax_request(uri, callback, s) {
  * @param exp The XPath expression to search for.
  * @return The XPathResult object representing the set of found nodes.
  */
-function xpath_lookup(doc, exp) {
+function xpath_lookup (doc, exp) {
     return doc.evaluate(exp, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
 }
 
@@ -1587,7 +1580,7 @@ function make_post_data (data) {
  * @param win  The window to scroll.
  * @param elem The element arund which we put the viewport.
  */
-function center_in_viewport(win, elem) {
+function center_in_viewport (win, elem) {
     let point = abs_point(elem);
 
     point.x -= win.innerWidth / 2;
