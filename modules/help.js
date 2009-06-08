@@ -10,17 +10,6 @@
 require("special-buffer.js");
 require("interactive.js");
 
-function help_buffer(window, element) {
-    keywords(arguments);
-    conkeror.buffer.call(this, window, element, forward_keywords(arguments));
-}
-
-help_buffer.prototype = {
-    constructor: help_buffer,
-
-    __proto__: special_buffer.prototype
-};
-
 function where_is_command(buffer, command) {
     var list = find_command_in_keymap(buffer, command);
     var msg;
