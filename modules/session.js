@@ -185,7 +185,7 @@
     define_variable("session_auto_save_file", "auto-save",
         "Default filename for the auto-save session.");
 
-    define_variable("session_auto_save_auto_load", true,
+    define_variable("session_auto_save_auto_load", false,
         'Whether to load the auto-saved session when the browser is started. ' +
         'May be true, false, or "prompt".');
 
@@ -336,4 +336,6 @@
     define_global_mode("session_auto_save_mode",
                        _session_auto_save_mode_enable,
                        _session_auto_save_mode_disable);
+
+    session_auto_save_mode(true);
 }
