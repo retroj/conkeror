@@ -8,6 +8,9 @@
 
 var command_line_handlers = [];
 
+define_variable("conkeror_started", false,
+    "True if conkeror has started, false if conkeror is still starting.");
+
 define_variable("url_remoting_fn", load_url_in_new_window,
     "The function given as the value of this variable gets called for "+
     "each datum given on the command-line not a switch or the value of "+
@@ -108,6 +111,10 @@ command_line_handler("u", false, function (ctx) {
 
 function handle_command_line (cmdline) {
     try {
+        this.command_line = [];
+        for (let i = 0; i < cmdline.length; ++i)
+            command_line.push(cmdline.getArgument(i));
+
         var suppress_default = false;
         var suppress_rc = false;
 
@@ -216,5 +223,6 @@ function handle_command_line (cmdline) {
         dumpln("Error processing command line.");
         dump_error(e);
     }
+    conkeror_started = true;
 }
 
