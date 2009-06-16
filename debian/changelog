@@ -1,3 +1,15 @@
+conkeror (0.9~git090617-1) UNRELEASED; urgency=low
+
+  * Based on new snapshot (tagged with debian-0.9--git090617-1)
+    - Session saving support has been added, but not loaded by default
+    - Theming support has been removed (native GUI theming should be used
+      instead, e.g. GTK theming)
+  * Bumped Standards-Version to 3.8.1 (no changes)
+  * Replaced deprecated dh_clean -k by dh_prep and bumped debhelper
+    compatibility to 7.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 17 Jun 2009 00:40:31 +0200
+
 conkeror (0.9~git090223-1) unstable; urgency=low
 
   * Debian packaging is now hosted in the upstream repository at

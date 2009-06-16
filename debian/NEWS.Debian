@@ -1,3 +1,40 @@
+conkeror (0.9~git090617-1) unstable; urgency=low
+
+  There were a few changes since the last conkeror version in Debian which
+  may cause troubles to users of the previous version.
+  
+  Short summary follows:
+  * The key bindings `<<` and `>>` are now simply `<` and `>`.
+  * page-mode keymaps are now declared in the `define_page_mode` form with
+    a new keyword argument, `$keymaps`.  See
+    http://conkeror.org/WritingPageModes for more information about the
+    new style.
+  * `default_directory` and `set_default_directory` have been removed and
+    replaced by the variable `cwd`.
+  * buffer-local variables are now indexed by `buffer.local.foo`.
+    page-local variables are indexed by `buffer.page.local.foo`.
+  * The command `send-ret` was removed since it is redundant of the
+    module `global-overlay-keymap`.
+  * Buffer-local cwd is no longer set or inherited automatically.
+  * `download-cancel` is now bound to `d` instead of `C-g`, and it asks
+    for confirmation.
+  * In order to make Conkeror compatible with native toolkit theming,
+    Conkeror's themes have undergone a big rewrite:
+    - Conkeror no longer specifies its own gui colors.
+    - The blackened theme no longer exists.
+    - It is no longer possible to theme scrollbars.
+    From now on, the right way to change Conkeror's gui colors is to do so
+    at the OS level, for example, with a GTK theme.
+  * Conkeror has now session saving support. See
+    http://conkeror.org/Sessions for details.
+
+  See http://article.gmane.org/gmane.comp.mozilla.conkeror/1547 and
+  http://thread.gmane.org/gmane.comp.mozilla.conkeror/1451 for the
+  details and what to change in case you run over some removed or renamed
+  functions or variables.
+  
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 17 Jun 2009 00:04:58 +0200
+
 conkeror (0.9~git090223-1) unstable; urgency=low
 
   There were a few changes since the last conkeror version in Debian which
