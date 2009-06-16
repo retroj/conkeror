@@ -174,13 +174,13 @@
             session_load_window_current_replace(session_read(file), I.window, 0)
         });
 
-
-    //// Auto-save sessions. ////
-
-
     interactive("session-remove", "Remove a session file.", function (I) {
         session_remove(make_file(yield _session_prompt_file(I)));
     });
+
+
+    //// Auto-save sessions. ////
+
 
     define_variable("session_auto_save_file", "auto-save",
         "Default filename for the auto-save session.");
