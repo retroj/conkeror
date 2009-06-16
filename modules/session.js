@@ -229,17 +229,17 @@
         else if (f.exists()) f.remove(false);
     }
 
+    function session_auto_save_remove() {
+        let f = _session_auto_save_file_get();
+        if (f.exists()) f.remove(false);
+    }
+
     let _session_auto_save_file_not_found = function (I) {
         let mb = I ? I.minibuffer : get_recent_conkeror_window().minibuffer;
         let msg = "Auto-save session file not found: " +
             _session_auto_save_file_get().path;
         mb.message(msg);
         dumpln(msg);
-    }
-
-    function session_auto_save_remove() {
-        let f = _session_auto_save_file_get();
-        if (f.exists()) f.remove(false);
     }
 
     let _session_auto_save_auto_load = function (user_gave_urls) {
