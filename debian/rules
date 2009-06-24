@@ -54,7 +54,6 @@ install-indep:
 	dh_testroot
 	dh_prep -i
 	dh_installdirs -i
-	dh_desktop
 
 	# Add here commands to install the indep part of the package into
 	# debian/<package>
@@ -95,7 +94,6 @@ binary-common:
 	dh_installmenu
 #	dh_installemacsen
 	dh_installman
-	dh_desktop
 	dh_link
 	dh_strip
 	dh_compress
