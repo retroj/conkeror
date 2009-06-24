@@ -44,6 +44,7 @@ mv -vi $olddir conkeror-$version
 tar cvzf conkeror_$version.orig.tar.gz \
 	--exclude=conkeror-$version/debian \
 	--exclude=.git \
+        --exclude=.gitignore \
 	--exclude=.pc \
 	--exclude=configure-stamp \
 	conkeror-$version
