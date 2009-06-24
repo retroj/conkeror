@@ -1,4 +1,4 @@
-conkeror (0.9~git090617-1) UNRELEASED; urgency=low
+conkeror (0.9~git090624-1) UNRELEASED; urgency=low
 
   * Based on new snapshot (tagged with debian-0.9--git090617-1)
     - Session saving support has been added, but not loaded by default
@@ -7,8 +7,10 @@ conkeror (0.9~git090617-1) UNRELEASED; urgency=low
   * Bumped Standards-Version to 3.8.2 (no changes)
   * Replaced deprecated dh_clean -k by dh_prep and bumped debhelper
     compatibility to 7.
+  * Moved MPL from debian/copyright to debian/MPL to allow compression in
+    the installed binary packages (as with the xulrunner-1.9 packages)
 
- -- Axel Beckert <abe@deuxchevaux.org>  Wed, 17 Jun 2009 23:35:27 +0200
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 24 Jun 2009 23:25:53 +0200
 
 conkeror (0.9~git090223-1) unstable; urgency=low
 
