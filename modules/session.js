@@ -150,6 +150,13 @@
         );
     };
 
+    let _session_file_not_found = function (I, file) {
+        let mb = I ? I.minibuffer : get_recent_conkeror_window().minibuffer;
+        let msg = "Session file not found: " + file.path;
+        mb.message(msg);
+        dumpln(msg);
+    }
+
     interactive("session-save", "Save the current session.", function (I) {
         session_write(make_file(yield _session_prompt_file(I)), session_get());
     });
@@ -157,25 +164,30 @@
     interactive("session-load-window-new", "Load a session in a new window.", 
         function (I) {
             let file = make_file(yield _session_prompt_file(I));
-            session_load_window_new(session_read(file));
+            if (! file.exists()) _session_file_not_found(I, file);
+            else session_load_window_new(session_read(file));
         });
 
     interactive("session-load-window-current",
         "Load a session in new buffers in the current window.",
         function (I) {
             let file = make_file(yield _session_prompt_file(I));
-            session_load_window_current(session_read(file), I.window);
+            if (! file.exists()) _session_file_not_found(I, file);
+            else session_load_window_current(session_read(file), I.window);
         });
 
     interactive("session-load-window-current-replace", 
         "Replace all buffers in the current window with buffers in the saved session.",
-        function (I) {        
+        function (I) {
             let file = make_file(yield _session_prompt_file(I));
-            session_load_window_current_replace(session_read(file), I.window, 0)
+            if (! file.exists()) _session_file_not_found(I, file);
+            else session_load_window_current_replace(session_read(file), I.window, 0)
         });
 
     interactive("session-remove", "Remove a session file.", function (I) {
-        session_remove(make_file(yield _session_prompt_file(I)));
+        let file = make_file(yield _session_prompt_file(I));
+        if (! file.exists()) _session_file_not_found(I, file);
+        else session_remove(file);
     });
 
 
@@ -188,6 +200,11 @@
     define_variable("session_auto_save_auto_load", false,
         'Whether to load the auto-saved session when the browser is started. ' +
         'May be true, false, or "prompt".');
+
+    define_variable("session_auto_save_auto_load_with_urls", false,
+        'Whether to load the auto-saved session when the browser is started ' +
+        'when URLs are given on the command-line. Not used if ' +
+        'session_auto_save_auto_load is false. May be true or false.');
 
     function session_auto_save_load_window_new() {
         session_load_window_new(_session_auto_save_cached);
@@ -207,7 +224,7 @@
         "when URLs are given on the command-line. May be " +
         "session_auto_save_load_window_new or " + 
         "session_auto_save_load_window_current.");
-    
+
     // Supported values:
     //   undefined - we have not tried to cache the auto-save.
     //   null      - we have tried to cache the auto-save, but it didn't exist.
@@ -234,18 +251,10 @@
         if (f.exists()) f.remove(false);
     }
 
-    let _session_auto_save_file_not_found = function (I) {
-        let mb = I ? I.minibuffer : get_recent_conkeror_window().minibuffer;
-        let msg = "Auto-save session file not found: " +
-            _session_auto_save_file_get().path;
-        mb.message(msg);
-        dumpln(msg);
-    }
-
     let _session_auto_save_auto_load = function (user_gave_urls) {
         if (! session_auto_save_auto_load) return;
         if (! _session_auto_save_cached) {
-            _session_auto_save_file_not_found();
+            _session_file_not_found(null, _session_auto_save_file_get());
             return;
         }
         let do_load = false;
@@ -261,7 +270,10 @@
             throw new Error("Invalid value for session_auto_save_auto_load: " +
                             session_auto_save_auto_load);
         if (! do_load) return;
-        if (user_gave_urls) session_auto_save_auto_load_fn(window);
+        if (user_gave_urls) {
+            if (session_auto_save_auto_load_with_urls)
+                session_auto_save_auto_load_fn(window);
+        }
         else session_auto_save_load_window_current_replace(window);
     };
 
@@ -269,7 +281,7 @@
         "Load the auto-save session in a new window.",
         function (I) { 
             if (_session_auto_save_cached == null)
-                _session_auto_save_file_not_found(I);
+                _session_file_not_found(I, _session_auto_save_file_get());
             else session_auto_save_load_window_new();
         });
 
@@ -277,7 +289,7 @@
         "Load the auto-save session in new buffers in the current window.",
         function (I) {
             if (_session_auto_save_cached == null)
-                _session_auto_save_file_not_found(I);
+                _session_file_not_found(I, session_auto_save_file_get());
             else session_auto_save_load_window_current(I.window);
         });
 
@@ -285,7 +297,7 @@
         "Replace all buffers in the current window with buffers in the auto-saved session.",
         function (I) {
             if (_session_auto_save_cached == null)
-                _session_auto_save_file_not_found(I);
+                _session_file_not_found(I, session_auto_save_file_get());
             else session_auto_save_load_window_current_replace(I.window);
         });
 
