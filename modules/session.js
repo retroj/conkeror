@@ -201,11 +201,6 @@
         'Whether to load the auto-saved session when the browser is started. ' +
         'May be true, false, or "prompt".');
 
-    define_variable("session_auto_save_auto_load_with_urls", false,
-        'Whether to load the auto-saved session when the browser is started ' +
-        'when URLs are given on the command-line. Not used if ' +
-        'session_auto_save_auto_load is false. May be true or false.');
-
     function session_auto_save_load_window_new() {
         session_load_window_new(_session_auto_save_cached);
     }
@@ -219,11 +214,12 @@
     }
     
     define_variable("session_auto_save_auto_load_fn",
-        session_auto_save_load_window_new,
+        null,
         "Function to be called to load the auto-saved session at start-up " +
         "when URLs are given on the command-line. May be " +
-        "session_auto_save_load_window_new or " + 
-        "session_auto_save_load_window_current.");
+        "session_auto_save_load_window_new, " + 
+        "session_auto_save_load_window_current, or null. If null, the" +
+        "session will not be auto-loaded when URLs are given.");
 
     // Supported values:
     //   undefined - we have not tried to cache the auto-save.
@@ -271,7 +267,7 @@
                             session_auto_save_auto_load);
         if (! do_load) return;
         if (user_gave_urls) {
-            if (session_auto_save_auto_load_with_urls)
+            if (session_auto_save_auto_load_fn)
                 session_auto_save_auto_load_fn(window);
         }
         else session_auto_save_load_window_current_replace(window);
