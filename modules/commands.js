@@ -783,7 +783,8 @@ interactive("view-as-mime-type",
             "Display a browser object in the browser using the specified MIME type.",
             alternates(view_as_mime_type,
                        view_as_mime_type_new_buffer,
-                       view_as_mime_type_new_window));
+                       view_as_mime_type_new_window),
+            $browser_object = browser_object_frames);
 
 
 interactive("reload-with-charset",
