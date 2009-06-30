@@ -57,9 +57,22 @@ define_browser_object_class(
     "frames","frame", null,
     function (I, prompt) {
         var doc = I.buffer.document;
-        if (doc.getElementsByTagName("frame").length == 0 &&
-            doc.getElementsByTagName("iframe").length == 0)
-        {
+        // Check for any frames or visible iframes
+        var skip_hints = true;
+        if (doc.getElementsByTagName("frame").length > 0)
+            skip_hints = false;
+        else {
+            let topwin = I.buffer.top_frame;
+            for each (let x in doc.getElementsByTagName("iframe"))
+            {
+                let style = topwin.getComputedStyle(x, "");
+                if (style.display == "none" || style.visibility == "hidden")
+                    continue;
+                skip_hints = false;
+                break;
+            }
+        }
+        if (skip_hints) {
             // only one frame (the top-level one), no need to use the hints system
             yield co_return(I.buffer.top_frame);
         }
