@@ -1,3 +1,19 @@
+conkeror (0.9~git090708-1) unstable; urgency=low
+
+  The conkeror Debian package now works with the upcoming experimental
+  xulrunner-1.9.1 packages (see http://glandium.org/blog/?p=370) in
+  Debian, too.
+  
+  Since conkeror still throws much more warnings with xulrunner 1.9.1 than
+  with 1.9.0.x, for now the package currently prefers 1.9.0.x over 1.9.1
+  if both are installed.
+  
+  Call "xulrunner-1.9.1 /usr/share/conkeror/application.ini" if you have
+  xulrunner-1.9 and xulrunner-1.9.1 installed and want to checkout
+  conkeror in combination with xulrunner 1.9.1.
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 08 Jul 2009 20:48:36 +0200
+
 conkeror (0.9~git090617-1) unstable; urgency=low
 
   There were a few changes since the last conkeror version in Debian which
