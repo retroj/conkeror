@@ -1,3 +1,9 @@
+conkeror (0.9~git090708-1) UNRELEASED; urgency=low
+
+  * Added alternative dependency on xulrunner-1.9.1
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 08 Jul 2009 18:43:58 +0200
+
 conkeror (0.9~git090624-1) unstable; urgency=low
 
   * Based on new snapshot (tagged with debian-0.9--git090624-1)

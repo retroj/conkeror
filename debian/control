@@ -11,7 +11,7 @@ Vcs-Git: git://repo.or.cz/conkeror.git
 
 Package: conkeror
 Architecture: all
-Depends: xulrunner (>= 1.9~) | xulrunner-1.9
+Depends: xulrunner (>= 1.9~) | xulrunner-1.9 | xulrunner-1.9.1
 Recommends: conkeror-spawn-process-helper
 Conflicts: conkeror-spawn-process-helper (< 0.9~git080901-1)
 Suggests: emacs | emacsen
