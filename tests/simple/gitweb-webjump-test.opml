@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+<head>
+  <title>foobar repositories OPML Export</title>
+</head>
+<body>
+<outline text="git RSS feeds">
+<outline type="rss" text="foo.git" title="foo.git" xmlUrl="dummy://gitweb/gitweb.cgi?p=foo.git;a=rss" htmlUrl="dummy://gitweb/gitweb.cgi?p=foo.git;a=summary"/>
+<outline type="rss" text="bar.git" title="bar.git" xmlUrl="dummy://gitweb/gitweb.cgi?p=bar.git;a=rss" htmlUrl="dummy://gitweb/gitweb.cgi?p=bar.git;a=summary"/>
+</outline>
+</body>
+</opml>
