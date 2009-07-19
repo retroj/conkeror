@@ -4,10 +4,10 @@
 
 # Find an appropriate xulrunner-stub binary
 XULRUNNER=''
-for xr in xulrunner-stub-1.9.1 xulrunner-stub-1.9 xulrunner-stub; do
-    XRTMP=`readlink -m /usr/share/conkeror/$xr`
+for xr in /usr/share/conkeror/xulrunner-stub*; do
+    XRTMP=`readlink -m $xr`
     if [ -n "$XRTMP" -a -x "$XRTMP" ]; then
-	XULRUNNER=/usr/share/conkeror/$xr
+	XULRUNNER=$xr
     fi
 done
 
