@@ -68,6 +68,12 @@ install-indep:
 	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
 	cp -p debian/conkeror.bin $(CURDIR)/debian/conkeror/usr/bin/conkeror
 	cp -p debian/conkeror.desktop $(CURDIR)/debian/conkeror/usr/share/applications/
+	# Supporting all currently known places of xulrunner-stub on
+	# debianoid systems
+	ln -vs ../../lib/xulrunner/xulrunner-stub $(CURDIR)/debian/conkeror/usr/share/conkeror/xulrunner-stub
+	ln -vs ../../lib/xulrunner-1.9/xulrunner-stub $(CURDIR)/debian/conkeror/usr/share/conkeror/xulrunner-stub-1.9
+	ln -vs ../../lib/xulrunner-1.9.1/xulrunner-stub $(CURDIR)/debian/conkeror/usr/share/conkeror/xulrunner-stub-1.9.1
+
 	dh_install -i
 
 install-arch:
