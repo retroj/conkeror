@@ -17,12 +17,13 @@ var zoom_levels = [ 1, 10, 25, 50, 75, 90, 100,
                     120, 150, 200, 300, 500, 1000, 2000 ];
 
 function browser_zoom_set(buffer, full_zoom, value) {
+    var txt = full_zoom ? "Zoom: " : "Text zoom: ";
     if (value < zoom_levels[0])
         value = zoom_levels[0];
     if (value > zoom_levels[zoom_levels.length - 1])
         value = zoom_levels[zoom_levels.length - 1];
     buffer.markup_document_viewer[full_zoom ? "fullZoom" : "textZoom"] = value / 100.0;
-    buffer.window.minibuffer.message((full_zoom ? "Full" : "Text") + " zoom: " + value + "%");
+    buffer.window.minibuffer.message(txt + value + "%");
 }
 
 function browser_zoom_change(buffer, full_zoom, count) {
