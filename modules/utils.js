@@ -1603,3 +1603,20 @@ function element_dom_node_or_window_p (elem) {
     return false;
 }
 
+/**
+ * Given a hook name, a buffer and a function, waits until the buffer document
+ * has fully loaded, then calls the function with the buffer as its only
+ * argument.
+ *
+ * @param {String} The hook name.
+ * @param {buffer} The buffer.
+ * @param {function} The function to call with the buffer as its argument once
+ *                   the buffer has loaded.
+ */
+function do_when(hook, buffer, fun) {
+    if (buffer.browser.webProgress.isLoadingDocument) {
+	add_hook.call(buffer, hook, fun);
+    } else {
+	fun(buffer);
+    }
+}
