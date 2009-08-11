@@ -63,11 +63,14 @@ function content_buffer (window, element) {
                                       }, true, false);
 
         this.browser.addEventListener("mouseout", function (event) {
-                                          if (buffer.current_overlink == event.target) {
-                                              buffer.current_overlink = null;
-                                              content_buffer_overlink_change_hook.run(buffer, "");
-                                          }
-                                      }, true, false);
+	    // mouseout events can occur without any mouseover taking place
+	    // prior to it, so we have to make one extra 'undefined' check to
+	    // avoid ugly warnings.
+            if (typeof buffer.current_overlink !== 'undefined' && buffer.current_overlink == event.target) {
+                buffer.current_overlink = null;
+                content_buffer_overlink_change_hook.run(buffer, "");
+            }
+        }, true, false);
 
         this.browser.addEventListener("mousedown", function (event) {
                                           buffer.last_user_input_received = Date.now();
