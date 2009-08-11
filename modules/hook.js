@@ -10,7 +10,7 @@
  * Note: hook_name must be a string */
 function add_hook(hook_name, func, prepend, avoid_duplicates)
 {
-    if (!this[hook_name])
+    if (!(hook_name in this))
         this[hook_name] = [];
     var hook = this[hook_name];
 

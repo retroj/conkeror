@@ -207,7 +207,7 @@ function window_close_maybe(event) {
 
 function define_global_window_mode(name, hook_name) {
     function install(window) {
-        if (window[name])
+        if (name in window)
             throw new Error(name + " already initialized for window");
         window[name] = new conkeror[name](window);
     }
