@@ -22,6 +22,7 @@ define_buffer_local_hook("content_buffer_status_change_hook");
 define_buffer_local_hook("content_buffer_focus_change_hook");
 define_buffer_local_hook("content_buffer_overlink_change_hook");
 define_buffer_local_hook("content_buffer_dom_link_added_hook");
+define_buffer_local_hook("content_buffer_popup_blocked_hook");
 
 define_current_buffer_hook("current_content_buffer_finished_loading_hook", "content_buffer_finished_loading_hook");
 define_current_buffer_hook("current_content_buffer_progress_change_hook", "content_buffer_progress_change_hook");
@@ -86,12 +87,14 @@ function content_buffer (window, element) {
 
         buffer.last_user_input_received = null;
 
-        /* FIXME: Add a handler for blocked popups, and also PopupWindow event */
-        /*
+        /* FIXME: Add handler for PopupWindow event
+	   WTF: What does that comment mean? Is PopupWindow an event? /Deniz
+	*/
+
          this.browser.addEventListener("DOMPopupBlocked", function (event) {
-         dumpln("PopupWindow: " + event);
+	     dumpln("Blocked popup: " + event.popupWindowURI.spec);
+             content_buffer_popup_blocked_hook.run(buffer, event);
          }, true, false);
-         */
 
         normal_input_mode(this);
 
