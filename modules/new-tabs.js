@@ -21,6 +21,9 @@ define_variable("tab_bar_button_close", 2,
                 "The mouse button that closes tabs." +
                 "0 = left, 1 = middle, 2 = right, null = disabled.");
 
+/**
+ * Constructs a tab bar for the given window.
+ */
 function tab_bar(window) {
     window.tab_bar = this;
     var scrollbox = create_XUL(window, "arrowscrollbox");
@@ -43,6 +46,10 @@ function tab_bar(window) {
         tab_bar_select_buffer(window.buffers.current);
 }
 
+
+/**
+ * Destroys the tab bar.
+ */
 tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "select_buffer_hook", tab_bar_select_buffer);
     remove_hook.call(this.window, "create_buffer_hook", tab_bar_add_buffer);
@@ -57,6 +64,10 @@ tab_bar.prototype.destroy = function () {
     this.element.parentNode.removeChild(this.element);
 };
 
+
+/**
+ * Updates the "multiple" attribute of the tab bar.
+ */
 tab_bar.prototype.update_multiple_attribute = function () {
     if (this.window.buffers.count > 1)
         this.element.setAttribute("multiple", "true");
@@ -64,6 +75,10 @@ tab_bar.prototype.update_multiple_attribute = function () {
         this.element.setAttribute("multiple", "false");
 };
 
+
+/**
+ * Adds a tab for the given buffer.
+ */
 function tab_bar_add_buffer(buffer) {
 
     // Get the tab bar
@@ -115,6 +130,10 @@ function tab_bar_add_buffer(buffer) {
     iconlabel.value = total;
 }
 
+
+/**
+ * Removes the tab for the given buffer.
+ */
 function tab_bar_kill_buffer(b) {
     var t = b.window.tab_bar;
     t.update_multiple_attribute();
@@ -130,8 +149,11 @@ function tab_bar_kill_buffer(b) {
     }
 }
 
-function tab_bar_select_buffer(b) {
 
+/**
+ * Updates the tab of the given buffer to indicate it is the currently open one.
+ */
+function tab_bar_select_buffer(b) {
     var t = b.window.tab_bar;
     if (t.selected_buffer != null)
         t.selected_buffer.tab.setAttribute("selected", "false");
@@ -140,6 +162,10 @@ function tab_bar_select_buffer(b) {
     t.element.ensureElementIsVisible(b.tab);
 }
 
+
+/**
+ * Updates the tab title for the given buffer.
+ */
 function tab_bar_update_buffer_title(b) {
     var title = b.title;
     if (title == null || title.length == 0)
@@ -147,18 +173,28 @@ function tab_bar_update_buffer_title(b) {
     b.tab.tab_label.setAttribute("value", title);
 }
 
+
+/**
+ * Inserts the tab bar in the given window.
+ */
 function tab_bar_install(window) {
     if (window.tab_bar)
         throw new Error("tab bar already initialized for window");
     new tab_bar(window);
 }
 
+
+/**
+ * Removes the tab bar from the given window.
+ * If the tab bar is not installed, throws an error.
+ */
 function tab_bar_uninstall(window) {
     if (!window.tab_bar)
         throw new Error("tab bar not initialized for window");
     window.tab_bar.destroy();
     delete window.tab_bar;
 }
+
 
 define_global_mode("tab_bar_mode",
                    function () { // enable
