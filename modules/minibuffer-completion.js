@@ -319,3 +319,27 @@ function nest_completions (completions, prefix, suffix) {
         }
     };
 }
+
+
+/**
+ * Generic simple completer for associative arrays.
+ *
+ * - `options' is an associative array, where the key represents a string that the
+ *   user can complete to.
+ * - `query' is the string to show in the minibuffer.
+ */
+function completer_with_mappings(options, query) {
+    let completer = all_word_completer(
+        $completions = function (push) {
+            for (let i in options)
+                push(i);
+        }
+    );
+
+    yield co_return(
+        yield get_recent_conkeror_window().minibuffer.read(
+            $prompt = query,
+            $completer = completer
+        )
+    );
+}
