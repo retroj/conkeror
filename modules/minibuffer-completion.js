@@ -12,11 +12,15 @@
 require("minibuffer.js");
 
 /**
- * `completions' is either a visit function or an array.
+ * Generic completer function factory.
  *
- * If `completions' is a function, the function's argument is a function which
- * pushes argument into the completions array.  Otherwise, it uses the provided
- * array.
+ * Keyword arguments:
+ * - $completions: Either a visit function or an array.  If a function, the
+ *   function's argument is a function which pushes argument into the
+ *   completions array.  Otherwise, it uses the provided array.
+ * - $get_value: TODO.
+ * - $get_string: TODO. Optional, default: identity function.
+ * - $get_description: TODO: Optional, default: function returning "".
  *
  * TODO: Exactly what does this function return and how do you use it?
  */
