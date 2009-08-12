@@ -12,7 +12,13 @@
 require("minibuffer.js");
 
 /**
- * Completions is either a visit function or an array.
+ * `completions' is either a visit function or an array.
+ *
+ * If `completions' is a function, the function's argument is a function which
+ * pushes argument into the completions array.  Otherwise, it uses the provided
+ * array.
+ *
+ * TODO: Exactly what does this function return and how do you use it?
  */
 define_keywords("$completions", "$get_string", "$get_description", "$get_value");
 function all_word_completer () {
