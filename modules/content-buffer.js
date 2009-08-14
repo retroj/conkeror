@@ -42,26 +42,26 @@ function content_buffer (window, element) {
         this.browser.addProgressListener(this);
         var buffer = this;
         this.browser.addEventListener("DOMTitleChanged", function (event) {
-                                          buffer_title_change_hook.run(buffer);
-                                      }, true /* capture */, false /* ignore untrusted events */);
+            buffer_title_change_hook.run(buffer);
+        }, true /* capture */, false /* ignore untrusted events */);
 
         this.browser.addEventListener("scroll", function (event) {
-                                          buffer_scroll_hook.run(buffer);
-                                      }, true /* capture */, false /* ignore untrusted events */);
+            buffer_scroll_hook.run(buffer);
+        }, true /* capture */, false /* ignore untrusted events */);
 
         this.browser.addEventListener("focus", function (event) {
-                                          content_buffer_focus_change_hook.run(buffer, event);
-                                      }, true /* capture */, false /* ignore untrusted events */);
+            content_buffer_focus_change_hook.run(buffer, event);
+        }, true /* capture */, false /* ignore untrusted events */);
 
         this.browser.addEventListener("mouseover", function (event) {
-                                          var node = event.target;
-                                          while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
-                                              node = node.parentNode;
-                                          if (node) {
-                                              content_buffer_overlink_change_hook.run(buffer, node.href);
-                                              buffer.current_overlink = event.target;
-                                          }
-                                      }, true, false);
+            var node = event.target;
+            while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
+                node = node.parentNode;
+            if (node) {
+                content_buffer_overlink_change_hook.run(buffer, node.href);
+                buffer.current_overlink = event.target;
+            }
+        }, true, false);
 
         this.browser.addEventListener("mouseout", function (event) {
 	    // mouseout events can occur without any mouseover taking place
@@ -74,16 +74,16 @@ function content_buffer (window, element) {
         }, true, false);
 
         this.browser.addEventListener("mousedown", function (event) {
-                                          buffer.last_user_input_received = Date.now();
-                                      }, true, false);
+            buffer.last_user_input_received = Date.now();
+        }, true, false);
 
         this.browser.addEventListener("keypress", function (event) {
-                                          buffer.last_user_input_received = Date.now();
-                                      }, true, false);
+            buffer.last_user_input_received = Date.now();
+        }, true, false);
 
         this.browser.addEventListener("DOMLinkAdded", function (event) {
-                                          content_buffer_dom_link_added_hook.run(buffer, event);
-                                      }, true, false);
+            content_buffer_dom_link_added_hook.run(buffer, event);
+        }, true, false);
 
         buffer.last_user_input_received = null;
 
@@ -401,13 +401,11 @@ function overlink_update_status (buffer, text) {
         buffer.window.minibuffer.show("");
 }
 
-define_global_mode("overlink_mode",
-                   function () {
-                       add_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
-                   },
-                   function () {
-                       remove_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
-                   });
+define_global_mode("overlink_mode", function () {
+    add_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
+}, function () {
+    remove_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
+});
 
 overlink_mode(true);
 
