@@ -10,7 +10,7 @@ const nav_history_service = Cc["@mozilla.org/browser/nav-history-service;1"]
     .getService(Ci.nsINavHistoryService);
 
 define_keywords("$use_webjumps", "$use_history", "$use_bookmarks");
-function history_completer() {
+function history_completer () {
     keywords(arguments);
     var use_history = arguments.$use_history;
     var use_bookmarks = arguments.$use_bookmarks;

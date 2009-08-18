@@ -7,8 +7,7 @@
  * COPYING file.
 **/
 
-function bind_scroll_keys(keymap)
-{
+function bind_scroll_keys (keymap) {
     define_key(keymap, "back_space", "cmd_scrollPageUp");
     define_key(keymap, "space","cmd_scrollPageDown");
     define_key(keymap, "M-v","cmd_scrollPageUp");
@@ -36,8 +35,7 @@ function bind_scroll_keys(keymap)
 }
 
 
-function bind_selection_keys(keymap)
-{
+function bind_selection_keys (keymap) {
     define_key(keymap, "M-w","cmd_copy");
     define_key(keymap, "S-page_up", "cmd_selectPageUp");
     define_key(keymap, "S-page_down", "cmd_selectPageDown");
