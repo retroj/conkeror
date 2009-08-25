@@ -369,8 +369,9 @@ interactive("edit-current-field-in-external-editor",
             "Edit the contents of the currently-focused text field in an external editor.",
             function (I) {
                 var buf = I.buffer;
-                yield edit_field_in_external_editor(buf, buf.focused_element);
-                unfocus(I.window, buf);
+                var elem = buf.focused_element;
+                yield edit_field_in_external_editor(buf, elem);
+                elem.blur();
             });
 
 define_variable("kill_whole_line", false,

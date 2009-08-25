@@ -28,7 +28,6 @@ define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
         define_key(keymap, "C-c t", "follow-top");
 
         define_key(keymap, "tab", null, $fallthrough);
-        define_key(keymap, "escape", "gmail-focus-primary-frame");
     };
 
     gmail_bind_common(gmail_keymap);
@@ -84,20 +83,22 @@ define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
     gmail_bind_common(gmail_textarea_keymap);
 }
 
-function gmail_focus_primary_frame(buffer) {
+function gmail_focus_primary_frame (buffer) {
     var frames = buffer.top_frame.frames;
     if (frames.length >= 4)
         buffer.top_frame.frames[3].focus();
 }
-interactive("gmail-focus-primary-frame", "Focus the main GMail frame.",
-            function (I) {gmail_focus_primary_frame(I.buffer); unfocus(I.window, I.buffer);});
 
 define_page_mode("gmail_mode", "GMail",
                  $enable = function (buffer) {
-                     add_hook.call(buffer, "buffer_dom_content_loaded_hook", gmail_focus_primary_frame);
+                     add_hook.call(buffer, "buffer_dom_content_loaded_hook",
+                                   gmail_focus_primary_frame);
+                     add_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
                  },
                  $disable = function (buffer) {
-                     remove_hook.call(buffer, "buffer_dom_content_loaded_hook", gmail_focus_primary_frame);
+                     remove_hook.call(buffer, "buffer_dom_content_loaded_hook",
+                                      gmail_focus_primary_frame);
+                     remove_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
                  },
                  $keymaps = {normal_input_mode: gmail_keymap,
                              richedit_input_mode: gmail_richedit_keymap,

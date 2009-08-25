@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -635,22 +635,57 @@ interactive("shell-command", null, function (I) {
     yield shell_command(cmd, $cwd = cwd);
 });
 
+
+/**
+ * unfocus is a high-level command for unfocusing hyperlinks, inputs,
+ * frames, iframes, plugins, and also clearing the selection.
+ */
+define_buffer_local_hook("unfocus_hook");
 function unfocus (window, buffer) {
-    var elem = buffer.focused_element;
-    if (elem) {
-        elem.blur();
+    // 1. if there is a focused element, unfocus it.
+    if (buffer.focused_element) {
+        buffer.focused_element.blur();
+        // if an element in a detached fragment has focus, blur() will
+        // not work, and we need to take more drastic measures.  the
+        // action taken was found through experiment, so it is possibly
+        // not the most concise way to unfocus such an element.
+        if (buffer.focused_element) {
+            buffer.element.focus();
+            buffer.top_frame.focus();
+        }
+        window.minibuffer.message("unfocused element");
         return;
     }
-    var win = buffer.focused_frame;
-    if (win != buffer.top_frame)
+    // 2. if there is a selection, clear it.
+    selc = getFocusedSelCtrl(buffer);
+    if (selc && selc.getSelection(selc.SELECTION_NORMAL).isCollapsed == false) {
+        clear_selection(buffer);
+        window.minibuffer.message("cleared selection");
         return;
-    clear_selection(buffer);
+    }
+    // 3. return focus to top-frame from subframes and plugins.
     buffer.top_frame.focus();
+    buffer.top_frame.focus(); // needed to get focus back from plugins
+    window.minibuffer.message("refocused top frame");
+    // give page-modes an opportunity to set focus specially
+    unfocus_hook.run(buffer);
 }
-interactive("unfocus", null, function (I) {
-    unfocus(I.window, I.buffer);
-    I.window.minibuffer.message("unfocus");
-});
+interactive("unfocus",
+    "Unfocus is a high-level command for unfocusing hyperlinks, inputs, "+
+    "frames, iframes, plugins, and also for clearing the selection.  "+
+    "The action that it takes is based on precedence.  If there is a "+
+    "focused hyperlink or input, it will unfocus that.  Otherwise, if "+
+    "there is a selection, it will clear the selection.  Otherwise, it "+
+    "will return focus to the top frame from a focused frame, iframe, "+
+    "or plugin.  In the case of plugins, since they steal keyboard "+
+    "control away from Conkeror, the normal way to unfocus them is "+
+    "to use command-line remoting externally: conkeror -batch -f "+
+    "unfocus.  Page-modes also have an opportunity to alter the default"+
+    "focus via the hook, `focus_hook'.",
+    function (I) {
+        unfocus(I.window, I.buffer);
+    });
+
 
 function for_each_buffer (f) {
     for_each_window(function (w) { w.buffers.for_each(f); });
