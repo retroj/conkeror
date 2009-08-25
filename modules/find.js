@@ -12,47 +12,43 @@ const CARET_PREF = 'accessibility.browsewithcaret';
 const CARET_ATTRIBUTE = 'showcaret';
 
 define_variable("isearch_keep_selection", false,
-                "Set to `true' to make isearch leave the selection "+
-                "visible when a search is completed.");
+    "Set to `true' to make isearch leave the selection visible when a "+
+    "search is completed.");
 
-function caret_enabled(buffer)
-{
+function caret_enabled (buffer) {
     return buffer.browser.getAttribute(CARET_ATTRIBUTE);
 }
 
 // turn on the selection in all frames
-function getFocusedSelCtrl(buffer)
-{
+function getFocusedSelCtrl (buffer) {
     var ds = buffer.doc_shell;
-    var dsEnum = ds.getDocShellEnumerator(Components.interfaces.nsIDocShellTreeItem.typeContent,
-                                          Components.interfaces.nsIDocShell.ENUMERATE_FORWARDS);
+    var dsEnum = ds.getDocShellEnumerator(Ci.nsIDocShellTreeItem.typeContent,
+                                          Ci.nsIDocShell.ENUMERATE_FORWARDS);
     while (dsEnum.hasMoreElements()) {
-        ds = dsEnum.getNext().QueryInterface(Components.interfaces.nsIDocShell);
-        if (ds.hasFocus)
-        {
-            var display = ds.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-                .getInterface(Components.interfaces.nsISelectionDisplay);
+        ds = dsEnum.getNext().QueryInterface(Ci.nsIDocShell);
+        if (ds.hasFocus) {
+            var display = ds.QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsISelectionDisplay);
             if (!display)
                 return null;
-            return display.QueryInterface(Components.interfaces.nsISelectionController);
+            return display.QueryInterface(Ci.nsISelectionController);
         }
     }
 
-  // One last try
-  return ds
-      .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-      .getInterface(Components.interfaces.nsISelectionDisplay)
-      .QueryInterface(Components.interfaces.nsISelectionController);
+    // One last try
+    return ds
+        .QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsISelectionDisplay)
+        .QueryInterface(Ci.nsISelectionController);
 }
 
-function clear_selection(buffer) {
+function clear_selection (buffer) {
     let sel_ctrl = getFocusedSelCtrl(buffer);
     if (sel_ctrl) {
         let sel = sel_ctrl.getSelection(sel_ctrl.SELECTION_NORMAL);
-        if(caret_enabled(buffer)) {
-            if(sel.anchorNode) {
+        if (caret_enabled(buffer)) {
+            if (sel.anchorNode)
                 sel.collapseToStart();
-            }
         } else {
             sel.removeAllRanges();
         }
@@ -60,14 +56,13 @@ function clear_selection(buffer) {
 }
 
 
-function initial_isearch_state(buffer, frame, forward)
-{
+function initial_isearch_state (buffer, frame, forward) {
     this.screenx = frame.scrollX;
     this.screeny = frame.scrollY;
     this.search_str = "";
     this.wrapped = false;
-    let sel = frame.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
-    if(sel.rangeCount > 0) {
+    let sel = frame.getSelection(Ci.nsISelectionController.SELECTION_NORMAL);
+    if (sel.rangeCount > 0) {
         this.point = sel.getRangeAt(0);
         if (caret_enabled(buffer))
             this.caret = this.point.cloneRange();
@@ -79,14 +74,13 @@ function initial_isearch_state(buffer, frame, forward)
     this.direction = forward;
 }
 
-function isearch_session(window, forward)
-{
+function isearch_session (window, forward) {
     this.states = [];
     this.buffer = window.buffers.current;
     this.frame = this.buffer.focused_frame;
     this.sel_ctrl = getFocusedSelCtrl(this.buffer);
-    this.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_ATTENTION);
-    this.sel_ctrl.repaintSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    this.sel_ctrl.setDisplaySelection(Ci.nsISelectionController.SELECTION_ATTENTION);
+    this.sel_ctrl.repaintSelection(Ci.nsISelectionController.SELECTION_NORMAL);
     this.states.push(new initial_isearch_state(this.buffer, this.frame, forward));
     this.window = window;
 
@@ -99,10 +93,9 @@ isearch_session.prototype = {
     get top () {
         return this.states[this.states.length - 1];
     },
-    _set_selection : function (range)
-    {
+    _set_selection : function (range) {
         try {
-            const selctrlcomp = Components.interfaces.nsISelectionController;
+            const selctrlcomp = Ci.nsISelectionController;
             var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
             sel.removeAllRanges();
             sel.addRange(range.cloneRange());
@@ -111,9 +104,8 @@ isearch_session.prototype = {
                                                   true);
         } catch(e) {/*FIXME:figure out if/why this is needed*/ dumpln("setSelection: " + e);}
     },
-    _clear_selection : function ()
-    {
-        const selctrlcomp = Components.interfaces.nsISelectionController;
+    _clear_selection : function () {
+        const selctrlcomp = Ci.nsISelectionController;
         var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
         sel.removeAllRanges();
     },
@@ -133,8 +125,9 @@ isearch_session.prototype = {
     _highlight_find : function (str, wrapped, dir, pt) {
         try {
             var doc = this.frame.document;
-            var finder = (Components.classes["@mozilla.org/embedcomp/rangefind;1"].createInstance()
-                          .QueryInterface(Components.interfaces.nsIFind));
+            var finder = (Cc["@mozilla.org/embedcomp/rangefind;1"]
+                          .createInstance()
+                          .QueryInterface(Ci.nsIFind));
             var searchRange;
             var startPt;
             var endPt;
@@ -230,7 +223,9 @@ isearch_session.prototype = {
         // Should we wrap this time?
         var wrapped = s.wrapped;
         var point = pt;
-        if (s.wrapped == false && s.range == null && s.search_str == str && s.direction == dir) {
+        if (s.wrapped == false && s.range == null
+            && s.search_str == str && s.direction == dir)
+        {
             wrapped = true;
             point = null;
         }
@@ -238,8 +233,11 @@ isearch_session.prototype = {
         var match_range = this._highlight_find(str, wrapped, dir, point);
 
         var new_state = {
-            screenx: this.frame.scrollX, screeny: this.frame.scrollY,
-            search_str: str, wrapped: wrapped, point: point,
+            screenx: this.frame.scrollX,
+            screeny: this.frame.scrollY,
+            search_str: str,
+            wrapped: wrapped,
+            point: point,
             range: match_range,
             selection: match_range ? match_range : s.selection,
             direction: dir
@@ -247,9 +245,8 @@ isearch_session.prototype = {
         this.states.push(new_state);
     },
 
-    focus_link : function ()
-    {
-        var sel = this.frame.getSelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    focus_link : function () {
+        var sel = this.frame.getSelection(Ci.nsISelectionController.SELECTION_NORMAL);
         if (!sel)
             return;
         var node = sel.focusNode;
@@ -263,7 +260,7 @@ isearch_session.prototype = {
                     // to the caller to decide whether or not to keep
                     // the selection.
                     var sel = this.frame.getSelection(
-                        Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+                        Ci.nsISelectionController.SELECTION_NORMAL);
                     if(sel.rangeCount > 0) {
                         var stored_selection = sel.getRangeAt(0).cloneRange();
                     }
@@ -279,7 +276,7 @@ isearch_session.prototype = {
     },
 
     collapse_selection : function() {
-        const selctrlcomp = Components.interfaces.nsISelectionController;
+        const selctrlcomp = Ci.nsISelectionController;
         var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
         if(sel.rangeCount > 0) {
             sel.getRangeAt(0).collapse(true);
@@ -306,7 +303,7 @@ isearch_session.prototype = {
     }
 };
 
-function isearch_continue_noninteractively(window, direction) {
+function isearch_continue_noninteractively (window, direction) {
     var s = new isearch_session(window, direction);
     if (window.isearch_last_search)
         s.find(window.isearch_last_search, direction, s.top.point);
@@ -319,7 +316,7 @@ function isearch_continue_noninteractively(window, direction) {
     isearch_done (window, true);
 }
 
-function isearch_continue(window, direction) {
+function isearch_continue (window, direction) {
     var s = window.minibuffer.current_state;
     // if the minibuffer is not open, this command operates in
     // non-interactive mode.
@@ -333,20 +330,22 @@ function isearch_continue(window, direction) {
         s.find(s.top.search_str, direction, s.top.range);
     return s.restore_state();
 }
-interactive("isearch-continue-forward", null, function (I) {isearch_continue(I.window, true);});
-interactive("isearch-continue-backward", null, function (I) {isearch_continue(I.window, false);});
+interactive("isearch-continue-forward", null,
+            function (I) { isearch_continue(I.window, true); });
+interactive("isearch-continue-backward", null,
+            function (I) { isearch_continue(I.window, false); });
 
-function isearch_start (window, direction)
-{
+function isearch_start (window, direction) {
     var s = new isearch_session(window, direction);
     window.minibuffer.push_state(s);
     s.restore_state();
 }
-interactive("isearch-forward", null, function (I) {isearch_start(I.window, true);});
-interactive("isearch-backward", null, function (I) {isearch_start(I.window, false);});
+interactive("isearch-forward", null,
+            function (I) { isearch_start(I.window, true); });
+interactive("isearch-backward", null,
+            function (I) { isearch_start(I.window, false); });
 
-function isearch_backspace (window)
-{
+function isearch_backspace (window) {
     var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
@@ -354,14 +353,14 @@ function isearch_backspace (window)
         s.states.pop();
     s.restore_state();
 }
-interactive("isearch-backspace", null, function (I) {isearch_backspace(I.window);});
+interactive("isearch-backspace", null,
+            function (I) { isearch_backspace(I.window); });
 
-function isearch_done (window, keep_selection)
-{
+function isearch_done (window, keep_selection) {
     var s = window.minibuffer.current_state;
     if (!(s instanceof isearch_session))
         throw "Invalid minibuffer state";
-    s.sel_ctrl.setDisplaySelection(Components.interfaces.nsISelectionController.SELECTION_NORMAL);
+    s.sel_ctrl.setDisplaySelection(Ci.nsISelectionController.SELECTION_NORMAL);
 
     // Prevent focus from being reverted
     window.minibuffer.saved_focused_element = null;
@@ -375,4 +374,5 @@ function isearch_done (window, keep_selection)
     if (! isearch_keep_selection && ! keep_selection)
         s.collapse_selection();
 }
-interactive("isearch-done", null, function (I) {isearch_done(I.window);});
+interactive("isearch-done", null,
+            function (I) { isearch_done(I.window); });
