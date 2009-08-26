@@ -129,15 +129,27 @@ hyperlink.</a>
 
 <h3>Copying Text</h3>
 <p>
-  Gecko has a feature called caret browsing that gives you a blinking
-  cursor that you can move and select document text with the keyboard.
-  To enter caret browsing mode in Conkeror, press <code class="key">C-q F7</code>.
-  You can move the caret with the normal movement keys, isearch
-  (<code class="key">C-s</code> or <code class="key">C-r</code>), or with certain browser
-  object commands like <em>focus link</em> (<code class="key">n ;</code>).  Select
-  text by holding shift while pressing arrow keys.  Exit caret
-  browsing mode by pressing <code class="key">C-q F7</code> again.  Press
-  <code class="key">M-w</code> to copy the selection to the clipboard.
+  Copying text from a web page is straight-forward.  First, use isearch
+  (<code class="key">C-s</code>) and search for the start of the text you
+  want to copy.  When you have brought the search to the start of the text
+  you want to copy, hit <code class="key">return</code> to conclude the
+  search.  Although no cursor is visible, there is an invisible cursor where
+  the search concluded.  Hold the <code class="key">shift</code> key and use
+  the arrow keys to make a selection.  When you have selected the text you
+  want to copy, release all keys and hit <code class="key">M-w</code> to
+  copy the text to the clipboard.
+</p>
+
+<p>
+  <b>Tip:</b> Although isearch is usually the quickest way to position the
+  cursor, there are other ways.  One of them is to use the <em>focus
+  link</em> browser-object command (<code class="key">n ;</code>).  When you
+  focus a link, the invisible cursor will be left at the first character of
+  the link text, and you can use shifted arrow keys to make a selection from
+  that point.  If the methods outlined so far are unsuitable for a situation
+  you encounter, then you can use <code>M-x caret-mode</code> to get a small
+  but visible blinking cursor that you can move to where you need it.
+  Call <code>M-x caret-mode</code> again to toggle it off.
 </p>
 
 </body>
