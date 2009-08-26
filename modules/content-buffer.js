@@ -426,7 +426,7 @@ function go_back (b, prefix) {
         throw interactive_error("Can't go back");
 }
 
-interactive("go-back",
+interactive("back",
     "Go back in the session history for the current buffer.",
     function (I) {go_back(I.buffer, I.p);});
 
@@ -446,8 +446,8 @@ function go_forward (b, prefix) {
         throw interactive_error("Can't go forward");
 }
 
-interactive("go-forward",
-            "Go back in the session history for the current buffer.",
+interactive("forward",
+            "Go forward in the session history for the current buffer.",
             function (I) {go_forward(I.buffer, I.p);});
 
 

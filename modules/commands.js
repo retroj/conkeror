@@ -285,7 +285,7 @@ interactive("help-page", "Open the Conkeror help page.",
             "find-url-new-buffer",
             $browser_object = "chrome://conkeror-help/content/help.html");
 
-interactive("help-with-tutorial", "Open the Conkeror tutorial.",
+interactive("tutorial", "Open the Conkeror tutorial.",
             "find-url-new-buffer",
             $browser_object = "chrome://conkeror-help/content/tutorial.html");
 
@@ -499,11 +499,11 @@ interactive("find-alternate-url", "Edit the current URL in the minibuffer",
             $prompt = "Find url");
 
 
-interactive("go-up", "Go to the parent directory of the current URL",
+interactive("up", "Go to the parent directory of the current URL",
             "find-url",
             $browser_object = browser_object_up_url);
 
-interactive("go-home",
+interactive("home",
             "Go to the homepage in the current buffer.", "follow",
             $browser_object = function () { return homepage; });
 

@@ -16,7 +16,7 @@ define_key(gmane_keymap, "C-c c", "copy");
 define_key(gmane_keymap, "C-c +", "zoom-in-text");
 define_key(gmane_keymap, "C-c -", "zoom-out-text");
 define_key(gmane_keymap, "C-c f", "follow");
-define_key(gmane_keymap, "C-c l", "go-back");
+define_key(gmane_keymap, "C-c l", "back");
 define_key(gmane_keymap, "C-c n", "browser-object-links");
 
 

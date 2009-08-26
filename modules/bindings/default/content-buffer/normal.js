@@ -16,10 +16,10 @@ bind_scroll_keys(content_buffer_normal_keymap);
 bind_selection_keys(content_buffer_normal_keymap);
 
 // URL
-define_key(content_buffer_normal_keymap, "u", "go-up");
-define_key(content_buffer_normal_keymap, "F", "go-forward");
-define_key(content_buffer_normal_keymap, "B", "go-back");
-define_key(content_buffer_normal_keymap, "l", "go-back");
+define_key(content_buffer_normal_keymap, "u", "up");
+define_key(content_buffer_normal_keymap, "F", "forward");
+define_key(content_buffer_normal_keymap, "B", "back");
+define_key(content_buffer_normal_keymap, "l", "back");
 define_key(content_buffer_normal_keymap, "r", "reload");
 define_key(content_buffer_normal_keymap, "g", "find-url");
 define_key(content_buffer_normal_keymap, "G", "find-alternate-url");

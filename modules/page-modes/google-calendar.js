@@ -31,7 +31,7 @@ define_key(google_calendar_keymap, "q", null, $fallthrough);
 define_key(google_calendar_keymap, "s", null, $fallthrough);
 define_key(google_calendar_keymap, "C-c s", "save");
 define_key(google_calendar_keymap, "u", null, $fallthrough);
-define_key(google_calendar_keymap, "C-c u", "go-up");
+define_key(google_calendar_keymap, "C-c u", "up");
 define_key(google_calendar_keymap, "return", null, $fallthrough);
 define_key(google_calendar_keymap, "tab", null, $fallthrough);
 define_key(google_calendar_keymap, "M-s", null, $fallthrough);
