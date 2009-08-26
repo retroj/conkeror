@@ -642,7 +642,14 @@ interactive("shell-command", null, function (I) {
  */
 define_buffer_local_hook("unfocus_hook");
 function unfocus (window, buffer) {
-    // 1. if there is a focused element, unfocus it.
+    // 1. if there is a selection, clear it.
+    selc = getFocusedSelCtrl(buffer);
+    if (selc && selc.getSelection(selc.SELECTION_NORMAL).isCollapsed == false) {
+        clear_selection(buffer);
+        window.minibuffer.message("cleared selection");
+        return;
+    }
+    // 2. if there is a focused element, unfocus it.
     if (buffer.focused_element) {
         buffer.focused_element.blur();
         // if an element in a detached fragment has focus, blur() will
@@ -654,13 +661,6 @@ function unfocus (window, buffer) {
             buffer.top_frame.focus();
         }
         window.minibuffer.message("unfocused element");
-        return;
-    }
-    // 2. if there is a selection, clear it.
-    selc = getFocusedSelCtrl(buffer);
-    if (selc && selc.getSelection(selc.SELECTION_NORMAL).isCollapsed == false) {
-        clear_selection(buffer);
-        window.minibuffer.message("cleared selection");
         return;
     }
     // 3. return focus to top-frame from subframes and plugins.
