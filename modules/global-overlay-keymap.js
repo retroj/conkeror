@@ -10,18 +10,18 @@ require("keyboard.js");
 
 var global_overlay_keymap = new keymap();
 
-function global_overlay_keymap_handler(window, ctx, true_event) {
-    var binding = lookup_key_binding(global_overlay_keymap, ctx.combo, ctx.event);
+function global_overlay_keymap_handler (window, I, true_event) {
+    var binding = lookup_key_binding(global_overlay_keymap, I.combo, I.event);
     if (!binding)
         return false;
-    if (!binding.fallthrough)
-    {
+    if (!binding.fallthrough) {
         true_event.preventDefault();
         true_event.stopPropagation();
     }
+    I.key_sequence.pop();
 
     if (binding.command)
-        call_interactively(ctx, binding.command);
+        call_interactively(I, binding.command);
 
     return true;
 }
