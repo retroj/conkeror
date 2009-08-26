@@ -104,18 +104,20 @@ hyperlink.</a>
   <tr><td><code class="key">n</code></td><td>links and form elements</td><td>liNk</td></tr>
   <tr><td><code class="key">i</code></td><td>images</td><td>Image</td></tr>
   <tr><td><code class="key">m</code></td><td>frameset frames and top window</td><td>fraMe</td></tr>
-  <tr><td><code class="key">* M</code></td><td>MathML nodes</td><td>Math</td></tr>
 </table>
 
 <p>
-  The <code class="key">c</code> key is bound to a command to copy an URL to the
-  clipboard.  Its default hint class is links.  To copy the URL of the
-  page you are currently browsing, you use the frameset link class.
-  The top level window with or without a frameset is always number 0
-  (zero).  On this tutorial page, you can type <code class="key">m c</code> to
-  copy the current URL.  You do not need to type 0 because this is not
-  a frameset document.  If this were a frameset document, you would
-  type <code class="key">m c 0</code>.
+  In the hinting system, hint number zero (0) is special.  It refers to the
+  current URL in the buffer.
+</p>
+
+<p>
+  The <code class="key">c</code> key is bound to the copy command.  Its
+  default hint class is links.  To copy the URL of the page you are
+  currently browsing, type <code class="key">c 0</code>.  To copy the url of
+  a frame or iframe, type <code class="key">m c</code>.  If there is more
+  than one frame visible, you will be prompted for a number, just as with
+  hyperlinks.
 </p>
 
 <p>
