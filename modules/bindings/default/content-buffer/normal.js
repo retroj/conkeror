@@ -41,8 +41,13 @@ define_key(content_buffer_normal_keymap, "C-M-q", "quote-input-mode");
 define_key(content_buffer_normal_keymap, "return", null, $fallthrough);
 
 define_key(content_buffer_normal_keymap, "tab", "browser-focus-next-form-field");
-
 define_key(content_buffer_normal_keymap, "S-tab", "browser-focus-previous-form-field");
+
+define_key(content_buffer_normal_keymap, "M-up", "focus-previous-link");
+define_key(content_buffer_normal_keymap, "M-left", "focus-previous-link");
+define_key(content_buffer_normal_keymap, "M-down", "focus-next-link");
+define_key(content_buffer_normal_keymap, "M-right", "focus-next-link");
+
 
 // isearch (non-interactive)
 define_key(content_buffer_normal_keymap, "S", "isearch-continue-forward");

@@ -228,12 +228,12 @@ define_variable(
     "XPath expression matching elements to be selected by `browser-focus-next-form-field' " +
         "and `browser-focus-previous-form-field.'");
 
-function browser_focus_next_form_field(buffer, count, xpath_expr) {
+function focus_next (buffer, count, xpath_expr, name) {
     var focused_elem = buffer.focused_element;
     if (count == 0)
         return; // invalid count
 
-    function helper(win, skip_win) {
+    function helper (win, skip_win) {
         if (win == skip_win)
             return null;
         var doc = win.document;
@@ -245,8 +245,8 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
             let valid_nodes = [];
             for (let i = 0; i < length; ++i) {
                 let elem = res.snapshotItem(i);
-                if (elem.clientWidth == 0 &&
-                    elem.clientHeight == 0)
+                if (elem.offsetWidth == 0 ||
+                    elem.offsetHeight == 0)
                     continue;
                 let style = win.getComputedStyle(elem, "");
                 if (style.display == "none" || style.visibility == "hidden")
@@ -285,27 +285,56 @@ function browser_focus_next_form_field(buffer, count, xpath_expr) {
     var focused_win = buffer.focused_frame;
     var elem = helper(focused_win, null);
     if (!elem)
+        // if focused_frame is top_frame, we're doing twice as much
+        // work as necessary
         elem = helper(buffer.top_frame, focused_win);
     if (elem) {
         browser_element_focus(buffer, elem);
     } else
-        throw interactive_error("No form field found");
+        throw interactive_error("No "+name+" found");
 }
 
 interactive("browser-focus-next-form-field",
             "Focus the next element matching "+
             "`browser_form_field_xpath_expression'.",
             function (I) {
-                browser_focus_next_form_field(
-                    I.buffer, I.p, browser_form_field_xpath_expression);
+                focus_next(I.buffer, I.p,
+                           browser_form_field_xpath_expression,
+                           "form field");
             });
 
 interactive("browser-focus-previous-form-field",
             "Focus the previous element matching "+
             "`browser_form_field_xpath_expression'.",
             function (I) {
-                browser_focus_next_form_field(
-                    I.buffer, -I.p, browser_form_field_xpath_expression);
+                focus_next(I.buffer, -I.p,
+                           browser_form_field_xpath_expression,
+                           "form field");
+            });
+
+
+define_variable("links_xpath_expression",
+    "//*[@onclick or @onmouseover or @onmousedown or "+
+        "@onmouseup or @oncommand or @role='link'] | " +
+    "//input[not(@type='hidden')] | //a | //area | "+
+    "//iframe | //textarea | //button | //select",
+    "XPath expression matching elements to be selected by "+
+    "`focus-next-link' and `focus-previous-link.'");
+
+interactive("focus-next-link",
+            "Focus the next element matching `links_xpath_expression'.",
+            function (I) {
+                focus_next(I.buffer, I.p,
+                           links_xpath_expression,
+                           "link");
+            });
+
+interactive("focus-previous-link",
+            "Focus the previous element matching `links_xpath_expression'.",
+            function (I) {
+                focus_next(I.buffer, -I.p,
+                           links_xpath_expression,
+                           "link");
             });
 
 
