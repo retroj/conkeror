@@ -788,8 +788,29 @@ interactive("view-as-mime-type",
 
 
 interactive("reload-with-charset",
-    null,
-    function (I) {
-        var forced_charset = yield I.minibuffer.read($prompt = "Charset:");
-        reload(I.buffer, false, null, forced_charset);
-    });
+            null, // TODO: Add a docstring.
+            function (I) {
+                var forced_charset = yield I.minibuffer.read($prompt = "Charset:");
+                reload(I.buffer, false, null, forced_charset);
+            });
+
+interactive("yank",
+            "Paste the contents of the clipboard",
+            function (I) {
+                I.buffer.mark_active = false;
+                I.buffer.do_command("cmd_paste");
+            });
+
+interactive("kill-region",
+            "Kill (\"cut\") the selected text.",
+            function (I) {
+                I.buffer.mark_active = false;
+                I.buffer.do_command("cmd_cut");
+            });
+
+interactive("kill-ring-save",
+            "Save the region as if killed, but don't kill it.",
+            function (I) {
+                I.buffer.mark_active = false;
+                I.buffer.do_command("cmd_copy");
+            });
