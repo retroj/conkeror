@@ -256,7 +256,7 @@
         let do_load = false;
         let window = get_recent_conkeror_window();
         if (session_auto_save_auto_load == true) do_load = true;
-        else if (session_auto_save_auto_load == "prompt") {
+        else if (session_auto_save_auto_load == "prompt" && !user_gave_urls) {
             do_load = (yield window.minibuffer.read_single_character_option(
                 $prompt = "Load auto-saved session? (y/n)",
                 $options = ["y", "n"]
