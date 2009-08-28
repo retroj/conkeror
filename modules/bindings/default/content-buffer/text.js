@@ -44,7 +44,7 @@ define_key(content_buffer_text_keymap, "C-delete", "cmd_deleteWordForward");
 define_key(content_buffer_text_keymap, "C-back_space", "cmd_deleteWordBackward");
 
 // Undo-redo
-define_key(content_buffer_text_keymap, "C-r","cmd_redo");
+define_key(content_buffer_text_keymap, "C-?","cmd_redo");
 define_key(content_buffer_text_keymap, "C-_", "cmd_undo");
 define_key(content_buffer_text_keymap, "C-x u", "cmd_undo");
 define_key(content_buffer_text_keymap, "C-/", "cmd_undo");
