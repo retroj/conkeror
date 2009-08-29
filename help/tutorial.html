@@ -16,7 +16,7 @@ COPYING file.
 <body>
 <h1>Conkeror Tutorial</h1>
 
-<h3>Welcome to Conkeror</h3>
+<h3>Reading Key Notation</h3>
 
 <p>
   The first thing you need to know about Conkeror is how to read key
@@ -57,6 +57,26 @@ COPYING file.
 </p>
 
 
+<h3>Basic Navigation</h3>
+
+<p>
+  To have Conkeror prompt you for an URL and navigate there, type
+  <code class="key">g</code>.  The mnemonic is "go".  A similar command,
+  <code class="key">find-alternate-url</code>, is called with the sequence
+  <code class="key">C-x C-v</code>.  When find-alternate-url prompts you for an
+  url, the prompt will be pre-filled with the url of the current
+  buffer, so you can edit it.
+</p>
+
+<p>
+  The <code class="key">B</code> key (note uppercase) is bound to
+  the <code>back</code> command.  Practice basic navigation by
+  typing <code class="key">g</code> and entering the text "about:" in
+  the url prompt.  To come back to this tutorial from the about: page,
+  type <code class="key">B</code>.
+</p>
+
+
 <h3>Hinting</h3>
 
 <p>
@@ -65,8 +85,8 @@ COPYING file.
   follow hyperlinks, copy URLs, focus form fields, and more.  Let's
   use the hinting system to follow a hyperlink.  You will receive
   instructions about how to return here after you follow the
-  hyperlink.  Scroll so that following numbered list and the hyperlink
-  after it are both visible.
+  hyperlink.  If the numbered list and hyperlink following this
+  paragraph are not in view, scroll so that they are.
 </p>
 
 <ol>
@@ -101,9 +121,10 @@ hyperlink.</a>
 
 <table>
   <tr><td><em>key</em></td><td><em>hint class</em></td><td><em>mnemonic</em></td></tr>
-  <tr><td><code class="key">n</code></td><td>links and form elements</td><td>liNk</td></tr>
-  <tr><td><code class="key">i</code></td><td>images</td><td>Image</td></tr>
-  <tr><td><code class="key">m</code></td><td>frameset frames and top window</td><td>fraMe</td></tr>
+  <tr><td><code class="key">n</code></td><td>links and form elements</td><td>li<b>n</b>k</td></tr>
+  <tr><td><code class="key">i</code></td><td>images</td><td><b>i</b>mage</td></tr>
+  <tr><td><code class="key">m</code></td><td>frameset frames and top window</td><td>fra<b>m</b>e</td></tr>
+  <tr><td><code class="key">* *</code></td><td>dom nodes</td><td>wildcard</td></tr>
 </table>
 
 <p>
@@ -121,12 +142,12 @@ hyperlink.</a>
 </p>
 
 <p>
-  To have Conkeror prompt you for an URL and navigate there, type
-  <code class="key">g</code>.  The mnemonic is "go".  A similar command,
-  <code class="key">find-alternate-url</code>, is called with the sequence
-  <code class="key">C-x C-v</code>.  When find-alternate-url prompts you for an
-  url, the prompt will be pre-filled with the url of the current
-  buffer, so you can edit it.
+  When none of the conventional hint classes cover the element that
+  you want to operate on, you can use the dom-nodes hint class, to
+  choose from among all visible dom nodes.  This hint class is bound
+  to <code class="key">* *</code>.  Try copying the text of this
+  paragraph now by typing <code class="key">* * c</code> followed by
+  the hint number for this paragraph.
 </p>
 
 
@@ -150,7 +171,9 @@ hyperlink.</a>
 
 <h3>Copying Text</h3>
 <p>
-  Copying text from a web page is straight-forward.  First, use isearch
+  Apart from <code class="key">* * c</code> described above, there are other
+  ways to copy text for times when what you want to copy does not neatly
+  fill one dom node.  The process is straight-forward.  First, use isearch
   (<code class="key">C-s</code>) and search for the start of the text you
   want to copy.  When you have brought the search to the start of the text
   you want to copy, hit <code class="key">return</code> to conclude the
