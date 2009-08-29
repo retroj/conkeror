@@ -24,6 +24,7 @@ define_key(content_buffer_normal_keymap, "* u", "browser-object-url");
 define_key(content_buffer_normal_keymap, "* a", "browser-object-alt");
 define_key(content_buffer_normal_keymap, "* t", "browser-object-title");
 define_key(content_buffer_normal_keymap, "* T", "browser-object-title-or-alt");
+define_key(content_buffer_normal_keymap, "* *", "browser-object-dom-node");
 
 
 define_key(content_buffer_normal_keymap, "[",

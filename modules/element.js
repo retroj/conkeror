@@ -186,6 +186,10 @@ define_browser_object_class(
         return I.buffer.focused_element;
     });
 
+define_browser_object_class(
+    "dom-node", "DOM Node", null,
+    xpath_browser_object_handler("//*"));
+
 function read_browser_object (I) {
     var browser_object = I.browser_object;
     // literals cannot be overridden
