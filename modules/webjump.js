@@ -111,13 +111,6 @@ function define_default_webjumps()
     define_webjump("clusty",     "http://www.clusty.com/search?query=%s");
     define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
-    define_webjump("xulplanet",
-                   "http://www.google.com/custom?q=%s&cof=S%3A"+
-		   "http%3A%2F%2Fwww.xulplanet.com%3BAH%3Aleft%3BLH%3A65%3BLC"+
-		   "%3A4682B4%3BL%3Ahttp%3A%2F%2Fwww.xulplanet.com%2Fimages%2F"+
-		   "xulplanet.png%3BALC%3Ablue%3BLW%3A215%3BAWFID%3A0979f384d5"+
-		   "181409%3B&domains=xulplanet.com&sitesearch=xulplanet.com&sa=Go",
-		   $alternative = "http://xulplanet.com");
     define_webjump("image",      "http://images.google.com/images?q=%s");
     define_webjump("clhs",
                    "http://www.xach.com/clhs?q=%s",
