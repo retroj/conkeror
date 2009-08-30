@@ -1,14 +1,17 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
+require("buffer.js");
 require("load-spec.js");
 
+//FIXME: circular dependency for browser_prevent_automatic_form_focus_mode,
+//       and content_buffer_update_input_mode_for_focus.
 require_later("content-buffer-input.js");
 
 define_variable("homepage", "chrome://conkeror-help/content/help.html",
@@ -91,12 +94,18 @@ function content_buffer (window, element) {
 	   WTF: What does that comment mean? Is PopupWindow an event? /Deniz
 	*/
 
-         this.browser.addEventListener("DOMPopupBlocked", function (event) {
-	     dumpln("Blocked popup: " + event.popupWindowURI.spec);
-             content_buffer_popup_blocked_hook.run(buffer, event);
-         }, true, false);
+        this.browser.addEventListener("DOMPopupBlocked", function (event) {
+	    dumpln("Blocked popup: " + event.popupWindowURI.spec);
+            content_buffer_popup_blocked_hook.run(buffer, event);
+        }, true, false);
 
-        normal_input_mode(this);
+        // XXX: This is needed to ensure we have a keymap at the
+        // instant the buffer is created, but before the page has been
+        // loaded in it.  It breaks heirarchy, as content_buffer
+        // should not have any business knowing about a specific
+        // input-mode system, so we'll see if we can figure out
+        // something more elegant.
+        content_buffer_update_input_mode_for_focus(this);
 
         this.ignore_initial_blank = true;
 
@@ -600,7 +609,7 @@ function define_page_mode(name, display_name) {
                            if (keymaps) {
                                remove_hook.call(buffer, "input_mode_change_hook",
                                                 page_mode_update_keymap);
-                               content_buffer_update_keymap_for_input_mode(buffer);
+                               buffer_update_keymap_for_input_mode(buffer);
                            }
                        },
                        $doc = doc);

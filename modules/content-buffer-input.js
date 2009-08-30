@@ -1,41 +1,25 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2008 John J. Foerch
+ * (C) Copyright 2008-2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
+/**
+ * This file contains the default input-mode system.  An input-mode
+ * system is a set of input-modes along with code that coordinates
+ * switching among them based on user actions and focus-context.
+ */
+
 require("content-buffer.js");
 
-define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
 
-var content_buffer_input_mode_keymaps = {};
+/*
+ * DEFAULT INPUT-MODE SYSTEM
+ */
 
-function define_input_mode(base_name, display_name, keymap_name, doc) {
-    var name = base_name + "_input_mode";
-    content_buffer_input_mode_keymaps[name] = keymap_name;
-    define_buffer_mode(name,
-                       display_name,
-                       $class = "input_mode",
-                       $enable = function (buffer) {
-                           check_buffer(buffer, content_buffer);
-                           content_buffer_update_keymap_for_input_mode(buffer);
-                       },
-                       $disable = false,
-                       $doc = doc);
-}
-ignore_function_for_get_caller_source_code_reference("define_input_mode");
-
-function content_buffer_update_keymap_for_input_mode (buffer) {
-    if (buffer.input_mode)
-        buffer.keymap = conkeror[content_buffer_input_mode_keymaps[buffer.input_mode]];
-}
-
-add_hook("content_buffer_location_change_hook", function (buf) { normal_input_mode(buf, true); });
-
-
-// Input mode for "normal" view mode
+// Input mode for "normal" view mode.  You might also call it "scroll" mode.
 define_input_mode("normal", null, "content_buffer_normal_keymap");
 
 // Input modes for form elements
@@ -45,23 +29,16 @@ define_input_mode("textarea", "input:TEXTAREA", "content_buffer_textarea_keymap"
 define_input_mode("richedit", "input:RICHEDIT", "content_buffer_richedit_keymap");
 define_input_mode("checkbox", "input:CHECKBOX/RADIOBUTTON", "content_buffer_checkbox_keymap");
 
-// Input modes for sending key events to gecko
-define_input_mode(
-    "quote_next", "input:PASS-THROUGH(next)", "content_buffer_quote_next_keymap",
-    "This input mode sends the next key combo to the buffer, "+
-        "bypassing Conkeror's normal key handling.  The mode disengages "+
-        "after one key combo.");
-define_input_mode(
-    "quote", "input:PASS-THROUGH", "content_buffer_quote_keymap",
-    "This input mode sends all key combos to the buffer, "+
-        "bypassing Conkeror's normal key handling, until the "+
-        "Escape key is pressed.");
 
-// Input mode for the visible caret
-define_input_mode("caret", null, "content_buffer_caret_keymap");
-
-
-function content_buffer_update_input_mode_for_focus(buffer, force) {
+/**
+ * content_buffer_update_input_mode_for_focus is the controller for
+ * this input-mode system.  It sets the input-mode based on the focused
+ * element or lack thereof in the given buffer.  By default, it will
+ * not override input-modes such as caret-mode, which have been turned
+ * on explicitly by the user.  If force is true, then this function
+ * will even override those special input-modes.
+ */
+function content_buffer_update_input_mode_for_focus (buffer, force) {
     var mode = buffer.input_mode;
     var form_input_mode_enabled = (mode == "text_input_mode" ||
                                    mode == "textarea_input_mode" ||
@@ -69,7 +46,9 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
                                    mode == "checkbox_input_mode" ||
                                    mode == "richedit_input_mode");
 
-    if (force || form_input_mode_enabled || mode == "normal_input_mode") {
+    if (force || form_input_mode_enabled ||
+        mode == "normal_input_mode" || mode == null)
+    {
         let elem = buffer.focused_element;
 
         if (elem) {
@@ -91,7 +70,6 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
         }
 
         if (!input_mode_function) {
-
             let frame = buffer.focused_frame;
             let in_design_mode = false;
             if (frame && frame.document.designMode == "on")
@@ -116,7 +94,7 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
 
         if (input_mode_function) {
             if (!force &&
-                browser_prevent_automatic_form_focus_mode_enabled &&
+                browser_prevent_automatic_form_focus_mode_enabled && //XXX: breaks abstraction
                 !form_input_mode_enabled &&
                 (buffer.last_user_input_received == null ||
                  (Date.now() - buffer.last_user_input_received)
@@ -127,15 +105,70 @@ function content_buffer_update_input_mode_for_focus(buffer, force) {
                 input_mode_function(buffer, true);
             return;
         }
-
         normal_input_mode(buffer, true);
     }
 }
 
+//XXX: why does this command exist?  if the input-mode system works correctly
+//     then the user should never have to call this.
+interactive("content-buffer-update-input-mode-for-focus",
+    "This command provides a way for the user to force a reset of the"+
+    "input-mode system.",
+    function (I) {
+        content_buffer_update_input_mode_for_focus(I.buffer, true);
+    });
+
+
+/**
+ * Install the default input-mode system
+ */
+
+//XXX: bad to assume we can go into normal_input_mode. doesn't work if
+// you are in an input box on a frameset page, submit a form that
+// causes another frame to change location, but your input box keeps
+// focus.
+//
+// add_hook("content_buffer_location_change_hook", function (buf) { normal_input_mode(buf, true); });
+
+add_hook("content_buffer_location_change_hook",
+         content_buffer_update_input_mode_for_focus);
+
 add_hook("content_buffer_focus_change_hook",
-         function (buf) {
-             content_buffer_update_input_mode_for_focus(buf, false);
-         });
+         content_buffer_update_input_mode_for_focus);
+
+
+
+
+/*
+ * QUOTE INPUT MODES
+ */
+
+// Input modes for sending key events to gecko
+//
+// XXX: These quote modes are not rightly part of the system because
+// they are always invoked by the user.  Furthermore, they should be
+// generalized to work with any type of buffer.
+define_input_mode(
+    "quote_next", "input:PASS-THROUGH(next)", "content_buffer_quote_next_keymap",
+    "This input mode sends the next key combo to the buffer, "+
+        "bypassing Conkeror's normal key handling.  The mode disengages "+
+        "after one key combo.");
+define_input_mode(
+    "quote", "input:PASS-THROUGH", "content_buffer_quote_keymap",
+    "This input mode sends all key combos to the buffer, "+
+        "bypassing Conkeror's normal key handling, until the "+
+        "Escape key is pressed.");
+
+
+/*
+ * CARET INPUT MODE
+ */
+
+// Input mode for the visible caret
+//
+// XXX: caret-mode should be defined elsewhere, as it is not part of
+// the input-mode system.
+define_input_mode("caret", null, "content_buffer_caret_keymap");
 
 define_buffer_mode('caret_mode', 'CARET',
                    $enable = function(buffer) {
@@ -150,6 +183,7 @@ define_buffer_mode('caret_mode', 'CARET',
                        let sc = getFocusedSelCtrl(buffer);
                        sc.setCaretEnabled(false);
                        buffer.browser.focus();
+                       //XXX: dependency on the default input-mode system
                        content_buffer_update_input_mode_for_focus(buffer, true);
                    });
 
@@ -163,33 +197,11 @@ watch_pref(CARET_PREF, function() {
                }
            });
 
-interactive("content-buffer-update-input-mode-for-focus", null, function (I) {
-    content_buffer_update_input_mode_for_focus(I.buffer, true);
-});
 
-function minibuffer_input_mode_indicator(window) {
-    this.window = window;
-    this.hook_func = method_caller(this, this.update);
-    add_hook.call(window, "select_buffer_hook", this.hook_func);
-    add_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
-    this.update();
-}
 
-minibuffer_input_mode_indicator.prototype = {
-    update : function () {
-        var buf = this.window.buffers.current;
-        var mode = buf.input_mode;
-        if (mode)
-            this.window.minibuffer.element.className = "minibuffer-" + buf.input_mode.replace("_","-","g");
-    },
-    uninstall : function () {
-        remove_hook.call(window, "select_buffer_hook", this.hook_func);
-        remove_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
-    }
-};
-
-define_global_window_mode("minibuffer_input_mode_indicator", "window_initialize_hook");
-minibuffer_input_mode_indicator_mode(true);
+/*
+ * Browser Prevent Automatic Form Focus Mode
+ */
 
 // Milliseconds
 define_variable("browser_automatic_form_focus_window_duration", 20,
