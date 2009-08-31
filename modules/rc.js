@@ -7,8 +7,7 @@
  * COPYING file.
 **/
 
-function load_rc_file(file)
-{
+function load_rc_file (file) {
     try {
         var name;
         if (typeof file == "string")
@@ -25,9 +24,9 @@ function load_rc_file(file)
 function load_rc_directory (file_o) {
     var entries = file_o.directoryEntries;
     var files = [];
-    while (entries.hasMoreElements ()) {
-        var entry = entries.getNext ();
-        entry.QueryInterface (Ci.nsIFile);
+    while (entries.hasMoreElements()) {
+        var entry = entries.getNext();
+        entry.QueryInterface(Ci.nsIFile);
         if (entry.leafName.match(/^[^.].*\.js$/i)) {
             files.push(entry);
         }
