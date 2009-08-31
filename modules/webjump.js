@@ -10,7 +10,7 @@
 var webjumps = {};
 
 define_keywords("$completer", "$description", "$argument", "$alternative");
-function define_webjump(key, handler) {
+function define_webjump (key, handler) {
     keywords(arguments);
     var argument = arguments.$argument;
     let alternative = arguments.$alternative;
@@ -68,8 +68,7 @@ function define_webjump(key, handler) {
 }
 
 
-function define_delicious_webjumps (username)
-{
+function define_delicious_webjumps (username) {
     define_webjump("delicious", "http://del.icio.us/" + username);
     define_webjump("adelicious", "javascript:location.href='http://del.icio.us/"+username+
                    "?v=2&url='+encodeURIComponent(location.href)+'&title='+"+
@@ -81,8 +80,7 @@ function define_delicious_webjumps (username)
 
 add_delicious_webjumps = define_delicious_webjumps;
 
-function define_lastfm_webjumps(username)
-{
+function define_lastfm_webjumps (username) {
     if (! username) username = "";
     define_webjump("lastfm", "http://www.last.fm/user/"+username);
     define_webjump("lastfm-user", "http://www.last.fm/user/%s");
@@ -95,14 +93,12 @@ function define_lastfm_webjumps(username)
 
 add_lastfm_webjumps = define_lastfm_webjumps;
 
-function clear_webjumps()
-{
+function clear_webjumps () {
     webjumps = {};
 }
 
 // Some built in web jumps
-function define_default_webjumps()
-{
+function define_default_webjumps () {
     define_webjump("conkerorwiki",
                    "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
     define_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
@@ -132,7 +128,7 @@ define_variable("webjump_partial_match", true,
                 "but would uniquely complete to a webjump, then accept " +
                 "that webjump only if this is true.");
 
-function match_webjump(str) {
+function match_webjump (str) {
     var sp = str.indexOf(' ');
 
     var key, arg;
@@ -172,8 +168,7 @@ function match_webjump(str) {
 }
 
 
-function getWebJump(value)
-{
+function getWebJump (value) {
     var res = match_webjump(value);
     if (!res)
         return null;
@@ -183,10 +178,8 @@ function getWebJump(value)
     return match.handler(arg);
 }
 
-function get_url_or_webjump(input)
-{
+function get_url_or_webjump (input) {
     var url = getWebJump(input);
-
     if (url != null) {
         return url;
     } else {
@@ -196,8 +189,7 @@ function get_url_or_webjump(input)
 
 define_default_webjumps();
 
-function webjump_completer()
-{
+function webjump_completer () {
     let base_completer = prefix_completer(
         $completions = [ v for ([k,v] in Iterator(webjumps)) ],
         $get_string = function (x) { return x.key + (x.argument ? " " : ""); },

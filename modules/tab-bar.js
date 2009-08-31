@@ -7,7 +7,7 @@
 
 require("mode.js");
 
-function tab_bar(window) {
+function tab_bar (window) {
     window.tab_bar = this;
     var element = create_XUL(window, "arrowscrollbox");
     element.setAttribute("id", "tab-bar");
@@ -48,7 +48,7 @@ tab_bar.prototype.update_multiple_attribute = function () {
         this.element.setAttribute("multiple", "false");
 };
 
-function tab_bar_add_buffer(b) {
+function tab_bar_add_buffer (b) {
     var t = b.window.tab_bar;
     t.update_multiple_attribute();
     var tab = create_XUL(b.window, "hbox");
@@ -81,7 +81,7 @@ function tab_bar_add_buffer(b) {
     tab_bar_update_buffer_title(b);
 }
 
-function tab_bar_kill_buffer(b) {
+function tab_bar_kill_buffer (b) {
     var t = b.window.tab_bar;
     t.update_multiple_attribute();
     if (t.selected_buffer == b)
@@ -90,7 +90,7 @@ function tab_bar_kill_buffer(b) {
     delete b.tab;
 }
 
-function tab_bar_select_buffer(b) {
+function tab_bar_select_buffer (b) {
     var t = b.window.tab_bar;
     if (t.selected_buffer != null)
         t.selected_buffer.tab.setAttribute("selected", "false");
@@ -99,27 +99,27 @@ function tab_bar_select_buffer(b) {
     t.element.ensureElementIsVisible(b.tab);
 }
 
-function tab_bar_update_buffer_title(b) {
+function tab_bar_update_buffer_title (b) {
     var title = b.title;
     if (title == null || title.length == 0)
         title = b.description;
     b.tab.tab_label.setAttribute("value", title);
 }
 
-function tab_bar_update_buffer_icon(b) {
+function tab_bar_update_buffer_icon (b) {
     if (b.favicon != null)
         b.tab.tab_image.setAttribute("src", b.favicon);
     else
         b.tab.tab_image.removeAttribute("src");
 }
 
-function tab_bar_install(window) {
+function tab_bar_install (window) {
     if (window.tab_bar)
         throw new Error("tab bar already initialized for window");
     new tab_bar(window);
 }
 
-function tab_bar_uninstall(window) {
+function tab_bar_uninstall (window) {
     if (!window.tab_bar)
         throw new Error("tab bar not initialized for window");
     window.tab_bar.destroy();

@@ -14,7 +14,6 @@
 
 require("content-buffer.js");
 
-
 /*
  * DEFAULT INPUT-MODE SYSTEM
  */
@@ -122,21 +121,11 @@ interactive("content-buffer-update-input-mode-for-focus",
 /**
  * Install the default input-mode system
  */
-
-//XXX: bad to assume we can go into normal_input_mode. doesn't work if
-// you are in an input box on a frameset page, submit a form that
-// causes another frame to change location, but your input box keeps
-// focus.
-//
-// add_hook("content_buffer_location_change_hook", function (buf) { normal_input_mode(buf, true); });
-
 add_hook("content_buffer_location_change_hook",
          content_buffer_update_input_mode_for_focus);
 
 add_hook("content_buffer_focus_change_hook",
          content_buffer_update_input_mode_for_focus);
-
-
 
 
 /*
@@ -300,9 +289,9 @@ function focus_next (buffer, count, xpath_expr, name) {
         // if focused_frame is top_frame, we're doing twice as much
         // work as necessary
         elem = helper(buffer.top_frame, focused_win);
-    if (elem) {
+    if (elem)
         browser_element_focus(buffer, elem);
-    } else
+    else
         throw interactive_error("No "+name+" found");
 }
 
@@ -354,7 +343,7 @@ define_variable('edit_field_in_external_editor_extension', "txt",
     "File extension for the temp files created by "+
     "edit-current-field-in-external-editor.");
 
-function get_filename_for_current_textfield(doc, elem) {
+function get_filename_for_current_textfield (doc, elem) {
     var name = doc.URL
         + "-"
         + ( elem.getAttribute("name")
@@ -370,7 +359,7 @@ function get_filename_for_current_textfield(doc, elem) {
     return name;
 }
 
-function edit_field_in_external_editor(buffer, elem) {
+function edit_field_in_external_editor (buffer, elem) {
     if (elem instanceof Ci.nsIDOMHTMLInputElement) {
         var type = elem.getAttribute("type");
         if (type != null)
@@ -425,21 +414,18 @@ function cut_to_end_of_line (buffer) {
         var en = elem.selectionEnd;
         if (st == en) {
             // there is no selection.  set one up.
-            var eol = elem.value.indexOf ("\n", en);
+            var eol = elem.value.indexOf("\n", en);
             if (eol == -1)
-            {
                 elem.selectionEnd = elem.textLength;
-            } else if (eol == st) {
+            else if (eol == st)
                 elem.selectionEnd = eol + 1;
-            } else if (kill_whole_line &&
-                       (st == 0 || elem.value[st - 1] == "\n"))
-            {
+            else if (kill_whole_line &&
+                     (st == 0 || elem.value[st - 1] == "\n"))
                 elem.selectionEnd = eol + 1;
-            } else {
+            else
                 elem.selectionEnd = eol;
-            }
         }
-        buffer.do_command ('cmd_cut');
+        buffer.do_command('cmd_cut');
     } catch (e) {
         /* FIXME: Make this work for richedit mode as well */
     }
@@ -447,11 +433,11 @@ function cut_to_end_of_line (buffer) {
 interactive("cut-to-end-of-line",
     null,
     function (I) {
-        cut_to_end_of_line (I.buffer);
+        cut_to_end_of_line(I.buffer);
     });
 
 
-function downcase_word(I) {
+function downcase_word (I) {
     modify_word_at_point(I, function (word) { return word.toLocaleLowerCase(); });
 }
 interactive("downcase-word",
@@ -459,7 +445,7 @@ interactive("downcase-word",
             downcase_word);
 
 
-function upcase_word(I) {
+function upcase_word (I) {
     modify_word_at_point(I, function (word) { return word.toLocaleUpperCase(); });
 }
 interactive("upcase-word",
@@ -467,7 +453,7 @@ interactive("upcase-word",
             upcase_word);
 
 
-function capitalize_word(I) {
+function capitalize_word (I) {
     modify_word_at_point(I, function (word) {
         if (word.length > 0) {
             return word[0].toLocaleUpperCase() + word.substring(1);

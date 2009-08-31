@@ -182,7 +182,6 @@ content_buffer.prototype = {
         if (!aRequest)
             return;
 
-
         if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
             this._request_count++;
         } else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {

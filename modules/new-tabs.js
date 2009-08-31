@@ -24,7 +24,7 @@ define_variable("tab_bar_button_close", 2,
 /**
  * Constructs a tab bar for the given window.
  */
-function tab_bar(window) {
+function tab_bar (window) {
     window.tab_bar = this;
     var scrollbox = create_XUL(window, "arrowscrollbox");
     scrollbox.setAttribute("id", "tab2-bar");
@@ -79,7 +79,7 @@ tab_bar.prototype.update_multiple_attribute = function () {
 /**
  * Adds a tab for the given buffer.
  */
-function tab_bar_add_buffer(buffer) {
+function tab_bar_add_buffer (buffer) {
 
     // Get the tab bar
     var tabbar = buffer.window.tab_bar;
@@ -134,7 +134,7 @@ function tab_bar_add_buffer(buffer) {
 /**
  * Removes the tab for the given buffer.
  */
-function tab_bar_kill_buffer(b) {
+function tab_bar_kill_buffer (b) {
     var t = b.window.tab_bar;
     t.update_multiple_attribute();
     if (t.selected_buffer == b)
@@ -153,7 +153,7 @@ function tab_bar_kill_buffer(b) {
 /**
  * Updates the tab of the given buffer to indicate it is the currently open one.
  */
-function tab_bar_select_buffer(b) {
+function tab_bar_select_buffer (b) {
     var t = b.window.tab_bar;
     if (t.selected_buffer != null)
         t.selected_buffer.tab.setAttribute("selected", "false");
@@ -166,7 +166,7 @@ function tab_bar_select_buffer(b) {
 /**
  * Updates the tab title for the given buffer.
  */
-function tab_bar_update_buffer_title(b) {
+function tab_bar_update_buffer_title (b) {
     var title = b.title;
     if (title == null || title.length == 0)
         title = b.description;
@@ -177,7 +177,7 @@ function tab_bar_update_buffer_title(b) {
 /**
  * Inserts the tab bar in the given window.
  */
-function tab_bar_install(window) {
+function tab_bar_install (window) {
     if (window.tab_bar)
         throw new Error("tab bar already initialized for window");
     new tab_bar(window);
@@ -188,7 +188,7 @@ function tab_bar_install(window) {
  * Removes the tab bar from the given window.
  * If the tab bar is not installed, throws an error.
  */
-function tab_bar_uninstall(window) {
+function tab_bar_uninstall (window) {
     if (!window.tab_bar)
         throw new Error("tab bar not initialized for window");
     window.tab_bar.destroy();

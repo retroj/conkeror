@@ -8,8 +8,7 @@
 /* Adds the specified function to the specified hook.  To add a local
  * hook, invoke this function as:  add_hook.call(context, hook_name, ...).
  * Note: hook_name must be a string */
-function add_hook(hook_name, func, prepend, avoid_duplicates)
-{
+function add_hook (hook_name, func, prepend, avoid_duplicates) {
     if (!(hook_name in this))
         this[hook_name] = [];
     var hook = this[hook_name];
@@ -30,16 +29,14 @@ function add_hook(hook_name, func, prepend, avoid_duplicates)
  * define_hook and friends to define hook.run(...) functions.  Hooks
  * should always be run by calling hook.run(...).
  */
-function run_hooks(hook, args)
-{
+function run_hooks (hook, args) {
     if (hook == null)
         return;
     for (let i = 0; i < hook.length; ++i)
         hook[i].apply (null, Array.prototype.slice.call(args));
 }
 
-function run_hooks_until_success(hook, args)
-{
+function run_hooks_until_success (hook, args) {
     if (hook == null)
         return false;
     for (let i = 0; i < hook.length; ++i)
@@ -48,8 +45,7 @@ function run_hooks_until_success(hook, args)
     return false;
 }
 
-function run_hooks_until_failure(hook, args)
-{
+function run_hooks_until_failure (hook, args) {
     if (hook == null)
         return true;
     for (let i = 0; i < hook.length; ++i)
@@ -73,8 +69,7 @@ var hook_type_doc_strings = [
 
 
 /* This should only be used by define_hook functions */
-function initialize_hook(prototype, hook_name, hook_type, doc_string, extra_doc_string)
-{
+function initialize_hook (prototype, hook_name, hook_type, doc_string, extra_doc_string) {
     var h = this[hook_name];
     if (h == null)
         h = this[hook_name] = [];
@@ -102,13 +97,13 @@ function initialize_hook(prototype, hook_name, hook_type, doc_string, extra_doc_
 }
 
 var hook_global_prototype = {
-    run: function() {
+    run: function () {
         run_hooks(this, arguments);
     },
-    run_until_success: function() {
+    run_until_success: function () {
         return run_hooks_until_success(this, arguments);
     },
-    run_until_failure: function() {
+    run_until_failure: function () {
         return run_hooks_until_failure(this, arguments);
     }
 };
@@ -117,13 +112,12 @@ const RUN_HOOK = 0;
 const RUN_HOOK_UNTIL_SUCCESS = 1;
 const RUN_HOOK_UNTIL_FAILURE = 2;
 
-function define_hook(hook_name, hook_type, doc_string)
-{
+function define_hook (hook_name, hook_type, doc_string) {
     initialize_hook(hook_global_prototype, hook_name, hook_type, doc_string);
 }
 
 var hook_simple_local_prototype = {
-    run: function(x) {
+    run: function (x) {
         var hook_name = this.hook_name;
         if (hook_name in x) run_hooks(x[hook_name], arguments);
         run_hooks(this, arguments);
@@ -140,7 +134,7 @@ var hook_simple_local_prototype = {
     }
 };
 
-function simple_local_hook_definer(extra_doc_string) {
+function simple_local_hook_definer (extra_doc_string) {
     return function (hook_name, hook_type, doc_string) {
         initialize_hook(hook_simple_local_prototype, hook_name, hook_type, doc_string, extra_doc_string);
     };
@@ -150,9 +144,9 @@ function simple_local_hook_definer(extra_doc_string) {
  * in addition to the first, that specify the additional hook arrays
  * to use.  As an example: local_hook_definer("buffer", "buffer", "buffer.window")
  */
-function local_hook_definer(prop_name, extra_doc_string) {
+function local_hook_definer (prop_name, extra_doc_string) {
     var prototype = {
-        run: function(x) {
+        run: function (x) {
             var hook_name = this.hook_name;
             if (hook_name in x) run_hooks(x[hook_name], arguments);
             if (hook_name in x[prop_name]) run_hooks(x[prop_name][hook_name], arguments);
@@ -176,8 +170,7 @@ function local_hook_definer(prop_name, extra_doc_string) {
     };
 }
 
-function remove_hook(hook_name, func)
-{
+function remove_hook (hook_name, func) {
     var hook = this[hook_name];
     var index;
     if (hook && (index = hook.indexOf(func)) != -1)
