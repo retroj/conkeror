@@ -72,6 +72,7 @@ define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
     define_key(gmail_keymap, "S-u", null, $fallthrough);
     define_key(gmail_keymap, "]", null, $fallthrough);
     define_key(gmail_keymap, "[", null, $fallthrough);
+    define_key(gmail_keymap, "l", null, $fallthrough);
 
     define_keymap("gmail_richedit_keymap", $parent = content_buffer_richedit_keymap);
     gmail_bind_common(gmail_richedit_keymap);
