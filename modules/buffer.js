@@ -534,10 +534,11 @@ minibuffer.prototype.read_buffer = function () {
 };
 
 
-function buffer_next (window, count)
-{
+function buffer_next (window, count) {
     var index = window.buffers.selected_index;
     var total = window.buffers.count;
+    if (total == 1)
+        throw new interactive_error("No other buffer");
     index = (index + count) % total;
     if (index < 0)
         index += total;
