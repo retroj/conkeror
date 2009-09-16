@@ -31,7 +31,8 @@ function cache_entry_open(cache_type, cache_session, uri) {
                                       false);
     }
     catch (ex) {
-        if (ex.name == "NS_ERROR_CACHE_KEY_NOT_FOUND")
+        if (ex.name == "NS_ERROR_CACHE_KEY_NOT_FOUND" ||
+            ex.name == "NS_ERROR_CACHE_WAIT_FOR_VALIDATION")
             return null;
         throw ex;
     }
