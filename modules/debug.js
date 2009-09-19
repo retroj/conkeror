@@ -7,7 +7,7 @@
 **/
 
 var MAX_DUMP_DEPTH = 1;
-function dump_obj_r(obj, name, indent, depth) {
+function dump_obj_r (obj, name, indent, depth) {
     if (depth > MAX_DUMP_DEPTH) {
         return indent + name + ": <Maximum Depth Reached>\n";
     }
@@ -15,8 +15,7 @@ function dump_obj_r(obj, name, indent, depth) {
         var child = null;
         var output = indent + name + "\n";
         indent += "\t";
-        for (var item in obj)
-        {
+        for (var item in obj) {
             try {
                 child = obj[item];
             } catch (e) {
@@ -38,8 +37,7 @@ function dump_obj (obj, name) {
     if (typeof obj == "object") {
         var child = null;
         var output = name + "\n";
-        for (var item in obj)
-        {
+        for (var item in obj) {
             try {
                 child = obj[item];
             } catch (e) {
@@ -53,7 +51,7 @@ function dump_obj (obj, name) {
     }
 }
 
-function get_interface_info(o) {
+function get_interface_info (o) {
     var output = "";
     for (let x in Ci) {
         try {

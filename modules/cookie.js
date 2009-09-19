@@ -5,9 +5,10 @@
  * COPYING file.
 **/
 
-var cookie_manager = Cc["@mozilla.org/cookiemanager;1"].getService(Ci.nsICookieManager2);
+var cookie_manager = Cc["@mozilla.org/cookiemanager;1"]
+    .getService(Ci.nsICookieManager2);
 
-function clear_cookies() {
+function clear_cookies () {
     cookie_manager.removeAll();
 }
 interactive("clear-cookies", "Permanently delete all existing cookies.",

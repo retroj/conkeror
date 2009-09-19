@@ -17,7 +17,7 @@ define_variable("clicks_in_new_buffer_target", OPEN_NEW_BUFFER,
 // Should mouse click event propagation be stopped?
 var clicks_in_new_buffer_ev_stop_prop = true;
 
-function find_tag_in_parents(tag, element) {
+function find_tag_in_parents (tag, element) {
     // FIXME If tag names will always be upper-case, toLowerCase() can
     //       be eliminated. Also not sure that p will ever be null.
     tag = tag.toLowerCase();
@@ -31,7 +31,7 @@ function find_tag_in_parents(tag, element) {
     return null;
 }
 
-function open_link_in_new_buffer(event) {
+function open_link_in_new_buffer (event) {
     if (event.button != clicks_in_new_buffer_button)
         return;
     let element = event.target;
@@ -58,25 +58,25 @@ function open_link_in_new_buffer(event) {
                   clicks_in_new_buffer_target);
 }
 
-function clicks_in_new_buffer_add_listener(buffer) {
+function clicks_in_new_buffer_add_listener (buffer) {
     buffer.browser.addEventListener("click",
                                     open_link_in_new_buffer,
                                     true);
 }
 
-function clicks_in_new_buffer_remove_listener(buffer) {
+function clicks_in_new_buffer_remove_listener (buffer) {
     buffer.browser.removeEventListener("click",
                                        open_link_in_new_buffer,
                                        true);
 }
 
-function clicks_in_new_buffer_mode_enable() {
+function clicks_in_new_buffer_mode_enable () {
     add_hook("create_buffer_hook",
              clicks_in_new_buffer_add_listener);
     for_each_buffer(clicks_in_new_buffer_add_listener);
 }
 
-function clicks_in_new_buffer_mode_disable() {
+function clicks_in_new_buffer_mode_disable () {
     remove_hook("create_buffer_hook",
                 clicks_in_new_buffer_add_listener);
     for_each_buffer(clicks_in_new_buffer_remove_listener);

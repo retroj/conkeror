@@ -18,7 +18,7 @@ const CACHE_SESSION_HTTP_OFFLINE = "HTTP-offline";
 const CACHE_SESSION_FTP          = "FTP";
 
 // Returns null if uri is not cached.
-function cache_entry_open(cache_type, cache_session, uri) {
+function cache_entry_open (cache_type, cache_session, uri) {
     if (uri instanceof Ci.nsIURI)
         uri = uri.spec;
     let session = cache_service.createSession(cache_session, 0, true);
@@ -39,7 +39,7 @@ function cache_entry_open(cache_type, cache_session, uri) {
 }
 
 // Returns false if uri is not cached, else true.
-function cache_entry_clear(cache_type, cache_session, uri) {
+function cache_entry_clear (cache_type, cache_session, uri) {
     let entry = cache_entry_open(cache_type, cache_session, uri);
     if (entry == null)
         return false;
@@ -48,13 +48,13 @@ function cache_entry_clear(cache_type, cache_session, uri) {
     return true;
 }
 
-function cache_clear(cache_type) {
+function cache_clear (cache_type) {
     cache_service.evictEntries(cache_type);
     if (cache_type == CACHE_DISK)
         cache_service.evictEntries(Ci.nsICache.STORE_ON_DISK_IN_FILE);
 }
 
-function cache_disable(cache_type) {
+function cache_disable (cache_type) {
     if (cache_type == CACHE_MEMORY)
         session_pref("browser.cache.memory.enable", false);
     else if (cache_type == CACHE_DISK)
@@ -70,7 +70,7 @@ function cache_disable(cache_type) {
         throw new Error("Invalid cache type");
 }
 
-function cache_enable(cache_type) {
+function cache_enable (cache_type) {
     if (cache_type == CACHE_MEMORY)
         session_pref("browser.cache.memory.enable", true);
     else if (cache_type == CACHE_DISK)

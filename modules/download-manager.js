@@ -13,7 +13,8 @@ require("minibuffer-read-mime-type.js");
 var download_manager_service = Cc["@mozilla.org/download-manager;1"]
     .getService(Ci.nsIDownloadManager);
 
-var download_manager_builtin_ui = Components.classesByID["{7dfdf0d1-aff6-4a34-bad1-d0fe74601642}"]
+var download_manager_builtin_ui = Components
+    .classesByID["{7dfdf0d1-aff6-4a34-bad1-d0fe74601642}"]
     .getService(Ci.nsIDownloadManagerUI);
 
 /* This implements nsIHelperAppLauncherDialog interface. */
@@ -238,7 +239,7 @@ download_info.prototype = {
     get id () { return this.mozilla_info.id; },
     get referrer () { return this.mozilla_info.referrer; },
 
-    target_file_text : function() {
+    target_file_text : function () {
         let target = this.target_file.path;
         let display = this.display_name;
         if (target.indexOf(display, target.length - display.length) == -1)

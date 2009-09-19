@@ -214,11 +214,11 @@
  * time, or completes.
  **/
 
-function _return_value(x) {
+function _return_value (x) {
     this.value = x;
 }
 
-function co_return(x) {
+function co_return (x) {
     return new _return_value(x);
 }
 
@@ -231,14 +231,14 @@ const SUSPEND = { toString: function () "[object SUSPEND]" };
  * actually `prepared coroutines' (see above) will be used with this
  * library.
  **/
-function is_coroutine(obj) {
+function is_coroutine (obj) {
     return obj != null &&
         typeof(obj) == "object" &&
         typeof(obj.next) == "function" &&
         typeof(obj.send) == "function";
 }
 
-function _do_call(f) {
+function _do_call (f) {
 
     /* Suspend immediately so that co_call can pass us the continuation object. */
     var cc = yield;
@@ -273,8 +273,7 @@ function _do_call(f) {
             if (throw_value) {
                 throw_value = false;
                 x = f.throw(y); // f.throw returns the next value passed to yield
-            }
-            else
+            } else
                 x = f.send(y); // f.send also returns the next value passed to yield
 
             if (x === CONTINUATION) {
@@ -313,8 +312,7 @@ function _do_call(f) {
                 continue;
             }
 
-            if (is_coroutine(x))
-            {
+            if (is_coroutine(x)) {
                 // `f' wants to synchronously call the coroutine `x'
                 stack[stack.length] = f; // push the current coroutine `f' onto the call stack
                 f = x; // make `x' the new top of the stack
@@ -392,7 +390,7 @@ function _do_call(f) {
  * foo is a coroutine, any exceptions it throws will be ignored.
  *
  **/
-function co_call(f) {
+function co_call (f) {
     if (!is_coroutine(f))
         return;
 

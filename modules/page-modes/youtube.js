@@ -11,13 +11,11 @@ require("media.js");
 let media_youtube_content_key_regexp = /"t": "([^"]+)"/;
 let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/;
 
-function media_scrape_youtube_document_text(source_frame, code, text, results) {
-
+function media_scrape_youtube_document_text (source_frame, code, text, results) {
     var title_match = media_youtube_content_title_regexp.exec(text);
     var title = null;
     if (!title_match)
         return;
-
     let res = media_youtube_content_key_regexp.exec(text);
     if (!res)
         return;
@@ -29,18 +27,14 @@ function media_scrape_youtube_document_text(source_frame, code, text, results) {
                             mime_type: "video/x-flv"}));
 }
 
-function media_scrape_youtube(buffer, results) {
+function media_scrape_youtube (buffer, results) {
     try {
         var uri = buffer.current_URI.spec;
-
         var result = media_youtube_uri_test_regexp.exec(uri);
-
         if (!result)
             return;
-
         let text = buffer.document.documentElement.innerHTML;
         let code = result[1];
-
         media_scrape_youtube_document_text(buffer.top_frame, code, text, results);
     } catch (e if !(e instanceof interactive_error)) {}
 }
@@ -51,7 +45,6 @@ define_page_mode("youtube_mode", "YouTube", $enable = function (buffer) {
 });
 
 function media_scrape_embedded_youtube(buffer, results) {
-
     const embedded_youtube_regexp = /^http:\/\/[a-zA-Z0-9\-.]+\.youtube\.com\/v\/(.*)$/;
 
     for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
