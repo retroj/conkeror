@@ -9,7 +9,7 @@ require("content-buffer.js");
 require("media.js");
 
 let media_youtube_content_key_regexp = /"t": "([^"]+)"/;
-let media_youtube_content_title_regexp = new RegExp("&title=([^\"'&]+)");
+let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/;
 
 function media_scrape_youtube_document_text(source_frame, code, text, results) {
 
