@@ -329,7 +329,7 @@ function get_buffer_from_frame (window, frame) {
     var count = window.buffers.count;
     for (var i = 0; i < count; ++i) {
         var b = window.buffers.get_buffer(i);
-        if (b.top_frame == frame)
+        if (b.top_frame == frame.top)
             return b;
     }
     return null;

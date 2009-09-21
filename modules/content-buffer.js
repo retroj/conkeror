@@ -544,7 +544,7 @@ browser_dom_window.prototype = {
         this.next_target = null;
 
         /* Determine the opener buffer */
-        var opener = get_buffer_from_frame(this.window, aOpener.top);
+        var opener = get_buffer_from_frame(this.window, aOpener);
 
         switch (browser_default_open_target) {
         case OPEN_CURRENT_BUFFER:
