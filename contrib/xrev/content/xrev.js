@@ -76,8 +76,9 @@ function key_event_handler (event) {
     {
         if (event.ctrlKey) combo += 'C-';
         if (event.metaKey || event.altKey) combo += 'M-';
-        if (event.keyCode &&
-            event.charCode == 0 &&
+        if (((event.keyCode &&
+              event.charCode == 0) ||
+             event.charCode == 32) &&
             event.shiftKey)
         {
             combo += 'S-';
