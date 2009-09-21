@@ -51,8 +51,9 @@ var modifiers = {
     M: new modifier(function (event) { return event.metaKey; },
                     function (event) { event.metaKey = true; }),
     S: new modifier(function (event) {
-                        return (event.keyCode &&
-                                event.charCode == 0 &&
+                        return (((event.keyCode &&
+                                  event.charCode == 0) ||
+                                 event.charCode == 32) &&
                                 event.shiftKey);
                     },
                     function (event) { event.shiftKey = true; })
