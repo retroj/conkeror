@@ -1025,11 +1025,13 @@ interactive("download-manager-show-builtin-ui",
             function (I) {download_manager_show_builtin_ui(I.window);});
 
 
-
 define_variable("download_temporary_file_open_buffer_delay", 500,
-    "Delay (in milliseconds) before a download buffer is opened for temporary downloads.\n" +
-    "This variable takes effect only if `open_download_buffer_automatically' is in " +
-    "`download_added_hook', as it is by default.");
+    "Delay (in milliseconds) before a download buffer is opened for "+
+    "temporary downloads.  If the download completes before this amount "+
+    "of time, no download buffer will be opened.  This variable takes "+
+    "effect only if `open_download_buffer_automatically' is in "+
+    "`download_added_hook', which is the case by default.");
+
 
 define_variable("download_buffer_automatic_open_target",
                 [OPEN_NEW_WINDOW, OPEN_NEW_BUFFER_BACKGROUND],
@@ -1051,9 +1053,10 @@ function open_download_buffer_automatically (info, target) {
     if (buf == null)
         target = OPEN_NEW_WINDOW;
     if (info.temporary_status == DOWNLOAD_NOT_TEMPORARY ||
-        !(download_temporary_file_open_buffer_delay > 0))
+        download_temporary_file_open_buffer_delay == 0)
+    {
         create_buffer(buf.window, buffer_creator(download_buffer, $info = info), target);
-    else {
+    } else {
         var timer = null;
         function finish () {
             timer.cancel();
