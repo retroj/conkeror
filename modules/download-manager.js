@@ -1034,9 +1034,9 @@ define_variable("download_temporary_file_open_buffer_delay", 500,
 define_variable("download_buffer_automatic_open_target",
                 [OPEN_NEW_WINDOW, OPEN_NEW_BUFFER_BACKGROUND],
     "Target(s) for download buffers created by "+
-    "`open_download_buffer_automatically' and `download-open'.\n"+
+    "`open_download_buffer_automatically' and `download-show'.\n"+
     "It can be a single target or an array of two targets.  When it is an "+
-    "array, the `download-open' command will use the second target when "+
+    "array, the `download-show' command will use the second target when "+
     "called with universal-argument.");
 
 
