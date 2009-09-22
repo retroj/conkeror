@@ -67,8 +67,7 @@ function media_scrape (I, buffer) {
 }
 
 
-define_browser_object_class(
-    "media", null, null,
+define_browser_object_class("media", null,
     function (I, prompt) {
         let media = yield media_scrape(I, I.buffer);
         if (!media || media.length == 0)

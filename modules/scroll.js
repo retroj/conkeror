@@ -20,8 +20,7 @@ define_variable("scroll_to_heading_wrap", true,
     "Does the equivalent thing for \"previous heading\" as well.");
 
 
-define_browser_object_class(
-    "next-heading", null, null,
+define_browser_object_class("next-heading", null,
     function (I) {
         let xpr = I.buffer.document.evaluate(
                 I.local.headings_xpath, I.buffer.document, null,
@@ -49,8 +48,7 @@ define_browser_object_class(
     });
 
 
-define_browser_object_class(
-    "previous-heading", null, null,
+define_browser_object_class("previous-heading", null,
     function (I) {
         let xpr = I.buffer.document.evaluate(
                 I.local.headings_xpath, I.buffer.document, null,

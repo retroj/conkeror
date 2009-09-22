@@ -37,16 +37,14 @@ function google_images_get_image_uri (I, prompt) {
     yield (co_return(u));
 }
 
-define_browser_object_class(
-    "google-images-imgrefurl", null, null,
+define_browser_object_class("google-images-imgrefurl", null,
     function (I, prompt) {
         var u = yield google_images_get_image_uri(I, prompt);
         var imgrefurl = unescape(/&imgrefurl=([^&]*)/(u.query)[1]);
         yield (co_return(imgrefurl));
     });
 
-define_browser_object_class(
-    "google-images-imgurl", null, null,
+define_browser_object_class("google-images-imgurl", null,
     function (I, prompt) {
         var u = yield google_images_get_image_uri(I, prompt);
         var imgurl = unescape(/imgurl=([^&]*)/(u.query)[1]);

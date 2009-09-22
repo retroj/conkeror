@@ -21,17 +21,14 @@ define_key(google_search_results_keymap, "return", "ensure-content-focused", $fa
  * Note: escape already does the same thing as the Google key binding.
  */
 
-define_browser_object_class(
-    "google-search-results-links",
-    "select search result",
-    null,
-    xpath_browser_object_handler("//a[@class='l']"));
+define_browser_object_class("google-search-results-links", null,
+    xpath_browser_object_handler("//a[@class='l']"),
+    $hint = "select search result");
 
 
 // Bind keys 1 through 9 to follow corresponding results links
 //
-define_browser_object_class(
-    "google-search-result-by-digit", null, null,
+define_browser_object_class("google-search-result-by-digit", null,
     function (I, prompt) {
         var doc = I.buffer.document;
         var digit = I.event.charCode - 48;

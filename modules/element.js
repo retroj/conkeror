@@ -18,18 +18,27 @@ var browser_object_classes = {};
 
 /**
  * handler is a coroutine called as: handler(buffer, prompt)
+ *
+ * $hint: short string (usually verb and noun) to describe the UI
+ *        of the browser object class to the user.  Only used by
+ *        browser object classes which make use of the minibuffer.
  */
-function browser_object_class (name, hint, doc, handler) {
+define_keywords("$hint");
+function browser_object_class (name, doc, handler) {
+    keywords(arguments);
     this.name = name;
     this.handler = handler;
-    if (doc) this.doc = doc;
-    if (hint) this.hint = hint;
+    this.doc = doc;
+    this.hint = arguments.$hint;
 }
 
-function define_browser_object_class (name, hint, doc, handler) {
+// keywords: $hint
+function define_browser_object_class (name, doc, handler) {
+    keywords(arguments);
     var varname = 'browser_object_'+name.replace('-','_','g');
     var ob = conkeror[varname] =
-        new browser_object_class(name, hint, doc, handler);
+        new browser_object_class(name, doc, handler,
+                                 forward_keywords(arguments));
     interactive(
         "browser-object-"+name,
         "A prefix command to specify that the following command operate "+
@@ -49,10 +58,11 @@ function xpath_browser_object_handler (xpath_expression) {
     };
 }
 
-define_browser_object_class("images", "select image", null,
-    xpath_browser_object_handler("//img | //xhtml:img"));
+define_browser_object_class("images", null,
+    xpath_browser_object_handler("//img | //xhtml:img"),
+    $hint = "select image");
 
-define_browser_object_class("frames", "select frame", null,
+define_browser_object_class("frames", null,
     function (I, prompt) {
         var doc = I.buffer.document;
         // Check for any frames or visible iframes
@@ -79,56 +89,60 @@ define_browser_object_class("frames", "select frame", null,
             $prompt = prompt,
             $hint_xpath_expression = "//iframe | //frame | //xhtml:iframe | //xhtml:frame");
         yield co_return(result);
-    });
+    },
+    $hint = "select frame");
 
-define_browser_object_class("links", "select link", null,
+define_browser_object_class("links", null,
     xpath_browser_object_handler (
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@role='link'] | " +
         "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
         "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand] | " +
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
-        "//xhtml:button | //xhtml:select"));
+        "//xhtml:button | //xhtml:select"),
+    $hint = "select link");
 
-define_browser_object_class("mathml", "select MathML element", null,
-    xpath_browser_object_handler("//m:math"));
+define_browser_object_class("mathml", null,
+    xpath_browser_object_handler("//m:math"),
+    $hint = "select MathML element");
 
-define_browser_object_class(
-    "top", null, null,
+define_browser_object_class("top", null,
     function (I, prompt) { yield co_return(I.buffer.top_frame); });
 
-define_browser_object_class("url", "enter URL", null,
+define_browser_object_class("url", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_url($prompt = prompt);
         yield co_return(result);
-    });
+    },
+    $hint = "enter URL");
 
-define_browser_object_class(
-    "pasteurl", null, null,
+define_browser_object_class("pasteurl", null,
     function (I, url) {
 	let url = read_from_x_primary_selection();
         yield co_return(url);
     });
 
-define_browser_object_class("file", "enter file name", null,
+define_browser_object_class("file", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_file(
             $prompt = prompt,
             $history = I.command.name+"/file",
             $initial_value = I.local.cwd.path);
         yield co_return(result);
-    });
+    },
+    $hint = "enter file name");
 
-define_browser_object_class("alt", "select image for alt-text", null,
+define_browser_object_class("alt", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//img[@alt]");
         yield co_return(result.alt);
-    });
+    },
+    $hint = "select image for alt-text");
 
-define_browser_object_class("title", "select element for title attribute",
+define_browser_object_class("title",
     null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
@@ -136,19 +150,20 @@ define_browser_object_class("title", "select element for title attribute",
             $prompt = prompt,
             $hint_xpath_expression = "//*[@title]");
         yield co_return(result.title);
-    });
+    },
+    $hint = "select element for title attribute");
 
-define_browser_object_class("title-or-alt",
-    "select element for title or alt-text", null,
+define_browser_object_class("title-or-alt", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
             $prompt = prompt,
             $hint_xpath_expression = "//img[@alt] | //*[@title]");
         yield co_return(result.title ? result.title : result.alt);
-    });
+    },
+    $hint = "select element for title or alt-text");
 
-define_browser_object_class("scrape-url", "choose scraped URL",
+define_browser_object_class("scrape-url",
     "Scrapes urls from the source code of the top-level document of buffer.",
     function (I, prompt) {
         var completions = I.buffer.document.documentElement.innerHTML
@@ -163,21 +178,23 @@ define_browser_object_class("scrape-url", "choose scraped URL",
             $select,
             $match_required = false);
         yield co_return(result);
-    });
+    },
+    $hint = "choose scraped URL");
 
-define_browser_object_class("up-url", null, null,
+define_browser_object_class("up-url", null,
     function (I, prompt) {
         var up = compute_url_up_path(I.buffer.current_URI.spec);
         return I.buffer.current_URI.resolve(up);
     });
 
-define_browser_object_class("focused-element", null, null,
+define_browser_object_class("focused-element", null,
     function (I, prompt) {
         return I.buffer.focused_element;
     });
 
-define_browser_object_class("dom-node", "select DOM node", null,
-    xpath_browser_object_handler("//*"));
+define_browser_object_class("dom-node", null,
+    xpath_browser_object_handler("//*"),
+    $hint = "select DOM node");
 
 function read_browser_object (I) {
     var browser_object = I.browser_object;

@@ -223,10 +223,7 @@ interactive("reddit-vote-down",
             reddit_vote_down);
 
 
-define_browser_object_class(
-    "reddit-current",
-    "Reddit current link",
-    null,
+define_browser_object_class("reddit-current", null,
     function (I, prompt) {
         var xpr = I.buffer.document.evaluate(
             '//*[contains(@class,"last-clicked")]/*[contains(@class,"entry")]/p[@class="title"]/a',

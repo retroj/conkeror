@@ -487,8 +487,7 @@ interactive("find-url-new-window", "Open a URL in a new window",
 interactive("find-alternate-url", "Edit the current URL in the minibuffer",
             "find-url",
             $browser_object =
-                define_browser_object_class(
-                    "alternate-url", null, null,
+                define_browser_object_class("alternate-url", null,
                     function (I, prompt) {
                         check_buffer(I.buffer, content_buffer);
                         var result = yield I.buffer.window.minibuffer.read_url(
