@@ -1122,7 +1122,7 @@ var xml_http_request_load_listener = {
   // FIXME: array comprehension used here to hack around the lack of
   // Ci.nsISSLErrorListener in 2007 versions of xulrunner 1.9pre.
   // make it a simple generateQI when xulrunner is more stable.
-  QueryInterface: XPCOMUtils.generateQI (
+  QueryInterface: XPCOMUtils.generateQI(
       [i for each (i in [Ci.nsIBadCertListener2,
                          Ci.nsISSLErrorListener,
                          Ci.nsIInterfaceRequestor])
