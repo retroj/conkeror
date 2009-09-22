@@ -389,16 +389,14 @@ function copy_event (event) {
 }
 
 function show_partial_key_sequence (window, state, ctx) {
-    if (!state.help_displayed)
-    {
+    if (!state.help_displayed) {
         state.help_timer_ID = window.setTimeout(
             function () {
                 window.minibuffer.show(ctx.key_sequence.join(" "));
                 state.help_displayed = true;
                 state.help_timer_ID = null;
             }, keyboard_key_sequence_help_timeout);
-    }
-    else
+    } else
         window.minibuffer.show(ctx.key_sequence.join(" "));
 }
 
@@ -565,8 +563,7 @@ function keypress_handler (true_event) {
     } catch (e) { dump_error(e); }
 }
 
-function keyboard(window)
-{
+function keyboard (window) {
     this.window = window;
 }
 
@@ -585,8 +582,7 @@ keyboard.prototype = {
         /* Clear out any in-progress key sequence. */
         this.active_keymap = null;
         this.current_context = null;
-        if (this.help_timer_ID != null)
-        {
+        if (this.help_timer_ID != null) {
             this.window.clearTimeout(this.help_timer_ID);
             this.help_timer_ID = null;
         }
@@ -595,17 +591,15 @@ keyboard.prototype = {
 };
 
 
-function keyboard_initialize_window(window)
-{
+function keyboard_initialize_window (window) {
     window.keyboard = new keyboard(window);
-
-    window.addEventListener ("keypress", keypress_handler, true /* capture */,
+    window.addEventListener("keypress", keypress_handler, true /* capture */,
                             false /* ignore untrusted events */);
 }
 
 add_hook("window_initialize_hook", keyboard_initialize_window);
 
-function for_each_key_binding(keymap_or_buffer, callback) {
+function for_each_key_binding (keymap_or_buffer, callback) {
     var keymap;
     if (keymap_or_buffer instanceof conkeror.buffer) {
         var buffer = keymap_or_buffer;
@@ -616,7 +610,7 @@ function for_each_key_binding(keymap_or_buffer, callback) {
     }
     var keymap_stack = [keymap];
     var binding_stack = [];
-    function helper2(bind) {
+    function helper2 (bind) {
         binding_stack.push(bind);
         callback(binding_stack);
         if (bind.keymap && keymap_stack.indexOf(bind.keymap) == -1) {
@@ -626,7 +620,7 @@ function for_each_key_binding(keymap_or_buffer, callback) {
         }
         binding_stack.pop();
     }
-    function helper() {
+    function helper () {
         while (true) {
             var keymap = keymap_stack[keymap_stack.length - 1];
             for (var i in keymap.bindings) {
@@ -649,7 +643,7 @@ function for_each_key_binding(keymap_or_buffer, callback) {
     helper();
 }
 
-function find_command_in_keymap(keymap_or_buffer, command) {
+function find_command_in_keymap (keymap_or_buffer, command) {
     var list = [];
 
     for_each_key_binding(keymap_or_buffer, function (bind_seq) {
@@ -664,7 +658,7 @@ define_keymap("key_binding_reader_keymap");
 define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
 
 define_keywords("$buffer", "$keymap");
-function key_binding_reader(continuation) {
+function key_binding_reader (continuation) {
     keywords(arguments, $prompt = "Describe key:");
 
     this.continuation = continuation;
@@ -689,7 +683,7 @@ key_binding_reader.prototype = {
     }
 };
 
-function invalid_key_binding(seq) {
+function invalid_key_binding (seq) {
     var e = new Error(seq.join(" ") + " is undefined");
     e.key_sequence = seq;
     e.__proto__ = invalid_key_binding.prototype;
@@ -699,7 +693,7 @@ invalid_key_binding.prototype = {
     __proto__: interactive_error.prototype
 };
 
-function read_key_binding_key(window, state, event) {
+function read_key_binding_key (window, state, event) {
     var combo = format_key_combo(event);
     var binding = lookup_key_binding(state.target_keymap, combo, event);
 
