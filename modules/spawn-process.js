@@ -78,7 +78,7 @@ minibuffer_auto_complete_preferences["shell-command"] = null;
 define_keywords("$cwd");
 minibuffer.prototype.read_shell_command = function () {
     keywords(arguments, $history = "shell-command");
-    var prompt = arguments.$prompt || "Shell command [" + arguments.$cwd + "]:";
+    var prompt = arguments.$prompt || "Shell command [" + arguments.$cwd.path + "]:";
     var result = yield this.read(
         $prompt = prompt,
         $history = "shell-command",
@@ -114,7 +114,8 @@ spawn_process_helper_program.append("conkeror-spawn-helper");
  *        first argument should be the program name.  These strings must not
  *        have any NUL bytes in them.
  * @param working_dir       
- *        If non-null, switch to the specified path before running the program.
+ *        If non-null, must be an nsILocalFile.  spawn_process will switch
+ *        to this path before running the program.
  * @param finished_callback
  *        Called with a single argument, the exit code of the process, as
  *        returned by the wait system call.
@@ -217,7 +218,7 @@ function spawn_process(program_name, args, working_dir,
         }
     }
     var key_file_data = client_key + "\0" + server_key + "\0" + program_name + "\0" +
-        (working_dir != null ? working_dir : "") + "\0" +
+        (working_dir != null ? working_dir.path : "") + "\0" +
         args.length + "\0" +
         args.join("\0") + "\0" +
         total_client_fds + "\0" + key_file_fd_data;
