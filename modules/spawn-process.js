@@ -559,7 +559,7 @@ function shell_command_blind(cmd) {
     if (POSIX) {
         var full_cmd;
         if (cwd)
-            full_cmd = "cd \"" + shell_quote(cwd) + "\"; " + cmd;
+            full_cmd = "cd \"" + shell_quote(cwd.path) + "\"; " + cmd;
         else
             full_cmd = cmd;
         program_name = getenv("SHELL") || "/bin/sh";
@@ -568,10 +568,10 @@ function shell_command_blind(cmd) {
         var full_cmd;
         if (cwd) {
             full_cmd = "";
-            if (cwd.match(/[a-z]:/i)) {
-                full_cmd += cwd.substring(0,2) + " && ";
+            if (cwd.path.match(/[a-z]:/i)) {
+                full_cmd += cwd.path.substring(0,2) + " && ";
             }
-            full_cmd += "cd \"" + shell_quote(cwd) + "\" && " + cmd;
+            full_cmd += "cd \"" + shell_quote(cwd.path) + "\" && " + cmd;
         } else
             full_cmd = cmd;
 

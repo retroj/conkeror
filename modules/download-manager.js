@@ -47,7 +47,7 @@ download_helper.prototype = {
                 action_chosen = true;
 
             } else if (action == "o") {
-                var cwd = make_file(with_current_buffer(this.buffer, function (I) I.local.cwd)).path;
+                var cwd = with_current_buffer(this.buffer, function (I) I.local.cwd);
                 var mime_type = this.launcher.MIMEInfo.MIMEType;
                 var suggested_action = get_mime_type_external_handler(mime_type);
                 var command = yield this.window.minibuffer.read_shell_command(
@@ -63,8 +63,7 @@ download_helper.prototype = {
                 action_chosen = true;
                 this.abort(); // abort download
                 let mime_type = this.launcher.MIMEInfo.MIMEType;
-                let cwd = make_file(with_current_buffer(this.buffer || this.window.buffers.current,
-                                                        function (I) I.local.cwd)).path;
+                let cwd = with_current_buffer(this.buffer, function (I) I.local.cwd);
                 let cmd = yield this.window.minibuffer.read_shell_command(
                     $cwd = cwd,
                     $initial_value = get_mime_type_external_handler(mime_type));
@@ -593,7 +592,7 @@ function download_buffer (window, element) {
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.info = arguments.$info;
-    this.local.cwd = this.info.mozilla_info.targetFile.parent.path;
+    this.local.cwd = this.info.mozilla_info.targetFile.parent;
     this.description = this.info.mozilla_info.source.spec;
     this.keymap = download_buffer_keymap;
     this.update_title();
