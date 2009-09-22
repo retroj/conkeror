@@ -17,7 +17,18 @@ require("minibuffer-read-mime-type.js");
 var browser_object_classes = {};
 
 /**
- * handler is a coroutine called as: handler(buffer, prompt)
+ * browser_object_class
+ *
+ *   In normal cases, make a new browser_object_class with the function,
+ * `define_browser_object_class'.
+ *
+ * name: See note on `define_browser_object_class'.
+ *
+ * doc: a docstring
+ *
+ * handler: a coroutine called as: handler(I, prompt).  `I' is a normal
+ *          interactive context.  `prompt' is there to pass along as the
+ *          $prompt of various minibuffer read procedures, if needed.
  *
  * $hint: short string (usually verb and noun) to describe the UI
  *        of the browser object class to the user.  Only used by
@@ -32,6 +43,18 @@ function browser_object_class (name, doc, handler) {
     this.hint = arguments.$hint;
 }
 
+/**
+ * define_browser_object_class
+ *
+ *   In normal cases, make a new browser_object_class with the function,
+ * `define_browser_object_class'.
+ *
+ * name: the name of the browser object class.  multiword names should be
+ *       hyphenated.  From this name, a variable browser_object_NAME and
+ *       an interactive command browser-object-NAME will be generated.
+ *
+ *   Other arguments are as for `browser_object_class'.
+ */
 // keywords: $hint
 function define_browser_object_class (name, doc, handler) {
     keywords(arguments);
@@ -39,15 +62,22 @@ function define_browser_object_class (name, doc, handler) {
     var ob = conkeror[varname] =
         new browser_object_class(name, doc, handler,
                                  forward_keywords(arguments));
-    interactive(
-        "browser-object-"+name,
+    interactive("browser-object-"+name,
         "A prefix command to specify that the following command operate "+
-            "on objects of type: "+name+".",
+        "on objects of type: "+name+".",
         function (I) { I.browser_object = ob; },
         $prefix = true);
     return ob;
 }
 
+/**
+ * xpath_browser_object_handler
+ *
+ *   This generates a function of the type needed for a handler of a
+ * browser object class.  The handler uses `read_hinted_element' of
+ * hints.js to let the user pick a DOM node from those matched by
+ * `xpath_expression'.
+ */
 function xpath_browser_object_handler (xpath_expression) {
     return function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
@@ -58,11 +88,13 @@ function xpath_browser_object_handler (xpath_expression) {
     };
 }
 
-define_browser_object_class("images", null,
+define_browser_object_class("images",
+    "Browser object class for selecting an html:img via hinting.",
     xpath_browser_object_handler("//img | //xhtml:img"),
     $hint = "select image");
 
-define_browser_object_class("frames", null,
+define_browser_object_class("frames",
+    "Browser object class for selecting a frame or iframe via hinting.",
     function (I, prompt) {
         var doc = I.buffer.document;
         // Check for any frames or visible iframes
@@ -71,8 +103,7 @@ define_browser_object_class("frames", null,
             skip_hints = false;
         else {
             let topwin = I.buffer.top_frame;
-            for each (let x in doc.getElementsByTagName("iframe"))
-            {
+            for each (let x in doc.getElementsByTagName("iframe")) {
                 let style = topwin.getComputedStyle(x, "");
                 if (style.display == "none" || style.visibility == "hidden")
                     continue;
@@ -92,7 +123,9 @@ define_browser_object_class("frames", null,
     },
     $hint = "select frame");
 
-define_browser_object_class("links", null,
+define_browser_object_class("links",
+    "Browser object class for selecting a hyperlink, form field, "+
+    "or link-like element, via hinting.",
     xpath_browser_object_handler (
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@role='link'] | " +
@@ -102,19 +135,22 @@ define_browser_object_class("links", null,
         "//xhtml:button | //xhtml:select"),
     $hint = "select link");
 
-define_browser_object_class("mathml", null,
+define_browser_object_class("mathml",
+    "Browser object class for selecting a MathML node via hinting.",
     xpath_browser_object_handler("//m:math"),
     $hint = "select MathML element");
 
-define_browser_object_class("top", null,
-    function (I, prompt) { yield co_return(I.buffer.top_frame); });
+define_browser_object_class("top",
+    "Browser object class which returns the top frame of the document.",
+    function (I, prompt) { return I.buffer.top_frame; });
 
-define_browser_object_class("url", null,
+define_browser_object_class("url",
+    "Browser object class which prompts the user for an url or webjump.",
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_url($prompt = prompt);
         yield co_return(result);
     },
-    $hint = "enter URL");
+    $hint = "enter URL/webjump");
 
 define_browser_object_class("pasteurl", null,
     function (I, url) {
@@ -122,7 +158,8 @@ define_browser_object_class("pasteurl", null,
         yield co_return(url);
     });
 
-define_browser_object_class("file", null,
+define_browser_object_class("file",
+    "Browser object which prompts for a file name.",
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_file(
             $prompt = prompt,
@@ -132,7 +169,9 @@ define_browser_object_class("file", null,
     },
     $hint = "enter file name");
 
-define_browser_object_class("alt", null,
+define_browser_object_class("alt",
+    "Browser object class which returns the alt text of an html:img, "+
+    "selected via hinting",
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
@@ -143,7 +182,8 @@ define_browser_object_class("alt", null,
     $hint = "select image for alt-text");
 
 define_browser_object_class("title",
-    null,
+    "Browser object class which returns the title attribute of an element, "+
+    "selected via hinting",
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
@@ -153,7 +193,10 @@ define_browser_object_class("title",
     },
     $hint = "select element for title attribute");
 
-define_browser_object_class("title-or-alt", null,
+define_browser_object_class("title-or-alt",
+    "Browser object which is the union of browser-object-alt and "+
+    "browser-object-title, with title having higher precedence in "+
+    "the case of an element that has both.",
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
@@ -164,7 +207,8 @@ define_browser_object_class("title-or-alt", null,
     $hint = "select element for title or alt-text");
 
 define_browser_object_class("scrape-url",
-    "Scrapes urls from the source code of the top-level document of buffer.",
+    "Browser object which lets the user choose an url from a list of "+
+    "urls scraped from the source code of the document.",
     function (I, prompt) {
         var completions = I.buffer.document.documentElement.innerHTML
             .match(/http:[^\s>"]*/g)
@@ -181,16 +225,16 @@ define_browser_object_class("scrape-url",
     },
     $hint = "choose scraped URL");
 
-define_browser_object_class("up-url", null,
+define_browser_object_class("up-url",
+    "Browser object which returns the url one level above the current one.",
     function (I, prompt) {
         var up = compute_url_up_path(I.buffer.current_URI.spec);
         return I.buffer.current_URI.resolve(up);
     });
 
-define_browser_object_class("focused-element", null,
-    function (I, prompt) {
-        return I.buffer.focused_element;
-    });
+define_browser_object_class("focused-element",
+    "Browser object which returns the focused element.",
+    function (I, prompt) { return I.buffer.focused_element; });
 
 define_browser_object_class("dom-node", null,
     xpath_browser_object_handler("//*"),
