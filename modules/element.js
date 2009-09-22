@@ -19,17 +19,17 @@ var browser_object_classes = {};
 /**
  * handler is a coroutine called as: handler(buffer, prompt)
  */
-function browser_object_class (name, label, doc, handler) {
+function browser_object_class (name, hint, doc, handler) {
     this.name = name;
     this.handler = handler;
     if (doc) this.doc = doc;
-    if (label) this.label = label;
+    if (hint) this.hint = hint;
 }
 
-function define_browser_object_class (name, label, doc, handler) {
+function define_browser_object_class (name, hint, doc, handler) {
     var varname = 'browser_object_'+name.replace('-','_','g');
     var ob = conkeror[varname] =
-        new browser_object_class(name, label, doc, handler);
+        new browser_object_class(name, hint, doc, handler);
     interactive(
         "browser-object-"+name,
         "A prefix command to specify that the following command operate "+
@@ -49,12 +49,10 @@ function xpath_browser_object_handler (xpath_expression) {
     };
 }
 
-define_browser_object_class(
-    "images", "image", null,
+define_browser_object_class("images", "select image", null,
     xpath_browser_object_handler("//img | //xhtml:img"));
 
-define_browser_object_class(
-    "frames","frame", null,
+define_browser_object_class("frames", "select frame", null,
     function (I, prompt) {
         var doc = I.buffer.document;
         // Check for any frames or visible iframes
@@ -83,8 +81,7 @@ define_browser_object_class(
         yield co_return(result);
     });
 
-define_browser_object_class(
-    "links", "link", null,
+define_browser_object_class("links", "select link", null,
     xpath_browser_object_handler (
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@role='link'] | " +
@@ -93,16 +90,14 @@ define_browser_object_class(
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
         "//xhtml:button | //xhtml:select"));
 
-define_browser_object_class(
-    "mathml", "MathML element", null,
+define_browser_object_class("mathml", "select MathML element", null,
     xpath_browser_object_handler("//m:math"));
 
 define_browser_object_class(
     "top", null, null,
     function (I, prompt) { yield co_return(I.buffer.top_frame); });
 
-define_browser_object_class(
-    "url", null, null,
+define_browser_object_class("url", "enter URL", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_url($prompt = prompt);
         yield co_return(result);
@@ -115,8 +110,7 @@ define_browser_object_class(
         yield co_return(url);
     });
 
-define_browser_object_class(
-    "file", null, null,
+define_browser_object_class("file", "enter file name", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_file(
             $prompt = prompt,
@@ -125,8 +119,7 @@ define_browser_object_class(
         yield co_return(result);
     });
 
-define_browser_object_class(
-    "alt", "Image Alt-text", null,
+define_browser_object_class("alt", "select image for alt-text", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
@@ -135,8 +128,8 @@ define_browser_object_class(
         yield co_return(result.alt);
     });
 
-define_browser_object_class(
-    "title", "Element Title", null,
+define_browser_object_class("title", "select element for title attribute",
+    null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
@@ -145,8 +138,8 @@ define_browser_object_class(
         yield co_return(result.title);
     });
 
-define_browser_object_class(
-    "title-or-alt", "Element Title or Alt-text", null,
+define_browser_object_class("title-or-alt",
+    "select element for title or alt-text", null,
     function (I, prompt) {
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
@@ -155,8 +148,7 @@ define_browser_object_class(
         yield co_return(result.title ? result.title : result.alt);
     });
 
-define_browser_object_class(
-    "scrape-url", "url",
+define_browser_object_class("scrape-url", "choose scraped URL",
     "Scrapes urls from the source code of the top-level document of buffer.",
     function (I, prompt) {
         var completions = I.buffer.document.documentElement.innerHTML
@@ -173,21 +165,18 @@ define_browser_object_class(
         yield co_return(result);
     });
 
-define_browser_object_class(
-    "up-url", "Up Url", null,
+define_browser_object_class("up-url", null, null,
     function (I, prompt) {
         var up = compute_url_up_path(I.buffer.current_URI.spec);
         return I.buffer.current_URI.resolve(up);
     });
 
-define_browser_object_class(
-    "focused-element", "Focused element", null,
+define_browser_object_class("focused-element", null, null,
     function (I, prompt) {
         return I.buffer.focused_element;
     });
 
-define_browser_object_class(
-    "dom-node", "DOM Node", null,
+define_browser_object_class("dom-node", "select DOM node", null,
     xpath_browser_object_handler("//*"));
 
 function read_browser_object (I) {
@@ -205,8 +194,8 @@ function read_browser_object (I) {
     }
     if (I.target != null)
         prompt += TARGET_PROMPTS[I.target];
-    if (browser_object.label)
-        prompt += " (select " + browser_object.label + ")";
+    if (browser_object.hint)
+        prompt += " (" + browser_object.hint + ")";
     prompt += ":";
 
     var result = yield browser_object.handler.call(null, I, prompt);

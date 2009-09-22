@@ -23,7 +23,7 @@ define_key(google_search_results_keymap, "return", "ensure-content-focused", $fa
 
 define_browser_object_class(
     "google-search-results-links",
-    "Google search result",
+    "select search result",
     null,
     xpath_browser_object_handler("//a[@class='l']"));
 
@@ -31,7 +31,7 @@ define_browser_object_class(
 // Bind keys 1 through 9 to follow corresponding results links
 //
 define_browser_object_class(
-    "google-search-result-by-digit", "Google Search Result", null,
+    "google-search-result-by-digit", null, null,
     function (I, prompt) {
         var doc = I.buffer.document;
         var digit = I.event.charCode - 48;

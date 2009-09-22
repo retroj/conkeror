@@ -76,8 +76,7 @@ function document_get_element_by_relationship (doc, patterns, relationship) {
     return null;
 }
 
-define_browser_object_class(
-    "relationship-next", "Relationship-Next", null,
+define_browser_object_class("relationship-next", null, null,
     function (I, prompt) {
         var doc = I.buffer.document;
         for (let frame in frame_iterator(I.buffer.top_frame, I.buffer.focused_frame)) {
@@ -91,8 +90,7 @@ define_browser_object_class(
         throw interactive_error("No \"next\" link found.");
     });
 
-define_browser_object_class(
-    "relationship-previous", "Relationship-Previous", null,
+define_browser_object_class("relationship-previous", null, null,
     function (I, prompt) {
         var doc = I.buffer.document;
         for (let frame in frame_iterator(I.buffer.top_frame, I.buffer.focused_frame)) {
