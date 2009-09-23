@@ -68,7 +68,7 @@ fi
 MASTERDIR=$WORKDIR/MASTER
 BUILDDIR=$WORKDIR/BUILD
 UNIXTIME=`date +%s`
-VERSION=0.9~git`date +%y%m%d`
+VERSION=0.9.1+git`date +%y%m%d`
 RELEASE=$VERSION-~nightlybuild$UNIXTIME
 DATEDIR=$BUILDDIR/conkeror-$VERSION
 DATE=`date -R`
