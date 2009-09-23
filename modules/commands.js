@@ -160,7 +160,9 @@ interactive("execute-extended-command",
             function (I) {
                 var prefix = I.P;
                 var boc = I.browser_object;
-                var prompt = "";
+                var prompt = "M-x";
+                if (I.key_sequence)
+                    prompt = I.key_sequence.join(" ");
                 if (boc)
                     prompt += ' ['+boc.name+']';
                 if (prefix !== null && prefix !== undefined) {
@@ -170,8 +172,7 @@ interactive("execute-extended-command",
                         prompt += " "+prefix;
                 }
                 meta_x(I.buffer, I.P,
-                       (yield I.minibuffer.read_command(
-                           $prompt = "M-x" + prompt)),
+                       (yield I.minibuffer.read_command($prompt = prompt)),
                        boc);
             });
 
