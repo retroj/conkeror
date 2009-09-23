@@ -164,6 +164,8 @@ buffer.prototype = {
         }
     },
 
+    destructor: function () {},
+
     /* Browser accessors */
     get top_frame () { return this.browser.contentWindow; },
     get document () { return this.browser.contentDocument; },
@@ -376,6 +378,12 @@ buffer_container.prototype = {
             changed = true;
         }
         this._switch_away_from(this.current);
+        // The removeChild call below may trigger events in progress
+        // listeners.  This call to `destructor' gives buffer subclasses a
+        // chance to remove such listeners, so that they cannot try to
+        // perform UI actions based upon a browser object that no longer
+        // exists.
+        b.destructor();
         this.container.removeChild(b.element);
         this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
         this._switch_to(new_buffer);
