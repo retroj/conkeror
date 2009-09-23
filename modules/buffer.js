@@ -381,7 +381,7 @@ buffer_container.prototype = {
         // The removeChild call below may trigger events in progress
         // listeners.  This call to `destructor' gives buffer subclasses a
         // chance to remove such listeners, so that they cannot try to
-        // perform UI actions based upon a browser object that no longer
+        // perform UI actions based upon a xul:browser that no longer
         // exists.
         b.destructor();
         this.container.removeChild(b.element);
