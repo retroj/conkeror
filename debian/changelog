@@ -1,6 +1,6 @@
-conkeror (0.9~git090923-1) UNRELEASED; urgency=low
+conkeror (0.9.1-1) UNRELEASED; urgency=low
 
-  * New upstream snapshot
+  * New upstream version
   * Added alternative dependency on xulrunner-1.9.1
   * Moved from directly calling "xulrunner application.ini" to calling a
     symlinked xulrunner-stub (symlinking xulrunner-stub only works with
