@@ -29,7 +29,7 @@ function media_scrape_youtube_document_text (source_frame, code, text, results) 
 
 function media_scrape_youtube (buffer, results) {
     try {
-        var uri = buffer.current_URI.spec;
+        var uri = buffer.current_uri.spec;
         var result = media_youtube_uri_test_regexp.exec(uri);
         if (!result)
             return;

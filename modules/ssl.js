@@ -12,7 +12,7 @@ function ssl_add_exception(buffer) {
     var params = { exceptionAdded: false };
     if (buffer instanceof content_buffer) {
         params.prefetchCert = true;
-        params.location = buffer.current_URI.spec;
+        params.location = buffer.current_uri.spec;
     }
     buffer.window.openDialog("chrome://pippki/content/exceptionDialog.xul",
                              "", "chrome,centerscreen,modal", params);

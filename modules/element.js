@@ -233,8 +233,8 @@ define_browser_object_class("scrape-url",
 define_browser_object_class("up-url",
     "Browser object which returns the url one level above the current one.",
     function (I, prompt) {
-        var up = compute_url_up_path(I.buffer.current_URI.spec);
-        return I.buffer.current_URI.resolve(up);
+        var up = compute_url_up_path(I.buffer.current_uri.spec);
+        return I.buffer.current_uri.resolve(up);
     });
 
 define_browser_object_class("focused-element",

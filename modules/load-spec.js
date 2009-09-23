@@ -316,7 +316,7 @@ function apply_load_spec (target, spec) {
     if (target instanceof content_buffer) {
         try {
             target.web_navigation.loadURI(uri, flags, referrer, post_data, null /* headers */);
-            target._display_URI = uri;
+            target._display_uri = uri;
             buffer_description_change_hook.run(target);
         } catch (e) {
             /* Ignore error for now */

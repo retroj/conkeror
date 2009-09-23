@@ -170,7 +170,7 @@ buffer.prototype = {
     get web_navigation () { return this.browser.webNavigation; },
     get doc_shell () { return this.browser.docShell; },
     get markup_document_viewer () { return this.browser.markupDocumentViewer; },
-    get current_URI () { return this.browser.currentURI; },
+    get current_uri () { return this.browser.currentURI; },
 
     is_child_element : function (element) {
         return (element && this.is_child_frame(element.ownerDocument.defaultView));

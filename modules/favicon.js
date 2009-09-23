@@ -32,12 +32,12 @@ function favicon_content_buffer_finished_loading(buffer) {
         if (req && req.image &&
             req.image.width <= favicon_image_max_size  &&
             req.image.height <= favicon_image_max_size) {
-            favicon_set(buffer, buffer.current_URI);
+            favicon_set(buffer, buffer.current_uri);
             return;
         }
     }
 
-    var uri = buffer.current_URI;
+    var uri = buffer.current_uri;
     // Only load favicons for http and https
     if (!uri.schemeIs("http") && !uri.schemeIs("https"))
         return;
@@ -102,6 +102,6 @@ add_hook("content_buffer_dom_link_added_hook", favicon_content_buffer_dom_link_a
 function favicon_set(buffer, icon_url) {
     buffer.favicon = icon_url.spec;
 
-    favicon_service.setAndLoadFaviconForPage(buffer.current_URI, icon_url, false);
+    favicon_service.setAndLoadFaviconForPage(buffer.current_uri, icon_url, false);
     buffer_favicon_change_hook.run(buffer);
 }

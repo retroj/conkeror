@@ -14,7 +14,7 @@ define_variable('selectively_unstyle_alist', [],
 
 
 function selectively_unstyle (buffer) {
-    var uri = buffer.current_URI.spec;
+    var uri = buffer.current_uri.spec;
     for each (let entry in selectively_unstyle_alist) {
         if (entry[0](uri)) {
             let func = entry[1];

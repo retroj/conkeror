@@ -135,18 +135,18 @@ content_buffer.prototype = {
     /* Used to display the correct URI when the buffer opens initially
      * even before loading has progressed far enough for currentURI to
      * contain the correct URI. */
-    _display_URI : null,
+    _display_uri : null,
 
-    get display_URI_string () {
-        if (this._display_URI)
-            return this._display_URI;
-        if (this.current_URI)
-            return this.current_URI.spec;
+    get display_uri_string () {
+        if (this._display_uri)
+            return this._display_uri;
+        if (this.current_uri)
+            return this.current_uri.spec;
         return "";
     },
 
     get title () { return this.browser.contentTitle; },
-    get description () { return this.display_URI_string; },
+    get description () { return this.display_uri_string; },
 
     load : function (load_spec) {
         apply_load_spec(this, load_spec);
@@ -240,9 +240,9 @@ content_buffer.prototype = {
 
         this.ignore_initial_blank = false;
 
-        //dumpln("spec: " + location.spec  +" ;;; " + this.display_URI_string);
+        //dumpln("spec: " + location.spec  +" ;;; " + this.display_uri_string);
         /* Use the real location URI now */
-        this._display_URI = null;
+        this._display_uri = null;
         content_buffer_location_change_hook.run(this, request, location);
         this.last_user_input_received = null;
         buffer_description_change_hook.run(this);
@@ -487,7 +487,7 @@ function reload (b, bypass_cache, element, forced_charset) {
 
         if (! forced_charset && forced_charset_list)
             forced_charset = predicate_alist_match(forced_charset_list,
-                                                   b.current_URI.spec);
+                                                   b.current_uri.spec);
 
         if (forced_charset) {
             try {
@@ -620,7 +620,7 @@ define_variable("auto_mode_list", [],
     "A list of mappings from URI regular expressions to page modes.");
 
 function page_mode_auto_update (buffer) {
-    var uri = buffer.current_URI.spec;
+    var uri = buffer.current_uri.spec;
     var mode = predicate_alist_match(auto_mode_list, uri);
     if (mode)
         mode(buffer, true);

@@ -492,7 +492,7 @@ interactive("find-alternate-url", "Edit the current URL in the minibuffer",
                         check_buffer(I.buffer, content_buffer);
                         var result = yield I.buffer.window.minibuffer.read_url(
                             $prompt = prompt,
-                            $initial_value = I.buffer.display_URI_string);
+                            $initial_value = I.buffer.display_uri_string);
                         yield co_return(result);
                     }),
             $prompt = "Find url");
