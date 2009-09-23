@@ -20,6 +20,7 @@ function tab_bar (window) {
     add_hook.call(window, "select_buffer_hook", tab_bar_select_buffer);
     add_hook.call(window, "create_buffer_early_hook", tab_bar_add_buffer);
     add_hook.call(window, "kill_buffer_hook", tab_bar_kill_buffer);
+    add_hook.call(window, "create_buffer_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_description_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_favicon_change_hook", tab_bar_update_buffer_icon);
@@ -32,6 +33,7 @@ tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "select_buffer_hook", tab_bar_select_buffer);
     remove_hook.call(this.window, "create_buffer_early_hook", tab_bar_add_buffer);
     remove_hook.call(this.window, "kill_buffer_hook", tab_bar_kill_buffer);
+    remove_hook.call(this.window, "create_buffer_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_description_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_favicon_change_hook", tab_bar_update_buffer_icon);
