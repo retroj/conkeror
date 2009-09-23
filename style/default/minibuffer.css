@@ -5,6 +5,10 @@
   border-top: 1px solid -moz-Dialog;
 }
 
+#minibuffer-input {
+  background-color: -moz-field !important;
+}
+
 #minibuffer.minibuffer-text-input-mode[minibuffermode="message"],
 #minibuffer.minibuffer-textarea-input-mode[minibuffermode="message"],
 #minibuffer.minibuffer-select-input-mode[minibuffermode="message"],
