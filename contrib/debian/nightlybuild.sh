@@ -68,9 +68,6 @@ fi
 MASTERDIR=$WORKDIR/MASTER
 BUILDDIR=$WORKDIR/BUILD
 UNIXTIME=`date +%s`
-VERSION=0.9.1+git`date +%y%m%d`
-RELEASE=$VERSION-~nightlybuild$UNIXTIME
-DATEDIR=$BUILDDIR/conkeror-$VERSION
 DATE=`date -R`
 
 # Check if MASTER directory exists, if not, create it (untested code!)
@@ -85,15 +82,21 @@ if [ ! -z "$SIGNKEY" ]; then
     DEBUILDOPTIONS="-k$SIGNKEY"
 fi
 
+# Update master copy
+cd $MASTERDIR
+git pull
+
+# Determine the correct version
+VERSION=`grep ^Version= $MASTERDIR/application.ini | \
+         sed -e 's/^Version=//'`+git`date +%y%m%d`
+RELEASE=$VERSION-~nightlybuild$UNIXTIME
+DATEDIR=$BUILDDIR/conkeror-$VERSION
+
 # Create build dir
 mkdir -p $BUILDDIR
 
 # Remove old builds
 rm -rf $BUILDDIR/*
-
-# Update master copy
-cd $MASTERDIR
-git pull
 
 # Copy tree into build environment
 cp -priv $MASTERDIR $DATEDIR
