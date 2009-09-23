@@ -9,6 +9,9 @@ conkeror (0.9.1-1) UNRELEASED; urgency=low
     decide which version of xulrunner is actually used.
   * Refreshed debian/patches/sensible-editor.diff after upstream
     whitespace changes.
+  * Do not include the whole contrib subdirectory in the binary
+    package. (Closes: #547896) Only include the xrev debugging tool for
+    now.
 
  -- Axel Beckert <abe@deuxchevaux.org>  Thu, 24 Sep 2009 01:21:14 +0200
 
