@@ -4,6 +4,10 @@
 # of the so called source package. Do not move away from its current
 # location -- it depends on it.
 #
+# It accepts one optional parameter: an upstream version number,
+# e.g. "0.9.1". If a parameter is given, no date based snapshot
+# version number is generated.
+#
 # Copyright (C) 2008-2009 Axel Beckert <abe@deuxchevaux.org>
 
 # Find the full path of the current packaging directory and cd to it
@@ -27,7 +31,12 @@ read line
 git rebase origin/master
 
 # Rename the packaging directory to reflect the new version number
-version=0.9~git`date +%y%m%d`
+if [ -n "$1" ]; then
+    version="$1"
+else
+    version=`grep ^Version= application.ini | \
+             sed -e 's/^Version=//'`+git`date +%y%m%d`
+fi
 echo -n "Hit enter to rename directory from $olddir to conkeror-$version
 and generate source tar ball or hit Ctrl-C to abort."
 read line
