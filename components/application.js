@@ -134,7 +134,7 @@ application.prototype = {
         dump(line + "\n");
     },
 
-    version: "$CONKEROR_VERSION$", // preprocessor variable
+    version: "0.9.1", // preprocessor variable
 
     /* nsISupports */
     QueryInterface: XPCOMUtils.generateQI([]),
