@@ -554,15 +554,15 @@ interactive("copy", null,
 
 interactive("paste-url", "Open a URL from the clipboard in the current buffer.",
 	    alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
-	    $browser_object = browser_object_pasteurl);
+	    $browser_object = browser_object_paste_url);
 
 interactive("paste-url-new-buffer", "Open a URL from the clipboard in a new buffer.",
 	    alternates(follow_new_buffer, follow_new_window),
-	    $browser_object = browser_object_pasteurl);
+	    $browser_object = browser_object_paste_url);
 
 interactive("paste-url-new-window", "Open a URL from the clipboard in a new window.",
 	    follow_new_window,
-	    $browser_object = browser_object_pasteurl);
+	    $browser_object = browser_object_paste_url);
 
 interactive("view-source", null,
             alternates(view_source, view_source_new_buffer, view_source_new_window),

@@ -152,10 +152,15 @@ define_browser_object_class("url",
     },
     $hint = "enter URL/webjump");
 
-define_browser_object_class("pasteurl", null,
-    function (I, url) {
-	let url = read_from_x_primary_selection();
-        yield co_return(url);
+define_browser_object_class("paste-url",
+    "Browser object which reads an url from the X Primary Selection, "+
+    "falling back on the clipboard for operating systems which lack one.",
+    function (I, prompt) {
+        try {
+            return make_uri(read_from_x_primary_selection()).spec;
+        } catch (e) {
+            throw new interactive_error("error: malformed url");
+        }
     });
 
 define_browser_object_class("file",
