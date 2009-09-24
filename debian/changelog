@@ -12,8 +12,10 @@ conkeror (0.9.1-1) UNRELEASED; urgency=low
   * Do not include the whole contrib subdirectory in the binary
     package. (Closes: #547896) Only include the xrev debugging tool for
     now.
+  * A few Debian and Ubuntu webjumps have been added and enabled by
+    default. (Closes: #547908)
 
- -- Axel Beckert <abe@deuxchevaux.org>  Thu, 24 Sep 2009 01:21:14 +0200
+ -- Axel Beckert <abe@deuxchevaux.org>  Thu, 24 Sep 2009 02:35:02 +0200
 
 conkeror (0.9~git090624-1) unstable; urgency=low
 
