@@ -147,8 +147,7 @@ function call_interactively (I, command) {
                 }
             }());
         }
-    } catch (e)
-    {
+    } catch (e) {
         handle_interactive_error(window, e);
     }
 }

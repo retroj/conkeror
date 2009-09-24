@@ -8,23 +8,20 @@
 /* This should only be used for minibuffer states where it makes
  * sense.  In particular, it should not be used if additional cleanup
  * must be done. */
-function minibuffer_abort (window)
-{
+function minibuffer_abort (window) {
     var m = window.minibuffer;
     var s = m.current_state;
     if (s == null)
         throw "Invalid minibuffer state";
     m.pop_state();
 }
-interactive("minibuffer-abort", null, function (I) {minibuffer_abort(I.window);});
+interactive("minibuffer-abort", null, function (I) { minibuffer_abort(I.window); });
 
-define_builtin_commands(
-    "minibuffer-",
+define_builtin_commands("minibuffer-",
     function (I, command) {
         try {
             var m = I.minibuffer;
-            if (m._input_mode_enabled)
-            {
+            if (m._input_mode_enabled) {
                 m._restore_normal_state();
                 var e = m.input_element;
                 var c = e.controllers.getControllerForCommand(command);
@@ -39,21 +36,17 @@ define_builtin_commands(
                 if (s.ran_minibuffer_command)
                     s.ran_minibuffer_command(m, command);
             }
-        } catch (e)
-        {
+        } catch (e) {
             /* Ignore exceptions. */
         }
     },
-    function (I) {
+    function (I) { //XXX: need return??
         I.minibuffer.current_state.mark_active = !I.minibuffer.current_state.mark_active;
     },
-
     function (I) I.minibuffer.current_state.mark_active,
-    false
-);
+    false);
 
-function minibuffer_state(keymap, use_input_mode)
-{
+function minibuffer_state (keymap, use_input_mode) {
     this.keymap = keymap;
     this.use_input_mode = use_input_mode;
 }
@@ -61,8 +54,7 @@ minibuffer_state.prototype.load = function () {};
 minibuffer_state.prototype.unload = function () {};
 minibuffer_state.prototype.destroy = function () {};
 
-function minibuffer_message_state(keymap, message, destroy_function)
-{
+function minibuffer_message_state (keymap, message, destroy_function) {
     minibuffer_state.call(this, keymap, false);
     this._message = message;
     if (destroy_function)
@@ -85,8 +77,7 @@ minibuffer_message_state.prototype = {
     }
 };
 
-function minibuffer_input_state(keymap, prompt, input, selection_start, selection_end)
-{
+function minibuffer_input_state (keymap, prompt, input, selection_start, selection_end) {
     this.prompt = prompt;
     if (input)
         this.input = input;
@@ -118,13 +109,11 @@ minibuffer_input_state.prototype.__proto__ = minibuffer_state.prototype;
  * select:            [optional] specifies to select the initial text if set to non-null
  */
 define_keywords("$prompt", "$initial_value", "$select");
-function basic_minibuffer_state()
-{
+function basic_minibuffer_state () {
     keywords(arguments);
     var initial_value = arguments.$initial_value || "";
     var sel_start, sel_end;
-    if (arguments.$select)
-    {
+    if (arguments.$select) {
         sel_start = 0;
         sel_end = initial_value.length;
     } else {
@@ -136,41 +125,45 @@ function basic_minibuffer_state()
 }
 basic_minibuffer_state.prototype.__proto__ = minibuffer_input_state.prototype; // inherit from minibuffer_state
 
-define_variable("minibuffer_input_mode_show_message_timeout", 1000, "Time duration (in milliseconds) to flash minibuffer messages while in minibuffer input mode.");
 
-function minibuffer (window)
-{
+define_variable("minibuffer_input_mode_show_message_timeout", 1000,
+    "Time duration (in milliseconds) to flash minibuffer messages while in "+
+    "minibuffer input mode.");
+
+
+function minibuffer (window) {
     this.element = window.document.getElementById("minibuffer");
     this.output_element = window.document.getElementById("minibuffer-message");
     this.input_prompt_element = window.document.getElementById("minibuffer-prompt");
     this.input_element = window.document.getElementById("minibuffer-input");
     var m = this;
-    this.input_element.inputField.addEventListener("blur", function() {
-            if (m.active && m._input_mode_enabled && !m._showing_message)
-            {
-                window.setTimeout(
-                    function(){
+    this.input_element.inputField.addEventListener("blur",
+        function () {
+            if (m.active && m._input_mode_enabled && !m._showing_message) {
+                window.setTimeout(function () {
                         m.input_element.inputField.focus();
                     }, 0);
             }
         }, false);
-    this.input_element.addEventListener("input", function(e) {
-        if (m.ignore_input_events || !m._input_mode_enabled)
-            return;
-        var s = m.current_state;
-        if (s) {
-            if (s.handle_input)
-                s.handle_input(m);
-        }
-    }, true);
+    this.input_element.addEventListener("input",
+        function (e) {
+            if (m.ignore_input_events || !m._input_mode_enabled)
+                return;
+            var s = m.current_state;
+            if (s) {
+                if (s.handle_input)
+                    s.handle_input(m);
+            }
+        }, true);
 
     // Ensure that the input area will have focus if a message is
     // currently being flashed so that the default handler for key
     // events will properly add text to the input area.
-    window.addEventListener("keydown", function (e) {
-        if (m._input_mode_enabled && m._showing_message)
-            m._restore_normal_state();
-    }, true);
+    window.addEventListener("keydown",
+        function (e) {
+            if (m._input_mode_enabled && m._showing_message)
+                m._restore_normal_state();
+        }, true);
     this.window = window;
     this.last_message = "";
     this.states = [];
@@ -185,7 +178,7 @@ minibuffer.prototype = {
     get prompt () { return this.input_prompt_element.value; },
     set prompt (s) { this.input_prompt_element.value = s; },
 
-    set_input_state : function(x) {
+    set_input_state : function (x) {
         this._input_text = x[0];
         this._set_selection(x[1], x[2]);
     },
@@ -216,8 +209,7 @@ minibuffer.prototype = {
     },
 
     _show : function (str, force) {
-        if (this.last_message != str)
-        {
+        if (this.last_message != str) {
             this.output_element.value = str;
             this.last_message = str;
         }
@@ -231,6 +223,7 @@ minibuffer.prototype = {
         if (str.length > 0 && this.active)
             this._flash_temporary_message();
     },
+
     clear : function () {
         this.current_message = null;
         if (!this.active)
@@ -292,8 +285,7 @@ minibuffer.prototype = {
 
     /* This must only be called if _input_mode_enabled is true */
     _restore_normal_state : function () {
-        if (this._showing_message)
-        {
+        if (this._showing_message) {
             this.window.clearTimeout(this._message_timer_ID);
             this._message_timer_ID = null;
             this._showing_message = false;
@@ -315,7 +307,7 @@ minibuffer.prototype = {
                 this._switch_to_message_mode();
         }
         var obj = this;
-        this._message_timer_ID = this.window.setTimeout(function(){
+        this._message_timer_ID = this.window.setTimeout(function () {
             obj._restore_normal_state();
         }, minibuffer_input_mode_show_message_timeout);
     },
@@ -376,8 +368,7 @@ minibuffer.prototype = {
 
     _save_state : function () {
         var s = this.current_state;
-        if (s)
-        {
+        if (s) {
             if (s.use_input_mode) {
                 s.input = this._input_text;
                 s.prompt = this.prompt;
@@ -393,21 +384,22 @@ minibuffer.prototype = {
     }
 };
 
-function minibuffer_initialize_window(window)
-{
+
+function minibuffer_initialize_window (window) {
     window.minibuffer = new minibuffer(window);
 }
-
 add_hook("window_initialize_early_hook", minibuffer_initialize_window);
 
-function minibuffer_window_close_handler(window) {
+
+function minibuffer_window_close_handler (window) {
     window.minibuffer.pop_all();
 }
 add_hook("window_close_hook", minibuffer_window_close_handler);
 
+
 /* Note: This is concise, but doesn't seem to be useful in practice,
  * because nothing can be done with the state alone. */
-minibuffer.prototype.check_state = function(type) {
+minibuffer.prototype.check_state = function (type) {
     var s = this.current_state;
     if (!(s instanceof type))
         throw new Error("Invalid minibuffer state.");
@@ -420,17 +412,16 @@ minibuffer.prototype.show_wait_message = function (initial_message, destroy_func
     return s;
 };
 
-minibuffer.prototype.wait_for = function minibuffer__wait_for(message, coroutine) {
+minibuffer.prototype.wait_for = function minibuffer__wait_for (message, coroutine) {
     var cc = yield CONTINUATION;
     var done = false;
     var s = this.show_wait_message(message, function () { if (!done) cc.throw(abort()); });
     var result;
     try {
         result = yield coroutine;
-    }
-    finally {
+    } finally {
         done = true;
         this.remove_state(s);
     }
     yield co_return(result);
-}
+};

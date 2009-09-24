@@ -10,6 +10,7 @@ require("keyboard.js");
 
 var global_overlay_keymap = new keymap();
 
+
 function global_overlay_keymap_handler (window, I, true_event) {
     var binding = lookup_key_binding(global_overlay_keymap, I.combo, I.event);
     if (!binding)
@@ -26,6 +27,7 @@ function global_overlay_keymap_handler (window, I, true_event) {
     return true;
 }
 
+
 define_global_mode("global_overlay_keymap_mode",
                    function () {
                        add_hook("keypress_hook", global_overlay_keymap_handler);
@@ -34,16 +36,15 @@ define_global_mode("global_overlay_keymap_mode",
                        remove_hook("keypress_hook", global_overlay_keymap_handler);
                    });
 
+
 function define_key_alias (typed_key, generated_key) {
     var name = "generate-key-event:"+generated_key;
-    interactive(
-        name,
+    interactive(name,
         "Generate a fake key press event for the key: "+generated_key,
         function (I) {
-            send_key_as_event(
-                I.window,
-                I.buffer.focused_element,
-                generated_key);
+            send_key_as_event(I.window,
+                              I.buffer.focused_element,
+                              generated_key);
         });
     define_key(global_overlay_keymap, typed_key, name);
     global_overlay_keymap_mode(true);
