@@ -14,6 +14,7 @@ conkeror (0.9.1-1) UNRELEASED; urgency=low
     now.
   * A few Debian and Ubuntu webjumps have been added and enabled by
     default. (Closes: #547908)
+  * Bumped Standards-Version to 3.8.3 (no changes)
 
  -- Axel Beckert <abe@deuxchevaux.org>  Thu, 24 Sep 2009 02:35:02 +0200
 
