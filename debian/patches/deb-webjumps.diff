@@ -1,3 +1,6 @@
+Adds and enables some Debian and Ubuntu related webjumps which should
+not be inlcuded in upstream by default.
+
 Index: conkeror-0.9.1/modules/debian/webjumps.js
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
