@@ -7,7 +7,6 @@
 export DH_OPTIONS
 
 # Generating a xulrunner build id and other strings
-UPSTREAM_VERSION := $(shell grep ^Version= application.ini | sed -e 's/^Version=//')
 DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
 
 BUILDID := $(shell echo -n `whoami`@`hostname`)_$(shell date +%s)
