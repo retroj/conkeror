@@ -67,7 +67,7 @@ install-indep:
 	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' application.ini \
 	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/application.ini
 	# Use Debian version for M-x version output
-	sed -e 's/\$$CONKEROR_VERSION\$$/${UPSTREAM_VERSION} (Debian-${DEBIAN_VERSION})/' components/application.js \
+	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' components/application.js \
 	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
 	cp -p debian/conkeror.bin $(CURDIR)/debian/conkeror/usr/bin/conkeror
 	cp -p debian/conkeror.desktop $(CURDIR)/debian/conkeror/usr/share/applications/
