@@ -34,8 +34,7 @@ register_user_stylesheet(hints_stylesheet);
  * content, multiple substrings can be given by separating them with
  * spaces.
  */
-function hint_manager(window, xpath_expr, focused_frame, focused_element)
-{
+function hint_manager (window, xpath_expr, focused_frame, focused_element) {
     this.window = window;
     this.hints = [];
     this.valid_hints = [];
@@ -49,8 +48,8 @@ function hint_manager(window, xpath_expr, focused_frame, focused_element)
 }
 
 hint_manager.prototype = {
-    current_hint_string : "",
-    current_hint_number : -1,
+    current_hint_string: "",
+    current_hint_number: -1,
 
     /**
      * Create an initially hidden hint span element absolutely
@@ -59,7 +58,7 @@ hint_manager.prototype = {
      * and iframes.  Information about the resulting hints are also
      * stored in the hints array.
      */
-    generate_hints : function () {
+    generate_hints: function () {
         var topwin = this.window;
         var top_height = topwin.innerHeight;
         var top_width = topwin.innerWidth;
@@ -68,7 +67,8 @@ hint_manager.prototype = {
         var focused_frame_hint = null, focused_element_hint = null;
         var focused_frame = this.focused_frame;
         var focused_element = this.focused_element;
-        function helper(window, offsetX, offsetY) {
+
+        function helper (window, offsetX, offsetY) {
             var win_height = window.height;
             var win_width = window.width;
 
@@ -91,8 +91,7 @@ hint_manager.prototype = {
 
             var fragment = doc.createDocumentFragment();
             var rect, elem, text, node, show_text;
-            while (true)
-            {
+            while (true) {
                 try {
                     elem = res.iterateNext();
                     if (!elem)
@@ -133,12 +132,12 @@ hint_manager.prototype = {
                 node.style.top = (rect.top + scrollY) + "px";
                 fragment.appendChild(node);
 
-                let hint = {text: text,
-                            elem: elem,
-                            hint: node,
-                            img_hint: null,
-                            visible: false,
-                            show_text: show_text};
+                let hint = { text: text,
+                             elem: elem,
+                             hint: node,
+                             img_hint: null,
+                             visible: false,
+                             show_text: show_text };
                 if (elem.style) {
                     hint.saved_color = elem.style.color;
                     hint.saved_bgcolor = elem.style.backgroundColor;
@@ -158,8 +157,7 @@ hint_manager.prototype = {
             var frametag = "frame";
             while (true) {
                 var frames = doc.getElementsByTagName(frametag);
-                for (var i = 0; i < frames.length; ++i)
-                {
+                for (var i = 0; i < frames.length; ++i) {
                     elem = frames[i];
                     rect = elem.getBoundingClientRect();
                     if (!rect || rect.left > maxX || rect.right < minX || rect.top > maxY || rect.bottom < minY)
@@ -174,7 +172,7 @@ hint_manager.prototype = {
     },
 
     /* Updates valid_hints and also re-numbers and re-displays all hints. */
-    update_valid_hints : function () {
+    update_valid_hints: function () {
         this.valid_hints = [];
         var active_number = this.current_hint_number;
 
@@ -183,16 +181,12 @@ hint_manager.prototype = {
         var hints = this.hints;
 
     outer:
-        for (var i = 0; i < hints.length; ++i)
-        {
+        for (var i = 0; i < hints.length; ++i) {
             h = hints[i];
             text = h.text;
-            for (var j = 0; j < tokens.length; ++j)
-            {
-                if (text.indexOf(tokens[j]) == -1)
-                {
-                    if (h.visible)
-                    {
+            for (var j = 0; j < tokens.length; ++j) {
+                if (text.indexOf(tokens[j]) == -1) {
+                    if (h.visible) {
                         h.visible = false;
                         h.hint.style.display = "none";
                         if (h.img_hint)
@@ -220,10 +214,8 @@ hint_manager.prototype = {
             else if (h.elem instanceof Ci.nsIDOMHTMLImageElement)
                 img_elem = h.elem;
 
-            if (img_elem)
-            {
-                if (!h.img_hint)
-                {
+            if (img_elem) {
+                if (!h.img_hint) {
                     rect = img_elem.getBoundingClientRect();
                     if (rect) {
                         doc = h.elem.ownerDocument;
@@ -260,13 +252,12 @@ hint_manager.prototype = {
                 label +=  " " + text;
             } else if (h.show_text && !/^\s*$/.test(text)) {
                 let substrs = [[0,4]];
-                for (j = 0; j < tokens.length; ++j)
-                {
+                for (j = 0; j < tokens.length; ++j) {
                     let pos = text.indexOf(tokens[j]);
                     if(pos == -1) continue;
                     splice_range(substrs, pos, pos + tokens[j].length + 2);
                 }
-                label += " " + substrs.map(function(x) {
+                label += " " + substrs.map(function (x) {
                     return text.substring(x[0],Math.min(x[1], text.length));
                 }).join("..") + "..";
             }
@@ -279,13 +270,12 @@ hint_manager.prototype = {
             this.select_hint(1);
     },
 
-    select_hint : function (index) {
+    select_hint: function (index) {
         var old_index = this.current_hint_number;
         if (index == old_index)
             return;
         var vh = this.valid_hints;
-        if (old_index >= 1 && old_index <= vh.length)
-        {
+        if (old_index >= 1 && old_index <= vh.length) {
             var h = vh[old_index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = img_hint_background_color;
@@ -293,8 +283,7 @@ hint_manager.prototype = {
                 h.elem.style.backgroundColor = hint_background_color;
         }
         this.current_hint_number = index;
-        if (index >= 1 && index <= vh.length)
-        {
+        if (index >= 1 && index <= vh.length) {
             var h = vh[index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = active_img_hint_background_color;
@@ -304,14 +293,12 @@ hint_manager.prototype = {
         }
     },
 
-    hide_hints : function () {
-        for (var i = 0; i < this.hints.length; ++i)
-        {
+    hide_hints: function () {
+        for (var i = 0; i < this.hints.length; ++i) {
             var h = this.hints[i];
             if (h.visible) {
                 h.visible = false;
-                if (h.saved_color != null)
-                {
+                if (h.saved_color != null) {
                     h.elem.style.color = h.saved_color;
                     h.elem.style.backgroundColor = h.saved_bgcolor;
                 }
@@ -322,9 +309,8 @@ hint_manager.prototype = {
         }
     },
 
-    remove : function () {
-        for (var i = 0; i < this.hints.length; ++i)
-        {
+    remove: function () {
+        for (var i = 0; i < this.hints.length; ++i) {
             var h = this.hints[i];
             if (h.visible && h.saved_color != null) {
                 h.elem.style.color = h.saved_color;
@@ -339,8 +325,8 @@ hint_manager.prototype = {
     }
 };
 
-/* Show panel with currently selected URL below the minibuffer. */
-function hints_url_panel(hints, window) {
+/* Show panel with currently selected URL. */
+function hints_url_panel (hints, window) {
     var g = new dom_generator(window.document, XUL_NS);
 
     var p = g.element("hbox", "class", "panel url", "flex", "0");
@@ -349,7 +335,7 @@ function hints_url_panel(hints, window) {
                               "crop", "end", "flex", "1");
     window.minibuffer.insert_before(p);
 
-    p.update = function() {
+    p.update = function () {
 	url_value.value = "";
 	if (hints.manager && hints.manager.last_selected_hint) {
             var spec;
@@ -363,7 +349,7 @@ function hints_url_panel(hints, window) {
 	}
     };
 
-    p.destroy = function() {
+    p.destroy = function () {
         this.parentNode.removeChild(this);
     };
 
@@ -384,8 +370,7 @@ define_variable("hints_display_url_panel", false,
  * $abort_callback
  */
 define_keywords("$keymap", "$auto", "$hint_xpath_expression", "$multiple");
-function hints_minibuffer_state(continuation, buffer)
-{
+function hints_minibuffer_state (continuation, buffer) {
     keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, $prompt = arguments.$prompt);
     if (hints_display_url_panel)
@@ -402,10 +387,10 @@ function hints_minibuffer_state(continuation, buffer)
 }
 hints_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
-    manager : null,
-    typed_string : "",
-    typed_number : "",
-    load : function (window) {
+    manager: null,
+    typed_string: "",
+    typed_number: "",
+    load: function (window) {
         if (!this.manager) {
             var buf = window.buffers.current;
             this.manager = new hint_manager(buf.top_frame, this.xpath_expr,
@@ -416,24 +401,24 @@ hints_minibuffer_state.prototype = {
         if (this.url_panel)
             this.url_panel.update();
     },
-    clear_auto_exit_timer : function () {
+    clear_auto_exit_timer: function () {
         if (this.auto_exit_timer_ID != null) {
             this.window.clearTimeout(this.auto_exit_timer_ID);
             this.auto_exit_timer_ID = null;
         }
     },
-    unload : function (window) {
+    unload: function (window) {
         this.clear_auto_exit_timer();
         this.manager.hide_hints();
         delete this.window;
     },
-    destroy : function () {
+    destroy: function () {
         this.clear_auto_exit_timer();
         this.manager.remove();
         if (this.url_panel)
             this.url_panel.destroy();
     },
-    update_minibuffer : function (m) {
+    update_minibuffer: function (m) {
         if (this.typed_number.length > 0)
             m.prompt = this.original_prompt + " #" + this.typed_number;
         else
@@ -442,7 +427,7 @@ hints_minibuffer_state.prototype = {
             this.url_panel.update();
     },
 
-    handle_auto_exit : function (m, ambiguous) {
+    handle_auto_exit: function (m, ambiguous) {
         let window = m.window;
         var num = this.manager.current_hint_number;
         if (!this.auto_exit)
@@ -450,15 +435,15 @@ hints_minibuffer_state.prototype = {
         let s = this;
         let delay = ambiguous ? hints_ambiguous_auto_exit_delay : hints_auto_exit_delay;
         if (delay > 0)
-            this.auto_exit_timer_ID = window.setTimeout(function() { hints_exit(window, s); },
+            this.auto_exit_timer_ID = window.setTimeout(function () { hints_exit(window, s); },
                                                         delay);
     },
 
-    ran_minibuffer_command : function (m) {
+    ran_minibuffer_command: function (m) {
         this.handle_input(m);
     },
 
-    handle_input : function (m) {
+    handle_input: function (m) {
         m._set_selection();
         this.clear_auto_exit_timer();
         this.typed_number = "";
@@ -484,32 +469,33 @@ define_variable("hints_ambiguous_auto_exit_delay", 0,
     "first of an ambiguous match is automatically selected.  If this is "+
     "set to 0, automatic selection in ambiguous matches is disabled.");
 
-interactive("hints-handle-number", null, function (I) {
-                let s = I.minibuffer.check_state(hints_minibuffer_state);
-                s.clear_auto_exit_timer();
-                var ch = String.fromCharCode(I.event.charCode);
-                var auto_exit_ambiguous = null; // null -> no auto exit; false -> not ambiguous; true -> ambiguous
-                /* TODO: implement number escaping */
-                // Number entered
-                s.typed_number += ch;
+interactive("hints-handle-number", null,
+    function (I) {
+        let s = I.minibuffer.check_state(hints_minibuffer_state);
+        s.clear_auto_exit_timer();
+        var ch = String.fromCharCode(I.event.charCode);
+        var auto_exit_ambiguous = null; // null -> no auto exit; false -> not ambiguous; true -> ambiguous
+        /* TODO: implement number escaping */
+        // Number entered
+        s.typed_number += ch;
 
-                s.manager.select_hint(parseInt(s.typed_number));
-                var num = s.manager.current_hint_number;
-                if (num > 0 && num <= s.manager.valid_hints.length)
-                    auto_exit_ambiguous = num * 10 > s.manager.valid_hints.length ? false : true;
-                else if (num == 0) {
-                    if (!s.multiple) {
-                        hints_exit(I.window, s);
-                        return;
-                    }
-                    auto_exit_ambiguous = false;
-                }
-                if (auto_exit_ambiguous !== null)
-                    s.handle_auto_exit(I.minibuffer, auto_exit_ambiguous);
-                s.update_minibuffer(I.minibuffer);
-            });
+        s.manager.select_hint(parseInt(s.typed_number));
+        var num = s.manager.current_hint_number;
+        if (num > 0 && num <= s.manager.valid_hints.length)
+            auto_exit_ambiguous = num * 10 > s.manager.valid_hints.length ? false : true;
+        else if (num == 0) {
+            if (!s.multiple) {
+                hints_exit(I.window, s);
+                return;
+            }
+            auto_exit_ambiguous = false;
+        }
+        if (auto_exit_ambiguous !== null)
+            s.handle_auto_exit(I.minibuffer, auto_exit_ambiguous);
+        s.update_minibuffer(I.minibuffer);
+    });
 
-function hints_backspace(window, s) {
+function hints_backspace (window, s) {
     let m = window.minibuffer;
     s.clear_auto_exit_timer();
     if (s.typed_number.length > 0) {
@@ -526,11 +512,12 @@ function hints_backspace(window, s) {
     }
     s.update_minibuffer(m);
 }
-interactive("hints-backspace", null, function (I) {
-    hints_backspace(I.window, I.minibuffer.check_state(hints_minibuffer_state));
-});
+interactive("hints-backspace", null,
+    function (I) {
+        hints_backspace(I.window, I.minibuffer.check_state(hints_minibuffer_state));
+    });
 
-function hints_next(window, s, count) {
+function hints_next (window, s, count) {
     s.clear_auto_exit_timer();
     s.typed_number = "";
     var cur = s.manager.current_hint_number - 1;
@@ -543,16 +530,17 @@ function hints_next(window, s, count) {
     }
     s.update_minibuffer(window);
 }
-interactive("hints-next", null, function (I) {
-    hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), I.p);
-});
+interactive("hints-next", null,
+    function (I) {
+        hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), I.p);
+    });
 
-interactive("hints-previous", null, function (I) {
-    hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), -I.p);
-});
+interactive("hints-previous", null,
+    function (I) {
+        hints_next(I.window, I.minibuffer.check_state(hints_minibuffer_state), -I.p);
+    });
 
-function hints_exit(window, s)
-{
+function hints_exit (window, s) {
     var cur = s.manager.current_hint_number;
     var elem = null;
     if (cur > 0 && cur <= s.manager.valid_hints.length)
@@ -568,9 +556,10 @@ function hints_exit(window, s)
     }
 }
 
-interactive("hints-exit", null, function (I) {
-    hints_exit(I.window, I.minibuffer.check_state(hints_minibuffer_state));
-});
+interactive("hints-exit", null,
+    function (I) {
+        hints_exit(I.window, I.minibuffer.check_state(hints_minibuffer_state));
+    });
 
 
 define_keywords("$buffer");
