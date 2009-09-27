@@ -129,7 +129,7 @@ content_buffer.prototype = {
 
     destructor: function () {
         this.browser.removeProgressListener(this);
-        this.__proto__.__proto__.destructor(this);
+        buffer.prototype.destructor.call(this);
     },
 
     get scrollX () { return this.top_frame.scrollX; },
