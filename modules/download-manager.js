@@ -608,7 +608,7 @@ download_buffer.prototype = {
     __proto__: special_buffer.prototype,
 
     handle_kill : function () {
-        this.__proto__.__proto__.handle_kill.call(this);
+        special_buffer.prototype.handle_kill.call(this);
         remove_hook.call(this.info, "download_progress_change_hook", this.progress_change_handler_fn);
         remove_hook.call(this.info, "download_state_change_hook", this.progress_change_handler_fn);
         remove_hook.call(this.info, "download_shell_command_change_hook", this.command_change_handler_fn);

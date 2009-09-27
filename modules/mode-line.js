@@ -60,7 +60,7 @@ mode_line.prototype = {
 
     uninstall: function () {
         this.container.parentNode.removeChild(this.window.mode_line.container);
-        this.__proto__.__proto__.destroy.call(this);
+        generic_element_widget_container.prototype.destroy.call(this);
     }
 };
 
