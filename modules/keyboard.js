@@ -568,7 +568,6 @@ function keyboard (window) {
 }
 
 keyboard.prototype = {
-    last_key_down_event : null,
     current_context : null,
     active_keymap : null,
     help_timer_ID : null,
