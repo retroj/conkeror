@@ -46,13 +46,20 @@ define_builtin_commands("minibuffer-",
     function (I) I.minibuffer.current_state.mark_active,
     false);
 
+
+/**
+ * minibuffer_state: abstact base class for minibuffer states.
+ */
 function minibuffer_state (keymap, use_input_mode) {
     this.keymap = keymap;
     this.use_input_mode = use_input_mode;
 }
-minibuffer_state.prototype.load = function () {};
-minibuffer_state.prototype.unload = function () {};
-minibuffer_state.prototype.destroy = function () {};
+minibuffer_state.prototype = {
+    load: function () {},
+    unload: function () {},
+    destroy: function () {}
+};
+
 
 function minibuffer_message_state (keymap, message, destroy_function) {
     minibuffer_state.call(this, keymap, false);
@@ -62,10 +69,10 @@ function minibuffer_message_state (keymap, message, destroy_function) {
 }
 minibuffer_message_state.prototype = {
     __proto__: minibuffer_state.prototype,
-    load : function (window) {
+    load: function (window) {
         this.window = window;
     },
-    unload : function (window) {
+    unload: function (window) {
         this.window = null;
     },
     get message () { return this._message; },
@@ -77,7 +84,9 @@ minibuffer_message_state.prototype = {
     }
 };
 
+
 function minibuffer_input_state (keymap, prompt, input, selection_start, selection_end) {
+    minibuffer_state.call(this, keymap, true);
     this.prompt = prompt;
     if (input)
         this.input = input;
@@ -91,8 +100,6 @@ function minibuffer_input_state (keymap, prompt, input, selection_start, selecti
         this.selection_end = selection_end;
     else
         this.selection_end = this.selection_start;
-
-    minibuffer_state.call(this, keymap, true);
 }
 minibuffer_input_state.prototype.__proto__ = minibuffer_state.prototype;
 
@@ -123,7 +130,7 @@ function basic_minibuffer_state () {
                                 arguments.$prompt, initial_value,
                                 sel_start, sel_end);
 }
-basic_minibuffer_state.prototype.__proto__ = minibuffer_input_state.prototype; // inherit from minibuffer_state
+basic_minibuffer_state.prototype.__proto__ = minibuffer_input_state.prototype;
 
 
 define_variable("minibuffer_input_mode_show_message_timeout", 1000,
@@ -170,7 +177,7 @@ function minibuffer (window) {
 }
 
 minibuffer.prototype = {
-    constructor : minibuffer.constructor,
+    constructor: minibuffer.constructor,
     get _selection_start () { return this.input_element.selectionStart; },
     get _selection_end () { return this.input_element.selectionEnd; },
     get _input_text () { return this.input_element.value; },
@@ -178,12 +185,12 @@ minibuffer.prototype = {
     get prompt () { return this.input_prompt_element.value; },
     set prompt (s) { this.input_prompt_element.value = s; },
 
-    set_input_state : function (x) {
+    set_input_state: function (x) {
         this._input_text = x[0];
         this._set_selection(x[1], x[2]);
     },
 
-    _set_selection : function (start, end) {
+    _set_selection: function (start, end) {
         if (start == null)
             start = this._input_text.length;
         if (end == null)
@@ -192,30 +199,30 @@ minibuffer.prototype = {
     },
 
     /* Saved focus state */
-    saved_focused_frame : null,
-    saved_focused_element : null,
+    saved_focused_frame: null,
+    saved_focused_element: null,
 
-    default_message : "",
+    default_message: "",
 
-    current_message : null,
+    current_message: null,
 
     /* This method will display the specified string in the
      * minibuffer, without recording it in any log/Messages buffer. */
-    show : function (str, force) {
+    show: function (str, force) {
         if (!this.active || force) {
             this.current_message = str;
             this._show(str);
         }
     },
 
-    _show : function (str, force) {
+    _show: function (str, force) {
         if (this.last_message != str) {
             this.output_element.value = str;
             this.last_message = str;
         }
     },
 
-    message : function (str) {
+    message: function (str) {
         /* TODO: add the message to a *Messages* buffer, and/or
          * possibly dump them to the console. */
         this.show(str, true /* force */);
@@ -224,13 +231,13 @@ minibuffer.prototype = {
             this._flash_temporary_message();
     },
 
-    clear : function () {
+    clear: function () {
         this.current_message = null;
         if (!this.active)
             this._show(this.default_message);
     },
 
-    set_default_message : function (str) {
+    set_default_message: function (str) {
         this.default_message = str;
         if (this.current_message == null)
             this._show(str);
@@ -242,26 +249,26 @@ minibuffer.prototype = {
         return this.states[this.states.length - 1];
     },
 
-    push_state : function (state) {
+    push_state: function (state) {
         this._save_state();
         this.states.push(state);
         this._restore_state();
     },
 
-    pop_state : function () {
+    pop_state: function () {
         this.current_state.destroy();
         this.states.pop();
         this._restore_state();
     },
 
-    pop_all : function () {
+    pop_all: function () {
         while (this.states.length > 0) {
             this.current_state.destroy();
             this.states.pop();
         }
     },
 
-    remove_state : function (state) {
+    remove_state: function (state) {
         var i = this.states.indexOf(state);
         if (i == -1)
             return;
@@ -272,19 +279,19 @@ minibuffer.prototype = {
             this._restore_state();
     },
 
-    _input_mode_enabled : false,
+    _input_mode_enabled: false,
 
-    active : false,
+    active: false,
 
     /* If _input_mode_enabled is true, this is set to indicate that
      * the message area is being temporarily shown instead of the
      * input box. */
-    _showing_message : false,
+    _showing_message: false,
 
-    _message_timer_ID : null,
+    _message_timer_ID: null,
 
     /* This must only be called if _input_mode_enabled is true */
-    _restore_normal_state : function () {
+    _restore_normal_state: function () {
         if (this._showing_message) {
             this.window.clearTimeout(this._message_timer_ID);
             this._message_timer_ID = null;
@@ -298,7 +305,7 @@ minibuffer.prototype = {
     },
 
     /* This must only be called if _input_mode_enabled is true */
-    _flash_temporary_message : function () {
+    _flash_temporary_message: function () {
         if (this._showing_message)
             this.window.clearTimeout(this._message_timer_ID);
         else {
@@ -312,16 +319,16 @@ minibuffer.prototype = {
         }, minibuffer_input_mode_show_message_timeout);
     },
 
-    _switch_to_input_mode : function () {
+    _switch_to_input_mode: function () {
         this.element.setAttribute("minibuffermode", "input");
         this.input_element.inputField.focus();
     },
 
-    _switch_to_message_mode : function () {
+    _switch_to_message_mode: function () {
         this.element.setAttribute("minibuffermode", "message");
     },
 
-    _restore_state : function () {
+    _restore_state: function () {
         var s = this.current_state;
         var want_input_mode = false;
         if (s) {
@@ -366,7 +373,7 @@ minibuffer.prototype = {
         this._input_mode_enabled = want_input_mode;
     },
 
-    _save_state : function () {
+    _save_state: function () {
         var s = this.current_state;
         if (s) {
             if (s.use_input_mode) {
@@ -379,7 +386,7 @@ minibuffer.prototype = {
         }
     },
 
-    insert_before : function (element) {
+    insert_before: function (element) {
         this.element.parentNode.insertBefore(element, this.element);
     }
 };
