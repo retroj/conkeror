@@ -11,8 +11,10 @@ require("bindings/default/global.js");
 
 define_keymap("minibuffer_base_keymap", $parent = default_base_keymap);
 
-// {{{ minibuffer_base_keymap
 
+/*
+ * minibuffer_base_keymap
+ */
 define_key(minibuffer_base_keymap, "C-a", "minibuffer-beginning-of-line");
 define_key(minibuffer_base_keymap, "C-e", "minibuffer-end-of-line");
 define_key(minibuffer_base_keymap, "back_space", "minibuffer-cmd_deleteCharBackward");
@@ -51,36 +53,35 @@ define_key(minibuffer_base_keymap, "S-insert", "paste-x-primary-selection");
 define_key(minibuffer_base_keymap, "C-space", "minibuffer-set-mark");
 define_key(minibuffer_base_keymap, "C-@", "minibuffer-set-mark");
 
-
-// Nasty keys
 define_key(minibuffer_base_keymap, "C-r", "minibuffer-cmd_redo");
 
 define_key(minibuffer_base_keymap, match_any_unmodified_key, null, $fallthrough);
 
-// }}}
 
-// {{{ minibuffer_keymap
-
+/*
+ * minibuffer_keymap
+ */
 define_keymap("minibuffer_keymap", $parent = minibuffer_base_keymap);
 
-define_key (minibuffer_keymap, "return", "exit-minibuffer");
-define_key (minibuffer_keymap, "M-p", "minibuffer-history-previous");
-define_key (minibuffer_keymap, "M-n", "minibuffer-history-next");
-define_key (minibuffer_keymap, "C-g", "minibuffer-abort");
-define_key (minibuffer_keymap, "tab", "minibuffer-complete");
-define_key (minibuffer_keymap, "S-tab", "minibuffer-complete-previous");
+define_key(minibuffer_keymap, "return", "exit-minibuffer");
+define_key(minibuffer_keymap, "M-p", "minibuffer-history-previous");
+define_key(minibuffer_keymap, "M-n", "minibuffer-history-next");
+define_key(minibuffer_keymap, "C-g", "minibuffer-abort");
+define_key(minibuffer_keymap, "tab", "minibuffer-complete");
+define_key(minibuffer_keymap, "S-tab", "minibuffer-complete-previous");
 
-define_key (minibuffer_keymap, "down", "minibuffer-complete");
-define_key (minibuffer_keymap, "up", "minibuffer-complete-previous");
-define_key (minibuffer_keymap, "C-n", "minibuffer-complete");
-define_key (minibuffer_keymap, "C-p", "minibuffer-complete-previous");
+define_key(minibuffer_keymap, "down", "minibuffer-complete");
+define_key(minibuffer_keymap, "up", "minibuffer-complete-previous");
+define_key(minibuffer_keymap, "C-n", "minibuffer-complete");
+define_key(minibuffer_keymap, "C-p", "minibuffer-complete-previous");
 
-define_key (minibuffer_keymap, "escape", "minibuffer-abort");
-define_key (minibuffer_keymap, "M-escape", "minibuffer-abort");
+define_key(minibuffer_keymap, "escape", "minibuffer-abort");
+define_key(minibuffer_keymap, "M-escape", "minibuffer-abort");
 
-// }}}
 
-// {{{ single_character_options_minibuffer_keymap
+/*
+ * single_character_options_minibuffer_keymap
+ */
 define_keymap("single_character_options_minibuffer_keymap", $parent = default_base_keymap);
 
 define_key(single_character_options_minibuffer_keymap, "C-g", "minibuffer-abort");
@@ -89,7 +90,9 @@ define_key(single_character_options_minibuffer_keymap, match_any_unmodified_key,
 define_key(single_character_options_minibuffer_keymap, "escape", "minibuffer-abort");
 define_key(single_character_options_minibuffer_keymap, "M-escape", "minibuffer-abort");
 
-// }}}
 
+/*
+ * minibuffer_message_keymap
+ */
 define_keymap("minibuffer_message_keymap");
 define_key(minibuffer_message_keymap, "C-g", "minibuffer-abort");
