@@ -32,7 +32,7 @@ interactive("confirm-quit",
             });
 
 function show_conkeror_version (window) {
-    window.minibuffer.message(conkeror.version);
+    window.minibuffer.message("Conkeror "+conkeror.version);
 }
 interactive("conkeror-version",
             "Show version information for Conkeror.",
