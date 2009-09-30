@@ -134,7 +134,11 @@ application.prototype = {
         dump(line + "\n");
     },
 
-    version: "0.9.1", // preprocessor variable
+    get version () {
+        var formatter = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
+            .getService(Ci.nsIURLFormatter);
+        return formatter.formatURL("%VERSION%");
+    },
 
     /* nsISupports */
     QueryInterface: XPCOMUtils.generateQI([]),
