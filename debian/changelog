@@ -1,4 +1,4 @@
-conkeror (0.9.1-1) UNRELEASED; urgency=low
+conkeror (0.9.1-1) unstable; urgency=low
 
   * New upstream version
     + Closes: #542252 (YouTube download broken)
