@@ -317,9 +317,9 @@ function input_initialize_window (window) {
     };
     window.input.help_timer = null;
     window.input.help_displayed = false;
-    window.addEventListener("keydown", input_handle_keydown, true);
+    //window.addEventListener("keydown", input_handle_keydown, true);
     window.addEventListener("keypress", input_handle_keypress, true);
-    window.addEventListener("keyup", input_handle_keyup, true);
+    //window.addEventListener("keyup", input_handle_keyup, true);
     //TO-DO: mousedown, mouseup, click, dblclick
 }
 
