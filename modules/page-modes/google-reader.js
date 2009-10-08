@@ -9,6 +9,7 @@ require("content-buffer.js");
 require("bindings/default/content-buffer/normal.js");
 
 define_keymap("google_reader_keymap", $parent = content_buffer_normal_keymap);
+define_fallthrough(google_reader_keymap, match_any_unmodified_character);
 
 // Help
 define_key(google_reader_keymap, "?", null, $fallthrough);
