@@ -249,7 +249,7 @@ function read_browser_object (I) {
     var browser_object = I.browser_object;
     // literals cannot be overridden
     if (browser_object instanceof Function)
-        yield co_return(browser_object());
+        yield co_return(browser_object(I));
     if (! (browser_object instanceof browser_object_class))
         yield co_return(browser_object);
 
