@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  * (C) Copyright 2009 Deniz Dogan
  *
@@ -11,6 +11,9 @@
 require("bindings/default/content-buffer/form.js");
 
 define_keymap("content_buffer_text_keymap", $parent = content_buffer_form_keymap);
+define_fallthrough(content_buffer_text_keymap, match_text_keys);
+
+define_key(content_buffer_text_keymap, match_any_unmodified_character, null, $fallthrough);
 
 // Movement
 define_key(content_buffer_text_keymap, "C-a", "beginning-of-line");
@@ -65,6 +68,3 @@ define_key(content_buffer_text_keymap, "M-u", "upcase-word");
 define_key(content_buffer_text_keymap, "M-c", "capitalize-word");
 define_key(content_buffer_text_keymap, "C-i", "edit-current-field-in-external-editor");
 define_key(content_buffer_text_keymap, "C-t", "transpose-chars");
-
-// This must be defined last so it doesn't capture any "real" bindings.
-define_key(content_buffer_text_keymap, match_any_unmodified_key, null, $fallthrough);

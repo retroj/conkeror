@@ -1,29 +1,25 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
- * (C) Copyright 2008 John J. Foerch
+ * (C) Copyright 2008-2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
-require("keyboard.js");
+require("input.js");
 
 var global_overlay_keymap = new keymap();
 
 
 function global_overlay_keymap_handler (window, I, true_event) {
-    var binding = lookup_key_binding(global_overlay_keymap, I.combo, I.event);
+    var binding = keymap_lookup(global_overlay_keymap, I.combo, I.event);
     if (!binding)
         return false;
-    if (!binding.fallthrough) {
-        true_event.preventDefault();
-        true_event.stopPropagation();
-    }
+    if (!binding.fallthrough)
+        event_kill(true_event);
     I.key_sequence.pop();
-
     if (binding.command)
-        call_interactively(I, binding.command);
-
+        co_call(call_interactively(I, binding.command));
     return true;
 }
 
@@ -42,9 +38,11 @@ function define_key_alias (typed_key, generated_key) {
     interactive(name,
         "Generate a fake key press event for the key: "+generated_key,
         function (I) {
-            send_key_as_event(I.window,
-                              I.buffer.focused_element,
-                              generated_key);
+            call_after_timeout(function () {
+                send_key_as_event(I.window,
+                                  I.buffer.focused_element,
+                                  generated_key);
+            }, 0);
         });
     define_key(global_overlay_keymap, typed_key, name);
     global_overlay_keymap_mode(true);

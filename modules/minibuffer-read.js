@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -45,10 +45,10 @@ define_keywords("$history", "$validator",
                 "$auto_complete_delay",
                 "$space_completes");
 /* FIXME: support completing in another thread */
-function text_entry_minibuffer_state (continuation) {
+function text_entry_minibuffer_state (window, continuation) {
     keywords(arguments);
 
-    basic_minibuffer_state.call(this, forward_keywords(arguments));
+    basic_minibuffer_state.call(this, window, forward_keywords(arguments));
     this.keymap = minibuffer_keymap;
 
     this.continuation = continuation;
@@ -129,6 +129,7 @@ completions_tree_view.prototype = {
 text_entry_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
     load : function (window) {
+        basic_minibuffer_state.prototype.load.call(this, window);
         this.window = window;
         if (this.completer) {
             // Create completion display element if needed
@@ -177,6 +178,7 @@ text_entry_minibuffer_state.prototype = {
     unload : function (window) {
         if (this.completions_display_element)
             this.completions_display_element.setAttribute("collapsed", "true");
+        basic_minibuffer_state.prototype.unload.call(this, window);
     },
 
     destroy : function (window) {
@@ -194,6 +196,7 @@ text_entry_minibuffer_state.prototype = {
         }
         if (this.continuation)
             this.continuation.throw(abort());
+        basic_minibuffer_state.prototype.destroy.call(this, window);
     },
 
     handle_input : function () {
@@ -476,7 +479,7 @@ interactive("minibuffer-history-previous", null,
 
 // Define the asynchronous minibuffer.read function
 minibuffer.prototype.read = function () {
-    var s = new text_entry_minibuffer_state((yield CONTINUATION), forward_keywords(arguments));
+    var s = new text_entry_minibuffer_state(this.window, (yield CONTINUATION), forward_keywords(arguments));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);

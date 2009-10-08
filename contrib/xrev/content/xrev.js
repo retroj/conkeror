@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2008 John J. Foerch
+ * (C) Copyright 2008-2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -102,6 +102,8 @@ function key_event_handler (event) {
           for each (k in key_event_props)].join(''));
     dumpln(combo);
 }
+window.addEventListener("keydown", key_event_handler, true /* capture */,
+                        false /* ignore untrusted events */);
 window.addEventListener("keypress", key_event_handler, true /* capture */,
                         false /* ignore untrusted events */);
 

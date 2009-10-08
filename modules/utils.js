@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -1240,30 +1240,26 @@ console_service.registerListener(
      }});
 
 
-// ensure_index_is_visible ensures that the given index in the given
-// field (an html input field for example) is visible.
-function ensure_index_is_visible (window, field, index) {
-    var start = field.selectionStart;
-    var end = field.selectionEnd;
-    field.setSelectionRange(index, index);
-    send_key_as_event(window, field, "left");
-    if (field.selectionStart < index) {
-        send_key_as_event(window, field, "right");
-    }
-    field.setSelectionRange(start, end);
+/**
+ * scroll_selection_into_view takes an editable element, and scrolls it so
+ * that the selection (or insertion point) are visible.
+ */
+function scroll_selection_into_view (field) {
+    if (field.namespaceURI == XUL_NS)
+        field = field.inputField;
+    field.QueryInterface(Ci.nsIDOMNSEditableElement)
+        .editor
+        .selectionController
+        .scrollSelectionIntoView(
+            Ci.nsISelectionController.SELECTION_NORMAL,
+            Ci.nsISelectionController.SELECTION_FOCUS_REGION,
+            true);
 }
 
-function regex_to_string (obj) {
-    if(obj instanceof RegExp) {
-        obj = obj.source;
-    } else {
-        obj = quotemeta(obj);
-    }
-    return obj;
-}
 
-/*
- * Build a regular expression to match URLs for a given web site.
+/**
+ * build_url_regex builds a regular expression to match URLs for a given
+ * web site.
  *
  * Both the $domain and $path arguments can be either regexes, in
  * which case they will be matched as is, or strings, in which case
@@ -1274,10 +1270,15 @@ function regex_to_string (obj) {
  * same.
  *
  * If $allow_www is true, www.domain.tld will also be allowed.
- *
  */
 define_keywords("$domain", "$path", "$tlds", "$allow_www");
 function build_url_regex () {
+    function regex_to_string (obj) {
+        if (obj instanceof RegExp)
+            return obj.source;
+        return quotemeta(obj);
+    }
+
     keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
     var domain = regex_to_string(arguments.$domain);
     if(arguments.$allow_www) {
@@ -1289,12 +1290,11 @@ function build_url_regex () {
     return new RegExp(regex);
 }
 
-/*
- *
- * Given an ordered array of non-overlapping ranges, represented as
- * elements of [start, end], insert a new range into the array,
- * extending, replacing, or merging existing ranges as needed. Mutates
- * `arr' in place.
+/**
+ * splice_ranges: Given an ordered array of non-overlapping ranges,
+ * represented as elements of [start, end], insert a new range into the
+ * array, extending, replacing, or merging existing ranges as
+ * needed. Mutates `arr' in place.
  *
  * Examples:
  *

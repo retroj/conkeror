@@ -32,3 +32,7 @@ function call_at_precise_interval(callback, interval) {
     timer.initWithCallback(new timer_callback(callback), interval, Ci.nsITimer.TYPE_REPEATING_PRECISE);
     return timer;
 }
+
+function timer_cancel (timer) {
+    timer.cancel();
+}

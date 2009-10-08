@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Portions of this file are derived from Vimperator,
  * (C) Copyright 2006-2007 Martin Stubenschrott.
@@ -370,9 +371,9 @@ define_variable("hints_display_url_panel", false,
  * $abort_callback
  */
 define_keywords("$keymap", "$auto", "$hint_xpath_expression", "$multiple");
-function hints_minibuffer_state (continuation, buffer) {
+function hints_minibuffer_state (window, continuation, buffer) {
     keywords(arguments, $keymap = hint_keymap, $auto);
-    basic_minibuffer_state.call(this, $prompt = arguments.$prompt);
+    basic_minibuffer_state.call(this, window, $prompt = arguments.$prompt);
     if (hints_display_url_panel)
 	this.url_panel = hints_url_panel(this, buffer.window);
     this.original_prompt = arguments.$prompt;
@@ -391,6 +392,7 @@ hints_minibuffer_state.prototype = {
     typed_string: "",
     typed_number: "",
     load: function (window) {
+        basic_minibuffer_state.prototype.load.call(this, window);
         if (!this.manager) {
             var buf = window.buffers.current;
             this.manager = new hint_manager(buf.top_frame, this.xpath_expr,
@@ -411,12 +413,14 @@ hints_minibuffer_state.prototype = {
         this.clear_auto_exit_timer();
         this.manager.hide_hints();
         delete this.window;
+        basic_minibuffer_state.prototype.unload.call(this, window);
     },
-    destroy: function () {
+    destroy: function (window) {
         this.clear_auto_exit_timer();
         this.manager.remove();
         if (this.url_panel)
             this.url_panel.destroy();
+        basic_minibuffer_state.prototype.destroy.call(this, window);
     },
     update_minibuffer: function (m) {
         if (this.typed_number.length > 0)
@@ -543,10 +547,11 @@ interactive("hints-previous", null,
 function hints_exit (window, s) {
     var cur = s.manager.current_hint_number;
     var elem = null;
-    if (cur > 0 && cur <= s.manager.valid_hints.length)
+    if (cur > 0 && cur <= s.manager.valid_hints.length) {
         elem = s.manager.valid_hints[cur - 1].elem;
-    else if (cur == 0)
+    } else if (cur == 0) {
         elem = window.buffers.current.top_frame;
+    }
     if (elem !== null) {
         var c = s.continuation;
         delete s.continuation;
@@ -566,7 +571,7 @@ define_keywords("$buffer");
 minibuffer.prototype.read_hinted_element = function () {
     keywords(arguments);
     var buf = arguments.$buffer;
-    var s = new hints_minibuffer_state((yield CONTINUATION), buf, forward_keywords(arguments));
+    var s = new hints_minibuffer_state(this.window, (yield CONTINUATION), buf, forward_keywords(arguments));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);

@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -36,17 +37,18 @@ minibuffer.prototype.read_yes_or_no = function () {
     yield co_return(result == "yes");
 };
 
-function single_character_options_minibuffer_state(continuation) {
+function single_character_options_minibuffer_state (window, continuation) {
     keywords(arguments);
     this.continuation = continuation;
     this.options = arguments.$options;
-    minibuffer_input_state.call(this, single_character_options_minibuffer_keymap, arguments.$prompt);
+    minibuffer_input_state.call(this, window, single_character_options_minibuffer_keymap, arguments.$prompt);
 }
 single_character_options_minibuffer_state.prototype = {
     __proto__: minibuffer_input_state.prototype,
-    destroy: function () {
+    destroy: function (window) {
         if (this.continuation)
             this.continuation.throw(abort());
+        minibuffer_input_state.prototype.destroy.call(this, window);
     }
 };
 function single_character_options_enter_character(window, s, event) {
@@ -73,7 +75,7 @@ interactive("single-character-options-enter-character", null,
 
 minibuffer.prototype.read_single_character_option = function () {
     keywords(arguments);
-    var s = new single_character_options_minibuffer_state((yield CONTINUATION), forward_keywords(arguments));
+    var s = new single_character_options_minibuffer_state(this.window, (yield CONTINUATION), forward_keywords(arguments));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);

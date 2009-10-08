@@ -2,6 +2,7 @@
  * (C) Copyright 2008 David Glasser
  * (C) Copyright 2008 Will Farrington
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -52,6 +53,7 @@ define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
 
     // Application
     define_key(gmail_keymap, "c", null, $fallthrough);
+    define_key(gmail_keymap, "C", null, $fallthrough);
     define_key(gmail_keymap, "/", null, $fallthrough);
     define_key(gmail_keymap, "q", null, $fallthrough);
     define_key(gmail_keymap, "?", null, $fallthrough);
@@ -75,12 +77,15 @@ define_keymap("gmail_keymap", $parent = content_buffer_normal_keymap);
     define_key(gmail_keymap, "l", null, $fallthrough);
 
     define_keymap("gmail_richedit_keymap", $parent = content_buffer_richedit_keymap);
+    define_fallthrough(gmail_richedit_keymap, match_text_keys);
     gmail_bind_common(gmail_richedit_keymap);
 
     define_keymap("gmail_text_keymap", $parent = content_buffer_text_keymap);
+    define_fallthrough(gmail_text_keymap, match_text_keys);
     gmail_bind_common(gmail_text_keymap);
 
     define_keymap("gmail_textarea_keymap", $parent = content_buffer_textarea_keymap);
+    define_fallthrough(gmail_textarea_keymap, match_text_keys);
     gmail_bind_common(gmail_textarea_keymap);
 }
 

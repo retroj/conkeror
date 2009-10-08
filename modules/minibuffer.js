@@ -1,19 +1,21 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
-/* This should only be used for minibuffer states where it makes
- * sense.  In particular, it should not be used if additional cleanup
- * must be done. */
+// This should only be used for minibuffer states where it makes
+// sense.  In particular, it should not be used if additional cleanup
+// must be done.
 function minibuffer_abort (window) {
     var m = window.minibuffer;
     var s = m.current_state;
     if (s == null)
         throw "Invalid minibuffer state";
     m.pop_state();
+    input_sequence_abort.call(window);
 }
 interactive("minibuffer-abort", null, function (I) { minibuffer_abort(I.window); });
 
@@ -70,10 +72,12 @@ function minibuffer_message_state (keymap, message, destroy_function) {
 minibuffer_message_state.prototype = {
     __proto__: minibuffer_state.prototype,
     load: function (window) {
+        minibuffer_state.prototype.load.call(this, window);
         this.window = window;
     },
     unload: function (window) {
         this.window = null;
+        minibuffer_state.prototype.unload.call(this, window);
     },
     get message () { return this._message; },
     set message (x) {
@@ -85,7 +89,7 @@ minibuffer_message_state.prototype = {
 };
 
 
-function minibuffer_input_state (keymap, prompt, input, selection_start, selection_end) {
+function minibuffer_input_state (window, keymap, prompt, input, selection_start, selection_end) {
     minibuffer_state.call(this, keymap, true);
     this.prompt = prompt;
     if (input)
@@ -100,8 +104,15 @@ function minibuffer_input_state (keymap, prompt, input, selection_start, selecti
         this.selection_end = selection_end;
     else
         this.selection_end = this.selection_start;
+    window.input.begin_recursion();
 }
-minibuffer_input_state.prototype.__proto__ = minibuffer_state.prototype;
+minibuffer_input_state.prototype = {
+    __proto__: minibuffer_state.prototype,
+    destroy: function (window) {
+        window.input.end_recursion();
+        minibuffer_state.prototype.destroy.call(this, window);
+    }
+};
 
 
 /**
@@ -116,7 +127,7 @@ minibuffer_input_state.prototype.__proto__ = minibuffer_state.prototype;
  * select:            [optional] specifies to select the initial text if set to non-null
  */
 define_keywords("$prompt", "$initial_value", "$select");
-function basic_minibuffer_state () {
+function basic_minibuffer_state (window) {
     keywords(arguments);
     var initial_value = arguments.$initial_value || "";
     var sel_start, sel_end;
@@ -126,7 +137,7 @@ function basic_minibuffer_state () {
     } else {
         sel_start = sel_end = initial_value.length;
     }
-    minibuffer_input_state.call(this, minibuffer_base_keymap,
+    minibuffer_input_state.call(this, window, minibuffer_base_keymap,
                                 arguments.$prompt, initial_value,
                                 sel_start, sel_end);
 }
@@ -256,14 +267,14 @@ minibuffer.prototype = {
     },
 
     pop_state: function () {
-        this.current_state.destroy();
+        this.current_state.destroy(this.window);
         this.states.pop();
         this._restore_state();
     },
 
     pop_all: function () {
         while (this.states.length > 0) {
-            this.current_state.destroy();
+            this.current_state.destroy(this.window);
             this.states.pop();
         }
     },
@@ -273,7 +284,7 @@ minibuffer.prototype = {
         if (i == -1)
             return;
         var was_current = (i == (this.states.length - 1));
-        state.destroy();
+        state.destroy(this.window);
         this.states.splice(i, 1);
         if (was_current)
             this._restore_state();
@@ -291,6 +302,8 @@ minibuffer.prototype = {
     _message_timer_ID: null,
 
     /* This must only be called if _input_mode_enabled is true */
+    //XXX: if it must only be called if _input_mode_enabled is true,
+    //     then why does it have an else condition?
     _restore_normal_state: function () {
         if (this._showing_message) {
             this.window.clearTimeout(this._message_timer_ID);
@@ -300,6 +313,8 @@ minibuffer.prototype = {
             if (this._input_mode_enabled)
                 this._switch_to_input_mode();
             else
+                // assumes that anything other than an input state is a
+                // minibuffer_message_state.
                 this._show(this.current_state._message);
         }
     },
@@ -345,12 +360,12 @@ minibuffer.prototype = {
                 this._show(s._message);
             }
             s.load(this.window);
-            this.window.keyboard.set_override_keymap(s.keymap);
+            this.window.input.current.override_keymap = s.keymap;
             this.active = true;
         } else {
             if (this.active) {
                 this.active = false;
-                this.window.keyboard.set_override_keymap(null);
+                this.window.input.current.override_keymap = null;
                 if (this.saved_focused_element)
                     set_focus_no_scroll(this.window, this.saved_focused_element);
                 else if (this.saved_focused_frame)
@@ -419,7 +434,7 @@ minibuffer.prototype.show_wait_message = function (initial_message, destroy_func
     return s;
 };
 
-minibuffer.prototype.wait_for = function minibuffer__wait_for (message, coroutine) {
+minibuffer.prototype.wait_for = function (message, coroutine) {
     var cc = yield CONTINUATION;
     var done = false;
     var s = this.show_wait_message(message, function () { if (!done) cc.throw(abort()); });

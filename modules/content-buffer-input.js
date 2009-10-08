@@ -148,6 +148,15 @@ define_input_mode(
         "bypassing Conkeror's normal key handling, until the "+
         "Escape key is pressed.");
 
+define_key_match_predicate('match_not_escape_key', 'any key but escape',
+    function (event) {
+        return event.keyCode != 27 ||
+            event.shiftKey ||
+            event.altKey ||
+            event.metaKey ||
+            event.ctrlKey;
+    });
+
 
 /*
  * CARET INPUT MODE

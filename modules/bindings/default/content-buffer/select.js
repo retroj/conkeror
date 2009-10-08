@@ -29,7 +29,7 @@ define_key(content_buffer_select_keymap, "end", null, $fallthrough);
 
 define_key(content_buffer_select_keymap, "return", null, $fallthrough);
 
-define_key(content_buffer_select_keymap, match_any_unmodified_key, null, $fallthrough);
+define_key(content_buffer_select_keymap, match_any_unmodified_character, null, $fallthrough);
 //define_key(content_buffer_select_keymap, match_any_key, null, $fallthrough);
 
 define_key(content_buffer_select_keymap, "escape", "unfocus"); // leave text input mode

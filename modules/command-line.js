@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -90,7 +90,7 @@ command_line_param_handler("f", true, function (command, ctx) {
         // hack to make sure we send this command to a window
         ctx.window = get_recent_conkeror_window();
         ctx.buffer = ctx.window.buffers.current;
-        call_interactively(ctx, command);
+        co_call(call_interactively(ctx, command));
     });
 
 command_line_param_handler("l", false, function (path, ctx) {

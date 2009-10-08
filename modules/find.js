@@ -2,7 +2,7 @@
  * (C) Copyright 2004-2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  * (C) Copyright 2008 Nelson Elhage
- * (C) Copyright 2008 John Foerch
+ * (C) Copyright 2008-2009 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -84,11 +84,11 @@ function isearch_session (window, forward) {
     this.states.push(new initial_isearch_state(this.buffer, this.frame, forward));
     this.window = window;
 
-    minibuffer_input_state.call(this, isearch_keymap, "");
+    minibuffer_input_state.call(this, window, isearch_keymap, "");
 }
 isearch_session.prototype = {
     constructor : isearch_session,
-    __proto__ : minibuffer_input_state.prototype, // inherit from minibuffer_state
+    __proto__ : minibuffer_input_state.prototype,
 
     get top () {
         return this.states[this.states.length - 1];
@@ -291,7 +291,7 @@ isearch_session.prototype = {
 
     done : false,
 
-    destroy : function () {
+    destroy : function (window) {
         if (!this.done)  {
             this.frame.scrollTo(this.states[0].screenx, this.states[0].screeny);
             if (caret_enabled(this.buffer) && this.states[0].caret) {
@@ -300,6 +300,7 @@ isearch_session.prototype = {
                 this._clear_selection();
             }
         }
+        minibuffer_input_state.prototype.destroy.call(this, window);
     }
 };
 

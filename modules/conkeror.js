@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -23,7 +24,8 @@ require("minibuffer-read-file.js");
 require("timer.js");
 require("spawn-process.js");
 require("mime.js");
-require("keyboard.js");
+require("keymap.js");
+require("input.js");
 require("buffer.js");
 require("window.js");
 require("download-manager.js");

@@ -23,7 +23,6 @@ define_key(content_buffer_caret_keymap, "C-right", "caret-forward-word");
 define_key(content_buffer_caret_keymap, "M-right", "caret-forward-word");
 define_key(content_buffer_caret_keymap, "M-w", "cmd_copy");
 
-// 101 keys
 define_key(content_buffer_caret_keymap, "home", "caret-beginning-of-line");
 define_key(content_buffer_caret_keymap, "end", "caret-end-of-line");
 define_key(content_buffer_caret_keymap, "S-home", "cmd_selectBeginLine");

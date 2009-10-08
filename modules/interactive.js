@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -84,13 +84,12 @@ function handle_interactive_error (window, e) {
 
 function call_interactively (I, command) {
     var handler;
-    var top_args;
     var window = I.window;
 
-    if (typeof(command) == "function") {
+    if (typeof command == "function") {
         // Special interactive command
         command(I);
-        return;
+        yield co_return();
     }
 
     var cmd = interactive_commands.get(command);
@@ -98,7 +97,7 @@ function call_interactively (I, command) {
         handle_interactive_error(
             window,
             interactive_error("Invalid command: " + command));
-        return;
+        yield co_return();
     }
 
     I.command = cmd;
@@ -137,15 +136,10 @@ function call_interactively (I, command) {
             }
         }
 
-        var result = handler(I);
-        if (is_coroutine(result)) {
-            co_call(function() {
-                try {
-                    yield result;
-                } catch (e) {
-                    handle_interactive_error(window, e);
-                }
-            }());
+        try {
+            yield handler(I);
+        } catch (e) {
+            handle_interactive_error(window, e);
         }
     } catch (e) {
         handle_interactive_error(window, e);

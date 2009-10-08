@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -67,10 +67,11 @@ interactive("jsconsole",
             $browser_object = "chrome://global/content/console.xul");
 
 /**
- * Given a callback func and an interactive context I, call func, passing either
- * a focused field, or the minibuffer's input element if the minibuffer is
- * active. Afterward, call `ensure_index_is_visible' on the field. See
- * `paste_x_primary_selection' and `open_line' for examples.
+ * Given a callback func and an interactive context I, call func, passing
+ * either a focused field, or the minibuffer's input element if the
+ * minibuffer is active. Afterward, call `scroll_selection_into_view' on
+ * the field. See `paste_x_primary_selection' and `open_line' for
+ * examples.
  */
 function call_on_focused_field (I, func) {
     var m = I.window.minibuffer;
@@ -81,7 +82,7 @@ function call_on_focused_field (I, func) {
     } else
         var e = I.buffer.focused_element;
     func(e);
-    ensure_index_is_visible(I.window, e, e.selectionStart);
+    scroll_selection_into_view(e);
     if (s && s.handle_input)
         s.handle_input(m);
 }
@@ -149,32 +150,30 @@ interactive("transpose-chars",
     "Interchange characters around point, moving forward one character.",
     function (I) call_on_focused_field(I, transpose_chars));
 
-function meta_x (buffer, prefix, command, browser_object) {
-    var I = new interactive_context(buffer);
-    I.prefix_argument = prefix;
-    I.browser_object = browser_object;
-    call_interactively(I, command);
-}
+
 interactive("execute-extended-command",
-            "Execute a Conkeror command specified in the minibuffer.",
-            function (I) {
-                var prefix = I.P;
-                var boc = I.browser_object;
-                var prompt = "M-x";
-                if (I.key_sequence)
-                    prompt = I.key_sequence.join(" ");
-                if (boc)
-                    prompt += ' ['+boc.name+']';
-                if (prefix !== null && prefix !== undefined) {
-                    if (typeof prefix == "object")
-                        prompt += prefix[0] == 4 ? " C-u" : " "+prefix[0];
-                    else
-                        prompt += " "+prefix;
-                }
-                meta_x(I.buffer, I.P,
-                       (yield I.minibuffer.read_command($prompt = prompt)),
-                       boc);
-            });
+    "Call a command specified in the minibuffer.",
+    function (I) {
+        var prefix = I.P;
+        var boc = I.browser_object;
+        var prompt = "M-x";
+        if (I.key_sequence)
+            prompt = I.key_sequence.join(" ");
+        if (boc)
+            prompt += ' ['+boc.name+']';
+        if (prefix !== null && prefix !== undefined) {
+            if (typeof prefix == "object")
+                prompt += prefix[0] == 4 ? " C-u" : " "+prefix[0];
+            else
+                prompt += " "+prefix;
+        }
+        var command = yield I.minibuffer.read_command($prompt = prompt);
+        call_after_timeout(function () {
+            input_handle_command.call(I.window, new command_event(command));
+        }, 0);
+    },
+    $prefix = true);
+
 
 /// built in commands
 // see: http://www.xulplanet.com/tutorials/xultu/commandupdate.html
@@ -377,9 +376,9 @@ function send_key_as_event (window, element, combo) {
         split.keyCode,
         split.charCode);
     if (element) {
-        return element.dispatchEvent (event);
+        return element.dispatchEvent(event);
     } else {
-        return window.dispatchEvent (event);
+        return window.dispatchEvent(event);
     }
 }
 

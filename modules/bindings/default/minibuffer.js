@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -10,6 +10,9 @@
 require("bindings/default/global.js");
 
 define_keymap("minibuffer_base_keymap", $parent = default_base_keymap);
+define_fallthrough(minibuffer_base_keymap, match_any_unmodified_character);
+
+define_key(minibuffer_base_keymap, match_any_unmodified_character, null, $fallthrough);
 
 
 /*
@@ -55,13 +58,12 @@ define_key(minibuffer_base_keymap, "C-@", "minibuffer-set-mark");
 
 define_key(minibuffer_base_keymap, "C-r", "minibuffer-cmd_redo");
 
-define_key(minibuffer_base_keymap, match_any_unmodified_key, null, $fallthrough);
-
 
 /*
  * minibuffer_keymap
  */
 define_keymap("minibuffer_keymap", $parent = minibuffer_base_keymap);
+define_fallthrough(minibuffer_keymap, match_any_unmodified_character);
 
 define_key(minibuffer_keymap, "return", "exit-minibuffer");
 define_key(minibuffer_keymap, "M-p", "minibuffer-history-previous");
@@ -85,7 +87,7 @@ define_key(minibuffer_keymap, "M-escape", "minibuffer-abort");
 define_keymap("single_character_options_minibuffer_keymap", $parent = default_base_keymap);
 
 define_key(single_character_options_minibuffer_keymap, "C-g", "minibuffer-abort");
-define_key(single_character_options_minibuffer_keymap, match_any_unmodified_key,
+define_key(single_character_options_minibuffer_keymap, match_any_unmodified_character,
            "single-character-options-enter-character");
 define_key(single_character_options_minibuffer_keymap, "escape", "minibuffer-abort");
 define_key(single_character_options_minibuffer_keymap, "M-escape", "minibuffer-abort");
