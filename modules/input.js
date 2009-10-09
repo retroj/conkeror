@@ -214,13 +214,6 @@ sequence:
                         break sequence;
                 }
                 break;
-            case "abort":
-                window.input.help_displayed = false;
-                input_help_timer_clear(window);
-                window.minibuffer.clear();
-                if (event.message)
-                    window.minibuffer.show(event.message);
-                break sequence;
             }
             // should we expect more events?
             event = null;
@@ -294,13 +287,12 @@ function input_handle_command (event) {
 // handler for special abort event
 function input_sequence_abort (message) {
     var window = this;
-    var state = window.input.current;
-    var event = { type: "abort",
-                  message: message };
-    if (state.continuation)
-        state.continuation(event);
-    else
-        co_call(input_handle_sequence.call(window, event));
+    window.input.help_displayed = false;
+    input_help_timer_clear(window);
+    window.minibuffer.clear();
+    if (message)
+        window.minibuffer.show(message);
+    delete window.input.current.continuation;
 }
 
 
