@@ -128,7 +128,7 @@ function transpose_chars (field) {
 
     // If we have less than two character in the field or if we are at the
     // beginning of the field, do nothing.
-    if (length <= 2 || caret == 0)
+    if (length < 2 || caret == 0)
         return;
 
     // If we are at the end of the field, switch places on the two last
