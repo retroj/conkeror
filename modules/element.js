@@ -126,13 +126,11 @@ define_browser_object_class("frames",
 define_browser_object_class("links",
     "Browser object class for selecting a hyperlink, form field, "+
     "or link-like element, via hinting.",
-    xpath_browser_object_handler (
+    xpath_browser_object_handler(
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
         "@role='link'] | " +
         "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
-        "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand] | " +
-        "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | " +
-        "//xhtml:button | //xhtml:select"),
+        "//*[@contenteditable = 'true']"),
     $hint = "select link");
 
 define_browser_object_class("mathml",
