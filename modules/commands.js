@@ -101,7 +101,8 @@ function modify_region (field, modifier, keep_point) {
         var win = doc.defaultView;
         doc.execCommand("insertHTML", false,
                         html_escape(modifier(win.getSelection().toString()))
-                            .replace(/\n/g, '<br>'));
+                            .replace(/\n/g, '<br>')
+                            .replace(/  /g, ' &nbsp;'));
     } else {
         // normal text field
         var replacement =
