@@ -1247,13 +1247,17 @@ console_service.registerListener(
 function scroll_selection_into_view (field) {
     if (field.namespaceURI == XUL_NS)
         field = field.inputField;
-    field.QueryInterface(Ci.nsIDOMNSEditableElement)
-        .editor
-        .selectionController
-        .scrollSelectionIntoView(
-            Ci.nsISelectionController.SELECTION_NORMAL,
-            Ci.nsISelectionController.SELECTION_FOCUS_REGION,
-            true);
+    try {
+        field.QueryInterface(Ci.nsIDOMNSEditableElement)
+            .editor
+            .selectionController
+            .scrollSelectionIntoView(
+                Ci.nsISelectionController.SELECTION_NORMAL,
+                Ci.nsISelectionController.SELECTION_FOCUS_REGION,
+                true);
+    } catch (e) {
+        // we'll get here for richedit fields
+    }
 }
 
 
@@ -1613,10 +1617,21 @@ function element_dom_node_or_window_p (elem) {
  * @param {function} The function to call with the buffer as its argument once
  *                   the buffer has loaded.
  */
-function do_when(hook, buffer, fun) {
-    if (buffer.browser.webProgress.isLoadingDocument) {
+function do_when (hook, buffer, fun) {
+    if (buffer.browser.webProgress.isLoadingDocument)
 	add_hook.call(buffer, hook, fun);
-    } else {
+    else
 	fun(buffer);
-    }
+}
+
+
+/**
+ * html_escape replaces characters which are special in html with character
+ * entities, safe for inserting as text into an html document.
+ */
+function html_escape (str) {
+    return str.replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }

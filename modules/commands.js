@@ -66,6 +66,7 @@ interactive("jsconsole",
             "find-url-new-buffer",
             $browser_object = "chrome://global/content/console.xul");
 
+
 /**
  * Given a callback func and an interactive context I, call func, passing
  * either a focused field, or the minibuffer's input element if the
@@ -87,21 +88,32 @@ function call_on_focused_field (I, func) {
         s.handle_input(m);
 }
 
+
 /**
  * Replace the current region with modifier(selection). Deactivates region and
  * sets point to the end of the inserted text, unless keep_point is true, in
  * which case the point will be left at the beginning of the inserted text.
  */
 function modify_region (field, modifier, keep_point) {
-    var replacement =
-        modifier(field.value.substring(field.selectionStart, field.selectionEnd+1));
-    var point = field.selectionStart;
-    field.value =
-        field.value.substr(0, field.selectionStart) + replacement +
-        field.value.substr(field.selectionEnd);
-    if (!keep_point) point += replacement.length;
-    field.setSelectionRange(point, point);
+    if (field.getAttribute("contenteditable") == 'true') {
+        // richedit
+        var doc = field.ownerDocument;
+        var win = doc.defaultView;
+        doc.execCommand("insertHTML", false,
+                        html_escape(modifier(win.getSelection().toString())));
+    } else {
+        // normal text field
+        var replacement =
+            modifier(field.value.substring(field.selectionStart, field.selectionEnd+1));
+        var point = field.selectionStart;
+        field.value =
+            field.value.substr(0, field.selectionStart) + replacement +
+            field.value.substr(field.selectionEnd);
+        if (!keep_point) point += replacement.length;
+        field.setSelectionRange(point, point);
+    }
 }
+
 
 function paste_x_primary_selection (field) {
     modify_region(field, function (str) read_from_x_primary_selection());
@@ -112,14 +124,15 @@ interactive("paste-x-primary-selection",
     "after the inserted text.",
     function (I) call_on_focused_field(I, paste_x_primary_selection));
 
+
 function open_line (field) {
     modify_region(field, function() "\n", true);
 }
-
 interactive("open-line",
     "If there is an active region, replace is with a newline, otherwise just "+
     "insert a newline. In both cases leave point before the inserted newline.",
     function (I) call_on_focused_field(I, open_line));
+
 
 function transpose_chars (field) {
     var value = field.value;
@@ -145,7 +158,6 @@ function transpose_chars (field) {
     field.selectionStart = caret + 1;
     field.selectionEnd = caret + 1;
 }
-
 interactive("transpose-chars",
     "Interchange characters around point, moving forward one character.",
     function (I) call_on_focused_field(I, transpose_chars));
