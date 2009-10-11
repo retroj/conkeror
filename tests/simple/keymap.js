@@ -23,23 +23,45 @@ require('walnut.js');
           define_keymap("test_keymap");
       },
       suite_teardown: function () {
-          delete test_keymap;
+          delete conkeror.test_keymap;
       },
       test_define_key_1: function () {
-          define_key(test_keymap, "C-a", null);
+          define_key(test_keymap, "C-a", "foo");
           assert(test_keymap.bindings["C-a"]);
       },
       test_define_key_2: function () {
-          define_key(test_keymap, "C-M-b", null);
+          define_key(test_keymap, "C-M-b", "foo");
           assert(test_keymap.bindings["C-M-b"]);
       },
       test_define_key_3: function () {
-          define_key(test_keymap, "M-C-c", null);
-          assert(test_keymap.bindings["C-M-c"], "define key 3");
+          define_key(test_keymap, "M-C-c", "foo");
+          assert(test_keymap.bindings["C-M-c"]);
+      },
+      test_define_key_4: function () {
+          define_key(test_keymap, "C-a", "foo");
+          assert_equals(test_keymap.bindings["C-a"].command, "foo");
+      }
+  };
+  let suite3 = {
+      setup: function () {
+          define_keymap("test_keymap");
+          define_key(test_keymap, "C-a", "foo");
+      },
+      teardown: function () {
+          delete conkeror.test_keymap;
+      },
+      test_undefine_key_1: function () {
+          undefine_key(test_keymap, "C-a");
+          assert_not(test_keymap.bindings["C-a"]);
+      },
+      test_undefine_key_2: function () {
+          define_key(test_keymap, "C-a");
+          assert_not(test_keymap.bindings["C-a"]);
       }
   };
   walnut_run(suite1);
   walnut_run(suite2);
+  walnut_run(suite3);
 }
 
 
