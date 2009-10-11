@@ -809,11 +809,24 @@ interactive("view-as-mime-type",
 
 
 interactive("reload-with-charset",
-            null, // TODO: Add a docstring.
-            function (I) {
-                var forced_charset = yield I.minibuffer.read($prompt = "Charset:");
-                reload(I.buffer, false, null, forced_charset);
-            });
+    "Prompt for a charset, and reload the current page, forcing use "+
+    "of that charset.",
+    function (I) {
+        var ccman = Cc["@mozilla.org/charset-converter-manager;1"]
+            .getService(Ci.nsICharsetConverterManager);
+        var decoders = ccman.getDecoderList()
+        var charsets = [];
+        while (decoders.hasMore())
+            charsets.push(decoders.getNext());
+        var forced_charset = yield I.minibuffer.read(
+            $prompt = "Charset:",
+            $completer = prefix_completer(
+                $completions = charsets,
+                $get_string = function (x) x.toLowerCase()),
+            $match_required);
+        reload(I.buffer, false, null, forced_charset);
+    });
+
 
 interactive("yank",
             "Paste the contents of the clipboard",
