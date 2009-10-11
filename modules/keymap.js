@@ -329,11 +329,10 @@ outer:
             var pred_binds = kmap.predicate_bindings;
             for (var j = 0; j < pred_binds.length; j++) {
                 if (pred_binds[j].key == key) {
-                    if (final_binding && undefine_key) {
+                    if (final_binding && undefine_key)
                         delete pred_binds[j];
-                    } else {
+                    else
                         replace_binding(pred_binds[j]);
-                    }
                     continue outer;
                 }
             }
@@ -358,11 +357,10 @@ outer:
             var binding = bindings[key];
 
             if (binding) {
-                if (final_binding && undefine_key) {
+                if (final_binding && undefine_key)
                     delete bindings[key];
-                } else {
+                else
                     replace_binding(binding);
-                }
                 continue outer;
             }
 
@@ -380,7 +378,8 @@ outer:
                     }
                 }
             }
-            bindings[key] = make_binding();
+            if (! undefine_key)
+                bindings[key] = make_binding();
         }
     }
 }
