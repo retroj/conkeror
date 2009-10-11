@@ -89,7 +89,8 @@ command_line_param_handler("q", false, function () {
 command_line_param_handler("f", true, function (command, ctx) {
         // hack to make sure we send this command to a window
         ctx.window = get_recent_conkeror_window();
-        ctx.buffer = ctx.window.buffers.current;
+        if (ctx.window)
+            ctx.buffer = ctx.window.buffers.current;
         co_call(call_interactively(ctx, command));
     });
 
