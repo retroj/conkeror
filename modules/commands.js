@@ -405,16 +405,16 @@ function ensure_content_focused (buffer) {
 interactive("ensure-content-focused", "Ensure that the content document has focus.",
             function (I) { ensure_content_focused(I.buffer); });
 
+
 function network_set_online_status (status) {
     status = !status;
     io_service.manageOfflineStatus = false;
     io_service.offline = status;
 }
-
 interactive("network-go-online", "Work online.",
-            function (I) { network_set_online_status (true); });
+            function (I) { network_set_online_status(true); });
 interactive("network-go-offline", "Work offline.",
-            function (I) { network_set_online_status (false); });
+            function (I) { network_set_online_status(false); });
 
 
 interactive("submit-form",
