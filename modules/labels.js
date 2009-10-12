@@ -17,7 +17,7 @@ require_later("help.js"); // for pretty_print_value
  * assumed that all optional arguments are keyword arguments. The
  * optional arguments are stored as an array in a member called $.
  */
-function define_label(name) {
+function define_label (name) {
     var allow_optional = false;
     var required_args = [];
     for (let i = 1; i < arguments.length; ++i) {
@@ -29,7 +29,7 @@ function define_label(name) {
             required_args.push(arguments[i]);
         }
     }
-    function toString() {
+    function toString () {
         let optional = this.$;
         if (optional == null)
             optional = [];
@@ -55,7 +55,7 @@ function define_label(name) {
     }
     var result;
     result = function () {
-        var o = {_name: name, toString: toString, _id: result, __is_label: true, toSource: toString};
+        var o = { _name: name, toString: toString, _id: result, __is_label: true, toSource: toString };
         let max_req_arg = arguments.length;
         if (max_req_arg > required_args.length)
             max_req_arg = required_args.length;
@@ -63,9 +63,8 @@ function define_label(name) {
             o[required_args[i]] = arguments[i];
         if (allow_optional)
             o.$ = Array.prototype.slice.call(arguments, required_args.length);
-        else {
+        else
             write_keywords(o, arguments, required_args.length);
-        }
         return o;
     };
     result._name = name;
@@ -78,7 +77,7 @@ function define_label(name) {
     conkeror[name] = result;
 }
 
-function label_id(value) {
+function label_id (value) {
     if (value == null)
         return null;
     return value._id;
