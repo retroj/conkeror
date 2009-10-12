@@ -6,22 +6,22 @@
  * COPYING file.
 **/
 
-var start_time = Date.now ();
+var start_time = Date.now();
 
-require("keywords.js"); // not required to be listed as dep.
-require("labels.js"); // not required to be listed as a dep.
-require("coroutine.js"); // not required to be listed as dep.
-
-require("hook.js");
+require("keywords.js");
+require("labels.js");
+require("coroutine.js");
 require("debug.js");
+require("hook.js");
+require("timer.js");
+
 require("utils.js");
 require("interactive.js");
-require("minibuffer.js"); // depends: interactive.js
+require("minibuffer.js");
 require("minibuffer-read.js");
 require("minibuffer-read-option.js");
 require("minibuffer-completion.js");
 require("minibuffer-read-file.js");
-require("timer.js");
 require("spawn-process.js");
 require("mime.js");
 require("keymap.js");
@@ -33,8 +33,8 @@ require("download-manager.js");
 require("element.js");
 
 require("universal-argument.js");
-require("commands.js"); // depends: interactive.js
-require("webjump.js"); // depends: interactive.js
+require("commands.js");
+require("webjump.js");
 require("history.js");
 require("scroll.js");
 
