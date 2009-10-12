@@ -28,6 +28,7 @@ require("keymap.js");
 require("input.js");
 require("buffer.js");
 require("window.js");
+require("content-handler.js");
 require("download-manager.js");
 
 require("element.js");

@@ -277,7 +277,7 @@ function load_spec_mime_info (x) {
 
 function load_spec_default_shell_command (x) {
     var mime_type = load_spec_mime_type(x);
-    return get_mime_type_external_handler(mime_type);
+    return external_content_handlers.get(mime_type);
 }
 
 function load_spec_forced_charset (x) {

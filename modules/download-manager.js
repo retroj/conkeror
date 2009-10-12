@@ -17,140 +17,6 @@ var download_manager_builtin_ui = Components
     .classesByID["{7dfdf0d1-aff6-4a34-bad1-d0fe74601642}"]
     .getService(Ci.nsIDownloadManagerUI);
 
-/* This implements nsIHelperAppLauncherDialog interface. */
-function download_helper () {}
-download_helper.prototype = {
-    QueryInterface: generate_QI(Ci.nsIHelperAppLauncherDialog, Ci.nsIWebProgressListener2),
-
-    handle_show: function () {
-        var action_chosen = false;
-
-        var can_view_internally = this.frame != null &&
-                can_override_mime_type_for_uri(this.launcher.source);
-        try {
-            this.panel = create_info_panel(this.window, "download-panel",
-                                           [["downloading", "Downloading:", this.launcher.source.spec],
-                                            ["mime-type", "Mime type:", this.launcher.MIMEInfo.MIMEType]]);
-            var action = yield this.window.minibuffer.read_single_character_option(
-                $prompt = "Action to perform: (s: save; o: open; O: open URL; c: copy URL; " +
-                    (can_view_internally ? "i: view internally; t: view as text)" : ")"),
-                $options = (can_view_internally ? ["s", "o", "O", "c", "i", "t"] : ["s", "o", "O", "c"]));
-
-            if (action == "s") {
-                var suggested_path = suggest_save_path_from_file_name(this.launcher.suggestedFileName, this.buffer);
-                var file = yield this.window.minibuffer.read_file_check_overwrite(
-                    $prompt = "Save to file:",
-                    $initial_value = suggested_path,
-                    $select);
-                register_download(this.buffer, this.launcher.source);
-                this.launcher.saveToDisk(file, false);
-                action_chosen = true;
-
-            } else if (action == "o") {
-                var cwd = with_current_buffer(this.buffer, function (I) I.local.cwd);
-                var mime_type = this.launcher.MIMEInfo.MIMEType;
-                var suggested_action = get_mime_type_external_handler(mime_type);
-                var command = yield this.window.minibuffer.read_shell_command(
-                    $initial_value = suggested_action,
-                    $cwd = cwd);
-                var file = get_temporary_file(this.launcher.suggestedFileName);
-                var info = register_download(this.buffer, this.launcher.source);
-                info.temporary_status = DOWNLOAD_TEMPORARY_FOR_COMMAND;
-                info.set_shell_command(command, cwd);
-                this.launcher.saveToDisk(file, false);
-                action_chosen = true;
-            } else if (action == "O") {
-                action_chosen = true;
-                this.abort(); // abort download
-                let mime_type = this.launcher.MIMEInfo.MIMEType;
-                let cwd = with_current_buffer(this.buffer, function (I) I.local.cwd);
-                let cmd = yield this.window.minibuffer.read_shell_command(
-                    $cwd = cwd,
-                    $initial_value = get_mime_type_external_handler(mime_type));
-                shell_command_with_argument_blind(cmd, this.launcher.source.spec, $cwd = cwd);
-            } else if (action == "c") {
-                action_chosen = true;
-                this.abort(); // abort download
-                let uri = this.launcher.source.spec;
-                writeToClipboard(uri);
-                this.window.minibuffer.message("Copied: " + uri);
-            } else /* if (action == "i" || action == "t") */ {
-                let mime_type;
-                if (action == "t")
-                    mime_type = "text/plain";
-                else {
-                    let suggested_type = this.launcher.MIMEInfo.MIMEType;
-                    if (gecko_viewable_mime_type_list.indexOf(suggested_type) == -1)
-                        suggested_type = "text/plain";
-                    mime_type = yield this.window.minibuffer.read_gecko_viewable_mime_type(
-                        $prompt = "View internally as",
-                        $initial_value = suggested_type,
-                        $select);
-                }
-                action_chosen = true;
-                this.abort(); // abort before reloading
-
-                override_mime_type_for_next_load(this.launcher.source, mime_type);
-                this.frame.location = this.launcher.source.spec; // reload
-            }
-        } catch (e) {
-            handle_interactive_error(this.window, e);
-        } finally {
-            if (!action_chosen)
-                this.abort();
-            this.cleanup();
-        }
-    },
-
-    show : function (launcher, context, reason) {
-        this.launcher = launcher;
-
-        // Get associated buffer; if that fails (hopefully not), just get any window
-        var buffer = null;
-        var window = null;
-        var frame = null;
-        try {
-            frame = context.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowInternal);
-            window = get_window_from_frame(frame.top);
-            if (window)
-                buffer = get_buffer_from_frame(window, frame);
-        } catch (e) {
-            window = get_recent_conkeror_window();
-
-            if (window == null) {
-                // FIXME: need to handle this case perhaps where no windows exist
-                this.abort(); // for now, just cancel the download
-                return;
-            }
-        }
-
-        this.frame = frame;
-        this.window = window;
-        this.buffer = buffer;
-
-        co_call(this.handle_show());
-    },
-
-    abort : function () {
-        const NS_BINDING_ABORTED = 0x804b0002;
-        this.launcher.cancel(NS_BINDING_ABORTED);
-    },
-
-    cleanup : function () {
-        if (this.panel)
-            this.panel.destroy();
-        this.panel = null;
-        this.launcher = null;
-        this.window = null;
-        this.buffer = null;
-        this.frame = null;
-    },
-
-    promptForSaveToFile : function (launcher, context, default_file, suggested_file_extension) {
-        return null;
-    }
-};
-
 
 var unmanaged_download_info_list = [];
 var id_to_download_info = {};
@@ -1002,7 +868,7 @@ interactive("download-shell-command",
                 var cmd = yield I.minibuffer.read_shell_command(
                     $cwd = cwd,
                     $initial_value = buffer.info.shell_command ||
-                        get_mime_type_external_handler(buffer.info.MIME_type));
+                        external_content_handlers.get(buffer.info.MIME_type));
                 download_shell_command(buffer, cwd, cmd);
             });
 

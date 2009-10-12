@@ -782,9 +782,9 @@ function view_as_mime_type (I, target) {
 
     try {
         let suggested_type = mime_type;
-        if (gecko_viewable_mime_type_list.indexOf(suggested_type) == -1)
+        if (viewable_mime_type_list.indexOf(suggested_type) == -1)
             suggested_type = "text/plain";
-        mime_type = yield I.minibuffer.read_gecko_viewable_mime_type(
+        mime_type = yield I.minibuffer.read_viewable_mime_type(
             $prompt = "View internally as",
             $initial_value = suggested_type,
             $select);
