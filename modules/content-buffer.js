@@ -127,9 +127,9 @@ function content_buffer (window, element) {
 content_buffer.prototype = {
     constructor : content_buffer,
 
-    destructor: function () {
+    destroy: function () {
         this.browser.removeProgressListener(this);
-        buffer.prototype.destructor.call(this);
+        buffer.prototype.destroy.call(this);
     },
 
     get scrollX () { return this.top_frame.scrollX; },
