@@ -102,10 +102,8 @@ function key_event_handler (event) {
           for each (k in key_event_props)].join(''));
     dumpln(combo);
 }
-window.addEventListener("keydown", key_event_handler, true /* capture */,
-                        false /* ignore untrusted events */);
-window.addEventListener("keypress", key_event_handler, true /* capture */,
-                        false /* ignore untrusted events */);
+window.addEventListener("keydown", key_event_handler, true /* capture */);
+window.addEventListener("keypress", key_event_handler, true /* capture */);
 
 
 function onload_handler () {

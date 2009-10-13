@@ -46,15 +46,15 @@ function content_buffer (window, element) {
         var buffer = this;
         this.browser.addEventListener("DOMTitleChanged", function (event) {
             buffer_title_change_hook.run(buffer);
-        }, true /* capture */, false /* ignore untrusted events */);
+        }, true /* capture */);
 
         this.browser.addEventListener("scroll", function (event) {
             buffer_scroll_hook.run(buffer);
-        }, true /* capture */, false /* ignore untrusted events */);
+        }, true /* capture */);
 
         this.browser.addEventListener("focus", function (event) {
             content_buffer_focus_change_hook.run(buffer, event);
-        }, true /* capture */, false /* ignore untrusted events */);
+        }, true /* capture */);
 
         this.browser.addEventListener("mouseover", function (event) {
             var node = event.target;
@@ -64,14 +64,14 @@ function content_buffer (window, element) {
                 content_buffer_overlink_change_hook.run(buffer, node.href);
                 buffer.current_overlink = event.target;
             }
-        }, true, false);
+        }, true /* capture */);
 
         this.browser.addEventListener("mouseout", function (event) {
             if (buffer.current_overlink == event.target) {
                 buffer.current_overlink = null;
                 content_buffer_overlink_change_hook.run(buffer, "");
             }
-        }, true, false);
+        }, true /* capture */);
 
         // initialize buffer.current_overlink in case mouseout happens
         // before mouseover.
@@ -79,15 +79,15 @@ function content_buffer (window, element) {
 
         this.browser.addEventListener("mousedown", function (event) {
             buffer.last_user_input_received = Date.now();
-        }, true, false);
+        }, true /* capture */);
 
         this.browser.addEventListener("keypress", function (event) {
             buffer.last_user_input_received = Date.now();
-        }, true, false);
+        }, true /* capture */);
 
         this.browser.addEventListener("DOMLinkAdded", function (event) {
             content_buffer_dom_link_added_hook.run(buffer, event);
-        }, true, false);
+        }, true /* capture */);
 
         buffer.last_user_input_received = null;
 
@@ -98,7 +98,7 @@ function content_buffer (window, element) {
         this.browser.addEventListener("DOMPopupBlocked", function (event) {
 	    dumpln("Blocked popup: " + event.popupWindowURI.spec);
             content_buffer_popup_blocked_hook.run(buffer, event);
-        }, true, false);
+        }, true /* capture */);
 
         // XXX: This is needed to ensure we have a keymap at the
         // instant the buffer is created, but before the page has been

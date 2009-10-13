@@ -140,7 +140,7 @@ text_entry_minibuffer_state.prototype = {
                 tree.addEventListener("select", function () {
                         s.selected_completion_index = s.completions_display_element.currentIndex;
                         s.handle_completion_selected();
-                    }, true, false);
+                    }, true);
                 tree.setAttribute("class", "completions");
 
                 tree.setAttribute("rows", "8");

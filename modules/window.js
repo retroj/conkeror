@@ -181,7 +181,7 @@ function window_initialize (window) {
             delete window.args; // get rid of args
         }, 0);
 
-    window.addEventListener("close", window_close_maybe, true /* capture */, false);
+    window.addEventListener("close", window_close_maybe, true /* capture */);
 }
 
 define_window_local_hook("window_before_close_hook", RUN_HOOK_UNTIL_FAILURE);

@@ -105,15 +105,15 @@ function buffer (window, element) {
 
     this.browser.addEventListener("scroll", function (event) {
             buffer_scroll_hook.run(buffer);
-        }, true /* capture */, false /* ignore untrusted events */);
+        }, true /* capture */);
 
     this.browser.addEventListener("DOMContentLoaded", function (event) {
             buffer_dom_content_loaded_hook.run(buffer);
-        }, true /* capture */, false /*ignore untrusted events */);
+        }, true /* capture */);
 
     this.browser.addEventListener("load", function (event) {
             buffer_loaded_hook.run(buffer);
-        }, true /* capture */, false /*ignore untrusted events */);
+        }, true /* capture */);
 
     this.browser.addEventListener("DOMWindowClose", function (event) {
             /* This call to preventDefault is very important; without

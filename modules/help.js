@@ -50,7 +50,7 @@ help_document_generator.prototype = {
             co_call(ref.open_in_editor());
             event.preventDefault();
             event.stopPropagation();
-        }, false /* capture */, false /* allow untrusted */);
+        }, false /* capture */);
         x.textContent = (module_name != null ? module_name : ref.file_name);
         f.appendChild(x);
         if (parent)
@@ -76,7 +76,7 @@ help_document_generator.prototype = {
                                   describe_command(buffer, name, OPEN_NEW_BUFFER);
                                   event.preventDefault();
                                   event.stopPropagation();
-            }, false /* capture */, false /* allow untrusted */);
+            }, false /* capture */);
         this.text(name, node);
         if (parent)
             parent.appendChild(node);
