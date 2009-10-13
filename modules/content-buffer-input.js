@@ -122,10 +122,14 @@ interactive("content-buffer-update-input-mode-for-focus",
  * Install the default input-mode system
  */
 add_hook("content_buffer_location_change_hook",
-         content_buffer_update_input_mode_for_focus);
+         function (buf) { // ignore other args
+             content_buffer_update_input_mode_for_focus(buf);
+         });
 
 add_hook("content_buffer_focus_change_hook",
-         content_buffer_update_input_mode_for_focus);
+         function (buf) { // ignore other args
+             content_buffer_update_input_mode_for_focus(buf);
+         });
 
 
 /*
