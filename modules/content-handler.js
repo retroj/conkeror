@@ -55,6 +55,21 @@ function content_handler_open (ctx) {
     ctx.launcher.saveToDisk(file, false);
 }
 
+function content_handler_open_default_viewer (ctx) {
+    var cwd = with_current_buffer(ctx.buffer, function (I) I.local.cwd);
+    var mime_type = ctx.launcher.MIMEInfo.MIMEType;
+    var command = external_content_handlers.get(mime_type);
+    if (command == null)
+        command = yield ctx.window.minibuffer.read_shell_command(
+            $initial_value = command,
+            $cwd = cwd);
+    var file = get_temporary_file(ctx.launcher.suggestedFileName);
+    var info = register_download(ctx.buffer, ctx.launcher.source);
+    info.temporary_status = DOWNLOAD_TEMPORARY_FOR_COMMAND;
+    info.set_shell_command(command, cwd);
+    ctx.launcher.saveToDisk(file, false);
+}
+
 function content_handler_open_url (ctx) {
     ctx.abort(); // abort download
     let mime_type = ctx.launcher.MIMEInfo.MIMEType;
