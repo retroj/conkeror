@@ -107,7 +107,7 @@ command_line_handler("u", false, function (ctx) {
             ctx.window = get_recent_conkeror_window();
             ctx.buffer = ctx.window.buffers.current;
         }
-        call_interactively(ctx, "universal-argument");
+        co_call(call_interactively(ctx, "universal-argument"));
     });
 
 function handle_command_line (cmdline) {
