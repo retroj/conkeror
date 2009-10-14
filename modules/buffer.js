@@ -657,7 +657,7 @@ interactive("shell-command", null, function (I) {
 define_buffer_local_hook("unfocus_hook");
 function unfocus (window, buffer) {
     // 1. if there is a selection, clear it.
-    selc = getFocusedSelCtrl(buffer);
+    var selc = getFocusedSelCtrl(buffer);
     if (selc && selc.getSelection(selc.SELECTION_NORMAL).isCollapsed == false) {
         clear_selection(buffer);
         window.minibuffer.message("cleared selection");
