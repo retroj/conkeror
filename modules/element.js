@@ -154,10 +154,17 @@ define_browser_object_class("paste-url",
     "Browser object which reads an url from the X Primary Selection, "+
     "falling back on the clipboard for operating systems which lack one.",
     function (I, prompt) {
+		var url = read_from_x_primary_selection();
+		// trim spaces
+		url = url.replace(/^\s*|\s*$/,"");
+		// add http:// if needed
+		if (url.match(/^[^:]+\./)) {
+			url = "http://" + url;
+		}
         try {
-            return make_uri(read_from_x_primary_selection()).spec;
+            return make_uri(url).spec;
         } catch (e) {
-            throw new interactive_error("error: malformed url");
+            throw new interactive_error("error: malformed url: "+url);
         }
     });
 
