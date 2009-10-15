@@ -10,7 +10,7 @@
 
 /**
  * This module was inspired by the "Open in Browser" extension by Sylvain
- * Pasche, available at http://www.spasche.net/mozilla/.
+ * Pasche, available at <http://www.spasche.net/openinbrowser/>.
  *
  * This module implements (in a somewhat hacky way) overriding of the
  * server-specified mime type for specified URLs. It works by registering an
