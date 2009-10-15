@@ -423,6 +423,7 @@ interactive("submit-form",
                 var el = I.buffer.focused_element.parentNode;
                 while (el && el.tagName != "FORM")
                     el = el.parentNode;
+                //FIXME: submit method will not trigger onsubmit
                 if (el)
                     el.submit();
             });
