@@ -505,7 +505,7 @@ minibuffer.prototype.read_user_variable = function () {
         $prompt = "User variable", $history = "user_variable",
         $completer = prefix_completer(
             $completions = function (visitor) {
-                [visitor(i, user_variables[i]) for (i in user_variables)];
+                for (var i in user_variables) visitor(i);
             },
             $get_string = function (x) x,
             $get_description = function (x) user_variables[x].shortdoc || "",
