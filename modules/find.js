@@ -8,7 +8,6 @@
  * COPYING file.
 **/
 
-const CARET_PREF = 'accessibility.browsewithcaret';
 const CARET_ATTRIBUTE = 'showcaret';
 
 define_variable("isearch_keep_selection", false,

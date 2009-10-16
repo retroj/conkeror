@@ -189,7 +189,9 @@ define_buffer_mode('caret_mode', 'CARET',
                        content_buffer_update_input_mode_for_focus(buffer, true);
                    });
 
-//XXX: CARET_PREF is defined in find.js---why?
+
+const CARET_PREF = 'accessibility.browsewithcaret';
+
 watch_pref(CARET_PREF, function() {
                if (get_pref(CARET_PREF)) {
                    session_pref(CARET_PREF, false);
