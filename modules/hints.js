@@ -101,12 +101,25 @@ hint_manager.prototype = {
                     break; // Iterator may have been invalidated by page load activity
                 }
                 rect = elem.getBoundingClientRect();
+                if (elem instanceof Ci.nsIDOMHTMLAreaElement) {
+                    rect = { top: rect.top,
+                             left: rect.left,
+                             bottom: rect.bottom,
+                             right: rect.right };
+                    var coords = elem.getAttribute("coords")
+                        .match(/^(\d+),(\d+)/);
+                    if (coords.length == 3) {
+                        rect.left += parseInt(coords[1]);
+                        rect.top += parseInt(coords[2]);
+                    }
+                }
                 if (!rect || rect.left > maxX || rect.right < minX || rect.top > maxY || rect.bottom < minY)
                     continue;
                 let style = topwin.getComputedStyle(elem, "");
                 if (style.display == "none" || style.visibility == "hidden")
                     continue;
-                rect = elem.getClientRects()[0];
+                if (! (elem instanceof Ci.nsIDOMHTMLAreaElement))
+                    rect = elem.getClientRects()[0];
                 if (!rect)
                     continue;
                 show_text = false;
