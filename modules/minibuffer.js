@@ -126,9 +126,9 @@ minibuffer_input_state.prototype = {
  *
  * select:            [optional] specifies to select the initial text if set to non-null
  */
-define_keywords("$prompt", "$initial_value", "$select");
+define_keywords("$keymap", "$prompt", "$initial_value", "$select");
 function basic_minibuffer_state (window) {
-    keywords(arguments);
+    keywords(arguments, $keymap = minibuffer_base_keymap);
     var initial_value = arguments.$initial_value || "";
     var sel_start, sel_end;
     if (arguments.$select) {
@@ -137,7 +137,7 @@ function basic_minibuffer_state (window) {
     } else {
         sel_start = sel_end = initial_value.length;
     }
-    minibuffer_input_state.call(this, window, minibuffer_base_keymap,
+    minibuffer_input_state.call(this, window, arguments.$keymap,
                                 arguments.$prompt, initial_value,
                                 sel_start, sel_end);
 }

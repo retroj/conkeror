@@ -39,17 +39,16 @@ define_variable("minibuffer_history_max_items", 100,
  * $valiator          [optional]
  *          specifies a function
  */
-define_keywords("$history", "$validator",
+define_keywords("$keymap", "$history", "$validator",
                 "$completer", "$match_required", "$default_completion",
                 "$auto_complete", "$auto_complete_initial", "$auto_complete_conservative",
                 "$auto_complete_delay",
                 "$space_completes");
 /* FIXME: support completing in another thread */
 function text_entry_minibuffer_state (window, continuation) {
-    keywords(arguments);
+    keywords(arguments, $keymap = minibuffer_keymap);
 
     basic_minibuffer_state.call(this, window, forward_keywords(arguments));
-    this.keymap = minibuffer_keymap;
 
     this.continuation = continuation;
     if (arguments.$history) {

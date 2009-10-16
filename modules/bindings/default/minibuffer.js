@@ -99,3 +99,13 @@ define_key(single_character_options_minibuffer_keymap, "M-escape", "minibuffer-a
  */
 define_keymap("minibuffer_message_keymap");
 define_key(minibuffer_message_keymap, "C-g", "minibuffer-abort");
+
+
+/*
+ * read_buffer_keymap
+ */
+define_keymap('read_buffer_keymap', $parent = minibuffer_keymap);
+define_fallthrough(minibuffer_keymap, match_any_unmodified_character);
+
+define_key(read_buffer_keymap, "C-k", "read-buffer-kill-buffer");
+

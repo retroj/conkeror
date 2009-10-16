@@ -517,6 +517,37 @@ let (queued_buffer_creators = null) {
     }
 };
 
+
+/*
+ * Read Buffer
+ */
+function buffer_completer (window) {
+    var get_string = function (x) x.description;
+    var get_description = function (x) x.title;
+    return function (input, pos, conservative) {
+        if (input.length == 0 && conservative)
+            return undefined;
+        var arr = [];
+        window.buffers.for_each(function (x) arr.push(x));
+        var words = input.toLowerCase().split(" ");
+        var data = arr.filter(function (x) {
+                var s = get_string(x);
+                var d = get_description(x);
+                for (var i = 0; i < words.length; ++i) {
+                    if (s.toLowerCase().indexOf(words[i]) == -1 && d.toLowerCase().indexOf(words[i]) == -1)
+                        return false;
+                }
+                return true;
+            });
+        return { count: data.length,
+                 index_of:  function (x) data.indexOf(x),
+                 get_string: function (i) get_string(data[i]),
+                 get_description: function (i) get_description(data[i]),
+                 get_input_state: function (i) [get_string(data[i])],
+                 get_value: function (i) data[i] };
+    };
+}
+
 minibuffer_auto_complete_preferences["buffer"] = true;
 define_keywords("$default");
 minibuffer.prototype.read_buffer = function () {
@@ -525,11 +556,9 @@ minibuffer.prototype.read_buffer = function () {
     keywords(arguments, $prompt = "Buffer:",
              $default = buffer,
              $history = "buffer");
-    var completer = all_word_completer(
-        $completions = function (visitor) window.buffers.for_each(visitor),
-        $get_string = function (x) x.description,
-        $get_description = function (x) x.title);
+    var completer = buffer_completer(window);
     var result = yield this.read(
+        $keymap = read_buffer_keymap,
         $prompt = arguments.$prompt,
         $history = arguments.$history,
         $completer = completer,
@@ -621,6 +650,19 @@ interactive("kill-current-buffer",
             "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
             "buffer in a window will cause the window to be closed.",
             function (I) { kill_buffer(I.buffer); });
+
+interactive("read-buffer-kill-buffer",
+    "Kill the current selected buffer in the completions list "+
+    "in a read buffer minibuffer interaction.",
+    function (I) {
+        var s = I.window.minibuffer.current_state;
+        var i = s.selected_completion_index;
+        var c = s.completions;
+        if (i == -1)
+            return;
+        kill_buffer(c.get_value(i));
+        s.handle_input(I.window.minibuffer);
+    });
 
 interactive("bury-buffer",
             "Bury the current buffer.\n Put the current buffer at the end of " +
