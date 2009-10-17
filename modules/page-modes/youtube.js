@@ -39,10 +39,12 @@ function media_scrape_youtube (buffer, results) {
     } catch (e if !(e instanceof interactive_error)) {}
 }
 
-define_page_mode("youtube_mode", "YouTube", $enable = function (buffer) {
-    buffer.page.local.media_scrapers = [media_scrape_youtube];
-    media_setup_local_object_classes(buffer);
-});
+define_page_mode("youtube_mode",
+    $display_name = "YouTube",
+    $enable = function (buffer) {
+        buffer.page.local.media_scrapers = [media_scrape_youtube];
+        media_setup_local_object_classes(buffer);
+    });
 
 function media_scrape_embedded_youtube(buffer, results) {
     const embedded_youtube_regexp = /^http:\/\/[a-zA-Z0-9\-.]+\.youtube\.com\/v\/(.*)$/;

@@ -51,9 +51,8 @@ define_browser_object_class("google-images-imgurl", null,
         yield (co_return(imgurl));
     });
 
-define_page_mode(
-    "google_images_mode",
-    "Google Images",
+define_page_mode("google_images_mode",
+    $display_name = "Google Images",
     $enable = function (buffer) {
         for each (var c in google_images_imgrefurl_commands) {
             buffer.default_browser_object_classes[c] =

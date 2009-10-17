@@ -39,7 +39,8 @@ function xkcd_do_add_title(buffer) {
     img.parentNode.insertBefore(span, node.nextSibling);
 }
 
-define_page_mode("xkcd_mode","XKCD",
+define_page_mode("xkcd_mode",
+    $display_name = "XKCD",
     $enable = function (buffer) {
         if (xkcd_add_title) {
             if(buffer.browser.webProgress.isLoadingDocument) {

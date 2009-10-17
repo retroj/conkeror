@@ -51,7 +51,8 @@ function google_search_bind_number_shortcuts () {
 }
 
 
-define_page_mode("google_search_results_mode", "Google Search Results",
+define_page_mode("google_search_results_mode",
+                 $display_name = "Google Search Results",
                  $enable = function (buffer) {
 		     var link_using_commands = ["follow",
 						"follow-new-buffer",

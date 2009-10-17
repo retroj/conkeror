@@ -253,7 +253,8 @@ define_key(reddit_keymap, ".", "reddit-vote-down");
 define_key(reddit_keymap, "h", "reddit-open-comments");
 
 
-define_page_mode("reddit_mode", "reddit",
+define_page_mode("reddit_mode",
+                 $display_name = "reddit",
                  $enable = function (buffer) {
                      let (cmds = ["follow-current",
                                   "follow-current-new-buffer",

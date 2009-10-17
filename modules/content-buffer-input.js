@@ -173,7 +173,8 @@ define_key_match_predicate('match_not_escape_key', 'any key but escape',
 // the input-mode system.
 define_input_mode("caret", "content_buffer_caret_keymap");
 
-define_buffer_mode('caret_mode', 'CARET',
+define_buffer_mode('caret_mode',
+                   $display_name = 'CARET',
                    $enable = function(buffer) {
                        buffer.browser.setAttribute('showcaret', 'true');
                        let sc = getFocusedSelCtrl(buffer);

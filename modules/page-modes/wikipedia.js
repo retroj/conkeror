@@ -126,7 +126,8 @@ interactive("wikipedia-other-language",
 
 /*** MAIN LOADING FUNCTIONALITY ***/
 
-define_page_mode("wikipedia_mode", "Wikipedia",
+define_page_mode("wikipedia_mode",
+    $display_name = "Wikipedia",
     $enable = function (buffer) {
         if (wikipedia_enable_didyoumean) {
 	    do_when("buffer_dom_content_loaded_hook", buffer, wikipedia_didyoumean);

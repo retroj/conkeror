@@ -735,11 +735,12 @@ var mode_display_names = {};
 define_buffer_local_hook("buffer_mode_change_hook");
 define_current_buffer_hook("current_buffer_mode_change_hook", "buffer_mode_change_hook");
 
-define_keywords("$class", "$enable", "$disable", "$doc");
-function define_buffer_mode (name, display_name) {
+define_keywords("$display_name", "$class", "$enable", "$disable", "$doc");
+function define_buffer_mode (name) {
     keywords(arguments);
 
     var hyphen_name = name.replace("_","-","g");
+    var display_name = arguments.$display_name;
     var mode_class = arguments.$class;
     var enable = arguments.$enable;
     var disable = arguments.$disable;
@@ -865,19 +866,16 @@ define_keywords("$display_name", "$doc");
 let (input_mode_keymaps = {}) {
     function define_input_mode (base_name, keymap_name) {
         keywords(arguments);
-        var display_name = arguments.$display_name;
-        var doc = arguments.$doc;
         var name = base_name + "_input_mode";
         input_mode_keymaps[name] = keymap_name;
         define_buffer_mode(name,
-                           display_name,
                            $class = "input_mode",
                            $enable = function (buffer) {
                                check_buffer(buffer, content_buffer);
                                buffer_update_keymap_for_input_mode(buffer);
                            },
                            $disable = false,
-                           $doc = doc);
+                           forward_keywords(arguments));
     }
     ignore_function_for_get_caller_source_code_reference("define_input_mode");
 

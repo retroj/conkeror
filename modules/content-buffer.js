@@ -581,9 +581,10 @@ browser_dom_window.prototype = {
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
 
-define_keywords("$enable", "$disable", "$doc", "$keymaps");
-function define_page_mode(name, display_name) {
+define_keywords("$display_name", "$enable", "$disable", "$doc", "$keymaps");
+function define_page_mode (name) {
     keywords(arguments);
+    var display_name = arguments.$display_name;
     var enable = arguments.$enable;
     var disable = arguments.$disable;
     var doc = arguments.$doc;
@@ -592,7 +593,8 @@ function define_page_mode(name, display_name) {
         if (keymaps[buffer.input_mode])
             buffer.keymap = keymaps[buffer.input_mode];
     }
-    define_buffer_mode(name, display_name,
+    define_buffer_mode(name,
+                       $display_name = display_name,
                        $class = "page_mode",
                        $enable = function (buffer) {
                            buffer.page = {

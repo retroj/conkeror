@@ -51,7 +51,8 @@ define_key(google_reader_keymap, "2", null, $fallthrough);
 define_key(google_reader_keymap, "/", null, $fallthrough);
 define_key(google_reader_keymap, "a", null, $fallthrough);
 
-define_page_mode("google_reader_mode", "Google Reader",
+define_page_mode("google_reader_mode",
+                 $display_name = "Google Reader",
                  $keymaps = {normal_input_mode: google_reader_keymap});
 
 var google_reader_re = build_url_regex($domain = "google",

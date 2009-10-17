@@ -37,7 +37,8 @@ define_key(google_calendar_keymap, "tab", null, $fallthrough);
 define_key(google_calendar_keymap, "M-s", null, $fallthrough);
 define_key(google_calendar_keymap, "escape", null, $fallthrough);
 
-define_page_mode("google_calendar_mode", "Google Calendar",
+define_page_mode("google_calendar_mode",
+                 $display_name = "Google Calendar",
                  $keymaps = {normal_input_mode: google_calendar_keymap});
 
 var google_calendar_re = build_url_regex($domain = "google",

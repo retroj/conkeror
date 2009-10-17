@@ -95,7 +95,8 @@ function gmail_focus_primary_frame (buffer) {
         buffer.top_frame.frames[3].focus();
 }
 
-define_page_mode("gmail_mode", "GMail",
+define_page_mode("gmail_mode",
+                 $display_name = "GMail",
                  $enable = function (buffer) {
                      add_hook.call(buffer, "buffer_dom_content_loaded_hook",
                                    gmail_focus_primary_frame);
