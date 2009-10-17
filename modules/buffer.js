@@ -861,8 +861,12 @@ minibuffer_mode_indicator_mode(true);
  */
 define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
 
+define_keywords("$display_name", "$doc");
 let (input_mode_keymaps = {}) {
-    function define_input_mode (base_name, display_name, keymap_name, doc) {
+    function define_input_mode (base_name, keymap_name) {
+        keywords(arguments);
+        var display_name = arguments.$display_name;
+        var doc = arguments.$doc;
         var name = base_name + "_input_mode";
         input_mode_keymaps[name] = keymap_name;
         define_buffer_mode(name,

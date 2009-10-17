@@ -19,14 +19,14 @@ require("content-buffer.js");
  */
 
 // Input mode for "normal" view mode.  You might also call it "scroll" mode.
-define_input_mode("normal", null, "content_buffer_normal_keymap");
+define_input_mode("normal", "content_buffer_normal_keymap");
 
 // Input modes for form elements
-define_input_mode("select", "input:SELECT", "content_buffer_select_keymap");
-define_input_mode("text", "input:TEXT", "content_buffer_text_keymap");
-define_input_mode("textarea", "input:TEXTAREA", "content_buffer_textarea_keymap");
-define_input_mode("richedit", "input:RICHEDIT", "content_buffer_richedit_keymap");
-define_input_mode("checkbox", "input:CHECKBOX/RADIOBUTTON", "content_buffer_checkbox_keymap");
+define_input_mode("select", "content_buffer_select_keymap", $display_name = "input:SELECT");
+define_input_mode("text", "content_buffer_text_keymap", $display_name = "input:TEXT");
+define_input_mode("textarea", "content_buffer_textarea_keymap", $display_name = "input:TEXTAREA");
+define_input_mode("richedit", "content_buffer_richedit_keymap", $display_name = "input:RICHEDIT");
+define_input_mode("checkbox", "content_buffer_checkbox_keymap", $display_name = "input:CHECKBOX/RADIOBUTTON");
 
 
 /**
@@ -141,14 +141,15 @@ add_hook("content_buffer_focus_change_hook",
 // XXX: These quote modes are not rightly part of the system because
 // they are always invoked by the user.  Furthermore, they should be
 // generalized to work with any type of buffer.
-define_input_mode(
-    "quote_next", "input:PASS-THROUGH(next)", "content_buffer_quote_next_keymap",
-    "This input mode sends the next key combo to the buffer, "+
+define_input_mode("quote_next", "content_buffer_quote_next_keymap",
+    $display_name = "input:PASS-THROUGH(next)",
+    $doc = "This input mode sends the next key combo to the buffer, "+
         "bypassing Conkeror's normal key handling.  The mode disengages "+
         "after one key combo.");
-define_input_mode(
-    "quote", "input:PASS-THROUGH", "content_buffer_quote_keymap",
-    "This input mode sends all key combos to the buffer, "+
+
+define_input_mode("quote", "content_buffer_quote_keymap",
+    $display_name = "input:PASS-THROUGH",
+    $doc = "This input mode sends all key combos to the buffer, "+
         "bypassing Conkeror's normal key handling, until the "+
         "Escape key is pressed.");
 
@@ -170,7 +171,7 @@ define_key_match_predicate('match_not_escape_key', 'any key but escape',
 //
 // XXX: caret-mode should be defined elsewhere, as it is not part of
 // the input-mode system.
-define_input_mode("caret", null, "content_buffer_caret_keymap");
+define_input_mode("caret", "content_buffer_caret_keymap");
 
 define_buffer_mode('caret_mode', 'CARET',
                    $enable = function(buffer) {
