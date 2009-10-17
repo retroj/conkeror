@@ -32,12 +32,7 @@ function all_word_completer () {
     var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
     var get_value = arguments.$get_value;
     var arr;
-    if (typeof(completions) == "function") {
-        arr = [];
-        completions(function (x) { arr.push(x); });
-    } else
-        arr = completions;
-    return function (input, pos, conservative) {
+    var completer = function (input, pos, conservative) {
         if (input.length == 0 && conservative)
             return undefined;
         var words = input.toLowerCase().split(" ");
@@ -57,7 +52,16 @@ function all_word_completer () {
                 get_input_state: function (i) [get_string(data[i])],
                 get_value : function(i) (get_value ? get_value(data[i]) : data[i])
                };
-    }
+    };
+    completer.refresh = function () {
+        if (typeof(completions) == "function") {
+            arr = [];
+            completions(function (x) { arr.push(x); });
+        } else
+            arr = completions;
+    };
+    completer.refresh();
+    return completer;
 }
 
 function get_common_prefix_length (a, b, len) {
