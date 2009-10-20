@@ -25,5 +25,6 @@ require("bindings/default/universal-argument.js");
 require("bindings/default/content-buffer/element.js");
 require("bindings/default/content-buffer/zoom.js");
 
+require("bindings/default/special.js");
 require("bindings/default/help-buffer.js");
 require("bindings/default/download-buffer.js");
