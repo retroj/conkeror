@@ -98,6 +98,12 @@ function reddit_next (I) {
     if (current)
         dom_remove_class(current, "last-clicked");
     dom_add_class(next, "last-clicked");
+    let (anchor = doc.evaluate(
+        '//*[contains(@class,"last-clicked")]//a[contains(@class,"title")]',
+        next, null, Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE, null))
+    {
+        browser_set_element_focus(I.buffer, anchor.singleNodeValue);
+    }
     reddit_scroll_into_view(I.buffer.focused_frame, next);
 }
 interactive("reddit-next-link",
@@ -164,6 +170,12 @@ function reddit_prev (I) {
     if (current)
         dom_remove_class(current, "last-clicked");
     dom_add_class(prev, "last-clicked");
+    let (anchor = doc.evaluate(
+        '//*[contains(@class,"last-clicked")]//a[contains(@class,"title")]',
+        prev, null, Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE, null))
+    {
+        browser_set_element_focus(I.buffer, anchor.singleNodeValue);
+    }
     reddit_scroll_into_view(I.buffer.focused_frame, prev);
 }
 interactive("reddit-prev-link",
