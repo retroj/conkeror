@@ -1,16 +1,14 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
-require("bindings/default/global.js");
+require("bindings/default/special-buffer.js");
 
-define_keymap("download_buffer_keymap", $parent = default_global_keymap);
-
-bind_scroll_keys(download_buffer_keymap);
-bind_selection_keys(download_buffer_keymap);
+define_keymap("download_buffer_keymap", $parent = special_buffer_keymap);
 
 define_key(download_buffer_keymap, "d", "download-cancel");
 define_key(download_buffer_keymap, "r", "download-retry-or-resume");
