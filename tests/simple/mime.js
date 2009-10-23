@@ -55,5 +55,4 @@ walnut_run({
     test_mime_table_8: function () {
         assert_not(test_mime_table.get("image/jpeg"));
     }
-
 });
