@@ -12,7 +12,7 @@ var global_overlay_keymap = new keymap();
 
 
 function global_overlay_keymap_handler (window, I, true_event) {
-    var binding = keymap_lookup(global_overlay_keymap, I.combo, I.event);
+    var binding = keymap_lookup([global_overlay_keymap], I.combo, I.event);
     if (!binding)
         return false;
     if (!binding.fallthrough)

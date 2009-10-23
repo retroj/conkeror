@@ -223,8 +223,10 @@ function format_binding_sequence (seq) {
 }
 
 
-function keymap_lookup (kmap, combo, event) {
-    do {
+function keymap_lookup (keymaps, combo, event) {
+    var i = keymaps.length - 1;
+    var kmap = keymaps[i];
+    while (true) {
         // first check regular bindings
         var bindings = kmap.bindings;
         var bind = bindings[combo];
@@ -239,9 +241,13 @@ function keymap_lookup (kmap, combo, event) {
                     return bind;
             }
         }
-        kmap = kmap.parent;
-    } while (kmap);
-    return null;
+        if (kmap.parent)
+            kmap = kmap.parent;
+        else if (i > 0)
+            kmap = keymaps[--i];
+        else
+            return null;
+    }
 }
 
 
@@ -567,7 +573,7 @@ invalid_key_binding.prototype = {
 
 function read_key_binding_key (window, state, event) {
     var combo = format_key_combo(event);
-    var binding = keymap_lookup(state.target_keymap, combo, event);
+    var binding = keymap_lookup([state.target_keymap], combo, event);
 
     state.key_sequence.push(combo);
 

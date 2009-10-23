@@ -61,3 +61,16 @@ walnut_run({
         assert_not(test_keymap.bindings["C-a"]);
     }
 });
+
+walnut_run({
+    setup: function () {
+        define_keymap("test_keymap");
+        define_key(test_keymap, "C-a", "foo");
+    },
+    teardown: function () {
+        delete conkeror.test_keymap;
+    },
+    test_keymap_lookup_1: function () {
+        assert(keymap_lookup([test_keymap], "C-a"));
+    }
+});

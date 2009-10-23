@@ -165,8 +165,8 @@ sequence:
 
                 var overlay_keymap = I.overlay_keymap;
 
-                var binding = (overlay_keymap && keymap_lookup(overlay_keymap, combo, event)) ||
-                    keymap_lookup(keymap, combo, event);
+                var binding = (overlay_keymap && keymap_lookup([overlay_keymap], combo, event)) ||
+                    keymap_lookup([keymap], combo, event);
 
                 // kill event for any unbound key, or any bound key which
                 // is not marked fallthrough
