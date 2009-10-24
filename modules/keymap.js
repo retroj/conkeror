@@ -224,8 +224,8 @@ function format_binding_sequence (seq) {
 
 
 function keymap_lookup (keymaps, combo, event) {
-    var i = keymaps.length - 1;
-    var kmap = keymaps[i];
+    var k = keymaps.length - 1;
+    var kmap = keymaps[k];
     while (true) {
         // first check regular bindings
         var bindings = kmap.bindings;
@@ -243,8 +243,8 @@ function keymap_lookup (keymaps, combo, event) {
         }
         if (kmap.parent)
             kmap = kmap.parent;
-        else if (i > 0)
-            kmap = keymaps[--i];
+        else if (k > 0)
+            kmap = keymaps[--k];
         else
             return null;
     }
