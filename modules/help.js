@@ -2,6 +2,7 @@
  * (C) Copyright 2008 Jeremy Maitin-Shepard
  * (C) Copyright 2008 Nelson Elhage
  * (C) Copyright 2008 David Glasser
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -11,7 +12,8 @@ require("special-buffer.js");
 require("interactive.js");
 
 function where_is_command (buffer, command) {
-    var list = find_command_in_keymap(buffer, command);
+    var keymaps = get_current_keymaps(buffer.window);
+    var list = keymap_lookup_command(keymaps, command);
     var msg;
     if (list.length == 0)
         msg = command + " is not on any key";
@@ -126,21 +128,26 @@ help_document_generator.prototype = {
     }
 };
 
+
+function help_buffer_modality (buffer, element) {
+    buffer.keymaps.push(help_buffer_keymap);
+}
+
+/*
+ * Describe Bindings
+ */
+
 define_keywords("$binding_list");
 function describe_bindings_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.binding_list = arguments.$binding_list;
+    this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
 
 describe_bindings_buffer.prototype = {
-
-    get keymap() {
-        return help_buffer_keymap;
-    },
-
     title : "Key bindings",
 
     description : "*bindings*",
@@ -219,7 +226,8 @@ describe_bindings_buffer.prototype = {
 
 function describe_bindings (buffer, target) {
     var list = [];
-    for_each_key_binding(buffer, function (binding_stack) {
+    var keymaps = get_current_keymaps(buffer.window);
+    for_each_key_binding(keymaps, function (binding_stack) {
             var last = binding_stack[binding_stack.length - 1];
             if (last.command == null && !last.fallthrough)
                 return;
@@ -256,21 +264,22 @@ interactive("describe-bindings", null,
             alternates(describe_bindings_new_buffer, describe_bindings_new_window));
 
 
+
+/*
+ * Apropos Command
+ */
+
 define_keywords("$command_list");
 function apropos_command_buffer (window, element) {
     this.constructor_begin();
     keywords(arguments);
     special_buffer.call(this, window, element, forward_keywords(arguments));
     this.command_list = arguments.$command_list;
+    this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
 
 apropos_command_buffer.prototype = {
-
-    get keymap() {
-        return help_buffer_keymap;
-    },
-
     title : "Apropos commands",
 
     description : "*Apropos*",
@@ -352,6 +361,10 @@ interactive("apropos-command", "List commands whose names contain a given substr
 
 
 
+/*
+ * Describe Command
+ */
+
 define_keywords("$command", "$bindings");
 function describe_command_buffer (window, element) {
     this.constructor_begin();
@@ -361,15 +374,11 @@ function describe_command_buffer (window, element) {
     this.command = arguments.$command;
     this.cmd = interactive_commands.get(this.command);
     this.source_code_reference = this.cmd.source_code_reference;
+    this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
 
 describe_command_buffer.prototype = {
-
-    get keymap() {
-        return help_buffer_keymap;
-    },
-
     get title() { return "Command help: " + this.command; },
 
     description : "*help*",
@@ -415,7 +424,8 @@ describe_command_buffer.prototype = {
 
 
 function describe_command (buffer, command, target) {
-    var bindings = find_command_in_keymap(buffer, command);
+    var keymaps = get_current_keymaps(buffer.window);
+    var bindings = keymap_lookup_command(keymaps, command);
     create_buffer(buffer.window,
                   buffer_creator(describe_command_buffer,
                                  $opener = buffer,
@@ -445,6 +455,10 @@ interactive("view-referenced-source-code", null,
             function (I) {yield view_referenced_source_code(I.buffer);});
 
 
+/*
+ * Describe Key
+ */
+
 define_keywords("$binding", "$other_bindings", "$key_sequence");
 function describe_key_buffer (window, element) {
     this.constructor_begin();
@@ -454,15 +468,11 @@ function describe_key_buffer (window, element) {
     this.bindings = arguments.$other_bindings;
     this.bind = arguments.$binding;
     this.source_code_reference = this.bind.source_code_reference;
+    this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
 
 describe_key_buffer.prototype = {
-
-    get keymap() {
-        return help_buffer_keymap;
-    },
-
     get title() { return "Key help: " + this.key_sequence; },
 
     description : "*help*",
@@ -539,12 +549,11 @@ function describe_key (buffer, key_info, target) {
     var bindings;
     var seq = key_info[0];
     var bind = key_info[1];
-
+    var keymaps = get_current_keymaps(buffer.window);
     if (bind.command)
-        bindings = find_command_in_keymap(buffer, bind.command);
+        bindings = keymap_lookup_command(keymaps, bind.command);
     else
         bindings = [];
-
     create_buffer(buffer.window,
                   buffer_creator(describe_key_buffer,
                                  $opener = buffer,
@@ -596,6 +605,9 @@ interactive("describe-key-briefly", null,
 
 
 
+/*
+ * Describe Variable
+ */
 
 define_keywords("$variable");
 function describe_variable_buffer (window, element) {
@@ -605,6 +617,7 @@ function describe_variable_buffer (window, element) {
     this.variable = arguments.$variable;
     this.cmd = user_variables[this.variable];
     this.source_code_reference = this.cmd.source_code_reference;
+    this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
 
@@ -627,11 +640,6 @@ function pretty_print_value (value) {
 }
 
 describe_variable_buffer.prototype = {
-
-    get keymap() {
-        return help_buffer_keymap;
-    },
-
     get title() { return "Variable help: " + this.variable; },
 
     description : "*help*",
@@ -707,6 +715,10 @@ interactive("describe-variable", null,
             alternates(describe_variable_new_buffer, describe_variable_new_window));
 
 
+
+/*
+ * Describe Preference
+ */
 
 function describe_preference (buffer, preference, target) {
     let key = preference.charAt(0).toUpperCase() + preference.substring(1);

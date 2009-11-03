@@ -15,8 +15,6 @@
  **/
 
 require("minibuffer-completion.js");
-require("bindings/default/global.js");
-require("utils.js");
 
 
 /*** VARIABLES ***/
@@ -124,6 +122,16 @@ interactive("wikipedia-other-language",
             });
 
 
+define_keymap("wikipedia_keymap");
+define_key(wikipedia_keymap, "C-c C-o", "wikipedia-other-language");
+
+
+function wikipedia_modality (buffer, element) {
+    if (! buffer.input_mode)
+        buffer.keymaps.push(wikipedia_keymap);
+}
+
+
 /*** MAIN LOADING FUNCTIONALITY ***/
 
 define_page_mode("wikipedia_mode",
@@ -132,11 +140,14 @@ define_page_mode("wikipedia_mode",
         if (wikipedia_enable_didyoumean) {
 	    do_when("buffer_dom_content_loaded_hook", buffer, wikipedia_didyoumean);
         }
-        define_key(content_buffer_normal_keymap, "C-c C-o", "wikipedia-other-language");
         buffer.page.local.headings_xpath = '//h1[@id="firstHeading"] | //span[@class="mw-headline"] | //div[@id="toctitle"]';
+        buffer.modalities.push(wikipedia_modality);
     },
     $disable = function (buffer) {
         remove_hook.call(buffer, "buffer_dom_content_loaded_hook", wikipedia_didyoumean);
+        var i = buffer.modalities.indexOf(wikipedia_modality);
+        if (i > -1)
+            buffer.modalities.splice(i, 1);
     }
 );
 

@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-require("content-buffer.js");
-
 define_hook("quit_hook");
 
 function quit () {
@@ -423,10 +421,12 @@ interactive("submit-form",
                 var el = I.buffer.focused_element.parentNode;
                 while (el && el.tagName != "FORM")
                     el = el.parentNode;
-                //FIXME: submit method will not trigger onsubmit
+                //FIXME: submit method does not trigger onsubmit or other
+                //       event handlers which may be on the "submit" button.
                 if (el)
                     el.submit();
             });
+
 
 /*
  * Browser Object Commands
@@ -456,32 +456,6 @@ interactive("follow-new-window",
             "Follow a link in a new window",
             follow_new_window,
             $browser_object = browser_object_links,
-            $prompt = "Follow");
-
-interactive("follow-current",
-            "Follow current object, normally the focused element.",
-            alternates(follow, follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_focused_element);
-
-interactive("follow-current-new-buffer",
-            "Follow current object, normally the focused element, in "+
-            "a new buffer.",
-            alternates(follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_focused_element,
-            $prompt = "Follow");
-
-interactive("follow-current-new-buffer-background",
-            "Follow current object, normally the focused element, in "+
-            "a new background buffer.",
-            alternates(follow_new_buffer_background, follow_new_window),
-            $browser_object = browser_object_focused_element,
-            $prompt = "Follow");
-
-interactive("follow-current-new-window",
-            "Follow current object, normally the focused element, in "+
-            "a new window.",
-            follow_new_window,
-            $browser_object = browser_object_focused_element,
             $prompt = "Follow");
 
 interactive("find-url", "Open a URL in the current buffer",

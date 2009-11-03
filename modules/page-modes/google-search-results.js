@@ -1,21 +1,22 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
 require("content-buffer.js");
-require("bindings/default/content-buffer/normal.js");
 
-define_keymap("google_search_results_keymap", $parent = content_buffer_normal_keymap);
+
+define_keymap("google_search_results_keymap");
 
 // Keys for the "experimental" keyboard search
 define_key(google_search_results_keymap, "j", "ensure-content-focused", $fallthrough);
 define_key(google_search_results_keymap, "k", "ensure-content-focused", $fallthrough);
 define_key(google_search_results_keymap, "o", "ensure-content-focused", $fallthrough);
 define_key(google_search_results_keymap, "/", "ensure-content-focused", $fallthrough);
-define_key(google_search_results_keymap, "return", "ensure-content-focused", $fallthrough);
+define_key(google_search_results_keymap, "return", "ensure-content-focused", $fallthrough);//BAD
 
 /**
  * Note: escape already does the same thing as the Google key binding.
@@ -50,6 +51,11 @@ function google_search_bind_number_shortcuts () {
     }
 }
 
+function google_search_results_modality (buffer, element) {
+    if (! buffer.input_mode)
+        buffer.keymaps.push(google_search_results_keymap);
+}
+
 
 define_page_mode("google_search_results_mode",
                  $display_name = "Google Search Results",
@@ -64,8 +70,13 @@ define_page_mode("google_search_results_mode",
 		     for each (var c in link_using_commands)
 			 buffer.default_browser_object_classes[c] =
 			     browser_object_google_search_results_links;
+                     buffer.modalities.push(google_search_results_modality);
                  },
-                 $keymaps = {normal_input_mode: google_search_results_keymap});
+                 $disable = function (buffer) {
+                     var i = buffer.modalities.indexOf(google_search_results_modality);
+                     if (i > -1)
+                         buffer.modalities.splice(i, 1);
+                 });
 
 let (google_search_re = build_url_regex(
          $domain = "google",

@@ -1,5 +1,12 @@
+/**
+ * (C) Copyright 2009 John J. Foerch
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
 require("content-buffer.js");
-require("bindings/default/content-buffer/normal.js");
+
 
 function google_maps_control(buffer, control) {
     var doc = buffer.document;
@@ -29,7 +36,7 @@ define_google_maps_command('pan-right', "Pan a google map right", 'pan_rt');
 define_google_maps_command('pan-up', "Pan a google map up", 'pan_up');
 define_google_maps_command('pan-down', "Pan a google map down", 'pan_down');
 
-define_keymap("google_maps_keymap", $parent = content_buffer_normal_keymap);
+define_keymap("google_maps_keymap");
 define_key(google_maps_keymap, "+",   "google-maps-zoom-in");
 define_key(google_maps_keymap, "-",   "google-maps-zoom-out");
 define_key(google_maps_keymap, "C-f", "google-maps-pan-right");
@@ -37,10 +44,21 @@ define_key(google_maps_keymap, "C-b", "google-maps-pan-left");
 define_key(google_maps_keymap, "C-n", "google-maps-pan-down");
 define_key(google_maps_keymap, "C-p", "google-maps-pan-up");
 
+function google_maps_modality (buffer, element) {
+    if (! buffer.input_mode)
+        buffer.keymaps.push(google_maps_keymap);
+}
 
 define_page_mode("google_maps_mode",
                  $display_name = "Google Maps",
-                 $keymaps = {normal_input_mode: google_maps_keymap});
+                 $enable = function (buffer) {
+                     buffer.modalities.push(google_maps_modality);
+                 },
+                 $disable = function (buffer) {
+                     var i = buffer.modalities.indexOf(google_maps_modality);
+                     if (i > -1)
+                         buffer.modalities.splice(i, 1);
+                 });
 
 var google_maps_re = build_url_regex($domain = "maps.google");
 auto_mode_list.push([google_maps_re, google_maps_mode]);

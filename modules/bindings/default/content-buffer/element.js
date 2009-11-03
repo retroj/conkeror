@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -48,8 +48,8 @@ define_key(content_buffer_normal_keymap, "x", "shell-command-on-file");
 define_key(content_buffer_normal_keymap, "X", "shell-command-on-url");
 define_key(content_buffer_normal_keymap, "b", "bookmark");
 define_key(content_buffer_normal_keymap, "v", "view-as-mime-type");
-define_key(content_buffer_normal_keymap, "return", "follow-current");
-define_key(content_buffer_normal_keymap, "o", "follow-current-new-buffer");
+define_key(content_buffer_normal_keymap, "o", "follow-new-buffer",
+           $browser_object = browser_object_focused_element);
 
 
 // Scrolling

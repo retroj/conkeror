@@ -126,6 +126,19 @@ function buffer (window, element) {
                 kill_buffer(buffer, true);
         }, true);
 
+    this.browser.addEventListener("focus", function (event) {
+        if (buffer.focusblocker &&
+            event.target instanceof Ci.nsIDOMHTMLElement &&
+            buffer.focusblocker(buffer, event))
+        {
+            event.target.blur();
+        } else
+            buffer.set_input_mode();
+    }, true);
+    this.modalities = [];
+
+    this.override_keymaps = [];
+
     // When create_buffer_hook_early runs, basic buffer properties
     // will be available, but not the properties subclasses.
     create_buffer_early_hook.run(this);
@@ -142,6 +155,15 @@ buffer.prototype = {
     // get title ()   [must be defined by subclasses]
     // get name ()    [must be defined by subclasses]
     dead : false, /* This is set when the buffer is killed */
+
+    keymaps: null,
+
+    // The property focusblocker is available for an external module to
+    // put a function on which takes a buffer as its argument and returns
+    // true to block a focus event, or false to let normal processing
+    // occur.  Having this one property explicitly handled by the buffer
+    // class allows for otherwise modular focus-blockers.
+    focusblocker: null,
 
     default_message : "",
 
@@ -160,11 +182,19 @@ buffer.prototype = {
     constructor_end : function () {
         if (--this.constructors_running == 0) {
             create_buffer_hook.run(this);
+            this.set_input_mode();
             delete this.opener;
         }
     },
 
     destroy: function () {},
+
+    set_input_mode: function () {
+        if (this.input_mode)
+            conkeror[this.input_mode](this, false);
+        this.keymaps = [];
+        this.modalities.map(function (m) m(this), this);
+    },
 
     /* Browser accessors */
     get top_frame () { return this.browser.contentWindow; },
@@ -547,6 +577,13 @@ minibuffer.prototype.read_buffer = function () {
 };
 
 
+interactive("buffer-reset-input-mode",
+    "Force a reset of the input mode.  Used by quote-next.",
+    function (I) {
+        I.buffer.set_input_mode();
+    });
+
+
 function buffer_next (window, count) {
     var index = window.buffers.selected_index;
     var total = window.buffers.count;
@@ -861,29 +898,24 @@ minibuffer_mode_indicator_mode(true);
  * INPUT MODES
  */
 define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
-
 define_keywords("$display_name", "$doc");
-let (input_mode_keymaps = {}) {
-    function define_input_mode (base_name, keymap_name) {
-        keywords(arguments);
-        var name = base_name + "_input_mode";
-        input_mode_keymaps[name] = keymap_name;
-        define_buffer_mode(name,
-                           $class = "input_mode",
-                           $enable = function (buffer) {
-                               check_buffer(buffer, content_buffer);
-                               buffer_update_keymap_for_input_mode(buffer);
-                           },
-                           $disable = false,
-                           forward_keywords(arguments));
-    }
-    ignore_function_for_get_caller_source_code_reference("define_input_mode");
-
-    function buffer_update_keymap_for_input_mode (buffer) {
-        if (buffer.input_mode)
-            buffer.keymap = conkeror[input_mode_keymaps[buffer.input_mode]];
-    }
+function define_input_mode (base_name, keymap_name) {
+    keywords(arguments);
+    var name = base_name + "_input_mode";
+    define_buffer_mode(name,
+                       $class = "input_mode",
+                       $enable = function (buffer) {
+                           check_buffer(buffer, content_buffer);
+                           buffer.keymaps.push(conkeror[keymap_name]);
+                       },
+                       $disable = function (buffer) {
+                           var i = buffer.keymaps.indexOf(conkeror[keymap_name]);
+                           if (i > -1)
+                               buffer.keymaps.splice(i, 1);
+                       },
+                       forward_keywords(arguments));
 }
+ignore_function_for_get_caller_source_code_reference("define_input_mode");
 
 
 function minibuffer_input_mode_indicator (window) {
@@ -898,8 +930,8 @@ minibuffer_input_mode_indicator.prototype = {
     update : function () {
         var buf = this.window.buffers.current;
         var mode = buf.input_mode;
-        if (mode)
-            this.window.minibuffer.element.className = "minibuffer-" + buf.input_mode.replace("_","-","g");
+        var classname = mode ? ("minibuffer-" + buf.input_mode.replace("_","-","g")) : "";
+        this.window.minibuffer.element.className = classname;
     },
     uninstall : function () {
         remove_hook.call(window, "select_buffer_hook", this.hook_func);

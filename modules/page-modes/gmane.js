@@ -1,17 +1,17 @@
 /**
  * (C) Copyright 2008 David Kettler
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
 require("content-buffer.js");
-require("bindings/default/content-buffer/normal.js");
 
-define_keymap("gmane_keymap", $parent = content_buffer_normal_keymap);
-
+define_keymap("gmane_keymap");
 
 /* Rebind most overridden commands. */
+//BAAAAAAD
 define_key(gmane_keymap, "C-c c", "copy");
 define_key(gmane_keymap, "C-c +", "zoom-in-text");
 define_key(gmane_keymap, "C-c -", "zoom-out-text");
@@ -77,9 +77,24 @@ define_key(gmane_keymap, "up", null, $fallthrough);
 define_key(gmane_keymap, "S", null, $fallthrough);
 
 
-define_page_mode("gmane_mode",
-                 $display_name = "Gmane",
-                 $keymaps = {normal_input_mode: gmane_keymap});
+function gmane_modality (buffer, element) {
+    if (! buffer.input_mode)
+        buffer.keymaps.push(gmane_keymap);
+}
 
-var gmane_re = build_url_regex($domain = /(news|thread)\.gmane/, $tlds = ["org"]);
-auto_mode_list.push([gmane_re, gmane_mode]);
+
+define_page_mode("gmane_mode",
+    $enable = function (buffer) {
+        buffer.modalities.push(gmane_modality);
+    },
+    $disable = function (buffer) {
+        var i = buffer.modalities.indexOf(gmane_modality);
+        if (i > -1)
+            buffer.modalities.splice(i, 1);
+    },
+    $display_name = "Gmane");
+
+
+let (re = build_url_regex($domain = /(news|thread)\.gmane/, $tlds = ["org"])) {
+    auto_mode_list.push([re, gmane_mode]);
+}

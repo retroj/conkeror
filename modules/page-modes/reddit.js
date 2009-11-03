@@ -245,13 +245,21 @@ define_browser_object_class("reddit-current", null,
     });
 
 
-define_keymap("reddit_keymap", $parent = content_buffer_normal_keymap);
+define_keymap("reddit_keymap");
 define_key(reddit_keymap, "j", "reddit-next-link");
 define_key(reddit_keymap, "k", "reddit-prev-link");
 define_key(reddit_keymap, ",", "reddit-vote-up");
 define_key(reddit_keymap, ".", "reddit-vote-down");
 define_key(reddit_keymap, "h", "reddit-open-comments");
 
+function reddit_modality (buffer, element) {
+    // terse but hacky way to get the effect we want.  the current "correct"
+    // way would be to write an entire long dispatcher like that used for the
+    // basic content-buffer modality in content-buffer-input.js.  we really
+    // need some abstraction to let us tersely express when to push keymaps.
+    if (! buffer.input_mode)
+        buffer.keymaps.push(reddit_keymap);
+}
 
 define_page_mode("reddit_mode",
                  $display_name = "reddit",
@@ -266,8 +274,13 @@ define_page_mode("reddit_mode",
                                  browser_object_reddit_current;
                          }
                      }
+                     buffer.modalities.push(reddit_modality);
                  },
-                 $keymaps = {normal_input_mode: reddit_keymap},
+                 $disable = function (buffer) {
+                     var i = buffer.modalities.indexOf(reddit_modality);
+                     if (i > -1)
+                         buffer.modalities.splice(i, 1);
+                 },
                  $doc = "reddit page-mode: keyboard navigation for reddit.");
 
 let (re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/)) {

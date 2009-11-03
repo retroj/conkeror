@@ -224,42 +224,101 @@ function format_binding_sequence (seq) {
 
 
 function keymap_lookup (keymaps, combo, event) {
-    var k = keymaps.length - 1;
-    var kmap = keymaps[k];
+    var i = keymaps.length - 1;
+    var kmap = keymaps[i];
+    var new_kmaps;
     while (true) {
-        // first check regular bindings
         var bindings = kmap.bindings;
         var bind = bindings[combo];
-        if (bind)
-            return bind;
-        // then check predicate_bindings
-        if (event) {
+        if (new_kmaps) {
+            if (bind) {
+                if (bind.keymap)
+                    new_kmaps.unshift(bind.keymap);
+                else
+                    return new_kmaps;
+            }
+        } else if (bind) {
+            if (bind.keymap)
+                new_kmaps = [bind.keymap];
+            else
+                return bind;
+        } else {
             var pred_binds = kmap.predicate_bindings;
-            for (var i = 0; i < pred_binds.length; ++i) {
-                bind = pred_binds[i];
+            for (var j = 0; j < pred_binds.length; ++j) {
+                bind = pred_binds[j];
                 if (bind.key(event))
                     return bind;
             }
         }
         if (kmap.parent)
             kmap = kmap.parent;
-        else if (k > 0)
-            kmap = keymaps[--k];
+        else if (i > 0)
+            kmap = keymaps[--i];
+        else if (new_kmaps)
+            return new_kmaps
         else
             return null;
     }
 }
 
 
-function keymap_lookup_fallthrough (kmap, event) {
-    var predicates = kmap.fallthrough;
+function keymap_lookup_fallthrough (keymap, event) {
+    var predicates = keymap.fallthrough;
     for (var i = 0; i < predicates.length; ++i) {
-        if (predicates[i](event)) {
+        if (predicates[i](event))
             return true;
-        }
     }
     return false;
 }
+
+
+function for_each_key_binding (keymaps, callback) {
+    var binding_sequence = [];
+    function helper (keymap) {
+        var binding;
+        for each (binding in keymap.bindings) {
+            binding_sequence.push(binding);
+            callback(binding_sequence);
+            if (binding.keymap)
+                helper(binding.keymap);
+            binding_sequence.pop();
+        }
+        for each (binding in keymap.predicate_bindings) {
+            binding_sequence.push(binding);
+            callback(binding_sequence);
+            if (binding.keymap)
+                helper(binding.keymap);
+            binding_sequence.pop();
+        }
+    }
+    //outer loop is to go down the parent-chain of keymaps
+    var i = keymaps.length - 1;
+    var keymap = keymaps[i];
+    while (true) {
+        helper(keymap);
+        if (keymap.parent)
+            keymap = keymap.parent;
+        else if (i > 0)
+            keymap = keymaps[--i];
+        else
+            break;
+    }
+}
+
+
+function keymap_lookup_command (keymaps, command) {
+    var list = [];
+    for_each_key_binding(keymaps, function (bind_seq) {
+            var bind = bind_seq[bind_seq.length - 1];
+            if (bind.command == command)
+                list.push(format_binding_sequence(bind_seq));
+        });
+    return list;
+}
+
+
+
+
 
 
 /*
@@ -279,8 +338,7 @@ define_keywords("$fallthrough", "$repeat", "$browser_object");
 function define_key_internal (ref, kmap, seq, new_command, new_keymap) {
     keywords(arguments);
     var args = arguments;
-    var parent_kmap = kmap.parent;
-    var final_binding; // flag to indicate the final key combo in the sequence.
+    var last_in_sequence; // flag to indicate the final key combo in the sequence.
     var key; // current key combo as we iterate through the sequence.
     var undefine_key = (new_command == null) &&
         (new_keymap == null) &&
@@ -288,7 +346,7 @@ function define_key_internal (ref, kmap, seq, new_command, new_keymap) {
 
     /* Replace `bind' with the binding specified by (cmd, fallthrough) */
     function replace_binding (bind) {
-        if (final_binding) {
+        if (last_in_sequence) {
             bind.command = new_command;
             bind.keymap = new_keymap;
             bind.fallthrough = args.$fallthrough;
@@ -303,7 +361,7 @@ function define_key_internal (ref, kmap, seq, new_command, new_keymap) {
     }
 
     function make_binding () {
-        if (final_binding) {
+        if (last_in_sequence) {
             return { key: key,
                      fallthrough: args.$fallthrough,
                      command: new_command,
@@ -314,8 +372,7 @@ function define_key_internal (ref, kmap, seq, new_command, new_keymap) {
                      bound_in: kmap };
         } else {
             let old_kmap = kmap;
-            // Check for a corresponding binding a parent
-            kmap = new keymap($parent = parent_kmap, $anonymous,
+            kmap = new keymap($anonymous,
                               $name = old_kmap.name + " " + format_key_spec(key));
             kmap.bound_in = old_kmap;
             return { key: key,
@@ -325,64 +382,34 @@ function define_key_internal (ref, kmap, seq, new_command, new_keymap) {
         }
     }
 
-outer:
+sequence:
     for (var i = 0; i < seq.length; ++i) {
         key = seq[i];
-        final_binding = (i == seq.length - 1);
+        last_in_sequence = (i == seq.length - 1);
 
-        // Check if the specified binding is already present in the kmap
-        if (typeof(key) == "function") { // it's a match predicate
+        if (typeof key == "function") { // it's a match predicate
+            // Check if the binding is already present in the keymap
             var pred_binds = kmap.predicate_bindings;
             for (var j = 0; j < pred_binds.length; j++) {
                 if (pred_binds[j].key == key) {
-                    if (final_binding && undefine_key)
+                    if (last_in_sequence && undefine_key)
                         delete pred_binds[j];
                     else
                         replace_binding(pred_binds[j]);
-                    continue outer;
+                    continue sequence;
                 }
             }
-
-            if (!final_binding && parent_kmap) {
-                var parent_pred_binds = parent_kmap.predicate_bindings;
-                parent_kmap = null;
-                for (j = 0; j < parent_pred_binds.length; j++) {
-                    if (parent_pred_binds[j].key == key &&
-                        parent_pred_binds[j].keymap)
-                    {
-                        parent_kmap = parent_pred_binds[j].keymap;
-                        break;
-                    }
-                }
-            }
-            // Not already present, must be added
             pred_binds.push(make_binding());
         } else {
-            // Check if the specified binding is already present in the kmap
+            // Check if the binding is already present in the keymap
             var bindings = kmap.bindings;
             var binding = bindings[key];
-
             if (binding) {
-                if (final_binding && undefine_key)
+                if (last_in_sequence && undefine_key)
                     delete bindings[key];
                 else
                     replace_binding(binding);
-                continue outer;
-            }
-
-            if (!final_binding) {
-                let temp_parent = parent_kmap;
-                parent_kmap = null;
-                while (temp_parent) {
-                    let p_bindings = temp_parent.bindings;
-                    let p_binding = p_bindings[key];
-                    if (p_binding && p_binding.keymap) {
-                        parent_kmap = p_binding.keymap;
-                        break;
-                    } else {
-                        temp_parent = temp_parent.parent;
-                    }
-                }
+                continue sequence;
             }
             if (! undefine_key)
                 bindings[key] = make_binding();
@@ -442,7 +469,7 @@ function define_key (kmap, seq, cmd) {
         define_key_internal(ref, kmap, seq, new_command, new_keymap,
                             forward_keywords(arguments));
 
-    } catch (e if (typeof(e) == "string")) {
+    } catch (e if (typeof e == "string")) {
         dumpln("Warning: Error occurred while binding sequence: " + orig_seq);
         dumpln(e);
     }
@@ -471,66 +498,9 @@ function define_fallthrough (keymap, predicate) {
 }
 
 
-
 /*
- * Help
+ * Minibuffer Read Key Binding
  */
-require_later("input.js"); // window.input
-
-function for_each_key_binding (keymap_or_buffer, callback) {
-    var keymap;
-    if (keymap_or_buffer instanceof conkeror.buffer) {
-        var buffer = keymap_or_buffer;
-        var window = buffer.window;
-        keymap = window.input.override_keymap || buffer.keymap;
-    } else {
-        keymap = keymap_or_buffer;
-    }
-    var keymap_stack = [keymap];
-    var binding_stack = [];
-    function helper2 (bind) {
-        binding_stack.push(bind);
-        callback(binding_stack);
-        if (bind.keymap && keymap_stack.indexOf(bind.keymap) == -1) {
-            keymap_stack.push(bind.keymap);
-            helper();
-            keymap_stack.pop();
-        }
-        binding_stack.pop();
-    }
-    function helper () {
-        while (true) {
-            var keymap = keymap_stack[keymap_stack.length - 1];
-            for (var i in keymap.bindings) {
-                var b = keymap.bindings[i];
-                helper2(b);
-            }
-            for (i in  keymap.predicate_bindings) {
-                var bind = keymap.predicate_bindings[i];
-                helper2(bind);
-                var p = bind.key;
-                if (p == match_any_key)
-                    return;
-            }
-            if (keymap.parent)
-                keymap_stack[keymap_stack.length - 1] = keymap.parent;
-            else
-                break;
-        }
-    }
-    helper();
-}
-
-function find_command_in_keymap (keymap_or_buffer, command) {
-    var list = [];
-
-    for_each_key_binding(keymap_or_buffer, function (bind_seq) {
-            var bind = bind_seq[bind_seq.length - 1];
-            if (bind.command == command)
-                list.push(format_binding_sequence(bind_seq));
-        });
-    return list;
-}
 
 define_keymap("key_binding_reader_keymap");
 define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
@@ -545,7 +515,7 @@ function key_binding_reader (window, continuation) {
         this.target_keymap = arguments.$keymap;
     else {
         var buffer = arguments.$buffer;
-        this.target_keymap = window.input.override_keymap || buffer.keymap;
+        this.target_keymap = get_current_keymaps(window);
     }
 
     this.key_sequence = [];
@@ -573,7 +543,7 @@ invalid_key_binding.prototype = {
 
 function read_key_binding_key (window, state, event) {
     var combo = format_key_combo(event);
-    var binding = keymap_lookup([state.target_keymap], combo, event);
+    var binding = keymap_lookup(state.target_keymap, combo, event);
 
     state.key_sequence.push(combo);
 

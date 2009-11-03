@@ -10,10 +10,6 @@
 require("buffer.js");
 require("load-spec.js");
 
-//FIXME: circular dependency for browser_prevent_automatic_form_focus_mode,
-//       and content_buffer_update_input_mode_for_focus.
-require_later("content-buffer-input.js");
-
 define_variable("homepage", "chrome://conkeror-help/content/help.html",
                 "The url loaded by default for new content buffers.");
 
@@ -33,6 +29,75 @@ define_current_buffer_hook("current_content_buffer_location_change_hook", "conte
 define_current_buffer_hook("current_content_buffer_status_change_hook", "content_buffer_status_change_hook");
 define_current_buffer_hook("current_content_buffer_focus_change_hook", "content_buffer_focus_change_hook");
 define_current_buffer_hook("current_content_buffer_overlink_change_hook", "content_buffer_overlink_change_hook");
+
+
+define_input_mode("text", "content_buffer_text_keymap", $display_name = "input:TEXT");
+define_input_mode("textarea", "content_buffer_textarea_keymap", $display_name = "input:TEXTAREA");
+define_input_mode("richedit", "content_buffer_richedit_keymap", $display_name = "input:RICHEDIT");
+define_input_mode("select", "content_buffer_select_keymap", $display_name = "input:SELECT");
+define_input_mode("checkbox", "content_buffer_checkbox_keymap", $display_name = "input:CHECKBOX/RADIOBUTTON");
+define_input_mode("button", "content_buffer_button_keymap", $display_name = "input:BUTTON");
+
+function content_buffer_modality (buffer) {
+    var elem = buffer.focused_element;
+    buffer.keymaps.push(content_buffer_normal_keymap);
+    if (elem) {
+        let p = elem.parentNode;
+        while (p && !(p instanceof Ci.nsIDOMHTMLFormElement))
+            p = p.parentNode;
+        if (p)
+            buffer.keymaps.push(content_buffer_form_keymap);
+    }
+    if (elem instanceof Ci.nsIDOMHTMLInputElement) {
+        switch ((elem.getAttribute("type") || "").toLowerCase()) {
+        case "checkbox":
+            checkbox_input_mode(buffer, true);
+            break;
+        case "radio":
+            checkbox_input_mode(buffer, true);
+            break;
+        case "submit":
+            button_input_mode(buffer, true);
+            break;
+        case "reset":
+            button_input_mode(buffer, true);
+            break;
+        default:
+            text_input_mode(buffer, true);
+            break;
+        }
+        return;
+    }
+    if (elem instanceof Ci.nsIDOMHTMLTextAreaElement) {
+        textarea_input_mode(buffer, true);
+        return;
+    }
+    if (elem instanceof Ci.nsIDOMHTMLSelectElement) {
+        select_input_mode(buffer, true);
+        return;
+    }
+    if (elem instanceof Ci.nsIDOMHTMLAnchorElement) {
+        buffer.keymaps.push(content_buffer_anchor_keymap);
+        return;
+    }
+    var frame = buffer.focused_frame;
+    if (frame && frame.document.designMode == "on") {
+        richedit_input_mode(buffer, true);
+        return;
+    }
+    while (elem) {
+        switch (elem.contentEditable) {
+        case "true":
+            richedit_input_mode(buffer, true);
+            return;
+        case "false":
+            return;
+        default: // "inherit"
+            elem = elem.parentNode;
+        }
+    }
+}
+
 
 /* If browser is null, create a new browser */
 define_keywords("$load");
@@ -77,36 +142,14 @@ function content_buffer (window, element) {
         // before mouseover.
         buffer.current_overlink = null;
 
-        this.browser.addEventListener("mousedown", function (event) {
-            buffer.last_user_input_received = Date.now();
-        }, true /* capture */);
-
-        this.browser.addEventListener("keypress", function (event) {
-            buffer.last_user_input_received = Date.now();
-        }, true /* capture */);
-
         this.browser.addEventListener("DOMLinkAdded", function (event) {
             content_buffer_dom_link_added_hook.run(buffer, event);
         }, true /* capture */);
-
-        buffer.last_user_input_received = null;
-
-        /* FIXME: Add handler for PopupWindow event
-	   WTF: What does that comment mean? Is PopupWindow an event? /Deniz
-	*/
 
         this.browser.addEventListener("DOMPopupBlocked", function (event) {
 	    dumpln("Blocked popup: " + event.popupWindowURI.spec);
             content_buffer_popup_blocked_hook.run(buffer, event);
         }, true /* capture */);
-
-        // XXX: This is needed to ensure we have a keymap at the
-        // instant the buffer is created, but before the page has been
-        // loaded in it.  It breaks heirarchy, as content_buffer
-        // should not have any business knowing about a specific
-        // input-mode system, so we'll see if we can figure out
-        // something more elegant.
-        content_buffer_update_input_mode_for_focus(this);
 
         this.ignore_initial_blank = true;
 
@@ -121,6 +164,9 @@ function content_buffer (window, element) {
                 this.load(lspec);
             }
         }
+
+        this.modalities.push(content_buffer_modality);
+
     } finally {
         this.constructor_end();
     }
@@ -212,7 +258,6 @@ content_buffer.prototype = {
             //dumpln("*** started loading");
             this.loading = true;
             content_buffer_started_loading_hook.run(this);
-            this.last_user_input_received = null;
         } else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
                    aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
             if (this.loading == true) {
@@ -249,8 +294,8 @@ content_buffer.prototype = {
         //dumpln("spec: " + location.spec  +" ;;; " + this.display_uri_string);
         /* Use the real location URI now */
         this._display_uri = null;
+        this.set_input_mode();
         content_buffer_location_change_hook.run(this, request, location);
-        this.last_user_input_received = null;
         buffer_description_change_hook.run(this);
     },
 
@@ -581,18 +626,13 @@ browser_dom_window.prototype = {
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
 
-define_keywords("$display_name", "$enable", "$disable", "$doc", "$keymaps");
+define_keywords("$display_name", "$enable", "$disable", "$doc");
 function define_page_mode (name) {
     keywords(arguments);
     var display_name = arguments.$display_name;
     var enable = arguments.$enable;
     var disable = arguments.$disable;
     var doc = arguments.$doc;
-    var keymaps = arguments.$keymaps;
-    function page_mode_update_keymap (buffer) {
-        if (keymaps[buffer.input_mode])
-            buffer.keymap = keymaps[buffer.input_mode];
-    }
     define_buffer_mode(name,
                        $display_name = display_name,
                        $class = "page_mode",
@@ -602,22 +642,14 @@ function define_page_mode (name) {
                            };
                            if (enable)
                                enable(buffer);
-                           if (keymaps) {
-                               add_hook.call(buffer, "input_mode_change_hook",
-                                             page_mode_update_keymap);
-                               page_mode_update_keymap(buffer);
-                           }
+                           buffer.set_input_mode();
                        },
                        $disable = function (buffer) {
                            if (disable)
                                disable(buffer);
                            buffer.page = null;
                            buffer.default_browser_object_classes = {};
-                           if (keymaps) {
-                               remove_hook.call(buffer, "input_mode_change_hook",
-                                                page_mode_update_keymap);
-                               buffer_update_keymap_for_input_mode(buffer);
-                           }
+                           buffer.set_input_mode();
                        },
                        $doc = doc);
 }

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Portions of this file are derived from Vimperator,
@@ -282,8 +282,6 @@ function read_browser_object (I) {
 function browser_set_element_focus (buffer, elem, prevent_scroll) {
     if (!element_dom_node_or_window_p(elem))
         return;
-
-    buffer.last_user_input_received = Date.now();
     if (prevent_scroll)
         set_focus_no_scroll(buffer.window, elem);
     else

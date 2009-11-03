@@ -452,6 +452,10 @@ define_variable("download_buffer_min_update_interval", 2000,
     "Lowering this interval will increase the promptness of the progress display at " +
     "the cost of using additional processor time.");
 
+function download_buffer_modality (buffer, element) {
+    buffer.keymaps.push(download_buffer_keymap);
+}
+
 define_keywords("$info");
 function download_buffer (window, element) {
     this.constructor_begin();
@@ -460,7 +464,6 @@ function download_buffer (window, element) {
     this.info = arguments.$info;
     this.local.cwd = this.info.mozilla_info.targetFile.parent;
     this.description = this.info.mozilla_info.source.spec;
-    this.keymap = download_buffer_keymap;
     this.update_title();
 
     this.progress_change_handler_fn = method_caller(this, this.handle_progress_change);
@@ -468,6 +471,7 @@ function download_buffer (window, element) {
     add_hook.call(this.info, "download_state_change_hook", this.progress_change_handler_fn);
     this.command_change_handler_fn = method_caller(this, this.update_command_field);
     add_hook.call(this.info, "download_shell_command_change_hook", this.command_change_handler_fn);
+    this.modalities.push(download_buffer_modality);
     this.constructor_end();
 }
 download_buffer.prototype = {

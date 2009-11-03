@@ -33,6 +33,12 @@ require("download-manager.js");
 
 require("element.js");
 
+require("buffer.js")
+require("content-buffer.js");
+require("content-buffer-input.js");
+require("quote.js");
+require("caret.js");
+
 require("universal-argument.js");
 require("commands.js");
 require("webjump.js");

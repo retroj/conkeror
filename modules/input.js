@@ -76,7 +76,7 @@ input_state.prototype = {
 
     // If this is non-null, it is used instead of the current buffer's
     // keymap.  Used for minibuffer.
-    override_keymap: null
+    override_keymap: null //this should be stored in the minibuffer state, right?
 };
 
 
@@ -109,6 +109,15 @@ define_window_local_hook("keypress_hook", RUN_HOOK_UNTIL_SUCCESS,
     "that is desired.");
 
 
+function get_current_keymaps (window) {
+    if (window.input.current.override_keymap)
+        return [window.input.current.override_keymap];
+    if (window.buffers.current.override_keymaps.length > 0)
+        return window.buffers.current.override_keymaps;
+    return window.buffers.current.keymaps;
+}
+
+
 /**
  * input_handle_sequence is the main handler for all event types which
  * can be part of a sequence.  It is a coroutine procedure which gets
@@ -123,15 +132,13 @@ function input_handle_sequence (event) {
         var I = new interactive_context(window.buffers.current);
         I.key_sequence = [];
         I.sticky_modifiers = 0;
-        var keymap =
-            state.override_keymap ||
-            window.buffers.current.keymap;
+        var keymaps = get_current_keymaps(window);
 sequence:
         while (true) {
             switch (event.type) {
             case "keydown":
                 //try the fallthrough predicates in our current keymap
-                if (keymap_lookup_fallthrough(keymap, event)) {
+                if (keymap_lookup_fallthrough(keymaps[keymaps.length - 1], event)) {
                     //XXX: need to take account of modifers, too!
                     state.fallthrough[event.keyCode] = true;
                 } else
@@ -166,7 +173,7 @@ sequence:
                 var overlay_keymap = I.overlay_keymap;
 
                 var binding = (overlay_keymap && keymap_lookup([overlay_keymap], combo, event)) ||
-                    keymap_lookup([keymap], combo, event);
+                    keymap_lookup(keymaps, combo, event);
 
                 // kill event for any unbound key, or any bound key which
                 // is not marked fallthrough
@@ -176,8 +183,8 @@ sequence:
                 if (binding) {
                     if (binding.browser_object != null)
                         I.binding_browser_object = binding.browser_object;
-                    if (binding.keymap) {
-                        keymap = binding.keymap;
+                    if (binding.constructor == Array) {
+                        keymaps = binding;
                         input_show_partial_sequence(window, I);
                     } else if (binding.command) {
                         let command = binding.command;
@@ -187,9 +194,7 @@ sequence:
                         if (typeof command == "string" &&
                             interactive_commands.get(command).prefix)
                         {
-                            // go back to our top keymap
-                            keymap = state.override_keymap ||
-                                window.buffers.current.keymap;
+                            keymaps = get_current_keymaps(window); //back to top keymap
                             input_show_partial_sequence(window, I);
                             if (binding.repeat)
                                 I.repeat = command;
