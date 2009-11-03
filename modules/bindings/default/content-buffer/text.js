@@ -13,7 +13,7 @@ require("bindings/default/content-buffer/form.js");
 define_keymap("content_buffer_text_keymap");
 define_fallthrough(content_buffer_text_keymap, match_text_keys);
 
-define_key(content_buffer_text_keymap, match_any_unmodified_character, null, $fallthrough);
+define_key(content_buffer_text_keymap, match_text_keys, null, $fallthrough);
 
 // Movement
 define_key(content_buffer_text_keymap, "C-a", "beginning-of-line");

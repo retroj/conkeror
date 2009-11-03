@@ -194,7 +194,8 @@ define_key_match_predicate('match_checkbox_keys', 'checkbox keys',
 
 define_key_match_predicate('match_text_keys', 'text editing keys',
     function (event) {
-        return (event.keyCode == 13 || event.keyCode > 31)
+        return ((event.type == 'keypress' && event.charCode)
+                || event.keyCode == 13 || event.keyCode > 31)
             && !event.ctrlKey
             && !event.metaKey
             && !modifiers.A.in_event_p(event);
