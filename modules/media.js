@@ -84,7 +84,8 @@ define_browser_object_class("media", null,
             },
             $get_description = function (x) {
                 x = load_spec(x);
-                return load_spec_title(x) || "";
+                return (load_spec_title(x) || "") +
+                    (x.description ? " ("+x.description+")" : "");
             });
 
         let result = yield I.buffer.window.minibuffer.read(

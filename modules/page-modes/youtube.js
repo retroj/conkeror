@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2009 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -11,20 +12,42 @@ require("media.js");
 let media_youtube_content_key_regexp = /"t": "([^"]+)"/;
 let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/;
 
+define_variable('youtube_formats', ['hd', 'hq', 'standard'],
+    "A list of quality levels for the youtube video scraper to try. "+
+    "Each quality level is denoted as a string.  The valid qualities "+
+    "are 'hd' (high def), 'hq' (high quality), and 'standard'.  The "+
+    "order of the tokens in this list will be reflected in the order "+
+    "of the completions list, if it is necessary to prompt from among "+
+    "the available qualities.");
+
 function media_scrape_youtube_document_text (source_frame, code, text, results) {
     var title_match = media_youtube_content_title_regexp.exec(text);
     var title = null;
     if (!title_match)
         return;
-    let res = media_youtube_content_key_regexp.exec(text);
+    var res = media_youtube_content_key_regexp.exec(text);
     if (!res)
         return;
-    results.push(load_spec({uri: 'http://youtube.com/get_video?video_id=' + code + '&t=' + res[1],
-                            suggest_filename_from_uri: false,
-                            title: decodeURIComponent(title_match[1]),
-                            filename_extension: "flv",
-                            source_frame: buffer.top_frame,
-                            mime_type: "video/x-flv"}));
+    youtube_formats.map(function (quality) {
+        var fmt = '';
+        if (quality == 'hd') {
+            if (!(/'IS_HD_AVAILABLE': true/.test(text)))
+                return;
+            fmt = '&fmt=22';
+        } else if (quality == 'hq') {
+            fmt = '&fmt=18';
+        }
+        results.push(load_spec({
+            uri: 'http://youtube.com/get_video?video_id='+
+                 code + '&t=' + res[1] + fmt,
+            suggest_filename_from_uri: false,
+            title: decodeURIComponent(title_match[1]),
+            filename_extension: "flv",
+            source_frame: buffer.top_frame,
+            mime_type: "video/x-flv",
+            description: quality
+        }));
+    });
 }
 
 function media_scrape_youtube (buffer, results) {
