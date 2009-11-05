@@ -19,7 +19,7 @@ define_variable("media_scrape_default_regexp",
                 "Regular expression used by the default media scraper to match URIs for "
                 + "embedded media in the page source code.");
 
-function media_scrape_default(buffer, results) {
+function media_scrape_default (buffer, results) {
     var initial_length = results.length;
     for (let frame in frame_iterator(buffer.top_frame)) {
         var text = frame.document.documentElement.innerHTML;
@@ -51,8 +51,10 @@ function media_scrape_default(buffer, results) {
     return results;
 }
 
+
 define_variable("media_scrapers", [media_scrape_default],
-                "Function (or coroutine) to use to scrape the current buffer for embedded media.");
+    "List of functions (or coroutines) to use to scrape a buffer "+
+    "for embedded media.");
 
 
 function media_scrape (I, buffer) {
@@ -72,10 +74,8 @@ define_browser_object_class("media", null,
         let media = yield media_scrape(I, I.buffer);
         if (!media || media.length == 0)
             throw interactive_error("No media found.");
-
         if (media.length == 1)
             yield co_return(media[0]);
-
         let completer = all_word_completer(
             $completions = media,
             $get_string = function (x) {
@@ -87,21 +87,22 @@ define_browser_object_class("media", null,
                 return (load_spec_title(x) || "") +
                     (x.description ? " ("+x.description+")" : "");
             });
-
         let result = yield I.buffer.window.minibuffer.read(
             $prompt = prompt,
             $match_required,
             $completer = completer,
             $auto_complete_initial,
             $auto_complete = "media");
-
         yield co_return(result);
-    });
+    },
+    $hint = "select media");
 minibuffer_auto_complete_preferences["media"] = true;
 
-function media_setup_local_object_classes(buffer) {
+
+function media_setup_local_object_classes (buffer) {
     buffer.default_browser_object_classes = {
-        save: browser_object_media };
+        save: browser_object_media
+    };
     buffer.default_browser_object_classes['shell-command-on-file'] =
         browser_object_media;
     buffer.default_browser_object_classes['shell-command-on-url'] =
