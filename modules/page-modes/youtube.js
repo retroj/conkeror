@@ -43,7 +43,7 @@ function media_scrape_youtube_document_text (source_frame, code, text, results) 
             suggest_filename_from_uri: false,
             title: decodeURIComponent(title_match[1]),
             filename_extension: "flv",
-            source_frame: buffer.top_frame,
+            source_frame: source_frame,
             mime_type: "video/x-flv",
             description: quality
         }));
