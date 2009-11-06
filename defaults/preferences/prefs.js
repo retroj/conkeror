@@ -5,12 +5,15 @@
  * COPYING file.
 **/
 
+pref("app.vendorURL", "http://conkeror.org/");
+pref("app.releaseNotesURL", "http://conkeror.org/BreakingChanges");
+
 pref("browser.chromeURL", "chrome://conkeror-gui/content/conkeror.xul");
 
-pref("accessibility.typeaheadfind",               false);
+pref("accessibility.typeaheadfind", false);
 
 // Make sure access keys do not override conkeror keys
-pref("ui.key.generalAccessKey",                   0);
+pref("ui.key.generalAccessKey", 0);
 
 
 /* Show error pages instead of an alert window. */
