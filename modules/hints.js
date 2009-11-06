@@ -476,10 +476,11 @@ hints_minibuffer_state.prototype = {
     }
 };
 
-define_variable("hints_auto_exit_delay", 500,
+define_variable("hints_auto_exit_delay", 0,
     "Delay (in milliseconds) after the most recent key stroke before a "+
-    "sole matching element is automatically selected.  If this is set to "+
-    "0, automatic selection is disabled.");
+    "sole matching element is automatically selected.  When zero, "+
+    "automatic selection is disabled.  A value of 500 is a good "+
+    "starting point for an average-speed typist.");
 
 define_variable("hints_ambiguous_auto_exit_delay", 0,
     "Delay (in milliseconds) after the most recent key stroke before the "+
