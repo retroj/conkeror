@@ -12,42 +12,111 @@ require("media.js");
 let media_youtube_content_key_regexp = /"t": "([^"]+)"/;
 let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/;
 
-define_variable('youtube_formats', ['hd', 'hq', 'standard'],
-    "A list of quality levels for the youtube video scraper to try. "+
-    "Each quality level is denoted as a string.  The valid qualities "+
-    "are 'hd' (high def), 'hq' (high quality), and 'standard'.  The "+
-    "order of the tokens in this list will be reflected in the order "+
-    "of the completions list, if it is necessary to prompt from among "+
-    "the available qualities.");
 
-function media_scrape_youtube_document_text (source_frame, code, text, results) {
+/*
+ * Youtube Format Scrapers
+ *
+ *    Given a push function, the id of the video, the `t' key, and the
+ * text of the document (to scrape further data if necessary), the format
+ * scrapers' job is to call the push function with four args: url, file
+ * extension, mime type, and description.
+ *
+ *    Scrapers should return true on success and false on failure.
+ */
+function youtube_scrape_standard (push, id, t, text) {
+    push('http://youtube.com/get_video?video_id='+id + '&t='+t,
+         'flv', 'video/x-flv', 'standard');
+    return true;
+}
+
+function youtube_scrape_hq (push, id, t, text) {
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=18',
+         'flv', 'video/x-flv', 'hq');
+    return true;
+}
+
+function youtube_scrape_hd (push, id, t, text) {
+    if (!(/'IS_HD_AVAILABLE': true/.test(text)))
+        return false;
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=22',
+         'flv', 'video/x-flv', 'hd');
+    return true;
+}
+
+
+/*
+ * Scraper Composition
+ */
+
+/**
+ * make_call_each takes any number of functions as arguments and returns a
+ * closure which, when called, calls each of those functions in order, and
+ * finally returns true if any of the functions returned true.
+ */
+function make_call_each () {
+    var fns = Array.prototype.slice.call(arguments, 0);
+    return function () {
+        var args = Array.prototype.slice.call(arguments, 0);
+        var found = false;
+        fns.map(function (fn) {
+            if (fn.apply(this, args))
+                found = true;
+        });
+        return found;
+    };
+}
+
+/**
+ * make_call_each_until_success takes any number of functions as arguments
+ * and returns a closure which, when called, calls each of those functions
+ * in order until one returns true.
+ */
+function make_call_each_until_success () {
+    var fns = Array.prototype.slice.call(arguments, 0);
+    return function () {
+        var args = Array.prototype.slice.call(arguments, 0);
+        for each (var fn in fns) {
+            if (fn.apply(this, args))
+                return true;
+        }
+        return false;
+    };
+}
+
+define_variable('youtube_scrape_function',
+                make_call_each(youtube_scrape_hd,
+                               youtube_scrape_hq,
+                               youtube_scrape_standard),
+    "This function is called as the last step of scraping a youtube page, "+
+    "after the basic information needed to build the media url has been "+
+    "extracted. Youtube_scape_function is called with four arguments: a "+
+    "`push' function, the id, the t key, and the text of the page.  Its "+
+    "job is to call the push function for each media url desired with "+
+    "the arguments url, file extension, mime type, and description.  It "+
+    "should return true if it called the push function at least once, and "+
+    "otherwise false.");
+
+
+function youtube_scrape_text (results, frame, id, text) {
     var title_match = media_youtube_content_title_regexp.exec(text);
-    var title = null;
     if (!title_match)
-        return;
+        return null;
+    var title = decodeURIComponent(title_match[1]);
     var res = media_youtube_content_key_regexp.exec(text);
     if (!res)
-        return;
-    youtube_formats.map(function (quality) {
-        var fmt = '';
-        if (quality == 'hd') {
-            if (!(/'IS_HD_AVAILABLE': true/.test(text)))
-                return;
-            fmt = '&fmt=22';
-        } else if (quality == 'hq') {
-            fmt = '&fmt=18';
-        }
+        return null;
+    function push (url, extension, mime_type, description) {
         results.push(load_spec({
-            uri: 'http://youtube.com/get_video?video_id='+
-                 code + '&t=' + res[1] + fmt,
+            uri: url,
             suggest_filename_from_uri: false,
-            title: decodeURIComponent(title_match[1]),
-            filename_extension: "flv",
-            source_frame: source_frame,
-            mime_type: "video/x-flv",
-            description: quality
+            title: title,
+            filename_extension: extension,
+            source_frame: frame,
+            mime_type: mime_type,
+            description: description
         }));
-    });
+    }
+    youtube_scrape_function(push, id, res[1], text);
 }
 
 function media_scrape_youtube (buffer, results) {
@@ -57,8 +126,8 @@ function media_scrape_youtube (buffer, results) {
         if (!result)
             return;
         let text = buffer.document.documentElement.innerHTML;
-        let code = result[1];
-        media_scrape_youtube_document_text(buffer.top_frame, code, text, results);
+        let id = result[1];
+        youtube_scrape_text(results, buffer.top_frame, id, text);
     } catch (e if !(e instanceof interactive_error)) {}
 }
 
@@ -86,15 +155,15 @@ function media_scrape_embedded_youtube(buffer, results) {
                     (match = embedded_youtube_regexp.exec(param_el.getAttribute("value"))) != null) {
 
                     try {
-                        let code = match[1];
-                        let lspec = load_spec({uri: "http://youtube.com/watch?v=" + code});
+                        let id = match[1];
+                        let lspec = load_spec({uri: "http://youtube.com/watch?v=" + id});
                         var result =
                             yield buffer.window.minibuffer.wait_for(
                                 "Requesting " + lspec.uri + "...",
                                 send_http_request(lspec));
                         let text = result.responseText;
                         if (text != null && text.length > 0)
-                            media_scrape_youtube_document_text(frame, code, text, results);
+                            youtube_scrape_text(results, frame, id, text);
                     } catch (e if (e instanceof abort)) {
                         // Still allow other media scrapers to try even if the user aborted an http request,
                         // but don't continue looking for embedded youtube videos.
