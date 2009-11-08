@@ -334,7 +334,8 @@ function browser_object_follow (buffer, target, elem) {
 
     browser_set_element_focus(buffer, e, true /* no scroll */);
 
-    var no_click = ((e instanceof load_spec) ||
+    var no_click = (((elem instanceof load_spec) &&
+                     load_spec_forced_charset(elem)) ||
                     (e instanceof Ci.nsIDOMWindow) ||
                     (e instanceof Ci.nsIDOMHTMLFrameElement) ||
                     (e instanceof Ci.nsIDOMHTMLIFrameElement) ||

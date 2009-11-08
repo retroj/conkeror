@@ -783,6 +783,26 @@ interactive("view-as-mime-type",
             $browser_object = browser_object_frames);
 
 
+interactive("charset-prefix",
+    "A prefix command that prompts for a charset to use in a "+
+    "subsequent navigation command.",
+    function (I) {
+        var ccman = Cc["@mozilla.org/charset-converter-manager;1"]
+            .getService(Ci.nsICharsetConverterManager);
+        var decoders = ccman.getDecoderList()
+        var charsets = [];
+        while (decoders.hasMore())
+            charsets.push(decoders.getNext());
+        I.forced_charset = yield I.minibuffer.read(
+            $prompt = "Charset:",
+            $completer = prefix_completer(
+                $completions = charsets,
+                $get_string = function (x) x.toLowerCase()),
+            $match_required);
+    },
+    $prefix);
+
+
 interactive("reload-with-charset",
     "Prompt for a charset, and reload the current page, forcing use "+
     "of that charset.",
