@@ -556,10 +556,10 @@ function read_key_binding_key (window, state, event) {
         return;
     }
 
-    if (binding.keymap) {
+    if (binding.constructor == Array) { //keymaps stack
         window.minibuffer._restore_normal_state();
         window.minibuffer._input_text = state.key_sequence.join(" ") + " ";
-        state.target_keymap = binding.keymap;
+        state.target_keymap = binding;
         return;
     }
 
@@ -571,9 +571,13 @@ function read_key_binding_key (window, state, event) {
     if (c != null)
         c([state.key_sequence, binding]);
 }
-interactive("read-key-binding-key", null, function (I) {
-    read_key_binding_key(I.window, I.minibuffer.check_state(key_binding_reader), I.event);
-});
+interactive("read-key-binding-key",
+    "Handle a keystroke in the key binding reader minibuffer state.",
+     function (I) {
+         read_key_binding_key(I.window,
+                              I.minibuffer.check_state(key_binding_reader),
+                              I.event);
+     });
 
 minibuffer.prototype.read_key_binding = function () {
     keywords(arguments);
