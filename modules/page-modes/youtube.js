@@ -24,7 +24,7 @@ let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/
  *    Scrapers should return true on success and false on failure.
  */
 function youtube_scrape_standard (push, id, t, text) {
-    push('http://youtube.com/get_video?video_id='+id + '&t='+t,
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t,
          'flv', 'video/x-flv', 'standard');
     return true;
 }
