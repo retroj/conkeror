@@ -336,6 +336,7 @@ function browser_object_follow (buffer, target, elem) {
 
     var no_click = (((elem instanceof load_spec) &&
                      load_spec_forced_charset(elem)) ||
+                    (e instanceof load_spec) ||
                     (e instanceof Ci.nsIDOMWindow) ||
                     (e instanceof Ci.nsIDOMHTMLFrameElement) ||
                     (e instanceof Ci.nsIDOMHTMLIFrameElement) ||
