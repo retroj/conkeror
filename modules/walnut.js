@@ -48,8 +48,7 @@ function assert_objects_equal (got, expect) {
     if (gotkeys.length != expectkeys.length)
         throw new Error("objects have different property counts");
     for (var i in expectkeys) {
-        if (got[i] !== expect[i])
-            throw new Error("objects are different");
+        assert_objects_equal(got[i], expect[i]);
     }
     return true;
 }

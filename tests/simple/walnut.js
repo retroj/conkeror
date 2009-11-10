@@ -54,13 +54,13 @@ walnut_run({
     test_assert_objects_equal_3: function () {
         assert_error(function () { assert_objects_equal([1], [2]); });
     },
-    test_assert_objects_equal_4: function () {
-        assert_error(function () { assert_objects_equal([undefined], [null]); });
-    },
     test_assert_objects_equal_5: function () {
         assert_objects_equal(1, 1);
     },
     test_assert_objects_equal_6: function () {
         assert_error(function () { assert_objects_equal(1, 2); });
+    },
+    test_assert_objects_equal_7: function () {
+        assert_objects_equal([[1]],[[1]]);
     }
 });
