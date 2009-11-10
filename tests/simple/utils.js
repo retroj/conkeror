@@ -17,5 +17,9 @@ walnut_run({
     },
     test_make_uri_3: function () {
         assert_equals(make_uri(make_file("/a/b/c")).spec.substr(0,5), "file:");
+    },
+    test_splice_range_1: function () {
+        assert_objects_equal(splice_range([[1,3],[4,6],[7,10]], 2, 8),
+                             [[1,10]]);
     }
 });

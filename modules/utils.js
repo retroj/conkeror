@@ -1297,8 +1297,8 @@ function build_url_regex () {
 /**
  * splice_ranges: Given an ordered array of non-overlapping ranges,
  * represented as elements of [start, end], insert a new range into the
- * array, extending, replacing, or merging existing ranges as
- * needed. Mutates `arr' in place.
+ * array, extending, replacing, or merging existing ranges as needed.
+ * Mutates `arr' in place, but returns the reference to it.
  *
  * Examples:
  *
@@ -1337,6 +1337,7 @@ function splice_range (arr, start, end) {
     }
     if (start > arr[arr.length - 1][1])
         arr.push([start, end]);
+    return arr;
 }
 
 
