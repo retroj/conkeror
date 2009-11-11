@@ -28,6 +28,20 @@ define_variable("hint_background_color", "yellow",
 const hints_stylesheet = "chrome://conkeror-gui/content/hints.css";
 register_user_stylesheet(hints_stylesheet);
 
+
+function hints_simple_text_match (text, pattern) {
+    var pos = text.indexOf(pattern);
+    if (pos == -1)
+        return false;
+    return [pos, pos + pattern.length];
+}
+
+define_variable('hints_text_match', hints_simple_text_match,
+    "A function which takes a string and a pattern (another string) "+
+    "and returns an array of [start, end] indices if the pattern was "+
+    "found in the string, or false if it was not.");
+
+
 /**
  *   In the hints interaction, a node can be selected either by typing
  * the number of its associated hint, or by typing substrings of the
@@ -199,7 +213,7 @@ hint_manager.prototype = {
             h = hints[i];
             text = h.text;
             for (var j = 0; j < tokens.length; ++j) {
-                if (text.indexOf(tokens[j]) == -1) {
+                if (! hints_text_match(text, tokens[j])) {
                     if (h.visible) {
                         h.visible = false;
                         h.hint.style.display = "none";
@@ -267,9 +281,9 @@ hint_manager.prototype = {
             } else if (h.show_text && !/^\s*$/.test(text)) {
                 let substrs = [[0,4]];
                 for (j = 0; j < tokens.length; ++j) {
-                    let pos = text.indexOf(tokens[j]);
-                    if(pos == -1) continue;
-                    splice_range(substrs, pos, pos + tokens[j].length + 2);
+                    let m = hints_text_match(text, tokens[j]);
+                    if (m == false) continue;
+                    splice_range(substrs, m[0], m[1] + 2);
                 }
                 label += " " + substrs.map(function (x) {
                     return text.substring(x[0],Math.min(x[1], text.length));
