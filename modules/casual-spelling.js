@@ -64,9 +64,9 @@ function casual_spelling_hints_text_match (text, pattern) {
     if (pattern == "")
         return [0, 0];
     var decoded = Array.map(text, casual_spelling_translate);
-    for (var i = 0; i < text.length; i++) {
-        for (var e = 0, j = 0;
-             j < pattern.length && i + e < text.length;
+    for (var i = 0, tlen = text.length; i < tlen; i++) {
+        for (var e = 0, j = 0, plen = pattern.length;
+             j < plen && i + e < tlen;
              (j += decoded[i+e].length) && e++)
         {
             if (pattern[j] != text[i+e] &&
