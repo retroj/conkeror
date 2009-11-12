@@ -7,7 +7,9 @@
 **/
 
 
-define_variable("headings_xpath", "//h1 | //h2 | //h3 | //h4 | //h5 | //h6",
+define_variable("headings_xpath",
+    "//h1 | //h2 | //h3 | //h4 | //h5 | //h6 | //xhtml:h1 | "+
+    "//xhtml:h2 | //xhtml:h3 | //xhtml:h4 | //xhtml:h5 | //xhtml:h6",
     "The xpath expression used by next-heading and previous-heading to find "+
     "headings.  Users will rarely need to change the value of this, but it "+
     "exists especially for page-modes to override with a site-specific "+

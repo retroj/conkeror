@@ -128,10 +128,12 @@ define_browser_object_class("links",
     "Browser object class for selecting a hyperlink, form field, "+
     "or link-like element, via hinting.",
     xpath_browser_object_handler(
-        "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or " +
-        "@role='link'] | " +
+        "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link'] | " +
         "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
-        "//*[@contenteditable = 'true']"),
+        "//*[@contenteditable = 'true'] |" +
+        "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link'] | " +
+        "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | //xhtml:button | //xhtml:select | " +
+        "//xhtml:*[@contenteditable = 'true']"),
     $hint = "select link");
 
 define_browser_object_class("mathml",
@@ -187,7 +189,7 @@ define_browser_object_class("alt",
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
             $prompt = prompt,
-            $hint_xpath_expression = "//img[@alt]");
+            $hint_xpath_expression = "//img[@alt] | //xhtml:img[@alt]");
         yield co_return(result.alt);
     },
     $hint = "select image for alt-text");
@@ -199,7 +201,7 @@ define_browser_object_class("title",
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
             $prompt = prompt,
-            $hint_xpath_expression = "//*[@title]");
+            $hint_xpath_expression = "//*[@title] | //xhtml:*[@title]");
         yield co_return(result.title);
     },
     $hint = "select element for title attribute");
@@ -212,7 +214,7 @@ define_browser_object_class("title-or-alt",
         var result = yield I.buffer.window.minibuffer.read_hinted_element(
             $buffer = I.buffer,
             $prompt = prompt,
-            $hint_xpath_expression = "//img[@alt] | //*[@title]");
+            $hint_xpath_expression = "//img[@alt] | //*[@title] | //xhtml:img[@alt] | //xhtml:*[@title]");
         yield co_return(result.title ? result.title : result.alt);
     },
     $hint = "select element for title or alt-text");
@@ -248,7 +250,7 @@ define_browser_object_class("focused-element",
     function (I, prompt) { return I.buffer.focused_element; });
 
 define_browser_object_class("dom-node", null,
-    xpath_browser_object_handler("//*"),
+    xpath_browser_object_handler("//* | //xhtml:*"),
     $hint = "select DOM node");
 
 function read_browser_object (I) {

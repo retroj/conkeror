@@ -275,13 +275,11 @@ function create_XUL (window, tag_name) {
 
 /* Used in calls to XPath evaluate */
 function xpath_lookup_namespace (prefix) {
-    if (prefix == "xhtml")
-        return XHTML_NS;
-    if (prefix == "m")
-        return MATHML_NS;
-    if (prefix == "xul")
-        return XUL_NS;
-    return null;
+    return {
+        xhtml: XHTML_NS,
+        m: MATHML_NS,
+        xul: XUL_NS
+    }[prefix] || null;
 }
 
 function method_caller (obj, func) {
