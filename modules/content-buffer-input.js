@@ -80,7 +80,7 @@ function focus_next (buffer, count, xpath_expr, name) {
             }
         }
         // Recurse on sub-frames
-        for (var i = 0; i < win.frames.length; ++i) {
+        for (var i = 0, nframes = win.frames.length; i < nframes; ++i) {
             var elem = helper(win.frames[i], skip_win);
             if (elem)
                 return elem;

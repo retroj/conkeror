@@ -245,7 +245,7 @@ function keymap_lookup (keymaps, combo, event) {
                 return bind;
         } else {
             var pred_binds = kmap.predicate_bindings;
-            for (var j = 0; j < pred_binds.length; ++j) {
+            for (var j = 0, pblen = pred_binds.length; j < pblen; ++j) {
                 bind = pred_binds[j];
                 if (bind.key(event))
                     return bind;
@@ -265,7 +265,7 @@ function keymap_lookup (keymaps, combo, event) {
 
 function keymap_lookup_fallthrough (keymap, event) {
     var predicates = keymap.fallthrough;
-    for (var i = 0; i < predicates.length; ++i) {
+    for (var i = 0, plen = predicates.length; i < plen; ++i) {
         if (predicates[i](event))
             return true;
     }
@@ -384,14 +384,14 @@ function define_key_internal (ref, kmap, seq, new_command, new_keymap) {
     }
 
 sequence:
-    for (var i = 0; i < seq.length; ++i) {
+    for (var i = 0, slen = seq.length; i < slen; ++i) {
         key = seq[i];
-        last_in_sequence = (i == seq.length - 1);
+        last_in_sequence = (i == slen - 1);
 
         if (typeof key == "function") { // it's a match predicate
             // Check if the binding is already present in the keymap
             var pred_binds = kmap.predicate_bindings;
-            for (var j = 0; j < pred_binds.length; j++) {
+            for (var j = 0, pblen = pred_binds.length; j < pblen; j++) {
                 if (pred_binds[j].key == key) {
                     if (last_in_sequence && undefine_key)
                         delete pred_binds[j];

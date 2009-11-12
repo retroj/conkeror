@@ -48,7 +48,7 @@ function reddit_next (I) {
     var first = null;
     var current = null;
     var next = null;
-    for (var i = 0; i < links.length; i++) {
+    for (var i = 0, llen = links.length; i < llen; i++) {
         if (links[i].style.display == 'none')
             continue;
         if (! first)
@@ -121,10 +121,11 @@ function reddit_prev (I) {
     // enough of the page to include all of the article links.
     var complete = doc.getElementsByClassName('footer').length > 0;
     var links = doc.getElementsByClassName('link');
+    var llen = links.length;
     var first = null;
     var prev = null;
     var current = null;
-    for (var i = 0; i < links.length; i++) {
+    for (var i = 0; i < llen; i++) {
         if (links[i].style.display == 'none')
             continue;
         if (! first)
@@ -146,7 +147,7 @@ function reddit_prev (I) {
         else if (reddit_end_behavior == 'wrap') {
             // need to get last link on page.
             if (complete) {
-                for (var i = 0; i < links.length; i++) {
+                for (var i = 0; i < llen; i++) {
                     if (links[i].style.display == 'none')
                         continue;
                     prev = links[i];
