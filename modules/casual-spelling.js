@@ -7,7 +7,7 @@
 
 /**
  * Contributors:
- *   John Galt
+ *   Kris Maglione
  *   John J. Foerch
  */
 
