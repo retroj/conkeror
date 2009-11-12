@@ -103,8 +103,9 @@ define_browser_object_class("frames",
             skip_hints = false;
         else {
             let topwin = I.buffer.top_frame;
-            for each (let x in doc.getElementsByTagName("iframe")) {
-                let style = topwin.getComputedStyle(x, "");
+            let iframes = doc.getElementsByTagName("iframe");
+            for (var i = 0, nframes = iframes.length; i < nframes; i++) {
+                let style = topwin.getComputedStyle(iframes[i], "");
                 if (style.display == "none" || style.visibility == "hidden")
                     continue;
                 skip_hints = false;
