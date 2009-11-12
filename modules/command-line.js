@@ -113,7 +113,7 @@ command_line_handler("u", false, function (ctx) {
 function handle_command_line (cmdline) {
     try {
         this.command_line = [];
-        for (let i = 0; i < cmdline.length; ++i)
+        for (let i = 0, clen = cmdline.length; i < clen; ++i)
             command_line.push(cmdline.getArgument(i));
 
         var suppress_default = false;
@@ -170,7 +170,7 @@ function handle_command_line (cmdline) {
         ctx.local = { cwd: cmdline.resolveFile("."),
                       __proto__: conkeror }
 
-        for (; i < cmdline.length; ++i) {
+        for (let clen = cmdline.length; i < clen; ++i) {
             var arg = cmdline.getArgument(i);
             if (arg[0] == '-' || arg[0] == '+') {
                 var arg1 = arg.substring(1);

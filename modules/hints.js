@@ -322,7 +322,7 @@ hint_manager.prototype = {
     },
 
     hide_hints: function () {
-        for (var i = 0; i < this.hints.length; ++i) {
+        for (var i = 0, nhints = this.hints.length; i < nhints; ++i) {
             var h = this.hints[i];
             if (h.visible) {
                 h.visible = false;
@@ -338,7 +338,7 @@ hint_manager.prototype = {
     },
 
     remove: function () {
-        for (var i = 0; i < this.hints.length; ++i) {
+        for (var i = 0, nhints = this.hints.length; i < nhints; ++i) {
             var h = this.hints[i];
             if (h.visible && h.saved_color != null) {
                 h.elem.style.color = h.saved_color;

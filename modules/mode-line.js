@@ -39,7 +39,7 @@ generic_element_widget_container.prototype = {
     },
     destroy : function() {
         var children = this.container.childNodes;
-        for (var i = 0; i < children.length; ++i)
+        for (var i = 0, nchildren = children.length; i < nchildren; ++i)
             children.item(i).conkeror_widget.destroy();
     }
 };

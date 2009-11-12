@@ -32,15 +32,15 @@ function add_hook (hook_name, func, prepend, avoid_duplicates) {
 function run_hooks (hook, args) {
     if (hook == null)
         return;
-    for (let i = 0; i < hook.length; ++i)
-        hook[i].apply (null, Array.prototype.slice.call(args));
+    for (let i = 0, hlen = hook.length; i < hlen; ++i)
+        hook[i].apply(null, Array.prototype.slice.call(args));
 }
 
 function run_hooks_until_success (hook, args) {
     if (hook == null)
         return false;
-    for (let i = 0; i < hook.length; ++i)
-        if (hook[i].apply (null, Array.prototype.slice.call(args)))
+    for (let i = 0, hlen = hook.length; i < hlen; ++i)
+        if (hook[i].apply(null, Array.prototype.slice.call(args)))
             return true;
     return false;
 }
@@ -48,8 +48,8 @@ function run_hooks_until_success (hook, args) {
 function run_hooks_until_failure (hook, args) {
     if (hook == null)
         return true;
-    for (let i = 0; i < hook.length; ++i)
-        if (!hook[i].apply (null, Array.prototype.slice.call(args)))
+    for (let i = 0, hlen = hook.length; i < hlen; ++i)
+        if (!hook[i].apply(null, Array.prototype.slice.call(args)))
             return false;
     return true;
 }

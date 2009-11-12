@@ -424,7 +424,7 @@ dom_generator.prototype = {
             parent.appendChild(node);
             i = 2;
         }
-        for (; i < arguments.length; i += 2)
+        for (var nargs = arguments.length; i < nargs; i += 2)
             node.setAttribute(arguments[i], arguments[i+1]);
         return node;
     },
@@ -1080,7 +1080,7 @@ function frame_iterator (root_frame, start_with) {
         x = start_with;
         do {
             yield x;
-            for (let i = 0; i < x.frames.length; ++i)
+            for (let i = 0, nframes = x.frames.length; i < nframes; ++i)
                 q.push(x.frames[i]);
         } while ((x = q.pop()));
     }
@@ -1089,7 +1089,7 @@ function frame_iterator (root_frame, start_with) {
         if (x == start_with)
             continue;
         yield x;
-        for (let i = 0; i < x.frames.length; ++i)
+        for (let i = 0, nframes = x.frames.length; i < nframes; ++i)
             q.push(x.frames[i]);
     } while ((x = q.pop()));
 }
@@ -1572,7 +1572,7 @@ function modify_word_at_point (I, func) {
     var rest = focused.value.substring(point);
 
     // Skip any whitespaces.
-    for (var i = 0; i < rest.length; i++) {
+    for (var i = 0, rlen = rest.length; i < rlen; i++) {
         if (" \n".indexOf(rest.charAt(i)) == -1) {
             point += i;
             break;

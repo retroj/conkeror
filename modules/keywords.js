@@ -18,7 +18,7 @@
     // This function must be called with all string arguments, all of
     // which must begin with "$".
     function define_keywords () {
-        for (var i = 0; i < arguments.length; ++i) {
+        for (var i = 0, alen = arguments.length; i < alen; ++i) {
             var name = arguments[i];
             this.__defineSetter__(name, _get_keyword_argument_setter(name));
             this.__defineGetter__(name, _get_keyword_argument_getter(name));
