@@ -185,7 +185,7 @@ hint_manager.prototype = {
             var frametag = "frame";
             while (true) {
                 var frames = doc.getElementsByTagName(frametag);
-                for (var i = 0; i < frames.length; ++i) {
+                for (var i = 0, nframes = frames.length; i < nframes; ++i) {
                     elem = frames[i];
                     rect = elem.getBoundingClientRect();
                     if (!rect || rect.left > maxX || rect.right < minX || rect.top > maxY || rect.bottom < minY)
@@ -209,10 +209,10 @@ hint_manager.prototype = {
         var hints = this.hints;
 
     outer:
-        for (var i = 0; i < hints.length; ++i) {
+        for (var i = 0, nhints = hints.length; i < nhints; ++i) {
             h = hints[i];
             text = h.text;
-            for (var j = 0; j < tokens.length; ++j) {
+            for (var j = 0, ntokens = tokens.length; j < ntokens; ++j) {
                 if (! hints_text_match(text, tokens[j])) {
                     if (h.visible) {
                         h.visible = false;
@@ -280,7 +280,7 @@ hint_manager.prototype = {
                 label +=  " " + text;
             } else if (h.show_text && !/^\s*$/.test(text)) {
                 let substrs = [[0,4]];
-                for (j = 0; j < tokens.length; ++j) {
+                for (j = 0; j < ntokens; ++j) {
                     let m = hints_text_match(text, tokens[j]);
                     if (m == false) continue;
                     splice_range(substrs, m[0], m[1] + 2);
