@@ -30,7 +30,12 @@ interactive("confirm-quit",
             });
 
 function show_conkeror_version (window) {
-    window.minibuffer.message("Conkeror "+conkeror.version);
+    var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
+        .getService(Ci.nsIXULAppInfo)
+        .platformVersion;
+    window.minibuffer.message("Conkeror "+conkeror.version+
+                              " (XULRunner "+xulrunner_version+
+                              ", "+get_os()+")");
 }
 interactive("conkeror-version",
             "Show version information for Conkeror.",
