@@ -313,7 +313,7 @@ function spawn_process(program_name, args, working_dir,
     try {
         server = Cc['@mozilla.org/network/server-socket;1'].createInstance(Ci.nsIServerSocket);
 
-        var key_file = get_temporary_file("spawn_process_key.dat");
+        var key_file = get_temporary_file("conkeror-spawn-helper-key.dat");
 
         write_binary_file(key_file, key_file_data);
         server.init(-1 /* choose a port automatically */,
