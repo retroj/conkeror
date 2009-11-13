@@ -38,10 +38,10 @@ function media_scrape_dailymotion(buffer, results) {
 define_page_mode("dailymotion_mode",
     $display_name = "Dailymotion",
     $enable = function (buffer) {
-        buffer.page.local.media_scrapers = [media_scrape_dailymotion];
         media_setup_local_object_classes(buffer);
     });
 
 
 var dailymotion_re = build_url_regex($domain = /(?:[^\/]*\.)?dailymotion/);
 auto_mode_list.push([dailymotion_re, dailymotion_mode]);
+media_scrapers.unshift([dailymotion_re, media_scrape_dailymotion]);

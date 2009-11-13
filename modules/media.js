@@ -52,18 +52,17 @@ function media_scrape_default (buffer, results) {
 }
 
 
-define_variable("media_scrapers", [media_scrape_default],
-    "List of functions (or coroutines) to use to scrape a buffer "+
-    "for embedded media.");
+define_variable("media_scrapers",
+                [[/.*/, media_scrape_default]],
+    "Associative list of regexps for matching urls, mapped to functions "+
+    "(or coroutines) to use to scrape a page for embedded media.")
 
 
 function media_scrape (I, buffer) {
-    var scrapers = I.local.media_scrapers;
     var results = [];
-    if (scrapers)  {
-        for each (let scraper in scrapers) {
-            yield scraper(buffer, results);
-        }
+    for (var i = 0, nscrapers = media_scrapers.length; i < nscrapers; i++) {
+        if (media_scrapers[i][0].test(buffer.current_uri.spec))
+            yield media_scrapers[i][1](buffer, results);
     }
     yield co_return(results);
 }

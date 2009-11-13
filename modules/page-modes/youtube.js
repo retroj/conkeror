@@ -134,13 +134,11 @@ function media_scrape_youtube (buffer, results) {
 define_page_mode("youtube_mode",
     $display_name = "YouTube",
     $enable = function (buffer) {
-        buffer.page.local.media_scrapers = [media_scrape_youtube];
         media_setup_local_object_classes(buffer);
     });
 
-function media_scrape_embedded_youtube(buffer, results) {
+function media_scrape_embedded_youtube (buffer, results) {
     const embedded_youtube_regexp = /^http:\/\/[a-zA-Z0-9\-.]+\.youtube\.com\/v\/(.*)$/;
-
     for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
         // Look for embedded YouTube videos
         let obj_els = frame.document.getElementsByTagName("object");
@@ -153,7 +151,6 @@ function media_scrape_embedded_youtube(buffer, results) {
                 let match;
                 if (param_el.getAttribute("name").toLowerCase() == "movie" &&
                     (match = embedded_youtube_regexp.exec(param_el.getAttribute("value"))) != null) {
-
                     try {
                         let id = match[1];
                         let lspec = load_spec({uri: "http://youtube.com/watch?v=" + id});
@@ -180,9 +177,8 @@ function media_scrape_embedded_youtube(buffer, results) {
 }
 
 
-// Use the embedded youtube scraper by default
-media_scrapers.unshift(media_scrape_embedded_youtube);
-
 let media_youtube_uri_test_regexp = build_url_regex($domain = /(?:[a-z]+\.)?youtube/,
                                                     $path = /watch\?v=([A-Za-z0-9\-_]+)/);
+media_scrapers.unshift([/.*/, media_scrape_embedded_youtube]);
+media_scrapers.unshift([media_youtube_uri_test_regexp, media_scrape_youtube]);
 auto_mode_list.push([media_youtube_uri_test_regexp, youtube_mode]);
