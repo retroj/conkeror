@@ -63,16 +63,17 @@ function casual_spelling_translate (chr) {
 function casual_spelling_hints_text_match (text, pattern) {
     if (pattern == "")
         return [0, 0];
-    var decoded = Array.map(text, casual_spelling_translate);
-    for (var i = 0, tlen = text.length; i < tlen; i++) {
-        for (var e = 0, j = 0, plen = pattern.length;
-             j < plen && i + e < tlen;
-             (j += decoded[i+e].length) && e++)
-        {
-            if (pattern[j] != text[i+e] &&
-                pattern.substring(j, j+decoded[i+e].length) != decoded[i+e])
+    var tlen = text.length;
+    var plen = pattern.length;
+    var decoded = Array.map(
+        text, function (x) Array.concat(x, casual_spelling_translate(x)));
+    var matched, mlen;
+    for (var i = 0; i < tlen; i++) {
+        for (var e = 0, j = 0; j < plen && i + e < tlen; e++) {
+            if (! decoded[i+e].some(function (x) (pattern.substring(j, j+(mlen = x.length)) == (matched = x))))
                 break;
-            if (pattern.substring(j) == decoded[i+e])
+            j += mlen;
+            if (j == plen)
                 return [i, i+e+1];
         }
     }    
