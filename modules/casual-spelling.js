@@ -69,7 +69,7 @@ function casual_spelling_hints_text_match (text, pattern) {
         text, function (x) Array.concat(x, casual_spelling_translate(x)));
     var matched, mlen;
     for (var i = 0; i < tlen; i++) {
-        for (var e = 0, j = 0; j < plen && i + e < tlen; e++) {
+        for (var e = 0, j = 0; i + e < tlen; e++) {
             if (! decoded[i+e].some(function (x) (pattern.substring(j, j+(mlen = x.length)) == (matched = x))))
                 break;
             j += mlen;
