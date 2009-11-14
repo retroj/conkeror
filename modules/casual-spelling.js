@@ -76,7 +76,7 @@ function casual_spelling_hints_text_match (text, pattern) {
             if (j == plen)
                 return [i, i+e+1];
         }
-    }    
+    }
     return false;
 }
 
