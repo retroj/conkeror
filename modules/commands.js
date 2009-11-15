@@ -421,16 +421,21 @@ interactive("network-go-offline", "Work offline.",
 
 
 interactive("submit-form",
-            "Submit the form to which the focused element belongs.",
-            function (I) {
-                var el = I.buffer.focused_element.parentNode;
-                while (el && el.tagName != "FORM")
-                    el = el.parentNode;
-                //FIXME: submit method does not trigger onsubmit or other
-                //       event handlers which may be on the "submit" button.
-                if (el)
-                    el.submit();
-            });
+    "Submit the form to which the focused element belongs.",
+    function (I) {
+        var el = I.buffer.focused_element.parentNode;
+        while (el && el.tagName != "FORM")
+            el = el.parentNode;
+        if (el) {
+            var inputs = el.getElementsByTagName("input");
+            for (var i = 0, ilen = inputs.length; i < ilen; i++) {
+                if (inputs[i].getAttribute("type") == "submit")
+                    return browser_object_follow(I.buffer, FOLLOW_DEFAULT,
+                                                 inputs[i]);
+            }
+            el.submit();
+        }
+    });
 
 
 /*
