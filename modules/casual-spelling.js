@@ -14,16 +14,34 @@
 /*
 
 This module provides a pattern matcher for hints_text_match which lets you
-type ascii characters in the hints minibuffer and match unicode characters
+type ascii characters in the hints minibuffer to match unicode characters
 such as accented letters and ligatures.
 
 */
 
-var casual_spelling_table = {};
+function casual_spelling_entry_features (entry) {
+    var ret = { ligatures: false, multiples: false };
+    if (typeof entry == "object") {
+        for each (var t in entry) {
+            if (typeof t == "string" && t.length > 1)
+                ret.ligatures = true;
+            else if (typeof t == "object") {
+                ret.multiples = true;
+                if (t.some(function (x) (x.length > 1)))
+                    ret.ligatures = true;
+            }
+        }
+    }
+    return ret;
+}
 
-function casual_spelling_table_add (table) {
-    table.__proto__ = casual_spelling_table;
-    casual_spelling_table = table;
+function casual_spelling_table (table) {
+    for (var k in table) {
+        var features = casual_spelling_entry_features(table[k]);
+        if (features.ligatures) table.ligatures = true;
+        if (features.multiples) table.multiples = true;
+    }
+    return table;
 }
 
 
@@ -45,6 +63,9 @@ function casual_spelling_table_add (table) {
 function casual_spelling_from_range_table (table) {
     var ret = {};
     table.map(function (a) {
+        var features = casual_spelling_entry_features(a[2]);
+        if (features.ligatures) ret.ligatures = true;
+        if (features.multiples) ret.multiples = true;
         for (var c = a[0]; c <= a[1]; c++) {
             var chr = String.fromCharCode(c);
             if (typeof a[2] == "string")
@@ -56,17 +77,74 @@ function casual_spelling_from_range_table (table) {
     return ret;
 }
 
+
 function casual_spelling_translate (chr) {
-    return casual_spelling_table[chr] || chr;
+    return casual_spelling_tables[chr] || chr;
 }
+
+
+/*
+ * Pattern Matchers
+ */
 
 function casual_spelling_hints_text_match (text, pattern) {
     if (pattern == "")
         return [0, 0];
+    var plen = pattern.length;
+    for (var i = 0, tlen = text.length - plen; i < tlen; i++) {
+        for (var j = 0; j < plen; j++) {
+            if (pattern[j] != text[i+j] &&
+                pattern[j] != casual_spelling_translate(text[i+j]))
+                break;
+            if (j == plen - 1)
+                return [i, i+plen];
+        }
+    }
+    return false;
+}
+
+function casual_spelling_hints_text_match_ligatures (text, pattern) {
+    if (pattern == "")
+        return [0, 0];
     var tlen = text.length;
     var plen = pattern.length;
-    var decoded = Array.map(
-        text, function (x) Array.concat(x, casual_spelling_translate(x)));
+    var decoded = Array.map(text, casual_spelling_translate);
+    for (var i = 0; i < tlen; i++) {
+        for (var e = 0, j = 0; i + e < tlen; e++) {
+            var elen = 1;
+            if (pattern[j] != text[i+e] &&
+                pattern.substring(j, j+(elen = decoded[i+e].length)) != decoded[i+e])
+                break;
+            j += elen;
+            if (j == plen)
+                return [i, i+e+1];
+        }
+    }
+    return false;
+}
+
+function casual_spelling_hints_text_match_multiples (text, pattern) {
+    if (pattern == "")
+        return [0, 0];
+    var plen = pattern.length;
+    var decoded = Array.map(text, function (x) Array.concat(x, casual_spelling_translate(x)));
+    for (var i = 0, tlen = text.length - plen; i < tlen; i++) {
+        for (var j = 0; j < plen; j++) {
+            if (! decoded[i+j].some(function (x) x == pattern[j]))
+                break;
+            if (j == plen - 1)
+                return [i, i+plen];
+        }
+    }
+    return false;
+}
+
+function casual_spelling_hints_text_match_ligatures_multiples (text, pattern) {
+    if (pattern == "")
+        return [0, 0];
+    var tlen = text.length;
+    var plen = pattern.length;
+    var decoded = Array.map(text, function (x) Array.concat(x, casual_spelling_translate(x)));
     var matched, mlen;
     for (var i = 0; i < tlen; i++) {
         for (var e = 0, j = 0; i + e < tlen; e++) {
@@ -80,13 +158,36 @@ function casual_spelling_hints_text_match (text, pattern) {
     return false;
 }
 
-hints_text_match = casual_spelling_hints_text_match;
 
 
-var casual_spelling_accents = casual_spelling_from_range_table(
+/*
+ * Table Installation
+ */
+
+var casual_spelling_tables;
+
+function casual_spelling_table_add (table) {
+    table.__proto__ = casual_spelling_tables;
+    casual_spelling_tables = table;
+    if (casual_spelling_tables.ligatures && casual_spelling_tables.multiples)
+        hints_text_match = casual_spelling_hints_text_match_ligatures_multiples;
+    else if (casual_spelling_tables.ligatures)
+        hints_text_match = casual_spelling_hints_text_match_ligatures;
+    else if (casual_spelling_tables.multiples)
+        hints_text_match = casual_spelling_hints_text_match_multiples;
+    else
+        hints_text_match = casual_spelling_hints_text_match;
+}
+
+
+casual_spelling_table_add(casual_spelling_table({}));
+
+
+
+var casual_spelling_accents = casual_spelling_from_range_table(//no special requirements for pattern matcher
     [[0x00a9, 0x00a9, "C"],//copyright
      [0x00c0, 0x00c5, ["A"]],
-     [0x00c6, 0x00c7, ["AE", "C"]],
+     [0x00c7, 0x00c7, "C"],
      [0x00c8, 0x00cb, ["E"]],
      [0x00cc, 0x00cf, ["I"]],
      [0x00d1, 0x00d1, "N"],
@@ -94,9 +195,8 @@ var casual_spelling_accents = casual_spelling_from_range_table(
      [0x00d8, 0x00d8, "O"],
      [0x00d9, 0x00dc, ["U"]],
      [0x00dd, 0x00dd, "Y"],
-     [0x00df, 0x00df, ["ss"]],
      [0x00e0, 0x00e5, ["a"]],
-     [0x00e6, 0x00e7, ["ae", "c"]],
+     [0x00e7, 0x00e7, "c"],
      [0x00e8, 0x00eb, ["e"]],
      [0x00ec, 0x00ef, ["i"]],
      [0x00f1, 0x00f1, "n"],
@@ -112,14 +212,12 @@ var casual_spelling_accents = casual_spelling_from_range_table(
      [0x011c, 0x0123, ["G", "g"]],
      [0x0124, 0x0127, ["H", "h"]],
      [0x0128, 0x0130, ["I", "i"]],
-     [0x0132, 0x0133, ["IJ", "ij"]],
      [0x0134, 0x0135, ["J", "j"]],
      [0x0136, 0x0136, ["K", "k"]],
      [0x0139, 0x0142, ["L", "l"]],
      [0x0143, 0x0148, ["N", "n"]],
      [0x0149, 0x0149, "n"],
      [0x014c, 0x0151, ["O", "o"]],
-     [0x0152, 0x0153, ["OE", "oe"]],
      [0x0154, 0x0159, ["R", "r"]],
      [0x015a, 0x0161, ["S", "s"]],
      [0x0162, 0x0167, ["T", "t"]],
@@ -140,11 +238,9 @@ var casual_spelling_accents = casual_spelling_from_range_table(
                        "N", "A", "a", "I", "i", "O", "o"]],
      [0x01d3, 0x01dc, ["U", "u"]],
      [0x01de, 0x01e1, ["A", "a"]],
-     [0x01e2, 0x01e3, ["AE", "ae"]],
      [0x01e4, 0x01ed, ["G", "g", "G", "g", "K", "k", "O", "o", "O", "o"]],
      [0x01f0, 0x01f5, ["j", "D", "G", "g"]],
      [0x01fa, 0x01fb, ["A", "a"]],
-     [0x01fc, 0x01fd, ["AE", "ae"]],
      [0x01fe, 0x0217, ["O", "o", "A", "a", "A", "a", "E", "e", "E",
                        "e", "I", "i", "I", "i", "O", "o", "O", "o",
                        "R", "r", "R", "r", "U", "u", "U", "u"]],
@@ -181,8 +277,29 @@ var casual_spelling_accents = casual_spelling_from_range_table(
      [0x249c, 0x24b5, "a"],
      [0x24b6, 0x24cf, "A"],
      [0x24d0, 0x24e9, "a"],
-     [0xfb00, 0xfb06, ["ff", "fi", "fl", "ffi", "ffl", "st", "st"]],
      [0xff21, 0xff3a, "A"],
      [0xff41, 0xff5a, "a"]]);
 
+var casual_spelling_ligatures = casual_spelling_from_range_table(
+    [[0x00c6, 0x00c6, ["AE"]],
+     [0x00df, 0x00df, ["ss"]],
+     [0x00e6, 0x00e6, ["ae"]],
+     [0x0132, 0x0132, ["IJ"]],
+     [0x0133, 0x0133, ["ij"]],
+     [0x0152, 0x0152, ["OE"]],
+     [0x0153, 0x0153, ["oe"]],
+     [0x01e2, 0x01e2, ["AE"]],
+     [0x01e3, 0x01e3, ["ae"]],
+     [0x01fc, 0x01fc, ["AE"]],
+     [0x01fd, 0x01fd, ["ae"]],
+     [0xfb00, 0xfb00, ["ff"]],
+     [0xfb01, 0xfb01, ["fi"]],
+     [0xfb02, 0xfb02, ["fl"]],
+     [0xfb03, 0xfb03, ["ffi"]],
+     [0xfb04, 0xfb04, ["ffl"]],
+     [0xfb05, 0xfb05, ["st"]],
+     [0xfb06, 0xfb06, ["st"]]]);
+
 casual_spelling_table_add(casual_spelling_accents);
+casual_spelling_table_add(casual_spelling_ligatures);
+
