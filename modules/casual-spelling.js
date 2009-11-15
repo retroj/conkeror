@@ -91,8 +91,8 @@ function casual_spelling_hints_text_match (text, pattern) {
     if (pattern == "")
         return [0, 0];
     var plen = pattern.length;
-    for (var i = 0, tlen = text.length - plen; i < tlen; i++) {
-        for (var j = 0; j < plen; j++) {
+    for (var i = 0, tlen = text.length - plen; i <= tlen; i++) {
+        for (var j = 0;; j++) {
             if (pattern[j] != text[i+j] &&
                 pattern[j] != casual_spelling_translate(text[i+j]))
                 break;
