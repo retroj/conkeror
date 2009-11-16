@@ -253,6 +253,23 @@ define_browser_object_class("dom-node", null,
     xpath_browser_object_handler("//* | //xhtml:*"),
     $hint = "select DOM node");
 
+interactive("browser-object-text",
+    "Composable browser object which returns the text of another object.",
+    function (I) {
+        // our job here is to modify the interactive context.
+        // set I.browser_object to a browser_object which calls the
+        // original one, then returns its text.
+        var b = I.browser_object;
+        I.browser_object = function (I) {
+            I.browser_object = b;
+            var e = yield read_browser_object(I);
+            if (e instanceof Ci.nsIDOMHTMLImageElement)
+                yield co_return(e.getAttribute("alt"));
+            yield co_return(e.textContent);
+        }
+    },
+    $prefix);
+
 function read_browser_object (I) {
     var browser_object = I.browser_object;
     var result;
@@ -487,7 +504,9 @@ function browser_element_copy (buffer, elem) {
        spec = load_spec(elem);
     } catch (e) {}
     var text = null;
-    if (spec)
+    if (typeof elem == "string" || elem instanceof String)
+        text = elem;
+    else if (spec)
         text = load_spec_uri_string(spec);
     else  {
         if (!(elem instanceof Ci.nsIDOMNode))

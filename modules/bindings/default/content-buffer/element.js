@@ -13,7 +13,7 @@ define_key(content_buffer_normal_keymap, "i", "browser-object-images");
 define_key(content_buffer_normal_keymap, "n", "browser-object-links");
 define_key(content_buffer_normal_keymap, "m", "browser-object-frames");
 define_key(content_buffer_normal_keymap, "e", "browser-object-media");
-
+define_key(content_buffer_normal_keymap, "T", "browser-object-text");
 
 define_key(content_buffer_normal_keymap, "* e", "browser-object-media");
 define_key(content_buffer_normal_keymap, "* i", "browser-object-images");
