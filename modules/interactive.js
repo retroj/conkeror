@@ -128,7 +128,7 @@ function call_interactively (I, command) {
     handler = cmd.handler;
 
     try {
-        while (typeof(handler) == "string") {
+        while (typeof handler == "string") {
             let parent = interactive_commands.get(handler);
             handler = parent.handler;
             if (handler == command) {

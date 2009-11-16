@@ -14,14 +14,15 @@ const PATH = getenv("PATH").split(POSIX ? ":" : ";");
 
 const path_component_regexp = POSIX ? /^[^\/]+$/ : /^[^\/\\]+$/;
 
-function get_file_in_path(name) {
+function get_file_in_path (name) {
     if (name instanceof Ci.nsIFile) {
         if (name.exists())
             return name;
         return null;
     }
-    var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-    if (!path_component_regexp.test(name)) {
+    var file = Cc["@mozilla.org/file/local;1"]
+        .createInstance(Ci.nsILocalFile);
+    if (! path_component_regexp.test(name)) {
         // Absolute path
         try {
             file.initWithPath(name);
@@ -31,30 +32,32 @@ function get_file_in_path(name) {
         return null;
     } else {
         // Relative path
-        for (var i = 0; i < PATH.length; ++i) {
+        for (var i = 0, plen = PATH.length; i < plen; ++i) {
             try {
                 file.initWithPath(PATH[i]);
                 file.appendRelativePath(name);
                 if (file.exists())
                     return file;
-            } catch(e) {}
+            } catch (e) {}
         }
     }
     return null;
 }
 
-function spawn_process_internal(program, args, blocking) {
-    var process = Cc["@mozilla.org/process/util;1"].createInstance(Ci.nsIProcess);
+function spawn_process_internal (program, args, blocking) {
+    var process = Cc["@mozilla.org/process/util;1"]
+        .createInstance(Ci.nsIProcess);
     process.init(get_file_in_path(program));
     return process.run(!!blocking, args, args.length);
 }
 
 var PATH_programs = null;
-function get_shell_command_completer() {
+function get_shell_command_completer () {
     if (PATH_programs == null) {
         PATH_programs = [];
-        var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsILocalFile);
-        for (var i = 0; i < PATH.length; ++i) {
+        var file = Cc["@mozilla.org/file/local;1"]
+            .createInstance(Ci.nsILocalFile);
+        for (var i = 0, plen = PATH.length; i < plen; ++i) {
             try {
                 file.initWithPath(PATH[i]);
                 var entries = file.directoryEntries;
@@ -66,9 +69,8 @@ function get_shell_command_completer() {
         }
         PATH_programs.sort();
     }
-
     return prefix_completer($completions = PATH_programs,
-                            $get_string = function (x) { return x; });
+                            $get_string = function (x) x);
 }
 
 // use default
@@ -143,10 +145,9 @@ spawn_process_helper_program.append("conkeror-spawn-helper");
  *        A function that can be called to prematurely terminate the spawned
  *        process.
  */
-function spawn_process(program_name, args, working_dir,
-                       success_callback, failure_callback, fds,
-                       fd_wait_timeout) {
-
+function spawn_process (program_name, args, working_dir,
+                        success_callback, failure_callback, fds,
+                        fd_wait_timeout) {
     args = args.slice();
     if (args[0] == null)
         args[0] = (program_name instanceof Ci.nsIFile) ? program_name.path : program_name;
@@ -184,10 +185,12 @@ function spawn_process(program_name, args, working_dir,
     var client_key = "";
     var server_key = "";
     // Make sure key does not have any 0 bytes in it.
-    for (let i = 0; i < key_length; ++i) client_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
+    for (let i = 0; i < key_length; ++i)
+        client_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
 
     // Make sure key does not have any 0 bytes in it.
-    for (let i = 0; i < key_length; ++i) server_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
+    for (let i = 0; i < key_length; ++i)
+        server_key += String.fromCharCode(Math.floor(Math.random() * 255) + 1);
 
     var key_file_fd_data = "";
 
@@ -223,7 +226,7 @@ function spawn_process(program_name, args, working_dir,
         args.join("\0") + "\0" +
         total_client_fds + "\0" + key_file_fd_data;
 
-    function fail(e) {
+    function fail (e) {
         if (!terminate_pending) {
             terminate();
             if (failure_callback)
@@ -231,7 +234,7 @@ function spawn_process(program_name, args, working_dir,
         }
     }
 
-    function cleanup_server() {
+    function cleanup_server () {
         if (server) {
             server.close();
             server = null;
@@ -242,14 +245,14 @@ function spawn_process(program_name, args, working_dir,
         }
     }
 
-    function cleanup_fd_sockets() {
+    function cleanup_fd_sockets () {
         for (let i in registered_transports) {
             registered_transports[i].transport.close(0);
             delete registered_transports[i];
         }
     }
 
-    function cleanup_control() {
+    function cleanup_control () {
         if (control_transport) {
             control_binary_input_stream.close();
             control_binary_input_stream = null;
@@ -260,7 +263,7 @@ function spawn_process(program_name, args, working_dir,
         }
     }
 
-    function control_send_terminate() {
+    function control_send_terminate () {
         control_input_stream = null;
         control_binary_input_stream.close();
         control_binary_input_stream = null;
@@ -271,7 +274,7 @@ function spawn_process(program_name, args, working_dir,
         });
     }
 
-    function terminate() {
+    function terminate () {
         if (terminate_pending)
             return exit_status;
         terminate_pending = true;
@@ -300,7 +303,7 @@ function spawn_process(program_name, args, working_dir,
         return exit_status;
     }
 
-    function finished() {
+    function finished () {
         // Only call success_callback if terminate was not already called
         if (!terminate_pending) {
             terminate();
@@ -311,7 +314,8 @@ function spawn_process(program_name, args, working_dir,
 
     // Create server socket to listen for connections from the external helper program
     try {
-        server = Cc['@mozilla.org/network/server-socket;1'].createInstance(Ci.nsIServerSocket);
+        server = Cc['@mozilla.org/network/server-socket;1']
+            .createInstance(Ci.nsIServerSocket);
 
         var key_file = get_temporary_file("conkeror-spawn-helper-key.dat");
 
@@ -326,11 +330,10 @@ function spawn_process(program_name, args, working_dir,
                 fail("setup timeout");
         }, spawn_process_helper_setup_timeout);
 
-
-        function wait_for_fd_sockets() {
+        function wait_for_fd_sockets () {
             var remaining_streams = total_fds * 2;
             var timer = null;
-            function handler() {
+            function handler () {
                 if (remaining_streams != null) {
                     --remaining_streams;
                     if (remaining_streams == 0) {
@@ -354,7 +357,7 @@ function spawn_process(program_name, args, working_dir,
 
         var control_data = "";
 
-        function handle_control_input() {
+        function handle_control_input () {
             if (terminate_pending)
                 return;
             try {
@@ -388,7 +391,7 @@ function spawn_process(program_name, args, working_dir,
             {
                 onSocketAccepted: function (server, transport) {
                     unregistered_transports.push(transport);
-                    function remove_from_unregistered() {
+                    function remove_from_unregistered () {
                         var i;
                         i = unregistered_transports.indexOf(transport);
                         if (i >= 0) {
@@ -397,7 +400,7 @@ function spawn_process(program_name, args, working_dir,
                         }
                         return false;
                     }
-                    function close() {
+                    function close () {
                         transport.close(0);
                         remove_from_unregistered();
                     }
@@ -406,7 +409,7 @@ function spawn_process(program_name, args, working_dir,
 
                     var in_stream, bin_stream, out_stream;
 
-                    function handle_input() {
+                    function handle_input () {
                         if (terminate_pending)
                             return;
                         try {
@@ -519,7 +522,7 @@ function spawn_process(program_name, args, working_dir,
  * spawn_process_blind: spawn a process and forget about it
  */
 define_keywords("$cwd", "$fds");
-function spawn_process_blind(program_name, args) {
+function spawn_process_blind (program_name, args) {
     keywords(arguments);
     /* Check if we can use spawn_process_internal */
     var cwd = arguments.$cwd;
@@ -536,7 +539,7 @@ function spawn_process_blind(program_name, args) {
 
 
 //  Keyword arguments: $cwd, $fds
-function spawn_and_wait_for_process(program_name, args) {
+function spawn_and_wait_for_process (program_name, args) {
     keywords(arguments);
     var cc = yield CONTINUATION;
     spawn_process(program_name, args, arguments.$cwd,
@@ -547,7 +550,7 @@ function spawn_and_wait_for_process(program_name, args) {
 }
 
 // Keyword arguments: $cwd, $fds
-function shell_command_blind(cmd) {
+function shell_command_blind (cmd) {
     keywords(arguments);
     /* Check if we can use spawn_process_internal */
     var cwd = arguments.$cwd;
@@ -606,14 +609,14 @@ function shell_command_blind(cmd) {
     spawn_process_blind(program_name, args, $fds = arguments.$fds);
 }
 
-function substitute_shell_command_argument(cmdline, argument) {
+function substitute_shell_command_argument (cmdline, argument) {
     if (!cmdline.match("{}"))
         return cmdline + " \"" + shell_quote(argument) + "\"";
     else
         return cmdline.replace("{}", "\"" + shell_quote(argument) + "\"");
 }
 
-function shell_command_with_argument_blind(command, arg) {
+function shell_command_with_argument_blind (command, arg) {
     shell_command_blind(substitute_shell_command_argument(command, arg), forward_keywords(arguments));
 }
 
@@ -622,7 +625,7 @@ function shell_command_with_argument_blind(command, arg) {
  * $cwd: The current working directory for the process.
  * $fds: File descriptors to use.
  */
-function shell_command(command) {
+function shell_command (command) {
     if (!POSIX)
         throw new Error("shell_command: Your OS is not yet supported");
     var result = yield spawn_and_wait_for_process(getenv("SHELL") || "/bin/sh",
@@ -631,6 +634,6 @@ function shell_command(command) {
     yield co_return(result);
 }
 
-function shell_command_with_argument(command, arg) {
+function shell_command_with_argument (command, arg) {
     yield co_return((yield shell_command(substitute_shell_command_argument(command, arg), forward_keywords(arguments))));
 }
