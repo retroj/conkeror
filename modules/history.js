@@ -51,10 +51,12 @@ function url_completer() {
     if(use_webjumps) {
         completers.push(webjump_completer());
     }
-    if(use_history || use_bookmarks) {
-        completers.push(history_completer($use_history = use_history,
-                                          $use_bookmarks = use_bookmarks));
-    }
+    /* Do queries separately (which can lead to duplicates).  The
+     * queries can be combined when QUERY_TYPE_UNIFIED is implemented. */
+    if (use_bookmarks)
+        completers.push(history_completer($use_bookmarks = true));
+    if (use_history)
+        completers.push(history_completer($use_history = true));
     return merge_completers(completers);
 }
 
