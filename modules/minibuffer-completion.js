@@ -283,6 +283,8 @@ function merge_completers (completers) {
                         if (name in r && r[name] != null) {
                             args.unshift(i);
                             return r[name].apply(this, args);
+                        } else {
+                            return null;
                         }
                     }
                     i -= r.count;
