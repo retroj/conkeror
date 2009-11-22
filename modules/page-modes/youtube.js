@@ -23,24 +23,38 @@ let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/
  *
  *    Scrapers should return true on success and false on failure.
  */
-function youtube_scrape_standard (push, id, t, text) {
+function youtube_scrape_standard_flv (push, id, t, text) {
     push('http://youtube.com/get_video?video_id='+id+'&t='+t,
-         'flv', 'video/x-flv', 'standard');
+         'flv', 'video/x-flv', 'standard flv');
     return true;
 }
 
-function youtube_scrape_hq (push, id, t, text) {
+function youtube_scrape_hq_mp4 (push, id, t, text) {
     push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=18',
-         'flv', 'video/x-flv', 'hq');
+         'mp4', 'video/mp4', 'hq mp4');
     return true;
 }
 
-function youtube_scrape_hd (push, id, t, text) {
+function youtube_scrape_720p_mp4 (push, id, t, text) {
     if (!(/'IS_HD_AVAILABLE': true/.test(text)))
         return false;
     push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=22',
-         'flv', 'video/x-flv', 'hd');
+         'mp4', 'video/mp4', '720p mp4');
     return true;
+}
+
+function youtube_scrape_1080p_mp4 (push, id, t, text) {
+    //note: fmt_map should be able to be used for all formats, but
+    //      we don't want to lose the powerful configurability of
+    //      youtube_scrape_function in the name of efficiency.  Also
+    //      don't want to paint ourselves into a corner if youtube's
+    //      page format ever changes such that we can't get all the
+    //      data in one place anymore.
+    var re = /"fmt_map": "37/;
+    if (!(/"fmt_map": "37/.test(text)))
+        return false;
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=37',
+         'mp4', 'video/mp4', '1080p mp4');
 }
 
 
@@ -84,9 +98,10 @@ function make_call_each_until_success () {
 }
 
 define_variable('youtube_scrape_function',
-                make_call_each(youtube_scrape_hd,
-                               youtube_scrape_hq,
-                               youtube_scrape_standard),
+                make_call_each(youtube_scrape_1080p_mp4,
+                               youtube_scrape_720p_mp4,
+                               youtube_scrape_hq_mp4,
+                               youtube_scrape_standard_flv),
     "This function is called as the last step of scraping a youtube page, "+
     "after the basic information needed to build the media url has been "+
     "extracted. Youtube_scape_function is called with four arguments: a "+
