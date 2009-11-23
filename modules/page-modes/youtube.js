@@ -50,6 +50,7 @@ function youtube_scrape_1080p_mp4 (push, id, t, text) {
         return false;
     push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=37',
          'mp4', 'video/mp4', '1080p mp4');
+    return true;
 }
 
 
