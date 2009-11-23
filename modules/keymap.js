@@ -41,10 +41,14 @@ var modifiers = {
     M: new modifier(function (event) { return event.metaKey; },
                     function (event) { event.metaKey = true; }),
     S: new modifier(function (event) {
-                        if (event.shiftKey)
-                            return ((event.keyCode && event.keyCode < 41) ||
+                        if (event.shiftKey) {
+                            var name;
+                            if (event.keyCode)
+                                name = keycode_to_vk_name[event.keyCode];
+                            return ((name && name.length > 1) ||
                                     (event.charCode == 32) ||
                                     (event.button != null));
+                        }
                         return false;
                     },
                     function (event) { event.shiftKey = true; })
@@ -57,10 +61,14 @@ if (get_os() == 'Darwin') {
     // only care about it for non-character events.
     modifiers.A = new modifier(
         function (event) {
-            if (event.altKey)
-                return ((event.keyCode && event.keyCode < 41) ||
+            if (event.altKey) {
+                var name;
+                if (event.keyCode)
+                    name = keycode_to_vk_name[event.keyCode];
+                return ((name && name.length > 1) ||
                         (event.charCode == 32) ||
                         (event.button != null));
+            }
             return false;
         },
         function (event) { event.altKey = true; });
