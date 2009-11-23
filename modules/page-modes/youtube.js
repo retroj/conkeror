@@ -30,6 +30,8 @@ function youtube_scrape_standard_flv (push, id, t, text) {
 }
 
 function youtube_scrape_hq_mp4 (push, id, t, text) {
+    if (/"fmt_map": ""/.test(text))
+        return false;
     push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=18',
          'mp4', 'video/mp4', 'hq mp4');
     return true;
@@ -44,13 +46,6 @@ function youtube_scrape_720p_mp4 (push, id, t, text) {
 }
 
 function youtube_scrape_1080p_mp4 (push, id, t, text) {
-    //note: fmt_map should be able to be used for all formats, but
-    //      we don't want to lose the powerful configurability of
-    //      youtube_scrape_function in the name of efficiency.  Also
-    //      don't want to paint ourselves into a corner if youtube's
-    //      page format ever changes such that we can't get all the
-    //      data in one place anymore.
-    var re = /"fmt_map": "37/;
     if (!(/"fmt_map": "37/.test(text)))
         return false;
     push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=37',
