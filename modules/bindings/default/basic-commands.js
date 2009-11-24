@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2008 John J. Foerch
+ * (C) Copyright 2007-2009 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -53,4 +53,11 @@ function bind_selection_keys (keymap) {
     define_key(keymap, "S-end", "cmd_selectEndLine");
     define_key(keymap, "S-up", "cmd_selectLinePrevious");
     define_key(keymap, "S-down", "cmd_selectLineNext");
+
+    define_key(keymap, "C-B", "cmd_selectCharPrevious");
+    define_key(keymap, "C-F", "cmd_selectCharNext");
+    define_key(keymap, "M-B", "cmd_selectWordPrevious");
+    define_key(keymap, "M-F", "cmd_selectWordNext");
+    define_key(keymap, "C-P", "cmd_selectLinePrevious");
+    define_key(keymap, "C-N", "cmd_selectLineNext");
 }
