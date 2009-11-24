@@ -25,10 +25,10 @@ define_variable("scroll_to_heading_wrap", true,
 define_browser_object_class("next-heading", null,
     function (I) {
         let xpr = I.buffer.document.evaluate(
-                I.local.headings_xpath, I.buffer.document, null,
-                Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
-            heading, found = null, foundtop = null,
-            first = null, firsttop = null;
+            I.local.headings_xpath, I.buffer.document, xpath_lookup_namespace,
+            Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
+        heading, found = null, foundtop = null,
+        first = null, firsttop = null;
         while ((heading = xpr.iterateNext())) {
             let rect = heading.getBoundingClientRect();
             if (rect.bottom - rect.top < 2)
@@ -53,10 +53,10 @@ define_browser_object_class("next-heading", null,
 define_browser_object_class("previous-heading", null,
     function (I) {
         let xpr = I.buffer.document.evaluate(
-                I.local.headings_xpath, I.buffer.document, null,
-                Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
-            heading, found = null, foundtop = null,
-            last = null, lasttop = null;
+            I.local.headings_xpath, I.buffer.document,  xpath_lookup_namespace,
+            Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null),
+        heading, found = null, foundtop = null,
+        last = null, lasttop = null;
         while ((heading = xpr.iterateNext())) {
             let rect = heading.getBoundingClientRect();
             if (rect.bottom - rect.top < 2)
