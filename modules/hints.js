@@ -121,7 +121,7 @@ hint_manager.prototype = {
                              bottom: rect.bottom,
                              right: rect.right };
                     var coords = elem.getAttribute("coords")
-                        .match(/^(\d+)\D+(\d+)/);
+                        .match(/^(-?\d+)\D+(-?\d+)/);
                     if (coords.length == 3) {
                         rect.left += parseInt(coords[1]);
                         rect.top += parseInt(coords[2]);
