@@ -60,12 +60,15 @@ COPYING file.
 <h3>Basic Navigation</h3>
 
 <p>
-  To have Conkeror prompt you for an URL and navigate there, type
-  <code class="key">g</code>.  The mnemonic is "go".  A similar command,
-  <code class="key">find-alternate-url</code>, is called with the sequence
-  <code class="key">C-x C-v</code>.  When find-alternate-url prompts you for an
-  url, the prompt will be pre-filled with the url of the current
-  buffer, so you can edit it.
+  To browse to an URL in a new content buffer, type <code class="key">C-x
+  C-f</code>.  This key sequence works from anywhere in Conkeror.
+  Additionally, if you are already in a content buffer (as opposed to a
+  buffer showing download progress or help), you can navigate the current
+  buffer to a new url with the <code class="key">g</code> (find-url) key.
+  The mnemonic is "go".  The key sequence <code class="key">C-x C-v</code>
+  (find-alternate-url) is also available in content buffers.  It is
+  identical to <code class="key">g</code> except that the prompt will be
+  pre-filled with the current URL for you to edit.
 </p>
 
 <p>
