@@ -177,6 +177,15 @@ index_webjump_xhtml.prototype = {
         return [makeURLAbsolute(this.url, node.href), node.text];
     },
 
+    make_handler : function () {
+        let jmp = this;
+        return function (term) {
+            if (!(jmp.completions && jmp.completions.length))
+                throw interactive_error("Completions required for " + this.key);
+            return term;
+        };
+    },
+
     __proto__ : index_webjump.prototype
 }
 
@@ -245,7 +254,7 @@ function define_xpath_webjump(key, index_url, xpath_expr) {
                                       xpath_expr);
     index_webjumps[key] = jmp;
 
-    define_webjump(key, function (term) {return term;},
+    define_webjump(key, jmp.make_handler(),
                    $completer = jmp.make_completer(),
                    $alternative = alternative,
                    $description = arguments.$description);

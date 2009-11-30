@@ -17,9 +17,9 @@ require('index-webjump.js');
           define_xpath_webjump(
               "xpath", "http://dummy/xpath", '//xhtml:a[@class="index"]',
               $index_file = this.path + '/xpath-webjump-test.xhtml');
-          assert_equals(get_webjump("xpath foo"), "foo");
           var w = index_webjumps.xpath;
           w.extract_completions();
+          assert_equals(get_webjump("xpath foo"), "foo");
           assert_equals(w.completions.length, 2);
           assert_equals(w.completions[0][1], "The bar");
           assert_equals(w.completions[0][0], "http://dummy/xpath/bar");
