@@ -5,6 +5,7 @@ skin     conkeror-gui   default  file:../style/
 locale   conkeror-gui   en-US    file:../locale/en-US/
 
 content  conkeror-help           file:../help/
+content  conkeror-contrib        file:../contrib/modules/
 
 locale   branding       en-US    file:../branding/
 

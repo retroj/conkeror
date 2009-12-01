@@ -33,6 +33,9 @@ generic_element_widget_container.prototype = {
             element.setAttribute("class", class_name);
         if (crop)
             element.setAttribute("crop", crop);
+        return this.add_widget(widget, element);
+    },
+    add_widget : function (widget, element) {
         element.conkeror_widget = new generic_widget_element(element, widget);
         this.container.appendChild(element);
         return element.conkeror_widget;
