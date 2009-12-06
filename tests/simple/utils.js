@@ -23,3 +23,18 @@ walnut_run({
                              [[1,10]]);
     }
 });
+
+walnut_run({
+    test_string_format_1: function () {
+        assert_equals(string_format("", {}),
+                      "");
+    },
+    test_string_format_2: function () {
+        assert_equals(string_format("%a", {a: 'hello'}),
+                      "hello");
+    },
+    test_string_format_3: function () {
+        assert_equals(string_format("%a%a", {a: 'hello'}),
+                      "hellohello");
+    }
+});
