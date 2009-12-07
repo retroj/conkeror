@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# (C) Copyright 2008 John J. Foerch
+# (C) Copyright 2008-2009 John J. Foerch
 #
 # Use, modification, and distribution are subject to the terms specified in the
 # COPYING file.
@@ -13,54 +13,24 @@
 #
 #   sudo ln -s /path/to/conkeror/contrib/run-conkeror /usr/local/bin/conkeror
 #
-#
-# Hopefully, it will correctly find your xulrunner installation, and
-# the location of your conkeror install.
-#
 
-## chase a symlink
-function chase () { 
-    x="$1" 
-    while : 
-    do 
-	last="$x" 
-	x=$(find "$x" -maxdepth 0 -printf "%l") 
-	[ -z "$x" ] && { 
-	    echo $last 
-	    return 1  
-	} 
-    done 
-}
-
-## search in a gre dir for the first xulrunner 1.9 install location
-##
-## to be robust, we would need to examine each candidate xulrunner and
-## find a valid one.  for now we just take the first and accept our
-## doom.
-##
-function check-gre () {
-    # this takes the latest version
-    grep -h GRE_PATH  $(grep -l '\[1\.9' "${1%/}"/*.conf) | cut -d= -f2 | tail -n 1
-}
-
-if [[ -d "$HOME/.gre.d" ]]; then
-    xr=$(check-gre "$HOME/.gre.d" 2>/dev/null)
-fi
-
-if [[ -z "$xr" ]]; then
-    if [[ -d "/etc/gre.d" ]]; then
-        xr=$(check-gre /etc/gre.d 2>/dev/null)
-    fi
-fi
-
-if [[ -z "$xr" ]]; then
-    echo "Xulrunner not found"
-    exit 1
-fi
-
-thisscript=$(chase $0)
+## locate conkeror
+thisscript=$(readlink -f "$0")
 contrib=${thisscript%/*}
 conkeror=${contrib%/*}
 
-exec "${xr%/}"/xulrunner "$conkeror"/application.ini "$@"
+## locate xulrunner
+versions=($(grep -h '^\[' "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null | sort -urV))
+for version in "${versions[@]}"; do
+    xrdir=$(grep -Fxh -A2 -m1 "$version" "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null |\
+            grep GRE_PATH |\
+            cut -d= -f2)
+    xulrunner="${xrdir%/}/xulrunner"
+    if [[ -x "$xulrunner" ]]; then
+        exec "$xulrunner" "$conkeror"/application.ini "$@"
+    fi
+done
 
+## if we get this far, we didn't find xulrunner
+echo "$0: cannot continue. XULRunner not found." >&2
+exit 1
