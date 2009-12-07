@@ -1,21 +1,15 @@
+
 require('walnut.js');
 
-function mock_textfield(onlyid) {
+function mock_textfield (onlyid) {
     this.getAttribute = function (accessor) {
         if (! accessor || accessor != onlyid)
             return null;
-
-        return onlyid + "!text    box%--"
-    }
+        return onlyid + "!text    box%--";
+    };
 }
 
 walnut_run({
-    suite_setup: function () {
-        this.ext = edit_field_in_external_editor_file_ext;
-    },
-    suite_teardown: function () {
-        edit_field_in_external_editor_file_ext = this.ext;
-    },
     test_elem_mock: function () {
         var elem = new mock_textfield("name");
         assert_equals(elem.getAttribute("name"), "name!text    box%--");
