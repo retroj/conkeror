@@ -144,6 +144,12 @@ function make_uri (uri, charset, base_uri) {
     return io_service.newURI(uri, charset, base_uri);
 }
 
+function make_file_from_chrome (url) {
+    var crs = Cc['@mozilla.org/chrome/chrome-registry;1']
+        .getService(Ci.nsIChromeRegistry);
+    var file = crs.convertChromeURL(make_uri(url));
+    return make_file(file.path);
+}
 
 function get_document_content_disposition (document_o) {
     var content_disposition = null;

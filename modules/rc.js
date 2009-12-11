@@ -9,13 +9,16 @@
 
 function load_rc_file (file) {
     try {
-        var name;
+        var prefix = "file://";
+        var uri;
         if (typeof file == "string")
-            name = file;
+            uri = prefix + file;
+        else if (file instanceof Ci.nsIURI)
+            uri = file.spec;
         else
-            name = file.path;
+            uri = prefix + file.path;
 
-        subscript_loader.loadSubScript("file://" + name, conkeror);
+        subscript_loader.loadSubScript(uri, conkeror);
     } catch (e) {
         dump_error(e);
     }
@@ -47,37 +50,65 @@ function load_rc_directory (file_o) {
 
 
 /*
- * path_s: string path to load.  may be a file, a directory, or null.
- *   if it is a file, that file will be loaded.  if it is a directory,
- *   all `.js' files in that directory will be loaded.  if it is null,
- *   the preference `conkeror.rcfile' will be read for the default.
+ * The file to load may be specified as an nsILocalFile, an nsIURI or
+ *   a string uri or file path or null.  If path specifies a directory
+ *   all `.js' files in that directory will be loaded.  The default,
+ *   for a null path, is specified by the preference `conkeror.rcfile'
+ *   if it is set, otherwise it is $HOME/.conkerorrc.  A uri that is
+ *   not of file or chrome scheme will fail.
  */
-function load_rc (path_s) {
-    if (! path_s) {
+function load_rc (path, resolve) {
+    var file;
+
+    if (typeof path == "object")
+        file = path;
+    if (typeof path == "string") {
+        try {
+            file = make_uri(path);
+        } catch (e) {
+            if (resolve)
+                file = resolve(path);
+        }
+    }
+    if (file instanceof Ci.nsIURI && file.schemeIs("chrome"))
+        try {
+            file = make_file_from_chrome(file);
+        } catch (e) { /* ignore */ }
+    if (file instanceof Ci.nsIURI && file.schemeIs("file"))
+        file = make_file(file.path);
+
+    if (!path) {
         if (pref_has_user_value("conkeror.rcfile")) {
             var rcfile = get_pref("conkeror.rcfile");
             if (rcfile.length)
-                path_s = rcfile;
+                path = rcfile;
             else
                 return;
         } else {
-            var default_rc = get_home_directory();
-            default_rc.appendRelativePath(".conkerorrc");
-            if (default_rc.exists())
-                path_s = default_rc.path;
-            else
+            file = get_home_directory();
+            file.appendRelativePath(".conkerorrc");
+            if (!file.exists())
                 return;
         }
     }
 
-    var file_o = Cc["@mozilla.org/file/local;1"]
-        .createInstance(Ci.nsILocalFile);
-    file_o.initWithPath(path_s);
-    if (file_o.isDirectory()) {
-        load_rc_directory(file_o);
-    } else {
-        load_rc_file(path_s);
+    if (!file)
+        file = make_file(path);
+
+    if (file instanceof Ci.nsILocalFile) {
+        path = file.path;
+        if (!file.exists())
+            throw interactive_error("File not found: " + path);
     }
-    return file_o.path;
+    if (file instanceof Ci.nsIURI)
+        path = file.spec;
+
+    if (file instanceof Ci.nsILocalFile && file.isDirectory()) {
+        load_rc_directory(file);
+    } else {
+        load_rc_file(file);
+    }
+
+    return path;
 }
 
