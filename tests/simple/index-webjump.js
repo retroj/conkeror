@@ -12,7 +12,7 @@ require('index-webjump.js');
           conkeror.webjumps = this.real_webjumps;
           conkeror.index_webjumps = this.real_index_webjumps;
       },
-      path: conkeror_source_code_path + "/tests/simple",
+      path: make_file_from_chrome("chrome://conkeror-test/content/simple").path,
       test_xpath_webjump: function () {
           define_xpath_webjump(
               "xpath", "http://dummy/xpath", '//xhtml:a[@class="index"]',
@@ -41,12 +41,5 @@ require('index-webjump.js');
           assert_equals(w.completions[1][0], "foo");
       },
   };
-  if (conkeror_source_code_path)
-      walnut_run(suite);
-  else
-      dumpln('Suite setup failed; conkeror_source_code_path not set.' +
-             '  Try:\n' +
-             '  conkeror -q -batch' +
-             ' -e "conkeror_source_code_path=\\"$PWD\\";"' +
-             ' -l tests/simple/index-webjump.js');
+  walnut_run(suite);
 }
