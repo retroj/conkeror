@@ -69,6 +69,7 @@ define_page_mode("google_reader_mode",
                  });
 
 var google_reader_re = build_url_regex($domain = "google",
+                                       $tlds = ["com", "co.uk"],
                                        $allow_www = true,
                                        $path = "reader/");
 auto_mode_list.push([google_reader_re, google_reader_mode]);
