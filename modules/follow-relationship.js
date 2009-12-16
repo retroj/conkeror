@@ -68,7 +68,7 @@ function document_get_element_by_relationship (doc, patterns, relationship) {
             // images with alt text being href
             var children = elems[i].childNodes;
             for (var k = 0; k < children.length; k++) {
-                if (pattern.test(children[k].alt))
+                if (children[k].alt && pattern.test(children[k].alt))
                     return elems[i];
             }
         }
