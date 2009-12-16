@@ -108,6 +108,7 @@ function minibuffer_input_state (window, keymap, prompt, input, selection_start,
 }
 minibuffer_input_state.prototype = {
     __proto__: minibuffer_state.prototype,
+    mark_active : false,
     destroy: function (window) {
         window.input.end_recursion();
         minibuffer_state.prototype.destroy.call(this, window);

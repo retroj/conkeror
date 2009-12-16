@@ -157,6 +157,7 @@ buffer.prototype = {
     dead : false, /* This is set when the buffer is killed */
 
     keymaps: null,
+    mark_active: false,
 
     // The property focusblocker is available for an external module to
     // put a function on which takes a buffer as its argument and returns
