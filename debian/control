@@ -11,7 +11,7 @@ Vcs-Git: git://repo.or.cz/conkeror.git
 
 Package: conkeror
 Architecture: all
-Depends: xulrunner (>= 1.9~) | xulrunner-1.9 | xulrunner-1.9.1
+Depends: xulrunner (>= 1.9~) | xulrunner-1.9 | xulrunner-1.9.1, ${misc:Depends}
 Recommends: conkeror-spawn-process-helper
 Conflicts: conkeror-spawn-process-helper (<< 0.9~git080901-1)
 Suggests: emacs | emacsen
@@ -33,7 +33,7 @@ Description: keyboard focused web browser with Emacs look and feel
 
 Package: conkeror-spawn-process-helper
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: conkeror
 Conflicts: conkeror (<< 0.9~git080901-1)
 Description: spawn external processes in Conkeror
