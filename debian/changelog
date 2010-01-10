@@ -1,3 +1,9 @@
+conkeror (0.9.1+git100110-1) unstable; urgency=low
+
+  * New upstream snapshot
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 10 Jan 2010 17:22:41 +0100
+
 conkeror (0.9.1-1) unstable; urgency=low
 
   * New upstream version
