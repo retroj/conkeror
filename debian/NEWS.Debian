@@ -1,3 +1,43 @@
+conkeror (0.9~git100110-1) unstable; urgency=low
+
+  Please see http://conkeror.org/BreakingChanges for the complete list of
+  breaking changes. Just the most important ones are listed here.
+  
+  * mime_type_external_handlers removed. Replaced by
+    external_content_handlers.
+  
+  * define_buffer_mode, define_input_mode, and define_page_mode no longer
+    take display_name or doc as positional arguments. They are now given
+    as keyword arguments: $display_name and $doc.
+  
+  * The variable browser_automatic_form_focus_window_duration was renamed
+    to block_content_focus_change_duration.
+  
+  * The commands follow-current, follow-current-new-buffer,
+    follow-current-new-buffer-background, and follow-current-new-window
+    have been removed.
+  
+  * browser_prevent_automatic_form_focus_mode has been renamed and put in
+    its own file. To use this mode, simply do this:
+    require("block-content-focus-change.js");
+
+  * The default of hints_auto_exit_delay has been changed to 0.
+
+    This change means that by default, the user has to hit return to exit
+    the hints interaction. This change makes Conkeror's UI more
+    predictable for new users, less prone to run unintended commands
+    because of extra keystrokes outside the timeout window, and removes
+    assumptions about people's typing speed, browsing style, and focus of
+    attention when using the hints system.
+  
+    To use the hints-auto-exit feature, put a line like the following in
+    your rc, adjusting the number to suit your preference. 500 was the old
+    default.
+
+      hints_auto_exit_delay = 500;
+
+ -- Axel Beckert <abe@deuxchevaux.org>  Sun, 10 Jan 2010 20:01:30 +0100
+
 conkeror (0.9~git090708-1) unstable; urgency=low
 
   The conkeror Debian package now works with the upcoming experimental
