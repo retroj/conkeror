@@ -4,8 +4,8 @@ not be inlcuded in upstream by default.
 Index: conkeror-0.9.1/modules/debian/webjumps.js
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ conkeror-0.9.1/modules/debian/webjumps.js	2009-09-24 02:16:50.000000000 +0200
-@@ -0,0 +1,22 @@
++++ conkeror-0.9.1/modules/debian/webjumps.js	2010-01-13 01:31:38.000000000 +0100
+@@ -0,0 +1,23 @@
 +/**
 + * (C) Copyright 2008-2009 Axel Beckert
 + *
@@ -22,6 +22,7 @@ Index: conkeror-0.9.1/modules/debian/webjumps.js
 +define_webjump("debfile", "http://packages.debian.org/?searchon=contents&keywords=%s&mode=path&suite=unstable&arch=any");
 +define_webjump("debbugs", "http://bugs.debian.org/%s");
 +define_webjump("debpts", "http://packages.qa.debian.org/%s");
++define_webjump("debpopcon", "http://qa.debian.org/popcon.php?package=%s");
 +
 +// Ubuntu //
 +define_webjump("ubuntupkg", "http://packages.ubuntu.com/%s");
@@ -32,7 +33,7 @@ Index: conkeror-0.9.1/defaults/preferences/default-modules.js
 ===================================================================
 --- conkeror-0.9.1.orig/defaults/preferences/default-modules.js	2009-09-24 02:17:21.000000000 +0200
 +++ conkeror-0.9.1/defaults/preferences/default-modules.js	2009-09-24 02:17:48.000000000 +0200
-@@ -61,3 +61,6 @@
+@@ -60,3 +60,6 @@
  pref("conkeror.load.page-modes/dailymotion", 1);
  pref("conkeror.load.page-modes/gmail", 0);
  pref("conkeror.load.page-modes/xkcd", 1);

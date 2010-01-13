@@ -1,4 +1,4 @@
-conkeror (0.9.1+git100110-1) unstable; urgency=low
+conkeror (0.9.1+git100113-1) unstable; urgency=low
 
   * New upstream snapshot
   * Make package working on Ubuntu again by reverting debian/conkeror.bin
@@ -7,8 +7,9 @@ conkeror (0.9.1+git100110-1) unstable; urgency=low
   * Fix new Lintian 2.3.x warnings:
     - debhelper-but-no-misc-depends
     - obsolete-relation-form-in-source
+  * Add new webjump debpopcon.
 
- -- Axel Beckert <abe@deuxchevaux.org>  Sun, 10 Jan 2010 17:22:41 +0100
+ -- Axel Beckert <abe@deuxchevaux.org>  Wed, 13 Jan 2010 01:44:01 +0100
 
 conkeror (0.9.1-1) unstable; urgency=low
 
