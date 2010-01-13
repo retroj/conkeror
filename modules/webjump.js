@@ -67,7 +67,6 @@ function define_webjump (key, handler) {
                       alternative: alternative};
 }
 
-
 function define_delicious_webjumps (username) {
     define_webjump("delicious", "http://delicious.com/" + username + "/%s",
                    $alternative = "http://delicious.com/" + username);
