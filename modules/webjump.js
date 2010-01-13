@@ -69,7 +69,8 @@ function define_webjump (key, handler) {
 
 
 function define_delicious_webjumps (username) {
-    define_webjump("delicious", "http://delicious.com/" + username);
+    define_webjump("delicious", "http://delicious.com/" + username + "/%s",
+                   $alternative = "http://delicious.com/" + username);
     define_webjump("adelicious", "javascript:location.href='http://delicious.com/"+username+
                    "?v=2&url='+encodeURIComponent(location.href)+'&title='+"+
                    "encodeURIComponent(document.title);");
