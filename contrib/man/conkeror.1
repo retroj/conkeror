@@ -155,6 +155,17 @@ entropy.
 
 conkeror doesn't give feedback if a spawned external process crashes
 or exits unsuccessfully.
+.SH FILES
+The default location of Conkeror's user configuration file is
+\fB$HOME/.conkerorrc\fP.
+
+This can be changed by setting the preference
+\fBconkeror.rcfile\fP. The rc can be an ordinary file or a
+directory. If it is an ordinary file, Conkeror will evaluate that file
+as javascript. If it is a directory, Conkeror will evaluate all files
+in that directory that have the \fB.js\fP file extension.
+
+See \fBhttp://conkeror.org/ConkerorRC\fP for the details.
 .SH SEE ALSO
 .BR xulrunner\-1.9(1),
 .SH AUTHOR
