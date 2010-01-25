@@ -16,6 +16,7 @@ Recommends: conkeror-spawn-process-helper
 Conflicts: conkeror-spawn-process-helper (<< 0.9~git080901-1)
 Suggests: emacs | emacsen
 Provides: www-browser
+Xb-Xul-AppId: {a79fe89b-6662-4ff4-8e88-09950ad4dfde}
 Description: keyboard focused web browser with Emacs look and feel
  Conkeror is a highly-programmable web browser based on Mozilla
  XULRunner. It has a sophisticated keyboard system for running
