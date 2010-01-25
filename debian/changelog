@@ -7,7 +7,11 @@ conkeror (0.9.1+git100125-1) unstable; urgency=low
   * Fix new Lintian 2.3.x warnings:
     - debhelper-but-no-misc-depends
     - obsolete-relation-form-in-source
-  * Add new webjump debpopcon.
+  * Add new Debian related webjumps:
+    - debpopcon
+    - buildd
+    - buildd-ports
+    - debqa
   * Add Xb-Xul-AppId header to conkeror binary package for use with
     mozilla-devscripts. (Closes: #562986)
 
