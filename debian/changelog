@@ -14,8 +14,9 @@ conkeror (0.9.1+git100125-1) unstable; urgency=low
     - debqa
   * Add Xb-Xul-AppId header to conkeror binary package for use with
     mozilla-devscripts. (Closes: #562986)
+  * Bumped Standards-Version to 3.8.4 (no changes)
 
- -- Axel Beckert <abe@deuxchevaux.org>  Mon, 25 Jan 2010 19:28:30 +0100
+ -- Axel Beckert <abe@deuxchevaux.org>  Thu, 28 Jan 2010 01:36:53 +0100
 
 conkeror (0.9.1-1) unstable; urgency=low
 
