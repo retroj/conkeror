@@ -60,3 +60,4 @@ pref("conkeror.load.page-modes/google-maps", 1);
 pref("conkeror.load.page-modes/dailymotion", 1);
 pref("conkeror.load.page-modes/gmail", 0);
 pref("conkeror.load.page-modes/xkcd", 1);
+pref("conkeror.load.page-modes/stackoverflow", 1);
