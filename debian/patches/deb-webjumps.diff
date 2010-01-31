@@ -4,7 +4,7 @@ not be inlcuded in upstream by default.
 Index: conkeror-0.9.1/modules/debian/webjumps.js
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ conkeror-0.9.1/modules/debian/webjumps.js	2010-01-25 20:51:33.000000000 +0100
++++ conkeror-0.9.1/modules/debian/webjumps.js	2010-01-31 17:24:32.000000000 +0100
 @@ -0,0 +1,26 @@
 +/**
 + * (C) Copyright 2008-2010 Axel Beckert
@@ -34,12 +34,12 @@ Index: conkeror-0.9.1/modules/debian/webjumps.js
 +define_webjump("launchpad", "https://launchpad.net/+search?field.text=%s");
 Index: conkeror-0.9.1/defaults/preferences/default-modules.js
 ===================================================================
---- conkeror-0.9.1.orig/defaults/preferences/default-modules.js	2010-01-25 20:41:13.000000000 +0100
-+++ conkeror-0.9.1/defaults/preferences/default-modules.js	2010-01-25 20:51:33.000000000 +0100
-@@ -60,3 +60,6 @@
- pref("conkeror.load.page-modes/dailymotion", 1);
+--- conkeror-0.9.1.orig/defaults/preferences/default-modules.js	2010-01-31 17:22:36.000000000 +0100
++++ conkeror-0.9.1/defaults/preferences/default-modules.js	2010-01-31 17:24:32.000000000 +0100
+@@ -61,3 +61,6 @@
  pref("conkeror.load.page-modes/gmail", 0);
  pref("conkeror.load.page-modes/xkcd", 1);
+ pref("conkeror.load.page-modes/stackoverflow", 1);
 +
 +// Debian modules
 +pref("conkeror.load.debian/webjumps", 1);
