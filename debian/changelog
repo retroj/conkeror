@@ -1,4 +1,4 @@
-conkeror (0.9.1+git100125-1) unstable; urgency=low
+conkeror (0.9.1+git100131-1) unstable; urgency=low
 
   * New upstream snapshot
   * Make package working on Ubuntu again by reverting debian/conkeror.bin
@@ -17,7 +17,7 @@ conkeror (0.9.1+git100125-1) unstable; urgency=low
   * Bumped Standards-Version to 3.8.4 (no changes)
   * Changed my e-mail address to my debian.org address
 
- -- Axel Beckert <abe@debian.org>  Thu, 28 Jan 2010 01:36:53 +0100
+ -- Axel Beckert <abe@debian.org>  Sun, 31 Jan 2010 17:52:43 +0100
 
 conkeror (0.9.1-1) unstable; urgency=low
 

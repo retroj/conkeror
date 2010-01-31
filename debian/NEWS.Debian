@@ -1,4 +1,4 @@
-conkeror (0.9~git100110-1) unstable; urgency=low
+conkeror (0.9.1+git100131-1) unstable; urgency=low
 
   Please see http://conkeror.org/BreakingChanges for the complete list of
   breaking changes. Just the most important ones are listed here.
@@ -36,7 +36,7 @@ conkeror (0.9~git100110-1) unstable; urgency=low
 
       hints_auto_exit_delay = 500;
 
- -- Axel Beckert <abe@deuxchevaux.org>  Sun, 10 Jan 2010 20:01:30 +0100
+ -- Axel Beckert <abe@debian.org>  Sun, 31 Jan 2010 17:55:04 +0100
 
 conkeror (0.9~git090708-1) unstable; urgency=low
 
