@@ -253,6 +253,17 @@ define_browser_object_class("dom-node", null,
     xpath_browser_object_handler("//* | //xhtml:*"),
     $hint = "select DOM node");
 
+define_browser_object_class("fragment-link",
+    "Browser object class which returns a link to the specified fragment of a page",
+    function (I, prompt) {
+        var elem = yield I.buffer.window.minibuffer.read_hinted_element(
+            $buffer = I.buffer,
+            $prompt = prompt,
+            $hint_xpath_expression = "//*[@id] | //a[@name] | //xhtml:*[@id] | //xhtml:a[@name]");
+        yield co_return(page_fragment_load_spec(elem));
+    },
+    $hint = "select element to link to");
+
 interactive("browser-object-text",
     "Composable browser object which returns the text of another object.",
     function (I) {
