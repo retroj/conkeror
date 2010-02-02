@@ -1,0 +1,4 @@
+# Non-standard Xul-AppId header needed for mozilla-devscripts (see bug
+# #562986 and http://wiki.debian.org/mozilla-devscripts)
+conkeror binary: unknown-field-in-control xul-appid
+

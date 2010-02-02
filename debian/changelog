@@ -1,3 +1,9 @@
+conkeror (0.9.1+git100131-2) UNRELEASED; urgency=low
+
+  * Add a lintian overrided for the non-standard Xb-Xul-AppId header
+
+ -- Axel Beckert <abe@debian.org>  Tue, 02 Feb 2010 18:33:01 +0100
+
 conkeror (0.9.1+git100131-1) unstable; urgency=low
 
   * New upstream snapshot
