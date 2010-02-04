@@ -13,6 +13,8 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 function cmdline() {}
 cmdline.prototype = {
     handle: function (cmdline) {
+        if (cmdline.preventDefault)
+            return;
         cmdline.preventDefault = true;
         var conkeror = Cc["@conkeror.mozdev.org/application;1"].getService().wrappedJSObject;
         conkeror.handle_command_line(cmdline);
