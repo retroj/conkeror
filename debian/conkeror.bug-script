@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ -x /usr/lib/xulrunner-1.9.1/reportbug-helper-script ]; then
+    /usr/lib/xulrunner-1.9.1/reportbug-helper-script conkeror
+fi
