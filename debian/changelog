@@ -2,6 +2,9 @@ conkeror (0.9.1+git100131-2) UNRELEASED; urgency=low
 
   * Add a lintian override for the non-standard Xb-Xul-AppId header
   * Removed Luca from the uploaders list (on his request)
+  * Add alternative dependency on upcoming experimental xulrunner-1.9.2.
+  * Reorder xulrunner dependencies to have the preferred versions first
+    instead of sorting by package name.
 
  -- Axel Beckert <abe@debian.org>  Tue, 02 Feb 2010 18:33:01 +0100
 
