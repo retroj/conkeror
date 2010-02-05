@@ -109,10 +109,15 @@ define_window_local_hook("keypress_hook", RUN_HOOK_UNTIL_SUCCESS,
     "that is desired.");
 
 
+/**
+ * get_current_keymaps returns the keymap stack for the current focus
+ * context of the given window.  This is the top-level keymap stack, not
+ * the stack that represents any on-going key sequence.
+ */
 function get_current_keymaps (window) {
     if (window.input.current.override_keymap)
         return [window.input.current.override_keymap];
-    if (window.buffers.current.override_keymaps.length > 0)
+    if (window.buffers.current.override_keymaps[0] !== undefined)
         return window.buffers.current.override_keymaps;
     return window.buffers.current.keymaps;
 }
