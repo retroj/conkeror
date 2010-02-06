@@ -168,7 +168,7 @@ sequence:
 
                 // make the combo string
                 var combo = format_key_combo(clone);
-                I.key_sequence.push(combo);
+                var canabort = I.key_sequence.push(combo) > 1;
                 I.combo = combo;
                 I.event = clone;
 
@@ -180,7 +180,9 @@ sequence:
 
                 var overlay_keymap = I.overlay_keymap;
 
-                var binding = (overlay_keymap && keymap_lookup([overlay_keymap], combo, event)) ||
+                var binding =
+                    (canabort && keymap_lookup([sequence_abort_keymap], combo, event)) ||
+                    (overlay_keymap && keymap_lookup([overlay_keymap], combo, event)) ||
                     keymap_lookup(keymaps, combo, event) ||
                     keymap_lookup([sequence_help_keymap], combo, event);
 
@@ -330,3 +332,8 @@ function input_initialize_window (window) {
 }
 
 add_hook("window_initialize_hook", input_initialize_window);
+
+
+interactive("sequence-abort",
+    "Abort an ongoing key sequence.",
+    function (I) { I.minibuffer.message("abort sequence"); });

@@ -29,6 +29,10 @@ define_keymap("sequence_help_keymap");
 define_key(sequence_help_keymap, "C-h", "describe-active-bindings");
 
 
+define_keymap("sequence_abort_keymap");
+define_key(sequence_abort_keymap, "C-g", "sequence-abort");
+
+
 /**
  * Note: Most buffer keymaps should set this as the parent.
  */
