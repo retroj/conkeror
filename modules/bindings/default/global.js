@@ -25,6 +25,10 @@ define_key(default_help_keymap, "w", "where-is");
 define_key(default_base_keymap, "C-h", default_help_keymap);
 
 
+define_keymap("sequence_help_keymap");
+define_key(sequence_help_keymap, "C-h", "describe-active-bindings");
+
+
 /**
  * Note: Most buffer keymaps should set this as the parent.
  */

@@ -230,9 +230,15 @@ describe_bindings_buffer.prototype = {
 };
 
 
-function describe_bindings (buffer, target) {
+function describe_bindings (buffer, target, keymaps, prefix) {
     var list = [];
-    var keymaps = get_current_keymaps(buffer.window);
+    if (! keymaps)
+        keymaps = get_current_keymaps(buffer.window);
+    if (prefix)
+        prefix = format_binding_sequence(
+            prefix.map(function (x) { return {key:x}; }))+" ";
+    else
+        prefix = "";
     for_each_key_binding(keymaps, function (binding_stack) {
             var last = binding_stack[binding_stack.length - 1];
             if (last.command == null && !last.fallthrough)
@@ -247,7 +253,7 @@ function describe_bindings (buffer, target) {
                     bound_in = bound_in.bound_in;
                 }
             }
-            var bind = {seq: format_binding_sequence(binding_stack),
+            var bind = {seq: prefix+format_binding_sequence(binding_stack),
                         fallthrough: last.fallthrough,
                         command: last.command,
                         bound_in: bound_in.name,
@@ -266,9 +272,31 @@ function describe_bindings_new_buffer (I) {
 function describe_bindings_new_window (I) {
     describe_bindings(I.buffer, OPEN_NEW_WINDOW);
 }
-interactive("describe-bindings", null,
-            alternates(describe_bindings_new_buffer, describe_bindings_new_window));
+interactive("describe-bindings",
+    "Show a help buffer describing the bindings in the context keymaps, "+
+    "meaning the top-level keymaps according to the focus context in the "+
+    "current buffer.",
+    alternates(describe_bindings_new_buffer,
+               describe_bindings_new_window));
 
+function describe_active_bindings_new_buffer (I) {
+    describe_bindings(I.buffer, OPEN_NEW_BUFFER,
+                      I.keymaps || get_current_keymaps(I.buffer.window),
+                      I.key_sequence.slice(0, -1));
+}
+function describe_active_bindings_new_window (I) {
+    describe_bindings(I.buffer, OPEN_NEW_WINDOW,
+                      I.keymaps || get_current_keymaps(I.buffer.window),
+                      I.key_sequence.slice(0, -1));
+}
+interactive("describe-active-bindings",
+    "Show a help buffer describing the bindings in the active keymaps, "+
+    "meaning the keymaps in the middle of an ongoing key sequence.  This "+
+    "command is intended to be called via `sequence_help_keymap'.  For "+
+    "that reason, `describe-active-bindings' does not consume and prefix "+
+    "commands like `universal-argument', as doing so would lead to "+
+    "ambiguities with respect to the intent of the user.",
+    describe_active_bindings_new_buffer);
 
 
 /*
