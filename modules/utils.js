@@ -1223,10 +1223,6 @@ function send_http_request (lspec) {
 }
 
 
-var JSON = ("@mozilla.org/dom/json;1" in Cc) &&
-    Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
-
-
 /**
  * scroll_selection_into_view takes an editable element, and scrolls it so
  * that the selection (or insertion point) are visible.
