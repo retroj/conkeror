@@ -1227,24 +1227,6 @@ var JSON = ("@mozilla.org/dom/json;1" in Cc) &&
     Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
 
 
-var console_service = Cc["@mozilla.org/consoleservice;1"]
-    .getService(Ci.nsIConsoleService);
-
-console_service.registerListener(
-    {observe: function (msg) {
-         if (msg instanceof Ci.nsIScriptError) {
-             switch (msg.category) {
-             case "CSS Parser":
-             case "content javascript":
-                 return;
-             }
-             msg.QueryInterface(Ci.nsIScriptError);
-             dumpln("Console error: " + msg.message);
-             dumpln("  Category: " + msg.category);
-         }
-     }});
-
-
 /**
  * scroll_selection_into_view takes an editable element, and scrolls it so
  * that the selection (or insertion point) are visible.
