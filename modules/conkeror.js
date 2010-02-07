@@ -14,6 +14,7 @@ require("coroutine.js");
 require("debug.js");
 require("hook.js");
 require("timer.js");
+require("pretty-print.js");
 
 require("utils.js");
 require("interactive.js");

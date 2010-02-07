@@ -5,7 +5,7 @@
  * COPYING file.
 **/
 
-require_later("help.js"); // for pretty_print_value
+require("pretty-print.js");
 
 /**
  * @param name specifies the name of the label to be defined

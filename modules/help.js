@@ -655,24 +655,6 @@ function describe_variable_buffer (window, element) {
     this.constructor_end();
 }
 
-function pretty_print_value (value) {
-    if (value === undefined)
-        return "undefined";
-    if (value === null)
-        return "null";
-    if (typeof(value) == "object")
-        return value.toSource();
-    if (typeof(value) == "function")
-        return value.toString();
-    if (typeof(value) == "string") {
-        let s = value.toSource();
-        // toSource returns: (new String("<blah>"))
-        // we want just: "<blah>"
-        return s.substring(12, s.length - 2);
-    }
-    return new String(value);
-}
-
 describe_variable_buffer.prototype = {
     get title() { return "Variable help: " + this.variable; },
 

@@ -389,66 +389,6 @@ observer_service.addObserver(download_observer, "download-manager-remove-downloa
 
 download_manager_service.addListener(download_progress_listener);
 
-function pretty_print_file_size (val) {
-    const GIBI = 1073741824; /* 2^30 */
-    const MEBI = 1048576; /* 2^20 */
-    const KIBI = 1024; /* 2^10 */
-    var suffix, div;
-    if (val < KIBI) {
-        div = 1;
-        suffix = "B";
-    }
-    else if (val < MEBI) {
-        suffix = "KiB";
-        div = KIBI;
-    } else if (val < GIBI) {
-        suffix = "MiB";
-        div = MEBI;
-    } else {
-        suffix = "GiB";
-        div = GIBI;
-    }
-    val = val / div;
-    var precision = 2;
-    if (val > 10)
-        precision = 1;
-    if (val > 100)
-        precision = 0;
-    return [val.toFixed(precision), suffix];
-}
-
-function pretty_print_time (val) {
-    val = Math.round(val);
-    var seconds = val % 60;
-
-    val = Math.floor(val / 60);
-
-    var minutes = val % 60;
-
-    var hours = Math.floor(val / 60);
-
-    var parts = [];
-
-    if (hours > 1)
-        parts.push(hours + " hours");
-    else if (hours == 1)
-        parts.push("1 hour");
-
-    if (minutes > 1)
-        parts.push(minutes + " minutes");
-    else if (minutes == 1)
-        parts.push("1 minute");
-
-    if (minutes <= 1 && hours == 0) {
-        if (seconds != 1)
-            parts.push(seconds + " seconds");
-        else
-            parts.push("1 second");
-    }
-
-    return parts.join(", ");
-}
-
 define_variable("download_buffer_min_update_interval", 2000,
     "Minimum interval (in milliseconds) between updates in download progress buffers.\n" +
     "Lowering this interval will increase the promptness of the progress display at " +
