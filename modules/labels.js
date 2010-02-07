@@ -20,10 +20,10 @@ require_later("help.js"); // for pretty_print_value
 function define_label (name) {
     var allow_optional = false;
     var required_args = [];
-    for (let i = 1; i < arguments.length; ++i) {
+    for (let i = 1, ii = arguments.length; i < ii; ++i) {
         if (arguments[i] === null) {
             allow_optional = true;
-            if (i + 1 != arguments.length)
+            if (i + 1 != ii)
                 throw new Error("null must be the last argument");
         } else {
             required_args.push(arguments[i]);
