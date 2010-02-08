@@ -115,15 +115,6 @@ function makeURLAbsolute (base, url) {
 }
 
 
-function get_link_location (element) {
-    if (element && element.getAttribute("href")) {
-        var loc = element.getAttribute("href");
-        return makeURLAbsolute(element.baseURI, loc);
-    }
-    return null;
-}
-
-
 function make_file (path) {
     if (path instanceof Ci.nsILocalFile)
         return path;
