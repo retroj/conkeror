@@ -86,3 +86,10 @@ let (profile_name = null) {
         return null;
     }
 }
+
+
+
+function get_locale () {
+    const LOCALE_PREF = "general.useragent.locale";
+    return get_localized_pref(LOCALE_PREF) || get_pref(LOCALE_PREF);
+}

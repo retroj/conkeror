@@ -20,6 +20,11 @@ require("services.js");
 require("string.js");
 require("pref.js");
 require("env.js");
+require("user-variable.js");
+require("stylesheet.js");
+require("extension.js");
+require("array.js");
+require("builtin-commands.js");
 
 require("utils.js");
 require("interactive.js");
