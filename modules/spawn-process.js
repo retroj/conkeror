@@ -105,7 +105,7 @@ const STDERR_FILENO = 2;
 
 var spawn_process_helper_default_fd_wait_timeout = 1000;
 var spawn_process_helper_setup_timeout = 2000;
-var spawn_process_helper_program = file_locator.get("CurProcD", Ci.nsIFile);
+var spawn_process_helper_program = file_locator_service.get("CurProcD", Ci.nsIFile);
 spawn_process_helper_program.append("conkeror-spawn-helper");
 
 /**

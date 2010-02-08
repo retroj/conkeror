@@ -310,12 +310,12 @@ function search_engine_get_homepage(search_engine) {
 
 // Load search engines from default directories
 {
-    let dir = file_locator.get("CurProcD", Ci.nsIFile);
+    let dir = file_locator_service.get("CurProcD", Ci.nsIFile);
     dir.append("search-engines");
     if (dir.exists() && dir.isDirectory())
         load_search_engines_in_directory(dir);
 
-    dir = file_locator.get("ProfD", Ci.nsIFile);
+    dir = file_locator_service.get("ProfD", Ci.nsIFile);
     dir.append("search-engines");
     if (dir.exists() && dir.isDirectory())
         load_search_engines_in_directory(dir);

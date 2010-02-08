@@ -6,9 +6,6 @@
  * COPYING file.
 **/
 
-const nav_history_service = Cc["@mozilla.org/browser/nav-history-service;1"]
-    .getService(Ci.nsINavHistoryService);
-
 define_keywords("$use_webjumps", "$use_history", "$use_bookmarks",
                 "$match_required");
 function history_completer () {
@@ -61,7 +58,6 @@ function url_completer() {
     return merge_completers(completers);
 }
 
-const nav_bookmarks_service = Cc["@mozilla.org/browser/nav-bookmarks-service;1"].getService(Ci.nsINavBookmarksService);
 
 function add_bookmark(url, title) {
     nav_bookmarks_service.insertBookmark(nav_bookmarks_service.unfiledBookmarksFolder,

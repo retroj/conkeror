@@ -173,11 +173,6 @@ function do_repeatedly (func, n, positive_args, negative_args) {
         while (n-- > 0) func.apply(null, positive_args);
 }
 
-// remove whitespace from the beginning and end
-function trim_whitespace (str) {
-    var tmp = new String(str);
-    return tmp.replace(/^\s+/, "").replace(/\s+$/, "");
-}
 
 /**
  * Given a node, returns its position relative to the document.
@@ -218,48 +213,6 @@ function abs_point (node) {
 }
 
 
-/**
- * get_os returns a string identifying the current OS.
- * possible values include 'Darwin', 'Linux' and 'WINNT'.
- */
-let (xul_runtime = Cc['@mozilla.org/xre/app-info;1']
-         .getService(Ci.nsIXULRuntime)) {
-    function get_os () {
-        return xul_runtime.OS;
-    }
-};
-
-
-/**
- * getenv returns the value of a named environment variable or null if
- * the environment variable does not exist.
- */
-let (env = Cc['@mozilla.org/process/environment;1']
-         .getService(Ci.nsIEnvironment)) {
-    function getenv (variable) {
-        if (env.exists(variable))
-            return env.get(variable);
-        return null;
-    }
-}
-
-
-/**
- * get_home_directory returns an nsILocalFile object of the user's
- * home directory.
- */
-function get_home_directory () {
-    var dir = Cc["@mozilla.org/file/local;1"]
-        .createInstance(Ci.nsILocalFile);
-    if (get_os() == "WINNT")
-        dir.initWithPath(getenv('USERPROFILE') ||
-                         getenv('HOMEDRIVE') + getenv('HOMEPATH'));
-    else
-        dir.initWithPath(getenv('HOME'));
-    return dir;
-}
-
-
 const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const MATHML_NS = "http://www.w3.org/1998/Math/MathML";
@@ -285,23 +238,6 @@ function method_caller (obj, func) {
     };
 }
 
-function shell_quote (str) {
-    var s = str.replace("\"", "\\\"", "g");
-    s = s.replace("$", "\$", "g");
-    return s;
-}
-
-/* Like perl's quotemeta. Backslash all non-alphanumerics. */
-function quotemeta (str) {
-    return str.replace(/([^a-zA-Z0-9])/g, "\\$1");
-}
-
-/* Given a list of choices (strings), return a regex which matches any
-   of them*/
-function choice_regex (choices) {
-    var regex = "(?:" + choices.map(quotemeta).join("|") + ")";
-    return regex;
-}
 
 function get_window_from_frame (frame) {
     try {
@@ -330,20 +266,6 @@ function get_buffer_from_frame (window, frame) {
     return null;
 }
 
-var file_locator = Cc["@mozilla.org/file/directory_service;1"]
-    .getService(Ci.nsIProperties);
-
-function get_shortdoc_string (doc) {
-    var shortdoc = null;
-    if (doc != null) {
-        var idx = doc.indexOf("\n");
-        if (idx >= 0)
-            shortdoc = doc.substring(0,idx);
-        else
-            shortdoc = doc;
-    }
-    return shortdoc;
-}
 
 var conkeror_source_code_path = null;
 
@@ -466,95 +388,6 @@ function generate_QI () {
         .join("||") +
         ") return this; throw Components.results.NS_ERROR_NO_INTERFACE;";
     return new Function("iid", fstr);
-}
-
-function set_branch_pref (branch, name, value) {
-    if (typeof(value) == "string") {
-        branch.setCharPref(name, value);
-    } else if (typeof(value) == "number") {
-        branch.setIntPref(name, value);
-    } else if (typeof(value) == "boolean") {
-        branch.setBoolPref(name, value);
-    }
-}
-
-function default_pref (name, value) {
-    var branch = preferences.getDefaultBranch(null);
-    set_branch_pref(branch, name, value);
-}
-
-function user_pref (name, value) {
-    var branch = preferences.getBranch(null);
-    set_branch_pref(branch, name, value);
-}
-
-function get_branch_pref (branch, name) {
-    switch (branch.getPrefType(name)) {
-    case branch.PREF_STRING:
-        return branch.getCharPref(name);
-    case branch.PREF_INT:
-        return branch.getIntPref(name);
-    case branch.PREF_BOOL:
-        return branch.getBoolPref(name);
-    default:
-        return null;
-    }
-}
-
-function get_localized_pref (name) {
-    try {
-        return preferences.getBranch(null).getComplexValue(name, Ci.nsIPrefLocalizedString).data;
-    } catch (e) {
-        return null;
-    }
-}
-
-function get_pref (name) {
-    var branch = preferences.getBranch(null);
-    return get_branch_pref(branch, name);
-}
-
-function get_default_pref (name) {
-    var branch = preferences.getDefaultBranch(null);
-    return get_branch_pref(branch, name);
-}
-
-function clear_pref (name) {
-    var branch = preferences.getBranch(null);
-    return branch.clearUserPref(name);
-}
-
-function pref_has_user_value (name) {
-    var branch = preferences.getBranch(null);
-    return branch.prefHasUserValue(name);
-}
-
-function pref_has_default_value (name) {
-    var branch = preferences.getDefaultBranch(null);
-    return branch.prefHasUserValue(name);
-}
-
-function session_pref (name, value) {
-    try {
-        clear_pref (name);
-    } catch (e) {}
-    return default_pref(name, value);
-}
-
-function watch_pref (pref, hook) {
-    /* Extract pref into branch.pref */
-    let match = pref.match(/^(.*[.])?([^.]*)$/);
-    let br = match[1];
-    let key = match[2];
-    let branch = preferences.getBranch(br).QueryInterface(Ci.nsIPrefBranch2);
-    let observer = {
-        observe: function (subject, topic, data) {
-            if (topic == "nsPref:changed" && data == key) {
-                hook();
-            }
-        }
-    };
-    branch.addObserver("", observer, false);
 }
 
 const LOCALE_PREF = "general.useragent.locale";
@@ -781,8 +614,6 @@ function define_builtin_commands (prefix, do_command_function, toggle_mark, mark
     }
 }
 
-var observer_service = Cc["@mozilla.org/observer-service;1"]
-    .getService(Ci.nsIObserverService);
 
 function abort (str) {
     var e = new Error(str);
@@ -795,7 +626,7 @@ abort.prototype.__proto__ = Error.prototype;
 function get_temporary_file (name) {
     if (name == null)
         name = "temp.txt";
-    var file = file_locator.get("TmpD", Ci.nsIFile);
+    var file = file_locator_service.get("TmpD", Ci.nsIFile);
     file.append(name);
     // Create the file now to ensure that no exploits are possible
     file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
@@ -976,8 +807,6 @@ function get_meta_title (doc) {
     return null;
 }
 
-var rdf_service = Cc["@mozilla.org/rdf/rdf-service;1"]
-    .getService(Ci.nsIRDFService);
 
 const PREFIX_ITEM_URI = "urn:mozilla:item:";
 const PREFIX_NS_EM = "http://www.mozilla.org/2004/em-rdf#";
@@ -986,6 +815,8 @@ var extension_manager = Cc["@mozilla.org/extensions/manager;1"]
     .getService(Ci.nsIExtensionManager);
 
 function get_extension_rdf_property (id, name, type) {
+    const rdf_service = Cc["@mozilla.org/rdf/rdf-service;1"]
+        .getService(Ci.nsIRDFService);
     var value = extension_manager.datasource.GetTarget(
         rdf_service.GetResource(PREFIX_ITEM_URI + id),
         rdf_service.GetResource(PREFIX_NS_EM + name),
@@ -1360,45 +1191,6 @@ function remove_duplicates_filter () {
 }
 
 
-/* get_current_profile returns the name of the current profile, or
- * null if that information cannot be found.  The result is cached for
- * quick repeat lookup.  This is safe because xulrunner does not
- * support switching profiles on the fly.
- *
- * Profiles don't necessarily have a name--as such this information should
- * not be depended on for anything important.  It is mainly intended for
- * decoration of the window title and mode-line.
- */
-let (profile_name = null) {
-    function get_current_profile () {
-        if (profile_name)
-            return profile_name;
-        if ("@mozilla.org/profile/manager;1" in Cc) {
-            profile_name = Cc["@mozilla.org/profile/manager;1"]
-                .getService(Ci.nsIProfile)
-                .currentProfile;
-            return profile_name;
-        }
-        var current_profile_path = Cc["@mozilla.org/file/directory_service;1"]
-            .getService(Ci.nsIProperties)
-            .get("ProfD", Ci.nsIFile).path;
-        var profile_service = Cc["@mozilla.org/toolkit/profile-service;1"]
-            .getService(Components.interfaces.nsIToolkitProfileService);
-        var profiles = profile_service.profiles;
-        while (profiles.hasMoreElements()) {
-            var p = profiles.getNext().QueryInterface(Ci.nsIToolkitProfile);
-            if (current_profile_path == p.localDir.path ||
-                current_profile_path == p.rootDir.path)
-            {
-                profile_name = p.name;
-                return p.name;
-            }
-        }
-        return null;
-    }
-};
-
-
 /**
  * Given an array, switches places on the subarrays at index i1 to i2 and j1 to
  * j2. Leaves the rest of the array unchanged.
@@ -1448,17 +1240,6 @@ function get_contents_synchronously (url) {
     scriptableStream.close();
     input.close();
     return str;
-}
-
-
-/**
- * string_format takes a format-string containing %X style format codes,
- * and an object mapping the code-letters to replacement text.  It
- * returns a string with the formatting codes replaced by the replacement
- * text.
- */
-function string_format (spec, substitutions) {
-    return spec.replace(/%(.)/g, function (a,b) { return substitutions[b]; });
 }
 
 
@@ -1599,16 +1380,4 @@ function do_when (hook, buffer, fun) {
 	add_hook.call(buffer, hook, fun);
     else
 	fun(buffer);
-}
-
-
-/**
- * html_escape replaces characters which are special in html with character
- * entities, safe for inserting as text into an html document.
- */
-function html_escape (str) {
-    return str.replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
 }

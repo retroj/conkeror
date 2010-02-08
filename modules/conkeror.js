@@ -15,6 +15,11 @@ require("debug.js");
 require("hook.js");
 require("timer.js");
 require("pretty-print.js");
+require("services.js");
+
+require("string.js");
+require("pref.js");
+require("env.js");
 
 require("utils.js");
 require("interactive.js");
