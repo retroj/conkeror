@@ -736,10 +736,6 @@ function define_special_variable (name, getter, setter, doc) {
     };
 }
 
-/* Re-define load_paths as a user variable. */
-define_variable("load_paths", load_paths,
-                "Array of URL prefixes searched in order when loading a module.\n" +
-                "Each entry must end in a slash, and should begin with file:// or chrome://.");
 
 /*
  * Stylesheets
