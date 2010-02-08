@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+require("source-code.js");
+
 var user_variables = {};
 
 function define_variable (name, default_value, doc) {

@@ -20,6 +20,7 @@ require("services.js");
 require("string.js");
 require("pref.js");
 require("env.js");
+require("source-code.js");
 require("user-variable.js");
 require("stylesheet.js");
 require("extension.js");
