@@ -124,10 +124,10 @@ function make_file (path) {
     return f;
 }
 
-var io_service = Cc["@mozilla.org/network/io-service;1"]
-    .getService(Ci.nsIIOService2);
 
 function make_uri (uri, charset, base_uri) {
+    const io_service = Cc["@mozilla.org/network/io-service;1"]
+        .getService(Ci.nsIIOService2);
     if (uri instanceof Ci.nsIURI)
         return uri;
     if (uri instanceof Ci.nsIFile)

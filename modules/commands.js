@@ -410,6 +410,8 @@ interactive("ensure-content-focused", "Ensure that the content document has focu
 
 
 function network_set_online_status (status) {
+    const io_service = Cc["@mozilla.org/network/io-service;1"]
+        .getService(Ci.nsIIOService2);
     status = !status;
     io_service.manageOfflineStatus = false;
     io_service.offline = status;
