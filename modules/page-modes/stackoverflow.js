@@ -31,7 +31,8 @@ define_keymap("stackoverflow_keymap");
 define_key(stackoverflow_keymap, "V", "stackoverflow-vote");
 
 function stackoverflow_modality (buffer, element) {
-    buffer.keymaps.push(stackoverflow_keymap);
+    if (! buffer.input_mode)
+        buffer.keymaps.push(stackoverflow_keymap);
 }
 
 define_page_mode("stackoverflow_mode",
