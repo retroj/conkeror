@@ -72,7 +72,7 @@
         if (window) {
             let bi = buffer_idx != undefined ?
                 buffer_idx : window.buffers.count;
-            for (let i = 0; session[s][i]; ++i, ++bi) {
+            for (let i = 0; session[s][i] != undefined; ++i, ++bi) {
                 let b = window.buffers.get_buffer(bi);
                 if (! b instanceof content_buffer) continue;
                 if (b) b.load(session[s][i]);
@@ -91,7 +91,7 @@
 
         function make_init_hook(session) {
             function init_hook(window) {
-                for (let i = 1; session[i]; ++i) {
+                for (let i = 1; session[i] != undefined; ++i) {
                     let c = buffer_creator(content_buffer, $load = session[i]);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
                 }
@@ -99,7 +99,7 @@
             return init_hook;
         }
 
-        for (; session[s]; ++s) {
+        for (; session[s] != undefined; ++s) {
             let w = make_window(buffer_creator(content_buffer,
                                                $load = session[s][0]));
             add_hook.call(w, "window_initialize_late_hook",
