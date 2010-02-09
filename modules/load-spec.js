@@ -55,7 +55,8 @@
 require("webjump.js");
 
 function page_fragment_load_spec (elem) {
-    var uri = makeURLAbsolute(elem.baseURI, "#" + (elem.id || elem.name));
+    var uri = makeURLAbsolute(elem.ownerDocument.documentURI,
+                              "#" + (elem.id || elem.name));
     var title = elem.ownerDocument.title;
     if (elem.textContent) {
         if (title) title += ' - ';
