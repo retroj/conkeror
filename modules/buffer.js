@@ -718,7 +718,7 @@ function unfocus (window, buffer) {
     var selc = getFocusedSelCtrl(buffer);
     if (selc && selc.getSelection(selc.SELECTION_NORMAL).isCollapsed == false) {
         clear_selection(buffer);
-        window.minibuffer.message("cleared selection");
+        log("ui_status", "cleared selection", {window: window});
         return;
     }
     // 2. if there is a focused element, unfocus it.
@@ -732,13 +732,13 @@ function unfocus (window, buffer) {
             buffer.element.focus();
             buffer.top_frame.focus();
         }
-        window.minibuffer.message("unfocused element");
+        log("ui_status", "unfocused element", {window: window});
         return;
     }
     // 3. return focus to top-frame from subframes and plugins.
     buffer.top_frame.focus();
     buffer.top_frame.focus(); // needed to get focus back from plugins
-    window.minibuffer.message("refocused top frame");
+    log("ui_status", "refocused top frame", {window: window});
     // give page-modes an opportunity to set focus specially
     unfocus_hook.run(buffer);
 }
@@ -852,7 +852,7 @@ function define_buffer_mode (name) {
     interactive(hyphen_name, arguments.$doc, function (I) {
         var arg = I.P;
         var new_state = func(I.buffer, arg && univ_arg_to_number(arg));
-        I.minibuffer.message(hyphen_name + (new_state ? " enabled" : " disabled"));
+        log("ui_status", hyphen_name + (new_state ? " enabled" : " disabled"), I);
     });
 }
 ignore_function_for_get_caller_source_code_reference("define_buffer_mode");

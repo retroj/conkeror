@@ -33,7 +33,9 @@ function define_global_mode (name, enable, disable) {
     interactive(hyphen_name, null, function (I) {
         var arg = I.P;
         func(arg && univ_arg_to_number(arg));
-        I.minibuffer.message(hyphen_name + (conkeror[state] ? " enabled" : " disabled"));
+        log("ui_status",
+            hyphen_name + (conkeror[state] ? " enabled" : " disabled"),
+            I);
     });
 }
 ignore_function_for_get_caller_source_code_reference("define_global_mode");

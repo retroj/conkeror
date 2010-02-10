@@ -123,7 +123,9 @@ interactive("permission-manager", "View or edit the host-specific "
             + "permission list.\nThis list is used for the popup"
             + "blocker whitelist, among other things.",
             function (I) {
-                I.minibuffer.message("Save the file and close the editor when done editing permissions.");
+                log("user_message",
+                    "Save the file and close the editor when done editing permissions.",
+                    I);
 
                 let existing_perms = new string_hashmap();
 
@@ -214,7 +216,7 @@ interactive("permission-manager", "View or edit the host-specific "
 
                         let new_buf = read_text_file(file);
                         if (new_buf == file_buf) {
-                            I.minibuffer.message("No permission changes made.");
+                            log("ui_status", "No permission changes made.", I);
                             break;
                         }
 
@@ -265,8 +267,10 @@ interactive("permission-manager", "View or edit the host-specific "
                                 line = i + 1;
                                 lines.splice(i+1, 0, "# ERROR on previous line: " + syntax_err, "");
                                 file_buf = lines.join("\n") + "\n";
-                                I.minibuffer.message("Correct the syntax error in the permissions list, " +
-                                                     "or close the editor to abort.");
+                                log("user_message",
+                                    "Correct the syntax error in the permissions list, " +
+                                    "or close the editor to abort.",
+                                    I);
                                 continue outer;
                             }
                         }
@@ -311,7 +315,7 @@ interactive("permission-manager", "View or edit the host-specific "
                                     }).join(", ") +
                                 ".";
                         }
-                        I.minibuffer.message(msg);
+                        log("ui_status", msg, I);
                         break;
                     }
                 } catch (e) {

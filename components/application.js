@@ -26,7 +26,7 @@ function application () {
     try {
         this.require("conkeror.js");
     } catch (e) {
-        this.dumpln("Error initializing.");
+        this.log("error", "Error initializing.");
         this.dump_error(e);
     }
 }
@@ -38,24 +38,36 @@ application.prototype = {
     module_uri_prefix: "chrome://conkeror/content/",
     subscript_loader: Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
     preferences: Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService),
+    log_routes: {
+        error: this.dumpln,
+        warning: this.dumpln
+    },
+    log: function (type, text, context) {
+        var logfn = this.log_routes[type];
+        if (logfn)
+            logfn(text, context);
+    },
     dumpln: function (str) {
         dump(str);
         dump("\n");
     },
     dump_error: function (e) {
         if (e instanceof Error) {
-            this.dumpln(e.name + ": " + e.message);
-            this.dumpln(e.fileName + ":" + e.lineNumber);
-            dump(e.stack);
+            this.log("error",
+                     e.name+": "+e.message+"\n"+
+                     e.fileName+": "+e.lineNumber+"\n"+
+                     e.stack);
         } else if (e instanceof Ci.nsIException) {
-            this.dumpln(e.name + ": " + e.message);
+            var s = e.name+": "+e.message;
             var stack_frame = e.location;
             while (stack_frame) {
-                this.dumpln(stack_frame.name + "()@" + stack_frame.filename + ":" + stack_frame.lineNumber);
+                s += stack_frame.name + "()@" + stack_frame.filename +
+                    ":" + stack_frame.lineNumber;
                 stack_frame = stack_frame.caller;
             }
+            this.log("error", s);
         } else {
-            this.dumpln("Error: " + e);
+            this.log("error", "Error: "+e);
         }
     },
     loaded: function (module) {

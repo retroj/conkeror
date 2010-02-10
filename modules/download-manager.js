@@ -693,7 +693,7 @@ function download_cancel (buffer) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
     info.cancel();
-    buffer.window.minibuffer.message("Download canceled");
+    log("ui_status", "Download canceled", {window: buffer.window});
 }
 interactive("download-cancel",
             "Cancel the current download.\n" +
@@ -711,7 +711,7 @@ function download_retry (buffer) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
     info.retry();
-    buffer.window.minibuffer.message("Download retried");
+    log("ui_status", "Download retried", {window: buffer.window});
 }
 interactive("download-retry",
             "Retry a failed or canceled download.\n" +
@@ -722,7 +722,7 @@ interactive("download-retry",
 function download_pause (buffer) {
     check_buffer(buffer, download_buffer);
     buffer.info.pause();
-    buffer.window.minibuffer.message("Download paused");
+    log("ui_status", "Download paused", {window: buffer.window});
 }
 interactive("download-pause",
             "Pause the current download.\n" +
@@ -733,7 +733,7 @@ interactive("download-pause",
 function download_resume (buffer) {
     check_buffer(buffer, download_buffer);
     buffer.info.resume();
-    buffer.window.minibuffer.message("Download resumed");
+    log("ui_status", "Download resumed", {window: buffer.window});
 }
 interactive("download-resume",
             "Resume the current download.\n" +
@@ -743,7 +743,7 @@ interactive("download-resume",
 function download_remove (buffer) {
     check_buffer(buffer, download_buffer);
     buffer.info.remove();
-    buffer.window.minibuffer.message("Download removed");
+    log("ui_status", "Download removed", {window: buffer.window});
 }
 interactive("download-remove",
             "Remove the current download from the download manager.\n" +
@@ -782,7 +782,8 @@ function download_delete_target (buffer) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
     info.delete_target();
-    buffer.window.minibuffer.message("Deleted file: " + info.target_file.path);
+    log("ui_status", "Deleted file: " + info.target_file.path,
+        {window: buffer.window});
 }
 interactive("download-delete-target",
             "Delete the target file of the current download.\n"  +
@@ -802,7 +803,8 @@ function download_shell_command (buffer, cwd, cmd) {
         info.set_shell_command(null, cwd);
     else
         info.set_shell_command(cmd, cwd);
-    buffer.window.minibuffer.message("Queued shell command: " + cmd);
+    log("ui_status", "Queued shell command: " + cmd,
+        {window: buffer.window});
 }
 interactive("download-shell-command",
             "Run a shell command on the target file of the current download.\n" +

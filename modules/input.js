@@ -216,7 +216,9 @@ sequence:
                         break sequence; //reachable by keypress fallthroughs
                     }
                 } else {
-                    window.minibuffer.message(I.key_sequence.join(" ") + " is undefined");
+                    log("interactive_error",
+                        I.key_sequence.join(" ") + " is undefined",
+                        {window: window});
                     break sequence;
                 }
                 break;
@@ -336,4 +338,4 @@ add_hook("window_initialize_hook", input_initialize_window);
 
 interactive("sequence-abort",
     "Abort an ongoing key sequence.",
-    function (I) { I.minibuffer.message("abort sequence"); });
+    function (I) { log("ui_status", "abort sequence", I); });

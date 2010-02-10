@@ -23,7 +23,7 @@ function browser_zoom_set(buffer, full_zoom, value) {
     if (value > zoom_levels[zoom_levels.length - 1])
         value = zoom_levels[zoom_levels.length - 1];
     buffer.markup_document_viewer[full_zoom ? "fullZoom" : "textZoom"] = value / 100.0;
-    buffer.window.minibuffer.message(txt + value + "%");
+    log("ui_status", txt + value + "%", {window: buffer.window});
 }
 
 function browser_zoom_change(buffer, full_zoom, count) {

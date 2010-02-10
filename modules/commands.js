@@ -28,9 +28,10 @@ function show_conkeror_version (window) {
     var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
         .getService(Ci.nsIXULAppInfo)
         .platformVersion;
-    window.minibuffer.message("Conkeror "+conkeror.version+
-                              " (XULRunner "+xulrunner_version+
-                              ", "+get_os()+")");
+    log("user_message", "Conkeror "+conkeror.version+
+        " (XULRunner "+xulrunner_version+
+        ", "+get_os()+")",
+        {window: window});
 }
 interactive("conkeror-version",
             "Show version information for Conkeror.",
@@ -283,9 +284,9 @@ function reinit (window) {
     var path;
     try {
         path = load_rc();
-        window.minibuffer.message("Loaded: " + path);
+        log("ui_status", "Loaded: "+path, {window: window});
     } catch (e) {
-        window.minibuffer.message("Failed to load: "+path);
+        log("ui_status", "Failed to load: "+path, {window: window});
     }
 }
 
@@ -320,9 +321,8 @@ function eval_expression (window, s) {
     // var window;
     var buffer = window.buffers.current;
     var result = eval(s);
-    if (result !== undefined) {
-        window.minibuffer.message(String(result));
-    }
+    if (result !== undefined)
+        log("user_message", String(result), {window: window});
 }
 interactive("eval-expression",
             "Evaluate JavaScript statements.",
@@ -634,7 +634,7 @@ interactive("bookmark",
             panel.destroy();
         }
         add_bookmark(uri_string, title);
-        I.minibuffer.message("Added bookmark: " + uri_string + " - " + title);
+        log("ui_status", "Added bookmark: "+uri_string+" - "+title, I);
     },
     $browser_object = browser_object_frames);
 

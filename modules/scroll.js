@@ -82,7 +82,7 @@ function scroll (I) {
     if (! element)
         return;
     element.scrollIntoView();
-    I.window.minibuffer.message(element.textContent);
+    log("ui_status", element.textContent, I);
 }
 
 

@@ -43,6 +43,8 @@ require("window.js");
 require("content-handler.js");
 require("download-manager.js");
 
+require("log-routes.js");
+
 require("element.js");
 
 require("buffer.js")

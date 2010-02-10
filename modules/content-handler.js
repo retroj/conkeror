@@ -84,7 +84,8 @@ function content_handler_copy_url (ctx) {
     ctx.abort(); // abort download
     let uri = ctx.launcher.source.spec;
     writeToClipboard(uri);
-    ctx.window.minibuffer.message("Copied: " + uri);
+    //is this really a ui_status log?  it *could* be called automatically
+    log("ui_status", "Copied: " + uri, ctx);
 }
 
 function content_handler_view_internally (ctx) {

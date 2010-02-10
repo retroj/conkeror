@@ -14,7 +14,7 @@ function clear_cookies () {
 interactive("clear-cookies", "Permanently delete all existing cookies.",
           function (I) {
               clear_cookies();
-              I.minibuffer.message("Cookies cleared.");
+              log("ui_status", "Cookies cleared.", I);
           });
 
 define_label("COOKIE_LIFETIME_DEFAULT");

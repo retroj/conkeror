@@ -538,7 +538,7 @@ function browser_element_copy (buffer, elem) {
     }
     browser_set_element_focus(buffer, elem);
     writeToClipboard(text);
-    buffer.window.minibuffer.message("Copied: " + text);
+    log("ui_status", "Copied: " + text, {window: buffer.window});
 }
 
 
@@ -591,7 +591,8 @@ function browser_object_view_source (buffer, target, elem) {
             browser_object_follow(buffer, target, "view-source:" + url_s);
         } catch(e) { dump_error(e); }
     } else {
-        window.minibuffer.message ("Already viewing source");
+        log("interactive_error", "Already viewing source",
+            {window: window});
     }
 }
 

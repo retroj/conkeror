@@ -73,12 +73,13 @@ function handle_interactive_error (window, e) {
     if (! window)
         throw e;
     if (e instanceof interactive_error) {
-        window.minibuffer.message(e.message);
+        log("interactive_error", e.message, {window: window});
     } else if (e instanceof abort) {
-        window.minibuffer.message("Quit");
+        log("interactive_error", "Quit", {window: window});
     } else {
         dump_error(e);
-        window.minibuffer.message("call interactively: " + e);
+        log("interactive_error", "call interactively: " + e,
+            {window: window});
     }
 }
 

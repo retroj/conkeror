@@ -46,5 +46,7 @@ interactive("inspect-click", "Inspect the target of the next mouse click.",
                     inspect_dom_node(e.target);
                 }
                 window.addEventListener("click", handler, true);
-                I.minibuffer.message("Click in this window to select the DOM node to inspect.");
+                log("user_message",
+                    "Click in this window to select the DOM node to inspect.",
+                    I);
             });

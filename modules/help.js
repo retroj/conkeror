@@ -19,7 +19,7 @@ function where_is_command (buffer, command) {
         msg = command + " is not on any key";
     else
         msg = command + " is on " + list.join(", ");
-    buffer.window.minibuffer.message(msg);
+    log("user_message", msg, {window: buffer.window});
 }
 interactive("where-is", null, function (I) {
     where_is_command(I.buffer,
@@ -624,7 +624,10 @@ function describe_key_briefly (buffer, key_info) {
             browser_object += bind.browser_object;
         }
     }
-    buffer.window.minibuffer.message(seq.join(" ") + " runs the command " + bind.command + browser_object);
+    log("user_message",
+        seq.join(" ") + " runs the command " +
+            bind.command + browser_object,
+        {window: buffer.window});
 }
 
 interactive("describe-key", null,

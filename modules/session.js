@@ -194,6 +194,7 @@
     let _session_file_not_found = function (I, file) {
         let mb = I ? I.minibuffer : get_recent_conkeror_window().minibuffer;
         let msg = "Session file not found: " + file.path;
+        // what log route should this be?
         mb.message(msg);
         dumpln(msg);
     }
