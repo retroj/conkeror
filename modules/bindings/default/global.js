@@ -49,6 +49,8 @@ define_key(default_global_keymap, "C-x k", "kill-buffer");
 define_key(default_global_keymap, "C-x 5 f", "find-url-new-window");
 define_key(default_global_keymap, "C-x 5 2", "make-window");
 define_key(default_global_keymap, "C-x 5 0", "delete-window");
+define_key(default_global_keymap, "C-x left", "buffer-previous");
+define_key(default_global_keymap, "C-x right", "buffer-next");
 define_key(default_global_keymap, "M-p", "buffer-previous");
 define_key(default_global_keymap, "M-n", "buffer-next");
 define_key(default_global_keymap, "C-x C-f", "find-url-new-buffer");
