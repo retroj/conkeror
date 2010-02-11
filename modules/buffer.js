@@ -148,13 +148,13 @@ function buffer (window, element) {
 
 buffer.prototype = {
     /* Saved focus state */
-    saved_focused_frame : null,
-    saved_focused_element : null,
-    on_switch_to : null,
-    on_switch_away : null,
+    saved_focused_frame: null,
+    saved_focused_element: null,
+    on_switch_to: null,
+    on_switch_away: null,
     // get title ()   [must be defined by subclasses]
     // get name ()    [must be defined by subclasses]
-    dead : false, /* This is set when the buffer is killed */
+    dead: false, /* This is set when the buffer is killed */
 
     keymaps: null,
     mark_active: false,
@@ -166,21 +166,21 @@ buffer.prototype = {
     // class allows for otherwise modular focus-blockers.
     focusblocker: null,
 
-    default_message : "",
+    default_message: "",
 
-    set_default_message : function (str) {
+    set_default_message: function (str) {
         this.default_message = str;
         if (this == this.window.buffers.current)
             this.window.minibuffer.set_default_message(str);
     },
 
-    constructors_running : 0,
+    constructors_running: 0,
 
     constructor_begin : function () {
         this.constructors_running++;
     },
 
-    constructor_end : function () {
+    constructor_end: function () {
         if (--this.constructors_running == 0) {
             create_buffer_hook.run(this);
             this.set_input_mode();
@@ -205,11 +205,11 @@ buffer.prototype = {
     get markup_document_viewer () { return this.browser.markupDocumentViewer; },
     get current_uri () { return this.browser.currentURI; },
 
-    is_child_element : function (element) {
+    is_child_element: function (element) {
         return (element && this.is_child_frame(element.ownerDocument.defaultView));
     },
 
-    is_child_frame : function (frame) {
+    is_child_frame: function (frame) {
         return (frame && frame.top == this.top_frame);
     },
 
@@ -238,7 +238,7 @@ buffer.prototype = {
         return null;
     },
 
-    do_command : function (command) {
+    do_command: function (command) {
         function attempt_command (element, command) {
             var controller;
             if (element.controllers
@@ -264,7 +264,7 @@ buffer.prototype = {
         } while (true);
     },
 
-    handle_kill : function () {
+    handle_kill: function () {
         this.dead = true;
         this.browser = null;
         this.element = null;
@@ -291,12 +291,11 @@ function buffer_container (window, create_initial_buffer) {
     this.container = window.document.getElementById("buffer-container");
     this.buffer_list = [];
     window.buffers = this;
-
     create_initial_buffer(window, this.container.firstChild);
 }
 
 buffer_container.prototype = {
-    constructor : buffer_container,
+    constructor: buffer_container,
 
     get current () {
         return this.container.selectedPanel.conkeror_buffer_object;
@@ -317,7 +316,7 @@ buffer_container.prototype = {
         select_buffer_hook.run(buffer);
     },
 
-    _switch_away_from : function (old_value) {
+    _switch_away_from: function (old_value) {
         // Save focus state
         old_value.saved_focused_frame = old_value.focused_frame;
         old_value.saved_focused_element = old_value.focused_element;
@@ -325,7 +324,7 @@ buffer_container.prototype = {
         old_value.browser.setAttribute("type", "content");
     },
 
-    _switch_to : function (buffer) {
+    _switch_to: function (buffer) {
         // Select new buffer in the XUL deck
         this.container.selectedPanel = buffer.element;
 
@@ -354,7 +353,7 @@ buffer_container.prototype = {
         return this.container.childNodes.length;
     },
 
-    get_buffer : function (index) {
+    get_buffer: function (index) {
         if (index >= 0 && index < this.count)
             return this.container.childNodes.item(index).conkeror_buffer_object;
         return null;
@@ -369,7 +368,7 @@ buffer_container.prototype = {
         return null;
     },
 
-    index_of : function (b) {
+    index_of: function (b) {
         var nodes = this.container.childNodes;
         var count = nodes.length;
         for (var i = 0; i < count; ++i)
@@ -396,7 +395,7 @@ buffer_container.prototype = {
         return bufs;
     },
 
-    kill_buffer : function (b) {
+    kill_buffer: function (b) {
         if (b.dead)
             return true;
         var count = this.count;
@@ -427,16 +426,17 @@ buffer_container.prototype = {
         return true;
     },
 
-    bury_buffer : function(b) {
-      var new_buffer = this.buffer_list[0];
-      if (b == new_buffer) new_buffer = this.buffer_list[1];
-      this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
-      this.buffer_list.push(b);
-      this.current = new_buffer;
-      return true;
+    bury_buffer: function (b) {
+        var new_buffer = this.buffer_list[0];
+        if (b == new_buffer)
+            new_buffer = this.buffer_list[1];
+        this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
+        this.buffer_list.push(b);
+        this.current = new_buffer;
+        return true;
     },
 
-    for_each : function (f) {
+    for_each: function (f) {
         var count = this.count;
         for (var i = 0; i < count; ++i)
             f(this.get_buffer(i));
@@ -449,9 +449,8 @@ function buffer_initialize_window_early (window) {
      * browser.chromeURI is used perhaps.  In general this default
      * should not be needed.
      */
-
-    var create_initial_buffer
-        = window.args.initial_buffer_creator || buffer_creator(content_buffer);
+    var create_initial_buffer =
+        window.args.initial_buffer_creator || buffer_creator(content_buffer);
     new buffer_container(window, create_initial_buffer);
 }
 
@@ -596,27 +595,27 @@ function buffer_next (window, count) {
     window.buffers.current = window.buffers.get_buffer(index);
 }
 interactive("buffer-next",
-            "Switch to the next buffer.",
-            function (I) {buffer_next(I.window, I.p);});
+    "Switch to the next buffer.",
+    function (I) { buffer_next(I.window, I.p); });
 interactive("buffer-previous",
-            "Switch to the previous buffer.",
-            function (I) {buffer_next(I.window, -I.p);});
+    "Switch to the previous buffer.",
+    function (I) { buffer_next(I.window, -I.p); });
 
 function switch_to_buffer (window, buffer) {
     if (buffer && !buffer.dead)
         window.buffers.current = buffer;
 }
 interactive("switch-to-buffer",
-            "Switch to a buffer specified in the minibuffer.",
-            function (I) {
-                switch_to_buffer(
-                    I.window,
-                    (yield I.minibuffer.read_buffer(
-                        $prompt = "Switch to buffer:",
-                        $default = (I.window.buffers.count > 1 ?
-                                    I.window.buffers.buffer_list[1] :
-                                    I.buffer))));
-            });
+    "Switch to a buffer specified in the minibuffer.",
+    function (I) {
+        switch_to_buffer(
+            I.window,
+            (yield I.minibuffer.read_buffer(
+                $prompt = "Switch to buffer:",
+                $default = (I.window.buffers.count > 1 ?
+                            I.window.buffers.buffer_list[1] :
+                            I.buffer))));
+    });
 
 define_variable("can_kill_last_buffer", true,
     "If this is set to true, kill-buffer can kill the last "+
@@ -629,14 +628,14 @@ function kill_other_buffers (buffer) {
     var b;
 
     while ((b = bs.get_buffer(0)) != buffer)
-	    bs.kill_buffer(b);
+	bs.kill_buffer(b);
     var count = bs.count;
     while (--count)
-	    bs.kill_buffer(bs.get_buffer(1));
+	bs.kill_buffer(bs.get_buffer(1));
 }
 interactive("kill-other-buffers",
-            "Kill all buffers except current one.\n",
-            function (I) { kill_other_buffers(I.buffer); });
+    "Kill all buffers except current one.\n",
+    function (I) { kill_other_buffers(I.buffer); });
 
 
 function kill_buffer (buffer, force) {
@@ -647,23 +646,24 @@ function kill_buffer (buffer, force) {
         if (can_kill_last_buffer || force) {
             delete_window(buffer.window);
             return;
-        }
-        else
+        } else
             throw interactive_error("Can't kill last buffer.");
     }
     buffers.kill_buffer(buffer);
 }
 interactive("kill-buffer",
-            "Kill a buffer specified in the minibuffer.\n" +
-            "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
-            "buffer in a window will cause the window to be closed.",
-            function (I) { kill_buffer((yield I.minibuffer.read_buffer($prompt = "Kill buffer:"))); });
+    "Kill a buffer specified in the minibuffer.\n" +
+    "If `can_kill_last_buffer' is set to true, an attempt to kill the "+
+    "last remaining buffer in a window will cause the window to be closed.",
+    function (I) {
+        kill_buffer((yield I.minibuffer.read_buffer($prompt = "Kill buffer:")));
+    });
 
 interactive("kill-current-buffer",
-            "Kill the current buffer.\n" +
-            "If `can_kill_last_buffer' is set to true, an attempt to kill the last remaining " +
-            "buffer in a window will cause the window to be closed.",
-            function (I) { kill_buffer(I.buffer); });
+    "Kill the current buffer.\n" +
+    "If `can_kill_last_buffer' is set to true, an attempt to kill the "+
+    "last remaining buffer in a window will cause the window to be closed.",
+    function (I) { kill_buffer(I.buffer); });
 
 interactive("read-buffer-kill-buffer",
     "Kill the current selected buffer in the completions list "+
@@ -680,10 +680,10 @@ interactive("read-buffer-kill-buffer",
     });
 
 interactive("bury-buffer",
-            "Bury the current buffer.\n Put the current buffer at the end of " +
-            "the buffer list, so that it is the least likely buffer to be " +
-            "selected by `switch-to-buffer'.",
-            function (I) {I.window.buffers.bury_buffer(I.buffer);});
+    "Bury the current buffer.\n Put the current buffer at the end of " +
+    "the buffer list, so that it is the least likely buffer to be " +
+    "selected by `switch-to-buffer'.",
+    function (I) { I.window.buffers.bury_buffer(I.buffer); });
 
 function change_directory (buffer, dir) {
     if (buffer.page != null)
@@ -691,20 +691,21 @@ function change_directory (buffer, dir) {
     buffer.local.cwd = make_file(dir);
 }
 interactive("change-directory",
-            "Change the current directory of the selected buffer.",
-            function (I) {
-                change_directory(
-                    I.buffer,
-                    (yield I.minibuffer.read_existing_directory_path(
-                        $prompt = "Change to directory:",
-                        $initial_value = make_file(I.local.cwd).path)));
-            });
+    "Change the current directory of the selected buffer.",
+    function (I) {
+        change_directory(
+            I.buffer,
+            (yield I.minibuffer.read_existing_directory_path(
+                $prompt = "Change to directory:",
+                $initial_value = make_file(I.local.cwd).path)));
+    });
 
-interactive("shell-command", null, function (I) {
-    var cwd = I.local.cwd;
-    var cmd = (yield I.minibuffer.read_shell_command($cwd = cwd));
-    yield shell_command(cmd, $cwd = cwd);
-});
+interactive("shell-command", null,
+    function (I) {
+        var cwd = I.local.cwd;
+        var cmd = (yield I.minibuffer.read_shell_command($cwd = cwd));
+        yield shell_command(cmd, $cwd = cwd);
+    });
 
 
 /**
@@ -802,10 +803,10 @@ function define_buffer_mode (name) {
     var change_hook_name = null;
 
     if (mode_class) {
-        mode_functions[name] = {enable: enable,
-                                disable: disable,
-                                mode_class: mode_class,
-                                disable_hook_name: disable_hook_name};
+        mode_functions[name] = { enable: enable,
+                                 disable: disable,
+                                 mode_class: mode_class,
+                                 disable_hook_name: disable_hook_name };
         change_hook_name = mode_class + "_change_hook";
         define_buffer_local_hook(change_hook_name);
     }
@@ -871,20 +872,21 @@ function minibuffer_mode_indicator (window) {
     this.update();
 }
 minibuffer_mode_indicator.prototype = {
-    update : function () {
+    update: function () {
         var buf = this.window.buffers.current;
         var modes = buf.enabled_modes;
-        var str = modes.map( function (x) {
-            let y = mode_display_names[x];
-            if (y)
-                return "[" + y + "]";
-            else
-                return null;
-        } ).filter( function (x) x != null ).join(" ");
+        var str = modes.map(
+            function (x) {
+                let y = mode_display_names[x];
+                if (y)
+                    return "[" + y + "]";
+                else
+                    return null;
+            }).filter(function (x) x != null).join(" ");
         this.element.collapsed = (str.length == 0);
         this.element.value = str;
     },
-    uninstall : function () {
+    uninstall: function () {
         remove_hook.call(window, "select_buffer_hook", this.hook_fun);
         remove_hook.call(window, "current_buffer_mode_change_hook", this.hook_fun);
         this.element.parentNode.removeChild(this.element);
@@ -928,13 +930,13 @@ function minibuffer_input_mode_indicator (window) {
 }
 
 minibuffer_input_mode_indicator.prototype = {
-    update : function () {
+    update: function () {
         var buf = this.window.buffers.current;
         var mode = buf.input_mode;
         var classname = mode ? ("minibuffer-" + buf.input_mode.replace("_","-","g")) : "";
         this.window.minibuffer.element.className = classname;
     },
-    uninstall : function () {
+    uninstall: function () {
         remove_hook.call(window, "select_buffer_hook", this.hook_func);
         remove_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
     }
