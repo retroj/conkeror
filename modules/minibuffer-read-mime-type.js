@@ -9,21 +9,29 @@ require("minibuffer-read.js");
 
 let _viewable_mime_type_list = null;
 
-__defineGetter__("viewable_mime_type_list", function () {
-                     if (_viewable_mime_type_list == null) {
-                         let list = [];
-                         var en = category_manager.enumerateCategory("Gecko-Content-Viewers");
-                         while (en.hasMoreElements()) list.push(en.getNext().QueryInterface(Ci.nsISupportsCString).toString());
-                         _viewable_mime_type_list = list;
-                     }
-                     return _viewable_mime_type_list;
-                 });
+__defineGetter__("viewable_mime_type_list",
+    function () {
+        if (_viewable_mime_type_list == null) {
+            let list = [];
+            var en = category_manager
+                .enumerateCategory("Gecko-Content-Viewers");
+            while (en.hasMoreElements())
+                list.push(en.getNext()
+                            .QueryInterface(Ci.nsISupportsCString)
+                            .toString());
+            _viewable_mime_type_list = list;
+        }
+        return _viewable_mime_type_list;
+    });
 
-var category_manager = Cc["@mozilla.org/categorymanager;1"].getService(Ci.nsICategoryManager);
+var category_manager = Cc["@mozilla.org/categorymanager;1"]
+    .getService(Ci.nsICategoryManager);
 
 minibuffer.prototype.read_viewable_mime_type = function () {
-    var result = yield this.read(forward_keywords(arguments),
-                                 $match_required,
-                                 $completer = prefix_completer($completions = viewable_mime_type_list));
+    var result = yield this.read(
+        forward_keywords(arguments),
+        $match_required,
+        $completer = prefix_completer(
+            $completions = viewable_mime_type_list));
     yield co_return(result);
 };
