@@ -28,12 +28,14 @@
 # lines like the following into it:
 #
 #  WORKDIR=/path/to/the/directory/where/the/builds/should/happen
+#  CONTACT=you@example.com
 #
 # Example ~/.conkeror-nightlybuildrc similar to the one used for the
 # initial builds on http://noone.org/conkeror-nightly-debs/:
 #
 #  # -*- sh -*-
 #  WORKDIR=$HOME/conkeror.nightly
+#  CONTACT=abe+conkeror-nightly@noone.org
 #  SIGNKEY=373B76B4
 #  UPLOAD=yes
 #  UPLOAD_SSH_KEY=~/.ssh/id_rsa.conkeror-nightly
@@ -48,6 +50,7 @@
 #
 #  # -*- sh -*-
 #  WORKDIR=$HOME/conkeror.nightly
+#  CONTACT=abe+conkeror-nightly@noone.org
 #  SIGNKEY=373B76B4
 #  UPLOAD=yes
 #  UPLOAD_SSH_KEY=~/.ssh/id_rsa.conkeror-nightly
@@ -78,6 +81,11 @@ fi
 if [ -z "$WORKDIR" ]; then
     echo '$WORKDIR must be defined in '$RCFILE
     exit 2
+fi
+
+# Check if a contact is defined. Set a dummy value if not.
+if [ -z "$CONTACT" ]; then
+    CONTACT=package-builder-has-not-set-contact-address@example.com
 fi
 
 # Check if $WORKDIR exists, otherwise create it.
@@ -177,7 +185,7 @@ else
   * Automatically built package based on the state of
     http://repo.or.cz/w/conkeror.git at $DATE
 
- -- Conkeror Nightly Build <abe+conkeror-nightly@deuxchevaux.org>  $DATE
+ -- Conkeror Nightly Build <$CONTACT>  $DATE
 " > changelog
     cat changelog.tmp >> changelog
     rm changelog.tmp
