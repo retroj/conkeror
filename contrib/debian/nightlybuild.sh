@@ -27,7 +27,7 @@
 # Create the file ~/.conkeror-nightlybuildrc and write at least two
 # lines like the following into it:
 #
-#   WORKDIR=/path/to/the/directory/where/the/builds/should/happen
+#  WORKDIR=/path/to/the/directory/where/the/builds/should/happen
 #
 # Example ~/.conkeror-nightlybuildrc similar to the one used for the
 # initial builds on http://noone.org/conkeror-nightly-debs/:
