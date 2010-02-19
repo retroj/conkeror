@@ -9,6 +9,7 @@
 require("mode.js");
 
 var define_window_local_hook = simple_local_hook_definer();
+var define_window_local_coroutine_hook = simple_local_coroutine_hook_definer();
 
 
 define_hook("make_window_hook");
@@ -69,10 +70,16 @@ function make_window (initial_buffer_creator, tag) {
     var result = make_chrome_window(conkeror_chrome_uri, null);
     result.args = args;
     make_window_hook.run(result);
-    result._close = result.close;
+    var close = result.close;
     result.close = function () {
-      if (window_before_close_hook.run(result))
-        result._close();
+        function attempt_close () {
+            var res = yield window_before_close_hook.run(result);
+            if (res) {
+                close.call(result);
+                window_close_hook.run(result);
+            }
+        }
+        co_call(attempt_close());
     };
     return result;
 }
@@ -181,22 +188,19 @@ function window_initialize (window) {
             delete window.args; // get rid of args
         }, 0);
 
-    window.addEventListener("close", window_close_maybe, true /* capture */);
+    window.addEventListener("close",
+                            function (event) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                this.close();
+                            },
+                            true /* capture */);
 }
 
-define_window_local_hook("window_before_close_hook", RUN_HOOK_UNTIL_FAILURE);
+define_window_local_coroutine_hook("window_before_close_hook",
+                                   RUN_HOOK_UNTIL_FAILURE);
 define_window_local_hook("window_close_hook", RUN_HOOK);
-function window_close_maybe (event) {
-    var window = this;
 
-    if (!window_before_close_hook.run(window)) {
-        event.preventDefault();
-        event.stopPropagation();
-        return;
-    }
-
-    window_close_hook.run(window);
-}
 
 function define_global_window_mode (name, hook_name) {
     function install (window) {
