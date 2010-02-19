@@ -1,18 +1,30 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
-
-/* remove_duplicates_filter returns a function that can be
- * used in Array.filter.  It removes duplicates.
+/**
+ * remove_duplicates_filter returns a function that can be used in
+ * Array.filter.  It removes duplicates.  Optional argument cmp is a
+ * comparison function to test equality.  The default comparison function
+ * tests equality of the string representation of the objects, making it
+ * unsuitable for use filtering a list of objects of compound data types.
  */
-function remove_duplicates_filter () {
-    var acc = {};
+function remove_duplicates_filter (cmp) {
+    if (cmp) {
+        let acc = [];
+        return function (x) {
+            if (acc.some(function (y) cmp(x, y)))
+                return false;
+            acc.push(x);
+            return true;
+        };
+    }
+    let acc = {};
     return function (x) {
         if (acc[x]) return false;
         acc[x] = 1;
