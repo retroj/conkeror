@@ -1,4 +1,4 @@
-conkeror (0.9.1+git100204-1) UNRELEASED; urgency=low
+conkeror (0.9.1+git100220-1) unstable; urgency=low
 
   * New upstream snapshot
     - Honors cmdline.preventDefault as used since xulrunner 1.9.1.6-2
