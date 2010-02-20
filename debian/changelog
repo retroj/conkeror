@@ -5,12 +5,13 @@ conkeror (0.9.1+git100204-1) UNRELEASED; urgency=low
   * Add support for the reportbug-helper-script of Debian's xulrunner
     - Raise build-deps to debhelper >= 7.2.3~ due to dh_bugfiles
   * Add alternative dependency on upcoming experimental xulrunner-1.9.2.
-  * Reorder xulrunner dependencies to have the preferred versions first
-    instead of sorting by package name.
+  * Reorder xulrunner dependencies to have the current and preferred
+    versions first instead of sorting by package name. (Fixes piuparts
+    warning "dependency-does-not-exist".)
   * Add a lintian override for the non-standard Xb-Xul-AppId header
   * Removed Luca from the uploaders list (on his request)
 
- -- Axel Beckert <abe@debian.org>  Tue, 02 Feb 2010 18:33:01 +0100
+ -- Axel Beckert <abe@debian.org>  Sat, 20 Feb 2010 01:07:48 +0100
 
 conkeror (0.9.1+git100131-1) unstable; urgency=low
 
