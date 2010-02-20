@@ -285,7 +285,7 @@
         "Load the auto-save session in new buffers in the current window.",
         function (I) {
             if (_session_auto_save_cached == null)
-                _session_file_not_found(I, session_auto_save_file_get());
+                _session_file_not_found(I, _session_auto_save_file_get());
             else session_auto_save_load_window_current(I.window);
         });
 
@@ -293,7 +293,7 @@
         "Replace all buffers in the current window with buffers in the auto-saved session.",
         function (I) {
             if (_session_auto_save_cached == null)
-                _session_file_not_found(I, session_auto_save_file_get());
+                _session_file_not_found(I, _session_auto_save_file_get());
             else session_auto_save_load_window_current_replace(I.window);
         });
 
