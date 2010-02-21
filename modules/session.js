@@ -47,6 +47,10 @@
 
     let _json = Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
 
+    /**
+     * session_get generates and returns a structure containing session
+     * data for the current group of open windows.
+     */
     function session_get () {
         let windows = {};
         let x = 0;
@@ -67,6 +71,12 @@
         return windows;
     }
 
+    /**
+     * session_load loads the given session (given as a data structure),
+     * with optional window as the first window to load the session into,
+     * with optional buffer_idx as the buffer index at which to begin
+     * overwriting existing buffers.
+     */
     function session_load (session, window, buffer_idx) {
         if (! (session[0] && session[0][0]))
             throw new Error("Invalid 'session' argument.");
@@ -114,20 +124,36 @@
         }
     }
 
+    /**
+     * session_load_window_new loads the given session into new windows.
+     */
     function session_load_window_new (session) {
         session_load(session);
     }
 
+    /**
+     * session_load_window_current loads the given session, with the
+     * session's first window being appended to window.  No existing
+     * buffers will be overwritten.
+     */
     function session_load_window_current (session, window) {
         let w = window ? window : get_recent_conkeror_window();
         session_load(session, w);
     }
 
+    /**
+     * session_load_window_current loads the given session, with the
+     * session's first window replacing the given window.  All buffers in
+     * the given window will be overwritten.
+     */
     function session_load_window_current_replace (session, window) {
         let w = window ? window : get_recent_conkeror_window();
         session_load(session, w, 0);
     }
 
+    /**
+     * session_write writes the given session to the file given by path.
+     */
     function session_write (path, session) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
@@ -136,12 +162,19 @@
         write_text_file(path, _json.encode(session));
     }
 
+    /**
+     * session_read reads session data from the given file path,
+     * and returns a decoded session structure.
+     */
     function session_read (path) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
         return _json.decode(read_text_file(path));
     }
 
+    /**
+     * session_remove deletes the given session file.
+     */
     function session_remove (path) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
