@@ -54,7 +54,7 @@
             let buffers = {};
             let y = 0;
             w.buffers.for_each(function (b) {
-                if (! b.browser || ! b instanceof content_buffer) return;
+                if (! b.browser || ! (b instanceof content_buffer)) return;
                 buffers[y] = b.browser.contentDocument.location.href;
                 y++;
             });
@@ -74,7 +74,7 @@
                 buffer_idx : window.buffers.count;
             for (let i = 0; session[s][i] != undefined; ++i, ++bi) {
                 let b = window.buffers.get_buffer(bi);
-                if (! b instanceof content_buffer) continue;
+                if (! (b instanceof content_buffer)) continue;
                 if (b) b.load(session[s][i]);
                 else {
                     let c = buffer_creator(content_buffer, $load = session[s][i]);
