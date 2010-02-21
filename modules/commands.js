@@ -1,33 +1,28 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
 **/
 
+define_coroutine_hook("before_quit_hook", RUN_HOOK_UNTIL_FAILURE);
 define_hook("quit_hook");
 
 function quit () {
-    quit_hook.run();
-    var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
-        .getService(Ci.nsIAppStartup);
-    appStartup.quit(appStartup.eAttemptQuit);
+    var res = yield before_quit_hook.run();
+    if (res) {
+        quit_hook.run();
+        var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
+            .getService(Ci.nsIAppStartup);
+        appStartup.quit(appStartup.eAttemptQuit);
+    }
 }
 interactive("quit",
             "Quit Conkeror",
             quit);
 
-interactive("confirm-quit",
-            "Quit Conkeror with confirmation",
-            function (I) {
-                let result = yield I.window.minibuffer.read_single_character_option(
-                    $prompt = "Quit Conkeror? (y/n)",
-                    $options = ["y", "n"]);
-                if (result == "y")
-                    quit();
-            });
 
 function show_conkeror_version (window) {
     var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
