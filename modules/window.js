@@ -75,8 +75,8 @@ function make_window (initial_buffer_creator, tag) {
         function attempt_close () {
             var res = yield window_before_close_hook.run(result);
             if (res) {
-                close.call(result);
                 window_close_hook.run(result);
+                close.call(result);
             }
         }
         co_call(attempt_close());
