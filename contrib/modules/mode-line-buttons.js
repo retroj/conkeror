@@ -7,14 +7,14 @@
 
 require("mode-line.js");
 
-function button_widget(window) {
+function button_widget (window) {
     this.class_name = "button-widget";
     text_widget.call(this, window);
 }
 button_widget.prototype = {
-    __proto__ : text_widget.prototype,
+    __proto__: text_widget.prototype,
 
-    make_element : function (window) {
+    make_element: function (window) {
         var command = this.command;
         var element = create_XUL(window, "image");
 
@@ -46,18 +46,18 @@ button_widget.prototype = {
     }
 };
 
-function make_button_widget(command, attributes) {
-    if (typeof(attributes) == "string")
+function make_button_widget (command, attributes) {
+    if (typeof attributes == "string")
         // Simple case
-        attributes = {src: "moz-icon://stock/gtk-" + attributes};
+        attributes = { src: "moz-icon://stock/gtk-" + attributes };
 
-    function new_widget(window) {
+    function new_widget (window) {
         button_widget.call(this, window);
     }
     new_widget.prototype = {
-        __proto__ : button_widget.prototype,
-        command : command,
-        attributes : attributes
+        __proto__: button_widget.prototype,
+        command: command,
+        attributes: attributes
     }
     new_widget.mode_line_adder = function (window) {
         var widget = new new_widget(window);
@@ -67,9 +67,9 @@ function make_button_widget(command, attributes) {
     return new_widget;
 }
 
-function mode_line_add_buttons(buttons, prepend) {
-    for (var i = 0; i < buttons.length; i++) {
-        var j = prepend ? buttons.length - i - 1 : i;
+function mode_line_add_buttons (buttons, prepend) {
+    for (var i = 0, n = buttons.length; i < n; i++) {
+        var j = prepend ? n - i - 1 : i;
         var w = make_button_widget(buttons[j][0], buttons[j][1]);
         add_hook("mode_line_hook", mode_line_adder(w), prepend);
     }
