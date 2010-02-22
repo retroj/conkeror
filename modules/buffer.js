@@ -96,7 +96,7 @@ function buffer (window, element) {
     this.browser = element.firstChild;
     this.element.conkeror_buffer_object = this;
 
-    this.local = { __proto__ : conkeror };
+    this.local = { __proto__: conkeror };
     this.page = null;
     this.enabled_modes = [];
     this.default_browser_object_classes = {};
@@ -255,13 +255,13 @@ buffer.prototype = {
         if (element && attempt_command(element, command))
             return;
         var win = this.focused_frame;
-        do  {
+        while (true) {
             if (attempt_command(win, command))
                 return;
             if (!win.parent || win == win.parent)
                 break;
             win = win.parent;
-        } while (true);
+        }
     },
 
     handle_kill: function () {
@@ -384,8 +384,7 @@ buffer_container.prototype = {
                 var base_name = b.name;
                 var name = base_name;
                 var index = 1;
-                while (existing_names.contains(name))
-                {
+                while (existing_names.contains(name)) {
                     ++index;
                     name = base_name + "<" + index + ">";
                 }
@@ -625,9 +624,7 @@ function kill_other_buffers (buffer) {
     if (!buffer)
         return;
     var bs = buffer.window.buffers;
-    var b;
-
-    while ((b = bs.get_buffer(0)) != buffer)
+    while ((var b = bs.get_buffer(0)) != buffer)
 	bs.kill_buffer(b);
     var count = bs.count;
     while (--count)
