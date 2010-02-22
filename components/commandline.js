@@ -10,13 +10,15 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
-function cmdline() {}
+function cmdline () {}
 cmdline.prototype = {
     handle: function (cmdline) {
         if (cmdline.preventDefault)
             return;
         cmdline.preventDefault = true;
-        var conkeror = Cc["@conkeror.mozdev.org/application;1"].getService().wrappedJSObject;
+        var conkeror = Cc["@conkeror.mozdev.org/application;1"]
+            .getService()
+            .wrappedJSObject;
         conkeror.handle_command_line(cmdline);
     },
     QueryInterface: XPCOMUtils.generateQI([Ci.nsICommandLineHandler]),
@@ -29,6 +31,6 @@ cmdline.prototype = {
         }]
 };
 
-function NSGetModule(compMgr, fileSpec) {
+function NSGetModule (compMgr, fileSpec) {
     return XPCOMUtils.generateModule([cmdline]);
 }
