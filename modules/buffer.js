@@ -624,7 +624,8 @@ function kill_other_buffers (buffer) {
     if (!buffer)
         return;
     var bs = buffer.window.buffers;
-    while ((var b = bs.get_buffer(0)) != buffer)
+    var b;
+    while ((b = bs.get_buffer(0)) != buffer)
 	bs.kill_buffer(b);
     var count = bs.count;
     while (--count)
