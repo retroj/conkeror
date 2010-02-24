@@ -82,23 +82,33 @@
             throw new Error("Invalid 'session' argument.");
         let s = 0;
         if (window) {
-            // first kill all special buffers.  we're taking over.
-            for (let i = window.buffers.count - 1; i > 0; --i) {
-                let b = window.buffers.get_buffer(i);
-                if (!(b instanceof content_buffer))
-                    kill_buffer(b, true);
-            }
-            let b = window.buffers.get_buffer(0);
-            if (!(b instanceof content_buffer)) {
-                if (window.buffers.count == 1)
-                    create_buffer(window,
-                                  buffer_creator(content_buffer),
-                                  OPEN_NEW_BUFFER_BACKGROUND);
-                kill_buffer(b, true);
-            }
-            // now it's safe to recycle the remaining buffers.
             let bi = buffer_idx != undefined ?
                 buffer_idx : window.buffers.count;
+
+            // first kill special buffers slated for recycling.
+            let (b, i = (bi == 0 ? 1 : bi),
+                 safe2kill = bi > 0)
+            {
+                while ((b = window.buffers.get_buffer(i))) {
+                    if (b instanceof content_buffer) {
+                        safe2kill = true;
+                        ++i;
+                    } else
+                        kill_buffer(b, true);
+                }
+                if (bi == 0 &&
+                    (b = window.buffers.get_buffer(0)) &&
+                    !(b instanceof content_buffer))
+                {
+                    if (! safe2kill)
+                        create_buffer(window,
+                                      buffer_creator(content_buffer),
+                                      OPEN_NEW_BUFFER_BACKGROUND);
+                    kill_buffer(b, true);
+                }
+            }
+
+            // it is now safe to recycle the remaining buffers.
             for (let i = 0; session[s][i] != undefined; ++i, ++bi) {
                 let b = window.buffers.get_buffer(bi);
                 if (b)
