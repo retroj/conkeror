@@ -111,10 +111,7 @@
             for (let b = window.buffers.get_buffer(bi); b;
                  b = window.buffers.get_buffer(bi))
             {
-                if (b instanceof content_buffer)
-                    kill_buffer(b, true);
-                else
-                    bi++;
+                kill_buffer(b, true);
             }
             ++s;
         }
