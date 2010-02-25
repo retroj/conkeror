@@ -35,7 +35,7 @@ interactive("adblockplus-add", "Add a pattern to Adblock Plus.",
         $initial_value = load_spec_uri_string(spec),
         $history = "url");
 
-    adblockplus_service.addPatterns([pattern]);
+    adblockplus_service.addPatterns([load_spec_uri_string(pattern)]);
 
     I.buffer.web_navigation.reload(Ci.nsIWebNavigation.LOAD_FLAGS_NONE);
 },

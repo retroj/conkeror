@@ -429,7 +429,7 @@ minibuffer.prototype.read_url = function () {
         result = this.try_read_url_handlers(result);
     if (result == "") // well-formedness check. (could be better!)
         throw ("invalid url or webjump (\""+ result +"\")");
-    yield co_return(result);
+    yield co_return(load_spec(result));
 };
 /*
 I.content_charset = interactive_method(
