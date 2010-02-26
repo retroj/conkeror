@@ -1,11 +1,11 @@
-require("window.js");
-require("utils.js");
 
-var noscript_service = Cc["@maone.net/noscript-service;1"] ?
-    Cc["@maone.net/noscript-service;1"].createInstance().wrappedJSObject : null;
+require("extension.js");
 
-if (! noscript_service)
-    dumpln("WARNING: noscript wrapper loaded, but extension is not present.");
+if (!extension_is_enabled("{73a6fe31-595d-460b-a920-fcc0f8843232}"))
+    throw skip_module_load;
+
+var noscript_service = Cc["@maone.net/noscript-service;1"]
+    .createInstance().wrappedJSObject;
 
 function unique(a) {
     var r = new Array();
@@ -41,7 +41,7 @@ function showObject(p, o) {
 }
 
 function setObjectVisibility(document, callback) {
-    tags = ["object", "embed"];
+    var tags = ["object", "embed"];
     const ns = noscript_service;
     var rx = ns.hideOnUnloadRegExp;
     if (!rx) return;
@@ -53,8 +53,9 @@ function setObjectVisibility(document, callback) {
     };
 
     var objects = null;
+    var local_objects, count;
+
     for each(var tag in tags) {
-        dumpln('tag: '+tag);
         local_objects = document.getElementsByTagName(tag);
         count = local_objects.count;
         if (count) {
@@ -73,8 +74,7 @@ function setObjectVisibility(document, callback) {
 
 
 function ns_allow_temp(url, buffer, P, allow) {
-    dumpln(url);
-    dumpln(allow);
+    var enabled, temp;
     const ns = noscript_service;
     if (allow == "Y" || allow == "y" || allow == "yes" || allow == "Yes") {
         enabled = true;
@@ -92,7 +92,6 @@ function ns_allow_temp(url, buffer, P, allow) {
 }
 
 interactive("ns-toggle-temp", "Allow a site temporary access to javascript",   function(I) {
-    dumpln(I.window);
     const ns = noscript_service;
     var urls = new Array();
     var level = ns.getPref("toolbarToggle", 3);
@@ -110,7 +109,6 @@ interactive("ns-toggle-temp", "Allow a site temporary access to javascript",   f
 	    }
 	}
 	urls = unique(urls);
-	dumpln(urls);
 	while (url2 = urls.pop()) {
 	    ns_allow_temp(url2, I.buffer,I.P, (yield I.minibuffer.read ($prompt = "Allow "+url2+"? [Y/[N]]")));
 	}

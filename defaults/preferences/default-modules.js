@@ -49,6 +49,7 @@ pref("conkeror.load.tab-bar", 0);
 pref("conkeror.load.extensions/dom-inspector", 1);
 pref("conkeror.load.extensions/adblockplus", 1);
 pref("conkeror.load.extensions/venkman", 1);
+pref("conkeror.load.extensions/noscript", 1);
 
 // Page mode modules
 pref("conkeror.load.page-modes/youtube", 1);
