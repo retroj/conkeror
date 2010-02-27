@@ -20,6 +20,7 @@ function gmail_bind_common (keymap) {//BAD
     define_key(keymap, "C-c r", "reload");
     define_key(keymap, "C-c f", "follow");
     define_key(keymap, "C-c t", "follow-top");
+    define_key(keymap, "C-c b", "bookmark");
 
     define_key(keymap, "tab", null, $fallthrough);
 }
@@ -34,6 +35,7 @@ define_key(gmail_keymap, "i", null, $fallthrough);
 define_key(gmail_keymap, "t", null, $fallthrough);
 define_key(gmail_keymap, "d", null, $fallthrough);
 define_key(gmail_keymap, "a", null, $fallthrough);
+define_key(gmail_keymap, "b", null, $fallthrough);
 
 // Threadlist
 define_key(gmail_keymap, "*", null, $fallthrough);
