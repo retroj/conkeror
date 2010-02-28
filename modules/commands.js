@@ -52,6 +52,12 @@ interactive("scroll-end-of-line",
             "Scroll the current frame all the way to the right.",
             function (I) { scroll_horiz_complete(I.buffer, 1); });
 
+interactive("scroll-top-left",
+    "Scroll the current frame all the way to the top left",
+     function (I) { I.buffer.do_command("cmd_scrollTop");
+                    scroll_horiz_complete(I.buffer, -1); });
+
+
 function delete_window (window) {
     window.window.close();
 }

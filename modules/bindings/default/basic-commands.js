@@ -28,9 +28,9 @@ function bind_scroll_keys (keymap) {
     define_key(keymap, "C-f","cmd_scrollRight");
     define_key(keymap, "C-a","scroll-beginning-of-line");
     define_key(keymap, "C-e","scroll-end-of-line");
-    define_key(keymap, "M-<","cmd_scrollTop");
+    define_key(keymap, "M-<","scroll-top-left");
     define_key(keymap, "M->","cmd_scrollBottom");
-    define_key(keymap, "home","cmd_scrollTop");
+    define_key(keymap, "home","scroll-top-left");
     define_key(keymap, "end","cmd_scrollBottom");
 }
 
