@@ -20,8 +20,8 @@ function quit () {
     }
 }
 interactive("quit",
-            "Quit Conkeror",
-            quit);
+    "Quit Conkeror",
+    quit);
 
 
 function show_conkeror_version (window) {
@@ -33,11 +33,11 @@ function show_conkeror_version (window) {
                               ", "+get_os()+")");
 }
 interactive("conkeror-version",
-            "Show version information for Conkeror.",
-            function (I) { show_conkeror_version(I.window); });
+    "Show version information for Conkeror.",
+    function (I) { show_conkeror_version(I.window); });
 interactive("version",
-            "Show version information for Conkeror.",
-            "conkeror-version");
+    "Show version information for Conkeror.",
+    "conkeror-version");
 
 /* FIXME: maybe this should be supported for non-browser buffers */
 function scroll_horiz_complete (buffer, n) {
@@ -45,12 +45,12 @@ function scroll_horiz_complete (buffer, n) {
     w.scrollTo (n > 0 ? w.scrollMaxX : 0, w.scrollY);
 }
 interactive("scroll-beginning-of-line",
-            "Scroll the current frame all the way to the left.",
-            function (I) { scroll_horiz_complete(I.buffer, -1); });
+    "Scroll the current frame all the way to the left.",
+    function (I) { scroll_horiz_complete(I.buffer, -1); });
 
 interactive("scroll-end-of-line",
-            "Scroll the current frame all the way to the right.",
-            function (I) { scroll_horiz_complete(I.buffer, 1); });
+    "Scroll the current frame all the way to the right.",
+    function (I) { scroll_horiz_complete(I.buffer, 1); });
 
 interactive("scroll-top-left",
     "Scroll the current frame all the way to the top left",
@@ -62,13 +62,13 @@ function delete_window (window) {
     window.window.close();
 }
 interactive("delete-window",
-            "Delete the current window.",
-            function (I) { delete_window(I.window); });
+    "Delete the current window.",
+    function (I) { delete_window(I.window); });
 
 interactive("jsconsole",
-            "Open the JavaScript console.",
-            "find-url-new-buffer",
-            $browser_object = "chrome://global/content/console.xul");
+    "Open the JavaScript console.",
+    "find-url-new-buffer",
+    $browser_object = "chrome://global/content/console.xul");
 
 
 /**
@@ -331,15 +331,14 @@ function eval_expression (window, s) {
     }
 }
 interactive("eval-expression",
-            "Evaluate JavaScript statements.",
-            function (I) {
-                eval_expression(
-                    I.window,
-                    (yield I.minibuffer.read($prompt = "Eval:",
-                                             $history = "eval-expression",
-                                             $completer = javascript_completer(I.buffer))));
-            });
-
+    "Evaluate JavaScript statements.",
+    function (I) {
+        eval_expression(
+            I.window,
+            (yield I.minibuffer.read($prompt = "Eval:",
+                                     $history = "eval-expression",
+                                     $completer = javascript_completer(I.buffer))));
+    });
 
 function show_extension_manager () {
     return conkeror.window_watcher.openWindow(
@@ -350,15 +349,16 @@ function show_extension_manager () {
         null);
 }
 interactive("extensions",
-            "Open the extensions manager in a new window.",
-            show_extension_manager);
+    "Open the extensions manager in a new window.",
+    show_extension_manager);
 
 function print_buffer (buffer) {
     buffer.top_frame.print();
 }
+
 interactive("print-buffer",
-            "Print the currently loaded page.",
-            function (I) { print_buffer(I.buffer); });
+    "Print the currently loaded page.",
+    function (I) { print_buffer(I.buffer); });
 
 function view_partial_source (window, charset, selection) {
     if (charset)
@@ -407,7 +407,7 @@ function ensure_content_focused (buffer) {
         buffer.top_frame.focus();
 }
 interactive("ensure-content-focused", "Ensure that the content document has focus.",
-            function (I) { ensure_content_focused(I.buffer); });
+    function (I) { ensure_content_focused(I.buffer); });
 
 
 function network_set_online_status (status) {
@@ -418,9 +418,10 @@ function network_set_online_status (status) {
     io_service.offline = status;
 }
 interactive("network-go-online", "Work online.",
-            function (I) { network_set_online_status(true); });
+    function (I) { network_set_online_status(true); });
+
 interactive("network-go-offline", "Work offline.",
-            function (I) { network_set_online_status(false); });
+    function (I) { network_set_online_status(false); });
 
 
 interactive("submit-form",
@@ -445,81 +446,80 @@ interactive("submit-form",
  * Browser Object Commands
  */
 interactive("follow", null,
-            alternates(follow, follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_links);
+    alternates(follow, follow_new_buffer, follow_new_window),
+    $browser_object = browser_object_links);
 
 interactive("follow-top", null,
-            alternates(follow_current_buffer, follow_current_frame),
-            $browser_object = browser_object_frames,
-            $prompt = "Follow");
+    alternates(follow_current_buffer, follow_current_frame),
+    $browser_object = browser_object_frames,
+    $prompt = "Follow");
 
 interactive("follow-new-buffer",
-            "Follow a link in a new buffer",
-            alternates(follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_links,
-            $prompt = "Follow");
+    "Follow a link in a new buffer",
+    alternates(follow_new_buffer, follow_new_window),
+    $browser_object = browser_object_links,
+    $prompt = "Follow");
 
 interactive("follow-new-buffer-background",
-            "Follow a link in a new buffer in the background",
-            alternates(follow_new_buffer_background, follow_new_window),
-            $browser_object = browser_object_links,
-            $prompt = "Follow");
+    "Follow a link in a new buffer in the background",
+    alternates(follow_new_buffer_background, follow_new_window),
+    $browser_object = browser_object_links,
+    $prompt = "Follow");
 
 interactive("follow-new-window",
-            "Follow a link in a new window",
-            follow_new_window,
-            $browser_object = browser_object_links,
-            $prompt = "Follow");
+    "Follow a link in a new window",
+    follow_new_window,
+    $browser_object = browser_object_links,
+    $prompt = "Follow");
 
 interactive("find-url", "Open a URL in the current buffer",
-            alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_url);
+    alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
+    $browser_object = browser_object_url);
 
 interactive("find-url-new-buffer",
-            "Open a URL in a new buffer",
-            alternates(follow_new_buffer, follow_new_window),
-            $browser_object = browser_object_url,
-            $prompt = "Find url");
+    "Open a URL in a new buffer",
+    alternates(follow_new_buffer, follow_new_window),
+    $browser_object = browser_object_url,
+    $prompt = "Find url");
 
 interactive("find-url-new-window", "Open a URL in a new window",
-            follow_new_window,
-            $browser_object = browser_object_url,
-            $prompt = "Find url");
+    follow_new_window,
+    $browser_object = browser_object_url,
+    $prompt = "Find url");
 
 interactive("find-alternate-url", "Edit the current URL in the minibuffer",
-            "find-url",
-            $browser_object =
-                define_browser_object_class("alternate-url", null,
-                    function (I, prompt) {
-                        check_buffer(I.buffer, content_buffer);
-                        var result = yield I.buffer.window.minibuffer.read_url(
-                            $prompt = prompt,
-                            $initial_value = I.buffer.display_uri_string);
-                        yield co_return(result);
-                    }),
-            $prompt = "Find url");
+    "find-url",
+    $browser_object =
+        define_browser_object_class("alternate-url", null,
+            function (I, prompt) {
+                check_buffer(I.buffer, content_buffer);
+                var result = yield I.buffer.window.minibuffer.read_url(
+                    $prompt = prompt,
+                    $initial_value = I.buffer.display_uri_string);
+                yield co_return(result);
+            }),
+    $prompt = "Find url");
 
 
 interactive("up", "Go to the parent directory of the current URL",
-            "find-url",
-            $browser_object = browser_object_up_url);
+    "find-url",
+    $browser_object = browser_object_up_url);
 
 interactive("home",
-            "Go to the homepage in the current buffer.", "follow",
-            $browser_object = function () { return homepage; });
+    "Go to the homepage in the current buffer.", "follow",
+    $browser_object = function () { return homepage; });
 
 interactive("make-window",
-            "Make a new window with the homepage.",
-            follow_new_window,
-            $browser_object = function () { return homepage; });
+    "Make a new window with the homepage.",
+    follow_new_window,
+    $browser_object = function () { return homepage; });
 
 interactive("focus", null,
-            function (I) {
-                var element = yield read_browser_object(I);
-                browser_element_focus(I.buffer, element);
-            },
-            $browser_object = browser_object_frames);
-
+    function (I) {
+        var element = yield read_browser_object(I);
+        browser_element_focus(I.buffer, element);
+    },
+    $browser_object = browser_object_frames);
 
 interactive("save",
     "Save a browser object.",
@@ -548,11 +548,11 @@ interactive("save",
 
 
 interactive("copy", null,
-            function (I) {
-                var element = yield read_browser_object(I);
-                browser_element_copy(I.buffer, element);
-            },
-            $browser_object = browser_object_links);
+    function (I) {
+        var element = yield read_browser_object(I);
+        browser_element_copy(I.buffer, element);
+    },
+    $browser_object = browser_object_links);
 
 interactive("paste-url", "Open a URL from the clipboard in the current buffer.",
 	    alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
@@ -782,19 +782,21 @@ function view_as_mime_type (I, target) {
         panel.destroy();
     }
 }
+
 function view_as_mime_type_new_buffer (I) {
     yield view_as_mime_type(I, OPEN_NEW_BUFFER);
 }
+
 function view_as_mime_type_new_window (I) {
     yield view_as_mime_type(I, OPEN_NEW_WINDOW);
 }
-interactive("view-as-mime-type",
-            "Display a browser object in the browser using the specified MIME type.",
-            alternates(view_as_mime_type,
-                       view_as_mime_type_new_buffer,
-                       view_as_mime_type_new_window),
-            $browser_object = browser_object_frames);
 
+interactive("view-as-mime-type",
+    "Display a browser object in the browser using the specified MIME type.",
+    alternates(view_as_mime_type,
+        view_as_mime_type_new_buffer,
+        view_as_mime_type_new_window),
+    $browser_object = browser_object_frames);
 
 interactive("charset-prefix",
     "A prefix command that prompts for a charset to use in a "+
@@ -837,22 +839,22 @@ interactive("reload-with-charset",
 
 
 interactive("yank",
-            "Paste the contents of the clipboard",
-            function (I) {
-                I.buffer.mark_active = false;
-                I.buffer.do_command("cmd_paste");
-            });
+    "Paste the contents of the clipboard",
+    function (I) {
+        I.buffer.mark_active = false;
+        I.buffer.do_command("cmd_paste");
+    });
 
 interactive("kill-region",
-            "Kill (\"cut\") the selected text.",
-            function (I) {
-                I.buffer.mark_active = false;
-                I.buffer.do_command("cmd_cut");
-            });
+    "Kill (\"cut\") the selected text.",
+    function (I) {
+        I.buffer.mark_active = false;
+        I.buffer.do_command("cmd_cut");
+    });
 
 interactive("kill-ring-save",
-            "Save the region as if killed, but don't kill it.",
-            function (I) {
-                I.buffer.mark_active = false;
-                I.buffer.do_command("cmd_copy");
-            });
+    "Save the region as if killed, but don't kill it.",
+    function (I) {
+         I.buffer.mark_active = false;
+         I.buffer.do_command("cmd_copy");
+    });
