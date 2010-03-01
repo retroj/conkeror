@@ -85,3 +85,42 @@ function get_spaces (n) {
     return x;
 }
 
+
+/**
+ * word_wrap wraps str to line_length.
+ */
+function word_wrap (str, line_length, line_prefix_first, line_prefix) {
+    if (line_prefix === undefined)
+        line_prefix = line_prefix_first;
+    else if (line_prefix.length < line_prefix_first.length) {
+        line_prefix += get_spaces(line_prefix_first.length - line_prefix.length);
+    }
+
+    line_length -= line_prefix_first.length;
+
+    if (line_length < 1)
+        line_length = 1;
+
+    let cur_prefix = line_prefix_first;
+
+    var out = "";
+    while (line_length < str.length) {
+        let i = str.lastIndexOf(" ", line_length);
+        if (i == -1)
+            i = str.indexOf(" ", line_length);
+        if (i == -1) {
+            out += cur_prefix + str + "\n";
+            str = "";
+        }
+        else  {
+            out += cur_prefix + str.substr(0, i) + "\n";
+            while (i < str.length && str.charAt(i) ==  " ")
+                ++i;
+            str = str.substr(i);
+        }
+        cur_prefix = line_prefix;
+    }
+    if (str.length > 0)
+        out += cur_prefix + str + "\n";
+    return out;
+}
