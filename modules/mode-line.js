@@ -98,7 +98,8 @@ function text_widget (window) {
 text_widget.prototype = {
     add_hook: function (hook_name, handler) {
         var obj = this;
-        if (handler == null) handler = function () { obj.update(); }
+        if (handler == null)
+            handler = function () { obj.update(); };
         add_hook.call(this.window, hook_name, handler);
         this.window_hooks.push([hook_name, handler]);
     },
