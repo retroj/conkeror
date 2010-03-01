@@ -10,14 +10,7 @@
  * blocking whitelist, among other things.
  */
 
-
 let permission_manager = Cc["@mozilla.org/permissionmanager;1"].getService(Ci.nsIPermissionManager);
-
-function get_spaces (n) {
-    var x = "";
-    while (x.length < n) x += " ";
-    return x;
-}
 
 function word_wrap (str, line_length, line_prefix_first, line_prefix) {
     if (line_prefix === undefined)

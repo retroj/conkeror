@@ -74,3 +74,14 @@ function html_escape (str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 }
+
+
+/**
+ * get_spaces returns a string of n spaces.
+ */
+function get_spaces (n) {
+    var x = "";
+    while (x.length < n) x += " ";
+    return x;
+}
+
