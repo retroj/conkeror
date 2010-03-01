@@ -124,3 +124,13 @@ function word_wrap (str, line_length, line_prefix_first, line_prefix) {
         out += cur_prefix + str + "\n";
     return out;
 }
+
+
+/**
+ * or_string joins an array of strings on commas, except for the last
+ * pair, which it joins with the word "or".
+ */
+function or_string (options) {
+    return options.slice(0,options.length-1)
+        .join(", ") + " or " + options[options.length - 1];
+}

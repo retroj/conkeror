@@ -8,10 +8,6 @@
 
 require("minibuffer-read.js");
 
-function or_string(options) {
-    return options.slice(0,options.length-1).join(", ") + " or " + options[options.length - 1];
-}
-
 define_keywords("$options");
 minibuffer.prototype.read_explicit_option = function () {
     keywords(arguments);
