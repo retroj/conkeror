@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -293,6 +293,8 @@ function input_handle_keyup (event) {
 function input_handle_command (event) {
     var window = this;
     var state = window.input.current;
+    if (typeof event == 'string')
+        event = new command_event(event);
     if (state.continuation)
         state.continuation(event);
     else
