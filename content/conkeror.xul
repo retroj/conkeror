@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
 (C) Copyright 2004-2007 Shawn Betts
-(C) Copyright 2007-2008 John J. Foerch
+(C) Copyright 2007-2010 John J. Foerch
 (C) Copyright 2007-2008 Jeremy Maitin-Shepard
 
 Use, modification, and distribution are subject to the terms specified in the
@@ -24,11 +24,19 @@ COPYING file.
   <stringbundleset id="stringbundleset">
   </stringbundleset>
 
-  <!-- put a "Quit" item in the OS X Application Menu.  The id
-    "menu_FileQuitItem" on the menuitem is the magic cookie. -->
+  <!-- put "New Window" and "Quit" items in the OS X Application Menu.
+       The id's "aboutName" and "menu_FileQuitItem" are magic cookies for
+       OS X XULRunner.  We repurpose "aboutName" as a small hack, which
+       saves us from needing a lot of extra menu logic just for one menu
+       item on only one OS. -->
   <menubar id="menubar" hidden="true">
     <menu label="Conkeror" hidden="true">
       <menupopup>
+        <menuitem
+           id="aboutName"
+           label="New Window"
+           hidden="true"
+           oncommand="conkeror.input_handle_command.call(window, 'make-window');"/>
         <menuitem
            id="menu_FileQuitItem"
            label="Quit Conkeror"
