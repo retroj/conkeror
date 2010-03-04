@@ -33,7 +33,7 @@ COPYING file.
            id="menu_FileQuitItem"
            label="Quit Conkeror"
            hidden="true"
-           oncommand="conkeror.input_handle_command.call(window, new conkeror.command_event('quit'));"/>
+           oncommand="conkeror.input_handle_command.call(window, 'quit');"/>
       </menupopup>
     </menu>
   </menubar>
