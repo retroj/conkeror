@@ -212,10 +212,13 @@ describe_bindings_buffer.prototype = {
                         if (typeof(bind.command) == "function") {
                             g.text("[function]", command_td);
                         } else {
-                            g.text(bind.command, command_td);
                             let cmd = interactive_commands.get(bind.command);
-                            if (cmd != null)
+                            if (cmd != null) {
+                                g.command_reference(cmd.name, command_td);
                                 help_str = cmd.shortdoc;
+                            } else {
+                                g.text(bind.command, command_td);
+                            }
                         }
                     } else if (bind.fallthrough)
                         g.text("[pass through]", command_td);
