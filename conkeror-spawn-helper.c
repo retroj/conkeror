@@ -375,11 +375,11 @@ int main(int argc, char **argv) {
 
     if (count == 0) {
       /* End of file received: exit without killing child */
-      return;
+      return 0;
     }
 
     /* Assume msg == 0 until we support more messages */
     TRY(count, kill(child_pid, SIGTERM));
-    return;
+    return 0;
   }
 }
