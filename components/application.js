@@ -38,6 +38,11 @@ application.prototype = {
     module_uri_prefix: "chrome://conkeror/content/",
     subscript_loader: Cc["@mozilla.org/moz/jssubscript-loader;1"].getService(Ci.mozIJSSubScriptLoader),
     preferences: Cc["@mozilla.org/preferences-service;1"].getService(Ci.nsIPrefService),
+    get version () {
+        var formatter = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
+            .getService(Ci.nsIURLFormatter);
+        return formatter.formatURL("%VERSION%");
+    },
     dumpln: function (str) {
         dump(str);
         dump("\n");
@@ -133,11 +138,6 @@ application.prototype = {
                 funcs = this.module_after_load_functions[module] = [];
             funcs.push(func);
         }
-    },
-    get version () {
-        var formatter = Cc["@mozilla.org/toolkit/URLFormatterService;1"]
-            .getService(Ci.nsIURLFormatter);
-        return formatter.formatURL("%VERSION%");
     },
 
     /* nsISupports */
