@@ -1,3 +1,15 @@
+conkeror (0.9.1+git100317-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot
+    - venkman support
+    - noscript support overhaul, now enabled by default
+    - fixes building conkeror-spawn-process-helper with clang compiler
+    - several new page modes
+    - many cosmetic changes and minor bugfixes
+    - outdated emacswiki webjump removed
+
+ -- Axel Beckert <abe@debian.org>  Wed, 17 Mar 2010 01:49:54 +0100
+
 conkeror (0.9.1+git100220-1) unstable; urgency=low
 
   * New upstream snapshot

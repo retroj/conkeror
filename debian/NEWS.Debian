@@ -1,3 +1,19 @@
+conkeror (0.9.1+git100317-1) UNRELEASED; urgency=low
+
+  * emacswiki webjump removed. better version posted on
+    http://conkeror.org/Webjumps
+
+  * M-< and home keys now scroll to the top left corner of the buffer.
+
+  * minibuffer.read_url now returns a load_spec instead of a simple
+    string.
+
+  * The command confirm-quit has been removed. To have a quit
+    confirmation, see the code example on
+    http://conkeror.org/BreakingChanges
+
+ -- Axel Beckert <abe@debian.org>  Wed, 17 Mar 2010 02:04:20 +0100
+
 conkeror (0.9.1+git100131-1) unstable; urgency=low
 
   Please see http://conkeror.org/BreakingChanges for the complete list of
