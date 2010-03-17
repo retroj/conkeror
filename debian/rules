@@ -60,7 +60,7 @@ install-indep:
 	       locale modules search-engines help style	       	\
 	       $(CURDIR)/debian/conkeror/usr/share/conkeror/
 	mkdir -p $(CURDIR)/debian/conkeror/usr/share/conkeror/contrib/
-	cp -pr contrib/xrev	\
+	cp -pr contrib/xrev contrib/art	\
 	       $(CURDIR)/debian/conkeror/usr/share/conkeror/contrib/
 	# Add generated Build ID and Debian version to version output
 	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' application.ini \

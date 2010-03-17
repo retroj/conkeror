@@ -7,6 +7,7 @@ conkeror (0.9.1+git100317-1) UNRELEASED; urgency=low
     - several new page modes
     - many cosmetic changes and minor bugfixes
     - outdated emacswiki webjump removed
+  * [debian/rules] Also install contrib/art
 
  -- Axel Beckert <abe@debian.org>  Wed, 17 Mar 2010 01:49:54 +0100
 
