@@ -214,6 +214,8 @@
  * time, or completes.
  **/
 
+in_module(null);
+
 function _return_value (x) {
     this.value = x;
 }
@@ -430,3 +432,5 @@ function co_call (f) {
     }
     return cc;
 }
+
+provide("coroutine");

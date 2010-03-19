@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 const cache_service = Cc["@mozilla.org/network/cache-service;1"]
                       .getService(Ci.nsICacheService);
 
@@ -86,3 +88,4 @@ function cache_enable (cache_type) {
         throw new Error("Invalid cache type");
 }
 
+provide("cache");

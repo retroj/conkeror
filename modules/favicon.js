@@ -8,6 +8,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 const favicon_service = Cc["@mozilla.org/browser/favicon-service;1"]
     .getService(Ci.nsIFaviconService);
 
@@ -123,3 +125,5 @@ function favicon_content_buffer_dom_link_added (buffer, event) {
 }
 add_hook("content_buffer_dom_link_added_hook",
          favicon_content_buffer_dom_link_added);
+
+provide("favicon");

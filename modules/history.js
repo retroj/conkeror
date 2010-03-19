@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_keywords("$use_webjumps", "$use_history", "$use_bookmarks",
                 "$match_required");
 function history_completer () {
@@ -65,3 +67,5 @@ function add_bookmark(url, title) {
     nav_bookmarks_service.insertBookmark(nav_bookmarks_service.unfiledBookmarksFolder,
                                          make_uri(url), -1, title);
 }
+
+provide("history");

@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("buffer.js");
 require("load-spec.js");
 
@@ -669,3 +671,5 @@ function page_mode_auto_update (buffer) {
 }
 
 add_hook("content_buffer_location_change_hook", page_mode_auto_update);
+
+provide("content-buffer");

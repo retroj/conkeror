@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-define_keymap("caret_keymap");
-
 define_key(caret_keymap, "C-a", "caret-beginning-of-line");
 define_key(caret_keymap, "C-e", "caret-end-of-line");
 define_key(caret_keymap, "C-b", "caret-backward-char");

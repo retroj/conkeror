@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 /**
  * remove_duplicates_filter returns a function that can be used in
  * Array.filter.  It removes duplicates.  Optional argument cmp is a
@@ -91,3 +93,5 @@ function splice_range (arr, start, end) {
         arr.push([start, end]);
     return arr;
 }
+
+provide("array");

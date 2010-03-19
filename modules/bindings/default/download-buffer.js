@@ -6,10 +6,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/special-buffer.js");
-
-define_keymap("download_buffer_keymap", $parent = special_buffer_keymap);
-
 define_key(download_buffer_keymap, "d", "download-cancel");
 define_key(download_buffer_keymap, "r", "download-retry-or-resume");
 define_key(download_buffer_keymap, "p", "download-pause-or-resume");

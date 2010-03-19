@@ -1,4 +1,6 @@
 
+in_module(null);
+
 require("extension.js");
 
 if (!extension_is_enabled("{73a6fe31-595d-460b-a920-fcc0f8843232}"))
@@ -115,3 +117,5 @@ interactive("ns-toggle-temp", "Allow a site temporary access to javascript",   f
 	reload(I.buffer, I.P);
     }
 });
+
+provide("noscript");

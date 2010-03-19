@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("mode-line.js");
 
 function button_widget (window) {
@@ -86,3 +88,5 @@ standard_mode_line_buttons = [
     ["buffer-next", "go-down"],
     ["help-page", "help"],
 ];
+
+provide("mode-line-buttons");

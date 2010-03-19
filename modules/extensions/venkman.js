@@ -9,6 +9,8 @@
  * glue code between venkman and conkeror
  */
 
+in_module(null);
+
 require("extension.js");
 
 if (!extension_is_enabled("{f13b157f-b174-47e7-a34d-4815ddfdfeb8}"))
@@ -21,3 +23,5 @@ function open_venkman () {
 interactive("venkman",
     "Open the Venkman Javascript Debugger in a new window.",
     open_venkman);
+
+provide("venkman");

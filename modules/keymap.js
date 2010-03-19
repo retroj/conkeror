@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 /* Generate vk name table  */
 var keycode_to_vk_name = [];
 var vk_name_to_keycode = {};
@@ -594,3 +596,5 @@ minibuffer.prototype.read_key_binding = function () {
     var result = yield SUSPEND;
     yield co_return(result);
 };
+
+provide("keymap");

@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 
@@ -59,3 +61,5 @@ var google_voice_re = build_url_regex($domain = "google",
                                       $allow_www = true,
                                       $path = "voice");
 auto_mode_list.push([google_voice_re, google_voice_mode]);
+
+provide("google-voice");

@@ -8,6 +8,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("special-buffer.js");
 require("interactive.js");
 
@@ -754,3 +756,5 @@ function describe_preference_new_window (I) {
 }
 interactive("describe-preference", null,
             alternates(describe_preference_new_buffer, describe_preference_new_window));
+
+provide("help");

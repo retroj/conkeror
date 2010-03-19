@@ -7,9 +7,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/global.js");
-
-define_keymap("minibuffer_base_keymap", $parent = default_base_keymap);
 define_fallthrough(minibuffer_base_keymap, match_any_unmodified_character);
 
 define_key(minibuffer_base_keymap, match_any_unmodified_character, null, $fallthrough);

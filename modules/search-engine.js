@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("utils.js");
 
 var search_engines = new string_hashmap();
@@ -349,3 +351,5 @@ define_search_engine_webjump("answers.xml", "answers");
 define_search_engine_webjump("yahoo.xml", "yahoo");
 define_search_engine_webjump("creativecommons.xml", "creativecommons");
 define_search_engine_webjump("eBay.xml", "ebay");
+
+provide("search-engine");

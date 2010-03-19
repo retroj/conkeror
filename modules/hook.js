@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("coroutine.js");
 
 /* Adds the specified function to the specified hook.  To add a local
@@ -302,3 +304,5 @@ function remove_hook (hook_name, func) {
     if (hook && (index = hook.indexOf(func)) != -1)
         hook.splice(index, 1);
 }
+
+provide("hook");

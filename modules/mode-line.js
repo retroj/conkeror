@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("mode.js");
 
 define_window_local_hook("mode_line_hook");
@@ -244,3 +246,5 @@ add_hook("mode_line_hook", mode_line_adder(clock_widget));
 add_hook("mode_line_hook", mode_line_adder(current_buffer_scroll_position_widget));
 
 mode_line_mode(true);
+
+provide("mode-line");

@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007,2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -17,14 +17,22 @@ function application () {
     this.wrappedJSObject = this;
     this.conkeror = this;
 
-    this.loaded_modules = [];
+    this.load_url = this.subscript_loader.loadSubScript;
+    this.loading_urls = [];
+    this.loading_paths = [];
     this.loading_modules = [];
-    this.module_after_load_functions = new Object();
+    this.loading_features = [];
+    this.features = {};
+    this.load_paths = [this.module_uri_prefix,
+                       this.module_uri_prefix+'extensions',
+                       this.module_uri_prefix+'page-modes'];
+    this.after_load_functions = {};
     this.pending_loads = [];
-    this.load_paths = [this.module_uri_prefix];
+
+    this.module_assert_conflict_error.prototype = Error.prototype;
 
     try {
-        this.require("conkeror.js");
+        this.require("conkeror.js", null);
     } catch (e) {
         this.dumpln("Error initializing.");
         this.dump_error(e);
@@ -63,81 +71,212 @@ application.prototype = {
             this.dumpln("Error: " + e);
         }
     },
-    loaded: function (module) {
-        return (this.loaded_modules.indexOf(module) != -1);
-    },
-    provide: function(module) {
-        if (this.loaded_modules.indexOf(module) == -1)
-            this.loaded_modules.push(module);
-    },
-    skip_module_load : {},
-    load_module: function(module_name) {
-        if (this.loading_modules.indexOf(module_name) != -1)
-            throw new Error("Circular module dependency detected: "
-                            + this.loading_modules.join(" -> ") + " -> " + module_name);
-        this.loading_modules.push(module_name);
-        try {
-            let j = 0;
-            while (true) {
-                if (j >= this.load_paths.length)
-                    throw new Error("Module not found: " + module_name);
-                try {
-                    this.subscript_loader.loadSubScript(this.load_paths[j] + module_name,
-                                                        this);
-                    this.provide(module_name);
-                    let funcs;
-                    if ((funcs = this.module_after_load_functions[module_name]) != null)
-                    {
-                        for (let i = 0; i < funcs.length; ++i)
-                            funcs[i]();
-                        delete this.module_after_load_functions[module_name];
-                    }
-                }
-                catch (e if e == this.skip_module_load) {}
-                catch (e) {
-                    if (!(e instanceof Error) && !(e instanceof Ci.nsIException) &&
-                        (String(e) == "ContentLength not available (not a local URL?)" ||
-                         String(e) == "Error creating channel (invalid URL scheme?)" ||
-                         String(e) == "Error opening input stream (invalid filename?)")) {
-                        ++j;
-                        continue;
-                    }
-                    throw e;
-                }
-                break;
-            }
-        }
-        finally {
-            this.loading_modules.pop();
-        }
 
-        if (this.loading_modules.length == 0)
-        {
-            while (this.pending_loads.length > 0)
-            {
-                this.require(this.pending_loads.pop());
+    make_uri: function (uri, charset, base_uri) {
+        const io_service = Cc["@mozilla.org/network/io-service;1"]
+            .getService(Ci.nsIIOService2);
+        if (uri instanceof Ci.nsIURI)
+            return uri;
+        if (uri instanceof Ci.nsIFile)
+            return io_service.newFileURI(uri);
+        return io_service.newURI(uri, charset, base_uri);
+    },
+    skip_module_load: {},
+    load: function (module, as) {
+        var conkeror = this;
+        function module_scope () {
+            this.__proto__ = conkeror;
+            this.conkeror = conkeror;
+        }
+        function load1 (url, scope, path, as) {
+            var success;
+            try {
+                this.loading_paths.unshift(path);
+                this.loading_urls.unshift(url);
+                this.loading_modules.unshift(as);
+                this.loading_features.unshift({});
+                if (this.loading_urls.indexOf(url, 1) != -1)
+                    throw new Error("Circular module dependency detected: "+
+                                    this.loading_urls.join(",\n"));
+                this.load_url(url, scope);
+                success = true;
+                if (as)
+                    this[as] = scope;
+                // call-after-load callbacks
+                for (let f in this.loading_features[0]) {
+                    this.features[f] = true;
+                    this.run_after_load_functions(f);
+                }
+            } finally {
+                this.loading_paths.shift();
+                this.loading_urls.shift();
+                this.loading_modules.shift();
+                this.loading_features.shift();
+            }
+            // do pending loads
+            if (success && this.loading_urls[0] === undefined) {
+                let pending = this.pending_loads;
+                this.pending_loads = [];
+                for (let i = 0, m; m = pending[i]; ++i) {
+                    this.require(m[0], m[1]);
+                }
             }
         }
-    },
-    require: function (module) {
-        if (!this.loaded(module))
-            this.load_module(module);
-    },
-    require_later: function (module) {
-        if (!this.loaded(module)
-            && this.pending_loads.indexOf(module) == -1)
-            this.pending_loads.push(module);
-    },
-    call_after_load: function (module, func) {
-        if (this.loaded(module))
-            func();
+        var scope = as;
+        if (as == null)
+            scope = this;
+        else if (typeof as == 'string')
+            scope = new module_scope();
         else
-        {
-            var funcs;
-            if (!(funcs = this.module_after_load_functions[module]))
-                funcs = this.module_after_load_functions[module] = [];
+            as = null;
+        var path, url;
+        if (module instanceof Ci.nsIURI)
+            path = module.path.substr(0, module.path.lastIndexOf('/')+1);
+        else if (module instanceof Ci.nsIFile)
+            path = module.parent.path;
+        var restarted = false;
+        if (path !== undefined) {
+            url = this.make_uri(module).spec;
+            do {
+                try {
+                    load1.call(this, url, scope, path, as);
+                    return;
+                } catch (e if e instanceof this.module_assert_error) {
+                    if (restarted)
+                        throw new this.module_assert_conflict_error(url);
+                    as = e.module;
+                    if (e.module)
+                        scope = new module_scope();
+                    else
+                        scope = this;
+                    restarted = true;
+                } catch (e if e == this.skip_module_load) {
+                    return;
+                }
+            } while (restarted);
+        } else {
+            // module name or relative path
+            var autoext = module.substr(-3) != '.js';
+            var suffix = false;
+            var i = -1;
+            var tried = {};
+            path = this.loading_paths[0];
+            if (path === undefined)
+                path = this.load_paths[++i];
+            while (path !== undefined) {
+                let opath = path;
+                try {
+                    let sep = path[path.length-1] == '/' ? '' : '/';
+                    url = path + sep + module + (suffix ? '.js' : '');
+                    let si = module.lastIndexOf('/');
+                    if (si > -1)
+                        path += module.substr(0, si);
+                    if (tried[url] !== scope) {
+                        tried[url] = scope;
+                        load1.call(this, url, scope, path, as);
+                        return;
+                    }
+                } catch (e if e instanceof this.module_assert_error) {
+                    if (restarted)
+                        throw new this.module_assert_conflict_error(url);
+                    as = e.module;
+                    if (e.module)
+                        scope = new module_scope();
+                    else
+                        scope = this;
+                    path = opath;
+                    restarted = true;
+                    continue;
+                } catch (e if (typeof e == 'string' &&
+                               {"ContentLength not available (not a local URL?)":true,
+                                "Error creating channel (invalid URL scheme?)":true,
+                                "Error opening input stream (invalid filename?)":true}
+                               [e])) {
+                    // null op. (suppress error, try next path)
+                } catch (e if e == this.skip_module_load) {
+                    return;
+                }
+                if (autoext)
+                    suffix = !suffix;
+                if (! suffix)
+                    path = this.load_paths[++i];
+            }
+            throw new Error("Module not found");
+        }
+    },
+    module_assert_error: function (module) {
+        this.module = module;
+    },
+    module_assert_conflict_error: function (url) { //subclass of Error
+        this.name = "module_assert_conflict_error";
+        this.message = "Conflicting in_module calls";
+        this.fileName = url;
+        this.lineNumber = '';
+    },
+    in_module: function (module) {
+        if (module != this.loading_modules[0])
+            throw new this.module_assert_error(module);
+    },
+    provide: function (symbol) {
+        if (! symbol)
+            throw new Error("Cannot provide null feature");
+        if (this.loading_urls[0] === undefined) {
+            this.features[symbol] = true;
+            this.run_after_load_functions(symbol);
+        } else
+            this.loading_features[0][symbol] = true;
+    },
+    featurep: function (symbol) {
+        return this.features[symbol];
+    },
+    call_after_load: function (feature, func) {
+        if (this.featurep(feature))
+            func();
+        else {
+            var funcs = this.after_load_functions[feature];
+            if (! funcs)
+                funcs = this.after_load_functions[feature] = [];
             funcs.push(func);
         }
+    },
+    run_after_load_functions: function (symbol) {
+        var funcs = this.after_load_functions[symbol];
+        if (funcs) {
+            delete this.after_load_functions[symbol];
+            for (var i = 0; funcs[i]; ++i) {
+                try {
+                    funcs[i]();
+                } catch (e) {
+                    dump_error(e);
+                }
+            }
+        }
+    },
+    require: function (module, as) {
+        var feature = as;
+        if (! feature) {
+            if (module instanceof Ci.nsIURI)
+                feature = module.spec.substr(module.spec.lastIndexOf('/')+1);
+            else if (module instanceof Ci.nsIFile)
+                feature = module.leafName;
+            else
+                feature = module.substr(module.lastIndexOf('/')+1);
+            let dot = feature.indexOf('.');
+            if (dot == 0)
+                return false;
+            if (dot > 0)
+                feature = feature.substr(0, dot);
+            feature = feature.replace('_', '-', 'g');
+        }
+        if (this.featurep(feature))
+            return true;
+        if (as === undefined)
+            as = feature.replace('-', '_', 'g');
+        this.load(module, as);
+        return true;
+    },
+    require_later: function (module, as) {
+        this.pending_loads.push([module, as]);
     },
 
     /* nsISupports */

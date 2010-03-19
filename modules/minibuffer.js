@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 // This should only be used for minibuffer states where it makes
 // sense.  In particular, it should not be used if additional cleanup
 // must be done.
@@ -448,3 +450,5 @@ minibuffer.prototype.wait_for = function (message, coroutine) {
     }
     yield co_return(result);
 };
+
+provide("minibuffer");

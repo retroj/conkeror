@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 define_keymap("google_calendar_keymap");
@@ -58,3 +60,5 @@ let (re = build_url_regex($domain = "google",
                           $allow_www = true)) {
     auto_mode_list.push([re, google_calendar_mode]);
 }
+
+provide("google-calendar");

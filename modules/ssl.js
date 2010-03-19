@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 function ssl_add_exception(buffer) {
     /* FIXME: A user preference variable should specify whether to
      * pre-fill location and furthermore (dependent on pre-filling the
@@ -33,3 +35,5 @@ interactive("ssl-certificate-manager",
             "The certificate manager can be used to view, import, and export certificates" +
             " for Certificate Authorities (CA) as well as web sites.",
             ssl_certificate_manager);
+
+provide("ssl");

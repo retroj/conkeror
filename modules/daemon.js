@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("mode.js");
 
 define_variable("daemon_quit_exits", true,
@@ -35,10 +37,12 @@ define_global_mode("daemon_mode",
 
 require_later("command-line.js");
 
-call_after_load("command-line.js", function () {
+call_after_load("command-line", function () {
         command_line_handler("daemon", true, function () {
                 daemon_mode(true);
                 var window = make_chrome_window(conkeror_chrome_uri);
                 window.setTimeout(function () { window.close(); }, 0);
             });
     });
+
+provide("daemon");

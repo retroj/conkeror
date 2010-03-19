@@ -6,8 +6,4 @@
  * COPYING file.
 **/
 
-require("bindings/default/special-buffer.js");
-
-define_keymap("help_buffer_keymap", $parent = special_buffer_keymap);
-
 define_key(help_buffer_keymap, "\\", "view-referenced-source-code");

@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 define_variable('xkcd_add_title', false,
@@ -70,3 +72,5 @@ let (re = build_url_regex($domain = "xkcd",
                           $path = /(\d+\/)?/)) {
     auto_mode_list.push([re, xkcd_mode]);
 }
+
+provide("xkcd");

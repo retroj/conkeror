@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 function pretty_print_value (value) {
     if (value === undefined)
         return "undefined";
@@ -77,3 +79,5 @@ function pretty_print_time (val) {
 
     return parts.join(", ");
 }
+
+provide("pretty-print");

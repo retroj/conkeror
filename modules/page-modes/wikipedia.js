@@ -14,6 +14,8 @@
  * - Probably more to come.
  **/
 
+in_module(null);
+
 require("minibuffer-completion.js");
 
 
@@ -416,3 +418,5 @@ define_variable("wikipedia_versions", {
     // TODO: zh-min-nan - Min Nan
     "zu" : { language: "Zulu", search: "Special:Search?search=%s&go=Go" }
 }, "Wikipedia version information. The key is the language code for the Wikipedia.");
+
+provide("wikipedia");

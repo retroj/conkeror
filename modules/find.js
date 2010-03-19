@@ -8,6 +8,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 const CARET_ATTRIBUTE = 'showcaret';
 
 define_variable("isearch_keep_selection", false,
@@ -376,3 +378,5 @@ function isearch_done (window, keep_selection) {
 }
 interactive("isearch-done", null,
             function (I) { isearch_done(I.window); });
+
+provide("find");

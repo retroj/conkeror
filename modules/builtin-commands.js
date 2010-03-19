@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 function define_builtin_commands (prefix, do_command_function, toggle_mark, mark_active_predicate, mode) {
 
     // Specify a docstring
@@ -218,3 +220,5 @@ function define_builtin_commands (prefix, do_command_function, toggle_mark, mark
         }
     }
 }
+
+provide("builtin-commands");

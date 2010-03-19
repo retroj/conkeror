@@ -6,9 +6,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/global.js");
-
-define_keymap("hint_keymap", $parent = default_base_keymap);
 define_fallthrough(hint_keymap, match_any_unmodified_character);
 
 define_key(hint_keymap, match_any_unmodified_character, null, $fallthrough);

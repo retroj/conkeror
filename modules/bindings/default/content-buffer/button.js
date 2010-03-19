@@ -5,11 +5,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/content-buffer/form.js");
-
-/* Keymap for form buttons */
-define_keymap("content_buffer_button_keymap");
-
 define_key(content_buffer_button_keymap, "space", "follow",
            $browser_object = browser_object_focused_element);
 define_key(content_buffer_button_keymap, "return", "follow",

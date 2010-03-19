@@ -7,9 +7,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/content-buffer/text.js");
-
-define_keymap("content_buffer_textarea_keymap", $parent = content_buffer_text_keymap);
 define_fallthrough(content_buffer_textarea_keymap, match_text_keys);
 
 // textarea keys

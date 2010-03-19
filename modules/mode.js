@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("interactive.js");
 
 function define_global_mode (name, enable, disable) {
@@ -37,3 +39,5 @@ function define_global_mode (name, enable, disable) {
     });
 }
 ignore_function_for_get_caller_source_code_reference("define_global_mode");
+
+provide("mode");

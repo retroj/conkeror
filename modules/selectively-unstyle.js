@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_variable('selectively_unstyle_alist', [],
     "Alist mapping url-matching regular expressions to predicates to "+
     "selectively disable stylesheets.  All predicates corresponding to "+
@@ -27,3 +29,4 @@ function selectively_unstyle (buffer) {
 
 add_hook("buffer_loaded_hook", selectively_unstyle);
 
+provide("selectively-unstyle");

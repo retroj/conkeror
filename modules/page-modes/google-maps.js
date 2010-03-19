@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 
@@ -62,3 +64,5 @@ define_page_mode("google_maps_mode",
 
 var google_maps_re = build_url_regex($domain = "maps.google");
 auto_mode_list.push([google_maps_re, google_maps_mode]);
+
+provide("google-maps");

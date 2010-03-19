@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 
@@ -87,3 +89,4 @@ let (google_search_re = build_url_regex(
     auto_mode_list.push([google_search_re, google_search_results_mode]);
 };
 
+provide("google-search-results");

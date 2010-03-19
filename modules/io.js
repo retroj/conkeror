@@ -9,6 +9,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 const PERM_IWOTH = 00002;  /* write permission, others */
 const PERM_IWGRP = 00020;  /* write permission, group */
 
@@ -228,3 +230,5 @@ function mime_input_stream(stream, headers) {
     mime_stream.setData(stream);
     return mime_stream;
 }
+
+provide("io");

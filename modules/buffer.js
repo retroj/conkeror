@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 var define_buffer_local_hook = local_hook_definer("window");
 
 function define_current_buffer_hook (hook_name, existing_hook) {
@@ -942,3 +944,5 @@ minibuffer_input_mode_indicator.prototype = {
 
 define_global_window_mode("minibuffer_input_mode_indicator", "window_initialize_hook");
 minibuffer_input_mode_indicator_mode(true);
+
+provide("buffer");

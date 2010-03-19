@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 function timer_callback (callback) {
     this.callback = callback;
 }
@@ -37,3 +39,5 @@ function call_at_precise_interval (callback, interval) {
 function timer_cancel (timer) {
     timer.cancel();
 }
+
+provide("timer");

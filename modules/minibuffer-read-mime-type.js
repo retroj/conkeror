@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("minibuffer-read.js");
 
 let _viewable_mime_type_list = null;
@@ -35,3 +37,5 @@ minibuffer.prototype.read_viewable_mime_type = function () {
             $completions = viewable_mime_type_list));
     yield co_return(result);
 };
+
+provide("minibuffer-read-mime-type");

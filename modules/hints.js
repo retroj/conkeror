@@ -9,6 +9,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_variable("active_img_hint_background_color", "#88FF00",
     "Color for the active image hint background.");
 
@@ -604,3 +606,5 @@ minibuffer.prototype.read_hinted_element = function () {
     var result = yield SUSPEND;
     yield co_return(result);
 };
+
+provide("hints");

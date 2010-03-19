@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 require("media.js");
 
@@ -55,3 +57,5 @@ define_page_mode("google_video_mode",
 
 var google_video_re = build_url_regex($domain = "video.google");
 auto_mode_list.push([google_video_re, google_video_mode]);
+
+provide("google-video");

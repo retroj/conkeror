@@ -9,6 +9,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("minibuffer.js");
 
 /**
@@ -362,3 +364,5 @@ function completer_with_mappings(options, query) {
         )
     );
 }
+
+provide("minibuffer-completion");

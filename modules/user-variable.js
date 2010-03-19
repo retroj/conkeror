@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("source-code.js");
 
 var user_variables = {};
@@ -31,3 +33,5 @@ function define_special_variable (name, getter, setter, doc) {
         source_code_reference: get_caller_source_code_reference()
     };
 }
+
+provide("user-variable");

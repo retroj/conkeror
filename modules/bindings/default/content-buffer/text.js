@@ -8,9 +8,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/content-buffer/form.js");
-
-define_keymap("content_buffer_text_keymap");
 define_fallthrough(content_buffer_text_keymap, match_text_keys);
 
 define_key(content_buffer_text_keymap, match_text_keys, null, $fallthrough);

@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 
@@ -60,3 +62,5 @@ var google_gqueues_re = build_url_regex($domain = "gqueues",
                                         $allow_www = true,
                                         $path = "main");
 auto_mode_list.push([google_gqueues_re, google_gqueues_mode]);
+
+provide("google-gqueues");

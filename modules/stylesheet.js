@@ -7,9 +7,8 @@
  * COPYING file.
 **/
 
-/*
- * Stylesheets
- */
+in_module(null);
+
 function register_user_stylesheet (url) {
     var uri = make_uri(url);
     var sss = Cc["@mozilla.org/content/style-sheet-service;1"]
@@ -53,3 +52,5 @@ function user_stylesheet_registered_p (url) {
         .getService(Ci.nsIStyleSheetService);
     return sss.sheetRegistered(uri, sss.USER_SHEET);
 }
+
+provide("stylesheet");

@@ -5,9 +5,6 @@
  * COPYING file.
 **/
 
-/* Keymap for hyperlink anchors */
-define_keymap("content_buffer_anchor_keymap");
-
 define_key(content_buffer_anchor_keymap, "return", "follow",
            $browser_object = browser_object_focused_element);
 define_key(content_buffer_anchor_keymap, "o", "follow-new-buffer",

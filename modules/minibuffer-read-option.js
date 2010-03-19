@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("minibuffer-read.js");
 
 define_keywords("$options");
@@ -76,3 +78,5 @@ minibuffer.prototype.read_single_character_option = function () {
     var result = yield SUSPEND;
     yield co_return(result);
 };
+
+provide("minibuffer-read-options");

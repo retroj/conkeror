@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 function load_rc_file (file) {
     try {
         var prefix = "file://";
@@ -112,3 +114,4 @@ function load_rc (path, resolve) {
     return path;
 }
 
+provide("rc");

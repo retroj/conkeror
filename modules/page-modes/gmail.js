@@ -8,6 +8,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 
@@ -110,3 +112,5 @@ define_page_mode("gmail_mode",
 var gmail_re = build_url_regex($domain = "mail.google",
                                $path = new RegExp('(?!support)'));
 auto_mode_list.push([gmail_re, gmail_mode]);
+
+provide("gmail");

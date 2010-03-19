@@ -32,6 +32,8 @@
  *   fail and return without telling the user why we are doing so.
  */
 
+in_module(null);
+
 {
     //// Manual sessions. ////
 
@@ -433,3 +435,5 @@
 
     session_auto_save_mode(true);
 }
+
+provide("session");

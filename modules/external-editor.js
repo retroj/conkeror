@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_variable("editor_shell_command", getenv("VISUAL") || getenv("EDITOR") || "emacs",
     "Shell command used to invoke an external editor.\n" +
     "This defaults to the value of the EDITOR environment variable.  If " +
@@ -78,3 +80,5 @@ function open_with_external_editor (lspec) {
     let [file, temp] = yield download_as_temporary(lspec);
     yield open_file_with_external_editor(file, $line = arguments.$line, $temporary = temp);
 }
+
+provide("external-editor");

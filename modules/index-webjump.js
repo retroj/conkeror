@@ -10,6 +10,8 @@
  * pages.
 **/
 
+in_module(null);
+
 require("webjump.js");
 
 /* Objects with completion data for index webjumps. */
@@ -313,3 +315,5 @@ function define_gitweb_summary_webjump(key, base_url) {
                    $alternative = alternative,
                    $description = arguments.$description);
 }
+
+provide("index-webjump");

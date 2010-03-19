@@ -9,6 +9,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 /* maybe_get_filename_extension
  *
  * file_name_s: string filename, may be null.
@@ -274,3 +276,5 @@ function suggest_save_path_from_file_name (file_name, buffer) {
     file.append(file_name);
     return file.path;
 }
+
+provide("suggest-file-name");

@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 require("media.js");
 
@@ -45,3 +47,5 @@ define_page_mode("dailymotion_mode",
 var dailymotion_re = build_url_regex($domain = /(?:[^\/]*\.)?dailymotion/);
 auto_mode_list.push([dailymotion_re, dailymotion_mode]);
 media_scrapers.unshift([dailymotion_re, media_scrape_dailymotion]);
+
+provide("dailymotion");

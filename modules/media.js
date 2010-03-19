@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 /**
  * Default media scraper
  *
@@ -108,3 +110,4 @@ function media_setup_local_object_classes (buffer) {
         browser_object_media;
 }
 
+provide("media");

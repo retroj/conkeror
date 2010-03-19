@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 const PREFIX_ITEM_URI = "urn:mozilla:item:";
 const PREFIX_NS_EM = "http://www.mozilla.org/2004/em-rdf#";
 
@@ -73,3 +75,5 @@ function extension_is_enabled (id) {
     var info = new extension_info(id);
     return info.update_item && (info.isDisabled == "false");
 }
+
+provide("extension");

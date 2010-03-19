@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_variable("default_minibuffer_auto_complete_delay", 150,
     "Delay (in milliseconds) after the most recent key-stroke "+
     "before auto-completing.");
@@ -555,3 +557,5 @@ minibuffer.prototype.read_preference = function minibuffer__read_preference () {
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
 };
+
+provide("minibuffer-read");

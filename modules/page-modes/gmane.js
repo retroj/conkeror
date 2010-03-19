@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 define_keymap("gmane_keymap");
@@ -98,3 +100,5 @@ define_page_mode("gmane_mode",
 let (re = build_url_regex($domain = /(news|thread)\.gmane/, $tlds = ["org"])) {
     auto_mode_list.push([re, gmane_mode]);
 }
+
+provide("gmane");

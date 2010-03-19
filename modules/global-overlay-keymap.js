@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("input.js");
 
 var global_overlay_keymap = new keymap();
@@ -60,3 +62,5 @@ function define_sticky_modifier (typed_key, modifiers) {
     global_overlay_keymap_mode(true);
 }
 ignore_function_for_get_caller_source_code_reference("define_sticky_modifier");
+
+provide("global-overlay-keymap");

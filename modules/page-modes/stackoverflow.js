@@ -10,6 +10,8 @@
  * having to grab the mouse.
  */
 
+in_module(null);
+
 /**
  * browser_object_class that finds the vote images
  */
@@ -48,3 +50,5 @@ define_page_mode("stackoverflow_mode",
 
 auto_mode_list.push([/^https?:\/\/(?:www.|meta.)?(stackoverflow|serverfault|superuser)\.(?:com)\//,
     stackoverflow_mode]);
+
+provide("stackoverflow");

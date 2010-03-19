@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 
@@ -270,3 +272,4 @@ interactive("capitalize-word",
             "Capitalize the following word (or arg words), moving over.",
             capitalize_word);
 
+provide("content-buffer-input");

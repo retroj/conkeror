@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 function string_hashset () {}
 
 string_hashset.prototype = {
@@ -124,16 +126,6 @@ function make_file (path) {
     return f;
 }
 
-
-function make_uri (uri, charset, base_uri) {
-    const io_service = Cc["@mozilla.org/network/io-service;1"]
-        .getService(Ci.nsIIOService2);
-    if (uri instanceof Ci.nsIURI)
-        return uri;
-    if (uri instanceof Ci.nsIFile)
-        return io_service.newFileURI(uri);
-    return io_service.newURI(uri, charset, base_uri);
-}
 
 function make_file_from_chrome (url) {
     var crs = Cc['@mozilla.org/chrome/chrome-registry;1']
@@ -886,3 +878,5 @@ function do_when (hook, buffer, fun) {
     else
 	fun(buffer);
 }
+
+provide("utils");

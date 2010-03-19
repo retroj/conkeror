@@ -13,6 +13,8 @@
  * best, because it keeps all the code in one place.
  */
 
+in_module(null);
+
 const file_locator_service = Cc["@mozilla.org/file/directory_service;1"]
     .getService(Ci.nsIProperties);
 
@@ -24,3 +26,5 @@ const nav_history_service = Cc["@mozilla.org/browser/nav-history-service;1"]
 
 const observer_service = Cc["@mozilla.org/observer-service;1"]
     .getService(Ci.nsIObserverService);
+
+provide("services");

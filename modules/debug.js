@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 var MAX_DUMP_DEPTH = 1;
 function dump_obj_r (obj, name, indent, depth) {
     if (depth > MAX_DUMP_DEPTH) {
@@ -99,3 +101,5 @@ let (console = Cc["@mozilla.org/consoleservice;1"]
             }
         }});
 }
+
+provide("debug");

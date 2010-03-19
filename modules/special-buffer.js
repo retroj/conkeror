@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("buffer.js");
 
 function special_buffer (window, element) {
@@ -26,3 +28,5 @@ function special_buffer (window, element) {
 special_buffer.prototype.__proto__ = buffer.prototype;
 
 // Sub-classes must define a generate method
+
+provide("special-buffer");

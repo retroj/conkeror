@@ -5,10 +5,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/content-buffer/form.js");
-
-define_keymap("content_buffer_select_keymap");
-
 define_key(content_buffer_select_keymap, "up", null, $fallthrough);
 define_key(content_buffer_select_keymap, "down", null, $fallthrough);
 define_key(content_buffer_select_keymap, "left", null, $fallthrough);

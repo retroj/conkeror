@@ -23,6 +23,8 @@
  *
  **/
 
+in_module(null);
+
 let EXAMINE_TOPIC = "http-on-examine-response";
 let EXAMINE_MERGED_TOPIC = "http-on-examine-merged-response";
 
@@ -97,3 +99,5 @@ function override_mime_type_for_next_load(uri, mime_type) {
     }
     table.put(uri.spec, obj);
 }
+
+provide("mime-type-override");

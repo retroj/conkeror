@@ -14,6 +14,8 @@
  *
  */
 
+in_module(null);
+
 define_variable("eye_guide_interval", 800,
     "Interval during which the eye guide is visible (in ms). "+
     "When 0, the eye guide will remain visible.");
@@ -91,3 +93,5 @@ interactive("eye-guide-scroll-up",
                 },
                 eye_guide_interval);
     });
+
+provide("eye-guide");

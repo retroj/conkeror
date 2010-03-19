@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("extension.js");
 
 if (!extension_is_enabled("inspector@mozilla.org"))
@@ -51,3 +53,5 @@ interactive("inspect-click",
         window.addEventListener("click", handler, true);
         I.minibuffer.message("Click in this window to select the DOM node to inspect.");
     });
+
+provide("dom-inspector");

@@ -7,6 +7,8 @@
 **/
 
 
+in_module(null);
+
 define_variable("headings_xpath",
     "//h1 | //h2 | //h3 | //h4 | //h5 | //h6 | //xhtml:h1 | "+
     "//xhtml:h2 | //xhtml:h3 | //xhtml:h4 | //xhtml:h5 | //xhtml:h6",
@@ -93,4 +95,4 @@ interactive("scroll",
     "if possible.",
     scroll);
 
-
+provide("scroll");

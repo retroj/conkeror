@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("window.js");
 require("keymap.js");
 require("interactive.js");
@@ -339,3 +341,5 @@ add_hook("window_initialize_hook", input_initialize_window);
 interactive("sequence-abort",
     "Abort an ongoing key sequence.",
     function (I) { I.minibuffer.message("abort sequence"); });
+
+provide("input");

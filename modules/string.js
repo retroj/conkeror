@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 /**
  * trim_whitespace removes whitespace from the beginning and end of the
  * given string.
@@ -134,3 +136,5 @@ function or_string (options) {
     return options.slice(0,options.length-1)
         .join(", ") + " or " + options[options.length - 1];
 }
+
+provide("string");

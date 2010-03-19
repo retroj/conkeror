@@ -7,10 +7,6 @@
  * COPYING file.
 **/
 
-define_keymap("default_base_keymap");
-
-
-define_keymap("default_help_keymap");
 define_key(default_help_keymap, "a", "apropos-command");
 define_key(default_help_keymap, "b", "describe-bindings");
 define_key(default_help_keymap, "f", "describe-command");
@@ -25,18 +21,15 @@ define_key(default_help_keymap, "w", "where-is");
 define_key(default_base_keymap, "C-h", default_help_keymap);
 
 
-define_keymap("sequence_help_keymap");
 define_key(sequence_help_keymap, "C-h", "describe-active-bindings");
 
 
-define_keymap("sequence_abort_keymap");
 define_key(sequence_abort_keymap, "C-g", "sequence-abort");
 
 
 /**
  * Note: Most buffer keymaps should set this as the parent.
  */
-define_keymap("default_global_keymap", $parent = default_base_keymap);
 define_key(default_global_keymap, "M-x", "execute-extended-command");
 define_key(default_global_keymap, "M-:", "eval-expression");
 define_key(default_global_keymap, "M-!", "shell-command");

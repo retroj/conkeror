@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_variable("clicks_in_new_buffer_button", 1,
                 "Which mouse button should open links in a new buffer. " +
                 "0 = left, 1 = middle, 2 = right. Default is 1.");
@@ -87,3 +89,5 @@ define_global_mode("clicks_in_new_buffer_mode",
                    clicks_in_new_buffer_mode_disable);
 
 clicks_in_new_buffer_mode(true);
+
+provide("clicks-in-new-buffer");

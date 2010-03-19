@@ -19,6 +19,8 @@ such as accented letters and ligatures.
 
 */
 
+in_module(null);
+
 function casual_spelling_entry_features (entry) {
     var ret = { ligatures: false, multiples: false };
     if (typeof entry == "object") {
@@ -303,3 +305,4 @@ var casual_spelling_ligatures = casual_spelling_from_range_table(
 casual_spelling_table_add(casual_spelling_accents);
 casual_spelling_table_add(casual_spelling_ligatures);
 
+provide("casual-spelling");

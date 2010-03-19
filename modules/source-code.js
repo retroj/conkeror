@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require_later("external-editor.js");
 
 var conkeror_source_code_path = null;
@@ -69,3 +71,5 @@ function get_caller_source_code_reference (extra_frames_back) {
 function ignore_function_for_get_caller_source_code_reference (func_name) {
     get_caller_source_code_reference_ignored_functions[func_name] = 1;
 }
+
+provide("source-code");

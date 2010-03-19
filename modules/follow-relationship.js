@@ -9,6 +9,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("element.js");
 
 const RELATIONSHIP_NEXT = 0;
@@ -104,3 +106,4 @@ define_browser_object_class("relationship-previous", null,
         throw interactive_error("No \"previous\" link found.");
     });
 
+provide("follow-relationship");

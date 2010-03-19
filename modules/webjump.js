@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 var webjumps = {};
 
 define_keywords("$completer", "$description", "$argument", "$alternative");
@@ -209,3 +211,5 @@ function webjump_completer () {
         yield co_return(base_completer(input, pos, conservative));
     };
 }
+
+provide("webjump");

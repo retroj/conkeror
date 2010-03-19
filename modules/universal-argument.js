@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_keymap("universal_argument_keymap");
 
 interactive("universal-argument",
@@ -51,3 +53,4 @@ interactive("universal-negate",
     },
     $prefix = true);
 
+provide("universal-argument");

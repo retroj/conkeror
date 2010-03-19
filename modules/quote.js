@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 define_input_mode("quote_next", "quote_next_keymap",
     $display_name = "input:QUOTE(next)",
     $doc = "This input mode sends the next key combo to the buffer, "+
@@ -44,3 +46,5 @@ define_key_match_predicate('match_not_escape_key', 'any key but escape',
              event.metaKey || // M-escape can also leave this mode, so we need to use an accurate determination of whether the "M" modifier was pressed, which is not necessarily the same as event.metaKey.
              event.ctrlKey;
     });
+
+provide("quote");

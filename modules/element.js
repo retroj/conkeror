@@ -9,6 +9,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("hints.js");
 require("save.js");
 require("mime-type-override.js");
@@ -620,3 +622,4 @@ function browser_element_shell_command (buffer, elem, command, cwd) {
                                 $shell_command_cwd = cwd);
 }
 
+provide("element");

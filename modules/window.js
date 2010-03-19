@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("mode.js");
 
 var define_window_local_hook = simple_local_hook_definer();
@@ -269,3 +271,5 @@ function init_window_title () {
 }
 
 init_window_title();
+
+provide("window");

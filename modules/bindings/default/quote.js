@@ -6,11 +6,9 @@
  * COPYING file.
 **/
 
-define_keymap("quote_next_keymap");
 define_fallthrough(quote_next_keymap, match_any_key);
 define_key(quote_next_keymap, match_any_key, "buffer-reset-input-mode", $fallthrough);
 
-define_keymap("quote_keymap");
 define_fallthrough(quote_keymap, match_not_escape_key);
 define_key(quote_keymap, "escape", "quote-mode-disable");
 define_key(quote_keymap, "M-escape", "quote-mode-disable");

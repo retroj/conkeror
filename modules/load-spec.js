@@ -52,6 +52,8 @@
  *                                          Defaults to true.
  */
 
+in_module(null);
+
 require("webjump.js");
 
 function page_fragment_load_spec (elem) {
@@ -350,3 +352,5 @@ function apply_load_spec (target, spec) {
         }
     }
 }
+
+provide("load-spec");

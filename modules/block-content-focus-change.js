@@ -11,6 +11,8 @@
  * rude websites from changing the element focus via javascript.
  */
 
+in_module(null);
+
 define_variable("block_content_focus_change_duration", 20,
     "Duration (in milliseconds) during which an element is "+
     "allowed to gain focus following a mouse click or key press, "+
@@ -93,3 +95,5 @@ let (foo = browser_set_element_focus) {
 }
 
 block_content_focus_change_mode(true);
+
+provide("block-content-focus-change");

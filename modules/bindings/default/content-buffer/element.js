@@ -6,7 +6,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/content-buffer/normal.js");
 require("element.js");
 
 define_key(content_buffer_normal_keymap, "i", "browser-object-images");

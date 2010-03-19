@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 define_variable("reddit_end_behavior", "stop",
@@ -287,3 +289,5 @@ define_page_mode("reddit_mode",
 let (re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/)) {
     auto_mode_list.push([re, reddit_mode]);
 };
+
+provide("reddit");

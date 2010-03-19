@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("interactive.js");
 require("io.js");
 
@@ -637,3 +639,5 @@ function shell_command (command) {
 function shell_command_with_argument (command, arg) {
     yield co_return((yield shell_command(substitute_shell_command_argument(command, arg), forward_keywords(arguments))));
 }
+
+provide("spawn-process");

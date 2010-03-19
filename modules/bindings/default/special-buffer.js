@@ -6,9 +6,5 @@
  * COPYING file.
 **/
 
-require("bindings/default/global.js");
-
-define_keymap("special_buffer_keymap", $parent = default_global_keymap);
-
 bind_scroll_keys(special_buffer_keymap);
 bind_selection_keys(special_buffer_keymap);

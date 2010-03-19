@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 function caret_modality (buffer, elem) {
     return caret_keymap;
 }
@@ -49,3 +51,5 @@ watch_pref('accessibility.browsewithcaret',
                    remove_hook('create_buffer_hook', caret_mode_enable);
                }
            });
+
+provide("caret");

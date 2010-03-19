@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-require("bindings/default/content-buffer/normal.js");
-
 define_key(content_buffer_normal_keymap, "+", "zoom-in-text");
 define_key(content_buffer_normal_keymap, "=", "zoom-reset-text");
 define_key(content_buffer_normal_keymap, "-", "zoom-out-text");

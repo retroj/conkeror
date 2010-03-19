@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 require("load-spec.js");
 require("suggest-file-name.js");
@@ -279,3 +281,5 @@ function download_as_temporary (lspec) {
     var result = yield SUSPEND;
     yield co_return(result);
 }
+
+provide("save");

@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 var cookie_manager = Cc["@mozilla.org/cookiemanager;1"]
     .getService(Ci.nsICookieManager2);
 
@@ -55,3 +57,5 @@ define_special_variable("cookie_lifetime_policy",
                             }
                         },
                         "Specifies the default cookie lifetime policy.");
+
+provide("cookie");

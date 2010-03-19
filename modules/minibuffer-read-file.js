@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("io.js");
 require("minibuffer-completion.js");
 
@@ -81,3 +83,5 @@ minibuffer.prototype.read_file_check_overwrite = function () {
         yield co_return(file);
     } while (true);
 };
+
+provide("minibuffer-read-file");

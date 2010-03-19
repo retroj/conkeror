@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 {
     let themes = {};
     let loaded_themes = {};
@@ -75,8 +77,8 @@
             let module = theme_cssfile_module(cssfile);
             if (! themes[module]) {
                 themes[module] = {};
-                if (! loaded(module+".js"))
-                    call_after_load(module+".js",
+                if (! featurep(module))
+                    call_after_load(module,
                                     function () { theme_module(module); });
             }
             if (! themes[module][cssfile])
@@ -84,7 +86,7 @@
             if (themes[module][cssfile].length > 0)
                 themes[module][cssfile][0].unregister(cssfile);
             themes[module][cssfile].unshift(th);
-            if (loaded(module+".js"))
+            if (featurep(module))
                 th.register(cssfile);
         }
     }
@@ -114,3 +116,4 @@
 
 theme_load("default");
 
+provide("theme");

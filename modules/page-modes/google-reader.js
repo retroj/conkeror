@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 
 
@@ -73,3 +75,5 @@ var google_reader_re = build_url_regex($domain = "google",
                                        $allow_www = true,
                                        $path = "reader/");
 auto_mode_list.push([google_reader_re, google_reader_mode]);
+
+provide("google-reader");

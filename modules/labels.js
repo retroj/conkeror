@@ -5,6 +5,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("pretty-print.js");
 
 /**
@@ -82,3 +84,5 @@ function label_id (value) {
         return null;
     return value._id;
 }
+
+provide("labels");

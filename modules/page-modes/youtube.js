@@ -6,6 +6,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 require("content-buffer.js");
 require("media.js");
 
@@ -193,3 +195,5 @@ let media_youtube_uri_test_regexp = build_url_regex($domain = /(?:[a-z]+\.)?yout
 media_scrapers.unshift([/.*/, media_scrape_embedded_youtube]);
 media_scrapers.unshift([media_youtube_uri_test_regexp, media_scrape_youtube]);
 auto_mode_list.push([media_youtube_uri_test_regexp, youtube_mode]);
+
+provide("youtube");

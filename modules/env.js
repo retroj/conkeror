@@ -7,6 +7,8 @@
  * COPYING file.
 **/
 
+in_module(null);
+
 /**
  * get_os returns a string identifying the current OS.
  * possible values include 'Darwin', 'Linux' and 'WINNT'.
@@ -93,3 +95,5 @@ function get_locale () {
     const LOCALE_PREF = "general.useragent.locale";
     return get_localized_pref(LOCALE_PREF) || get_pref(LOCALE_PREF);
 }
+
+provide("env");
