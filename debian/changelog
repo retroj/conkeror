@@ -1,4 +1,4 @@
-conkeror (0.9.1+git100317-1) UNRELEASED; urgency=low
+conkeror (0.9.1+git100317-1) unstable; urgency=low
 
   * New upstream snapshot
     - venkman support

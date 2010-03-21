@@ -1,4 +1,4 @@
-conkeror (0.9.1+git100317-1) UNRELEASED; urgency=low
+conkeror (0.9.1+git100317-1) unstable; urgency=low
 
   * emacswiki webjump removed. better version posted on
     http://conkeror.org/Webjumps
