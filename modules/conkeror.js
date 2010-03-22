@@ -47,7 +47,6 @@ require("download-manager.js", null);
 
 require("element.js", null);
 
-require("buffer.js", null)
 require("content-buffer.js", null);
 require("content-buffer-input.js", null);
 require("quote.js", null);
