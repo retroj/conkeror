@@ -1,3 +1,11 @@
+conkeror (0.9.2-1) unstable; urgency=low
+
+  * New upstream release
+    - Contains a new module system providing the capability for modules to
+      have their own namespace.
+
+ -- Axel Beckert <abe@debian.org>  Mon, 22 Mar 2010 19:11:32 +0100
+
 conkeror (0.9.1+git100317-1) unstable; urgency=low
 
   * New upstream snapshot
