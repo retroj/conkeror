@@ -21,7 +21,7 @@
     <string>conk</string> <!-- four letter code, supposed to be unique?!? -->
 
     <key>CFBundleVersion</key>
-    <string>0.9.1</string>
+    <string>0.9.2</string>
 
     <key>NSHumanReadableCopyright</key>
     <string>(c) 2007, Shawn Betts</string>
@@ -33,7 +33,7 @@
     <string>xulrunner</string>
 
     <key>CFBundleGetInfoString</key>
-    <string>Conkeror 0.9.1, A 100% keyboard driven mozilla based web browser.</string>
+    <string>Conkeror 0.9.2, A 100% keyboard driven mozilla based web browser.</string>
 
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string> <!-- I have no good reference as to why this is 6.0 -->
