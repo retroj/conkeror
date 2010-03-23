@@ -13,12 +13,12 @@ require("coroutine.js");
 /* Adds the specified function to the specified hook.  To add a local
  * hook, invoke this function as:  add_hook.call(context, hook_name, ...).
  * Note: hook_name must be a string */
-function add_hook (hook_name, func, prepend, avoid_duplicates) {
+function add_hook (hook_name, func, prepend) {
     if (!(hook_name in this))
         this[hook_name] = [];
     var hook = this[hook_name];
 
-    if (avoid_duplicates && hook.indexOf(func) != -1)
+    if (hook.indexOf(func) != -1)
         return func;
 
     if (prepend)
