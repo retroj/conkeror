@@ -1,11 +1,11 @@
 Adds and enables some Debian and Ubuntu related webjumps which should
 not be inlcuded in upstream by default.
 
-Index: conkeror-0.9.2+git100324/modules/debian/webjumps.js
+Index: conkeror-0.9.2+git100324/modules/debian/debian-webjumps.js
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ conkeror-0.9.2+git100324/modules/debian/webjumps.js	2010-03-24 01:20:46.000000000 +0100
-@@ -0,0 +1,28 @@
++++ conkeror-0.9.2+git100324/modules/debian/debian-webjumps.js	2010-03-24 23:39:39.000000000 +0100
+@@ -0,0 +1,30 @@
 +/**
 + * (C) Copyright 2008-2010 Axel Beckert
 + *
@@ -34,14 +34,16 @@ Index: conkeror-0.9.2+git100324/modules/debian/webjumps.js
 +define_webjump("ubuntufile", "http://packages.ubuntu.com/search?searchon=contents&keywords=%s&mode=path&arch=any");
 +define_webjump("ubuntubugs", "http://launchpad.net/ubuntu/+source/%s");
 +define_webjump("launchpad", "https://launchpad.net/+search?field.text=%s");
++
++provide("debian-webjumps");
 Index: conkeror-0.9.2+git100324/defaults/preferences/default-modules.js
 ===================================================================
---- conkeror-0.9.2+git100324.orig/defaults/preferences/default-modules.js	2010-03-24 01:18:19.000000000 +0100
-+++ conkeror-0.9.2+git100324/defaults/preferences/default-modules.js	2010-03-24 01:20:32.000000000 +0100
+--- conkeror-0.9.2+git100324.orig/defaults/preferences/default-modules.js	2010-03-24 01:31:44.000000000 +0100
++++ conkeror-0.9.2+git100324/defaults/preferences/default-modules.js	2010-03-24 01:36:18.000000000 +0100
 @@ -60,3 +60,6 @@
  pref("conkeror.load.page-modes/dailymotion", 1);
  pref("conkeror.load.page-modes/xkcd", 1);
  pref("conkeror.load.page-modes/stackoverflow", 1);
 +
 +// Debian modules
-+pref("conkeror.load.debian/webjumps", 1);
++pref("conkeror.load.debian/debian-webjumps", 1);

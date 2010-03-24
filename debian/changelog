@@ -1,3 +1,11 @@
+conkeror (0.9.2+git100324-2) unstable; urgency=low
+
+  * Further adaptions of the debian webjumps to the new module system as
+    suggested by John J. Foerch. Includes renaming the webjumps' file from
+    modules/debian/webjumps.js to modules/debian/debian-webjumps.js.
+
+ -- Axel Beckert <abe@debian.org>  Wed, 24 Mar 2010 23:45:50 +0100
+
 conkeror (0.9.2+git100324-1) unstable; urgency=low
 
   * New upstream snapshot
