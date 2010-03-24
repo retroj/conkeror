@@ -5,6 +5,7 @@ conkeror (0.9.2+git100324-1) unstable; urgency=low
     upload)
   * Adapt debian webjumps module to new module system (fixes lost default
     webjumps in the previous upload). Thanks to gzeus for noticing!
+  * Add debian/source/format to silence lintian.
 
  -- Axel Beckert <abe@debian.org>  Wed, 24 Mar 2010 01:27:57 +0100
 
