@@ -149,23 +149,17 @@ function current_buffer_scroll_position_widget (window) {
     this.add_hook("select_buffer_hook");
     this.add_hook("current_content_buffer_location_change_hook");
     this.add_hook("current_content_buffer_focus_change_hook");
+    this.add_hook("current_special_buffer_generated_hook");
 }
 current_buffer_scroll_position_widget.prototype.__proto__ = text_widget.prototype;
 current_buffer_scroll_position_widget.prototype.update = function () {
     var b = this.window.buffers.current;
     var scrollX, scrollY, scrollMaxX, scrollMaxY;
-    if (b instanceof content_buffer) {
-        var w = b.focused_frame;
-        scrollX = w.scrollX;
-        scrollY = w.scrollY;
-        scrollMaxX = w.scrollMaxX;
-        scrollMaxY = w.scrollMaxY;
-    } else {
-        scrollX = b.scrollX;
-        scrollY = b.scrollY;
-        scrollMaxX = b.scrollMaxX;
-        scrollMaxY = b.scrollMaxY;
-    }
+    var w = b.focused_frame;
+    scrollX = w.scrollX;
+    scrollY = w.scrollY;
+    scrollMaxX = w.scrollMaxX;
+    scrollMaxY = w.scrollMaxY;
     var x = scrollMaxX == 0 ? 100 : Math.round(scrollX / scrollMaxX * 100);
     var y = scrollMaxY == 0 ? 100 : Math.round(scrollY / scrollMaxY * 100);
     this.view.text = "(" + x + ", " + y + ")";
