@@ -35,7 +35,7 @@ function help_document_generator (document, buffer) {
 help_document_generator.prototype = {
     __proto__: dom_generator.prototype,
 
-    key_binding : function (str, parent) {
+    key_binding: function (str, parent) {
         var node = this.element("span", "class", "key-binding");
         this.text(str, node);
         if (parent)
@@ -43,7 +43,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    source_code_reference : function (ref, parent) {
+    source_code_reference: function (ref, parent) {
         var f = this.document.createDocumentFragment();
         var module_name = ref.module_name;
         var buffer = this.buffer;
@@ -68,7 +68,7 @@ help_document_generator.prototype = {
         return f;
     },
 
-    command_name : function (name, parent) {
+    command_name: function (name, parent) {
         var node = this.element("span", "class", "command");
         this.text(name, node);
         if (parent)
@@ -76,7 +76,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    command_reference : function (name, parent) {
+    command_reference: function (name, parent) {
         var node = this.element("a",
                                 "class", "command",
                                 "href", "javascript:");
@@ -93,7 +93,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    variable_reference : function (name, parent) {
+    variable_reference: function (name, parent) {
         var node = this.element("a", "class", "variable", "href", "#");
         /* FIXME: make this work */
         this.text(name, node);
@@ -102,7 +102,7 @@ help_document_generator.prototype = {
         return node;
     },
 
-    help_text : function (str, parent) {
+    help_text: function (str, parent) {
         var paras = str.split("\n");
         var f = this.document.createDocumentFragment();
         for (var i = 0; i < paras.length; ++i) {
@@ -131,7 +131,7 @@ help_document_generator.prototype = {
         return f;
     },
 
-    add_help_stylesheet : function () {
+    add_help_stylesheet: function () {
         this.add_stylesheet("chrome://conkeror-gui/content/help.css");
     }
 };
@@ -156,11 +156,11 @@ function describe_bindings_buffer (window, element) {
 }
 
 describe_bindings_buffer.prototype = {
-    title : "Key bindings",
+    title: "Key bindings",
 
-    description : "*bindings*",
+    description: "*bindings*",
 
-    generate : function () {
+    generate: function () {
         var d = this.document;
         var list = this.binding_list;
         delete this.binding_list;
@@ -319,11 +319,11 @@ function apropos_command_buffer (window, element) {
 }
 
 apropos_command_buffer.prototype = {
-    title : "Apropos commands",
+    title: "Apropos commands",
 
-    description : "*Apropos*",
+    description: "*Apropos*",
 
-    generate : function () {
+    generate: function () {
         var d = this.document;
         var list = this.command_list;
         delete this.command_list;
@@ -418,11 +418,11 @@ function describe_command_buffer (window, element) {
 }
 
 describe_command_buffer.prototype = {
-    get title() { return "Command help: " + this.command; },
+    get title () { return "Command help: " + this.command; },
 
-    description : "*help*",
+    description: "*help*",
 
-    generate : function () {
+    generate: function () {
         var d = this.document;
 
         var g = new help_document_generator(d, this);
@@ -512,11 +512,11 @@ function describe_key_buffer (window, element) {
 }
 
 describe_key_buffer.prototype = {
-    get title() { return "Key help: " + this.key_sequence; },
+    get title () { return "Key help: " + this.key_sequence; },
 
-    description : "*help*",
+    description: "*help*",
 
-    generate : function () {
+    generate: function () {
         var d = this.document;
 
         var g = new help_document_generator(d, this);
@@ -661,11 +661,11 @@ function describe_variable_buffer (window, element) {
 }
 
 describe_variable_buffer.prototype = {
-    get title() { return "Variable help: " + this.variable; },
+    get title () { return "Variable help: " + this.variable; },
 
-    description : "*help*",
+    description: "*help*",
 
-    generate : function () {
+    generate: function () {
         var d = this.document;
 
         var g = new help_document_generator(d, this);
