@@ -17,9 +17,10 @@
 # And on the machine hosting the APT repository, you'll need the
 # package reprepro.
 #
-# If you do only binary rebuilds for other architectures, you need to
-# have the nightly builds APT repository in your /etc/apt/sources.list
-# because we fetch the source package with
+# If you do only binary rebuilds for other architectures, you do _not_
+# need to have the nightly builds APT repository in your
+# /etc/apt/sources.list since we fetch the Sources list manually,
+# parse it with grep-dctrl and fetch the source package with dget.
 
 #
 # How to use:
