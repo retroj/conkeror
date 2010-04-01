@@ -11,7 +11,7 @@ in_module(null);
 require("content-buffer.js");
 require("media.js");
 
-let media_youtube_content_key_regexp = /"t": "([^"]+)"/;
+let media_youtube_content_key_regexp = /&t=([^&]+)/;
 let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/;
 
 
