@@ -32,9 +32,8 @@ function load_rc_directory (file_o) {
     while (entries.hasMoreElements()) {
         var entry = entries.getNext();
         entry.QueryInterface(Ci.nsIFile);
-        if (entry.leafName.match(/^[^.].*\.js$/i)) {
+        if (entry.leafName.substr(-3).toLowerCase() == '.js')
             files.push(entry);
-        }
     }
     files.sort(function (a, b) {
             if (a.leafName < b.leafName) {
@@ -45,7 +44,7 @@ function load_rc_directory (file_o) {
                 return 0;
             }
         });
-    for (var i = 0; i < files.length; i++) {
+    for (var i = 0; files[i]; i++) {
         load_rc_file(files[i]);
     }
 }
@@ -64,7 +63,7 @@ function load_rc (path, resolve) {
 
     if (typeof path == "object")
         file = path;
-    if (typeof path == "string") {
+    else if (typeof path == "string") {
         try {
             file = make_uri(path);
         } catch (e) {
