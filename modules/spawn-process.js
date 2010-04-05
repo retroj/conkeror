@@ -542,7 +542,7 @@ function spawn_process_blind (program_name, args) {
 
 //  Keyword arguments: $cwd, $fds
 function spawn_and_wait_for_process (program_name, args) {
-    keywords(arguments);
+    keywords(arguments, $cwd = null, $fds = null);
     var cc = yield CONTINUATION;
     spawn_process(program_name, args, arguments.$cwd,
                   cc, cc.throw,
