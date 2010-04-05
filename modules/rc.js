@@ -102,9 +102,10 @@ function load_rc (path, resolve) {
     if (file instanceof Ci.nsIURI)
         path = file.spec;
 
-    if (file instanceof Ci.nsILocalFile && file.isDirectory())
+    if (file instanceof Ci.nsILocalFile && file.isDirectory()) {
+        path += "/*.js";
         load_rc_directory(file);
-    else
+    } else
         load_rc_file(file);
 
     return path;
