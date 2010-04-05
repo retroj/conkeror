@@ -19,7 +19,6 @@ function load_rc_file (file) {
             uri = file.spec;
         else
             uri = prefix + file.path;
-
         subscript_loader.loadSubScript(uri, conkeror);
     } catch (e) {
         dump_error(e);
@@ -36,13 +35,12 @@ function load_rc_directory (file_o) {
             files.push(entry);
     }
     files.sort(function (a, b) {
-            if (a.leafName < b.leafName) {
+            if (a.leafName < b.leafName)
                 return -1;
-            } else if (a.leafName > b.leafName) {
+            else if (a.leafName > b.leafName)
                 return 1;
-            } else {
+            else
                 return 0;
-            }
         });
     for (var i = 0; files[i]; i++) {
         load_rc_file(files[i]);
@@ -104,11 +102,10 @@ function load_rc (path, resolve) {
     if (file instanceof Ci.nsIURI)
         path = file.spec;
 
-    if (file instanceof Ci.nsILocalFile && file.isDirectory()) {
+    if (file instanceof Ci.nsILocalFile && file.isDirectory())
         load_rc_directory(file);
-    } else {
+    else
         load_rc_file(file);
-    }
 
     return path;
 }
