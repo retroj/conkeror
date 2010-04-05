@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -19,9 +19,9 @@ such as accented letters and ligatures.
 
 */
 
-in_module(null);
+in_module("casual_spelling");
 
-function casual_spelling_entry_features (entry) {
+function table_entry_features (entry) {
     var ret = { ligatures: false, multiples: false };
     if (typeof entry == "object") {
         for each (var t in entry) {
@@ -37,9 +37,9 @@ function casual_spelling_entry_features (entry) {
     return ret;
 }
 
-function casual_spelling_table (table) {
+function make_table (table) {
     for (var k in table) {
-        var features = casual_spelling_entry_features(table[k]);
+        var features = table_entry_features(table[k]);
         if (features.ligatures) table.ligatures = true;
         if (features.multiples) table.multiples = true;
     }
@@ -48,8 +48,8 @@ function casual_spelling_table (table) {
 
 
 /**
- * casual_spelling_from_range_table is a constructor of
- * casual_spelling_table which generates the table from a shorthand form
+ * make_table_from_ranges is a constructor of a casual-spelling 
+ * table which generates the table from a shorthand form
  * called a "range table".  A range table is an array where each element
  * is an array of three elements: range-low, range-high, and range-spec.
  * Low and high are integer codepoints of unicode characters to be
@@ -62,10 +62,10 @@ function casual_spelling_table (table) {
  * range.  Multi-character translations, such as for ligatures, must be
  * given in the array form of range-spec.
  */
-function casual_spelling_from_range_table (table) {
+function make_table_from_ranges (table) {
     var ret = {};
     table.map(function (a) {
-        var features = casual_spelling_entry_features(a[2]);
+        var features = table_entry_features(a[2]);
         if (features.ligatures) ret.ligatures = true;
         if (features.multiples) ret.multiples = true;
         for (var c = a[0]; c <= a[1]; c++) {
@@ -80,8 +80,8 @@ function casual_spelling_from_range_table (table) {
 }
 
 
-function casual_spelling_translate (chr) {
-    return casual_spelling_tables[chr] || chr;
+function translate (chr) {
+    return tables[chr] || chr;
 }
 
 
@@ -89,14 +89,14 @@ function casual_spelling_translate (chr) {
  * Pattern Matchers
  */
 
-function casual_spelling_hints_text_match (text, pattern) {
+function hints_text_match (text, pattern) {
     if (pattern == "")
         return [0, 0];
     var plen = pattern.length;
     for (var i = 0, tlen = text.length - plen; i <= tlen; i++) {
         for (var j = 0;; j++) {
             if (pattern[j] != text[i+j] &&
-                pattern[j] != casual_spelling_translate(text[i+j]))
+                pattern[j] != translate(text[i+j]))
                 break;
             if (j == plen - 1)
                 return [i, i+plen];
@@ -105,12 +105,12 @@ function casual_spelling_hints_text_match (text, pattern) {
     return false;
 }
 
-function casual_spelling_hints_text_match_ligatures (text, pattern) {
+function hints_text_match_ligatures (text, pattern) {
     if (pattern == "")
         return [0, 0];
     var tlen = text.length;
     var plen = pattern.length;
-    var decoded = Array.map(text, casual_spelling_translate);
+    var decoded = Array.map(text, translate);
     for (var i = 0; i < tlen; i++) {
         for (var e = 0, j = 0; i + e < tlen; e++) {
             var elen = 1;
@@ -125,11 +125,11 @@ function casual_spelling_hints_text_match_ligatures (text, pattern) {
     return false;
 }
 
-function casual_spelling_hints_text_match_multiples (text, pattern) {
+function hints_text_match_multiples (text, pattern) {
     if (pattern == "")
         return [0, 0];
     var plen = pattern.length;
-    var decoded = Array.map(text, function (x) Array.concat(x, casual_spelling_translate(x)));
+    var decoded = Array.map(text, function (x) Array.concat(x, translate(x)));
     for (var i = 0, tlen = text.length - plen; i < tlen; i++) {
         for (var j = 0; j < plen; j++) {
             if (! decoded[i+j].some(function (x) x == pattern[j]))
@@ -141,12 +141,12 @@ function casual_spelling_hints_text_match_multiples (text, pattern) {
     return false;
 }
 
-function casual_spelling_hints_text_match_ligatures_multiples (text, pattern) {
+function hints_text_match_ligatures_multiples (text, pattern) {
     if (pattern == "")
         return [0, 0];
     var tlen = text.length;
     var plen = pattern.length;
-    var decoded = Array.map(text, function (x) Array.concat(x, casual_spelling_translate(x)));
+    var decoded = Array.map(text, function (x) Array.concat(x, translate(x)));
     var matched, mlen;
     for (var i = 0; i < tlen; i++) {
         for (var e = 0, j = 0; i + e < tlen; e++) {
@@ -166,27 +166,27 @@ function casual_spelling_hints_text_match_ligatures_multiples (text, pattern) {
  * Table Installation
  */
 
-var casual_spelling_tables;
+var tables;
 
-function casual_spelling_table_add (table) {
-    table.__proto__ = casual_spelling_tables;
-    casual_spelling_tables = table;
-    if (casual_spelling_tables.ligatures && casual_spelling_tables.multiples)
-        hints_text_match = casual_spelling_hints_text_match_ligatures_multiples;
-    else if (casual_spelling_tables.ligatures)
-        hints_text_match = casual_spelling_hints_text_match_ligatures;
-    else if (casual_spelling_tables.multiples)
-        hints_text_match = casual_spelling_hints_text_match_multiples;
+function add_table (table) {
+    table.__proto__ = tables;
+    tables = table;
+    if (tables.ligatures && tables.multiples)
+        conkeror.hints_text_match = hints_text_match_ligatures_multiples;
+    else if (tables.ligatures)
+        conkeror.hints_text_match = hints_text_match_ligatures;
+    else if (tables.multiples)
+        conkeror.hints_text_match = hints_text_match_multiples;
     else
-        hints_text_match = casual_spelling_hints_text_match;
+        conkeror.hints_text_match = hints_text_match;
 }
 
 
-casual_spelling_table_add(casual_spelling_table({}));
+add_table(make_table({}));
 
 
 
-var casual_spelling_accents = casual_spelling_from_range_table(//no special requirements for pattern matcher
+var accents_table = make_table_from_ranges(
     [[0x00a9, 0x00a9, "C"],//copyright
      [0x00c0, 0x00c5, ["A"]],
      [0x00c7, 0x00c7, "C"],
@@ -282,7 +282,7 @@ var casual_spelling_accents = casual_spelling_from_range_table(//no special requ
      [0xff21, 0xff3a, "A"],
      [0xff41, 0xff5a, "a"]]);
 
-var casual_spelling_ligatures = casual_spelling_from_range_table(
+var ligatures_table = make_table_from_ranges(
     [[0x00c6, 0x00c6, ["AE"]],
      [0x00df, 0x00df, ["ss"]],
      [0x00e6, 0x00e6, ["ae"]],
@@ -302,7 +302,7 @@ var casual_spelling_ligatures = casual_spelling_from_range_table(
      [0xfb05, 0xfb05, ["st"]],
      [0xfb06, 0xfb06, ["st"]]]);
 
-casual_spelling_table_add(casual_spelling_accents);
-casual_spelling_table_add(casual_spelling_ligatures);
+add_table(accents_table);
+add_table(ligatures_table);
 
 provide("casual-spelling");
