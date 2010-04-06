@@ -27,7 +27,11 @@ function load_rc_directory (file_o) {
                 return 0;
         });
     for (var i = 0; files[i]; i++) {
-        load(files[i]);
+        try {
+            load(files[i]);
+        } catch (e) {
+            dump_error(e);
+        }
     }
 }
 
