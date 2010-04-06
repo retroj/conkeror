@@ -173,6 +173,8 @@ walnut_run({
         assert_error(function () load("foo"));
     },
     test_require_later_1: function () {
+        loading_urls = [];
+        pending_loads = [];
         var ob = "";
         function mock_foo () {
             in_module(null);

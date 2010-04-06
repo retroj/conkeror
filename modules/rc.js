@@ -9,22 +9,6 @@
 
 in_module(null);
 
-function load_rc_file (file) {
-    try {
-        var prefix = "file://";
-        var uri;
-        if (typeof file == "string")
-            uri = prefix + file;
-        else if (file instanceof Ci.nsIURI)
-            uri = file.spec;
-        else
-            uri = prefix + file.path;
-        subscript_loader.loadSubScript(uri, conkeror);
-    } catch (e) {
-        dump_error(e);
-    }
-}
-
 function load_rc_directory (file_o) {
     var entries = file_o.directoryEntries;
     var files = [];
@@ -43,7 +27,7 @@ function load_rc_directory (file_o) {
                 return 0;
         });
     for (var i = 0; files[i]; i++) {
-        load_rc_file(files[i]);
+        load(files[i]);
     }
 }
 
@@ -106,7 +90,7 @@ function load_rc (path, resolve) {
         path += "/*.js";
         load_rc_directory(file);
     } else
-        load_rc_file(file);
+        load(file);
 
     return path;
 }
