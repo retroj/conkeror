@@ -98,8 +98,10 @@ command_line_param_handler("f", true, function (command, ctx) {
 
 command_line_param_handler("l", false, function (path, ctx) {
         try {
-            load_rc(path, function(path) ctx.command_line.resolveFile(path));
-        } catch (e) { dump_error(e);  }
+            load(ctx.command_line.resolveFile(path));
+        } catch (e) {
+            dump_error(e);
+        }
     });
 
 // note `u' must be called as +u because Mozilla consumes -u
