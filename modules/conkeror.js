@@ -29,6 +29,7 @@ require("extension.js", null);
 require("array.js", null);
 require("builtin-commands.js", null);
 
+require("user-agent.js", null);
 require("utils.js", null);
 require("interactive.js", null);
 require("minibuffer.js", null);

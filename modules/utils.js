@@ -320,13 +320,6 @@ function generate_QI () {
 }
 
 
-const USER_AGENT_OVERRIDE_PREF = "general.useragent.override";
-
-function set_user_agent (str) {
-    session_pref(USER_AGENT_OVERRIDE_PREF, str);
-}
-
-
 function abort (str) {
     var e = new Error(str);
     e.__proto__ = abort.prototype;
