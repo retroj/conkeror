@@ -32,67 +32,34 @@ function load_rc_directory (file_o) {
 }
 
 
-/*
- * The file to load may be specified as an nsILocalFile, an nsIURI or
- *   a string uri or file path or null.  If path specifies a directory
- *   all `.js' files in that directory will be loaded.  The default,
- *   for a null path, is specified by the preference `conkeror.rcfile'
- *   if it is set, otherwise it is $HOME/.conkerorrc.  A uri that is
- *   not of file or chrome scheme will fail.
- */
-function load_rc (path, resolve) {
-    var file;
-
-    if (typeof path == "object")
-        file = path;
-    else if (typeof path == "string") {
-        try {
-            file = make_uri(path);
-        } catch (e) {
-            if (resolve)
-                file = resolve(path);
-        }
-    }
-    if (file instanceof Ci.nsIURI && file.schemeIs("chrome"))
-        try {
-            file = make_file_from_chrome(file);
-        } catch (e) { /* ignore */ }
-    if (file instanceof Ci.nsIURI && file.schemeIs("file"))
-        file = make_file(file.path);
-
-    if (!path) {
-        if (pref_has_user_value("conkeror.rcfile")) {
-            var rcfile = get_pref("conkeror.rcfile");
-            if (rcfile.length)
-                path = rcfile;
-            else
-                return;
-        } else {
-            file = get_home_directory();
-            file.appendRelativePath(".conkerorrc");
-            if (!file.exists())
-                return;
-        }
+function load_rc () {
+    var path;
+    if (pref_has_user_value("conkeror.rcfile")) {
+        let rcfile = get_pref("conkeror.rcfile");
+        if (rcfile.length)
+            path = make_file(rcfile);
+        else
+            //FIXME: log that the rc is disabled
+            return;
+    } else {
+        path = get_home_directory();
+        path.appendRelativePath(".conkerorrc");
+        if (! path.exists())
+            //FIXME: log that ~/.conkerorrc does not exist
+            return;
     }
 
-    if (!file)
-        file = make_file(path);
+    if (path.isDirectory())
+        load_rc_directory(path);
+    else
+        load(path);
 
-    if (file instanceof Ci.nsILocalFile) {
-        path = file.path;
-        if (!file.exists())
-            throw interactive_error("File not found: " + path);
-    }
-    if (file instanceof Ci.nsIURI)
-        path = file.spec;
-
-    if (file instanceof Ci.nsILocalFile && file.isDirectory()) {
-        path += "/*.js";
-        load_rc_directory(file);
-    } else
-        load(file);
-
-    return path;
+    //FIXME: log the load instead of returning a value to be logged by the
+    //       caller.
+    if (path.isDirectory())
+        return path.path + "/*.js";
+    else
+        return path.path;
 }
 
 provide("rc");
