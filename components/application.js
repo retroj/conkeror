@@ -272,7 +272,13 @@ application.prototype = {
             return true;
         if (as === undefined)
             as = feature.replace('-', '_', 'g');
-        this.load(module, as);
+        try {
+            // ensure current path is not searched for 'require'
+            this.loading_paths.unshift(undefined);
+            this.load(module, as);
+        } finally {
+            this.loading_paths.shift();
+        }
         return true;
     },
     require_later: function (module, as) {

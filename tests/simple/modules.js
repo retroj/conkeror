@@ -19,6 +19,13 @@ walnut_run({
 walnut_run({
     suite_setup: function () {
         this._load_paths = load_paths;
+        this._loading_paths = loading_paths;
+        this._loading_urls = loading_urls;
+        this._loading_modules = loading_modules;
+        this._loading_features = loading_features;
+        this._pending_loads = pending_loads;
+        this._features = features;
+        this._after_load_functions = after_load_functions;
         this._load_url = load_url;
         var suite = this;
         load_url = function (url) {
@@ -29,8 +36,16 @@ walnut_run({
     suite_teardown: function () {
         load_paths = this._load_paths;
         load_url = this._load_url;
+        loading_paths = this._loading_paths;
+        loading_urls = this._loading_urls;
+        loading_modules = this._loading_modules;
+        loading_features = this._loading_features;
+        pending_loads = this._pending_loads;
+        features = this._features;
+        after_load_functions = this._after_load_functions;
     },
     setup: function () {
+        loading_paths = [];
         this.ob = [];
     },
     test_load_search_1__sans_extension: function () {
@@ -48,7 +63,7 @@ walnut_run({
              "chrome://conkeror/content/extensions/foo.js",
              "chrome://conkeror/content/page-modes/foo",
              "chrome://conkeror/content/page-modes/foo.js"],
-            this.ob.slice(-6));
+            this.ob);
     },
     test_load_search_2__with_extension: function () {
         load_paths = ["chrome://conkeror/content/",
@@ -62,7 +77,7 @@ walnut_run({
             ["chrome://conkeror/content/foo.js",
              "chrome://conkeror/content/extensions/foo.js",
              "chrome://conkeror/content/page-modes/foo.js"],
-            this.ob.slice(-3));
+            this.ob);
     },
     test_load_search_3__load_path_dups: function () {
         load_paths = ["chrome://conkeror/content/",
@@ -77,7 +92,18 @@ walnut_run({
             ["chrome://conkeror/content/foo.js",
              "chrome://conkeror/content/extensions/foo.js",
              "chrome://conkeror/content/page-modes/foo.js"],
-            this.ob.slice(-3));
+            this.ob);
+    },
+    test_load_search_4__require_skips_cur_dir: function () {
+        loading_paths = ["file:///foo/bar/baz/"];
+        load_paths = ["chrome://conkeror/content/"];
+        try {
+            require("foo.js");
+        } catch (e) {
+        }
+        assert_objects_equal(
+            ["chrome://conkeror/content/foo.js"],
+            this.ob);
     }
 });
 
