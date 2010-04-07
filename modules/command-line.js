@@ -165,7 +165,9 @@ function handle_command_line (cmdline) {
         if (! suppress_rc && initial_launch) {
             try {
                 load_rc();
-            } catch (e) { dump(e + "\n"); }
+            } catch (e) {
+                dump_error(e);
+            }
         } else if (suppress_rc && ! initial_launch) {
             dumpln("w: attempt to suppress loading of rc in remote invocation");
         }

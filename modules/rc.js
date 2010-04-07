@@ -9,16 +9,38 @@
 
 in_module(null);
 
-function load_rc_directory (file_o) {
-    var entries = file_o.directoryEntries;
-    var files = [];
-    while (entries.hasMoreElements()) {
-        var entry = entries.getNext();
-        entry.QueryInterface(Ci.nsIFile);
-        if (entry.leafName.substr(-3).toLowerCase() == '.js')
-            files.push(entry);
+let (default_rc = get_home_directory()) {
+    default_rc.appendRelativePath(".conkerorrc");
+    default_pref("conkeror.rcfile", default_rc.path);
+}
+
+function load_rc () {
+    var path;
+    var rcfile = get_pref("conkeror.rcfile");
+    if (rcfile.length == 0)
+        //FIXME: log that the rc is disabled
+        return;
+    path = make_file(rcfile);
+    if (! path.exists()) {
+        if (path.isSymlink())
+            dumpln("w: broken symlink, \""+rcfile+"\"");
+        else if (pref_has_user_value("conkeror.rcfile"))
+            dumpln("w: preference conkeror.rcfile is set to "+
+                   "non-existent path, \""+rcfile+"\"");
+        //FIXME: else log that the rc does not exist
+        return;
     }
-    files.sort(function (a, b) {
+    var files = [];
+    var ret;
+    if (path.isDirectory()) {
+        var entries = path.directoryEntries;
+        while (entries.hasMoreElements()) {
+            var entry = entries.getNext();
+            entry.QueryInterface(Ci.nsIFile);
+            if (entry.leafName.substr(-3).toLowerCase() == '.js')
+                files.push(entry);
+        }
+        files.sort(function (a, b) {
             if (a.leafName < b.leafName)
                 return -1;
             else if (a.leafName > b.leafName)
@@ -26,6 +48,12 @@ function load_rc_directory (file_o) {
             else
                 return 0;
         });
+        path.appendRelativePath("a");
+        ret = path.path.substr(0, path.path.length - 1) + "*.js";
+    } else {
+        files.push(path);
+        ret = path.path;
+    }
     for (var i = 0; files[i]; i++) {
         try {
             load(files[i]);
@@ -33,37 +61,9 @@ function load_rc_directory (file_o) {
             dump_error(e);
         }
     }
-}
-
-
-function load_rc () {
-    var path;
-    if (pref_has_user_value("conkeror.rcfile")) {
-        let rcfile = get_pref("conkeror.rcfile");
-        if (rcfile.length)
-            path = make_file(rcfile);
-        else
-            //FIXME: log that the rc is disabled
-            return;
-    } else {
-        path = get_home_directory();
-        path.appendRelativePath(".conkerorrc");
-        if (! path.exists())
-            //FIXME: log that ~/.conkerorrc does not exist
-            return;
-    }
-
-    if (path.isDirectory())
-        load_rc_directory(path);
-    else
-        load(path);
-
-    //FIXME: log the load instead of returning a value to be logged by the
-    //       caller.
-    if (path.isDirectory())
-        return path.path + "/*.js";
-    else
-        return path.path;
+    //FIXME: log what was loaded instead of returning the value to be
+    //       logged by the caller.
+    return ret;
 }
 
 provide("rc");
