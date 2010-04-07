@@ -12,7 +12,7 @@ COPYING file.
 
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload="Components.classes['@conkeror.mozdev.org/application;1']
-            .getService ()
+            .getService()
             .wrappedJSObject.window_initialize(this);"
     contenttitlesetting="false"
     title="Conkeror"

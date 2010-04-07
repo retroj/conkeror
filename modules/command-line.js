@@ -164,10 +164,10 @@ function handle_command_line (cmdline) {
 
         if (! suppress_rc && initial_launch) {
             try {
-                load_rc ();
-            } catch (e) { dump (e + "\n"); }
+                load_rc();
+            } catch (e) { dump(e + "\n"); }
         } else if (suppress_rc && ! initial_launch) {
-            dumpln ("w: attempt to suppress load_rc in remote invocation");
+            dumpln("w: attempt to suppress load_rc in remote invocation");
         }
         var ctx = new interactive_context();
         ctx.command_line = cmdline;
