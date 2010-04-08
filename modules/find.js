@@ -37,7 +37,7 @@ function getFocusedSelCtrl (buffer) {
     }
 
     // One last try
-    return ds
+    return buffer.doc_shell
         .QueryInterface(Ci.nsIInterfaceRequestor)
         .getInterface(Ci.nsISelectionDisplay)
         .QueryInterface(Ci.nsISelectionController);
