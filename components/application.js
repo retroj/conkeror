@@ -171,7 +171,7 @@ application.prototype = {
                     let si = module.lastIndexOf('/');
                     if (si > -1)
                         path += module.substr(0, si);
-                    if (tried[url] !== scope) {
+                    if (! tried[url] || tried[url] !== scope) {
                         tried[url] = scope;
                         load1.call(this, url, scope, path, as);
                         return;
@@ -227,7 +227,7 @@ application.prototype = {
             this.loading_features[0][symbol] = true;
     },
     featurep: function (symbol) {
-        return this.features[symbol];
+        return this.features[symbol] || false;
     },
     call_after_load: function (feature, func) {
         if (this.featurep(feature))
