@@ -137,6 +137,11 @@ function buffer (window, element) {
         } else
             buffer.set_input_mode();
     }, true);
+
+    this.browser.addEventListener("blur", function (event) {
+        buffer.set_input_mode();
+    }, true);
+
     this.modalities = [];
 
     this.override_keymaps = [];
