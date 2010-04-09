@@ -229,7 +229,7 @@ isearch_session.prototype = {
         if (node == null)
             return;
         do {
-            if (node.localName == "A") {
+            if (node.localName && node.localName.toLowerCase() == "a") {
                 if (node.hasAttributes && node.attributes.getNamedItem("href")) {
                     // if there is a selection, preserve it.  it is up
                     // to the caller to decide whether or not to keep
