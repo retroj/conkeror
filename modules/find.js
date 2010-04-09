@@ -66,13 +66,13 @@ function isearch_session (window, forward) {
     minibuffer_input_state.call(this, window, isearch_keymap, "");
 }
 isearch_session.prototype = {
-    constructor : isearch_session,
-    __proto__ : minibuffer_input_state.prototype,
+    constructor: isearch_session,
+    __proto__: minibuffer_input_state.prototype,
 
     get top () {
         return this.states[this.states.length - 1];
     },
-    _set_selection : function (range) {
+    _set_selection: function (range) {
         try {
             const selctrlcomp = Ci.nsISelectionController;
             var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
@@ -83,7 +83,7 @@ isearch_session.prototype = {
                                                   true);
         } catch(e) {/*FIXME:figure out if/why this is needed*/ dumpln("setSelection: " + e);}
     },
-    _clear_selection : function () {
+    _clear_selection: function () {
         const selctrlcomp = Ci.nsISelectionController;
         var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
         sel.removeAllRanges();
@@ -101,7 +101,7 @@ isearch_session.prototype = {
                     + (s.range ? "" : "Failing ")
                     + "I-Search" + (s.direction? "": " backward") + ":");
     },
-    _highlight_find : function (str, wrapped, dir, pt) {
+    _highlight_find: function (str, wrapped, dir, pt) {
         try {
             var doc = this.frame.document;
             var finder = (Cc["@mozilla.org/embedcomp/rangefind;1"]
@@ -149,7 +149,6 @@ isearch_session.prototype = {
             var retRange = null;
             var selectionRange = null;
 
-
             if (!wrapped) {
                 do {
                     retRange = finder.Find(str, searchRange, startPt, endPt);
@@ -184,8 +183,6 @@ isearch_session.prototype = {
             if (retRange) {
                 this._set_selection(retRange);
                 selectionRange = retRange.cloneRange();
-            } else {
-
             }
 
             return selectionRange;
@@ -193,7 +190,7 @@ isearch_session.prototype = {
         return null;
     },
 
-    find : function (str, dir, pt) {
+    find: function (str, dir, pt) {
         var s = this.top;
 
         if (str == null || str.length == 0)
@@ -224,14 +221,13 @@ isearch_session.prototype = {
         this.states.push(new_state);
     },
 
-    focus_link : function () {
+    focus_link: function () {
         var sel = this.frame.getSelection(Ci.nsISelectionController.SELECTION_NORMAL);
         if (!sel)
             return;
         var node = sel.focusNode;
         if (node == null)
             return;
-
         do {
             if (node.localName == "A") {
                 if (node.hasAttributes && node.attributes.getNamedItem("href")) {
@@ -240,9 +236,8 @@ isearch_session.prototype = {
                     // the selection.
                     var sel = this.frame.getSelection(
                         Ci.nsISelectionController.SELECTION_NORMAL);
-                    if(sel.rangeCount > 0) {
+                    if (sel.rangeCount > 0)
                         var stored_selection = sel.getRangeAt(0).cloneRange();
-                    }
                     node.focus();
                     if (stored_selection) {
                         sel.removeAllRanges();
@@ -254,30 +249,28 @@ isearch_session.prototype = {
         } while ((node = node.parentNode));
     },
 
-    collapse_selection : function() {
+    collapse_selection: function() {
         const selctrlcomp = Ci.nsISelectionController;
         var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
-        if(sel.rangeCount > 0) {
+        if (sel.rangeCount > 0)
             sel.getRangeAt(0).collapse(true);
-        }
     },
 
-    handle_input : function (m) {
+    handle_input: function (m) {
         m._set_selection();
         this.find(m._input_text, this.top.direction, this.top.point);
         this.restore_state();
     },
 
-    done : false,
+    done: false,
 
-    destroy : function (window) {
-        if (!this.done)  {
+    destroy: function (window) {
+        if (! this.done) {
             this.frame.scrollTo(this.states[0].screenx, this.states[0].screeny);
-            if (caret_enabled(this.buffer) && this.states[0].caret) {
+            if (caret_enabled(this.buffer) && this.states[0].caret)
                 this._set_selection(this.states[0].caret);
-            } else {
+            else
                 this._clear_selection();
-            }
         }
         minibuffer_input_state.prototype.destroy.call(this, window);
     }
@@ -293,7 +286,7 @@ function isearch_continue_noninteractively (window, direction) {
     s.restore_state();
     // if (direction && s.top.point !== null)
     //    isearch_continue (window, direction);
-    isearch_done (window, true);
+    isearch_done(window, true);
 }
 
 function isearch_continue (window, direction) {
