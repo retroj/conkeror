@@ -245,6 +245,27 @@ buffer.prototype = {
         return null;
     },
 
+    get focused_selection_controller () {
+        var child_docshells = this.doc_shell.getDocShellEnumerator(
+            Ci.nsIDocShellTreeItem.typeContent,
+            Ci.nsIDocShell.ENUMERATE_FORWARDS);
+        while (child_docshells.hasMoreElements()) {
+            let ds = child_docshells.getNext()
+                .QueryInterface(Ci.nsIDocShell);
+            if (ds.hasFocus) {
+                let display = ds.QueryInterface(Ci.nsIInterfaceRequestor)
+                    .getInterface(Ci.nsISelectionDisplay);
+                if (! display)
+                    return null;
+                return display.QueryInterface(Ci.nsISelectionController);
+            }
+        }
+        return this.doc_shell
+            .QueryInterface(Ci.nsIInterfaceRequestor)
+            .getInterface(Ci.nsISelectionDisplay)
+            .QueryInterface(Ci.nsISelectionController);
+    },
+
     do_command: function (command) {
         function attempt_command (element, command) {
             var controller;
@@ -720,7 +741,7 @@ interactive("shell-command", null,
 define_buffer_local_hook("unfocus_hook");
 function unfocus (window, buffer) {
     // 1. if there is a selection, clear it.
-    var selc = getFocusedSelCtrl(buffer);
+    var selc = buffer.focused_selection_controller;
     if (selc && selc.getSelection(selc.SELECTION_NORMAL).isCollapsed == false) {
         clear_selection(buffer);
         window.minibuffer.message("cleared selection");

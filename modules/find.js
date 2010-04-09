@@ -20,31 +20,9 @@ function caret_enabled (buffer) {
     return buffer.browser.getAttribute(CARET_ATTRIBUTE);
 }
 
-// turn on the selection in all frames
-function getFocusedSelCtrl (buffer) {
-    var ds = buffer.doc_shell;
-    var dsEnum = ds.getDocShellEnumerator(Ci.nsIDocShellTreeItem.typeContent,
-                                          Ci.nsIDocShell.ENUMERATE_FORWARDS);
-    while (dsEnum.hasMoreElements()) {
-        ds = dsEnum.getNext().QueryInterface(Ci.nsIDocShell);
-        if (ds.hasFocus) {
-            var display = ds.QueryInterface(Ci.nsIInterfaceRequestor)
-                .getInterface(Ci.nsISelectionDisplay);
-            if (!display)
-                return null;
-            return display.QueryInterface(Ci.nsISelectionController);
-        }
-    }
-
-    // One last try
-    return buffer.doc_shell
-        .QueryInterface(Ci.nsIInterfaceRequestor)
-        .getInterface(Ci.nsISelectionDisplay)
-        .QueryInterface(Ci.nsISelectionController);
-}
 
 function clear_selection (buffer) {
-    let sel_ctrl = getFocusedSelCtrl(buffer);
+    let sel_ctrl = buffer.focused_selection_controller;
     if (sel_ctrl) {
         let sel = sel_ctrl.getSelection(sel_ctrl.SELECTION_NORMAL);
         if (caret_enabled(buffer)) {
@@ -79,7 +57,7 @@ function isearch_session (window, forward) {
     this.states = [];
     this.buffer = window.buffers.current;
     this.frame = this.buffer.focused_frame;
-    this.sel_ctrl = getFocusedSelCtrl(this.buffer);
+    this.sel_ctrl = this.buffer.focused_selection_controller;
     this.sel_ctrl.setDisplaySelection(Ci.nsISelectionController.SELECTION_ATTENTION);
     this.sel_ctrl.repaintSelection(Ci.nsISelectionController.SELECTION_NORMAL);
     this.states.push(new initial_isearch_state(this.buffer, this.frame, forward));
