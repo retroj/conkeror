@@ -1,0 +1,30 @@
+#! /bin/bash
+
+# (C) Copyright 2010 John J. Foerch
+#
+# Use, modification, and distribution are subject to the terms specified in the
+# COPYING file.
+
+# This program lists the versions of XULRunner registered on the system, their
+# installation path, and whether they exist.
+
+versions=($(grep -h '^\[' "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null | sort -urV))
+for version in "${versions[@]}"; do
+    xrdir=$(grep -Fxh -A2 -m1 "$version" "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null |\
+            grep GRE_PATH |\
+            cut -d= -f2)
+    xulrunner="${xrdir%/}/xulrunner"
+    if [[ -x "$xulrunner" ]]; then
+        echo -n " "
+    else
+        echo -n "?"
+        missing=1
+    fi
+    echo -e " $version\t$xrdir"
+done
+
+if [[ -n "$missing" ]]; then
+    echo
+    echo "XULRunner versions marked with a ? are registered but not installed."
+    echo "They can be safely cleaned out of /etc/gre.d/ and ~/.gre.d/."
+fi
