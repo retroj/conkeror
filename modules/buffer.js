@@ -370,6 +370,8 @@ buffer_container.prototype = {
         else if (buffer.saved_focused_frame)
             set_focus_no_scroll(this.window, buffer.saved_focused_frame);
 
+        buffer.browser.focus();
+
         buffer.saved_focused_element = null;
         buffer.saved_focused_frame = null;
 

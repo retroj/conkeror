@@ -373,6 +373,7 @@ minibuffer.prototype = {
                     set_focus_no_scroll(this.window, this.saved_focused_element);
                 else if (this.saved_focused_frame)
                     set_focus_no_scroll(this.window, this.saved_focused_frame);
+                this.window.buffers.current.browser.focus();
                 this.saved_focused_element = null;
                 this.saved_focused_frame = null;
                 this._show(this.current_message || this.default_message);
