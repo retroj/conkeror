@@ -73,15 +73,13 @@ isearch_session.prototype = {
         return this.states[this.states.length - 1];
     },
     _set_selection: function (range) {
-        try {
-            const selctrlcomp = Ci.nsISelectionController;
-            var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
-            sel.removeAllRanges();
-            sel.addRange(range.cloneRange());
-            this.sel_ctrl.scrollSelectionIntoView(selctrlcomp.SELECTION_NORMAL,
-                                                  selctrlcomp.SELECTION_FOCUS_REGION,
-                                                  true);
-        } catch(e) {/*FIXME:figure out if/why this is needed*/ dumpln("setSelection: " + e);}
+        const selctrlcomp = Ci.nsISelectionController;
+        var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
+        sel.removeAllRanges();
+        sel.addRange(range.cloneRange());
+        this.sel_ctrl.scrollSelectionIntoView(selctrlcomp.SELECTION_NORMAL,
+                                              selctrlcomp.SELECTION_FOCUS_REGION,
+                                              true);
     },
     _clear_selection: function () {
         const selctrlcomp = Ci.nsISelectionController;
@@ -102,92 +100,89 @@ isearch_session.prototype = {
                     + "I-Search" + (s.direction? "": " backward") + ":");
     },
     _highlight_find: function (str, wrapped, dir, pt) {
-        try {
-            var doc = this.frame.document;
-            var finder = (Cc["@mozilla.org/embedcomp/rangefind;1"]
-                          .createInstance()
-                          .QueryInterface(Ci.nsIFind));
-            var searchRange;
-            var startPt;
-            var endPt;
-            var body = doc.documentElement;
+        var doc = this.frame.document;
+        var finder = (Cc["@mozilla.org/embedcomp/rangefind;1"]
+                      .createInstance()
+                      .QueryInterface(Ci.nsIFind));
+        var searchRange;
+        var startPt;
+        var endPt;
+        var body = doc.documentElement;
 
-            finder.findBackwards = !dir;
+        finder.findBackwards = !dir;
 
-            searchRange = doc.createRange();
-            startPt = doc.createRange();
-            endPt = doc.createRange();
+        searchRange = doc.createRange();
+        startPt = doc.createRange();
+        endPt = doc.createRange();
 
-            var count = body.childNodes.length;
+        var count = body.childNodes.length;
 
-            // Search range in the doc
-            searchRange.setStart(body,0);
-            searchRange.setEnd(body, count);
+        // Search range in the doc
+        searchRange.setStart(body,0);
+        searchRange.setEnd(body, count);
 
-            if (!dir) {
-                if (pt == null) {
-                    startPt.setStart(body, count);
-                    startPt.setEnd(body, count);
-                } else {
-                    startPt.setStart(pt.startContainer, pt.startOffset);
-                    startPt.setEnd(pt.startContainer, pt.startOffset);
-                }
-                endPt.setStart(body, 0);
-                endPt.setEnd(body, 0);
+        if (!dir) {
+            if (pt == null) {
+                startPt.setStart(body, count);
+                startPt.setEnd(body, count);
             } else {
-                if (pt == null) {
-                    startPt.setStart(body, 0);
-                    startPt.setEnd(body, 0);
-                } else {
-                    startPt.setStart(pt.endContainer, pt.endOffset);
-                    startPt.setEnd(pt.endContainer, pt.endOffset);
-                }
-                endPt.setStart(body, count);
-                endPt.setEnd(body, count);
+                startPt.setStart(pt.startContainer, pt.startOffset);
+                startPt.setEnd(pt.startContainer, pt.startOffset);
             }
-            // search the doc
-            var retRange = null;
-            var selectionRange = null;
-
-            if (!wrapped) {
-                do {
-                    retRange = finder.Find(str, searchRange, startPt, endPt);
-                    var keepSearching = false;
-                    if (retRange) {
-                        var sc = retRange.startContainer;
-                        var ec = retRange.endContainer;
-                        var scp = sc.parentNode;
-                        var ecp = ec.parentNode;
-                        var sy1 = abs_point(scp).y;
-                        var ey2 = abs_point(ecp).y + ecp.offsetHeight;
-
-                        startPt = retRange.startContainer.ownerDocument.createRange();
-                        if (!dir) {
-                            startPt.setStart(retRange.startContainer, retRange.startOffset);
-                            startPt.setEnd(retRange.startContainer, retRange.startOffset);
-                        } else {
-                            startPt.setStart(retRange.endContainer, retRange.endOffset);
-                            startPt.setEnd(retRange.endContainer, retRange.endOffset);
-                        }
-                        // We want to find a match that is completely
-                        // visible, otherwise the view will scroll just a
-                        // bit to fit the selection in completely.
-                        keepSearching = (dir && sy1 < this.frame.scrollY)
-                            || (!dir && ey2 >= this.frame.scrollY + this.frame.innerHeight);
-                    }
-                } while (retRange && keepSearching);
+            endPt.setStart(body, 0);
+            endPt.setEnd(body, 0);
+        } else {
+            if (pt == null) {
+                startPt.setStart(body, 0);
+                startPt.setEnd(body, 0);
             } else {
+                startPt.setStart(pt.endContainer, pt.endOffset);
+                startPt.setEnd(pt.endContainer, pt.endOffset);
+            }
+            endPt.setStart(body, count);
+            endPt.setEnd(body, count);
+        }
+        // search the doc
+        var retRange = null;
+        var selectionRange = null;
+
+        if (!wrapped) {
+            do {
                 retRange = finder.Find(str, searchRange, startPt, endPt);
-            }
+                var keepSearching = false;
+                if (retRange) {
+                    var sc = retRange.startContainer;
+                    var ec = retRange.endContainer;
+                    var scp = sc.parentNode;
+                    var ecp = ec.parentNode;
+                    var sy1 = abs_point(scp).y;
+                    var ey2 = abs_point(ecp).y + ecp.offsetHeight;
 
-            if (retRange) {
-                this._set_selection(retRange);
-                selectionRange = retRange.cloneRange();
-            }
+                    startPt = retRange.startContainer.ownerDocument.createRange();
+                    if (!dir) {
+                        startPt.setStart(retRange.startContainer, retRange.startOffset);
+                        startPt.setEnd(retRange.startContainer, retRange.startOffset);
+                    } else {
+                        startPt.setStart(retRange.endContainer, retRange.endOffset);
+                        startPt.setEnd(retRange.endContainer, retRange.endOffset);
+                    }
+                    // We want to find a match that is completely
+                    // visible, otherwise the view will scroll just a
+                    // bit to fit the selection in completely.
+                    keepSearching = (dir && sy1 < this.frame.scrollY)
+                        || (!dir && ey2 >= this.frame.scrollY + this.frame.innerHeight);
+                }
+            } while (retRange && keepSearching);
+        } else {
+            retRange = finder.Find(str, searchRange, startPt, endPt);
+        }
 
-            return selectionRange;
-        } catch(e) { /* FIXME: figure out why this is needed*/ this.window.alert(e); }
-        return null;
+        if (retRange) {
+            this._set_selection(retRange);
+            selectionRange = retRange.cloneRange();
+        }
+
+        return selectionRange;
     },
 
     find: function (str, dir, pt) {
