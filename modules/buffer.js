@@ -157,8 +157,7 @@ buffer.prototype = {
     /* Saved focus state */
     saved_focused_frame: null,
     saved_focused_element: null,
-    on_switch_to: null,
-    on_switch_away: null,
+
     // get title ()   [must be defined by subclasses]
     // get name ()    [must be defined by subclasses]
     dead: false, /* This is set when the buffer is killed */
