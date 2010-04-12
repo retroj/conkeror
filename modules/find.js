@@ -21,20 +21,6 @@ function caret_enabled (buffer) {
 }
 
 
-function clear_selection (buffer) {
-    let sel_ctrl = buffer.focused_selection_controller;
-    if (sel_ctrl) {
-        let sel = sel_ctrl.getSelection(sel_ctrl.SELECTION_NORMAL);
-        if (caret_enabled(buffer)) {
-            if (sel.anchorNode)
-                sel.collapseToStart();
-        } else {
-            sel.removeAllRanges();
-        }
-    }
-}
-
-
 function initial_isearch_state (buffer, frame, forward) {
     this.screenx = frame.scrollX;
     this.screeny = frame.scrollY;

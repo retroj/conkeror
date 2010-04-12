@@ -313,6 +313,20 @@ function check_buffer (obj, type) {
     return obj;
 }
 
+function clear_selection (buffer) {
+    let sel_ctrl = buffer.focused_selection_controller;
+    if (sel_ctrl) {
+        let sel = sel_ctrl.getSelection(sel_ctrl.SELECTION_NORMAL);
+        if (caret_enabled(buffer)) {
+            if (sel.anchorNode)
+                sel.collapseToStart();
+        } else {
+            sel.removeAllRanges();
+        }
+    }
+}
+
+
 function buffer_container (window, create_initial_buffer) {
     this.window = window;
     this.container = window.document.getElementById("buffer-container");
