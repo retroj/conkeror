@@ -313,6 +313,10 @@ function check_buffer (obj, type) {
     return obj;
 }
 
+function caret_enabled (buffer) {
+    return buffer.browser.getAttribute('showcaret');
+}
+
 function clear_selection (buffer) {
     let sel_ctrl = buffer.focused_selection_controller;
     if (sel_ctrl) {

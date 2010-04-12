@@ -10,15 +10,9 @@
 
 in_module(null);
 
-const CARET_ATTRIBUTE = 'showcaret';
-
 define_variable("isearch_keep_selection", false,
     "Set to `true' to make isearch leave the selection visible when a "+
     "search is completed.");
-
-function caret_enabled (buffer) {
-    return buffer.browser.getAttribute(CARET_ATTRIBUTE);
-}
 
 
 function initial_isearch_state (buffer, frame, forward) {
