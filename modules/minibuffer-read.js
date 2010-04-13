@@ -19,7 +19,7 @@ define_variable("minibuffer_auto_complete_default", false,
     "The user variable `minibuffer_auto_complete_preferences' "+
     "overrides this.");
 
-var minibuffer_history_data = new string_hashmap();
+var minibuffer_history_data = {};
 
 /* FIXME: These should possibly be saved to disk somewhere */
 define_variable("minibuffer_history_max_items", 100,
@@ -54,7 +54,8 @@ function text_entry_minibuffer_state (window, continuation) {
 
     this.continuation = continuation;
     if (arguments.$history) {
-        this.history = minibuffer_history_data.get_put_default(arguments.$history, []);
+        this.history = minibuffer_history_data[arguments.$history] =
+            minibuffer_history_data[arguments.$history] || [];
         this.history_index = -1;
         this.saved_last_history_entry = null;
     }
