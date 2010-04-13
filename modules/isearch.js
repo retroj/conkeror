@@ -325,4 +325,4 @@ function isearch_done (window, keep_selection) {
 interactive("isearch-done", null,
             function (I) { isearch_done(I.window); });
 
-provide("find");
+provide("isearch");

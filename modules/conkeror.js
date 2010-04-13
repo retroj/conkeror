@@ -64,7 +64,7 @@ require("save.js", null);
 require("zoom.js", null);
 require("follow-relationship.js", null);
 
-require("find.js", null);
+require("isearch.js", null);
 
 require("hints.js", null);
 
