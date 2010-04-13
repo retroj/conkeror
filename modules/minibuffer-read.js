@@ -101,7 +101,7 @@ completions_tree_view.prototype = {
             return 0;
         return c.count;
     },
-    getCellText : function (row,column) {
+    getCellText: function (row,column) {
         var c = this.minibuffer_state.completions;
         if (row >= c.count)
             return null;
@@ -111,7 +111,7 @@ completions_tree_view.prototype = {
             return c.get_description(row);
         return "";
     },
-    setTree : function (treebox) { this.treebox = treebox; },
+    setTree: function (treebox) { this.treebox = treebox; },
     isContainer: function (row) { return false; },
     isSeparator: function (row) { return false; },
     isSorted: function () { return false; },
@@ -130,7 +130,7 @@ completions_tree_view.prototype = {
 // inherit from basic_minibuffer_state
 text_entry_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
-    load : function (window) {
+    load: function (window) {
         basic_minibuffer_state.prototype.load.call(this, window);
         this.window = window;
         if (this.completer) {
@@ -172,18 +172,17 @@ text_entry_minibuffer_state.prototype = {
                 if (this.auto_complete_initial)
                     this.handle_input();
             }
-
             this.update_completions_display();
         }
     },
 
-    unload : function (window) {
+    unload: function (window) {
         if (this.completions_display_element)
             this.completions_display_element.setAttribute("collapsed", "true");
         basic_minibuffer_state.prototype.unload.call(this, window);
     },
 
-    destroy : function (window) {
+    destroy: function (window) {
         if (this.completions != null && this.completions.destroy)
             this.completions.destroy();
         delete this.completions;
@@ -201,7 +200,7 @@ text_entry_minibuffer_state.prototype = {
         basic_minibuffer_state.prototype.destroy.call(this, window);
     },
 
-    handle_input : function () {
+    handle_input: function () {
         if (!this.completer) return;
 
         this.completions_valid = false;
@@ -220,18 +219,15 @@ text_entry_minibuffer_state.prototype = {
                 }, this.auto_complete_delay);
             return;
         }
-
         s.update_completions(true /* auto */, true /* update completions display */);
     },
 
-    ran_minibuffer_command : function () {
+    ran_minibuffer_command: function () {
         this.handle_input();
     },
 
-    update_completions_display : function () {
-
+    update_completions_display: function () {
         var m = this.window.minibuffer;
-
         if (m.current_state == this) {
             if (this.completions && this.completions.count > 0) {
                 this.completions_display_element.view = this.completions_display_element.view;
@@ -247,8 +243,7 @@ text_entry_minibuffer_state.prototype = {
 
     /* If auto is true, this update is due to auto completion, rather
      * than specifically requested. */
-    update_completions : function (auto, update_display) {
-
+    update_completions: function (auto, update_display) {
         if (this.completions_timer_ID != null) {
             this.window.clearTimeout(this.completions_timer_ID);
             this.completions_timer_ID = null;
@@ -288,8 +283,7 @@ text_entry_minibuffer_state.prototype = {
             this.update_completions_done(c, update_display);
     },
 
-    update_completions_done : function update_completions_done (c, update_display) {
-
+    update_completions_done: function (c, update_display) {
         /* The completer should return undefined if completion was not
          * attempted due to auto being true.  Otherwise, it can return
          * null to indicate no completions. */
@@ -322,7 +316,7 @@ text_entry_minibuffer_state.prototype = {
             this.update_completions_display();
     },
 
-    select_completion : function (i) {
+    select_completion: function (i) {
         this.selected_completion_index = i;
         this.completions_display_element.currentIndex = i;
         if (i >= 0)
@@ -330,7 +324,7 @@ text_entry_minibuffer_state.prototype = {
         this.handle_completion_selected();
     },
 
-    handle_completion_selected : function () {
+    handle_completion_selected: function () {
         /**
          * When a completion is selected, apply it to the input text
          * if a match is not "required"; otherwise, the completion is
@@ -458,9 +452,8 @@ function minibuffer_history_next (window, count) {
     var index = s.history_index;
     if (count > 0 && index == -1)
         throw interactive_error("End of history; no next item");
-    else if (count < 0 && index == 0) {
+    else if (count < 0 && index == 0)
         throw interactive_error("Beginning of history; no preceding item");
-    }
     if (index == -1) {
         s.saved_last_history_entry = m._input_text;
         index = s.history.length + count;
@@ -524,7 +517,7 @@ minibuffer.prototype.read_user_variable = function () {
     yield co_return(result);
 };
 
-minibuffer.prototype.read_preference = function minibuffer__read_preference () {
+minibuffer.prototype.read_preference = function () {
     keywords(arguments,
              $prompt = "Preference:", $history = "preference",
              $completer = prefix_completer(
