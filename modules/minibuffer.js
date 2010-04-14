@@ -263,7 +263,7 @@ minibuffer.prototype = {
     },
 
     get current_state () {
-        if (this.states.length == 0)
+        if (! this.states[0])
             return null;
         return this.states[this.states.length - 1];
     },
