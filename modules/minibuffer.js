@@ -281,8 +281,9 @@ minibuffer.prototype = {
     },
 
     pop_all: function () {
-        while (this.states.length > 0) {
-            this.current_state.destroy(this.window);
+        var state;
+        while ((state = this.current_state)) {
+            state.destroy(this.window);
             this.states.pop();
         }
     },
