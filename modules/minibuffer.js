@@ -144,7 +144,9 @@ function basic_minibuffer_state (window) {
                                 arguments.$prompt, initial_value,
                                 sel_start, sel_end);
 }
-basic_minibuffer_state.prototype.__proto__ = minibuffer_input_state.prototype;
+basic_minibuffer_state.prototype = {
+    __proto__: minibuffer_input_state.prototype
+};
 
 
 define_variable("minibuffer_input_mode_show_message_timeout", 1000,
