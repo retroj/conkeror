@@ -241,10 +241,13 @@ minibuffer.prototype = {
     message: function (str) {
         /* TODO: add the message to a *Messages* buffer, and/or
          * possibly dump them to the console. */
-        this.show(str, true /* force */);
-
-        if (str.length > 0 && this.active)
-            this._flash_temporary_message();
+        if (str == "")
+            this.clear();
+        else {
+            this.show(str, true /* force */);
+            if (this.active)
+                this._flash_temporary_message();
+        }
     },
 
     clear: function () {
