@@ -229,7 +229,7 @@ minibuffer.prototype = {
         }
     },
 
-    _show: function (str, force) {
+    _show: function (str) {
         if (this.last_message != str) {
             this.output_element.value = str;
             this.last_message = str;
