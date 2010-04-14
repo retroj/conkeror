@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+(C) Copyright 2004-2007 Shawn Betts
+(C) Copyright 2007-2010 John J. Foerch
+(C) Copyright 2007-2008 Jeremy Maitin-Shepard
+
+Use, modification, and distribution are subject to the terms specified in the
+COPYING file.
+-->
+<overlay
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:html="http://www.w3.org/1999/xhtml">
+  <window>
+    <hbox id="minibuffer" minibuffermode="message">
+      <label class="minibuffer" id="minibuffer-message" flex="1" crop="right" value=""/>
+      <label class="minibuffer" id="minibuffer-prompt" crop="left" value=""/>
+      <textbox class="plain" id="minibuffer-input" flex="1"/>
+    </hbox>
+  </window>
+</overlay>

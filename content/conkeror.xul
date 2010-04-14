@@ -7,9 +7,8 @@
 Use, modification, and distribution are subject to the terms specified in the
 COPYING file.
 -->
-
 <?xml-stylesheet href="chrome://conkeror-gui/skin/window.css" type="text/css"?>
-
+<?xul-overlay href="chrome://conkeror-gui/content/minibuffer.xul"?>
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload="Components.classes['@conkeror.mozdev.org/application;1']
             .getService()
@@ -48,16 +47,9 @@ COPYING file.
 
   <panel id="popup_autocomplete" type="autocomplete" noautofocus="true"/>
 
-  <vbox flex="1">
-    <deck flex="1" id="buffer-container">
-      <vbox flex="1">
-        <browser flex="1" type="content-primary" disablehistory="true" autocompletepopup="popup_autocomplete"/>
-      </vbox>
-    </deck>
-    <hbox id="minibuffer" minibuffermode="message">
-      <label class="minibuffer" id="minibuffer-message" flex="1" crop="right" value=""/>
-      <label class="minibuffer" id="minibuffer-prompt" crop="left" value=""/>
-      <textbox class="plain" id="minibuffer-input" flex="1"/>
-    </hbox>
-  </vbox>
+  <deck flex="1" id="buffer-container">
+    <vbox flex="1">
+      <browser flex="1" type="content-primary" disablehistory="true" autocompletepopup="popup_autocomplete"/>
+    </vbox>
+  </deck>
 </window>
