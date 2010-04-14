@@ -311,8 +311,9 @@ minibuffer.prototype = {
     _message_timer_ID: null,
 
     /* This must only be called if _input_mode_enabled is true */
-    //XXX: if it must only be called if _input_mode_enabled is true,
-    //     then why does it have an else condition?
+    //XXX: if it must only be called if _input_mode_enabled is true, then
+    //     why does it have an else condition for handling
+    //     minibuffer_message_state states?
     _restore_normal_state: function () {
         if (this._showing_message) {
             this.window.clearTimeout(this._message_timer_ID);
