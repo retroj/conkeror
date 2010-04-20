@@ -1,8 +1,19 @@
+conkeror (0.9.2+git100420-2) unstable; urgency=low
+
+  * The "forgotten details" upload
+  * Add appropriate NEWS entry with breaking changes for last upload.
+  * Renamed NEWS.Debian in the source package so that it will be
+    automatically installed as NEWS.Debian.
+  * Add "mentions Conkeror in the user agent string" to last changelog entry.
+
+ -- Axel Beckert <abe@debian.org>  Tue, 20 Apr 2010 23:34:00 +0200
+
 conkeror (0.9.2+git100420-1) unstable; urgency=low
 
   * New upstream snapshot
     - many xulrunner 1.9.2 compatibility fixes
     - minibuffer overhaul
+    - mentions "Conkeror" in the user agent string
 
  -- Axel Beckert <abe@debian.org>  Tue, 20 Apr 2010 17:42:01 +0200
 

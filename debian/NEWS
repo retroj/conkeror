@@ -1,3 +1,24 @@
+conkeror (0.9.1+git100317-2) unstable; urgency=low
+
+  * Function load_rc no longer supports loading arbitrary js files. Use
+    load instead.
+
+  * Function load_rc_file removed. Use load instead.
+
+  * call_after_load now takes a feature name, not a filename. In general
+    this simply means trimming off any ".js" extension.
+
+  * Modules API overhaul (already included in 0.9.2-1 and caused the
+    uploads 0.9.2+git100324-1 and -2):
+    - Modules should have an in_module assertion as their first
+      expression. For modules to be loaded directly into application
+      scope, it should be in_module(null);
+    - Modules should have as their last expression a provide call, like
+      provide("feature"); where "feature" is the name of the feature
+      provided by the module.
+
+ -- Axel Beckert <abe@debian.org>  Tue, 20 Apr 2010 23:38:49 +0200
+
 conkeror (0.9.1+git100317-1) unstable; urgency=low
 
   * emacswiki webjump removed. better version posted on
