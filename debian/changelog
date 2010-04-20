@@ -1,3 +1,11 @@
+conkeror (0.9.2+git100420-1) unstable; urgency=low
+
+  * New upstream snapshot
+    - many xulrunner 1.9.2 compatibility fixes
+    - minibuffer overhaul
+
+ -- Axel Beckert <abe@debian.org>  Tue, 20 Apr 2010 17:42:01 +0200
+
 conkeror (0.9.2+git100324-2) unstable; urgency=low
 
   * Further adaptions of the debian webjumps to the new module system as
