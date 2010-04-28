@@ -800,6 +800,16 @@ interactive("view-as-mime-type",
         view_as_mime_type_new_window),
     $browser_object = browser_object_frames);
 
+
+interactive("delete",
+    "Delete a DOM node, given as a browser object.",
+    function (I) {
+        var elem = yield read_browser_object(I);
+        elem.parentNode.removeChild(elem);
+    },
+    $browser_object = browser_object_dom_node);
+
+
 interactive("charset-prefix",
     "A prefix command that prompts for a charset to use in a "+
     "subsequent navigation command.",
