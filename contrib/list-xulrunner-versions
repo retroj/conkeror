@@ -8,7 +8,7 @@
 # This program lists the versions of XULRunner registered on the system, their
 # installation path, and whether they exist.
 
-versions=$(grep -h '^\[' "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null | sort -urV)
+versions=$(grep -h '^\[' "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null | sort -u)
 for version in ${versions}; do
     xrdir=$(grep -Fxh -A2 -m1 "$version" "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null |\
             grep GRE_PATH |\
