@@ -855,8 +855,8 @@ define_variable("download_buffer_automatic_open_target",
     "called with universal-argument.");
 
 
-function open_download_buffer_automatically (info, target) {
-    var buf = info.source_buffer;
+function open_download_buffer_automatically (info, target, buffer) {
+    var buf = buffer || info.source_buffer;
     if (target == null) {
         if (typeof(download_buffer_automatic_open_target) == "object")
             target = download_buffer_automatic_open_target[0];
@@ -921,7 +921,8 @@ interactive("download-show",
             target = download_buffer_automatic_open_target[1];
         open_download_buffer_automatically(
             (yield I.minibuffer.read_download($prompt = "Show download:")),
-            target);
+            target,
+            I.buffer);
     });
 
 provide("download-manager");
