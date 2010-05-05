@@ -15,11 +15,6 @@ require("minibuffer-read-mime-type.js");
 var download_manager_service = Cc["@mozilla.org/download-manager;1"]
     .getService(Ci.nsIDownloadManager);
 
-var download_manager_builtin_ui = Components
-    .classesByID["{7dfdf0d1-aff6-4a34-bad1-d0fe74601642}"]
-    .getService(Ci.nsIDownloadManagerUI);
-
-
 var unmanaged_download_info_list = [];
 var id_to_download_info = {};
 
@@ -830,12 +825,13 @@ download_manager_ui.prototype = {
 };
 
 
-function download_manager_show_builtin_ui (window) {
-    download_manager_builtin_ui.show(window);
-}
 interactive("download-manager-show-builtin-ui",
-            "Show the built-in (Firefox-style) download manager user interface.",
-            function (I) {download_manager_show_builtin_ui(I.window);});
+    "Show the built-in (Firefox-style) download manager user interface.",
+    function (I) {
+        Components.classesByID["{7dfdf0d1-aff6-4a34-bad1-d0fe74601642}"]
+            .getService(Ci.nsIDownloadManagerUI)
+            .show(I.window);
+    });
 
 
 define_variable("download_temporary_file_open_buffer_delay", 500,
