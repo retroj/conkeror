@@ -525,7 +525,7 @@ function key_binding_reader (window, continuation) {
     if (arguments.$keymap)
         this.target_keymap = arguments.$keymap;
     else
-        this.target_keymap = get_current_keymaps(window);
+        this.target_keymap = get_current_keymaps(window).slice();
 
     this.key_sequence = [];
 
