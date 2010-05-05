@@ -516,7 +516,7 @@ function define_fallthrough (keymap, predicate) {
 define_keymap("key_binding_reader_keymap");
 define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
 
-define_keywords("$buffer", "$keymap");
+define_keywords("$keymap");
 function key_binding_reader (window, continuation) {
     keywords(arguments, $prompt = "Describe key:");
 
@@ -524,10 +524,8 @@ function key_binding_reader (window, continuation) {
 
     if (arguments.$keymap)
         this.target_keymap = arguments.$keymap;
-    else {
-        var buffer = arguments.$buffer;
+    else
         this.target_keymap = get_current_keymaps(window);
-    }
 
     this.key_sequence = [];
 

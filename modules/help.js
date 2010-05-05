@@ -603,12 +603,12 @@ function describe_key (buffer, key_info, target) {
 }
 function describe_key_new_buffer (I) {
     describe_key(I.buffer,
-                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
+                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:")),
                  OPEN_NEW_BUFFER);
 }
 function describe_key_new_window (I) {
     describe_key(I.buffer,
-                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)),
+                 (yield I.minibuffer.read_key_binding($prompt = "Describe key:")),
                  OPEN_NEW_WINDOW);
 }
 
@@ -639,7 +639,7 @@ interactive("describe-key-briefly", null,
     function (I) {
         describe_key_briefly(
             I.buffer,
-            (yield I.minibuffer.read_key_binding($prompt = "Describe key:", $buffer = I.buffer)));
+            (yield I.minibuffer.read_key_binding($prompt = "Describe key:")));
     });
 
 
