@@ -826,7 +826,7 @@ download_manager_ui.prototype = {
 
 
 interactive("download-manager-show-builtin-ui",
-    "Show the built-in (Firefox-style) download manager user interface.",
+    "Show the built-in (Firefox-style) download manager window.",
     function (I) {
         Components.classesByID["{7dfdf0d1-aff6-4a34-bad1-d0fe74601642}"]
             .getService(Ci.nsIDownloadManagerUI)
