@@ -834,6 +834,10 @@ interactive("download-manager-show-builtin-ui",
     });
 
 
+/*
+ * Download-show
+ */ 
+
 define_variable("download_temporary_file_open_buffer_delay", 500,
     "Delay (in milliseconds) before a download buffer is opened for "+
     "temporary downloads.  If the download completes before this amount "+
@@ -841,51 +845,11 @@ define_variable("download_temporary_file_open_buffer_delay", 500,
     "effect only if `open_download_buffer_automatically' is in "+
     "`download_added_hook', which is the case by default.");
 
-
-define_variable("download_buffer_automatic_open_target",
-                [OPEN_NEW_WINDOW, OPEN_NEW_BUFFER_BACKGROUND],
+define_variable("download_buffer_automatic_open_target", OPEN_NEW_WINDOW,
     "Target(s) for download buffers created by "+
-    "`open_download_buffer_automatically' and `download-show'.\n"+
-    "It can be a single target or an array of two targets.  When it is an "+
-    "array, the `download-show' command will use the second target when "+
-    "called with universal-argument.");
-
-
-function open_download_buffer_automatically (info, target, buffer) {
-    var buf = buffer || info.source_buffer;
-    if (target == null) {
-        if (typeof(download_buffer_automatic_open_target) == "object")
-            target = download_buffer_automatic_open_target[0];
-        else
-            target = download_buffer_automatic_open_target;
-    }
-    if (buf == null)
-        target = OPEN_NEW_WINDOW;
-    if (info.temporary_status == DOWNLOAD_NOT_TEMPORARY ||
-        download_temporary_file_open_buffer_delay == 0)
-    {
-        create_buffer(buf.window, buffer_creator(download_buffer, $info = info), target);
-    } else {
-        var timer = null;
-        function finish () {
-            timer.cancel();
-        }
-        add_hook.call(info, "download_finished_hook", finish);
-        timer = call_after_timeout(function () {
-                remove_hook.call(info, "download_finished_hook", finish);
-                create_buffer(buf.window, buffer_creator(download_buffer, $info = info), target);
-            }, download_temporary_file_open_buffer_delay);
-    }
-}
-add_hook("download_added_hook", open_download_buffer_automatically);
-
-
-/*
- * Download-show
- */ 
+    "`open_download_buffer_automatically'.");
 
 minibuffer_auto_complete_preferences.download = true;
-
 minibuffer.prototype.read_download = function () {
     keywords(arguments,
              $prompt = "Download",
@@ -907,18 +871,52 @@ minibuffer.prototype.read_download = function () {
     yield co_return(result);
 };
 
+function download_show (window, target, info) {
+    if (! window)
+        target = OPEN_NEW_WINDOW;
+    create_buffer(window, buffer_creator(download_buffer, $info = info), target);
+}
+
+function download_show_new_window (I) {
+    var info = yield I.minibuffer.read_download($prompt = "Show download:");
+    download_show(I.window, OPEN_NEW_WINDOW, info);
+}
+
+function download_show_new_buffer (I) {
+    var info = yield I.minibuffer.read_download($prompt = "Show download:");
+    download_show(I.window, OPEN_NEW_BUFFER, info);
+}
+
+function download_show_new_buffer_background (I) {
+    var info = yield I.minibuffer.read_download($prompt = "Show download:");
+    download_show(I.window, OPEN_NEW_BUFFER_BACKGROUND, info);
+}
+
+function open_download_buffer_automatically (info) {
+    var buf = info.source_buffer;
+    var target = download_buffer_automatic_open_target;
+    if (info.temporary_status == DOWNLOAD_NOT_TEMPORARY ||
+        download_temporary_file_open_buffer_delay == 0)
+    {
+        download_show(buf.window, target, info);
+    } else {
+        var timer = null;
+        function finish () {
+            timer.cancel();
+        }
+        add_hook.call(info, "download_finished_hook", finish);
+        timer = call_after_timeout(function () {
+                remove_hook.call(info, "download_finished_hook", finish);
+                download_show(buf.window, target, info);
+            }, download_temporary_file_open_buffer_delay);
+    }
+}
+add_hook("download_added_hook", open_download_buffer_automatically);
+
 interactive("download-show",
     "Prompt for an ongoing download and open a download buffer showing "+
-    "its progress.  When called with universal argument, the second "+
-    "target from `download_buffer_automatic_open_target' will be used.",
-    function (I) {
-        var target = null;
-        if (I.P && typeof(download_buffer_automatic_open_target) == "object")
-            target = download_buffer_automatic_open_target[1];
-        open_download_buffer_automatically(
-            (yield I.minibuffer.read_download($prompt = "Show download:")),
-            target,
-            I.buffer);
-    });
+    "its progress.",
+    alternates(download_show_new_buffer,
+               download_show_new_window));
 
 provide("download-manager");
