@@ -46,6 +46,20 @@ function load_url_in_new_buffer (url, ctx) {
 }
 
 /*
+ * load_url_in_new_buffer_background is a function intended for use as a
+ * value of `url_remoting_fn'.  Every url given on the command line will
+ * be loaded in a new background buffer in the most recently used window,
+ * or a new window if none exist.
+ */
+function load_url_in_new_buffer_background (url, ctx) {
+    create_buffer_in_current_window(
+        buffer_creator(content_buffer,
+                       $opener = ctx,
+                       $load = url),
+        OPEN_NEW_BUFFER_BACKGROUND, true /* focus the new window */);
+}
+
+/*
  * load_url_in_current_buffer is a function intended for use
  * as a value of `url_remoting_fn'.  Every url given on the
  * command line will be loaded in the current buffer of the
