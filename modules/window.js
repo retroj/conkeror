@@ -107,7 +107,9 @@ function for_each_window (func) {
 }
 
 function get_recent_conkeror_window () {
-    var window = window_watcher.activeWindow;
+    var wm = Cc['@mozilla.org/appshell/window-mediator;1']
+       .getService(Ci.nsIWindowMediator);
+    var window = wm.getMostRecentWindow("navigator:browser");
     if (window && ("conkeror" in window))
         return window;
     var en = window_watcher.getWindowEnumerator();
