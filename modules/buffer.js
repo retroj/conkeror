@@ -779,7 +779,10 @@ function unfocus (window, buffer) {
         window.minibuffer.message("unfocused element");
         return;
     }
-    // 3. return focus to top-frame from subframes and plugins.
+    // 3. if an iframe has focus, we must blur it.
+    if (buffer.focused_frame_or_null)
+        buffer.focused_frame_or_null.frameElement.blur();
+    // 4. return focus to top-frame from subframes and plugins.
     buffer.top_frame.focus();
     buffer.top_frame.focus(); // needed to get focus back from plugins
     window.minibuffer.message("refocused top frame");
