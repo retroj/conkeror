@@ -593,7 +593,9 @@ function browser_object_view_source (buffer, target, elem) {
             browser_object_follow(buffer, target, "view-source:" + url_s);
         } catch(e) { dump_error(e); }
     } else {
-        window.minibuffer.message ("Already viewing source");
+        try {
+            browser_object_follow(buffer, target, url_s.replace(/^view-source\:/, ''));
+        } catch(e) { dump_error(e); }
     }
 }
 
