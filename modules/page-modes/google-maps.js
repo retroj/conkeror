@@ -10,9 +10,9 @@ in_module(null);
 require("content-buffer.js");
 
 
-function google_maps_control(buffer, control) {
+function google_maps_control(buffer, xpath) {
     var doc = buffer.document;
-    let iter = doc.evaluate("//div[@log='" + control + "']",
+    let iter = doc.evaluate(xpath,
                             doc,
                             xpath_lookup_namespace,
                             Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE ,
@@ -26,31 +26,17 @@ function google_maps_control(buffer, control) {
 
 function define_google_maps_command(name, doc, control) {
     interactive("google-maps-" + name, doc, function(I) {
-                google_maps_control(I.buffer, control);
+                google_maps_control(I.buffer, "//div[@log='" + control + "']");
                 });
 }
 ignore_function_for_get_caller_source_code_reference("define_google_maps_command");
 
-function google_maps_zoom_control(buffer, control_container) {
+function define_google_maps_zoom_command(name, doc, control_container) {
     // In order to find the right element, this function abuses the fact
     // that google provides mouse-over text for the buttons in the
     // interface.
-    var doc = buffer.document;
-    let iter = doc.evaluate("//div[@id='" + control_container + "']/div[@title]",
-                            doc,
-                            xpath_lookup_namespace,
-                            Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE ,
-                            null);
-    let node = iter.singleNodeValue;
-    if(node) {
-       var rect = node.getBoundingClientRect();
-       dom_node_click(node, rect.left + 1, rect.top + 1);
-    }
-}
-
-function define_google_maps_zoom_command(name, doc, zoom_control) {
     interactive("google-maps-" + name, doc, function(I) {
-                google_maps_zoom_control(I.buffer, zoom_control);
+                google_maps_control(I.buffer, "//div[@id='" + control_container + "']/div[@title]");
        });
 }
 
