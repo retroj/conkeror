@@ -64,4 +64,5 @@ define_key(content_buffer_text_keymap, "M-l", "downcase-word");
 define_key(content_buffer_text_keymap, "M-u", "upcase-word");
 define_key(content_buffer_text_keymap, "M-c", "capitalize-word");
 define_key(content_buffer_text_keymap, "C-i", "edit-current-field-in-external-editor");
+define_key(content_buffer_text_keymap, "C-x x", "edit-current-field-in-external-editor");
 define_key(content_buffer_text_keymap, "C-t", "transpose-chars");
