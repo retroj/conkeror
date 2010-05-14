@@ -83,7 +83,9 @@ function content_buffer_modality (buffer) {
         return;
     }
     var frame = buffer.focused_frame;
-    if (frame && frame.document.designMode == "on") {
+    if (frame && frame.document.designMode &&
+        frame.document.designMode == "on")
+    {
         richedit_input_mode(buffer, true);
         return;
     }
