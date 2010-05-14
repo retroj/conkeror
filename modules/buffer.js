@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -760,10 +760,14 @@ define_buffer_local_hook("unfocus_hook");
 function unfocus (window, buffer) {
     // 1. if there is a selection, clear it.
     var selc = buffer.focused_selection_controller;
-    if (selc && selc.getSelection(selc.SELECTION_NORMAL).isCollapsed == false) {
+    if (selc) {
+        var sel = selc.getSelection(selc.SELECTION_NORMAL);
+        var active = ! sel.isCollapsed;
         clear_selection(buffer);
-        window.minibuffer.message("cleared selection");
-        return;
+        if (active) {
+            window.minibuffer.message("cleared selection");
+            return;
+        }
     }
     // 2. if there is a focused element, unfocus it.
     if (buffer.focused_element) {
