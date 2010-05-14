@@ -19,6 +19,7 @@ define_key(default_help_keymap, "t", "tutorial");
 define_key(default_help_keymap, "w", "where-is");
 
 define_key(default_base_keymap, "C-h", default_help_keymap);
+define_key(default_base_keymap, "f1", default_help_keymap);
 
 
 define_key(sequence_help_keymap, "C-h", "describe-active-bindings");
