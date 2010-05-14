@@ -209,6 +209,7 @@ const XHTML_NS = "http://www.w3.org/1999/xhtml";
 const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 const MATHML_NS = "http://www.w3.org/1998/Math/MathML";
 const XLINK_NS = "http://www.w3.org/1999/xlink";
+const SVG_NS = "http://www.w3.org/2000/svg";
 
 function create_XUL (window, tag_name) {
     return window.document.createElementNS(XUL_NS, tag_name);
@@ -220,7 +221,8 @@ function xpath_lookup_namespace (prefix) {
     return {
         xhtml: XHTML_NS,
         m: MATHML_NS,
-        xul: XUL_NS
+        xul: XUL_NS,
+        svg: SVG_NS
     }[prefix] || null;
 }
 

@@ -135,7 +135,8 @@ define_browser_object_class("links",
         "//*[@contenteditable = 'true'] |" +
         "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link'] | " +
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | //xhtml:button | //xhtml:select | " +
-        "//xhtml:*[@contenteditable = 'true']"),
+        "//xhtml:*[@contenteditable = 'true'] | "+
+        "//svg:a"),
     $hint = "select link");
 
 define_browser_object_class("mathml",
