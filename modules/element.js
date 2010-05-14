@@ -318,6 +318,8 @@ function read_browser_object (I) {
 function browser_set_element_focus (buffer, elem, prevent_scroll) {
     if (!element_dom_node_or_window_p(elem))
         return;
+    if (! elem.focus)
+        return;
     if (prevent_scroll)
         set_focus_no_scroll(buffer.window, elem);
     else
