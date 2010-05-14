@@ -568,7 +568,8 @@ interactive("paste-url-new-window", "Open a URL from the clipboard in a new wind
 	    follow_new_window,
 	    $browser_object = browser_object_paste_url);
 
-interactive("view-source", null,
+interactive("view-source",
+            "Toggle between source and rendered views of a URL.",
             alternates(view_source, view_source_new_buffer, view_source_new_window),
             $browser_object = browser_object_frames);
 
