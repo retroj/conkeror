@@ -377,7 +377,7 @@ minibuffer.prototype = {
                 this.active = false;
                 this.window.input.current.override_keymap = null;
                 this.window.buffers.current.browser.focus();
-                if (this.saved_focused_element)
+                if (this.saved_focused_element && this.saved_focused_element.focus)
                     set_focus_no_scroll(this.window, this.saved_focused_element);
                 else if (this.saved_focused_frame)
                     set_focus_no_scroll(this.window, this.saved_focused_frame);
