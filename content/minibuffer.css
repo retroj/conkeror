@@ -1,0 +1,15 @@
+/**
+ * (C) Copyright 2004-2007 Shawn Betts
+ * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008 John J. Foerch
+ *
+ * Use, modification, and distribution are subject to the terms specified in the
+ * COPYING file.
+**/
+
+#minibuffer[minibuffermode="message"] #minibuffer-prompt,
+#minibuffer[minibuffermode="message"] #minibuffer-input,
+#minibuffer[minibuffermode="input"] #minibuffer-message,
+#minibuffer[minibuffermode="input"] #minibuffer-mode-indicator {
+  visibility: collapse;
+}
