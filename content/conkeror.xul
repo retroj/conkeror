@@ -7,7 +7,7 @@
 Use, modification, and distribution are subject to the terms specified in the
 COPYING file.
 -->
-<?xml-stylesheet href="chrome://conkeror-gui/skin/window.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <?xul-overlay href="chrome://conkeror-gui/content/minibuffer.xul"?>
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     onload="Components.classes['@conkeror.mozdev.org/application;1']
