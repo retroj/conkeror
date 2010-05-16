@@ -17,7 +17,7 @@ in_module(null);
 var zoom_levels = [ 1, 10, 25, 50, 75, 90, 100,
                     120, 150, 200, 300, 500, 1000, 2000 ];
 
-function browser_zoom_set(buffer, full_zoom, value) {
+function browser_zoom_set (buffer, full_zoom, value) {
     var txt = full_zoom ? "Zoom: " : "Text zoom: ";
     if (value < zoom_levels[0])
         value = zoom_levels[0];
@@ -27,7 +27,7 @@ function browser_zoom_set(buffer, full_zoom, value) {
     buffer.window.minibuffer.message(txt + value + "%");
 }
 
-function browser_zoom_change(buffer, full_zoom, count) {
+function browser_zoom_change (buffer, full_zoom, count) {
     if (count == 0)
         return;
     var zoom = full_zoom ? "fullZoom" : "textZoom";
@@ -35,8 +35,7 @@ function browser_zoom_change(buffer, full_zoom, count) {
     var new_level;
     if (count < 0) {
         new_level = 0;
-        for (var i = zoom_levels.length - 1; i >= 0; --i)
-        {
+        for (var i = zoom_levels.length - 1; i >= 0; --i) {
             if (zoom_levels[i] - 0.01 < cur_value) {
                 new_level = i + count;
                 break;
@@ -44,8 +43,7 @@ function browser_zoom_change(buffer, full_zoom, count) {
         }
     } else {
         new_level = zoom_levels.length - 1;
-        for (var i = 0; i < zoom_levels.length; ++i)
-        {
+        for (var i = 0; i < zoom_levels.length; ++i) {
             if (zoom_levels[i] + 0.01 > cur_value) {
                 new_level = i + count;
                 break;
