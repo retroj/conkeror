@@ -146,10 +146,10 @@ function help_buffer_modality (buffer, element) {
  */
 
 define_keywords("$binding_list");
-function describe_bindings_buffer (window, element) {
+function describe_bindings_buffer (window) {
     this.constructor_begin();
     keywords(arguments);
-    special_buffer.call(this, window, element, forward_keywords(arguments));
+    special_buffer.call(this, window, forward_keywords(arguments));
     this.binding_list = arguments.$binding_list;
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
@@ -309,10 +309,10 @@ interactive("describe-active-bindings",
  */
 
 define_keywords("$command_list");
-function apropos_command_buffer (window, element) {
+function apropos_command_buffer (window) {
     this.constructor_begin();
     keywords(arguments);
-    special_buffer.call(this, window, element, forward_keywords(arguments));
+    special_buffer.call(this, window, forward_keywords(arguments));
     this.command_list = arguments.$command_list;
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
@@ -405,10 +405,10 @@ interactive("apropos-command", "List commands whose names contain a given substr
  */
 
 define_keywords("$command", "$bindings");
-function describe_command_buffer (window, element) {
+function describe_command_buffer (window) {
     this.constructor_begin();
     keywords(arguments);
-    special_buffer.call(this, window, element, forward_keywords(arguments));
+    special_buffer.call(this, window, forward_keywords(arguments));
     this.bindings = arguments.$bindings;
     this.command = arguments.$command;
     this.cmd = interactive_commands.get(this.command);
@@ -499,10 +499,10 @@ interactive("view-referenced-source-code", null,
  */
 
 define_keywords("$binding", "$other_bindings", "$key_sequence");
-function describe_key_buffer (window, element) {
+function describe_key_buffer (window) {
     this.constructor_begin();
     keywords(arguments);
-    special_buffer.call(this, window, element, forward_keywords(arguments));
+    special_buffer.call(this, window, forward_keywords(arguments));
     this.key_sequence = arguments.$key_sequence;
     this.bindings = arguments.$other_bindings;
     this.bind = arguments.$binding;
@@ -649,10 +649,10 @@ interactive("describe-key-briefly", null,
  */
 
 define_keywords("$variable");
-function describe_variable_buffer (window, element) {
+function describe_variable_buffer (window) {
     this.constructor_begin();
     keywords(arguments);
-    special_buffer.call(this, window, element, forward_keywords(arguments));
+    special_buffer.call(this, window, forward_keywords(arguments));
     this.variable = arguments.$variable;
     this.cmd = user_variables[this.variable];
     this.source_code_reference = this.cmd.source_code_reference;

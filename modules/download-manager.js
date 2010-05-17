@@ -396,10 +396,10 @@ function download_buffer_modality (buffer, element) {
 }
 
 define_keywords("$info");
-function download_buffer (window, element) {
+function download_buffer (window) {
     this.constructor_begin();
     keywords(arguments);
-    special_buffer.call(this, window, element, forward_keywords(arguments));
+    special_buffer.call(this, window, forward_keywords(arguments));
     this.info = arguments.$info;
     this.local.cwd = this.info.mozilla_info.targetFile.parent;
     this.description = this.info.mozilla_info.source.spec;

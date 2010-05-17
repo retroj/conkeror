@@ -13,10 +13,10 @@ define_buffer_local_hook("special_buffer_generated_hook");
 define_current_buffer_hook("current_special_buffer_generated_hook", "special_buffer_generated_hook");
 
 
-function special_buffer (window, element) {
+function special_buffer (window) {
     this.constructor_begin();
     keywords(arguments);
-    conkeror.buffer.call(this, window, element, forward_keywords(arguments));
+    conkeror.buffer.call(this, window, forward_keywords(arguments));
     this.generated = false;
 
     var buffer = this;

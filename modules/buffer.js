@@ -37,11 +37,11 @@ define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 define_current_buffer_hook("current_buffer_dom_content_loaded_hook", "buffer_dom_content_loaded_hook");
 
 
-define_keywords("$element", "$opener");
+define_keywords("$opener");
 function buffer_creator (type) {
     var args = forward_keywords(arguments);
-    return function (window, element) {
-        return new type(window, element, args);
+    return function (window) {
+        return new type(window, args);
     };
 }
 
@@ -52,47 +52,19 @@ define_variable("allow_browser_window_close", true,
     "a window that was not opened by a script, the buffer will be " +
     "killed, deleting the window as well if it is the only buffer.");
 
-function buffer (window, element) {
+function buffer (window) {
     this.constructor_begin();
     keywords(arguments);
     this.opener = arguments.$opener;
     this.window = window;
-    if (element == null) {
-        element = create_XUL(window, "vbox");
-        element.setAttribute("flex", "1");
-        var browser = create_XUL(window, "browser");
-        browser.setAttribute("type", "content");
-        browser.setAttribute("flex", "1");
-        browser.setAttribute("autocompletepopup", "popup_autocomplete");
-        element.appendChild(browser);
-        this.window.buffers.container.appendChild(element);
-    } else {
-        /* Manually set up session history.
-         *
-         * This is needed because when constructor for the XBL binding
-         * (mozilla/toolkit/content/widgets/browser.xml#browser) for
-         * the initial browser element of the window is called, the
-         * docShell is not yet initialized and setting up the session
-         * history will fail.  To work around this problem, we do as
-         * tabbrowser.xml (Firefox) does and set the initial browser
-         * to have the disablehistory=true attribute, and then repeat
-         * the work that would normally be done in the XBL
-         * constructor.
-         */
-
-        // This code is taken from mozilla/browser/base/content/browser.js
-        let browser = element.firstChild;
-        browser.webNavigation.sessionHistory =
-            Cc["@mozilla.org/browser/shistory;1"].createInstance(Ci.nsISHistory);
-        observer_service.addObserver(browser, "browser:purge-session-history", false);
-
-        // remove the disablehistory attribute so the browser cleans up, as
-        // though it had done this work itself
-        browser.removeAttribute("disablehistory");
-
-        // enable global history
-        browser.docShell.QueryInterface(Ci.nsIDocShellHistory).useGlobalHistory = true;
-    }
+    var element = create_XUL(window, "vbox");
+    element.setAttribute("flex", "1");
+    var browser = create_XUL(window, "browser");
+    browser.setAttribute("type", "content");
+    browser.setAttribute("flex", "1");
+    browser.setAttribute("autocompletepopup", "popup_autocomplete");
+    element.appendChild(browser);
+    this.window.buffers.container.appendChild(element);
     this.window.buffers.buffer_list.push(this);
     this.element = element;
     this.browser = element.firstChild;

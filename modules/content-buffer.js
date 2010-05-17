@@ -105,11 +105,11 @@ function content_buffer_modality (buffer) {
 
 /* If browser is null, create a new browser */
 define_keywords("$load");
-function content_buffer (window, element) {
+function content_buffer (window) {
     keywords(arguments);
     this.constructor_begin();
     try {
-        conkeror.buffer.call(this, window, element, forward_keywords(arguments));
+        conkeror.buffer.call(this, window, forward_keywords(arguments));
 
         this.browser.addProgressListener(this);
         var buffer = this;
@@ -607,11 +607,11 @@ browser_dom_window.prototype = {
         case FOLLOW_CURRENT_FRAME:
             return aOpener;
         case OPEN_NEW_BUFFER:
-            var buffer = new content_buffer(this.window, null /* element */, $opener = opener);
+            var buffer = new content_buffer(this.window, $opener = opener);
             this.window.buffers.current = buffer;
             return buffer.top_frame;
         case OPEN_NEW_BUFFER_BACKGROUND:
-            var buffer = new content_buffer(this.window, null /* element */, $opener = opener);
+            var buffer = new content_buffer(this.window, $opener = opener);
             return buffer.top_frame;
         case OPEN_NEW_WINDOW:
         default: /* shouldn't be needed */
