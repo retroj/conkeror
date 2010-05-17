@@ -38,3 +38,19 @@ walnut_run({
                       "hellohello");
     }
 });
+
+
+walnut_run({
+    test_array_p_1: function () {
+        assert(array_p([]));
+    },
+    test_array_p_2: function () {
+        assert(array_p(Array()));
+    },
+    test_make_array_1: function () {
+        assert_objects_equal(make_array(undefined), []);
+    },
+    test_make_array_2: function () {
+        assert_objects_equal(make_array(null), [null]);
+    }
+});

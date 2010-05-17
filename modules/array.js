@@ -10,6 +10,26 @@
 in_module(null);
 
 /**
+ * array_p returns true if its argument is an array, otherwise false.
+ */
+function array_p (ob) {
+    return ob && ob.constructor == Array || false;
+}
+
+/**
+ * make_array returns its argument unchanged if it is already an array, an
+ * empty array if its argument is undefined, otherwise an array containing
+ * its object as the sole element.
+ */
+function make_array (ob) {
+    if (array_p(ob))
+        return ob;
+    if (ob === undefined)
+        return [];
+    return [ob];
+}
+
+/**
  * remove_duplicates_filter returns a function that can be used in
  * Array.filter.  It removes duplicates.  Optional argument cmp is a
  * comparison function to test equality.  The default comparison function
