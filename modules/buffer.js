@@ -194,7 +194,10 @@ buffer.prototype = {
         }
     },
 
-    destroy: function () {},
+    destroy: function () {
+        // prevent modalities from accessing dead browser
+        this.modalities = [];
+    },
 
     set_input_mode: function () {
         if (this.input_mode)
