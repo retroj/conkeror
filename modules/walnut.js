@@ -41,8 +41,11 @@ function assert_not (got) {
 }
 
 function assert_objects_equal (got, expect) {
-    if (typeof(got) != "object" || typeof(expect) != "object")
+    if (typeof(got) != "object" || typeof(expect) != "object" ||
+        got === null || expect === null)
+    {
         return assert_equals(got, expect);
+    }
     if (got.constructor !== expect.constructor)
         throw new Error("objects are of different type");
     var expectkeys = [i for (i in expect)];
