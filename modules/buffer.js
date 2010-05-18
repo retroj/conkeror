@@ -167,6 +167,11 @@ buffer.prototype = {
     },
 
     destroy: function () {
+        this.dead = true;
+        this.browser = null;
+        this.element = null;
+        this.saved_focused_frame = null;
+        this.saved_focused_element = null;
         // prevent modalities from accessing dead browser
         this.modalities = [];
     },
@@ -262,15 +267,6 @@ buffer.prototype = {
                 break;
             win = win.parent;
         }
-    },
-
-    handle_kill: function () {
-        this.dead = true;
-        this.browser = null;
-        this.element = null;
-        this.saved_focused_frame = null;
-        this.saved_focused_element = null;
-        kill_buffer_hook.run(this);
     }
 };
 
@@ -431,8 +427,9 @@ buffer_container.prototype = {
         // chance to remove such listeners, so that they cannot try to
         // perform UI actions based upon a xul:browser that no longer
         // exists.
+        var element = b.element;
         b.destroy();
-        this.container.removeChild(b.element);
+        this.container.removeChild(element);
         this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
         this._switch_to(new_buffer);
         if (changed) {
@@ -440,7 +437,7 @@ buffer_container.prototype = {
             this.buffer_list.splice(this.buffer_list.indexOf(new_buffer), 1);
             this.buffer_list.unshift(new_buffer);
         }
-        b.handle_kill();
+        kill_buffer_hook.run(b);
         return true;
     },
 
@@ -493,7 +490,6 @@ function buffer_window_close_handler (window) {
     for (let i = 0; i < count; ++i) {
         let b = bs.get_buffer(i);
         b.destroy();
-        b.handle_kill();
     }
 }
 add_hook("window_close_hook", buffer_window_close_handler);

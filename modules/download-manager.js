@@ -416,8 +416,7 @@ function download_buffer (window) {
 download_buffer.prototype = {
     __proto__: special_buffer.prototype,
 
-    handle_kill: function () {
-        special_buffer.prototype.handle_kill.call(this);
+    destroy: function () {
         remove_hook.call(this.info, "download_progress_change_hook", this.progress_change_handler_fn);
         remove_hook.call(this.info, "download_state_change_hook", this.progress_change_handler_fn);
         remove_hook.call(this.info, "download_shell_command_change_hook", this.command_change_handler_fn);
@@ -434,6 +433,8 @@ download_buffer.prototype = {
         delete this.command_div_node;
         delete this.command_label_textnode;
         delete this.command_textnode;
+
+        special_buffer.prototype.destroy.call(this);
     },
 
     update_title: function () {
@@ -520,7 +521,7 @@ download_buffer.prototype = {
 
         /* Warning: If any additional node references are saved in
          * this function, appropriate code to delete the saved
-         * properties must be added to handle_kill. */
+         * properties must be added to destroy method. */
 
         var info = this.info;
 
