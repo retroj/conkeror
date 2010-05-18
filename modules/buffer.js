@@ -492,6 +492,7 @@ function buffer_window_close_handler (window) {
     var count = bs.count;
     for (let i = 0; i < count; ++i) {
         let b = bs.get_buffer(i);
+        b.destroy();
         b.handle_kill();
     }
 }
