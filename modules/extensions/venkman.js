@@ -11,11 +11,6 @@
 
 in_module(null);
 
-require("extension.js");
-
-if (!extension_is_enabled("{f13b157f-b174-47e7-a34d-4815ddfdfeb8}"))
-    throw skip_module_load;
- 
 function open_venkman () {
     make_chrome_window("chrome://venkman/content/venkman.xul");
 }

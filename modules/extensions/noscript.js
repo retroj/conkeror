@@ -1,11 +1,6 @@
 
 in_module(null);
 
-require("extension.js");
-
-if (!extension_is_enabled("{73a6fe31-595d-460b-a920-fcc0f8843232}"))
-    throw skip_module_load;
-
 var noscript_service = Cc["@maone.net/noscript-service;1"]
     .createInstance().wrappedJSObject;
 

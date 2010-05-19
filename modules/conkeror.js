@@ -25,7 +25,6 @@ require("env.js", null);
 require("source-code.js", null);
 require("user-variable.js", null);
 require("stylesheet.js", null);
-require("extension.js", null);
 require("array.js", null);
 require("builtin-commands.js", null);
 

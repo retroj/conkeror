@@ -43,13 +43,6 @@ pref("conkeror.load.daemon", 1);
 
 pref("conkeror.load.favicon", 1); // Enhances tab-bar mode
 
-// Extension support modules
-// These modules will automatically skip loading if the associated extension is not enabled.
-pref("conkeror.load.extensions/dom-inspector", 1);
-pref("conkeror.load.extensions/adblockplus", 1);
-pref("conkeror.load.extensions/venkman", 1);
-pref("conkeror.load.extensions/noscript", 1);
-
 // Page mode modules
 pref("conkeror.load.page-modes/youtube", 1);
 pref("conkeror.load.page-modes/reddit", 1);

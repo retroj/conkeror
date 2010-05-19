@@ -7,11 +7,6 @@
 
 in_module(null);
 
-require("extension.js");
-
-if (!extension_is_enabled("inspector@mozilla.org"))
-    throw skip_module_load;
-
 function open_dom_inspector () {
     make_chrome_window("chrome://inspector/content/");
 }
