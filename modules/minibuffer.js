@@ -8,49 +8,6 @@
 
 in_module(null);
 
-// This should only be used for minibuffer states where it makes
-// sense.  In particular, it should not be used if additional cleanup
-// must be done.
-function minibuffer_abort (window) {
-    var m = window.minibuffer;
-    var s = m.current_state;
-    if (s == null)
-        throw "Invalid minibuffer state";
-    m.pop_state();
-    input_sequence_abort.call(window);
-}
-interactive("minibuffer-abort", null, function (I) { minibuffer_abort(I.window); });
-
-define_builtin_commands("minibuffer-",
-    function (I, command) {
-        try {
-            var m = I.minibuffer;
-            if (m._input_mode_enabled) {
-                m._restore_normal_state();
-                var e = m.input_element;
-                var c = e.controllers.getControllerForCommand(command);
-                try {
-                    m.ignore_input_events = true;
-                    if (c && c.isCommandEnabled(command))
-                        c.doCommand(command);
-                } finally {
-                    m.ignore_input_events = false;
-                }
-                var s = m.current_state;
-                if (s.ran_minibuffer_command)
-                    s.ran_minibuffer_command(m, command);
-            }
-        } catch (e) {
-            /* Ignore exceptions. */
-        }
-    },
-    function (I) { //XXX: need return??
-        I.minibuffer.current_state.mark_active = !I.minibuffer.current_state.mark_active;
-    },
-    function (I) I.minibuffer.current_state.mark_active,
-    false);
-
-
 /**
  * minibuffer_state: abstact base class for minibuffer states.
  */
@@ -110,7 +67,7 @@ function minibuffer_input_state (window, keymap, prompt, input, selection_start,
 }
 minibuffer_input_state.prototype = {
     __proto__: minibuffer_state.prototype,
-    mark_active : false,
+    mark_active: false,
     destroy: function (window) {
         window.input.end_recursion();
         minibuffer_state.prototype.destroy.call(this, window);
@@ -458,5 +415,49 @@ minibuffer.prototype.wait_for = function (message, coroutine) {
     }
     yield co_return(result);
 };
+
+
+// This should only be used for minibuffer states where it makes
+// sense.  In particular, it should not be used if additional cleanup
+// must be done.
+function minibuffer_abort (window) {
+    var m = window.minibuffer;
+    var s = m.current_state;
+    if (s == null)
+        throw "Invalid minibuffer state";
+    m.pop_state();
+    input_sequence_abort.call(window);
+}
+interactive("minibuffer-abort", null, function (I) { minibuffer_abort(I.window); });
+
+define_builtin_commands("minibuffer-",
+    function (I, command) {
+        try {
+            var m = I.minibuffer;
+            if (m._input_mode_enabled) {
+                m._restore_normal_state();
+                var e = m.input_element;
+                var c = e.controllers.getControllerForCommand(command);
+                try {
+                    m.ignore_input_events = true;
+                    if (c && c.isCommandEnabled(command))
+                        c.doCommand(command);
+                } finally {
+                    m.ignore_input_events = false;
+                }
+                var s = m.current_state;
+                if (s.ran_minibuffer_command)
+                    s.ran_minibuffer_command(m, command);
+            }
+        } catch (e) {
+            /* Ignore exceptions. */
+        }
+    },
+    function (I) { //XXX: need return??
+        I.minibuffer.current_state.mark_active = !I.minibuffer.current_state.mark_active;
+    },
+    function (I) I.minibuffer.current_state.mark_active,
+    false);
+
 
 provide("minibuffer");
