@@ -16,9 +16,9 @@ function minibuffer_state (keymap, use_input_mode) {
     this.use_input_mode = use_input_mode;
 }
 minibuffer_state.prototype = {
-    load: function () {},
-    unload: function () {},
-    destroy: function () {}
+    load: function (window) {},
+    unload: function (window) {},
+    destroy: function (window) {}
 };
 
 
