@@ -62,7 +62,7 @@ in_module(null);
             w.buffers.for_each(function (b) {
                 if (! b.browser || ! (b instanceof content_buffer))
                     return;
-                buffers[y] = b.browser.contentDocument.location.href;
+                buffers[y] = b.display_uri_string;
                 y++;
             });
             if (y == 0)
