@@ -103,7 +103,6 @@ function content_buffer_modality (buffer) {
 }
 
 
-/* If browser is null, create a new browser */
 define_keywords("$load");
 function content_buffer (window) {
     keywords(arguments);
@@ -176,7 +175,7 @@ function content_buffer (window) {
     }
 }
 content_buffer.prototype = {
-    constructor : content_buffer,
+    constructor: content_buffer,
 
     destroy: function () {
         this.browser.removeProgressListener(this);
@@ -191,7 +190,7 @@ content_buffer.prototype = {
     /* Used to display the correct URI when the buffer opens initially
      * even before loading has progressed far enough for currentURI to
      * contain the correct URI. */
-    _display_uri : null,
+    _display_uri: null,
 
     get display_uri_string () {
         if (this._display_uri)
@@ -204,13 +203,13 @@ content_buffer.prototype = {
     get title () { return this.browser.contentTitle; },
     get description () { return this.display_uri_string; },
 
-    load : function (load_spec) {
+    load: function (load_spec) {
         apply_load_spec(this, load_spec);
     },
 
     _request_count: 0,
 
-    loading : false,
+    loading: false,
 
     /* nsIWebProgressListener */
     QueryInterface: generate_QI(Ci.nsIWebProgressListener, Ci.nsISupportsWeakReference),
@@ -287,7 +286,7 @@ content_buffer.prototype = {
 
     /* This method is called to indicate a change to the current location.
        The url can be gotten as location.spec. */
-    onLocationChange : function (webProgress, request, location) {
+    onLocationChange: function (webProgress, request, location) {
         /* Attempt to ignore onLocationChange calls due to the initial
          * loading of about:blank by all xul:browser elements. */
         if (location.spec == "about:blank" && this.ignore_initial_blank)
@@ -338,8 +337,7 @@ content_buffer.prototype = {
     },
 
     /* Inherit from buffer */
-
-    __proto__ : buffer.prototype
+    __proto__: buffer.prototype
 };
 
 /*
@@ -590,8 +588,7 @@ function browser_dom_window (window) {
 browser_dom_window.prototype = {
     QueryInterface: generate_QI(Ci.nsIBrowserDOMWindow),
 
-    openURI : function (aURI, aOpener, aWhere, aContext) {
-
+    openURI: function (aURI, aOpener, aWhere, aContext) {
         // Reference: http://www.xulplanet.com/references/xpcomref/ifaces/nsIBrowserDOMWindow.html
         var target = this.next_target;
         if (target == null || target == FOLLOW_DEFAULT)

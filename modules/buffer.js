@@ -154,7 +154,7 @@ buffer.prototype = {
 
     constructors_running: 0,
 
-    constructor_begin : function () {
+    constructor_begin: function () {
         this.constructors_running++;
     },
 
