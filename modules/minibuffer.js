@@ -23,11 +23,10 @@ minibuffer_state.prototype = {
 };
 
 
-function minibuffer_message_state (minibuffer, keymap, message, destroy_function) {
+function minibuffer_message_state (minibuffer, keymap, message, cleanup_function) {
     minibuffer_state.call(this, minibuffer, keymap, false);
     this._message = message;
-    if (destroy_function)
-        this.destroy = destroy_function;
+    this.cleanup_function = cleanup_function;
 }
 minibuffer_message_state.prototype = {
     __proto__: minibuffer_state.prototype,
@@ -36,6 +35,12 @@ minibuffer_message_state.prototype = {
     set message (x) {
         this.minibuffer._restore_normal_state();
         this.minibuffer._show(this._message);
+    },
+    cleanup_function: null,
+    destroy: function () {
+        if (this.cleanup_function)
+            this.cleanup_function();
+        minibuffer_state.prototype.destroy.call(this);
     }
 };
 
@@ -388,8 +393,8 @@ minibuffer.prototype.check_state = function (type) {
     return s;
 };
 
-minibuffer.prototype.show_wait_message = function (initial_message, destroy_function) {
-    var s = new minibuffer_message_state(this, minibuffer_message_keymap, initial_message, destroy_function);
+minibuffer.prototype.show_wait_message = function (initial_message, cleanup_function) {
+    var s = new minibuffer_message_state(this, minibuffer_message_keymap, initial_message, cleanup_function);
     this.push_state(s);
     return s;
 };
