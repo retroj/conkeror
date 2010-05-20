@@ -2,7 +2,7 @@
  * (C) Copyright 2004-2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  * (C) Copyright 2008 Nelson Elhage
- * (C) Copyright 2008-2009 John Foerch
+ * (C) Copyright 2008-2010 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -33,17 +33,15 @@ function initial_isearch_state (buffer, frame, forward) {
     this.direction = forward;
 }
 
-function isearch_session (window, forward) {
+function isearch_session (minibuffer, forward) {
+    minibuffer_input_state.call(this, minibuffer, isearch_keymap, "");
     this.states = [];
-    this.buffer = window.buffers.current;
+    this.buffer = this.minibuffer.window.buffers.current;
     this.frame = this.buffer.focused_frame;
     this.sel_ctrl = this.buffer.focused_selection_controller;
     this.sel_ctrl.setDisplaySelection(Ci.nsISelectionController.SELECTION_ATTENTION);
     this.sel_ctrl.repaintSelection(Ci.nsISelectionController.SELECTION_NORMAL);
     this.states.push(new initial_isearch_state(this.buffer, this.frame, forward));
-    this.window = window;
-
-    minibuffer_input_state.call(this, window, isearch_keymap, "");
 }
 isearch_session.prototype = {
     constructor: isearch_session,
@@ -67,7 +65,7 @@ isearch_session.prototype = {
         sel.removeAllRanges();
     },
     restore_state: function () {
-        var m = this.window.minibuffer;
+        var m = this.minibuffer;
         var s = this.top;
         m._input_text = s.search_str;
         if (s.selection)
@@ -239,7 +237,7 @@ isearch_session.prototype = {
 
     done: false,
 
-    destroy: function (window) {
+    destroy: function () {
         if (! this.done) {
             this.frame.scrollTo(this.states[0].screenx, this.states[0].screeny);
             if (caret_enabled(this.buffer) && this.states[0].caret)
@@ -247,12 +245,12 @@ isearch_session.prototype = {
             else
                 this._clear_selection();
         }
-        minibuffer_input_state.prototype.destroy.call(this, window);
+        minibuffer_input_state.prototype.destroy.call(this);
     }
 };
 
 function isearch_continue_noninteractively (window, direction) {
-    var s = new isearch_session(window, direction);
+    var s = new isearch_session(window.minibuffer, direction);
     if (window.isearch_last_search)
         s.find(window.isearch_last_search, direction, s.top.point);
     else
@@ -284,7 +282,7 @@ interactive("isearch-continue-backward", null,
             function (I) { isearch_continue(I.window, false); });
 
 function isearch_start (window, direction) {
-    var s = new isearch_session(window, direction);
+    var s = new isearch_session(window.minibuffer, direction);
     window.minibuffer.push_state(s);
     s.restore_state();
 }

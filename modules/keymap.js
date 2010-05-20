@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -517,26 +517,22 @@ define_keymap("key_binding_reader_keymap");
 define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
 
 define_keywords("$keymap");
-function key_binding_reader (window, continuation) {
+function key_binding_reader (minibuffer, continuation) {
     keywords(arguments, $prompt = "Describe key:");
-
+    minibuffer_input_state.call(this, minibuffer, key_binding_reader_keymap, arguments.$prompt);
     this.continuation = continuation;
-
     if (arguments.$keymap)
         this.target_keymap = arguments.$keymap;
     else
-        this.target_keymap = get_current_keymaps(window).slice();
-
+        this.target_keymap = get_current_keymaps(this.minibuffer.window).slice();
     this.key_sequence = [];
-
-    minibuffer_input_state.call(this, window, key_binding_reader_keymap, arguments.$prompt);
 }
 key_binding_reader.prototype = {
     __proto__: minibuffer_input_state.prototype,
-    destroy: function (window) {
+    destroy: function () {
         if (this.continuation)
             this.continuation.throw(abort());
-        minibuffer_input_state.prototype.destroy.call(this, window);
+        minibuffer_input_state.prototype.destroy.call(this);
     }
 };
 
@@ -589,7 +585,7 @@ interactive("read-key-binding-key",
 
 minibuffer.prototype.read_key_binding = function () {
     keywords(arguments);
-    var s = new key_binding_reader(this.window, (yield CONTINUATION), forward_keywords(arguments));
+    var s = new key_binding_reader(this, (yield CONTINUATION), forward_keywords(arguments));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);

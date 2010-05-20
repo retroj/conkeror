@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -11,45 +11,37 @@ in_module(null);
 /**
  * minibuffer_state: abstact base class for minibuffer states.
  */
-function minibuffer_state (keymap, use_input_mode) {
+function minibuffer_state (minibuffer, keymap, use_input_mode) {
+    this.minibuffer = minibuffer;
     this.keymap = keymap;
     this.use_input_mode = use_input_mode;
 }
 minibuffer_state.prototype = {
-    load: function (window) {},
-    unload: function (window) {},
-    destroy: function (window) {}
+    load: function () {},
+    unload: function () {},
+    destroy: function () {}
 };
 
 
-function minibuffer_message_state (keymap, message, destroy_function) {
-    minibuffer_state.call(this, keymap, false);
+function minibuffer_message_state (minibuffer, keymap, message, destroy_function) {
+    minibuffer_state.call(this, minibuffer, keymap, false);
     this._message = message;
     if (destroy_function)
         this.destroy = destroy_function;
 }
 minibuffer_message_state.prototype = {
     __proto__: minibuffer_state.prototype,
-    load: function (window) {
-        minibuffer_state.prototype.load.call(this, window);
-        this.window = window;
-    },
-    unload: function (window) {
-        this.window = null;
-        minibuffer_state.prototype.unload.call(this, window);
-    },
+    _message: null,
     get message () { return this._message; },
     set message (x) {
-        if (this.window) {
-            this.window.minibuffer._restore_normal_state();
-            this.window.minibuffer._show(this._message);
-        }
+        this.minibuffer._restore_normal_state();
+        this.minibuffer._show(this._message);
     }
 };
 
 
-function minibuffer_input_state (window, keymap, prompt, input, selection_start, selection_end) {
-    minibuffer_state.call(this, keymap, true);
+function minibuffer_input_state (minibuffer, keymap, prompt, input, selection_start, selection_end) {
+    minibuffer_state.call(this, minibuffer, keymap, true);
     this.prompt = prompt;
     if (input)
         this.input = input;
@@ -63,14 +55,14 @@ function minibuffer_input_state (window, keymap, prompt, input, selection_start,
         this.selection_end = selection_end;
     else
         this.selection_end = this.selection_start;
-    window.input.begin_recursion();
+    this.minibuffer.window.input.begin_recursion();
 }
 minibuffer_input_state.prototype = {
     __proto__: minibuffer_state.prototype,
     mark_active: false,
-    destroy: function (window) {
-        window.input.end_recursion();
-        minibuffer_state.prototype.destroy.call(this, window);
+    destroy: function () {
+        this.minibuffer.window.input.end_recursion();
+        minibuffer_state.prototype.destroy.call(this);
     }
 };
 
@@ -87,7 +79,7 @@ minibuffer_input_state.prototype = {
  * select:            [optional] specifies to select the initial text if set to non-null
  */
 define_keywords("$keymap", "$prompt", "$initial_value", "$select");
-function basic_minibuffer_state (window) {
+function basic_minibuffer_state (minibuffer) {
     keywords(arguments, $keymap = minibuffer_base_keymap);
     var initial_value = arguments.$initial_value || "";
     var sel_start, sel_end;
@@ -97,7 +89,7 @@ function basic_minibuffer_state (window) {
     } else {
         sel_start = sel_end = initial_value.length;
     }
-    minibuffer_input_state.call(this, window, arguments.$keymap,
+    minibuffer_input_state.call(this, minibuffer, arguments.$keymap,
                                 arguments.$prompt, initial_value,
                                 sel_start, sel_end);
 }
@@ -232,7 +224,7 @@ minibuffer.prototype = {
     },
 
     pop_state: function () {
-        this.current_state.destroy(this.window);
+        this.current_state.destroy();
         this.states.pop();
         this._restore_state();
     },
@@ -240,7 +232,7 @@ minibuffer.prototype = {
     pop_all: function () {
         var state;
         while ((state = this.current_state)) {
-            state.destroy(this.window);
+            state.destroy();
             this.states.pop();
         }
     },
@@ -250,7 +242,7 @@ minibuffer.prototype = {
         if (i == -1)
             return;
         var was_current = (i == (this.states.length - 1));
-        state.destroy(this.window);
+        state.destroy();
         this.states.splice(i, 1);
         if (was_current)
             this._restore_state();
@@ -326,7 +318,7 @@ minibuffer.prototype = {
             } else {
                 this._show(s._message);
             }
-            s.load(this.window);
+            s.load();
             this.window.input.current.override_keymap = s.keymap;
             this.active = true;
         } else {
@@ -365,7 +357,7 @@ minibuffer.prototype = {
                 s.selection_start = this._selection_start;
                 s.selection_end = this._selection_end;
             }
-            s.unload(this.window);
+            s.unload();
         }
     },
 
@@ -397,7 +389,7 @@ minibuffer.prototype.check_state = function (type) {
 };
 
 minibuffer.prototype.show_wait_message = function (initial_message, destroy_function) {
-    var s = new minibuffer_message_state(minibuffer_message_keymap, initial_message, destroy_function);
+    var s = new minibuffer_message_state(this, minibuffer_message_keymap, initial_message, destroy_function);
     this.push_state(s);
     return s;
 };

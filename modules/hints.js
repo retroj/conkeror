@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Portions of this file are derived from Vimperator,
  * (C) Copyright 2006-2007 Martin Stubenschrott.
@@ -402,9 +402,9 @@ define_variable("hints_display_url_panel", false,
  * $abort_callback
  */
 define_keywords("$keymap", "$auto", "$hint_xpath_expression", "$multiple");
-function hints_minibuffer_state (window, continuation, buffer) {
+function hints_minibuffer_state (minibuffer, continuation, buffer) {
     keywords(arguments, $keymap = hint_keymap, $auto);
-    basic_minibuffer_state.call(this, window, $prompt = arguments.$prompt);
+    basic_minibuffer_state.call(this, minibuffer, $prompt = arguments.$prompt);
     if (hints_display_url_panel)
 	this.url_panel = hints_url_panel(this, buffer.window);
     this.original_prompt = arguments.$prompt;
@@ -422,36 +422,35 @@ hints_minibuffer_state.prototype = {
     manager: null,
     typed_string: "",
     typed_number: "",
-    load: function (window) {
-        basic_minibuffer_state.prototype.load.call(this, window);
+    load: function () {
+        basic_minibuffer_state.prototype.load.call(this);
         if (!this.manager) {
-            var buf = window.buffers.current;
+            var buf = this.minibuffer.window.buffers.current;
             this.manager = new hint_manager(buf.top_frame, this.xpath_expr,
                                             this.focused_frame, this.focused_element);
         }
         this.manager.update_valid_hints();
-        this.window = window;
         if (this.url_panel)
             this.url_panel.update();
     },
     clear_auto_exit_timer: function () {
+        var window = this.minibuffer.window;
         if (this.auto_exit_timer_ID != null) {
-            this.window.clearTimeout(this.auto_exit_timer_ID);
+            window.clearTimeout(this.auto_exit_timer_ID);
             this.auto_exit_timer_ID = null;
         }
     },
-    unload: function (window) {
+    unload: function () {
         this.clear_auto_exit_timer();
         this.manager.hide_hints();
-        delete this.window;
-        basic_minibuffer_state.prototype.unload.call(this, window);
+        basic_minibuffer_state.prototype.unload.call(this);
     },
-    destroy: function (window) {
+    destroy: function () {
         this.clear_auto_exit_timer();
         this.manager.remove();
         if (this.url_panel)
             this.url_panel.destroy();
-        basic_minibuffer_state.prototype.destroy.call(this, window);
+        basic_minibuffer_state.prototype.destroy.call(this);
     },
     update_minibuffer: function (m) {
         if (this.typed_number.length > 0)
@@ -463,7 +462,7 @@ hints_minibuffer_state.prototype = {
     },
 
     handle_auto_exit: function (m, ambiguous) {
-        let window = m.window;
+        var window = this.minibuffer.window;
         var num = this.manager.current_hint_number;
         if (!this.auto_exit)
             return;
@@ -487,9 +486,9 @@ hints_minibuffer_state.prototype = {
         this.manager.current_hint_number = -1;
         this.manager.update_valid_hints();
         if (this.manager.valid_hints.length == 1)
-            this.handle_auto_exit(m, false /* unambiguous */);
+            this.handle_auto_exit(false /* unambiguous */);
         else if (this.manager.valid_hints.length > 1)
-        this.handle_auto_exit(m, true /* ambiguous */);
+        this.handle_auto_exit(true /* ambiguous */);
         this.update_minibuffer(m);
     }
 };
@@ -527,7 +526,7 @@ interactive("hints-handle-number", null,
             auto_exit_ambiguous = false;
         }
         if (auto_exit_ambiguous !== null)
-            s.handle_auto_exit(I.minibuffer, auto_exit_ambiguous);
+            s.handle_auto_exit(auto_exit_ambiguous);
         s.update_minibuffer(I.minibuffer);
     });
 
@@ -603,7 +602,7 @@ define_keywords("$buffer");
 minibuffer.prototype.read_hinted_element = function () {
     keywords(arguments);
     var buf = arguments.$buffer;
-    var s = new hints_minibuffer_state(this.window, (yield CONTINUATION), buf, forward_keywords(arguments));
+    var s = new hints_minibuffer_state(this, (yield CONTINUATION), buf, forward_keywords(arguments));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);

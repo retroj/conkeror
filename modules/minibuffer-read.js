@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -47,10 +47,10 @@ define_keywords("$keymap", "$history", "$validator",
                 "$auto_complete_delay",
                 "$space_completes");
 /* FIXME: support completing in another thread */
-function text_entry_minibuffer_state (window, continuation) {
+function text_entry_minibuffer_state (minibuffer, continuation) {
     keywords(arguments, $keymap = minibuffer_keymap);
 
-    basic_minibuffer_state.call(this, window, forward_keywords(arguments));
+    basic_minibuffer_state.call(this, minibuffer, forward_keywords(arguments));
 
     this.continuation = continuation;
     if (arguments.$history) {
@@ -131,9 +131,9 @@ completions_tree_view.prototype = {
 // inherit from basic_minibuffer_state
 text_entry_minibuffer_state.prototype = {
     __proto__: basic_minibuffer_state.prototype,
-    load: function (window) {
-        basic_minibuffer_state.prototype.load.call(this, window);
-        this.window = window;
+    load: function () {
+        basic_minibuffer_state.prototype.load.call(this);
+        var window = this.minibuffer.window;
         if (this.completer) {
             // Create completion display element if needed
             if (!this.completion_element) {
@@ -163,7 +163,7 @@ text_entry_minibuffer_state.prototype = {
                 treecols.appendChild(treecol);
                 tree.appendChild(create_XUL(window, "treechildren"));
 
-                window.minibuffer.insert_before(tree);
+                this.minibuffer.insert_before(tree);
                 tree.view = new completions_tree_view(this);
                 this.completions_display_element = tree;
 
@@ -177,13 +177,13 @@ text_entry_minibuffer_state.prototype = {
         }
     },
 
-    unload: function (window) {
+    unload: function () {
         if (this.completions_display_element)
             this.completions_display_element.setAttribute("collapsed", "true");
-        basic_minibuffer_state.prototype.unload.call(this, window);
+        basic_minibuffer_state.prototype.unload.call(this);
     },
 
-    destroy: function (window) {
+    destroy: function () {
         if (this.completions != null && this.completions.destroy)
             this.completions.destroy();
         delete this.completions;
@@ -198,7 +198,7 @@ text_entry_minibuffer_state.prototype = {
         }
         if (this.continuation)
             this.continuation.throw(abort());
-        basic_minibuffer_state.prototype.destroy.call(this, window);
+        basic_minibuffer_state.prototype.destroy.call(this);
     },
 
     handle_input: function () {
@@ -209,11 +209,12 @@ text_entry_minibuffer_state.prototype = {
         if (!this.auto_complete) return;
 
         var s = this;
+        var window = this.minibuffer.window;
 
         if (this.auto_complete_delay > 0) {
             if (this.completions_timer_ID != null)
-                this.window.clearTimeout(this.completions_timer_ID);
-            this.completions_timer_ID = this.window.setTimeout(
+                window.clearTimeout(this.completions_timer_ID);
+            this.completions_timer_ID = window.setTimeout(
                 function () {
                     s.completions_timer_ID = null;
                     s.update_completions(true /* auto */, true /* update completions display */);
@@ -228,7 +229,7 @@ text_entry_minibuffer_state.prototype = {
     },
 
     update_completions_display: function () {
-        var m = this.window.minibuffer;
+        var m = this.minibuffer;
         if (m.current_state == this) {
             if (this.completions && this.completions.count > 0) {
                 this.completions_display_element.view = this.completions_display_element.view;
@@ -245,12 +246,13 @@ text_entry_minibuffer_state.prototype = {
     /* If auto is true, this update is due to auto completion, rather
      * than specifically requested. */
     update_completions: function (auto, update_display) {
+        var window = this.minibuffer.window;
         if (this.completions_timer_ID != null) {
-            this.window.clearTimeout(this.completions_timer_ID);
+            window.clearTimeout(this.completions_timer_ID);
             this.completions_timer_ID = null;
         }
 
-        let m = this.window.minibuffer;
+        let m = this.minibuffer;
 
         if (this.completions_cont) {
             this.completions_cont.throw(abort());
@@ -268,7 +270,7 @@ text_entry_minibuffer_state.prototype = {
                 try {
                     x = yield c;
                 } catch (e) {
-                    handle_interactive_error(m.window, e);
+                    handle_interactive_error(window, e);
                 } finally {
                     s.completions_cont = null;
                     already_done = true;
@@ -332,7 +334,7 @@ text_entry_minibuffer_state.prototype = {
          * only displayed.
          */
         var i = this.selected_completion_index;
-        var m = this.window.minibuffer;
+        var m = this.minibuffer;
         var c = this.completions;
 
         if (this.completions_valid && c && !this.match_required && i >= 0 && i < c.count)
@@ -480,7 +482,7 @@ interactive("minibuffer-history-previous", null,
 
 // Define the asynchronous minibuffer.read function
 minibuffer.prototype.read = function () {
-    var s = new text_entry_minibuffer_state(this.window, (yield CONTINUATION), forward_keywords(arguments));
+    var s = new text_entry_minibuffer_state(this, (yield CONTINUATION), forward_keywords(arguments));
     this.push_state(s);
     var result = yield SUSPEND;
     yield co_return(result);
