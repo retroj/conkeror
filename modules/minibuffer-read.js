@@ -336,9 +336,7 @@ text_entry_minibuffer_state.prototype = {
         var c = this.completions;
 
         if (this.completions_valid && c && !this.match_required && i >= 0 && i < c.count)
-        {
             m.set_input_state(c.get_input_state(i));
-        }
     }
 };
 

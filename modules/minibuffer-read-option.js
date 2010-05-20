@@ -49,7 +49,7 @@ single_character_options_minibuffer_state.prototype = {
         minibuffer_input_state.prototype.destroy.call(this, window);
     }
 };
-function single_character_options_enter_character(window, s, event) {
+function single_character_options_enter_character (window, s, event) {
     var ch = String.fromCharCode(event.charCode);
     if (s.options.indexOf(ch) != -1) {
         var c = s.continuation;
