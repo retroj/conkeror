@@ -11,28 +11,28 @@ in_module(null);
 
 function string_hashset () {}
 string_hashset.prototype = {
-    constructor : string_hashset,
+    constructor: string_hashset,
 
-    add : function (s) {
+    add: function (s) {
         this["-" + s] = true;
     },
 
-    contains : function (s) {
+    contains: function (s) {
         return (("-" + s) in this);
     },
 
-    remove : function (s) {
+    remove: function (s) {
         delete this["-" + s];
     },
 
-    for_each : function (f) {
+    for_each: function (f) {
         for (var i in this) {
             if (i[0] == "-")
                 f(i.slice(1));
         }
     },
 
-    iterator : function () {
+    iterator: function () {
         for (let k in this) {
             if (i[0] == "-")
                 yield i.slice(1);
@@ -42,40 +42,40 @@ string_hashset.prototype = {
 
 function string_hashmap () {}
 string_hashmap.prototype = {
-    constructor : string_hashmap,
+    constructor: string_hashmap,
 
-    put : function (s,value) {
+    put: function (s,value) {
         this["-" + s] = value;
     },
 
-    contains : function (s) {
+    contains: function (s) {
         return (("-" + s) in this);
     },
 
-    get : function (s, default_value) {
+    get: function (s, default_value) {
         if (this.contains(s))
             return this["-" + s];
         return default_value;
     },
 
-    get_put_default : function (s, default_value) {
+    get_put_default: function (s, default_value) {
         if (this.contains(s))
             return this["-" + s];
         return (this["-" + s] = default_value);
     },
 
-    remove : function (s) {
+    remove: function (s) {
         delete this["-" + s];
     },
 
-    for_each : function (f) {
+    for_each: function (f) {
         for (var i in this) {
             if (i[0] == "-")
                 f(i.slice(1), this[i]);
         }
     },
 
-    for_each_value : function (f) {
+    for_each_value: function (f) {
         for (var i in this) {
             if (i[0] == "-")
                 f(this[i]);
@@ -265,7 +265,7 @@ function dom_generator (document, ns) {
 }
 dom_generator.prototype = {
     constructor: dom_generator,
-    element : function (tag, parent) {
+    element: function (tag, parent) {
         var node = this.document.createElementNS(this.ns, tag);
         var i = 1;
         if (parent != null && (parent instanceof Ci.nsIDOMNode)) {
@@ -277,7 +277,7 @@ dom_generator.prototype = {
         return node;
     },
 
-    text : function (str, parent) {
+    text: function (str, parent) {
         var node = this.document.createTextNode(str);
         if (parent)
             parent.appendChild(node);
@@ -285,7 +285,7 @@ dom_generator.prototype = {
     },
 
 
-    stylesheet_link : function (href, parent) {
+    stylesheet_link: function (href, parent) {
         var node = this.element("link");
         node.setAttribute("rel", "stylesheet");
         node.setAttribute("type", "text/css");
@@ -296,7 +296,7 @@ dom_generator.prototype = {
     },
 
 
-    add_stylesheet : function (url) {
+    add_stylesheet: function (url) {
         var head = this.document.documentElement.firstChild;
         this.stylesheet_link(url, head);
     }
