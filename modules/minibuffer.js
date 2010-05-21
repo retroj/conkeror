@@ -11,20 +11,27 @@ in_module(null);
 /**
  * minibuffer_state: abstact base class for minibuffer states.
  */
-function minibuffer_state (minibuffer, keymap, use_input_mode) {
+function minibuffer_state (minibuffer, keymap) {
     this.minibuffer = minibuffer;
     this.keymap = keymap;
-    this.use_input_mode = use_input_mode;
 }
 minibuffer_state.prototype = {
-    load: function () {},
-    unload: function () {},
+    load: function () {
+        this.minibuffer.window.input.current.override_keymap = this.keymap;
+    },
+    unload: function () {
+        this.minibuffer.window.input.current.override_keymap = null;
+    },
     destroy: function () {}
 };
 
 
+/**
+ * minibuffer_message_state: base class for minibuffer states which do not
+ * use the input element, but still may use a keymap.
+ */
 function minibuffer_message_state (minibuffer, keymap, message, cleanup_function) {
-    minibuffer_state.call(this, minibuffer, keymap, false);
+    minibuffer_state.call(this, minibuffer, keymap);
     this._message = message;
     this.cleanup_function = cleanup_function;
 }
@@ -36,6 +43,10 @@ minibuffer_message_state.prototype = {
         this.minibuffer._restore_normal_state();
         this.minibuffer._show(this._message);
     },
+    load: function () {
+        minibuffer_state.prototype.load.call(this);
+        this.minibuffer._show(this.message);
+    },
     cleanup_function: null,
     destroy: function () {
         if (this.cleanup_function)
@@ -45,8 +56,12 @@ minibuffer_message_state.prototype = {
 };
 
 
+/**
+ * minibuffer_input_state: base class for minibuffer states which use the
+ * input element.
+ */
 function minibuffer_input_state (minibuffer, keymap, prompt, input, selection_start, selection_end) {
-    minibuffer_state.call(this, minibuffer, keymap, true);
+    minibuffer_state.call(this, minibuffer, keymap);
     this.prompt = prompt;
     if (input)
         this.input = input;
@@ -65,6 +80,20 @@ function minibuffer_input_state (minibuffer, keymap, prompt, input, selection_st
 minibuffer_input_state.prototype = {
     __proto__: minibuffer_state.prototype,
     mark_active: false,
+    load: function () {
+        minibuffer_state.prototype.load.call(this);
+        this.minibuffer._input_text = this.input;
+        this.minibuffer.prompt = this.prompt;
+        this.minibuffer._set_selection(this.selection_start,
+                                       this.selection_end);
+    },
+    unload: function () {
+        this.input = this.minibuffer._input_text;
+        this.prompt = this.minibuffer.prompt;
+        this.selection_start = this.minibuffer._selection_start;
+        this.selection_end = this.minibuffer._selection_end;
+        minibuffer_state.prototype.unload.call(this);
+    },
     destroy: function () {
         this.minibuffer.window.input.end_recursion();
         minibuffer_state.prototype.destroy.call(this);
@@ -242,6 +271,8 @@ minibuffer.prototype = {
         }
     },
 
+    //XXX: breaking stack discipline can cause incorrect
+    //     input recursion termination
     remove_state: function (state) {
         var i = this.states.indexOf(state);
         if (i == -1)
@@ -309,27 +340,16 @@ minibuffer.prototype = {
 
     _restore_state: function () {
         var s = this.current_state;
-        var want_input_mode = false;
         if (s) {
             if (!this.active) {
                 this.saved_focused_frame = this.window.document.commandDispatcher.focusedWindow;
                 this.saved_focused_element = this.window.document.commandDispatcher.focusedElement;
             }
-            if (s.use_input_mode) {
-                want_input_mode = true;
-                this._input_text = s.input;
-                this.prompt = s.prompt;
-                this._set_selection(s.selection_start, s.selection_end);
-            } else {
-                this._show(s._message);
-            }
             s.load();
-            this.window.input.current.override_keymap = s.keymap;
             this.active = true;
         } else {
             if (this.active) {
                 this.active = false;
-                this.window.input.current.override_keymap = null;
                 this.window.buffers.current.browser.focus();
                 if (this.saved_focused_element && this.saved_focused_element.focus)
                     set_focus_no_scroll(this.window, this.saved_focused_element);
@@ -340,12 +360,13 @@ minibuffer.prototype = {
                 this._show(this.current_message || this.default_message);
             }
         }
-        var in_input_mode = this._input_mode_enabled && !this._showing_message;
         if (this._showing_message) {
             this.window.clearTimeout(this._message_timer_ID);
             this._message_timer_ID = null;
             this._showing_message = false;
         }
+        var want_input_mode = s instanceof minibuffer_input_state;
+        var in_input_mode = this._input_mode_enabled && !this._showing_message;
         if (want_input_mode && !in_input_mode)
             this._switch_to_input_mode();
         else if (!want_input_mode && in_input_mode)
@@ -355,15 +376,8 @@ minibuffer.prototype = {
 
     _save_state: function () {
         var s = this.current_state;
-        if (s) {
-            if (s.use_input_mode) {
-                s.input = this._input_text;
-                s.prompt = this.prompt;
-                s.selection_start = this._selection_start;
-                s.selection_end = this._selection_end;
-            }
+        if (s)
             s.unload();
-        }
     },
 
     insert_before: function (element) {
