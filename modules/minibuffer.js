@@ -17,12 +17,8 @@ function minibuffer_state (minibuffer, keymap) {
 }
 minibuffer_state.prototype = {
     constructor: minibuffer_state,
-    load: function () {
-        this.minibuffer.window.input.current.override_keymap = this.keymap;
-    },
-    unload: function () {
-        this.minibuffer.window.input.current.override_keymap = null;
-    },
+    load: function () {},
+    unload: function () {},
     destroy: function () {}
 };
 

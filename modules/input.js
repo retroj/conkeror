@@ -76,10 +76,6 @@ function input_state (window) {
 input_state.prototype = {
     constructor: input_state,
     continuation: null,
-
-    // If this is non-null, it is used instead of the current buffer's
-    // keymap.  Used for minibuffer.
-    override_keymap: null //this should be stored in the minibuffer state, right?
 };
 
 
@@ -118,8 +114,10 @@ define_window_local_hook("keypress_hook", RUN_HOOK_UNTIL_SUCCESS,
  * the stack that represents any on-going key sequence.
  */
 function get_current_keymaps (window) {
-    if (window.input.current.override_keymap)
-        return [window.input.current.override_keymap];
+    var m = window.minibuffer;
+    var s = m.current_state;
+    if (m.active && s.keymap)
+        return [s.keymap];
     if (window.buffers.current.override_keymaps[0] !== undefined)
         return window.buffers.current.override_keymaps;
     return window.buffers.current.keymaps;
