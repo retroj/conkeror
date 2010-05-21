@@ -39,6 +39,7 @@ function application () {
     }
 }
 application.prototype = {
+    constructor: application,
     Cc: Cc,
     Ci: Ci,
     Cr: Cr,

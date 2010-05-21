@@ -16,6 +16,7 @@ function minibuffer_state (minibuffer, keymap) {
     this.keymap = keymap;
 }
 minibuffer_state.prototype = {
+    constructor: minibuffer_state,
     load: function () {
         this.minibuffer.window.input.current.override_keymap = this.keymap;
     },
@@ -36,6 +37,7 @@ function minibuffer_message_state (minibuffer, keymap, message, cleanup_function
     this.cleanup_function = cleanup_function;
 }
 minibuffer_message_state.prototype = {
+    constructor: minibuffer_message_state,
     __proto__: minibuffer_state.prototype,
     _message: null,
     get message () { return this._message; },
@@ -78,6 +80,7 @@ function minibuffer_input_state (minibuffer, keymap, prompt, input, selection_st
     this.minibuffer.window.input.begin_recursion();
 }
 minibuffer_input_state.prototype = {
+    constructor: minibuffer_input_state,
     __proto__: minibuffer_state.prototype,
     mark_active: false,
     load: function () {
@@ -128,6 +131,7 @@ function basic_minibuffer_state (minibuffer) {
                                 sel_start, sel_end);
 }
 basic_minibuffer_state.prototype = {
+    constructor: basic_minibuffer_state,
     __proto__: minibuffer_input_state.prototype
 };
 
@@ -174,9 +178,8 @@ function minibuffer (window) {
     this.last_message = "";
     this.states = [];
 }
-
 minibuffer.prototype = {
-    constructor: minibuffer.constructor,
+    constructor: minibuffer,
     get _selection_start () { return this.input_element.selectionStart; },
     get _selection_end () { return this.input_element.selectionEnd; },
     get _input_text () { return this.input_element.value; },

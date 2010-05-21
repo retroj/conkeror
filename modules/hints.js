@@ -63,8 +63,8 @@ function hint_manager (window, xpath_expr, focused_frame, focused_element) {
     // Generate
     this.generate_hints();
 }
-
 hint_manager.prototype = {
+    constructor: hint_manager,
     current_hint_string: "",
     current_hint_number: -1,
 
@@ -418,6 +418,7 @@ function hints_minibuffer_state (minibuffer, continuation, buffer) {
     this.focused_frame = buffer.focused_frame;
 }
 hints_minibuffer_state.prototype = {
+    constructor: hints_minibuffer_state,
     __proto__: basic_minibuffer_state.prototype,
     manager: null,
     typed_string: "",

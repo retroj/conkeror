@@ -74,6 +74,7 @@ function input_state (window) {
     this.fallthrough = {};
 }
 input_state.prototype = {
+    constructor: input_state,
     continuation: null,
 
     // If this is non-null, it is used instead of the current buffer's

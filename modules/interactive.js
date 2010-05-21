@@ -60,6 +60,7 @@ function interactive_context (buffer) {
     }
 }
 interactive_context.prototype = {
+    constructor: interactive_context,
 
     get P () this.prefix_argument,
 

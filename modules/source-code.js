@@ -18,6 +18,7 @@ function source_code_reference (uri, line_number) {
     this.line_number = line_number;
 }
 source_code_reference.prototype = {
+    constructor: source_code_reference,
     get module_name () {
         if (this.uri.indexOf(module_uri_prefix) == 0)
             return this.uri.substring(module_uri_prefix.length);

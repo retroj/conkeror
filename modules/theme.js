@@ -31,6 +31,7 @@ in_module(null);
         this.sheets = sheets;
     }
     theme.prototype = {
+        constructor: theme,
         register: function (cssfile) {
             register_agent_stylesheet(this.location+cssfile);
         },

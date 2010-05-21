@@ -27,6 +27,7 @@ function mime_type_parse (mime_type) {
 
 function mime_type_table () {}
 mime_type_table.prototype = {
+    constructor: mime_type_table,
     table: {},
     get: function (mime_type) {
         var p = mime_type_parse(mime_type);

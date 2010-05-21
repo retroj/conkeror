@@ -96,6 +96,7 @@ function completions_tree_view (minibuffer_state) {
 var atom_service = Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService);
 
 completions_tree_view.prototype = {
+    constructor: completions_tree_view,
     get rowCount () {
         var c = this.minibuffer_state.completions;
         if (!c)
@@ -130,6 +131,7 @@ completions_tree_view.prototype = {
 
 // inherit from basic_minibuffer_state
 text_entry_minibuffer_state.prototype = {
+    constructor: text_entry_minibuffer_state,
     __proto__: basic_minibuffer_state.prototype,
     load: function () {
         basic_minibuffer_state.prototype.load.call(this);

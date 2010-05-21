@@ -33,6 +33,7 @@ function help_document_generator (document, buffer) {
     this.buffer = buffer;
 }
 help_document_generator.prototype = {
+    constructor: help_document_generator,
     __proto__: dom_generator.prototype,
 
     key_binding: function (str, parent) {
@@ -154,8 +155,8 @@ function describe_bindings_buffer (window) {
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
-
 describe_bindings_buffer.prototype = {
+    constructor: describe_bindings_buffer,
     title: "Key bindings",
 
     description: "*bindings*",
@@ -317,8 +318,8 @@ function apropos_command_buffer (window) {
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
-
 apropos_command_buffer.prototype = {
+    constructor: apropos_command_buffer,
     title: "Apropos commands",
 
     description: "*Apropos*",
@@ -416,8 +417,8 @@ function describe_command_buffer (window) {
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
-
 describe_command_buffer.prototype = {
+    constructor: describe_command_buffer,
     get title () { return "Command help: " + this.command; },
 
     description: "*help*",
@@ -510,8 +511,8 @@ function describe_key_buffer (window) {
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
-
 describe_key_buffer.prototype = {
+    constructor: describe_key_buffer,
     get title () { return "Key help: " + this.key_sequence; },
 
     description: "*help*",
@@ -659,8 +660,8 @@ function describe_variable_buffer (window) {
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
 }
-
 describe_variable_buffer.prototype = {
+    constructor: describe_variable_buffer,
     get title () { return "Variable help: " + this.variable; },
 
     description: "*help*",

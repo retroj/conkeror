@@ -168,6 +168,7 @@ function content_handler_prompt (ctx) {
  */
 function download_helper () {}
 download_helper.prototype = {
+    constructor: download_helper,
     QueryInterface: generate_QI(Ci.nsIHelperAppLauncherDialog,
                                 Ci.nsIWebProgressListener2),
 

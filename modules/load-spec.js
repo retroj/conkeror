@@ -156,7 +156,9 @@ function load_spec (x) {
     spec.__proto__ = load_spec.prototype;
     return spec;
 }
-load_spec.prototype = {};
+load_spec.prototype = {
+    constructor: load_spec
+};
 
 function load_spec_document (x) {
     return x.document;

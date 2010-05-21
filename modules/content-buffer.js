@@ -586,6 +586,7 @@ function browser_dom_window (window) {
     this.next_target = null;
 }
 browser_dom_window.prototype = {
+    constructor: browser_dom_window,
     QueryInterface: generate_QI(Ci.nsIBrowserDOMWindow),
 
     openURI: function (aURI, aOpener, aWhere, aContext) {

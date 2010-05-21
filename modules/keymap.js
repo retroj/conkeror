@@ -528,6 +528,7 @@ function key_binding_reader (minibuffer, continuation) {
     this.key_sequence = [];
 }
 key_binding_reader.prototype = {
+    constructor: key_binding_reader,
     __proto__: minibuffer_input_state.prototype,
     destroy: function () {
         if (this.continuation)
@@ -543,6 +544,7 @@ function invalid_key_binding (seq) {
     return e;
 }
 invalid_key_binding.prototype = {
+    constructor: invalid_key_binding,
     __proto__: interactive_error.prototype
 };
 

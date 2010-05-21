@@ -10,7 +10,6 @@
 in_module(null);
 
 function string_hashset () {}
-
 string_hashset.prototype = {
     constructor : string_hashset,
 
@@ -42,7 +41,6 @@ string_hashset.prototype = {
 };
 
 function string_hashmap () {}
-
 string_hashmap.prototype = {
     constructor : string_hashmap,
 
@@ -266,6 +264,7 @@ function dom_generator (document, ns) {
     this.ns = ns;
 }
 dom_generator.prototype = {
+    constructor: dom_generator,
     element : function (tag, parent) {
         var node = this.document.createElementNS(this.ns, tag);
         var i = 1;
@@ -444,6 +443,7 @@ function queue () {
     this.output = [];
 }
 queue.prototype = {
+    constructor: queue,
     get length () {
         return this.input.length + this.output.length;
     },

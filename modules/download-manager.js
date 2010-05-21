@@ -41,6 +41,7 @@ function download_info (source_buffer, mozilla_info, target_file) {
         this.attach(mozilla_info);
 }
 download_info.prototype = {
+    constructor: download_info,
     attach: function (mozilla_info) {
         if (!this.target_file)
             this.__defineGetter__("target_file", function () {
@@ -414,6 +415,7 @@ function download_buffer (window) {
     this.constructor_end();
 }
 download_buffer.prototype = {
+    constructor: download_buffer,
     __proto__: special_buffer.prototype,
 
     destroy: function () {
@@ -818,6 +820,7 @@ interactive("download-shell-command",
 
 function download_manager_ui () {}
 download_manager_ui.prototype = {
+    constructor: download_manager_ui,
     QueryInterface: XPCOMUtils.generateQI([Ci.nsIDownloadManagerUI]),
 
     getAttention: function () {},

@@ -12,6 +12,7 @@ Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function cmdline () {}
 cmdline.prototype = {
+    constructor: cmdline,
     handle: function (cmdline) {
         if (cmdline.preventDefault)
             return;

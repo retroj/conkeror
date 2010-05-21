@@ -124,8 +124,9 @@ function buffer (window) {
 
     this.constructor_end();
 }
-
 buffer.prototype = {
+    constructor: buffer,
+
     /* Saved focus state */
     saved_focused_frame: null,
     saved_focused_element: null,
@@ -307,7 +308,6 @@ function buffer_container (window, create_initial_buffer) {
     window.buffers = this;
     create_initial_buffer(window, this.container.firstChild);
 }
-
 buffer_container.prototype = {
     constructor: buffer_container,
 
@@ -896,6 +896,7 @@ function minibuffer_mode_indicator (window) {
     this.update();
 }
 minibuffer_mode_indicator.prototype = {
+    constructor: minibuffer_mode_indicator,
     update: function () {
         var buf = this.window.buffers.current;
         var modes = buf.enabled_modes;
@@ -952,8 +953,8 @@ function minibuffer_input_mode_indicator (window) {
     add_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
     this.update();
 }
-
 minibuffer_input_mode_indicator.prototype = {
+    constructor: minibuffer_input_mode_indicator,
     update: function () {
         var buf = this.window.buffers.current;
         var mode = buf.input_mode;

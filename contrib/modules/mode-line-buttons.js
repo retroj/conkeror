@@ -14,6 +14,7 @@ function button_widget (window) {
     text_widget.call(this, window);
 }
 button_widget.prototype = {
+    constructor: button_widget,
     __proto__: text_widget.prototype,
 
     make_element: function (window) {
@@ -57,6 +58,7 @@ function make_button_widget (command, attributes) {
         button_widget.call(this, window);
     }
     new_widget.prototype = {
+        constructor: new_widget,
         __proto__: button_widget.prototype,
         command: command,
         attributes: attributes

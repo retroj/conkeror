@@ -18,6 +18,7 @@ function generic_element_widget_container (window, container) {
     this.container = container;
 }
 generic_element_widget_container.prototype = {
+    constructor: generic_element_widget_container,
     add_text_widget: function (widget) {
         keywords(arguments, $flex = widget.flex,
                  $class = widget.class_name, $crop = widget.crop);
@@ -59,6 +60,7 @@ function mode_line (window) {
     mode_line_hook.run(window, this);
 }
 mode_line.prototype = {
+    constructor: mode_line,
     __proto__: generic_element_widget_container.prototype,
 
     uninstall: function () {
@@ -74,6 +76,7 @@ function generic_widget_element (element, widget) {
     widget.attach(this);
 }
 generic_widget_element.prototype = {
+    constructor: generic_widget_element,
     get text () {
         return this.element.getAttribute("value");
     },
@@ -98,6 +101,7 @@ function text_widget (window) {
     this.window = window;
 }
 text_widget.prototype = {
+    constructor: text_widget,
     add_hook: function (hook_name, handler) {
         var obj = this;
         if (handler == null)

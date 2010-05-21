@@ -11,6 +11,7 @@ function timer_callback (callback) {
     this.callback = callback;
 }
 timer_callback.prototype = {
+    constructor: timer_callback,
     QueryInterface: XPCOMUtils.generateQI([Ci.nsITimerCallback]),
 
     notify: function (timer) {

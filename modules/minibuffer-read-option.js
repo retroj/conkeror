@@ -42,6 +42,7 @@ function single_character_options_minibuffer_state (minibuffer, continuation) {
     this.options = arguments.$options;
 }
 single_character_options_minibuffer_state.prototype = {
+    constructor: single_character_options_minibuffer_state,
     __proto__: minibuffer_input_state.prototype,
     destroy: function () {
         if (this.continuation)
