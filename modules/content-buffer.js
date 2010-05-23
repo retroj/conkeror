@@ -82,6 +82,10 @@ function content_buffer_modality (buffer) {
         buffer.keymaps.push(content_buffer_anchor_keymap);
         return;
     }
+    if (elem instanceof Ci.nsIDOMHTMLButtonElement) {
+        button_input_mode(buffer, true);
+        return;
+    }
     var frame = buffer.focused_frame;
     if (frame && frame.document.designMode &&
         frame.document.designMode == "on")
