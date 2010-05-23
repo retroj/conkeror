@@ -130,10 +130,10 @@ define_browser_object_class("links",
     "Browser object class for selecting a hyperlink, form field, "+
     "or link-like element, via hinting.",
     xpath_browser_object_handler(
-        "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link'] | " +
+        "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link' or @role='button'] | " +
         "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
         "//*[@contenteditable = 'true'] |" +
-        "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link'] | " +
+        "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link' or @role='button'] | " +
         "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | //xhtml:button | //xhtml:select | " +
         "//xhtml:*[@contenteditable = 'true'] | "+
         "//svg:a"),
