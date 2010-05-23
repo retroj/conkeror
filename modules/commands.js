@@ -84,7 +84,7 @@ interactive("paste-x-primary-selection",
 
 
 function open_line (field) {
-    modify_region(field, function() "\n", true);
+    modify_region(field, function() ["\n", 0]);
 }
 interactive("open-line",
     "If there is an active region, replace is with a newline, otherwise just "+

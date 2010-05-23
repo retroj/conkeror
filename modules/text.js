@@ -32,11 +32,12 @@ function call_on_focused_field (I, func) {
 
 
 /**
- * Replace the current region with modifier(selection). Deactivates region and
- * sets point to the end of the inserted text, unless keep_point is true, in
- * which case the point will be left at the beginning of the inserted text.
+ * Replace the current region with modifier(selection). Deactivates region
+ * and sets point to the end of the inserted text.  The modifier can
+ * control the exact placement of point by returning an array
+ * [replacement, point_offset] instead of just a string.
  */
-function modify_region (field, modifier, keep_point) {
+function modify_region (field, modifier) {
     if (field.getAttribute("contenteditable") == 'true') {
         // richedit
         var doc = field.ownerDocument;
@@ -50,10 +51,14 @@ function modify_region (field, modifier, keep_point) {
         var replacement =
             modifier(field.value.substring(field.selectionStart, field.selectionEnd));
         var point = field.selectionStart;
+        if (array_p(replacement)) {
+            point += replacement[1];
+            replacement = replacement[0];
+        } else
+            point += replacement.length;
         field.value =
             field.value.substr(0, field.selectionStart) + replacement +
             field.value.substr(field.selectionEnd);
-        if (!keep_point) point += replacement.length;
         field.setSelectionRange(point, point);
     }
 }
