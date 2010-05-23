@@ -48,7 +48,7 @@ function modify_region (field, modifier, keep_point) {
     } else {
         // normal text field
         var replacement =
-            modifier(field.value.substring(field.selectionStart, field.selectionEnd+1));
+            modifier(field.value.substring(field.selectionStart, field.selectionEnd));
         var point = field.selectionStart;
         field.value =
             field.value.substr(0, field.selectionStart) + replacement +
