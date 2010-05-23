@@ -92,6 +92,19 @@ interactive("open-line",
     function (I) call_on_focused_field(I, open_line));
 
 
+interactive("insert-parentheses",
+    "Insert a pair of parentheses, or surround the currently selected text "+
+    "with a pair of parentheses.",
+    function (I) {
+        call_on_focused_field(I, function (field) {
+            modify_region(field,
+                          function (str) {
+                              return ["("+str+")", (str ? str.length+2 : 1)];
+                          });
+        });
+    });
+
+
 function transpose_chars (field) {
     var value = field.value;
     var caret = field.selectionStart; // Caret position.
