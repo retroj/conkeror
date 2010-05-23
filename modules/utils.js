@@ -806,46 +806,6 @@ function center_in_viewport (win, elem) {
 
 
 /**
- * Takes an interactive context and a function to call with the word
- * at point as its sole argument, and which returns a modified word.
- */
-//XXX: this should be implemented in terms of modify_region,
-//     in order to work in richedit fields.
-function modify_word_at_point (I, func) {
-    var focused = I.buffer.focused_element;
-
-    // Skip any whitespaces at point and move point to the right place.
-    var point = focused.selectionStart;
-    var rest = focused.value.substring(point);
-
-    // Skip any whitespaces.
-    for (var i = 0, rlen = rest.length; i < rlen; i++) {
-        if (" \n".indexOf(rest.charAt(i)) == -1) {
-            point += i;
-            break;
-        }
-    }
-
-    // Find the next whitespace, as it is the end of the word.  If no next
-    // whitespace is found, we're at the end of input.  TODO: Add "\n" support.
-    goal = focused.value.indexOf(" ", point);
-    if (goal == -1)
-        goal = focused.value.length;
-
-    // Change the value of the text field.
-    var input = focused.value;
-    focused.value =
-        input.substring(0, point) +
-        func(input.substring(point, goal)) +
-        input.substring(goal);
-
-    // Move point.
-    focused.selectionStart = goal;
-    focused.selectionEnd = goal;
-}
-
-
-/**
  * Simple predicate returns true if elem is an nsIDOMNode or
  * nsIDOMWindow.
  */

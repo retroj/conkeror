@@ -73,56 +73,6 @@ interactive("jsconsole",
     $browser_object = "chrome://global/content/console.xul");
 
 
-/**
- * Given a callback func and an interactive context I, call func, passing
- * either a focused field, or the minibuffer's input element if the
- * minibuffer is active. Afterward, call `scroll_selection_into_view' on
- * the field. See `paste_x_primary_selection' and `open_line' for
- * examples.
- */
-function call_on_focused_field (I, func) {
-    var m = I.window.minibuffer;
-    var s = m.current_state;
-    if (m._input_mode_enabled) {
-        m._restore_normal_state();
-        var e = m.input_element;
-    } else
-        var e = I.buffer.focused_element;
-    func(e);
-    scroll_selection_into_view(e);
-    if (s && s.handle_input)
-        s.handle_input(m);
-}
-
-
-/**
- * Replace the current region with modifier(selection). Deactivates region and
- * sets point to the end of the inserted text, unless keep_point is true, in
- * which case the point will be left at the beginning of the inserted text.
- */
-function modify_region (field, modifier, keep_point) {
-    if (field.getAttribute("contenteditable") == 'true') {
-        // richedit
-        var doc = field.ownerDocument;
-        var win = doc.defaultView;
-        doc.execCommand("insertHTML", false,
-                        html_escape(modifier(win.getSelection().toString()))
-                            .replace(/\n/g, '<br>')
-                            .replace(/  /g, ' &nbsp;'));
-    } else {
-        // normal text field
-        var replacement =
-            modifier(field.value.substring(field.selectionStart, field.selectionEnd+1));
-        var point = field.selectionStart;
-        field.value =
-            field.value.substr(0, field.selectionStart) + replacement +
-            field.value.substr(field.selectionEnd);
-        if (!keep_point) point += replacement.length;
-        field.setSelectionRange(point, point);
-    }
-}
-
-
 function paste_x_primary_selection (field) {
     modify_region(field, function (str) read_from_x_primary_selection());
 }
