@@ -48,13 +48,16 @@ function modify_region (field, modifier) {
         // richedit
         var doc = field.ownerDocument;
         var win = doc.defaultView;
+        let replacement = modifier(win.getSelection().toString());
+        if (array_p(replacement))
+            replacement = replacement[0];
         doc.execCommand("insertHTML", false,
-                        html_escape(modifier(win.getSelection().toString()))
+                        html_escape(replacement)
                             .replace(/\n/g, '<br>')
                             .replace(/  /g, ' &nbsp;'));
     } else {
         // normal text field
-        var replacement =
+        let replacement =
             modifier(field.value.substring(field.selectionStart, field.selectionEnd));
         var point = field.selectionStart;
         if (array_p(replacement)) {
