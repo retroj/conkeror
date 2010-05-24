@@ -80,7 +80,7 @@ interactive("paste-x-primary-selection",
     "Insert the contents of the X primary selection into the selected field or "+
     "minibuffer. Deactivates the region if it is active, and leaves the point "+
     "after the inserted text.",
-    function (I) call_on_focused_field(I, paste_x_primary_selection));
+    function (I) call_on_focused_field(I, paste_x_primary_selection, true));
 
 
 function open_line (field) {
@@ -89,7 +89,7 @@ function open_line (field) {
 interactive("open-line",
     "If there is an active region, replace is with a newline, otherwise just "+
     "insert a newline. In both cases leave point before the inserted newline.",
-    function (I) call_on_focused_field(I, open_line));
+    function (I) call_on_focused_field(I, open_line, true));
 
 
 interactive("insert-parentheses",
@@ -101,7 +101,7 @@ interactive("insert-parentheses",
                           function (str) {
                               return ["("+str+")", (str ? str.length+2 : 1)];
                           });
-        });
+        }, true);
     });
 
 
@@ -131,7 +131,7 @@ function transpose_chars (field) {
 }
 interactive("transpose-chars",
     "Interchange characters around point, moving forward one character.",
-    function (I) call_on_focused_field(I, transpose_chars));
+    function (I) call_on_focused_field(I, transpose_chars, true));
 
 
 interactive("execute-extended-command",

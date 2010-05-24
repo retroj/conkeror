@@ -16,7 +16,7 @@ in_module(null);
  * the field. See `paste_x_primary_selection' and `open_line' for
  * examples.
  */
-function call_on_focused_field (I, func) {
+function call_on_focused_field (I, func, clear_mark) {
     var m = I.window.minibuffer;
     var s = m.current_state;
     if (m._input_mode_enabled) {
@@ -25,6 +25,12 @@ function call_on_focused_field (I, func) {
     } else
         var e = I.buffer.focused_element;
     func(e);
+    if (clear_mark) {
+        if (m._input_mode_enabled)
+            s.mark_active = false;
+        else
+            I.buffer.mark_active = false;
+    }
     scroll_selection_into_view(e);
     if (s && s.handle_input)
         s.handle_input(m);
