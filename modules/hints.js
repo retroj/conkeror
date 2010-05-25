@@ -122,14 +122,14 @@ hint_manager.prototype = {
                              left: rect.left,
                              bottom: rect.bottom,
                              right: rect.right };
-                    var coords = elem.getAttribute("coords");
-                    if (coords) {
-                        coords = coords.match(/^(-?\d+)\D+(-?\d+)/);
+                    try {
+                        var coords = elem.getAttribute("coords")
+                            .match(/^\D*(-?\d+)\D+(-?\d+)/);
                         if (coords.length == 3) {
                             rect.left += parseInt(coords[1]);
                             rect.top += parseInt(coords[2]);
                         }
-                    }
+                    } catch (e) {}
                 }
                 if (!rect || rect.left > maxX || rect.right < minX || rect.top > maxY || rect.bottom < minY)
                     continue;
