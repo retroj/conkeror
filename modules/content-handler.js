@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
- * (C) Copyright 2009 John Foerch
+ * (C) Copyright 2009-2010 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -41,6 +41,25 @@ function content_handler_save (ctx) {
         $select);
     register_download(ctx.buffer, ctx.launcher.source);
     ctx.launcher.saveToDisk(file, false);
+}
+
+function content_handler_save_in (path, inhibit_prompt) {
+    path = make_file(path);
+    return function (ctx) {
+        var file;
+        var suggested_path = path.clone();
+        suggested_path.append(ctx.launcher.suggestedFileName);
+        if (inhibit_prompt)
+            file = suggested_path;
+        else {
+            file = yield ctx.window.minibuffer.read_file_check_overwrite(
+                $prompt = "Save to file:",
+                $initial_value = suggested_path.path,
+                $select);
+        }
+        register_download(ctx.buffer, ctx.launcher.source);
+        ctx.launcher.saveToDisk(file, false);
+    };
 }
 
 function content_handler_open (ctx) {
