@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -118,9 +118,17 @@ function makeURLAbsolute (base, url) {
 function make_file (path) {
     if (path instanceof Ci.nsILocalFile)
         return path;
-    var f = Cc["@mozilla.org/file/local;1"]
-        .createInstance(Ci.nsILocalFile);
-    f.initWithPath(path);
+    if (path == "~")
+        return get_home_directory();
+    var f;
+    if (path.substring(0,2) == "~/") {
+        f = get_home_directory();
+        f.appendRelativePath(path.substring(2));
+    } else {
+        f = Cc["@mozilla.org/file/local;1"]
+            .createInstance(Ci.nsILocalFile);
+        f.initWithPath(path);
+    }
     return f;
 }
 
