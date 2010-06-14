@@ -23,7 +23,7 @@ CONKEROR_XULRUNNER_VERSION=${CONKEROR_XULRUNNER_VERSION+"[$CONKEROR_XULRUNNER_VE
 
 ## locate xulrunner
 versions=${CONKEROR_XULRUNNER_VERSION:-$(grep -h '^\[' "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null | sort -urV)}
-for version in ${versions}; do
+for version in "${versions}"; do
     xrdir=$(grep -Fxh -A2 -m1 "$version" "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null |\
             grep GRE_PATH |\
             cut -d= -f2)
