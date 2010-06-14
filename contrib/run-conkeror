@@ -19,12 +19,12 @@ thisscript=$(readlink -f "$0")
 contrib=${thisscript%/*}
 conkeror=${contrib%/*}
 
-CONKEROR_XULRUNNER_VERSION=${CONKEROR_XULRUNNER_VERSION+"[$CONKEROR_XULRUNNER_VERSION]"}
-
 ## locate xulrunner
-versions=${CONKEROR_XULRUNNER_VERSION:-$(grep -h '^\[' "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null | sort -urV)}
+versions=${CONKEROR_XULRUNNER_VERSION:-$(grep -h '^\[' "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null \
+    | sed -e 's/^\[\(.*\)\]/\1/' \
+    | sort -urV)}
 for version in ${versions}; do
-    xrdir=$(grep -Fxh -A2 -m1 "$version" "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null |\
+    xrdir=$(grep -Fxh -A2 -m1 "[$version]" "$HOME"/.gre.d/*.conf /etc/gre.d/*.conf 2>/dev/null |\
             grep GRE_PATH |\
             cut -d= -f2)
     xulrunner="${xrdir%/}/xulrunner"
