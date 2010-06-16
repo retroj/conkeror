@@ -9,7 +9,7 @@
 in_module(null);
 
 function caret_modality (buffer, elem) {
-    return caret_keymap;
+    buffer.keymaps.push(caret_keymap);
 }
 
 define_buffer_mode('caret_mode',
