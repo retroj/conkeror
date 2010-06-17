@@ -468,10 +468,6 @@ hints_minibuffer_state.prototype = {
                                                         delay);
     },
 
-    ran_minibuffer_command: function (m) {
-        this.handle_input(m);
-    },
-
     handle_input: function (m) {
         m._set_selection();
         this.clear_auto_exit_timer();
@@ -534,7 +530,9 @@ function hints_backspace (window, s) {
         s.manager.select_hint(num);
     } else if (s.typed_string.length > 0) {
         s.typed_string = s.typed_string.substring(0, s.typed_string.length - 1);
+        m.ignore_input_events = true;
         m._input_text = s.typed_string;
+        m.ignore_input_events = false;
         m._set_selection();
         s.manager.current_hint_string = s.typed_string;
         s.manager.current_hint_number = -1;

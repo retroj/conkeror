@@ -214,25 +214,24 @@ interactive("edit-current-field-in-external-editor",
 define_variable("kill_whole_line", false,
                 "If true, `kill-line' with no arg at beg of line kills the whole line.");
 
-function cut_to_end_of_line (buffer) {
-    var elem = buffer.focused_element;
+function cut_to_end_of_line (field, window) {
     try {
-        var st = elem.selectionStart;
-        var en = elem.selectionEnd;
+        var st = field.selectionStart;
+        var en = field.selectionEnd;
         if (st == en) {
             // there is no selection.  set one up.
-            var eol = elem.value.indexOf("\n", en);
+            var eol = field.value.indexOf("\n", en);
             if (eol == -1)
-                elem.selectionEnd = elem.textLength;
+                field.selectionEnd = field.textLength;
             else if (eol == st)
-                elem.selectionEnd = eol + 1;
+                field.selectionEnd = eol + 1;
             else if (kill_whole_line &&
-                     (st == 0 || elem.value[st - 1] == "\n"))
-                elem.selectionEnd = eol + 1;
+                     (st == 0 || field.value[st - 1] == "\n"))
+                field.selectionEnd = eol + 1;
             else
-                elem.selectionEnd = eol;
+                field.selectionEnd = eol;
         }
-        buffer.do_command('cmd_cut');
+        call_builtin_command(window, 'cmd_cut');
     } catch (e) {
         /* FIXME: Make this work for richedit mode as well */
     }
@@ -240,36 +239,44 @@ function cut_to_end_of_line (buffer) {
 interactive("cut-to-end-of-line",
     null,
     function (I) {
-        cut_to_end_of_line(I.buffer);
+        call_on_focused_field(I, function (field) {
+            cut_to_end_of_line(field, I.window);
+        });
     });
 
 
-function downcase_word (I) {
-    modify_word_at_point(I, function (word) { return word.toLocaleLowerCase(); });
-}
 interactive("downcase-word",
-            "Convert following word to lower case, moving over.",
-            downcase_word);
-
-
-function upcase_word (I) {
-    modify_word_at_point(I, function (word) { return word.toLocaleUpperCase(); });
-}
-interactive("upcase-word",
-            "Convert following word to upper case, moving over.",
-            upcase_word);
-
-
-function capitalize_word (I) {
-    modify_word_at_point(I, function (word) {
-        if (word.length > 0) {
-            return word[0].toLocaleUpperCase() + word.substring(1);
-        }
-        return word;
+    "Convert following word to lower case, moving over.",
+    function (I) {
+        call_on_focused_field(I, function (field) {
+            modify_word_at_point(field, function (word) {
+                return word.toLocaleLowerCase();
+            });
+        });
     });
-}
+
+
+interactive("upcase-word",
+    "Convert following word to upper case, moving over.",
+    function (I) {
+        call_on_focused_field(I, function (field) {
+            modify_word_at_point(field, function (word) {
+                return word.toLocaleUpperCase();
+            });
+        });
+    });
+
+
 interactive("capitalize-word",
-            "Capitalize the following word (or arg words), moving over.",
-            capitalize_word);
+    "Capitalize the following word (or arg words), moving over.",
+    function (I) {
+        call_on_focused_field(I, function (field) {
+            modify_word_at_point(field, function (word) {
+                if (word.length > 0)
+                    return word[0].toLocaleUpperCase() + word.substring(1);
+                return word;
+            });
+        });
+    });
 
 provide("content-buffer-input");

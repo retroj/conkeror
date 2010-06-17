@@ -117,7 +117,7 @@ function get_current_keymaps (window) {
     var m = window.minibuffer;
     var s = m.current_state;
     if (m.active && s.keymap)
-        return [s.keymap];
+        return [default_base_keymap, s.keymap];
     return window.buffers.current.keymaps;
 }
 

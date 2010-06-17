@@ -67,7 +67,9 @@ isearch_session.prototype = {
     restore_state: function () {
         var m = this.minibuffer;
         var s = this.top;
+        m.ignore_input_events = true;
         m._input_text = s.search_str;
+        m.ignore_input_events = false;
         if (s.selection)
             this._set_selection(s.selection);
         else

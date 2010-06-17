@@ -226,10 +226,6 @@ text_entry_minibuffer_state.prototype = {
         s.update_completions(true /* auto */, true /* update completions display */);
     },
 
-    ran_minibuffer_command: function () {
-        this.handle_input();
-    },
-
     update_completions_display: function () {
         var m = this.minibuffer;
         if (m.current_state == this) {
@@ -355,6 +351,7 @@ function minibuffer_complete (window, count) {
     if (!s.completions_valid || s.completions === undefined) {
         if (s.completions_timer_ID == null)
             just_completed_manually = true;
+        //XXX: may need to use ignore_input_events here
         s.update_completions(false /* not auto */, true /* update completions display */);
 
         // If the completer is a coroutine, nothing we can do here
@@ -373,6 +370,7 @@ function minibuffer_complete (window, count) {
     let common_prefix;
 
     if (count == 1 && !s.applied_common_prefix && (common_prefix = c.common_prefix_input_state)) {
+        //XXX: may need to use ignore_input_events here
         m.set_input_state(common_prefix);
         s.applied_common_prefix = true;
     } else if (!just_completed_manually) {
@@ -387,8 +385,14 @@ function minibuffer_complete (window, count) {
         }
     }
 
-    if (new_index != -1)
-        s.select_completion(new_index);
+    if (new_index != -1) {
+       try {
+            m.ignore_input_events = true;
+            s.select_completion(new_index);
+        } finally {
+            m.ignore_input_events = false;
+        }
+    }
 }
 interactive("minibuffer-complete", null,
     function (I) { minibuffer_complete(I.window, I.p); });

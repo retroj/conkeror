@@ -32,8 +32,6 @@ function call_on_focused_field (I, func, clear_mark) {
             I.buffer.mark_active = false;
     }
     scroll_selection_into_view(e);
-    if (s && s.handle_input)
-        s.handle_input(m);
 }
 
 
@@ -88,12 +86,10 @@ function modify_region (field, modifier) {
  */
 //XXX: this should be implemented in terms of modify_region,
 //     in order to work in richedit fields.
-function modify_word_at_point (I, func) {
-    var focused = I.buffer.focused_element;
-
+function modify_word_at_point (field, func) {
     // Skip any whitespaces at point and move point to the right place.
-    var point = focused.selectionStart;
-    var rest = focused.value.substring(point);
+    var point = field.selectionStart;
+    var rest = field.value.substring(point);
 
     // Skip any whitespaces.
     for (var i = 0, rlen = rest.length; i < rlen; i++) {
@@ -105,20 +101,20 @@ function modify_word_at_point (I, func) {
 
     // Find the next whitespace, as it is the end of the word.  If no next
     // whitespace is found, we're at the end of input.  TODO: Add "\n" support.
-    goal = focused.value.indexOf(" ", point);
+    var goal = field.value.indexOf(" ", point);
     if (goal == -1)
-        goal = focused.value.length;
+        goal = field.value.length;
 
     // Change the value of the text field.
-    var input = focused.value;
-    focused.value =
+    var input = field.value;
+    field.value =
         input.substring(0, point) +
         func(input.substring(point, goal)) +
         input.substring(goal);
 
     // Move point.
-    focused.selectionStart = goal;
-    focused.selectionEnd = goal;
+    field.selectionStart = goal;
+    field.selectionEnd = goal;
 }
 
 provide("text");

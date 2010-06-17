@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -9,7 +9,30 @@
 
 in_module(null);
 
-function define_builtin_commands (prefix, do_command_function, toggle_mark, mark_active_predicate, mode) {
+require("interactive.js");
+
+interactive("set-mark",
+    "Toggle whether the mark is active.\n" +
+    "When the mark is active, movement commands affect the selection.",
+    function (I) {
+        var m = I.minibuffer;
+        var s = m.current_state;
+        if (m.active)
+            s.mark_active = !s.mark_active;
+        else
+            I.buffer.mark_active = !I.buffer.mark_active;
+    });
+
+function mark_active_predicate (I) {
+    var m = I.minibuffer;
+    var s = m.current_state;
+    if (m.active)
+        return s.mark_active;
+    else
+        return I.buffer.mark_active;
+}
+
+function define_builtin_commands (prefix, do_command_function, mode) {
 
     // Specify a docstring
     function D (cmd, docstring) {
@@ -125,11 +148,6 @@ function define_builtin_commands (prefix, do_command_function, toggle_mark, mark
         R(D("cmd_scrollLeft", "Scroll left."),
           D("cmd_scrollRight", "Scroll right.")),
         D("cmd_paste", "Insert the contents of the clipboard.")];
-
-    interactive(prefix + "set-mark",
-                "Toggle whether the mark is active.\n" +
-                "When the mark is active, movement commands affect the selection.",
-                toggle_mark);
 
     function get_mode_idx () {
         if (mode == 'scroll') return 2;

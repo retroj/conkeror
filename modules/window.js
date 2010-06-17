@@ -274,4 +274,51 @@ function init_window_title () {
 
 init_window_title();
 
+
+function call_builtin_command (window, command, clear_mark) {
+    var m = window.minibuffer;
+    if (m.active && m._input_mode_enabled) {
+        m._restore_normal_state();
+        var e = m.input_element;
+        var c = e.controllers.getControllerForCommand(command);
+        try {
+            if (c && c.isCommandEnabled(command))
+                c.doCommand(command);
+        } catch (e) {
+            // ignore errors
+        }
+        if (clear_mark)
+            m.current_state.mark_active = false;
+    } else {
+        function attempt_command (element) {
+            var c;
+            if (element.controllers
+                && (c = element.controllers.getControllerForCommand(command)) != null
+                && c.isCommandEnabled(command))
+            {
+                try {
+                    c.doCommand(command);
+                } catch (e) {
+                    // ignore errors
+                }
+                if (clear_mark)
+                    window.buffers.current.mark_active = false;
+                return true;
+            }
+            return false;
+        }
+        var element = window.buffers.current.focused_element;
+        if (element && attempt_command(element, command))
+            return;
+        var win = window.buffers.current.focused_frame;
+        while (true) {
+            if (attempt_command(win, command))
+                return;
+            if (!win.parent || win == win.parent)
+                break;
+            win = win.parent;
+        }
+    }
+}
+
 provide("window");

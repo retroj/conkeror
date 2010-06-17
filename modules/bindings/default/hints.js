@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -26,5 +26,5 @@ define_key(hint_keymap, "escape", "minibuffer-abort");
 define_key(hint_keymap, "M-escape", "minibuffer-abort");
 define_key(hint_keymap, "C-g", "minibuffer-abort");
 define_key(hint_keymap, "return", "hints-exit");
-define_key(hint_keymap, "C-back_space", "minibuffer-cmd_deleteWordBackward");
-define_key(hint_keymap, "M-back_space", "minibuffer-cmd_deleteWordBackward");
+define_key(hint_keymap, "C-back_space", "cmd_deleteWordBackward");
+define_key(hint_keymap, "M-back_space", "cmd_deleteWordBackward");

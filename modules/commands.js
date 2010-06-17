@@ -167,17 +167,8 @@ interactive("execute-extended-command",
 define_builtin_commands(
     "",
     function (I, command) {
-        var buffer = I.buffer;
-        try {
-            buffer.do_command(command);
-        } catch (e) {
-            /* Ignore exceptions */
-        }
+        call_builtin_command(I.window, command);
     },
-    function (I) {
-        I.buffer.mark_active = !I.buffer.mark_active;
-    },
-    function (I) I.buffer.mark_active,
     false
 );
 
@@ -191,10 +182,6 @@ define_builtin_commands(
             /* Ignore exceptions */
         }
     },
-    function (I) {
-        I.buffer.mark_active = !I.buffer.mark_active;
-    },
-    function (I) I.buffer.mark_active,
     'caret');
 
 function get_link_text () {
@@ -817,22 +804,19 @@ interactive("reload-with-charset",
 interactive("yank",
     "Paste the contents of the clipboard",
     function (I) {
-        I.buffer.mark_active = false;
-        I.buffer.do_command("cmd_paste");
+        call_builtin_command(I.window, "cmd_paste", true);
     });
 
 interactive("kill-region",
     "Kill (\"cut\") the selected text.",
     function (I) {
-        I.buffer.mark_active = false;
-        I.buffer.do_command("cmd_cut");
+        call_builtin_command(I.window, "cmd_cut", true);
     });
 
 interactive("kill-ring-save",
     "Save the region as if killed, but don't kill it.",
     function (I) {
-         I.buffer.mark_active = false;
-         I.buffer.do_command("cmd_copy");
+        call_builtin_command(I.window, "cmd_copy", true);
     });
 
 provide("commands");

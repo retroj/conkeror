@@ -81,7 +81,9 @@ minibuffer_input_state.prototype = {
     mark_active: false,
     load: function () {
         minibuffer_state.prototype.load.call(this);
+        this.minibuffer.ignore_input_events = true;
         this.minibuffer._input_text = this.input;
+        this.minibuffer.ignore_input_events = false;
         this.minibuffer.prompt = this.prompt;
         this.minibuffer._set_selection(this.selection_start,
                                        this.selection_end);
@@ -151,17 +153,23 @@ function minibuffer (window) {
                     }, 0);
             }
         }, false);
-    this.input_element.addEventListener("input",
-        function (e) {
-            if (m.ignore_input_events || !m._input_mode_enabled)
-                return;
-            var s = m.current_state;
-            if (s) {
-                if (s.handle_input)
-                    s.handle_input(m);
+    function dispatch_handle_input () {
+        if (m.ignore_input_events || !m._input_mode_enabled)
+            return;
+        var s = m.current_state;
+        if (s && s.handle_input)
+            s.handle_input(m);
+    }
+    this.input_element.addEventListener("input", dispatch_handle_input, true);
+    this.input_element.watch("value",
+        function (prop, oldval, newval) {
+            if (newval != oldval &&
+                !m.ignore_input_events)
+            {
+                call_after_timeout(dispatch_handle_input, 0);
             }
-        }, true);
-
+            return newval;
+        });
     // Ensure that the input area will have focus if a message is
     // currently being flashed so that the default handler for key
     // events will properly add text to the input area.
@@ -439,35 +447,6 @@ function minibuffer_abort (window) {
     input_sequence_abort.call(window);
 }
 interactive("minibuffer-abort", null, function (I) { minibuffer_abort(I.window); });
-
-define_builtin_commands("minibuffer-",
-    function (I, command) {
-        try {
-            var m = I.minibuffer;
-            if (m._input_mode_enabled) {
-                m._restore_normal_state();
-                var e = m.input_element;
-                var c = e.controllers.getControllerForCommand(command);
-                try {
-                    m.ignore_input_events = true;
-                    if (c && c.isCommandEnabled(command))
-                        c.doCommand(command);
-                } finally {
-                    m.ignore_input_events = false;
-                }
-                var s = m.current_state;
-                if (s.ran_minibuffer_command)
-                    s.ran_minibuffer_command(m, command);
-            }
-        } catch (e) {
-            /* Ignore exceptions. */
-        }
-    },
-    function (I) { //XXX: need return??
-        I.minibuffer.current_state.mark_active = !I.minibuffer.current_state.mark_active;
-    },
-    function (I) I.minibuffer.current_state.mark_active,
-    false);
 
 
 provide("minibuffer");
