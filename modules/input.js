@@ -118,8 +118,6 @@ function get_current_keymaps (window) {
     var s = m.current_state;
     if (m.active && s.keymap)
         return [s.keymap];
-    if (window.buffers.current.override_keymaps[0] !== undefined)
-        return window.buffers.current.override_keymaps;
     return window.buffers.current.keymaps;
 }
 

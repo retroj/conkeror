@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2008-2009 John J. Foerch
+ * (C) Copyright 2008-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -18,12 +18,10 @@ define_input_mode("quote_next", "quote_next_keymap",
 define_buffer_mode('quote_mode',
     $display_name = 'QUOTE',
     $enable = function (buffer) {
-        buffer.override_keymaps.push(quote_keymap);
+        buffer.override_keymaps([quote_keymap]);
     },
     $disable = function (buffer) {
-        var i = buffer.override_keymaps.indexOf(quote_keymap);
-        if (i > -1)
-            buffer.override_keymaps.splice(i, 1);
+        buffer.override_keymaps();
     },
     $doc = "This mode sends all key combos to the buffer, "+
         "bypassing normal key handling, until the escape "+

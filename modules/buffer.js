@@ -116,8 +116,6 @@ function buffer (window) {
 
     this.modalities = [];
 
-    this.override_keymaps = [];
-
     // When create_buffer_hook_early runs, basic buffer properties
     // will be available, but not the properties subclasses.
     create_buffer_early_hook.run(this);
@@ -182,6 +180,18 @@ buffer.prototype = {
             conkeror[this.input_mode](this, false);
         this.keymaps = [];
         this.modalities.map(function (m) m(this), this);
+    },
+
+    override_keymaps: function (keymaps) {
+        if (keymaps) {
+            this.keymaps = keymaps;
+            this.set_input_mode = function () {};
+            if (this.input_mode)
+                conkeror[this.input_mode](this, false);
+        } else {
+            delete this.set_input_mode;
+            this.set_input_mode();
+        }
     },
 
     /* Browser accessors */
