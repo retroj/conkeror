@@ -100,7 +100,7 @@ hint_manager.prototype = {
 
             var doc = window.document;
             var res = doc.evaluate(xpath_expr, doc, xpath_lookup_namespace,
-                                   Ci.nsIDOMXPathResult.UNORDERED_NODE_ITERATOR_TYPE,
+                                   Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
                                    null /* existing results */);
 
             var base_node = doc.createElementNS(XHTML_NS, "span");
@@ -108,14 +108,8 @@ hint_manager.prototype = {
 
             var fragment = doc.createDocumentFragment();
             var rect, elem, text, node, show_text;
-            while (true) {
-                try {
-                    elem = res.iterateNext();
-                    if (!elem)
-                        break;
-                } catch (e) {
-                    break; // Iterator may have been invalidated by page load activity
-                }
+            for (var j = 0; j < res.snapshotLength; j++) {
+                elem = res.snapshotItem(j);
                 rect = elem.getBoundingClientRect();
                 if (elem instanceof Ci.nsIDOMHTMLAreaElement) {
                     rect = { top: rect.top,
