@@ -26,5 +26,3 @@ define_key(hint_keymap, "escape", "minibuffer-abort");
 define_key(hint_keymap, "M-escape", "minibuffer-abort");
 define_key(hint_keymap, "C-g", "minibuffer-abort");
 define_key(hint_keymap, "return", "hints-exit");
-define_key(hint_keymap, "C-back_space", "cmd_deleteWordBackward");
-define_key(hint_keymap, "M-back_space", "cmd_deleteWordBackward");

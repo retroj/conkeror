@@ -469,7 +469,6 @@ hints_minibuffer_state.prototype = {
     },
 
     handle_input: function (m) {
-        m._set_selection();
         this.clear_auto_exit_timer();
         this.typed_number = "";
         this.typed_string = m._input_text;
@@ -529,11 +528,9 @@ function hints_backspace (window, s) {
         var num = s.typed_number.length > 0 ? parseInt(s.typed_number) : 1;
         s.manager.select_hint(num);
     } else if (s.typed_string.length > 0) {
-        s.typed_string = s.typed_string.substring(0, s.typed_string.length - 1);
-        m.ignore_input_events = true;
-        m._input_text = s.typed_string;
-        m.ignore_input_events = false;
-        m._set_selection();
+        call_builtin_command(window, 'cmd_deleteCharBackward');
+        s.typed_string = m._input_text;
+        //m._set_selection();
         s.manager.current_hint_string = s.typed_string;
         s.manager.current_hint_number = -1;
         s.manager.update_valid_hints();
