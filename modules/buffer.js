@@ -60,7 +60,10 @@ function buffer (window) {
     var element = create_XUL(window, "vbox");
     element.setAttribute("flex", "1");
     var browser = create_XUL(window, "browser");
-    browser.setAttribute("type", "content");
+    if (window.buffers.count == 0)
+        browser.setAttribute("type", "content-primary");
+    else
+        browser.setAttribute("type", "content");
     browser.setAttribute("flex", "1");
     browser.setAttribute("autocompletepopup", "popup_autocomplete");
     element.appendChild(browser);
@@ -316,7 +319,7 @@ function buffer_container (window, create_initial_buffer) {
     this.container = window.document.getElementById("buffer-container");
     this.buffer_list = [];
     window.buffers = this;
-    create_initial_buffer(window, this.container.firstChild);
+    create_initial_buffer(window);
 }
 buffer_container.prototype = {
     constructor: buffer_container,
