@@ -537,7 +537,7 @@ function reload (b, bypass_cache, element, forced_charset) {
             } catch (e) {}
         }
         element.parentNode.replaceChild(element.cloneNode(true), element);
-    } else if (b.current_uri.path != b.display_uri_string) {
+    } else if (b.current_uri.spec != b.display_uri_string) {
         apply_load_spec(b, load_spec({ uri: b.display_uri_string,
                                        forced_charset: forced_charset }));
     } else {
