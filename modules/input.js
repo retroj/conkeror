@@ -79,6 +79,38 @@ input_state.prototype = {
 };
 
 
+/**
+ * input_stack is a stack of input_states, which is to say a stack of
+ * recursed sequences.  input recursion happens, for example, when a
+ * minibuffer read takes place in the middle of another sequence.
+ */
+function input_stack (window) {
+    this.window = window;
+    this.push(new input_state(window));
+}
+input_stack.prototype = {
+    constructor: input_stack,
+    __proto__: Array.prototype,
+
+    window: null,
+    help_timer: null,
+    help_displayed: false,
+
+    toString: function () {
+        return "[input_stack ("+this.length+")]";
+    },
+    get current () {
+        return this[this.length - 1];
+    },
+    begin_recursion: function () {
+        this.push(new input_state(this.window));
+    },
+    end_recursion: function () {
+        this.pop();
+    }
+};
+
+
 function input_help_timer_clear (window) {
     if (window.input.help_timer != null) {
         timer_cancel(window.input.help_timer);
@@ -314,18 +346,7 @@ function input_sequence_abort (message) {
 
 
 function input_initialize_window (window) {
-    window.input = [new input_state(window)]; // a stack of states
-    window.input.__defineGetter__("current", function () {
-        return this[this.length - 1];
-    });
-    window.input.begin_recursion = function () {
-        this.push(new input_state(window));
-    };
-    window.input.end_recursion = function () {
-        this.pop();
-    };
-    window.input.help_timer = null;
-    window.input.help_displayed = false;
+    window.input = new input_stack(window);
     //window.addEventListener("keydown", input_handle_keydown, true);
     window.addEventListener("keypress", input_handle_keypress, true);
     //window.addEventListener("keyup", input_handle_keyup, true);
