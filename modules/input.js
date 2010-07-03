@@ -69,13 +69,13 @@ function command_event (command) {
  * As a small measure of efficiency, these objects get recycled from one
  * sequence to the next.
  */
-function input_state (window) {
-    this.window = window;
+function input_state () {
     this.fallthrough = {};
 }
 input_state.prototype = {
     constructor: input_state,
     continuation: null,
+    fallthrough: null
 };
 
 
@@ -84,15 +84,13 @@ input_state.prototype = {
  * recursed sequences.  input recursion happens, for example, when a
  * minibuffer read takes place in the middle of another sequence.
  */
-function input_stack (window) {
-    this.window = window;
-    this.push(new input_state(window));
+function input_stack () {
+    this.push(new input_state());
 }
 input_stack.prototype = {
     constructor: input_stack,
     __proto__: Array.prototype,
 
-    window: null,
     help_timer: null,
     help_displayed: false,
 
@@ -103,7 +101,7 @@ input_stack.prototype = {
         return this[this.length - 1];
     },
     begin_recursion: function () {
-        this.push(new input_state(this.window));
+        this.push(new input_state());
     },
     end_recursion: function () {
         this.pop();
@@ -346,7 +344,7 @@ function input_sequence_abort (message) {
 
 
 function input_initialize_window (window) {
-    window.input = new input_stack(window);
+    window.input = new input_stack();
     //window.addEventListener("keydown", input_handle_keydown, true);
     window.addEventListener("keypress", input_handle_keypress, true);
     //window.addEventListener("keyup", input_handle_keyup, true);
