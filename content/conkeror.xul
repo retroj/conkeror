@@ -26,7 +26,7 @@ COPYING file.
   <!-- put "New Window" and "Quit" items in the OS X Application Menu.
        The id's "aboutName" and "menu_FileQuitItem" are magic cookies for
        OS X XULRunner.  We repurpose these as a small hack, which saves us
-       from needing a lot of extra menu logic just for one one OS. -->
+       from needing a lot of extra menu logic just for one OS. -->
   <menubar id="menubar" hidden="true">
     <menu label="Conkeror" hidden="true">
       <menupopup>
