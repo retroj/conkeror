@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -29,6 +29,14 @@ define_key(minibuffer_keymap, "C-p", "minibuffer-complete-previous");
 
 define_key(minibuffer_keymap, "escape", "minibuffer-abort");
 define_key(minibuffer_keymap, "M-escape", "minibuffer-abort");
+
+
+/*
+ * minibuffer_space_completion_keymap
+ */
+define_fallthrough(minibuffer_space_completion_keymap, match_any_unmodified_character);
+
+define_key(minibuffer_space_completion_keymap, "space", "minibuffer-complete");
 
 
 /*

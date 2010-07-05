@@ -398,12 +398,12 @@ define_variable("hints_display_url_panel", false,
 define_keywords("$keymap", "$auto", "$hint_xpath_expression", "$multiple");
 function hints_minibuffer_state (minibuffer, continuation, buffer) {
     keywords(arguments, $keymap = hint_keymap, $auto);
-    basic_minibuffer_state.call(this, minibuffer, $prompt = arguments.$prompt);
+    basic_minibuffer_state.call(this, minibuffer, $prompt = arguments.$prompt,
+                                $keymap = arguments.$keymap);
     if (hints_display_url_panel)
 	this.url_panel = hints_url_panel(this, buffer.window);
     this.original_prompt = arguments.$prompt;
     this.continuation = continuation;
-    this.keymap = arguments.$keymap;
     this.auto_exit = arguments.$auto ? true : false;
     this.xpath_expr = arguments.$hint_xpath_expression;
     this.auto_exit_timer_ID = null;

@@ -13,7 +13,7 @@ in_module(null);
  */
 function minibuffer_state (minibuffer, keymap) {
     this.minibuffer = minibuffer;
-    this.keymap = keymap;
+    this.keymaps = [default_base_keymap, keymap];
 }
 minibuffer_state.prototype = {
     constructor: minibuffer_state,

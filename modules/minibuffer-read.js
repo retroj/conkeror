@@ -79,6 +79,8 @@ function text_entry_minibuffer_state (minibuffer, continuation) {
         this.completions = null;
         this.completions_valid = false;
         this.space_completes = !!arguments.$space_completes;
+        if (this.space_completes)
+            this.keymaps.push(minibuffer_space_completion_keymap);
         this.completions_timer_ID = null;
         this.completions_display_element = null;
         this.selected_completion_index = -1;
@@ -503,7 +505,8 @@ minibuffer.prototype.read_command = function () {
             $get_string = function (x) x.name,
             $get_description = function (x) x.shortdoc || "",
             $get_value = function (x) x.name),
-        $match_required = true);
+        $match_required,
+        $space_completes);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
 };
@@ -519,7 +522,8 @@ minibuffer.prototype.read_user_variable = function () {
             $get_string = function (x) x,
             $get_description = function (x) user_variables[x].shortdoc || "",
             $get_value = function (x) x),
-        $match_required = true);
+        $match_required,
+        $space_completes);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
 };
@@ -553,7 +557,8 @@ minibuffer.prototype.read_preference = function () {
                          out += " (" + pretty_print_value(default_value) + ")";
                      return out;
                  }),
-             $match_required = true);
+             $match_required,
+             $space_completes);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
 };
