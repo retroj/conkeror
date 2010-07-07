@@ -169,6 +169,13 @@ current_buffer_scroll_position_widget.prototype.update = function () {
     this.view.text = "(" + x + ", " + y + ")";
 };
 
+
+define_variable("clock_time_format", "%R",
+    "Format string for the mode-line clock widget.\n"+
+    "It takes the same format as strftime() in C. "+
+    "See http://www.opengroup.org/onlinepubs/007908799/xsh/strftime.html "+
+    "for details.");
+
 function clock_widget (window) {
     this.class_name = "clock-widget";
     text_widget.call(this, window);
@@ -181,9 +188,7 @@ function clock_widget (window) {
 clock_widget.prototype.__proto__ = text_widget.prototype;
 clock_widget.prototype.update = function () {
     var time = new Date();
-    var hours = time.getHours();
-    var mins = time.getMinutes();
-    this.view.text = (hours<10 ? "0" + hours:hours) + ":" + (mins<10 ?"0" +mins:mins);
+    this.view.text = time.toLocaleFormat(clock_time_format);
     if (time.getSeconds() > 0 || time.getMilliseconds() > 100) {
         this.window.clearTimeout(this.timer_ID);
         var time = time.getSeconds() * 1000 + time.getMilliseconds();
