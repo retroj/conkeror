@@ -456,7 +456,7 @@ hints_minibuffer_state.prototype = {
             this.url_panel.update();
     },
 
-    handle_auto_exit: function (m, ambiguous) {
+    handle_auto_exit: function (ambiguous) {
         var window = this.minibuffer.window;
         var num = this.manager.current_hint_number;
         if (!this.auto_exit)
