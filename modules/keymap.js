@@ -404,13 +404,14 @@ sequence:
             for (var j = 0, pblen = pred_binds.length; j < pblen; j++) {
                 if (pred_binds[j].key == key) {
                     if (last_in_sequence && undefine_key)
-                        delete pred_binds[j];
+                        pred_binds.splice(j, 1);
                     else
                         replace_binding(pred_binds[j]);
                     continue sequence;
                 }
             }
-            pred_binds.push(make_binding());
+            if (! undefine_key)
+                pred_binds.push(make_binding());
         } else {
             // Check if the binding is already present in the keymap
             var bindings = kmap.bindings;
