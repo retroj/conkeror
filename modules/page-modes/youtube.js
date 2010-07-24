@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -26,7 +26,7 @@ let media_youtube_content_title_regexp = /<meta name="title" content="([^"]+)">/
  *    Scrapers should return true on success and false on failure.
  */
 function youtube_scrape_standard_flv (push, id, t, text) {
-    push('http://youtube.com/get_video?video_id='+id+'&t='+t,
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&asv=3',
          'flv', 'video/x-flv', 'standard flv');
     return true;
 }
@@ -34,7 +34,7 @@ function youtube_scrape_standard_flv (push, id, t, text) {
 function youtube_scrape_hq_mp4 (push, id, t, text) {
     if (/"fmt_map": ""/.test(text))
         return false;
-    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=18',
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=18'+'&asv=3',
          'mp4', 'video/mp4', 'hq mp4');
     return true;
 }
@@ -42,7 +42,7 @@ function youtube_scrape_hq_mp4 (push, id, t, text) {
 function youtube_scrape_720p_mp4 (push, id, t, text) {
     if (!(/'IS_HD_AVAILABLE': true/.test(text)))
         return false;
-    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=22',
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=22'+'&asv=3',
          'mp4', 'video/mp4', '720p mp4');
     return true;
 }
@@ -50,7 +50,7 @@ function youtube_scrape_720p_mp4 (push, id, t, text) {
 function youtube_scrape_1080p_mp4 (push, id, t, text) {
     if (!(/"fmt_map": "37/.test(text)))
         return false;
-    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=37',
+    push('http://youtube.com/get_video?video_id='+id+'&t='+t+'&fmt=37'+'&asv=3',
          'mp4', 'video/mp4', '1080p mp4');
     return true;
 }
