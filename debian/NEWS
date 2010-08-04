@@ -1,3 +1,58 @@
+conkeror (0.9.2+git100804-1) unstable; urgency=low
+
+  * Editing in the minibuffer is now done with the normal editing commands
+    instead of a special set of editing commands. All of the editing
+    commands which begin with the prefix "minibuffer-" have been
+    removed. Also, editing commands are now bound in the keymap
+    text_keymap instead of content_buffer_text_keymap and
+    minibuffer_base_keymap. If you have written custom bindings for
+    editing in your rc, you will need to change [pairs of] bindings like
+    this:
+
+      define_key(minibuffer_base_keymap, "C-l", "minibuffer-forward-char");
+      define_key(content_buffer_text_keymap, "C-l", "forward-char");
+
+    to this:
+
+      define_key(text_keymap, "C-l", "forward-char");
+
+  * In hinting mode, right and left are no longer bound to
+    next/previous-hint. Hinting mode now supports editing in the
+    minibuffer, so right and left move the cursor. Down, up, C-n, C-p,
+    C-s, and C-r are all bound to next/previous-hint.
+
+  * Due to a change in Mozilla as of XULRunner 1.9.3a5pre, Conkeror's
+    feature of automatically loading glue code for extensions is no longer
+    possible. This means that when you have one of the previously
+    supported extensions installed, you will no longer automatically have
+    Conkeror commands for using the extension. The extensions that were
+    previously supported in this way were adblockplus, dom-inspector,
+    noscript, and venkman. If you have any of these extensions installed,
+    you will now have to load the glue module from your rc, with a line
+    like the following, substituting in the appropriate module name:
+
+      require("dom-inspector");
+
+    With some of these modules, loading the module when the extension is
+    not installed could result in an error, so to be safe, you could wrap
+    the call to 'require' in a try/catch block:
+
+      try { require("dom-inspector"); } catch (e) {}
+
+    Further information: http://bugs.conkeror.org/issue272
+
+  * The variable download_buffer_automatic_open_target can no longer be an
+    array of two targets. This is a reversion from 2009-06-07 back to how
+    it was before. The behavior of the download-show command is now
+    configured independently of this variable. To configure download-show,
+    use set_handler and alternates. The following handlers are provided:
+    download_show_new_window, download_show_new_buffer,
+    download_show_new_buffer_background. The default handler of
+    download_show is alternates(download_show_new_buffer,
+    download_show_new_window).
+
+ -- Axel Beckert <abe@debian.org>  Wed, 04 Aug 2010 23:04:22 +0200
+
 conkeror (0.9.2+git100420-2) unstable; urgency=low
 
   * Function load_rc no longer supports loading arbitrary js files. Use
