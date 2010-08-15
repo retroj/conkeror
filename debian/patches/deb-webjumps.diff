@@ -32,7 +32,7 @@ Index: conkeror-0.9.2+git100324/modules/debian/debian-webjumps.js
 +// Ubuntu //
 +define_webjump("ubuntupkg", "http://packages.ubuntu.com/%s");
 +define_webjump("ubuntufile", "http://packages.ubuntu.com/search?searchon=contents&keywords=%s&mode=path&arch=any");
-+define_webjump("ubuntubugs", "http://launchpad.net/ubuntu/+source/%s");
++define_webjump("ubuntubugs", "http://bugs.launchpad.net/ubuntu/+source/%s");
 +define_webjump("launchpad", "https://launchpad.net/+search?field.text=%s");
 +
 +provide("debian-webjumps");
