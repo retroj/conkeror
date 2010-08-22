@@ -40,10 +40,7 @@ function open_link_in_new_buffer (event) {
     let anchor = null;
     if (element instanceof Ci.nsIDOMHTMLAnchorElement)
         anchor = element;
-    // FIXME The 'tostring() ==' is a terrible kludge.
-    else if (element.wrappedJSObject.toString() == "[object HTMLSpanElement]" ||
-             element instanceof Ci.nsIDOMHTMLImageElement)
-    {
+    else {
         anchor = find_tag_in_parents("a", element);
     }
     if (anchor == null)
