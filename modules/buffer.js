@@ -237,21 +237,9 @@ buffer.prototype = {
     },
 
     get focused_selection_controller () {
-        var child_docshells = this.doc_shell.getDocShellEnumerator(
-            Ci.nsIDocShellTreeItem.typeContent,
-            Ci.nsIDocShell.ENUMERATE_FORWARDS);
-        while (child_docshells.hasMoreElements()) {
-            let ds = child_docshells.getNext()
-                .QueryInterface(Ci.nsIDocShell);
-            if (ds.hasFocus) {
-                let display = ds.QueryInterface(Ci.nsIInterfaceRequestor)
-                    .getInterface(Ci.nsISelectionDisplay);
-                if (! display)
-                    return null;
-                return display.QueryInterface(Ci.nsISelectionController);
-            }
-        }
-        return this.doc_shell
+        return this.focused_frame
+            .QueryInterface(Ci.nsIInterfaceRequestor)
+            .getInterface(Ci.nsIWebNavigation)
             .QueryInterface(Ci.nsIInterfaceRequestor)
             .getInterface(Ci.nsISelectionDisplay)
             .QueryInterface(Ci.nsISelectionController);
