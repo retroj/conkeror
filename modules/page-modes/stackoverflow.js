@@ -17,8 +17,8 @@ in_module(null);
  */
 define_browser_object_class("stackoverflow-votes",
     "Browser object class for selecting a vote arrow via hinting.",
-     xpath_browser_object_handler('//img[@class="vote-up"]' +
-                                  ' | //img[@class="vote-down"]'),
+                            xpath_browser_object_handler('//span[contains(@class,"vote-up-off")]' +
+                                  ' | //span[contains(@class,"vote-down-off")]'),
      $hint = "select a vote");
 
 interactive("stackoverflow-vote",
