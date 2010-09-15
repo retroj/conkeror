@@ -21,6 +21,12 @@ define_browser_object_class("stackexchange-votes",
                                   ' | //span[contains(@class,"vote-down-off")]'),
      $hint = "select a vote");
 
+define_browser_object_class("stackexchange-accept-answers",
+    "Browser object class for selecting an accepted answer check via hinting.",
+                            xpath_browser_object_handler('//span[contains(@class,"vote-accepted-off")]'),
+    $hint = "select an accepted answer");
+
+
 interactive("stackexchange-vote",
     "Vote on StackExchange sites",
     function (I) {
@@ -29,8 +35,17 @@ interactive("stackexchange-vote",
     },
     $browser_object = browser_object_stackexchange_votes);
 
+interactive("stackexchange-accept-answer",
+    "Accept an answer on StackExchange site",
+    function (I) {
+        var elem = yield read_browser_object(I);
+        dom_node_click(elem, 1, 1);
+    },
+    $browser_object = browser_object_stackexchange_accept_answers);
+
 define_keymap("stackexchange_keymap");
 define_key(stackexchange_keymap, "V", "stackexchange-vote");
+define_key(stackexchange_keymap, "A", "stackexchange-accept-answer");
 
 function stackexchange_modality (buffer, element) {
     if (! buffer.input_mode)
