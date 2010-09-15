@@ -43,9 +43,24 @@ interactive("stackexchange-accept-answer",
     },
     $browser_object = browser_object_stackexchange_accept_answers);
 
+interactive("stackexchange-favorite-question",
+    "Favorite a question on StackExchange site",
+    function (I) {
+        var xpr = I.buffer.document.evaluate(
+            '//span[contains(@class,"star-off")]',
+            I.buffer.document, null,
+            Ci.nsIDOMXPathResult.ORCERD_NOTE_ITERATOR_TYPE, null);
+        let elem;
+        if(xpr && (elem = xpr.iterateNext())) {
+            dom_node_click(elem, 1, 1);
+        }
+    });
+
+
 define_keymap("stackexchange_keymap");
 define_key(stackexchange_keymap, "V", "stackexchange-vote");
 define_key(stackexchange_keymap, "A", "stackexchange-accept-answer");
+define_key(stackexchange_keymap, "O", "stackexchange-favorite-question");
 
 function stackexchange_modality (buffer, element) {
     if (! buffer.input_mode)
