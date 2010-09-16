@@ -167,7 +167,7 @@ application.prototype = {
             while (path !== undefined) {
                 let opath = path;
                 try {
-                    let sep = path[path.length-1] == '/' ? '' : '/';
+                    let sep = path.substr(-1) == '/' ? '' : '/';
                     url = path + sep + module + (suffix ? '.js' : '');
                     let si = module.lastIndexOf('/');
                     if (si > -1)
