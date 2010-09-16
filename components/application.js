@@ -132,7 +132,7 @@ application.prototype = {
             as = null;
         var path, url;
         if (module instanceof Ci.nsIURI)
-            path = module.path.substr(0, module.path.lastIndexOf('/')+1);
+            path = module.spec.substr(0, module.spec.lastIndexOf('/')+1);
         else if (module instanceof Ci.nsIFile)
             path = module.parent.path;
         var restarted = false;

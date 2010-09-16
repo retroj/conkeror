@@ -303,5 +303,17 @@ walnut_run({
         features = {};
         provide("foo");
         assert(featurep("foo"));
+    },
+    test_load_relative_of_nsIURI: function () {
+        var tried = null;
+        load_url = function (url) {
+            if (url == "chrome://conkeror/content/foo.js") {
+                load("bar.js");
+            } else {
+                tried = url;
+            }
+        };
+        load(make_uri("chrome://conkeror/content/foo.js"));
+        assert_equals(tried, "chrome://conkeror/content/bar.js");
     }
 });
