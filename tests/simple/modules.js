@@ -104,6 +104,23 @@ walnut_run({
         assert_objects_equal(
             ["chrome://conkeror/content/foo.js"],
             this.ob);
+    },
+    test_load_search_5__relative_path: function () {
+        load_paths = ["chrome://conkeror/content/",
+                      "chrome://conkeror/content/extensions",
+                      "chrome://conkeror/content/page-modes"];
+        try {
+            load("page-modes/foo");
+        } catch (e) {
+        }
+        assert_objects_equal(
+            this.ob,
+            ["chrome://conkeror/content/page-modes/foo",
+             "chrome://conkeror/content/page-modes/foo.js",
+             "chrome://conkeror/content/extensions/page-modes/foo",
+             "chrome://conkeror/content/extensions/page-modes/foo.js",
+             "chrome://conkeror/content/page-modes/page-modes/foo",
+             "chrome://conkeror/content/page-modes/page-modes/foo.js"]);
     }
 });
 

@@ -165,16 +165,16 @@ application.prototype = {
             if (path === undefined)
                 path = this.load_paths[++i];
             while (path !== undefined) {
-                let opath = path;
+                let truepath = path;
                 try {
                     let sep = path.substr(-1) == '/' ? '' : '/';
                     url = path + sep + module + (suffix ? '.js' : '');
                     let si = module.lastIndexOf('/');
                     if (si > -1)
-                        path += module.substr(0, si);
+                        truepath += module.substr(0, si);
                     if (! tried[url] || tried[url] !== scope) {
                         tried[url] = scope;
-                        load1.call(this, url, scope, path, as);
+                        load1.call(this, url, scope, truepath, as);
                         return;
                     }
                 } catch (e if e instanceof this.module_assert_error) {
@@ -185,7 +185,6 @@ application.prototype = {
                         scope = new module_scope();
                     else
                         scope = this;
-                    path = opath;
                     restarted = true;
                     continue;
                 } catch (e if (typeof e == 'string' &&
