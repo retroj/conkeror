@@ -6,8 +6,8 @@
  *
  * StackExchange page mode
  *
- * My attempt to add the ability to vote on stack exchange sites with out
- * having to grab the mouse.
+ * Provides ability to vote on Stack Exchange sites without having to grab
+ * the mouse.
  */
 
 in_module(null);
