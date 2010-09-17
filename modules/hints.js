@@ -151,7 +151,6 @@ hint_manager.prototype = {
                     show_text = true;
                 } else
                     text = elem.textContent;
-                text = text.toLowerCase();
 
                 node = base_node.cloneNode(true);
                 node.style.left = (rect.left + scrollX) + "px";
@@ -159,6 +158,7 @@ hint_manager.prototype = {
                 fragment.appendChild(node);
 
                 let hint = { text: text,
+                             ltext: text.toLowerCase(),
                              elem: elem,
                              hint: node,
                              img_hint: null,
@@ -201,15 +201,16 @@ hint_manager.prototype = {
     update_valid_hints: function () {
         this.valid_hints = [];
         var active_number = this.current_hint_number;
-
         var tokens = this.current_hint_string.split(" ");
-        var rect, h, text, img_hint, doc, scrollX, scrollY;
-        var hints = this.hints;
-
+        var case_sensitive = (this.current_hint_string !=
+                              this.current_hint_string.toLowerCase());
+        var rect, text, img_hint, doc, scrollX, scrollY;
     outer:
-        for (var i = 0, nhints = hints.length; i < nhints; ++i) {
-            h = hints[i];
-            text = h.text;
+        for (var i = 0, h; (h = this.hints[i]); ++i) {
+            if (case_sensitive)
+                text = h.text;
+            else
+                text = h.ltext;
             for (var j = 0, ntokens = tokens.length; j < ntokens; ++j) {
                 if (! hints_text_match(text, tokens[j])) {
                     if (h.visible) {
@@ -234,7 +235,7 @@ hint_manager.prototype = {
 
             var img_elem = null;
 
-            if (text.length == 0 && h.elem.firstChild &&
+            if (text == "" && h.elem.firstChild &&
                 h.elem.firstChild instanceof Ci.nsIDOMHTMLImageElement)
                 img_elem = h.elem.firstChild;
             else if (h.elem instanceof Ci.nsIDOMHTMLImageElement)
