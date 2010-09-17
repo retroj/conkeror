@@ -32,6 +32,7 @@ define_keymap("content_buffer_select_keymap");
 define_keymap("content_buffer_text_keymap", $parent = text_keymap);
 define_keymap("content_buffer_textarea_keymap", $parent = content_buffer_text_keymap);
 define_keymap("content_buffer_richedit_keymap", $parent = content_buffer_textarea_keymap);
+define_keymap("content_buffer_embed_keymap");
 
 define_keymap("special_buffer_keymap", $parent = default_global_keymap);
 define_keymap("download_buffer_keymap", $parent = special_buffer_keymap);

@@ -39,6 +39,7 @@ define_input_mode("richedit", "content_buffer_richedit_keymap", $display_name = 
 define_input_mode("select", "content_buffer_select_keymap", $display_name = "input:SELECT");
 define_input_mode("checkbox", "content_buffer_checkbox_keymap", $display_name = "input:CHECKBOX/RADIOBUTTON");
 define_input_mode("button", "content_buffer_button_keymap", $display_name = "input:BUTTON");
+define_input_mode("embed", "content_buffer_embed_keymap", $display_name = "input:EMBED");
 
 function content_buffer_modality (buffer) {
     var elem = buffer.focused_element;
@@ -84,6 +85,10 @@ function content_buffer_modality (buffer) {
     }
     if (elem instanceof Ci.nsIDOMHTMLButtonElement) {
         button_input_mode(buffer, true);
+        return;
+    }
+    if (elem instanceof Ci.nsIDOMHTMLEmbedElement) {
+        embed_input_mode(buffer, true);
         return;
     }
     var frame = buffer.focused_frame;
