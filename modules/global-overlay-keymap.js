@@ -10,7 +10,7 @@ in_module(null);
 
 require("input.js");
 
-var global_overlay_keymap = new keymap();
+define_keymap("global_overlay_keymap");
 
 
 function global_overlay_keymap_handler (window, I, true_event) {
