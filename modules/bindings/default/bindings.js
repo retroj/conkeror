@@ -73,6 +73,7 @@ load("content-buffer/textarea.js");
 load("content-buffer/richedit.js");
 load("content-buffer/select.js");
 load("content-buffer/button.js");
+load("content-buffer/embed.js");
 
 load("minibuffer.js");
 load("hints.js");
