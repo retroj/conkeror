@@ -724,6 +724,26 @@ interactive("shell-command", null,
 
 
 /**
+ * selection_is_embed_p is used to test whether the unfocus command can
+ * unfocus an element, even though there is a selection.  This happens
+ * when the focused element is an html:embed.
+ */
+function selection_is_embed_p (sel, focused_element) {
+    if (sel.rangeCount == 1) {
+        try {
+            var r = sel.getRangeAt(0);
+            var a = r.startContainer.childNodes[r.startOffset];
+            if (a instanceof Ci.nsIDOMHTMLEmbedElement &&
+                a == focused_element)
+            {
+                return true;
+            }
+        } catch (e) {}
+    }
+    return false;
+}
+
+/**
  * unfocus is a high-level command for unfocusing hyperlinks, inputs,
  * frames, iframes, plugins, and also clearing the selection.
  */
@@ -734,8 +754,9 @@ function unfocus (window, buffer) {
     if (selc) {
         var sel = selc.getSelection(selc.SELECTION_NORMAL);
         var active = ! sel.isCollapsed;
+        var embed_p = selection_is_embed_p(sel, buffer.focused_element);
         clear_selection(buffer);
-        if (active) {
+        if (active && !embed_p) {
             window.minibuffer.message("cleared selection");
             return;
         }
