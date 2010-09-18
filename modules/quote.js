@@ -36,13 +36,4 @@ interactive("quote-mode-disable",
     });
 
 
-define_key_match_predicate('match_not_escape_key', 'any key but escape',
-    function (event) {
-        return event.keyCode != 27 ||
-             event.shiftKey ||
-             event.altKey ||
-             event.metaKey || // M-escape can also leave this mode, so we need to use an accurate determination of whether the "M" modifier was pressed, which is not necessarily the same as event.metaKey.
-             event.ctrlKey;
-    });
-
 provide("quote");
