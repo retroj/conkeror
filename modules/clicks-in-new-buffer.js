@@ -50,8 +50,7 @@ function open_link_in_new_buffer (event) {
     if (clicks_in_new_buffer_ev_stop_prop)
         event.stopPropagation();
     let spec = load_spec(anchor);
-    // FIXME Is there a better way to get the window?
-    let window = window_watcher.activeWindow;
+    let window = this.ownerDocument.defaultView;
     let buffer = window.buffers.current;
     create_buffer(window,
                   buffer_creator(content_buffer, $load = spec),
