@@ -38,11 +38,12 @@ function open_link_in_new_buffer (event) {
         return;
     let element = event.target;
     let anchor = null;
-    if (element instanceof Ci.nsIDOMHTMLAnchorElement)
+    if (element instanceof Ci.nsIDOMHTMLAnchorElement ||
+        element instanceof Ci.nsIDOMHTMLAreaElement)
+    {
         anchor = element;
-    else {
+    } else
         anchor = find_tag_in_parents("a", element);
-    }
     if (anchor == null)
         return;
     event.preventDefault();
