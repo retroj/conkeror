@@ -23,7 +23,7 @@ define_keymap("default_global_keymap", $parent = default_base_keymap);
 
 define_keymap("text_keymap");
 
-define_keymap("content_buffer_normal_keymap", $parent = default_global_keymap);
+define_keymap("content_buffer_normal_keymap");
 define_keymap("content_buffer_form_keymap");
 define_keymap("content_buffer_anchor_keymap");
 define_keymap("content_buffer_button_keymap");
@@ -34,7 +34,7 @@ define_keymap("content_buffer_textarea_keymap", $parent = content_buffer_text_ke
 define_keymap("content_buffer_richedit_keymap", $parent = content_buffer_textarea_keymap);
 define_keymap("content_buffer_embed_keymap");
 
-define_keymap("special_buffer_keymap", $parent = default_global_keymap);
+define_keymap("special_buffer_keymap");
 define_keymap("download_buffer_keymap", $parent = special_buffer_keymap);
 define_keymap("help_buffer_keymap", $parent = special_buffer_keymap);
 

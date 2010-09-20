@@ -52,6 +52,10 @@ define_variable("allow_browser_window_close", true,
     "a window that was not opened by a script, the buffer will be " +
     "killed, deleting the window as well if it is the only buffer.");
 
+function buffer_modality (buffer) {
+    buffer.keymaps.push(default_global_keymap);
+}
+
 function buffer (window) {
     this.constructor_begin();
     keywords(arguments);
@@ -117,7 +121,7 @@ function buffer (window) {
         buffer.set_input_mode();
     }, true);
 
-    this.modalities = [];
+    this.modalities = [buffer_modality];
 
     // When create_buffer_hook_early runs, basic buffer properties
     // will be available, but not the properties subclasses.
