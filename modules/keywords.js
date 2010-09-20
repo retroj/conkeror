@@ -10,11 +10,11 @@ in_module(null);
 {
     let _keyword_argument_list = [];
     let _get_keyword_argument_setter = function _get_keyword_argument_setter (name) {
-        return function (value) { _keyword_argument_list[_keyword_argument_list.length] = name; return value; };
+        return function (value) { _keyword_argument_list.push(name); return value; };
     };
 
     let _get_keyword_argument_getter = function _get_keyword_argument_getter (name) {
-        return function () { _keyword_argument_list[_keyword_argument_list.length] = name; return true; };
+        return function () { _keyword_argument_list.push(name); return true; };
     };
 
     // This function must be called with all string arguments, all of
