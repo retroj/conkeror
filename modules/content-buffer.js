@@ -87,7 +87,9 @@ function content_buffer_modality (buffer) {
         button_input_mode(buffer, true);
         return;
     }
-    if (elem instanceof Ci.nsIDOMHTMLEmbedElement) {
+    if (elem instanceof Ci.nsIDOMHTMLEmbedElement ||
+        elem instanceof Ci.nsIDOMHTMLObjectElement)
+    {
         embed_input_mode(buffer, true);
         return;
     }

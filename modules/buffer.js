@@ -737,7 +737,8 @@ function selection_is_embed_p (sel, focused_element) {
         try {
             var r = sel.getRangeAt(0);
             var a = r.startContainer.childNodes[r.startOffset];
-            if (a instanceof Ci.nsIDOMHTMLEmbedElement &&
+            if ((a instanceof Ci.nsIDOMHTMLEmbedElement ||
+                 a instanceof Ci.nsIDOMHTMLObjectElement) &&
                 a == focused_element)
             {
                 return true;
