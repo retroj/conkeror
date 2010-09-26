@@ -414,28 +414,6 @@ minibuffer.prototype.read_url = function () {
         throw ("invalid url or webjump (\""+ result +"\")");
     yield co_return(load_spec(result));
 };
-/*
-I.content_charset = interactive_method(
-    $sync = function (ctx) {
-        var buffer = ctx.buffer;
-        if (!(buffer instanceof content_buffer))
-            throw new Error("Current buffer is of invalid type");
-        // -- Charset of content area of focusedWindow
-        var focusedWindow = buffer.focused_frame;
-        if (focusedWindow)
-            return focusedWindow.document.characterSet;
-        else
-            return null;
-    });
-*/
-/*
-I.content_selection = interactive_method(
-    $sync = function (ctx) {
-        // -- Selection of content area of focusedWindow
-        var focusedWindow = this.buffers.current.focused_frame;
-        return focusedWindow.getSelection ();
-    });
-*/
 
 
 /*
