@@ -367,6 +367,8 @@ buffer_container.prototype = {
         buffer.saved_focused_element = null;
         buffer.saved_focused_frame = null;
 
+        buffer.set_input_mode();
+
         this.window.minibuffer.set_default_message(buffer.default_message);
     },
 
