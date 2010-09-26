@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2008 Will Farrington
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -11,7 +11,7 @@ in_module(null);
 require("content-buffer.js");
 
 
-define_keymap("google_reader_keymap");
+define_keymap("google_reader_keymap", $display_name = "google-reader");
 define_fallthrough(google_reader_keymap, match_any_unmodified_character);
 
 // Help
@@ -54,20 +54,20 @@ define_key(google_reader_keymap, "2", null, $fallthrough);
 define_key(google_reader_keymap, "/", null, $fallthrough);
 define_key(google_reader_keymap, "a", null, $fallthrough);
 
-function google_reader_modality (buffer, element) {
-    if (! buffer.input_mode)
-        buffer.keymaps.push(google_reader_keymap);
-}
+
+var google_reader_modality = {
+    normal: google_reader_keymap
+};
 
 define_page_mode("google_reader_mode",
                  $display_name = "Google Reader",
                  $enable = function (buffer) {
-                     buffer.modalities.push(google_reader_modality);
+                     buffer.content_modalities.push(google_reader_modality);
                  },
                  $disable = function (buffer) {
-                     var i = buffer.modalities.indexOf(google_reader_modality);
+                     var i = buffer.content_modalities.indexOf(google_reader_modality);
                      if (i > -1)
-                         buffer.modalities.splice(i, 1);
+                         buffer.content_modalities.splice(i, 1);
                  });
 
 var google_reader_re = build_url_regex($domain = "google",

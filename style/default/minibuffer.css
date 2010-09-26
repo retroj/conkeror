@@ -9,15 +9,36 @@
   background-color: -moz-field !important;
 }
 
-#minibuffer.minibuffer-text-input-mode[minibuffermode="message"],
-#minibuffer.minibuffer-textarea-input-mode[minibuffermode="message"],
-#minibuffer.minibuffer-select-input-mode[minibuffermode="message"],
-#minibuffer.minibuffer-checkbox-input-mode[minibuffermode="message"],
-#minibuffer.minibuffer-richedit-input-mode[minibuffermode="message"],
-#minibuffer.minibuffer-quote-next-input-mode[minibuffermode="message"],
-#minibuffer.minibuffer-quote-input-mode[minibuffermode="message"]{
+
+/* mode text widgets */
+
+#minibuffer .mode-text-widget {
+  display: none;
+}
+
+#minibuffer[minibuffermode="message"] .mode-text-widget {
+  display: block;
+  border-left: 1px solid threedshadow;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+}
+
+#minibuffer[minibuffermode="message"] .mode-text-widget[value=""] {
+  display: none;
+}
+
+
+/* minibuffer highlighting */
+
+#minibuffer.highlight {
   background-color: Highlight;
   color: HighlightText;
+}
+
+#minibuffer.highlight[minibuffermode="message"] .mode-text-widget {
+  border-left: 1px solid highlighttext;
 }
 
 

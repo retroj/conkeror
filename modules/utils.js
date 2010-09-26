@@ -747,9 +747,13 @@ function get_contents_synchronously (url) {
  * dom_add_class adds a css class to the given dom node.
  */
 function dom_add_class (node, cssclass) {
-    if (node.className)
-        node.className += " "+cssclass;
-    else
+    if (node.className) {
+        var cs = node.className.split(" ");
+        if (cs.indexOf(cssclass) != -1)
+            return;
+        cs.push(cssclass);
+        node.className = cs.join(" ");
+    } else
         node.className = cssclass;
 }
 

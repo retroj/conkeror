@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007,2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -51,5 +51,5 @@ define_key(default_global_keymap, "C-x C-f", "find-url-new-buffer");
 define_key(default_global_keymap, "C-s", "isearch-forward");
 define_key(default_global_keymap, "C-r", "isearch-backward");
 
-define_key(default_global_keymap, "C-q", "quote-next-input-mode");
+define_key(default_global_keymap, "C-q", "quote-next-mode");
 define_key(default_global_keymap, "C-M-q", "quote-mode");

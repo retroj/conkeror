@@ -10,7 +10,7 @@ in_module(null);
 require("content-buffer.js");
 
 
-define_keymap("google_voice_keymap");
+define_keymap("google_voice_keymap", $display_name = "google-voice");
 define_fallthrough(google_voice_keymap, match_any_unmodified_character);
 
 // Shortcuts
@@ -41,20 +41,21 @@ define_key(google_voice_keymap, "* n", null, $fallthrough);
 define_key(google_voice_keymap, "* r", null, $fallthrough);
 define_key(google_voice_keymap, "* u", null, $fallthrough);
 
-function google_voice_modality (buffer, element) {
-    if (! buffer.input_mode)
-        buffer.keymaps.push(google_voice_keymap);
-}
+
+var google_voice_modality = {
+    normal: google_voice_keymap
+};
+
 
 define_page_mode("google_voice_mode",
                  $display_name = "Google Voice",
                  $enable = function (buffer) {
-                     buffer.modalities.push(google_voice_modality);
+                     buffer.content_modalities.push(google_voice_modality);
                  },
                  $disable = function (buffer) {
-                     var i = buffer.modalities.indexOf(google_voice_modality);
+                     var i = buffer.content_modalities.indexOf(google_voice_modality);
                      if (i > -1)
-                         buffer.modalities.splice(i, 1);
+                         buffer.content_modalities.splice(i, 1);
                  });
 
 var google_voice_re = build_url_regex($domain = "google",

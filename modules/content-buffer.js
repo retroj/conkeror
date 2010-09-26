@@ -33,84 +33,61 @@ define_current_buffer_hook("current_content_buffer_focus_change_hook", "content_
 define_current_buffer_hook("current_content_buffer_overlink_change_hook", "content_buffer_overlink_change_hook");
 
 
-define_input_mode("text", "content_buffer_text_keymap", $display_name = "input:TEXT");
-define_input_mode("textarea", "content_buffer_textarea_keymap", $display_name = "input:TEXTAREA");
-define_input_mode("richedit", "content_buffer_richedit_keymap", $display_name = "input:RICHEDIT");
-define_input_mode("select", "content_buffer_select_keymap", $display_name = "input:SELECT");
-define_input_mode("checkbox", "content_buffer_checkbox_keymap", $display_name = "input:CHECKBOX/RADIOBUTTON");
-define_input_mode("button", "content_buffer_button_keymap", $display_name = "input:BUTTON");
-define_input_mode("embed", "content_buffer_embed_keymap", $display_name = "input:EMBED");
-
 function content_buffer_modality (buffer) {
     var elem = buffer.focused_element;
-    buffer.keymaps.push(content_buffer_normal_keymap);
+    function push_keymaps (tag) {
+        buffer.content_modalities.map(
+            function (m) {
+                if (m[tag])
+                    buffer.keymaps.push(m[tag]);
+            });
+        return null;
+    }
+    push_keymaps('normal');
     if (elem) {
         let p = elem.parentNode;
         while (p && !(p instanceof Ci.nsIDOMHTMLFormElement))
             p = p.parentNode;
         if (p)
-            buffer.keymaps.push(content_buffer_form_keymap);
+            push_keymaps('form');
     }
     if (elem instanceof Ci.nsIDOMHTMLInputElement) {
-        switch ((elem.getAttribute("type") || "").toLowerCase()) {
-        case "checkbox":
-            checkbox_input_mode(buffer, true);
-            break;
-        case "radio":
-            checkbox_input_mode(buffer, true);
-            break;
-        case "submit":
-            button_input_mode(buffer, true);
-            break;
-        case "reset":
-            button_input_mode(buffer, true);
-            break;
-        default:
-            text_input_mode(buffer, true);
-            break;
-        }
-        return;
+        var type = (elem.getAttribute("type") || "").toLowerCase();
+        if ({checkbox:1, radio:1, submit:1, reset:1}[type])
+            return push_keymaps(type);
+        else
+            return push_keymaps('text');
     }
-    if (elem instanceof Ci.nsIDOMHTMLTextAreaElement) {
-        textarea_input_mode(buffer, true);
-        return;
-    }
-    if (elem instanceof Ci.nsIDOMHTMLSelectElement) {
-        select_input_mode(buffer, true);
-        return;
-    }
-    if (elem instanceof Ci.nsIDOMHTMLAnchorElement) {
-        buffer.keymaps.push(content_buffer_anchor_keymap);
-        return;
-    }
-    if (elem instanceof Ci.nsIDOMHTMLButtonElement) {
-        button_input_mode(buffer, true);
-        return;
-    }
+    if (elem instanceof Ci.nsIDOMHTMLTextAreaElement)
+        return push_keymaps('textarea');
+    if (elem instanceof Ci.nsIDOMHTMLSelectElement)
+        return push_keymaps('select');
+    if (elem instanceof Ci.nsIDOMHTMLAnchorElement)
+        return push_keymaps('anchor');
+    if (elem instanceof Ci.nsIDOMHTMLButtonElement)
+        return push_keymaps('button');
     if (elem instanceof Ci.nsIDOMHTMLEmbedElement ||
         elem instanceof Ci.nsIDOMHTMLObjectElement)
     {
-        embed_input_mode(buffer, true);
-        return;
+        return push_keymaps('embed');
     }
     var frame = buffer.focused_frame;
     if (frame && frame.document.designMode &&
         frame.document.designMode == "on")
     {
-        richedit_input_mode(buffer, true);
-        return;
+        return push_keymaps('richedit');
     }
     while (elem) {
         switch (elem.contentEditable) {
         case "true":
-            richedit_input_mode(buffer, true);
-            return;
+            return push_keymaps('richedit');
         case "false":
-            return;
+            return null;
         default: // "inherit"
             elem = elem.parentNode;
         }
     }
+    return null;
 }
 
 
@@ -180,7 +157,21 @@ function content_buffer (window) {
         }
 
         this.modalities.push(content_buffer_modality);
-
+        this.content_modalities = [{
+            normal: content_buffer_normal_keymap,
+            form: content_buffer_form_keymap,
+            checkbox: content_buffer_checkbox_keymap,
+            radio: content_buffer_checkbox_keymap,
+            submit: content_buffer_button_keymap,
+            reset: content_buffer_button_keymap,
+            text: content_buffer_text_keymap,
+            textarea: content_buffer_textarea_keymap,
+            select: content_buffer_select_keymap,
+            anchor: content_buffer_anchor_keymap,
+            button: content_buffer_button_keymap,
+            embed: content_buffer_embed_keymap,
+            richedit: content_buffer_richedit_keymap
+        }];
     } finally {
         this.constructor_end();
     }
@@ -192,6 +183,8 @@ content_buffer.prototype = {
         this.browser.removeProgressListener(this);
         buffer.prototype.destroy.call(this);
     },
+
+    content_modalities: null,
 
     get scrollX () { return this.top_frame.scrollX; },
     get scrollY () { return this.top_frame.scrollY; },

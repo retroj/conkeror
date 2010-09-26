@@ -30,6 +30,7 @@ define_buffer_local_hook("kill_buffer_hook");
 define_buffer_local_hook("buffer_scroll_hook");
 define_buffer_local_hook("buffer_dom_content_loaded_hook");
 define_buffer_local_hook("buffer_loaded_hook");
+define_buffer_local_hook("set_input_mode_hook");
 
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
 define_current_buffer_hook("current_buffer_description_change_hook", "buffer_description_change_hook");
@@ -183,22 +184,22 @@ buffer.prototype = {
     },
 
     set_input_mode: function () {
-        if (this.input_mode)
-            conkeror[this.input_mode](this, false);
+        if (this != this.window.buffers.current)
+            return;
         this.keymaps = [];
         this.modalities.map(function (m) m(this), this);
+        set_input_mode_hook.run(this);
     },
 
     override_keymaps: function (keymaps) {
         if (keymaps) {
             this.keymaps = keymaps;
-            this.set_input_mode = function () {};
-            if (this.input_mode)
-                conkeror[this.input_mode](this, false);
-        } else {
+            this.set_input_mode = function () {
+                set_input_mode_hook.run(this);
+            };
+        } else
             delete this.set_input_mode;
-            this.set_input_mode();
-        }
+        this.set_input_mode();
     },
 
     /* Browser accessors */
@@ -597,13 +598,6 @@ minibuffer.prototype.read_buffer = function () {
 };
 
 
-interactive("buffer-reset-input-mode",
-    "Force a reset of the input mode.  Used by quote-next.",
-    function (I) {
-        I.buffer.set_input_mode();
-    });
-
-
 function buffer_next (window, count) {
     var index = window.buffers.selected_index;
     var total = window.buffers.count;
@@ -913,8 +907,7 @@ function minibuffer_mode_indicator (window) {
     this.window = window;
     var element = create_XUL(window, "label");
     element.setAttribute("id", "minibuffer-mode-indicator");
-    element.collapsed = true;
-    element.setAttribute("class", "minibuffer");
+    element.setAttribute("class", "mode-text-widget");
     window.document.getElementById("minibuffer").appendChild(element);
     this.element = element;
     this.hook_func = method_caller(this, this.update);
@@ -931,16 +924,15 @@ minibuffer_mode_indicator.prototype = {
             function (x) {
                 let y = mode_display_names[x];
                 if (y)
-                    return "[" + y + "]";
+                    return y;
                 else
                     return null;
             }).filter(function (x) x != null).join(" ");
-        this.element.collapsed = (str.length == 0);
         this.element.value = str;
     },
     uninstall: function () {
-        remove_hook.call(window, "select_buffer_hook", this.hook_fun);
-        remove_hook.call(window, "current_buffer_mode_change_hook", this.hook_fun);
+        remove_hook.call(this.window, "select_buffer_hook", this.hook_fun);
+        remove_hook.call(this.window, "current_buffer_mode_change_hook", this.hook_fun);
         this.element.parentNode.removeChild(this.element);
     }
 };
@@ -948,53 +940,78 @@ define_global_window_mode("minibuffer_mode_indicator", "window_initialize_hook")
 minibuffer_mode_indicator_mode(true);
 
 
+/*
+ * minibuffer-keymaps-display
+ */
+function minibuffer_keymaps_display_update (buffer) {
+    var element = buffer.window.document
+        .getElementById("keymaps-display");
+    if (element) {
+        var str = buffer.keymaps.reduce(
+            function (acc, kmap) {
+                if (kmap.display_name)
+                    acc.push(kmap.display_name);
+                return acc;
+            }, []).join("/");
+        if (element.value != str)
+            element.value = str;
+    }
+}
+
+function minibuffer_keymaps_display_initialize (window) {
+    var element = create_XUL(window, "label");
+    element.setAttribute("id", "keymaps-display");
+    element.setAttribute("class", "mode-text-widget");
+    element.setAttribute("value", "");
+    var mb = window.document.getElementById("minibuffer");
+    mb.appendChild(element);
+}
+
+define_global_mode("minibuffer_keymaps_display_mode",
+    function enable () {
+        add_hook("window_initialize_hook", minibuffer_keymaps_display_initialize);
+        add_hook("set_input_mode_hook", minibuffer_keymaps_display_update);
+        for_each_window(minibuffer_keymaps_display_initialize);
+    },
+    function disable () {
+        remove_hook("window_initialize_hook", minibuffer_keymaps_display_initialize);
+        remove_hook("set_input_mode_hook", minibuffer_keymaps_display_update);
+        for_each_window(function (w) {
+            var element = w.document
+                .getElementById("keymaps-display");
+            if (element)
+                element.parentNode.removeChild(element);
+        });
+    });
+
+minibuffer_keymaps_display_mode(true);
+
 
 /*
- * INPUT MODES
+ * minibuffer-keymaps-highlight
  */
-define_current_buffer_hook("current_buffer_input_mode_change_hook", "input_mode_change_hook");
-define_keywords("$display_name", "$doc");
-function define_input_mode (base_name, keymap_name) {
-    keywords(arguments);
-    var name = base_name + "_input_mode";
-    define_buffer_mode(name,
-                       $class = "input_mode",
-                       $enable = function (buffer) {
-                           check_buffer(buffer, content_buffer);
-                           buffer.keymaps.push(conkeror[keymap_name]);
-                       },
-                       $disable = function (buffer) {
-                           var i = buffer.keymaps.indexOf(conkeror[keymap_name]);
-                           if (i > -1)
-                               buffer.keymaps.splice(i, 1);
-                       },
-                       forward_keywords(arguments));
+function minibuffer_keymaps_highlight_update (buffer) {
+    var mb = buffer.window.document.getElementById("minibuffer");
+    if (buffer.keymaps.some(function (k) k.notify))
+        dom_add_class(mb, "highlight");
+    else
+        dom_remove_class(mb, "highlight");
 }
-ignore_function_for_get_caller_source_code_reference("define_input_mode");
 
-
-function minibuffer_input_mode_indicator (window) {
-    this.window = window;
-    this.hook_func = method_caller(this, this.update);
-    add_hook.call(window, "select_buffer_hook", this.hook_func);
-    add_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
-    this.update();
-}
-minibuffer_input_mode_indicator.prototype = {
-    constructor: minibuffer_input_mode_indicator,
-    update: function () {
-        var buf = this.window.buffers.current;
-        var mode = buf.input_mode;
-        var classname = mode ? ("minibuffer-" + buf.input_mode.replace("_","-","g")) : "";
-        this.window.minibuffer.element.className = classname;
+define_global_mode("minibuffer_keymaps_highlight_mode",
+    function enable () {
+        add_hook("set_input_mode_hook", minibuffer_keymaps_highlight_update);
     },
-    uninstall: function () {
-        remove_hook.call(window, "select_buffer_hook", this.hook_func);
-        remove_hook.call(window, "current_buffer_input_mode_change_hook", this.hook_func);
-    }
-};
+    function disable () {
+        remove_hook("set_input_mode_hook", minibuffer_keymaps_highlight_update);
+        for_each_window(function (w) {
+            var mb = w.document.getElementById("minibuffer");
+            if (mb)
+                dom_remove_class("highlight");
+        });
+    });
 
-define_global_window_mode("minibuffer_input_mode_indicator", "window_initialize_hook");
-minibuffer_input_mode_indicator_mode(true);
+minibuffer_keymaps_highlight_mode(true);
+
 
 provide("buffer");

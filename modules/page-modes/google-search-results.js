@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -11,7 +11,7 @@ in_module(null);
 require("content-buffer.js");
 
 
-define_keymap("google_search_results_keymap");
+define_keymap("google_search_results_keymap", $display_name = "google-search-results");
 
 // Keys for the "experimental" keyboard search
 define_key(google_search_results_keymap, "j", "ensure-content-focused", $fallthrough);
@@ -53,10 +53,10 @@ function google_search_bind_number_shortcuts () {
     }
 }
 
-function google_search_results_modality (buffer, element) {
-    if (! buffer.input_mode)
-        buffer.keymaps.push(google_search_results_keymap);
-}
+
+var google_search_results_modality = {
+    normal: google_search_results_keymap
+};
 
 
 define_page_mode("google_search_results_mode",
@@ -72,12 +72,12 @@ define_page_mode("google_search_results_mode",
 		     for each (var c in link_using_commands)
 			 buffer.default_browser_object_classes[c] =
 			     browser_object_google_search_results_links;
-                     buffer.modalities.push(google_search_results_modality);
+                     buffer.content_modalities.push(google_search_results_modality);
                  },
                  $disable = function (buffer) {
-                     var i = buffer.modalities.indexOf(google_search_results_modality);
+                     var i = buffer.content_modalities.indexOf(google_search_results_modality);
                      if (i > -1)
-                         buffer.modalities.splice(i, 1);
+                         buffer.content_modalities.splice(i, 1);
                  });
 
 let (google_search_re = build_url_regex(

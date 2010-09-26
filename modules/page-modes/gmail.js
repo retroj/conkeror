@@ -2,7 +2,7 @@
  * (C) Copyright 2008 David Glasser
  * (C) Copyright 2008 Will Farrington
  * (C) Copyright 2008 Jeremy Maitin-Shepard
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -24,7 +24,8 @@ define_key(gmail_base_keymap, "C-c b", "bookmark");
 define_key(gmail_base_keymap, "tab", null, $fallthrough);
 
 
-define_keymap("gmail_keymap", $parent = gmail_base_keymap);
+define_keymap("gmail_keymap", $parent = gmail_base_keymap,
+              $display_name = "gmail");
 
 // Jumping
 define_key(gmail_keymap, "g", null, $fallthrough);
@@ -70,15 +71,10 @@ define_key(gmail_keymap, "]", null, $fallthrough);
 define_key(gmail_keymap, "[", null, $fallthrough);
 define_key(gmail_keymap, "l", null, $fallthrough);
 
-define_keymap("gmail_edit_keymap", $parent = gmail_base_keymap);//BAD
-define_fallthrough(gmail_edit_keymap, match_text_keys);
 
-function gmail_modality (buffer, element) {
-    if (! buffer.input_mode)
-        buffer.keymaps.push(gmail_keymap);
-    else
-        buffer.keymaps.push(gmail_edit_keymap);
-}
+var gmail_modality = {
+    normal: gmail_keymap
+};
 
 function gmail_focus_primary_frame (buffer) {
     var frames = buffer.top_frame.frames;
@@ -92,15 +88,15 @@ define_page_mode("gmail_mode",
                      add_hook.call(buffer, "buffer_dom_content_loaded_hook",
                                    gmail_focus_primary_frame);
                      add_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
-                     buffer.modalities.push(gmail_modality);
+                     buffer.content_modalities.push(gmail_modality);
                  },
                  $disable = function (buffer) {
                      remove_hook.call(buffer, "buffer_dom_content_loaded_hook",
                                       gmail_focus_primary_frame);
                      remove_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
-                     var i = buffer.modalities.indexOf(gmail_modality);
+                     var i = buffer.content_modalities.indexOf(gmail_modality);
                      if (i > -1)
-                         buffer.modalities.splice(i, 1);
+                         buffer.content_modalities.splice(i, 1);
                  });
 
 var gmail_re = build_url_regex($domain = "mail.google",

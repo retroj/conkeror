@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2009 Deniz Dogan
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -124,14 +124,13 @@ interactive("wikipedia-other-language",
             });
 
 
-define_keymap("wikipedia_keymap");
+define_keymap("wikipedia_keymap", $display_name = "wikipedia");
 define_key(wikipedia_keymap, "C-c C-o", "wikipedia-other-language");
 
 
-function wikipedia_modality (buffer, element) {
-    if (! buffer.input_mode)
-        buffer.keymaps.push(wikipedia_keymap);
-}
+var wikipedia_modality = {
+    normal: wikipedia_keymap
+};
 
 
 /*** MAIN LOADING FUNCTIONALITY ***/
@@ -143,13 +142,13 @@ define_page_mode("wikipedia_mode",
 	    do_when("buffer_dom_content_loaded_hook", buffer, wikipedia_didyoumean);
         }
         buffer.page.local.headings_xpath = '//h1[@id="firstHeading"] | //span[@class="mw-headline"] | //div[@id="toctitle"]';
-        buffer.modalities.push(wikipedia_modality);
+        buffer.content_modalities.push(wikipedia_modality);
     },
     $disable = function (buffer) {
         remove_hook.call(buffer, "buffer_dom_content_loaded_hook", wikipedia_didyoumean);
-        var i = buffer.modalities.indexOf(wikipedia_modality);
+        var i = buffer.content_modalities.indexOf(wikipedia_modality);
         if (i > -1)
-            buffer.modalities.splice(i, 1);
+            buffer.content_modalities.splice(i, 1);
     }
 );
 

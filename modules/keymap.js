@@ -144,7 +144,8 @@ function unformat_key_combo (combo) {
  * Keymap datatype
  */
 
-define_keywords("$parent", "$help", "$name", "$anonymous");
+define_keywords("$parent", "$help", "$name", "$anonymous",
+                "$display_name", "$notify");
 function keymap () {
     keywords(arguments);
     this.parent = arguments.$parent;
@@ -153,6 +154,8 @@ function keymap () {
     this.fallthrough = [];
     this.help = arguments.$help;
     this.name = arguments.$name;
+    this.display_name = arguments.$display_name;
+    this.notify = arguments.$notify;
     this.anonymous = arguments.$anonymous;
 }
 

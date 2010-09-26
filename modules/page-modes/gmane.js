@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2008 David Kettler
- * (C) Copyright 2009 John J. Foerch
+ * (C) Copyright 2009-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -10,7 +10,7 @@ in_module(null);
 
 require("content-buffer.js");
 
-define_keymap("gmane_keymap");
+define_keymap("gmane_keymap", $display_name = "gmane");
 
 /* Rebind most overridden commands. */
 //BAAAAAAD
@@ -79,20 +79,19 @@ define_key(gmane_keymap, "up", null, $fallthrough);
 define_key(gmane_keymap, "S", null, $fallthrough);
 
 
-function gmane_modality (buffer, element) {
-    if (! buffer.input_mode)
-        buffer.keymaps.push(gmane_keymap);
-}
+var gmane_modality = {
+    normal: gmane_keymap
+};
 
 
 define_page_mode("gmane_mode",
     $enable = function (buffer) {
-        buffer.modalities.push(gmane_modality);
+        buffer.content_modalities.push(gmane_modality);
     },
     $disable = function (buffer) {
-        var i = buffer.modalities.indexOf(gmane_modality);
+        var i = buffer.content_modalities.indexOf(gmane_modality);
         if (i > -1)
-            buffer.modalities.splice(i, 1);
+            buffer.content_modalities.splice(i, 1);
     },
     $display_name = "Gmane");
 
