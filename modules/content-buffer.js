@@ -21,7 +21,6 @@ define_buffer_local_hook("content_buffer_progress_change_hook");
 define_buffer_local_hook("content_buffer_location_change_hook");
 define_buffer_local_hook("content_buffer_status_change_hook");
 define_buffer_local_hook("content_buffer_focus_change_hook");
-define_buffer_local_hook("content_buffer_overlink_change_hook");
 define_buffer_local_hook("content_buffer_dom_link_added_hook");
 define_buffer_local_hook("content_buffer_popup_blocked_hook");
 
@@ -30,7 +29,6 @@ define_current_buffer_hook("current_content_buffer_progress_change_hook", "conte
 define_current_buffer_hook("current_content_buffer_location_change_hook", "content_buffer_location_change_hook");
 define_current_buffer_hook("current_content_buffer_status_change_hook", "content_buffer_status_change_hook");
 define_current_buffer_hook("current_content_buffer_focus_change_hook", "content_buffer_focus_change_hook");
-define_current_buffer_hook("current_content_buffer_overlink_change_hook", "content_buffer_overlink_change_hook");
 
 
 function content_buffer_modality (buffer) {
@@ -111,27 +109,6 @@ function content_buffer (window) {
         this.browser.addEventListener("focus", function (event) {
             content_buffer_focus_change_hook.run(buffer, event);
         }, true /* capture */);
-
-        this.browser.addEventListener("mouseover", function (event) {
-            var node = event.target;
-            while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
-                node = node.parentNode;
-            if (node) {
-                content_buffer_overlink_change_hook.run(buffer, node.href);
-                buffer.current_overlink = event.target;
-            }
-        }, true /* capture */);
-
-        this.browser.addEventListener("mouseout", function (event) {
-            if (buffer.current_overlink == event.target) {
-                buffer.current_overlink = null;
-                content_buffer_overlink_change_hook.run(buffer, "");
-            }
-        }, true /* capture */);
-
-        // initialize buffer.current_overlink in case mouseout happens
-        // before mouseover.
-        buffer.current_overlink = null;
 
         this.browser.addEventListener("DOMLinkAdded", function (event) {
             content_buffer_dom_link_added_hook.run(buffer, event);
@@ -459,22 +436,65 @@ I.content_selection = interactive_method(
         return focusedWindow.getSelection ();
     });
 */
-function overlink_update_status (buffer, text) {
-    if (text.length > 0)
-        buffer.window.minibuffer.show("Link: " + text);
+
+
+/*
+ * Overlink Mode
+ */
+function overlink_update_status (buffer, node) {
+    if (node && node.href.length > 0)
+        buffer.window.minibuffer.show("Link: " + node.href);
     else
         buffer.window.minibuffer.show("");
 }
 
-define_global_mode("overlink_mode", function () {
-    add_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
-}, function () {
-    remove_hook("current_content_buffer_overlink_change_hook", overlink_update_status);
-});
+function overlink_initialize (buffer) {
+    buffer.current_overlink = null;
+    buffer.overlink_mouseover = function (event) {
+        if (buffer != buffer.window.buffers.current)
+            return;
+        var node = event.target;
+        while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
+            node = node.parentNode;
+        if (node) {
+            buffer.current_overlink = event.target;
+            overlink_update_status(buffer, node);
+        }
+    }
+    buffer.overlink_mouseout = function (event) {
+        if (buffer != buffer.window.buffers.current)
+            return;
+        if (buffer.current_overlink == event.target) {
+            buffer.current_overlink = null;
+            overlink_update_status(buffer, null);
+        }
+    }
+    buffer.browser.addEventListener("mouseover", buffer.overlink_mouseover, true);
+    buffer.browser.addEventListener("mouseout", buffer.overlink_mouseout, true);
+}
+
+define_global_mode("overlink_mode",
+    function enable () {
+        add_hook("create_buffer_hook", overlink_initialize);
+        for_each_buffer(overlink_initialize);
+    },
+    function disable () {
+        remove_hook("create_buffer_hook", overlink_initialize);
+        for_each_buffer(function (b) {
+            b.browser.removeEventListener("mouseover", b.overlink_mouseover, true);
+            b.browser.removeEventListener("mouseout", b.overlink_mouseout, true);
+            delete b.current_overlink;
+            delete b.overlink_mouseover;
+            delete b.overlink_mouseout;
+        });
+    })
 
 overlink_mode(true);
 
 
+/*
+ * Navigation Commands
+ */
 function go_back (b, prefix) {
     if (prefix < 0)
         go_forward(b, -prefix);
