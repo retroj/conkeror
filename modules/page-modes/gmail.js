@@ -70,6 +70,7 @@ define_key(gmail_keymap, "U", null, $fallthrough);
 define_key(gmail_keymap, "]", null, $fallthrough);
 define_key(gmail_keymap, "[", null, $fallthrough);
 define_key(gmail_keymap, "l", null, $fallthrough);
+define_key(gmail_keymap, "return", null, $fallthrough);
 
 
 var gmail_modality = {
