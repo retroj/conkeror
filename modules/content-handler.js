@@ -24,7 +24,32 @@ define_mime_type_table("content_handlers", {},
  * abort the download.  Download helper actions are passed an object of this
  * type.
  */
-function content_handler_context () {}
+function content_handler_context (launcher, context) {
+    this.launcher = launcher;
+    try {
+        this.frame = context.QueryInterface(Ci.nsIInterfaceRequestor)
+            .getInterface(Ci.nsIDOMWindowInternal);
+        this.window = get_window_from_frame(this.frame);
+        this.buffer = get_buffer_from_frame(this.frame);
+    } catch (e) {
+        this.window = get_recent_conkeror_window();
+        if (this.window) {
+            this.buffer = this.window.buffers.current;
+            this.frame = this.buffer.focused_frame; //doesn't necessarily exist for all buffer types
+        }
+    }
+}
+content_handler_context.prototype = {
+    constructor: content_handler_context,
+    launcher: null,
+    window: null,
+    buffer: null,
+    frame: null,
+    abort: function () {
+        const NS_BINDING_ABORTED = 0x804b0002;
+        this.launcher.cancel(NS_BINDING_ABORTED);
+    }
+};
 
 
 /**
@@ -190,32 +215,11 @@ download_helper.prototype = {
     constructor: download_helper,
     QueryInterface: generate_QI(Ci.nsIHelperAppLauncherDialog,
                                 Ci.nsIWebProgressListener2),
-
     show: function (launcher, context, reason) {
-        // content handlers will be passed a context containing references
-        // to the window, buffer, frame, launcher, and an abort method.
-        var ctx = new content_handler_context();
-        ctx.launcher = launcher;
-        ctx.abort = function () {
-            const NS_BINDING_ABORTED = 0x804b0002;
-            launcher.cancel(NS_BINDING_ABORTED);
-        };
-        // then set frame, window, and buffer in the context, so that
-        // action handlers can use them if needed.
-        try {
-            ctx.frame = context.QueryInterface(Ci.nsIInterfaceRequestor)
-                .getInterface(Ci.nsIDOMWindowInternal);
-            ctx.window = get_window_from_frame(ctx.frame);
-            ctx.buffer = get_buffer_from_frame(ctx.window, ctx.frame);
-        } catch (e) {
-            ctx.window = get_recent_conkeror_window();
-            if (! ctx.window) {
-                // FIXME: need to handle this case perhaps where no windows exist
-                ctx.abort(); // for now, just cancel the download
-                return;
-            }
-            ctx.buffer = ctx.window.buffers.current;
-            ctx.frame = ctx.buffer.focused_frame;
+        var ctx = new content_handler_context(launcher, context);
+        if (! ctx.window) {
+            ctx.abort(); //XXX: impolite; need better solution.
+            return;
         }
         try {
             // is there anything in content_handlers for this object?
@@ -227,7 +231,6 @@ download_helper.prototype = {
             handle_interactive_error(ctx.window, e);
         }
     },
-
     promptForSaveToFile: function (launcher, context, default_file, suggested_file_extension) {
         return null;
     }
