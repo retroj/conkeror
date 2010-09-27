@@ -426,14 +426,18 @@ function overlink_update_status (buffer, node) {
         buffer.window.minibuffer.show("");
 }
 
+function overlink_predicate (node) {
+    while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
+        node = node.parentNode;
+    return node;
+}
+
 function overlink_initialize (buffer) {
     buffer.current_overlink = null;
     buffer.overlink_mouseover = function (event) {
         if (buffer != buffer.window.buffers.current)
             return;
-        var node = event.target;
-        while (node && !(node instanceof Ci.nsIDOMHTMLAnchorElement))
-            node = node.parentNode;
+        var node = overlink_predicate(event.target);
         if (node) {
             buffer.current_overlink = event.target;
             overlink_update_status(buffer, node);
