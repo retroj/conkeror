@@ -44,7 +44,9 @@ COPYING file.
     </menu>
   </menubar>
 
-  <panel id="popup_autocomplete" type="autocomplete" noautofocus="true"/>
+  <panel id="popup_autocomplete" type="autocomplete" noautofocus="true"
+         onpopupshowing="conkeror.formfill_mode(true, this);"
+         onpopuphiding="conkeror.formfill_mode(false, this);"/>
 
   <deck flex="1" id="buffer-container"/>
 </window>

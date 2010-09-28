@@ -85,6 +85,7 @@ require("cookie.js", null);
 require("cache.js", null);
 
 require("theme.js", null);
+require("formfill.js", null);
 
 
 define_variable("cwd", get_home_directory(),

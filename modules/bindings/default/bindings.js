@@ -22,6 +22,7 @@ define_keymap("default_help_keymap");
 define_keymap("default_global_keymap", $parent = default_base_keymap);
 
 define_keymap("text_keymap");
+define_keymap("formfill_keymap");
 
 define_keymap("content_buffer_normal_keymap");
 define_keymap("content_buffer_form_keymap", $display_name = "form");
@@ -66,6 +67,7 @@ load("basic-commands.js");
 
 load("global.js");
 load("text.js");
+load("formfill.js");
 
 load("content-buffer/normal.js");
 load("content-buffer/anchor.js");
