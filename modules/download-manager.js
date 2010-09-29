@@ -53,17 +53,11 @@ download_info.prototype = {
         id_to_download_info[mozilla_info.id] = this;
         download_added_hook.run(this);
     },
-
     target_file: null,
-
     shell_command: null,
-
     shell_command_cwd: null,
-
     temporary_status: DOWNLOAD_NOT_TEMPORARY,
-
     action_description: null,
-
     set_shell_command: function (str, cwd) {
         this.shell_command = str;
         this.shell_command_cwd = cwd;
@@ -239,7 +233,6 @@ download_info.prototype = {
 
 var define_download_local_hook = simple_local_hook_definer();
 
-// FIXME: add more parameters
 function register_download (buffer, source_uri, target_file) {
     var info = new download_info(buffer, null, target_file);
     info.registered_time_stamp = Date.now();

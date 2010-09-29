@@ -229,8 +229,6 @@ minibuffer.prototype = {
     },
 
     message: function (str) {
-        /* TODO: add the message to a *Messages* buffer, and/or
-         * possibly dump them to the console. */
         if (str == "")
             this.clear();
         else {

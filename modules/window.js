@@ -205,6 +205,9 @@ define_window_local_coroutine_hook("window_before_close_hook",
                                    RUN_HOOK_UNTIL_FAILURE);
 define_window_local_hook("window_close_hook", RUN_HOOK);
 
+/*
+ * Window Modes
+ */
 
 function define_global_window_mode (name, hook_name) {
     function install (window) {
@@ -232,7 +235,9 @@ ignore_function_for_get_caller_source_code_reference("define_global_window_mode"
 
 
 
-/// Window title formatting
+/*
+ * Window Title
+ */
 
 /**
  * Default tile formatter.  The page url is ignored.  If there is a

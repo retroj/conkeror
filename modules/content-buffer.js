@@ -192,32 +192,14 @@ content_buffer.prototype = {
 
     loading: false,
 
-    /* nsIWebProgressListener */
+    // nsIWebProgressListener interface
+    //
     QueryInterface: generate_QI(Ci.nsIWebProgressListener, Ci.nsISupportsWeakReference),
 
     // This method is called to indicate state changes.
     onStateChange: function (aWebProgress, aRequest, aStateFlags, aStatus) {
-/*
-        const WPL = Components.interfaces.nsIWebProgressListener;
-
-        var flagstr = "";
-        if (aStateFlags & WPL.STATE_START)
-            flagstr += ",start";
-        if (aStateFlags & WPL.STATE_STOP)
-            flagstr += ",stop";
-        if (aStateFlags & WPL.STATE_IS_REQUEST)
-            flagstr += ",request";
-        if (aStateFlags & WPL.STATE_IS_DOCUMENT)
-            flagstr += ",document";
-        if (aStateFlags & WPL.STATE_IS_NETWORK)
-            flagstr += ",network";
-        if (aStateFlags & WPL.STATE_IS_WINDOW)
-            flagstr += ",window";
-        dumpln("onStateChange: " + flagstr + ", status: " + aStatus);
-*/
         if (!aRequest)
             return;
-
         if (aStateFlags & Ci.nsIWebProgressListener.STATE_START) {
             this._request_count++;
         } else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP) {
@@ -239,13 +221,11 @@ content_buffer.prototype = {
             // set to zero, if the document load ends without an
             // onLocationChange, this counter gets decremented
             // (so we keep it while switching tabs after failed loads)
-            //dumpln("*** started loading");
             this.loading = true;
             content_buffer_started_loading_hook.run(this);
         } else if (aStateFlags & Ci.nsIWebProgressListener.STATE_STOP &&
                    aStateFlags & Ci.nsIWebProgressListener.STATE_IS_NETWORK) {
             if (this.loading == true) {
-                //dumpln("*** finished loading");
                 this.loading = false;
                 content_buffer_finished_loading_hook.run(this);
             }
@@ -258,15 +238,16 @@ content_buffer.prototype = {
         }
     },
 
-    /* This method is called to indicate progress changes for the currently
-       loading page. */
+    // This method is called to indicate progress changes for the
+    // currently loading page.
     onProgressChange: function (webProgress, request, curSelf, maxSelf,
-                                curTotal, maxTotal) {
+                                curTotal, maxTotal)
+    {
         content_buffer_progress_change_hook.run(this, request, curSelf, maxSelf, curTotal, maxTotal);
     },
 
-    /* This method is called to indicate a change to the current location.
-       The url can be gotten as location.spec. */
+    // This method is called to indicate a change to the current location.
+    // The url can be gotten as location.spec.
     onLocationChange: function (webProgress, request, location) {
         /* Attempt to ignore onLocationChange calls due to the initial
          * loading of about:blank by all xul:browser elements. */
@@ -293,8 +274,7 @@ content_buffer.prototype = {
 
     // This method is called when the security state of the browser changes.
     onSecurityChange: function (webProgress, request, state) {
-        /* FIXME: currently this isn't used */
-
+        //FIXME: implement this.
         /*
         const WPL = Components.interfaces.nsIWebProgressListener;
 

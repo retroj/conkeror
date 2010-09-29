@@ -21,9 +21,7 @@ function quit () {
         appStartup.quit(appStartup.eAttemptQuit);
     }
 }
-interactive("quit",
-    "Quit Conkeror",
-    quit);
+interactive("quit", "Quit Conkeror", quit);
 
 
 function show_conkeror_version (window) {
