@@ -201,7 +201,7 @@ application.prototype = {
                 if (! suffix)
                     path = this.load_paths[++i];
             }
-            throw new Error("Module not found");
+            throw new Error("Module not found ("+module+")");
         }
     },
     module_assert_error: function (module) {
