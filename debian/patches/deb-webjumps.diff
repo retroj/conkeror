@@ -1,10 +1,10 @@
 Adds and enables some Debian and Ubuntu related webjumps which should
 not be inlcuded in upstream by default.
 
-Index: conkeror-0.9.2+git100324/modules/debian/debian-webjumps.js
+Index: conkeror/modules/debian/debian-webjumps.js
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ conkeror-0.9.2+git100324/modules/debian/debian-webjumps.js	2010-03-24 23:39:39.000000000 +0100
++++ conkeror/modules/debian/debian-webjumps.js	2010-09-29 07:55:36.000000000 +0200
 @@ -0,0 +1,30 @@
 +/**
 + * (C) Copyright 2008-2010 Axel Beckert
@@ -36,14 +36,14 @@ Index: conkeror-0.9.2+git100324/modules/debian/debian-webjumps.js
 +define_webjump("launchpad", "https://launchpad.net/+search?field.text=%s");
 +
 +provide("debian-webjumps");
-Index: conkeror-0.9.2+git100324/defaults/preferences/default-modules.js
+Index: conkeror/defaults/preferences/default-modules.js
 ===================================================================
---- conkeror-0.9.2+git100324.orig/defaults/preferences/default-modules.js	2010-03-24 01:31:44.000000000 +0100
-+++ conkeror-0.9.2+git100324/defaults/preferences/default-modules.js	2010-03-24 01:36:18.000000000 +0100
-@@ -60,3 +60,6 @@
+--- conkeror.orig/defaults/preferences/default-modules.js	2010-09-28 01:47:21.000000000 +0200
++++ conkeror/defaults/preferences/default-modules.js	2010-09-29 07:57:40.000000000 +0200
+@@ -53,3 +53,6 @@
  pref("conkeror.load.page-modes/dailymotion", 1);
  pref("conkeror.load.page-modes/xkcd", 1);
- pref("conkeror.load.page-modes/stackoverflow", 1);
+ pref("conkeror.load.page-modes/stackexchange", 1);
 +
 +// Debian modules
 +pref("conkeror.load.debian/debian-webjumps", 1);
