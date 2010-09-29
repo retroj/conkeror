@@ -36,14 +36,9 @@ Index: conkeror/modules/debian/debian-webjumps.js
 +define_webjump("launchpad", "https://launchpad.net/+search?field.text=%s");
 +
 +provide("debian-webjumps");
-Index: conkeror/defaults/preferences/default-modules.js
+Index: conkeror/defaults/preferences/debian-default-modules.js
 ===================================================================
---- conkeror.orig/defaults/preferences/default-modules.js	2010-09-28 01:47:21.000000000 +0200
-+++ conkeror/defaults/preferences/default-modules.js	2010-09-29 07:57:40.000000000 +0200
-@@ -53,3 +53,6 @@
- pref("conkeror.load.page-modes/dailymotion", 1);
- pref("conkeror.load.page-modes/xkcd", 1);
- pref("conkeror.load.page-modes/stackexchange", 1);
-+
-+// Debian modules
+--- conkeror.orig/defaults/preferences/debian-default-modules.js	2010-09-28 01:47:21.000000000 +0200
++++ conkeror/defaults/preferences/debian-default-modules.js	2010-09-29 07:57:40.000000000 +0200
+@@ -0,0 +1,1 @@
 +pref("conkeror.load.debian/debian-webjumps", 1);

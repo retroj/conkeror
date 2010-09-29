@@ -1,8 +1,14 @@
-conkeror (0.9.2+git100804-2) UNRELEASED; urgency=low
+conkeror (0.9.2+git100929-1) UNRELEASED; urgency=low
 
+  * New upstream snapshot
   * Fix (.deb package specific) ubuntubugs webjump
+  * debian/patches/deb-webumps.diff no more modifies
+    defaults/preferences/default-modules.js but creates a new file named
+    defaults/preferences/debian-default-modules.js instead. This should
+    make the patch much more robust against changes in upstream's default
+    modules list. Thanks to John J. Foerch for the suggestion.
 
- -- Axel Beckert <abe@debian.org>  Sun, 15 Aug 2010 18:46:08 +0200
+ -- Axel Beckert <abe@debian.org>  Wed, 29 Sep 2010 21:15:15 +0200
 
 conkeror (0.9.2+git100804-1) unstable; urgency=low
 
