@@ -70,14 +70,14 @@ function define_webjump (key, handler) {
 }
 
 function define_delicious_webjumps (username) {
-    define_webjump("delicious", "http://delicious.com/" + username + "/%s",
-                   $alternative = "http://delicious.com/" + username);
-    define_webjump("adelicious", "javascript:location.href='http://delicious.com/"+username+
+    define_webjump("delicious", "http://www.delicious.com/" + username + "/%s",
+                   $alternative = "http://www.delicious.com/" + username);
+    define_webjump("adelicious", "javascript:location.href='http://www.delicious.com/"+username+
                    "?v=2&url='+encodeURIComponent(location.href)+'&title='+"+
                    "encodeURIComponent(document.title);");
-    define_webjump("sdelicious", "http://delicious.com/search?p=%s&u="+username+
+    define_webjump("sdelicious", "http://www.delicious.com/search?p=%s&u="+username+
                    "&chk=&context=userposts&fr=del_icio_us&lc=1");
-    define_webjump("sadelicious", "http://delicious.com/search/all?search=%s");
+    define_webjump("sadelicious", "http://www.delicious.com/search/all?search=%s");
 }
 
 add_delicious_webjumps = define_delicious_webjumps;
