@@ -252,6 +252,8 @@ function format_binding_sequence (seq) {
 
 function keymap_lookup (keymaps, combo, event) {
     var i = keymaps.length - 1;
+    if (i < 0)
+        return null;
     var kmap = keymaps[i];
     var new_kmaps;
     while (true) {
