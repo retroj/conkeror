@@ -27,6 +27,54 @@ define_variable("minibuffer_history_max_items", 100,
     "history entries are truncated after this limit is reached.");
 
 
+var atom_service = Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService);
+
+function completions_tree_view (minibuffer_state) {
+    this.minibuffer_state = minibuffer_state;
+}
+completions_tree_view.prototype = {
+    constructor: completions_tree_view,
+    get rowCount () {
+        var c = this.minibuffer_state.completions;
+        if (!c)
+            return 0;
+        return c.count;
+    },
+    getCellText: function (row,column) {
+        var c = this.minibuffer_state.completions;
+        if (row >= c.count)
+            return null;
+        if (column.index == 0)
+            return c.get_string(row);
+        if (c.get_description)
+            return c.get_description(row);
+        return "";
+    },
+    setTree: function (treebox) { this.treeBox = treebox; },
+    isContainer: function (row) { return false; },
+    isSeparator: function (row) { return false; },
+    isSorted: function () { return false; },
+    getLevel: function (row) { return 0; },
+    getImageSrc: function (row, col) {
+        var c = this.minibuffer_state.completions;
+        if (this.minibuffer_state.enable_icons &&
+            c.get_icon && col.index == 0)
+        {
+            return c.get_icon(row);
+        }
+        return null;
+    },
+    getRowProperties: function (row, props) {},
+    getCellProperties: function (row, col, props) {
+        if (col.index == 0)
+            props.AppendElement(atom_service.getAtom("completion-string"));
+        else
+            props.AppendElement(atom_service.getAtom("completion-description"));
+    },
+    getColumnProperties: function (colid, col, props) {}
+};
+
+
 /* The parameter `args' specifies the arguments.  In addition, the
  * arguments for basic_minibuffer_state are also allowed.
  *
@@ -92,56 +140,6 @@ function text_entry_minibuffer_state (minibuffer, continuation) {
         this.enable_icons = arguments.$enable_icons;
     }
 }
-
-function completions_tree_view (minibuffer_state) {
-    this.minibuffer_state = minibuffer_state;
-}
-
-var atom_service = Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService);
-
-completions_tree_view.prototype = {
-    constructor: completions_tree_view,
-    get rowCount () {
-        var c = this.minibuffer_state.completions;
-        if (!c)
-            return 0;
-        return c.count;
-    },
-    getCellText: function (row, column) {
-        var c = this.minibuffer_state.completions;
-        if (row >= c.count)
-            return null;
-        if (column.index == 0)
-            return c.get_string(row);
-        if (c.get_description)
-            return c.get_description(row);
-        return "";
-    },
-    setTree: function (treebox) { this.treeBox = treebox; },
-    isContainer: function (row) { return false; },
-    isSeparator: function (row) { return false; },
-    isSorted: function () { return false; },
-    getLevel: function (row) { return 0; },
-    getImageSrc: function (row, col) {
-        var c = this.minibuffer_state.completions;
-        if (this.minibuffer_state.enable_icons &&
-            c.get_icon && col.index == 0)
-        {
-            return c.get_icon(row);
-        }
-        return null;
-    },
-    getRowProperties: function (row, props) {},
-    getCellProperties: function (row, col, props) {
-        if (col.index == 0)
-            props.AppendElement(atom_service.getAtom("completion-string"));
-        else
-            props.AppendElement(atom_service.getAtom("completion-description"));
-    },
-    getColumnProperties: function (colid, col, props) {}
-};
-
-// inherit from basic_minibuffer_state
 text_entry_minibuffer_state.prototype = {
     constructor: text_entry_minibuffer_state,
     __proto__: basic_minibuffer_state.prototype,
