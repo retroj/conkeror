@@ -46,6 +46,7 @@ define_keymap("minibuffer_base_keymap", $parent = text_keymap);
 define_keymap("minibuffer_keymap", $parent = minibuffer_base_keymap);
 define_keymap("minibuffer_space_completion_keymap");
 define_keymap("hint_keymap", $parent = text_keymap);
+define_keymap("hint_quote_next_keymap");
 define_keymap("isearch_keymap");
 
 define_keymap("single_character_options_minibuffer_keymap");

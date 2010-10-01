@@ -26,3 +26,8 @@ define_key(hint_keymap, "escape", "minibuffer-abort");
 define_key(hint_keymap, "M-escape", "minibuffer-abort");
 define_key(hint_keymap, "C-g", "minibuffer-abort");
 define_key(hint_keymap, "return", "hints-exit");
+define_key(hint_keymap, "C-q", "hints-quote-next");
+
+
+define_fallthrough(hint_quote_next_keymap, match_any_unmodified_character);
+define_key(hint_quote_next_keymap, match_any_unmodified_character, null, $fallthrough);

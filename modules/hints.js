@@ -588,6 +588,12 @@ interactive("hints-exit", null,
         hints_exit(I.window, I.minibuffer.check_state(hints_minibuffer_state));
     });
 
+interactive("hints-quote-next", null,
+    function (I) {
+        I.overlay_keymap = hint_quote_next_keymap;
+    },
+    $prefix);
+
 
 define_keywords("$buffer");
 minibuffer.prototype.read_hinted_element = function () {
