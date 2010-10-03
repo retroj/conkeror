@@ -31,6 +31,7 @@ define_key(google_reader_keymap, "O", null, $fallthrough);
 
 // Jumping
 define_key(google_reader_keymap, "g", null, $fallthrough);
+define_key(google_reader_keymap, "h", null, $fallthrough);
 define_key(google_reader_keymap, "C-c g", "find-url");//BAD
 
 // Acting
