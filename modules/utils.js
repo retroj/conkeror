@@ -655,7 +655,7 @@ function scroll_selection_into_view (field) {
 define_keywords("$domain", "$path", "$tlds", "$allow_www");
 function build_url_regex () {
     function regex_to_string (obj) {
-        if (obj instanceof RegExp)
+        if (typeof obj == "object" && "source" in obj)
             return obj.source;
         return quotemeta(obj);
     }
