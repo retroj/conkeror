@@ -1,3 +1,24 @@
+conkeror (0.9.3-1) experimental; urgency=low
+
+  * Input-modes removed. Instead of an input-mode display in the
+    minibuffer, there is now a keymaps-display.
+
+    - quote-next-input-mode renamed to quote-next-mode
+    - gmail_edit_keymap removed (no longer necessary)
+    - buffer-reset-input-mode command removed (no longer necessary)
+
+  * overlink_mode rewritten
+
+    - content_buffer_overlink_change_hook removed
+    - current_content_buffer_overlink_change_hook removed
+
+  * Hinting now performs a case-sensitive match if the user's text
+    includes upper-case letters.
+
+  * stackoverflow-mode has been renamed to stackexchange-mode.
+
+ -- Axel Beckert <abe@debian.org>  Wed, 06 Oct 2010 21:02:21 +0200
+
 conkeror (0.9.2+git100804-1) unstable; urgency=low
 
   * Editing in the minibuffer is now done with the normal editing commands

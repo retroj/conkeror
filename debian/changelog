@@ -1,6 +1,9 @@
-conkeror (0.9.2+git100929-1) UNRELEASED; urgency=low
+conkeror (0.9.3-1) experimental; urgency=low
 
-  * New upstream snapshot
+  * New upstream milestone
+    - Supports XULRunner 2
+    - New minibuffer handling, no more input-modes
+    - Offers a Twitter page mode
   * Fix (.deb package specific) ubuntubugs webjump
   * debian/patches/deb-webumps.diff no more modifies
     defaults/preferences/default-modules.js but creates a new file named
@@ -8,7 +11,7 @@ conkeror (0.9.2+git100929-1) UNRELEASED; urgency=low
     make the patch much more robust against changes in upstream's default
     modules list. Thanks to John J. Foerch for the suggestion.
 
- -- Axel Beckert <abe@debian.org>  Wed, 29 Sep 2010 21:15:15 +0200
+ -- Axel Beckert <abe@debian.org>  Wed, 06 Oct 2010 20:59:43 +0200
 
 conkeror (0.9.2+git100804-1) unstable; urgency=low
 
