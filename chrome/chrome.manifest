@@ -11,3 +11,10 @@ content  conkeror-test           file:../tests/
 locale   branding       en-US    file:../branding/
 
 override chrome://global/locale/netErrorApp.dtd chrome://conkeror-gui/locale/netError.dtd
+
+component {72a7eea7-a894-47ec-93a9-a7bc172cf1ac} ../components/application.js
+contract @conkeror.mozdev.org/application;1 {72a7eea7-a894-47ec-93a9-a7bc172cf1ac}
+
+component {0f4dd758-b55a-4386-a79c-8698642eac51} ../components/command-line.js
+contract @mozilla.org/commandlinehandler/general-startup;1?type=conkeror {0f4dd758-b55a-4386-a79c-8698642eac51}
+category command-line-handler y-conkeror @mozilla.org/commandlinehandler/general-startup;1?type=conkeror

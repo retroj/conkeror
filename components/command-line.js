@@ -32,6 +32,7 @@ cmdline.prototype = {
         }]
 };
 
-function NSGetModule (compMgr, fileSpec) {
-    return XPCOMUtils.generateModule([cmdline]);
-}
+if (XPCOMUtils.generateNSGetFactory)
+    var NSGetFactory = XPCOMUtils.generateNSGetFactory([cmdline]); //XULRunner 2.0
+else
+    var NSGetModule = XPCOMUtils.generateNSGetModule([cmdline]);

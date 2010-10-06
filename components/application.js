@@ -294,6 +294,7 @@ application.prototype = {
     contractID: "@conkeror.mozdev.org/application;1"
 };
 
-function NSGetModule (compMgr, fileSpec) {
-    return XPCOMUtils.generateModule([application]);
-}
+if (XPCOMUtils.generateNSGetFactory)
+    var NSGetFactory = XPCOMUtils.generateNSGetFactory([application]); //XULRunner 2.0
+else
+    var NSGetModule = XPCOMUtils.generateNSGetModule([application]);
