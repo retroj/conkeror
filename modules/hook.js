@@ -44,9 +44,10 @@ function run_hooks (hook, args) {
 function run_hooks_until_success (hook, args) {
     if (hook == null)
         return false;
+    var result;
     for (let i = 0, hlen = hook.length; i < hlen; ++i)
-        if (hook[i].apply(null, Array.prototype.slice.call(args)))
-            return true;
+        if ((result = hook[i].apply(null, Array.prototype.slice.call(args))))
+            return result;
     return false;
 }
 
@@ -69,9 +70,10 @@ function run_coroutine_hooks (hook, args) {
 function run_coroutine_hooks_until_success (hook, args) {
     if (hook == null)
         yield co_return(false);
+    var result;
     for (let i = 0, hlen = hook.length; i < hlen; ++i)
-        if ((yield hook[i].apply(null, Array.prototype.slice.call(args))))
-            yield co_return(true);
+        if ((result = yield hook[i].apply(null, Array.prototype.slice.call(args))))
+            yield co_return(result);
     yield co_return(false);
 }
 
@@ -96,7 +98,7 @@ function initialize_hook (run, hook_name, hook_type, doc_string, extra_doc_strin
         RUN_HOOK: "Each hook function is run in sequence.",
         RUN_HOOK_UNTIL_SUCCESS:
         "Each hook function is run in sequence until one returns a "+
-            "logically true value.",
+            "logically true value.  That value is returned.",
         RUN_HOOK_UNTIL_FAILURE:
         "Each hook function is run in sequence until one returns a "+
             "logically false value.  If no function returns such a "+
@@ -162,8 +164,9 @@ function simple_local_hook_definer (extra_doc_string) {
         },
         RUN_HOOK_UNTIL_SUCCESS: function (x) {
             var hook_name = this.hook_name;
-            if ((hook_name in x) && run_hooks_until_success(x[hook_name], arguments))
-                return true;
+            var result;
+            if ((hook_name in x) && (result = run_hooks_until_success(x[hook_name], arguments)))
+                return result;
             return run_hooks_until_success(conkeror[hook_name], arguments);
         },
         RUN_HOOK_UNTIL_FAILURE: function (x) {
@@ -190,12 +193,13 @@ function simple_local_coroutine_hook_definer (extra_doc_string) {
         },
         RUN_HOOK_UNTIL_SUCCESS: function (x) {
             var hook_name = this.hook_name;
+            var result;
             if ((hook_name in x) &&
-                (yield run_coroutine_hooks_until_success(x[hook_name], arguments)))
+                (result = yield run_coroutine_hooks_until_success(x[hook_name], arguments)))
             {
-                yield co_return(true);
+                yield co_return(result);
             }
-            var result = yield run_coroutine_hooks_until_success(conkeror[hook_name], arguments);
+            result = yield run_coroutine_hooks_until_success(conkeror[hook_name], arguments);
             yield co_return(result);
         },
         RUN_HOOK_UNTIL_FAILURE: function (x) {
@@ -228,10 +232,11 @@ function local_hook_definer (prop_name, extra_doc_string) {
         },
         RUN_HOOK_UNTIL_SUCCESS: function (x) {
             var hook_name = this.hook_name;
-            if ((hook_name in x) && run_hooks_until_success(x[hook_name], arguments))
-                return true;
-            if ((hook_name in x[prop_name]) && run_hooks_until_success(x[prop_name][hook_name], arguments))
-                return true;
+            var result;
+            if ((hook_name in x) && (result = run_hooks_until_success(x[hook_name], arguments)))
+                return result;
+            if ((hook_name in x[prop_name]) && (result = run_hooks_until_success(x[prop_name][hook_name], arguments)))
+                return result;
             return run_hooks_until_success(conkeror[hook_name], arguments);
         },
         RUN_HOOK_UNTIL_FAILURE: function (x) {
@@ -262,17 +267,18 @@ function local_coroutine_hook_definer (prop_name, extra_doc_string) {
         },
         RUN_HOOK_UNTIL_SUCCESS: function (x) {
             var hook_name = this.hook_name;
+            var result;
             if ((hook_name in x) &&
-                (yield run_coroutine_hooks_until_success(x[hook_name], arguments)))
+                (result = yield run_coroutine_hooks_until_success(x[hook_name], arguments)))
             {
-                yield co_return(true);
+                yield co_return(result);
             }
             if ((hook_name in x[prop_name]) &&
-                (yield run_coroutine_hooks_until_success(x[prop_name][hook_name], arguments)))
+                (result = yield run_coroutine_hooks_until_success(x[prop_name][hook_name], arguments)))
             {
-                yield co_return(true);
+                yield co_return(result);
             }
-            var result = yield run_coroutine_hooks_until_success(conkeror[hook_name], arguments);
+            result = yield run_coroutine_hooks_until_success(conkeror[hook_name], arguments);
             yield co_return(result);
         },
         RUN_HOOK_UNTIL_FAILURE: function (x) {
