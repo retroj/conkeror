@@ -9,6 +9,28 @@ in_module(null);
 
 content_policy_listener.enabled = true;
 
+interactive("content-policy-enable",
+    "Enable content-policy processing.",
+    function (I) {
+        if (content_policy_listener.enabled) {
+            I.minibuffer.message("Content-policy already enabled.");
+            return;
+        }
+        content_policy_listener.enabled = true;
+        I.minibuffer.message("Content-policy enabled.");
+    });
+
+interactive("content-policy-disable",
+    "Enable content-policy processing.",
+    function (I) {
+        if (! content_policy_listener.enabled) {
+            I.minibuffer.message("Content-policy already disabled.");
+            return;
+        }
+        content_policy_listener.enabled = false;
+        I.minibuffer.message("Content-policy disabled.");
+    });
+
 const REJECT_REQUEST = Ci.nsIContentPolicy.REJECT_REQUEST;
 const REJECT_TYPE = Ci.nsIContentPolicy.REJECT_TYPE;
 const REJECT_SERVER = Ci.nsIContentPolicy.REJECT_SERVER;
