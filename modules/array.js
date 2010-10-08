@@ -29,6 +29,33 @@ function make_array (ob) {
     return [ob];
 }
 
+
+/**
+ * array_find returns the first element in the given array that satisfies
+ * predicate p.  returns null on failure.
+ */
+function array_find (ar, p) {
+    for (var i = 0, n = ar.length; i < n; ++i) {
+        if (p(ar[i]))
+            return ar[i];
+    }
+    return null;
+}
+
+
+/**
+ * array_find_index returns the index of the first element in the array
+ * that satisfies predicate p.  returns -1 on failure.
+ */
+function array_find_index (ar, p) {
+    for (var i = 0, n = ar.length; i < n; ++i) {
+        if (p(ar[i]))
+            return i;
+    }
+    return -1;
+}
+
+
 /**
  * remove_duplicates_filter returns a function that can be used in
  * Array.filter.  It removes duplicates.  Optional argument cmp is a
