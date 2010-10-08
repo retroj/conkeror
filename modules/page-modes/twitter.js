@@ -35,6 +35,7 @@ define_key(twitter_keymap, "u", null, $fallthrough);
 
 // Acting
 define_key(twitter_keymap, "f", null, $fallthrough);
+define_key(twitter_keymap, "C-c f", "follow");//BAD
 define_key(twitter_keymap, "r", null, $fallthrough);
 define_key(twitter_keymap, "t", null, $fallthrough);
 define_key(twitter_keymap, "C-c t", "follow-top");//BAD
