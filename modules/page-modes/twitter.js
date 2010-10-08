@@ -42,6 +42,8 @@ define_key(twitter_keymap, "C-c t", "follow-top");//BAD
 define_key(twitter_keymap, "m", null, $fallthrough);
 define_key(twitter_keymap, "n", null, $fallthrough);
 
+define_key(twitter_keymap, "return", null, $fallthrough);
+
 var twitter_modality = {
     normal: twitter_keymap
 };
