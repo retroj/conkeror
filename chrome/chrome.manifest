@@ -18,3 +18,6 @@ contract @conkeror.mozdev.org/application;1 {72a7eea7-a894-47ec-93a9-a7bc172cf1a
 component {0f4dd758-b55a-4386-a79c-8698642eac51} ../components/command-line.js
 contract @mozilla.org/commandlinehandler/general-startup;1?type=conkeror {0f4dd758-b55a-4386-a79c-8698642eac51}
 category command-line-handler y-conkeror @mozilla.org/commandlinehandler/general-startup;1?type=conkeror
+
+component {2926dd11-4d76-4965-bcdc-4aaad70ada04} ../components/content-policy.js
+contract @conkeror.org/content-policy-listener;1 {2926dd11-4d76-4965-bcdc-4aaad70ada04}
