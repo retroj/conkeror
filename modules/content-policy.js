@@ -31,11 +31,8 @@ interactive("content-policy-disable",
         I.minibuffer.message("Content-policy disabled.");
     });
 
-const REJECT_REQUEST = Ci.nsIContentPolicy.REJECT_REQUEST;
-const REJECT_TYPE = Ci.nsIContentPolicy.REJECT_TYPE;
-const REJECT_SERVER = Ci.nsIContentPolicy.REJECT_SERVER;
-const REJECT_OTHER = Ci.nsIContentPolicy.REJECT_OTHER;
-const ACCEPT = Ci.nsIContentPolicy.ACCEPT;
+const content_policy_accept = Ci.nsIContentPolicy.ACCEPT;
+const content_policy_reject = Ci.nsIContentPolicy.REJECT_REQUEST;
 
 /*
  * By Type Filtering
