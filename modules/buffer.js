@@ -791,7 +791,7 @@ function unfocus (window, buffer) {
 }
 interactive("unfocus",
     "Unfocus is a high-level command for unfocusing hyperlinks, inputs, "+
-    "frames, iframes, plugins, and also for clearing the selection.  "+
+    "frames, iframes, plugins, and also for clearing the selection.\n"+
     "The action that it takes is based on precedence.  If there is a "+
     "focused hyperlink or input, it will unfocus that.  Otherwise, if "+
     "there is a selection, it will clear the selection.  Otherwise, it "+
