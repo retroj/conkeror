@@ -303,7 +303,11 @@ function keymap_lookup_fallthrough (keymap, event) {
 
 function for_each_key_binding (keymaps, callback) {
     var binding_sequence = [];
+    var in_keymaps = [];
     function helper (keymap) {
+        if (in_keymaps.indexOf(keymap) >= 0)
+            return;
+        in_keymaps.push(keymap);
         var binding;
         for each (binding in keymap.bindings) {
             binding_sequence.push(binding);
@@ -319,6 +323,7 @@ function for_each_key_binding (keymaps, callback) {
                 helper(binding.keymap);
             binding_sequence.pop();
         }
+        in_keymaps.pop();
     }
     //outer loop is to go down the parent-chain of keymaps
     var i = keymaps.length - 1;
