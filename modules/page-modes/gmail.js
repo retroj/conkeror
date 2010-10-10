@@ -12,20 +12,7 @@ in_module(null);
 
 require("content-buffer.js");
 
-define_keymap("gmail_base_keymap");
-define_key(gmail_base_keymap, "C-c g", "find-url");
-define_key(gmail_base_keymap, "C-c c", "copy");
-define_key(gmail_base_keymap, "C-c x", "shell-command-on-file");
-define_key(gmail_base_keymap, "C-c s", "save");
-define_key(gmail_base_keymap, "C-c r", "reload");
-define_key(gmail_base_keymap, "C-c f", "follow");
-define_key(gmail_base_keymap, "C-c t", "follow-top");
-define_key(gmail_base_keymap, "C-c b", "bookmark");
-define_key(gmail_base_keymap, "tab", null, $fallthrough);
-
-
-define_keymap("gmail_keymap", $parent = gmail_base_keymap,
-              $display_name = "gmail");
+define_keymap("gmail_keymap", $display_name = "gmail");
 
 // Jumping
 define_key(gmail_keymap, "g", null, $fallthrough);
@@ -71,6 +58,7 @@ define_key(gmail_keymap, "]", null, $fallthrough);
 define_key(gmail_keymap, "[", null, $fallthrough);
 define_key(gmail_keymap, "l", null, $fallthrough);
 define_key(gmail_keymap, "return", null, $fallthrough);
+define_key(gmail_keymap, "tab", null, $fallthrough);
 
 
 var gmail_modality = {

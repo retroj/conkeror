@@ -24,10 +24,8 @@ define_key(twitter_keymap, ".", null, $fallthrough);
 
 // Timelines
 define_key(twitter_keymap, "g", null, $fallthrough);
-define_key(twitter_keymap, "C-c g", "find-url");//BAD
 define_key(twitter_keymap, "h", null, $fallthrough);
 define_key(twitter_keymap, "r", null, $fallthrough);
-define_key(twitter_keymap, "C-c r", "reload");//BAD
 define_key(twitter_keymap, "p", null, $fallthrough);
 define_key(twitter_keymap, "f", null, $fallthrough);
 define_key(twitter_keymap, "m", null, $fallthrough);
@@ -35,10 +33,8 @@ define_key(twitter_keymap, "u", null, $fallthrough);
 
 // Acting
 define_key(twitter_keymap, "f", null, $fallthrough);
-define_key(twitter_keymap, "C-c f", "follow");//BAD
 define_key(twitter_keymap, "r", null, $fallthrough);
 define_key(twitter_keymap, "t", null, $fallthrough);
-define_key(twitter_keymap, "C-c t", "follow-top");//BAD
 define_key(twitter_keymap, "m", null, $fallthrough);
 define_key(twitter_keymap, "n", null, $fallthrough);
 

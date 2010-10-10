@@ -12,21 +12,6 @@ require("content-buffer.js");
 
 define_keymap("gmane_keymap", $display_name = "gmane");
 
-/* Rebind most overridden commands. */
-//BAAAAAAD
-define_key(gmane_keymap, "C-c c", "copy");
-define_key(gmane_keymap, "C-c +", "zoom-in-text");
-define_key(gmane_keymap, "C-c -", "zoom-out-text");
-define_key(gmane_keymap, "C-c f", "follow");
-define_key(gmane_keymap, "C-c l", "back");
-define_key(gmane_keymap, "C-c n", "browser-object-links");
-
-
-/*
-  The f keystroke is hard to live without; put this in rc to restore it:
-    define_key(gmane_keymap, "f", "follow");
-*/
-
 /*
   Loom keystrokes.  http://gmane.org/loom-help.php
 

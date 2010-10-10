@@ -29,8 +29,10 @@ define_key(sequence_abort_keymap, "C-g", "sequence-abort");
 
 
 /**
- * Note: Most buffer keymaps should set this as the parent.
+ * default_global_keymap
  */
+define_key(default_global_keymap, "C-z", default_global_keymap);
+
 define_key(default_global_keymap, "M-x", "execute-extended-command");
 define_key(default_global_keymap, "M-:", "eval-expression");
 define_key(default_global_keymap, "M-!", "shell-command");

@@ -32,15 +32,12 @@ define_key(google_reader_keymap, "O", null, $fallthrough);
 // Jumping
 define_key(google_reader_keymap, "g", null, $fallthrough);
 define_key(google_reader_keymap, "h", null, $fallthrough);
-define_key(google_reader_keymap, "C-c g", "find-url");//BAD
 
 // Acting
 define_key(google_reader_keymap, "s", null, $fallthrough);
 define_key(google_reader_keymap, "S", null, $fallthrough);
-define_key(google_reader_keymap, "C-c s", "save");//BAD
 define_key(google_reader_keymap, "v", null, $fallthrough);
 define_key(google_reader_keymap, "t", null, $fallthrough);
-define_key(google_reader_keymap, "C-c t", "follow-top");//BAD
 define_key(google_reader_keymap, "m", null, $fallthrough);
 define_key(google_reader_keymap, "o", null, $fallthrough);
 define_key(google_reader_keymap, "A", null, $fallthrough);
@@ -48,7 +45,6 @@ define_key(google_reader_keymap, "e", null, $fallthrough);
 
 // Application
 define_key(google_reader_keymap, "r", null, $fallthrough);
-define_key(google_reader_keymap, "C-c r", "reload");//BAD
 define_key(google_reader_keymap, "u", null, $fallthrough);
 define_key(google_reader_keymap, "1", null, $fallthrough);
 define_key(google_reader_keymap, "2", null, $fallthrough);
