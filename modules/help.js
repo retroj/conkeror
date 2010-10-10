@@ -223,6 +223,8 @@ describe_bindings_buffer.prototype = {
                                 g.text(bind.command, command_td);
                             }
                         }
+                    } else if (bind.keymap != null) {
+                        g.text("["+bind.keymap+"]", command_td);
                     } else if (bind.fallthrough)
                         g.text("[pass through]", command_td);
                     let help_td = g.element("td", tr, "class", "help");
@@ -247,7 +249,8 @@ function describe_bindings (buffer, target, keymaps, prefix) {
         prefix = "";
     for_each_key_binding(keymaps, function (binding_stack) {
             var last = binding_stack[binding_stack.length - 1];
-            if (last.command == null && !last.fallthrough)
+            //we don't care about are auto-generated keymap bindings.
+            if (last.keymap && last.keymap.anonymous)
                 return;
             let bound_in = null;
         outer:
@@ -259,9 +262,13 @@ function describe_bindings (buffer, target, keymaps, prefix) {
                     bound_in = bound_in.bound_in;
                 }
             }
+            var keymap = null;
+            if (last.keymap && ! last.keymap.anonymous)
+                keymap = last.keymap.name;
             var bind = {seq: prefix+format_binding_sequence(binding_stack),
                         fallthrough: last.fallthrough,
                         command: last.command,
+                        keymap: keymap,
                         bound_in: bound_in.name,
                         category: last.category
                        };
