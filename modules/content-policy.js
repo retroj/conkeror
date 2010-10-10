@@ -53,8 +53,6 @@ var content_policy_bytype_table = {
              set document (x) { return this[6] = x; },
     7: null, get subdocument () { return this[7]; },
              set subdocument (x) { return this[7] = x; },
-    8: null, get refresh () { return this[8]; },
-             set refresh (x) { return this[8] = x; },
     9: null, get xbl () { return this[9]; },
              set xbl (x) { return this[9] = x; },
     10: null, get ping () { return this[10]; },
