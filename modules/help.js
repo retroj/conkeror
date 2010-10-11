@@ -249,7 +249,7 @@ function describe_bindings (buffer, target, keymaps, prefix) {
         prefix = "";
     for_each_key_binding(keymaps, function (binding_stack) {
             var last = binding_stack[binding_stack.length - 1];
-            //we don't care about are auto-generated keymap bindings.
+            //we don't care about auto-generated keymap bindings.
             if (last.keymap && last.keymap.anonymous)
                 return;
             let bound_in = null;
