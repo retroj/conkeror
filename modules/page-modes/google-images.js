@@ -33,24 +33,33 @@ function google_images_get_image_uri (I, prompt) {
         $buffer = I.buffer,
         $prompt = prompt,
         $hint_xpath_expression = "//a[img]");
-    var u = Cc["@mozilla.org/network/standard-url;1"]
-        .createInstance(Ci.nsIURL);
-    u.spec = result.href;
-    yield (co_return(u));
+    if (result instanceof Ci.nsIDOMHTMLElement) {
+        var u = Cc["@mozilla.org/network/standard-url;1"]
+            .createInstance(Ci.nsIURL);
+        u.spec = result.href;
+        yield co_return(u);
+    } else
+        yield co_return(result);
 }
 
 define_browser_object_class("google-images-imgrefurl", null,
     function (I, prompt) {
         var u = yield google_images_get_image_uri(I, prompt);
-        var imgrefurl = unescape(/&imgrefurl=([^&]*)/(u.query)[1]);
-        yield (co_return(imgrefurl));
+        if (u instanceof Ci.nsIURL) {
+            var imgrefurl = unescape(/&imgrefurl=([^&]*)/(u.query)[1]);
+            yield co_return(imgrefurl);
+        } else
+            yield co_return(u);
     });
 
 define_browser_object_class("google-images-imgurl", null,
     function (I, prompt) {
         var u = yield google_images_get_image_uri(I, prompt);
-        var imgurl = unescape(/imgurl=([^&]*)/(u.query)[1]);
-        yield (co_return(imgurl));
+        if (u instanceof Ci.nsIURL) {
+            var imgurl = unescape(/imgurl=([^&]*)/(u.query)[1]);
+            yield co_return(imgurl);
+        } else
+            yield co_return(u);
     });
 
 define_page_mode("google_images_mode",
