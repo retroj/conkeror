@@ -19,11 +19,18 @@ in_module(null);
 function call_on_focused_field (I, func, clear_mark) {
     var m = I.window.minibuffer;
     var s = m.current_state;
+    var e = null;
+    var frame;
     if (m._input_mode_enabled) {
         m._restore_normal_state();
-        var e = m.input_element;
-    } else
-        var e = I.buffer.focused_element;
+        e = m.input_element;
+    } else if (I.buffer.focused_element) {
+        e = I.buffer.focused_element;
+    } else if ((frame = I.buffer.focused_frame) &&
+               frame.document.designMode &&
+               frame.document.designMode == "on") {
+        e = frame.document;
+    }
     func(e);
     if (clear_mark) {
         if (m._input_mode_enabled)
@@ -42,9 +49,13 @@ function call_on_focused_field (I, func, clear_mark) {
  * [replacement, point_offset] instead of just a string.
  */
 function modify_region (field, modifier) {
-    if (field.getAttribute("contenteditable") == 'true') {
+    if (field instanceof Ci.nsIDOMDocument ||
+        (field.getAttribute("contenteditable") == 'true'))
+    {
         // richedit
-        var doc = field.ownerDocument;
+        var doc = (field instanceof Ci.nsIDOMDocument ?
+                   field :
+                   field.ownerDocument);
         var win = doc.defaultView;
         var sel = win.getSelection();
         let replacement = modifier(win.getSelection().toString());
