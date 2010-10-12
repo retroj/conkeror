@@ -9,6 +9,8 @@
 
 in_module(null);
 
+require("io");
+
 function string_hashset () {}
 string_hashset.prototype = {
     constructor: string_hashset,
@@ -844,6 +846,23 @@ function do_when (hook, buffer, fun) {
 	add_hook.call(buffer, hook, fun);
     else
 	fun(buffer);
+}
+
+
+/**
+ * evaluate string s as javascript in the 'this' scope in which evaluate
+ * is called.
+ */
+function evaluate (s) {
+    try {
+        var temp = get_temporary_file("conkeror-evaluate.tmp.js");
+        write_text_file(temp, s);
+        var url = make_uri(temp).spec;
+        return load_url(url, this);
+    } finally {
+        if (temp && temp.exists())
+            temp.remove(false);
+    }
 }
 
 provide("utils");

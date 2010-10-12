@@ -271,26 +271,19 @@ function univ_arg_to_number (prefix, default_value) {
     return prefix;
 }
 
-function eval_expression (window, s) {
-    // eval in the global scope.
 
-    // In addition, the following variables are available:
-    // var window;
-    var buffer = window.buffers.current;
-    var result = eval(s);
-    if (result !== undefined) {
-        window.minibuffer.message(String(result));
-    }
-}
 interactive("eval-expression",
     "Evaluate JavaScript statements.",
     function (I) {
-        eval_expression(
-            I.window,
-            (yield I.minibuffer.read($prompt = "Eval:",
-                                     $history = "eval-expression",
-                                     $completer = javascript_completer(I.buffer))));
+        var s = yield I.minibuffer.read(
+            $prompt = "Eval:",
+            $history = "eval-expression",
+            $completer = javascript_completer(I.buffer));
+        var result = evaluate(s);
+        if (result !== undefined)
+            I.window.minibuffer.message(String(result));
     });
+
 
 function show_extension_manager () {
     return conkeror.window_watcher.openWindow(
