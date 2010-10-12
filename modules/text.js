@@ -24,8 +24,9 @@ function call_on_focused_field (I, func, clear_mark) {
     if (m._input_mode_enabled) {
         m._restore_normal_state();
         e = m.input_element;
-    } else if (I.buffer.focused_element) {
-        e = I.buffer.focused_element;
+    } else if ((e = I.buffer.focused_element)) {
+        if (e.getAttribute("contenteditable") == 'true')
+            e = e.ownerDocument;
     } else if ((frame = I.buffer.focused_frame) &&
                frame.document.designMode &&
                frame.document.designMode == "on") {
@@ -49,14 +50,9 @@ function call_on_focused_field (I, func, clear_mark) {
  * [replacement, point_offset] instead of just a string.
  */
 function modify_region (field, modifier) {
-    if (field instanceof Ci.nsIDOMDocument ||
-        (field.getAttribute("contenteditable") == 'true'))
-    {
+    if (field instanceof Ci.nsIDOMDocument) {
         // richedit
-        var doc = (field instanceof Ci.nsIDOMDocument ?
-                   field :
-                   field.ownerDocument);
-        var win = doc.defaultView;
+        var win = field.defaultView;
         var sel = win.getSelection();
         let replacement = modifier(win.getSelection().toString());
         let point = null;
@@ -65,7 +61,7 @@ function modify_region (field, modifier) {
             replacement = replacement[0];
         } else
             point = replacement.length;
-        doc.execCommand("insertHTML", false,
+        field.execCommand("insertHTML", false,
                         html_escape(replacement)
                             .replace(/\n/g, '<br>')
                             .replace(/  /g, ' &nbsp;'));
