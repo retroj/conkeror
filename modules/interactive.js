@@ -108,21 +108,21 @@ function call_interactively (I, command) {
 
     // if there was no interactive browser-object,
     // binding_browser_object becomes the default.
-    if (I.browser_object == null) {
+    if (I.browser_object === undefined) {
         I.browser_object = I.binding_browser_object;
     }
     // if the command's default browser object is a non-null literal,
     // it overrides an interactive browser-object, but not a binding
     // browser object.
-    if (cmd.browser_object != null &&
+    if (cmd.browser_object !== undefined &&
         (! (cmd.browser_object instanceof browser_object_class)) &&
-        (I.binding_browser_object == null))
+        (I.binding_browser_object === undefined))
     {
         I.browser_object = cmd.browser_object;
     }
     // if we still have no browser-object, look for a page-mode
     // default, or finally the command default.
-    if (I.browser_object == null) {
+    if (I.browser_object === undefined) {
         I.browser_object =
             (I.buffer && I.buffer.default_browser_object_classes[command]) ||
             cmd.browser_object;

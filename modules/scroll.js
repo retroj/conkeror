@@ -93,6 +93,7 @@ interactive("scroll",
     "the object passed to the command as a browser-object.  If the object "+
     "is a DOM node, that node will be scrolled to the top of the viewport "+
     "if possible.",
-    scroll);
+    scroll,
+    $browser_object = null);
 
 provide("scroll");

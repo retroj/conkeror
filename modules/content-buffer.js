@@ -572,7 +572,8 @@ interactive("reload",
         check_buffer(I.buffer, content_buffer);
         var element = yield read_browser_object(I);
         reload(I.buffer, I.P, element, I.forced_charset);
-    });
+    },
+    $browser_object = null);
 
 /**
  * browserDOMWindow: intercept window opening

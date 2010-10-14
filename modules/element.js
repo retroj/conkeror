@@ -286,6 +286,9 @@ interactive("browser-object-text",
 
 function read_browser_object (I) {
     var browser_object = I.browser_object;
+    if (browser_object === undefined)
+        throw interactive_error("No browser object");
+
     var result;
     // literals cannot be overridden
     if (browser_object instanceof Function) {

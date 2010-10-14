@@ -221,7 +221,7 @@ sequence:
                     event_kill(event);
 
                 if (binding) {
-                    if (binding.browser_object != null)
+                    if (binding.browser_object !== undefined)
                         I.binding_browser_object = binding.browser_object;
                     if (binding.constructor == Array) {
                         keymaps = binding;
