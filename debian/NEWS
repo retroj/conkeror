@@ -1,3 +1,16 @@
+conkeror (0.9.3+git101015-1) experimental; urgency=low
+
+  * The eval-expression command (M-:) now evaluates directly in
+    application scope. This lets you do things like set user variables and
+    define functions without fully qualifying names with "conkeror.".
+
+  * Page-modes no longer bind alternative keys for keys that they shadow
+    in the normal keymaps. These were bindings like 'C-c f' for follow,
+    etc. The key C-z can now be used as a prefix to access bindings that
+    are shadowed by a page-mode keymap.
+
+ -- Axel Beckert <abe@debian.org>  Fri, 15 Oct 2010 00:29:44 +0200
+
 conkeror (0.9.3-1) experimental; urgency=low
 
   * Input-modes removed. Instead of an input-mode display in the

@@ -1,3 +1,11 @@
+conkeror (0.9.3+git101015-1) experimental; urgency=low
+
+  * New upstream snapshot
+  * Also ship contrib/modules with the binary package to allow usage of
+    the mode line buttons module.
+
+ -- Axel Beckert <abe@debian.org>  Fri, 15 Oct 2010 00:27:47 +0200
+
 conkeror (0.9.3-1) experimental; urgency=low
 
   * New upstream milestone
