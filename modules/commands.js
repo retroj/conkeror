@@ -749,6 +749,8 @@ interactive("delete",
     "Delete a DOM node, given as a browser object.",
     function (I) {
         var elem = yield read_browser_object(I);
+        if (! (elem instanceof Ci.nsIDOMNode))
+            throw interactive_error("Cannot delete item");
         elem.parentNode.removeChild(elem);
     },
     $browser_object = browser_object_dom_node);
