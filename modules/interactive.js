@@ -114,7 +114,7 @@ function call_interactively (I, command) {
     // if the command's default browser object is a non-null literal,
     // it overrides an interactive browser-object, but not a binding
     // browser object.
-    if (cmd.browser_object !== undefined &&
+    if (cmd.browser_object != null &&
         (! (cmd.browser_object instanceof browser_object_class)) &&
         (I.binding_browser_object === undefined))
     {
