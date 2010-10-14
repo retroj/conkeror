@@ -83,6 +83,8 @@ function scroll (I) {
     // no scrolling and no error if we failed to get an object.
     if (! element)
         return;
+    if (! (element instanceof Ci.nsIDOMNode))
+        throw interactive_error("Cannot scroll to given item");
     element.scrollIntoView();
     I.window.minibuffer.message(element.textContent);
 }
