@@ -85,26 +85,26 @@ input_state.prototype = {
  * minibuffer read takes place in the middle of another sequence.
  */
 function input_stack () {
-    this.push(new input_state());
+    this.array = [new input_state()];
 }
 input_stack.prototype = {
     constructor: input_stack,
-    __proto__: Array.prototype,
 
+    array: null,
     help_timer: null,
     help_displayed: false,
 
     toString: function () {
-        return "[input_stack ("+this.length+")]";
+        return "[input_stack ("+this.array.length+")]";
     },
     get current () {
-        return this[this.length - 1];
+        return this.array[this.array.length - 1];
     },
     begin_recursion: function () {
-        this.push(new input_state());
+        this.array.push(new input_state());
     },
     end_recursion: function () {
-        this.pop();
+        this.array.pop();
     }
 };
 
