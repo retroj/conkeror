@@ -87,7 +87,7 @@ function make_css_data_uri (rules) {
     if (restrictions)
         rules = "@-moz-document "+restrictions+" {\n"+rules+"\n}";
     if (namespace)
-        rules = "@namespace url("+namespace+")\n"+rules;
+        rules = "@namespace url("+namespace+");\n"+rules;
     return make_uri("data:text/css,"+escape(rules));
 }
 
