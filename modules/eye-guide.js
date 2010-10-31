@@ -27,7 +27,7 @@ define_variable("eye_guide_context_size", 50,
 interactive("eye-guide-scroll-down",
     "Alternative to scroll-page-down, displays a guide to help "+
     "your eyes follow the scroll.",
-    function(I) {
+    function (I) {
         let win = I.buffer.focused_frame;
         let doc = I.buffer.document;
         let context = eye_guide_context_size;
@@ -51,18 +51,19 @@ interactive("eye-guide-scroll-down",
             win.clearTimeout(win.eye_guide_timer);
             win.eye_guide_timer = null;
         }
-        if (eye_guide_interval != 0)
+        if (eye_guide_interval != 0) {
             win.eye_guide_timer = win.setTimeout(
                 function () {
                     guide.style.display = "none";
                 },
                 eye_guide_interval);
+        }
     });
 
 interactive("eye-guide-scroll-up",
     "Alternative to scroll-page-up, displays a guide to help "+
     "your eyes follow the scroll.",
-    function(I) {
+    function (I) {
         let win = I.buffer.focused_frame;
         let doc = I.buffer.document;
         let context = eye_guide_context_size;
@@ -86,12 +87,13 @@ interactive("eye-guide-scroll-up",
             win.clearTimeout(win.eye_guide_timer);
             win.eye_guide_timer = null;
         }
-        if (eye_guide_interval != 0)
+        if (eye_guide_interval != 0) {
             win.eye_guide_timer = win.setTimeout(
                 function () {
                     guide.style.display = "none";
                 },
                 eye_guide_interval);
+        }
     });
 
 provide("eye-guide");
