@@ -302,7 +302,8 @@ hint_manager.prototype = {
         if (index == old_index)
             return;
         var vh = this.valid_hints;
-        if (old_index >= 1 && old_index <= vh.length) {
+        var vl = this.valid_hints.length;
+        if (old_index >= 1 && old_index <= vl) {
             var h = vh[old_index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = img_hint_background_color;
@@ -310,8 +311,8 @@ hint_manager.prototype = {
                 h.elem.style.backgroundColor = hint_background_color;
         }
         this.current_hint_number = index;
-        if (index >= 1 && index <= vh.length) {
-            var h = vh[index - 1];
+        if (index >= 1 && index <= vl) {
+            h = vh[index - 1];
             if (h.img_hint)
                 h.img_hint.style.backgroundColor = active_img_hint_background_color;
             if (h.elem.style)
@@ -321,8 +322,7 @@ hint_manager.prototype = {
     },
 
     hide_hints: function () {
-        for (var i = 0, nhints = this.hints.length; i < nhints; ++i) {
-            var h = this.hints[i];
+        for (var i = 0, h; h = this.hints[i]; ++i) {
             if (h.visible) {
                 h.visible = false;
                 if (h.saved_color != null) {
@@ -337,8 +337,7 @@ hint_manager.prototype = {
     },
 
     remove: function () {
-        for (var i = 0, nhints = this.hints.length; i < nhints; ++i) {
-            var h = this.hints[i];
+        for (var i = 0, h; h = this.hints[i]; ++i) {
             if (h.visible && h.saved_color != null) {
                 h.elem.style.color = h.saved_color;
                 h.elem.style.backgroundColor = h.saved_bgcolor;
@@ -501,8 +500,6 @@ interactive("hints-handle-number", null,
         s.clear_auto_exit_timer();
         var ch = String.fromCharCode(I.event.charCode);
         var auto_exit_ambiguous = null; // null -> no auto exit; false -> not ambiguous; true -> ambiguous
-        /* TODO: implement number escaping */
-        // Number entered
         s.typed_number += ch;
 
         s.manager.select_hint(parseInt(s.typed_number));
@@ -548,10 +545,11 @@ function hints_next (window, s, count) {
     s.typed_number = "";
     var cur = s.manager.current_hint_number - 1;
     var vh = s.manager.valid_hints;
-    if (vh.length > 0) {
-        cur = (cur + count) % vh.length;
+    var vl = s.manager.valid_hints.length;
+    if (vl > 0) {
+        cur = (cur + count) % vl;
         if (cur < 0)
-            cur += vh.length;
+            cur += vl;
         s.manager.select_hint(cur + 1);
     }
     s.update_minibuffer(window);
@@ -569,11 +567,10 @@ interactive("hints-previous", null,
 function hints_exit (window, s) {
     var cur = s.manager.current_hint_number;
     var elem = null;
-    if (cur > 0 && cur <= s.manager.valid_hints.length) {
+    if (cur > 0 && cur <= s.manager.valid_hints.length)
         elem = s.manager.valid_hints[cur - 1].elem;
-    } else if (cur == 0) {
+    else if (cur == 0)
         elem = window.buffers.current.top_frame;
-    }
     if (elem !== null) {
         var c = s.continuation;
         delete s.continuation;
