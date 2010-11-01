@@ -24,6 +24,53 @@ define_variable("hint_background_color", "yellow",
     "Color for the inactive hint.");
 
 
+define_variable("hint_digits", null,
+    "Null or a string of the digits to use as the counting base "+
+    "for hint numbers, starting with the digit that represents zero "+
+    "and ascending.  If null, base 10 will be used with the normal "+
+    "hindu-arabic numerals.");
+
+
+/**
+ * hints_enumerate is a generator of natural numbers in the base defined
+ * by hint_digits.
+ */
+function hints_enumerate () {
+    var base = hint_digits.length;
+    var n = [1];
+    var p = 1;
+    while (true) {
+        yield n.map(function (x) hint_digits[x]).join("");
+        var i = p-1;
+        n[i]++;
+        while (n[i] >= base && i > 0) {
+            n[i] = 0;
+            n[--i]++;
+        }
+        if (n[0] >= base) {
+            n[0] = 0;
+            n.unshift(1);
+            p++;
+        }
+    }
+}
+
+/**
+ * hints_parse converts a string that represents a natural number to an
+ * int.  When hint_digits is non-null, it defines the base for conversion.
+ */
+function hints_parse (str) {
+    if (hint_digits) {
+        var base = hint_digits.length;
+        var n = 0;
+        for (var i = 0, p = str.length - 1; p >= 0; i++, p--) {
+            n += hint_digits.indexOf(str[i]) * Math.pow(base, p);
+        }
+        return n;
+    } else
+        return parseInt(str);
+}
+
 /**
  * Register hints style sheet
  */
@@ -200,6 +247,9 @@ hint_manager.prototype = {
     /* Updates valid_hints and also re-numbers and re-displays all hints. */
     update_valid_hints: function () {
         this.valid_hints = [];
+        var cur_number = 1;
+        if (hint_digits)
+            var number_generator = hints_enumerate();
         var active_number = this.current_hint_number;
         var tokens = this.current_hint_string.split(" ");
         var case_sensitive = (this.current_hint_string !=
@@ -227,7 +277,6 @@ hint_manager.prototype = {
                 }
             }
 
-            var cur_number = this.valid_hints.length + 1;
             h.visible = true;
 
             if (h == this.last_selected_hint && active_number == -1)
@@ -274,7 +323,11 @@ hint_manager.prototype = {
             if (h.elem.style)
                 h.elem.style.color = "black";
 
-            var label = "" + cur_number;
+            var label = "";
+            if (hint_digits)
+                label = number_generator.next();
+            else
+                label += cur_number;
             if (h.elem instanceof Ci.nsIDOMHTMLFrameElement) {
                 label +=  " " + text;
             } else if (h.show_text && !/^\s*$/.test(text)) {
@@ -291,6 +344,7 @@ hint_manager.prototype = {
             h.hint.textContent = label;
             h.hint.style.display = "inline";
             this.valid_hints.push(h);
+            cur_number++;
         }
 
         if (active_number == -1)
@@ -494,15 +548,37 @@ define_variable("hints_ambiguous_auto_exit_delay", 0,
     "first of an ambiguous match is automatically selected.  If this is "+
     "set to 0, automatic selection in ambiguous matches is disabled.");
 
-interactive("hints-handle-number", null,
+
+define_key_match_predicate("match_hint_digit", "hint digit",
+    function (e) {
+        if (e.type != "keypress")
+            return false;
+        if (e.charCode == 48) //0 is special
+            return true;
+        if (hint_digits) {
+            if (hint_digits.indexOf(String.fromCharCode(e.charCode)) > -1)
+                return true;
+        } else if (e.charCode >= 49 && e.charCode <= 57)
+            return true;
+        return false;
+    });
+
+interactive("hints-handle-number",
+    "This is the handler for numeric keys in hinting mode.  Normally, "+
+    "that means '1' through '9' and '0', but the numeric base (and digits) "+
+    "can be configured via the user variable 'hint_digits'.  No matter "+
+    "what numeric base is in effect, the character '0' is special, and "+
+    "will always be treated as a number 0, translated into the current "+
+    "base if necessary.",
     function (I) {
         let s = I.minibuffer.check_state(hints_minibuffer_state);
         s.clear_auto_exit_timer();
         var ch = String.fromCharCode(I.event.charCode);
+        if (hint_digits && ch == "0")
+            ch = hint_digits[0];
         var auto_exit_ambiguous = null; // null -> no auto exit; false -> not ambiguous; true -> ambiguous
         s.typed_number += ch;
-
-        s.manager.select_hint(parseInt(s.typed_number));
+        s.manager.select_hint(hints_parse(s.typed_number));
         var num = s.manager.current_hint_number;
         if (num > 0 && num <= s.manager.valid_hints.length)
             auto_exit_ambiguous = num * 10 > s.manager.valid_hints.length ? false : true;
@@ -521,9 +597,10 @@ interactive("hints-handle-number", null,
 function hints_backspace (window, s) {
     let m = window.minibuffer;
     s.clear_auto_exit_timer();
-    if (s.typed_number.length > 0) {
-        s.typed_number = s.typed_number.substring(0, s.typed_number.length - 1);
-        var num = s.typed_number.length > 0 ? parseInt(s.typed_number) : 1;
+    var l = s.typed_number.length;
+    if (l > 0) {
+        s.typed_number = s.typed_number.substring(0, --l);
+        var num = l > 0 ? hints_parse(s.typed_number) : 1;
         s.manager.select_hint(num);
     } else if (s.typed_string.length > 0) {
         call_builtin_command(window, 'cmd_deleteCharBackward');

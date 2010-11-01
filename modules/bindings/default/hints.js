@@ -8,10 +8,8 @@
 
 define_fallthrough(hint_keymap, match_any_unmodified_character);
 
+define_key(hint_keymap, match_hint_digit, "hints-handle-number");
 define_key(hint_keymap, match_any_unmodified_character, null, $fallthrough);
-
-for (let i = 0; i <= 9; ++i)
-    define_key(hint_keymap, String(i), "hints-handle-number");
 
 define_key(hint_keymap, "back_space", "hints-backspace");
 define_key(hint_keymap, "tab", "hints-next");
