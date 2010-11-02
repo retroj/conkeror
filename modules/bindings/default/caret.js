@@ -41,4 +41,5 @@ define_key(caret_keymap, "page_up", "caret-backward-page");
 define_key(caret_keymap, "C-v", "caret-forward-page");
 define_key(caret_keymap, "page_down", "caret-forward-page");
 define_key(caret_keymap, "back_space", "caret-backward-page");
+define_key(caret_keymap, "S-space", "caret-backward-page");
 define_key(caret_keymap, "space","caret-forward-page");

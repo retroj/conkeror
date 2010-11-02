@@ -9,6 +9,7 @@
 
 function bind_scroll_keys (keymap) {
     define_key(keymap, "back_space", "cmd_scrollPageUp");
+    define_key(keymap, "S-space", "cmd_scrollPageUp");
     define_key(keymap, "space","cmd_scrollPageDown");
     define_key(keymap, "M-v","cmd_scrollPageUp");
     define_key(keymap, "C-v","cmd_scrollPageDown");
