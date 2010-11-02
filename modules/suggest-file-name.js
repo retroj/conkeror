@@ -169,8 +169,11 @@ function maybe_filename_from_url_last_directory (uri) {
 }
 
 function maybe_filename_from_url_host (uri) {
-    if (uri && 'host' in uri)
-        return uri.host;
+    if (uri && 'host' in uri) {
+        try {
+            return uri.host;
+        } catch (e) {}
+    }
     return null;
 }
 
