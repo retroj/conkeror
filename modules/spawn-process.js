@@ -101,14 +101,21 @@ minibuffer.prototype.read_shell_command = function () {
     yield co_return(result);
 }
 
+function find_spawn_helper () {
+    var f = file_locator_service.get("CurProcD", Ci.nsIFile);
+    f.append("conkeror-spawn-helper");
+    if (f.exists())
+        return f;
+    return get_file_in_path("conkeror-spawn-helper");
+}
+
 const STDIN_FILENO = 0;
 const STDOUT_FILENO = 1;
 const STDERR_FILENO = 2;
 
 var spawn_process_helper_default_fd_wait_timeout = 1000;
 var spawn_process_helper_setup_timeout = 2000;
-var spawn_process_helper_program = file_locator_service.get("CurProcD", Ci.nsIFile);
-spawn_process_helper_program.append("conkeror-spawn-helper");
+var spawn_process_helper_program = find_spawn_helper();
 
 /**
  * @param program_name
@@ -150,6 +157,8 @@ spawn_process_helper_program.append("conkeror-spawn-helper");
 function spawn_process (program_name, args, working_dir,
                         success_callback, failure_callback, fds,
                         fd_wait_timeout) {
+    if (spawn_process_helper_program == null)
+        throw new Error("Error spawning process: conkeror-spawn-helper not found");
     args = args.slice();
     if (args[0] == null)
         args[0] = (program_name instanceof Ci.nsIFile) ? program_name.path : program_name;
@@ -513,7 +522,7 @@ function spawn_process (program_name, args, working_dir,
             if (WINDOWS)
                 throw new Error("Error spawning process: not yet supported on MS Windows");
             else
-                throw new Error("Error spawning process: conkeror-spawn-helper not found; try running \"make\"");
+                throw new Error("Error spawning process: conkeror-spawn-helper not found");
         }
         // Allow the exception to propagate to the caller
         throw e;
