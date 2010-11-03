@@ -131,10 +131,10 @@ define_browser_object_class("links",
     "or link-like element, via hinting.",
     xpath_browser_object_handler(
         "//*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link' or @role='button' or @role='menuitem'] | " +
-        "//input[not(@type='hidden')] | //a | //area | //iframe | //textarea | //button | //select | " +
+        "//input[not(@type='hidden')] | //a[@href] | //area | //iframe | //textarea | //button | //select | " +
         "//*[@contenteditable = 'true'] |" +
         "//xhtml:*[@onclick or @onmouseover or @onmousedown or @onmouseup or @oncommand or @role='link' or @role='button' or @role='menuitem'] | " +
-        "//xhtml:input[not(@type='hidden')] | //xhtml:a | //xhtml:area | //xhtml:iframe | //xhtml:textarea | //xhtml:button | //xhtml:select | " +
+        "//xhtml:input[not(@type='hidden')] | //xhtml:a[@href] | //xhtml:area | //xhtml:iframe | //xhtml:textarea | //xhtml:button | //xhtml:select | " +
         "//xhtml:*[@contenteditable = 'true'] | "+
         "//svg:a"),
     $hint = "select link");
