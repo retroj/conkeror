@@ -80,7 +80,6 @@ const STDERR_FILENO = 2;
 
 var spawn_process_helper_default_fd_wait_timeout = 1000;
 var spawn_process_helper_setup_timeout = 2000;
-var spawn_process_helper_program = find_spawn_helper();
 
 /**
  * @param program_name
@@ -122,6 +121,7 @@ var spawn_process_helper_program = find_spawn_helper();
 function spawn_process (program_name, args, working_dir,
                         success_callback, failure_callback, fds,
                         fd_wait_timeout) {
+    var spawn_process_helper_program = find_spawn_helper();
     if (spawn_process_helper_program == null)
         throw new Error("Error spawning process: conkeror-spawn-helper not found");
     args = args.slice();
