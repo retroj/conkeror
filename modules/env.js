@@ -20,6 +20,9 @@ let (xul_runtime = Cc['@mozilla.org/xre/app-info;1']
     }
 };
 
+const WINDOWS = (get_os() == "WINNT");
+const POSIX = !WINDOWS;
+
 
 /**
  * getenv returns the value of a named environment variable or null if
@@ -94,6 +97,40 @@ let (profile_name = null) {
 function get_locale () {
     const LOCALE_PREF = "general.useragent.locale";
     return get_localized_pref(LOCALE_PREF) || get_pref(LOCALE_PREF);
+}
+
+
+const PATH = getenv("PATH").split(POSIX ? ":" : ";");
+const path_component_regexp = POSIX ? /^[^\/]+$/ : /^[^\/\\]+$/;
+
+function get_file_in_path (name) {
+    if (name instanceof Ci.nsIFile) {
+        if (name.exists())
+            return name;
+        return null;
+    }
+    var file = Cc["@mozilla.org/file/local;1"]
+        .createInstance(Ci.nsILocalFile);
+    if (! path_component_regexp.test(name)) {
+        // Absolute path
+        try {
+            file.initWithPath(name);
+            if (file.exists())
+                return file;
+        } catch (e) {}
+        return null;
+    } else {
+        // Relative path
+        for (var i = 0, plen = PATH.length; i < plen; ++i) {
+            try {
+                file.initWithPath(PATH[i]);
+                file.appendRelativePath(name);
+                if (file.exists())
+                    return file;
+            } catch (e) {}
+        }
+    }
+    return null;
 }
 
 provide("env");

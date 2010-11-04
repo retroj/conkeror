@@ -9,42 +9,7 @@ in_module(null);
 
 require("interactive.js");
 require("io.js");
-
-const WINDOWS = (get_os() == "WINNT");
-const POSIX = !WINDOWS;
-const PATH = getenv("PATH").split(POSIX ? ":" : ";");
-
-const path_component_regexp = POSIX ? /^[^\/]+$/ : /^[^\/\\]+$/;
-
-function get_file_in_path (name) {
-    if (name instanceof Ci.nsIFile) {
-        if (name.exists())
-            return name;
-        return null;
-    }
-    var file = Cc["@mozilla.org/file/local;1"]
-        .createInstance(Ci.nsILocalFile);
-    if (! path_component_regexp.test(name)) {
-        // Absolute path
-        try {
-            file.initWithPath(name);
-            if (file.exists())
-                return file;
-        } catch (e) {}
-        return null;
-    } else {
-        // Relative path
-        for (var i = 0, plen = PATH.length; i < plen; ++i) {
-            try {
-                file.initWithPath(PATH[i]);
-                file.appendRelativePath(name);
-                if (file.exists())
-                    return file;
-            } catch (e) {}
-        }
-    }
-    return null;
-}
+require("env.js");
 
 function spawn_process_internal (program, args, blocking) {
     var process = Cc["@mozilla.org/process/util;1"]
