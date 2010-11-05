@@ -78,7 +78,7 @@ require("media.js", null);
 
 require("command-line.js", null);
 
-require("search-engine.js", null);
+require("opensearch.js", null);
 
 require("permission-manager.js", null);
 require("cookie.js", null);
