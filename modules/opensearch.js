@@ -278,7 +278,7 @@ function define_opensearch_webjump (name, spec) {
     else {
         for (i = 0, n = opensearch_load_paths.length; i < n; ++i) {
             path = make_file(opensearch_load_paths[i]).clone();
-            path.appendRelativePath(spec);
+            path.append(spec);
             if (path.exists())
                 break;
         }
