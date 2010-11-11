@@ -17,7 +17,7 @@ function content_policy () {
         .wrappedJSObject;
     this.conkeror.define_hook("content_policy_hook", "RUN_HOOK_UNTIL_SUCCESS");
     this.conkeror.define_variable("content_policy_scheme_whitelist",
-        { about: true, chrome: true },
+        { about: true, chrome: true, "moz-icon": true },
         "Requests whose scheme is in this structure (with a true value) "+
         "will be whitelisted before calling content_policy_hook.");
     this.conkeror.content_policy_listener = this;
