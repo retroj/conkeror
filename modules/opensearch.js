@@ -166,14 +166,16 @@ opensearch_description.prototype = {
                           data.length >= 2 &&
                           typeof(data[0]) == "string" &&
                           data[0] == str &&
-                          data[1] instanceof Array &&
-                          (data[2] == null || (data[2] instanceof Array))))
+                          data[1] instanceof Array))
                         yield co_return(null);
-                    if (data[2] && data[2].length != data[1].length)
-                        data[2] = null;
+                    if (data[2] && data[2] instanceof Array &&
+                        data[2].length == data[1].length)
+                    {
+                        var descriptions = data[2];
+                    }
                     let c = { count: data[1].length,
                               get_string: function (i) String(data[1][i]),
-                              get_description: (data[2] != null ? (function (i) String(data[2][i])) : null),
+                              get_description: (descriptions && (function (i) String(descriptions[i]))),
                               get_input_state: function (i) [String(data[1][i])]
                             };
                     yield co_return(c);
