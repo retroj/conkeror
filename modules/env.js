@@ -46,7 +46,8 @@ function get_home_directory () {
     var dir = Cc["@mozilla.org/file/local;1"]
         .createInstance(Ci.nsILocalFile);
     if (get_os() == "WINNT")
-        dir.initWithPath(getenv('USERPROFILE') ||
+        dir.initWithPath(getenv('HOME') ||
+                         getenv('USERPROFILE') ||
                          getenv('HOMEDRIVE') + getenv('HOMEPATH'));
     else
         dir.initWithPath(getenv('HOME'));
