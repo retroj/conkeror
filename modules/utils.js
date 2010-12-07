@@ -122,9 +122,12 @@ function make_file (path) {
         return path;
     if (path == "~")
         return get_home_directory();
-    var f;
-    if (path.substring(0,2) == "~/") {
-        f = get_home_directory();
+    if (WINDOWS)
+        path = path.replace("/", "\\");
+    if ((POSIX && path.substring(0,2) == "~/") ||
+        (WINDOWS && path.substring(0,2) == "~\\"))
+    {
+        var f = get_home_directory();
         f.appendRelativePath(path.substring(2));
     } else {
         f = Cc["@mozilla.org/file/local;1"]
