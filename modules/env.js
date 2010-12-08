@@ -45,11 +45,13 @@ let (env = Cc['@mozilla.org/process/environment;1']
 function get_home_directory () {
     var dir = Cc["@mozilla.org/file/local;1"]
         .createInstance(Ci.nsILocalFile);
-    if (get_os() == "WINNT")
-        dir.initWithPath(getenv('HOME') ||
-                         getenv('USERPROFILE') ||
-                         getenv('HOMEDRIVE') + getenv('HOMEPATH'));
-    else
+    if (get_os() == "WINNT") {
+        var home = getenv('HOME') ||
+            getenv('USERPROFILE') ||
+            getenv('HOMEDRIVE') + getenv('HOMEPATH');
+        home = home.replace("/", "\\");
+        dir.initWithPath(home);
+    } else
         dir.initWithPath(getenv('HOME'));
     return dir;
 }
