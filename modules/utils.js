@@ -123,7 +123,7 @@ function make_file (path) {
     if (path == "~")
         return get_home_directory();
     if (WINDOWS)
-        path = path.replace("/", "\\");
+        path = path.replace("/", "\\", "g");
     if ((POSIX && path.substring(0,2) == "~/") ||
         (WINDOWS && path.substring(0,2) == "~\\"))
     {
