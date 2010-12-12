@@ -21,14 +21,17 @@ This program has the same options as all other xulrunner applications.
 A summary of more important options is included below. All options are
 listed by calling \fBconkeror \-\-help\fP.
 .TP
+.B \-\-display=DISPLAY
+X display to use
+.TP
 .B \-h, \-\-help
 Show summary of options.
 .TP
-.B \-v, \-\-version
-Show version of program.
+.B \-jsconsole
+Open the Error console.
 .TP
-.B \-\-display=DISPLAY
-X display to use
+.B \-no\-remote
+Open new instance, not a new window in running instance.
 .TP
 .B \-P <profile>
 Start with profile <profile>
@@ -36,17 +39,14 @@ Start with profile <profile>
 .B \-ProfileManager
 Start with ProfileManager.
 .TP
-.B \-no\-remote
-Open new instance, not a new window in running instance.
+.B \-safe\-mode
+Disables extensions and themes for this session.
 .TP
 .B \-UILocale <locale>
 Start with <locale> resources as UI Locale.
 .TP
-.B \-safe\-mode
-Disables extensions and themes for this session.
-.TP
-.B \-jsconsole
-Open the Error console.
+.B \-v, \-\-version
+Show version of program.
 .SH CONCEPTS
 Similar to Emacs Conkeror works with windows and buffers instead of
 windows and tabs.
