@@ -8,8 +8,22 @@
 
 default_pref("general.useragent.extra.conkeror", "Conkeror/"+version);
 
+/**
+ * set_user_agent overrides the user agent string globally with whatever
+ * string is passed to it.  If called with null or no argument, any
+ * current override is undone, reverting to Conkeror's default user agent
+ * string.  The override is performed (rather non-conventionally) with a
+ * default pref instead of a user pref, which allows the override to be
+ * done cleanly from the rc, without interference by persisting prefs in
+ * the profile.
+ */
 function set_user_agent (str) {
-    session_pref("general.useragent.override", str);
+    const p = "general.useragent.override";
+    if (str == null) {
+        var br=preferences.getDefaultBranch(p);
+        br.deleteBranch("");
+        user_pref(p, "");
+        clear_pref(p);
+    } else
+        session_pref(p, str);
 }
-
-
