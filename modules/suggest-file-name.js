@@ -18,8 +18,8 @@ in_module(null);
  * returns null or extension part of file_name_s.
  */
 function maybe_get_filename_extension (file_name_s) {
-    var url = Components.classes["@mozilla.org/network/standard-url;1"]
-        .createInstance(Components.interfaces.nsIURL);
+    var url = Cc["@mozilla.org/network/standard-url;1"]
+        .createInstance(Ci.nsIURL);
     url.filePath = file_name_s;
     if (url.fileExtension == '')
         return null;
@@ -29,7 +29,7 @@ function maybe_get_filename_extension (file_name_s) {
 
 function maybe_get_url_extension (url_o) {
     try {
-        var url = url_o.QueryInterface(Components.interfaces.nsIURL);
+        var url = url_o.QueryInterface(Ci.nsIURL);
         if (url.fileExtension == '')
             return null;
         return url.fileExtension;
@@ -54,8 +54,8 @@ function maybe_get_preferred_filename_extension (file_name_s, content_type) {
     if (content_type) {
         try {
             // throws if content_type is an empty string
-            mimeInfo = Components.classes["@mozilla.org/mime;1"]
-                .getService(Components.interfaces.nsIMIMEService)
+            mimeInfo = Cc["@mozilla.org/mime;1"]
+                .getService(Ci.nsIMIMEService)
                 .getFromTypeAndExtension(content_type, ext);
             primary = mimeInfo.primaryExtension;
         } catch (e) { }
@@ -75,8 +75,8 @@ function maybe_get_preferred_url_extension (url_o, content_type) {
     var primary = null;
     if (content_type) {
         try {
-            mimeInfo = Components.classes["@mozilla.org/mime;1"]
-                .getService(Components.interfaces.nsIMIMEService)
+            mimeInfo = Cc["@mozilla.org/mime;1"]
+                .getService(Ci.nsIMIMEService)
                 .getFromTypeAndExtension(content_type, null);
             primary = mimeInfo.primaryExtension;
         } catch (e) { }
@@ -109,8 +109,8 @@ function get_charset_for_save (doc) {
 
 function maybe_filename_from_content_disposition (content_disposition, charset) {
     if (content_disposition) {
-        const mhp = Components.classes["@mozilla.org/network/mime-hdrparam;1"]
-            .getService(Components.interfaces.nsIMIMEHeaderParam);
+        const mhp = Cc["@mozilla.org/network/mime-hdrparam;1"]
+            .getService(Ci.nsIMIMEHeaderParam);
         var dummy = { value: null };  // Need an out param...
 
         var filename = null;
@@ -131,7 +131,7 @@ function maybe_filename_from_content_disposition (content_disposition, charset) 
 
 function maybe_filename_from_uri (uri) {
     try {
-        var url = uri.QueryInterface(Components.interfaces.nsIURL);
+        var url = uri.QueryInterface(Ci.nsIURL);
         if (url.fileName != "") {
             // 2) Use the actual file name, if present
             var text_to_sub_uri = Cc["@mozilla.org/intl/texttosuburi;1"].
