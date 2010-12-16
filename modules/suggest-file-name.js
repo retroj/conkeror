@@ -11,7 +11,8 @@
 
 in_module(null);
 
-/* maybe_get_filename_extension
+/**
+ * maybe_get_filename_extension
  *
  * file_name_s: string filename, may be null.
  *
@@ -38,7 +39,8 @@ function maybe_get_url_extension (url_o) {
     }
 }
 
-/* maybe_get_preferred_filename_extension
+/**
+ * maybe_get_preferred_filename_extension
  *
  * file_name_s: string filename, may be null.
  *
@@ -184,6 +186,11 @@ function maybe_filename_from_localization_default () {
         return null;
     }
 }
+
+
+/*
+ * Sanitize filename for various platforms.
+ */
 
 function generate_filename_safely_default (filename) {
     return filename.replace(/[\/]+/g, '_');
