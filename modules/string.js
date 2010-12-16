@@ -14,8 +14,7 @@ in_module(null);
  * given string.
  */
 function trim_whitespace (str) {
-    var tmp = new String(str);
-    return tmp.replace(/^\s+/, "").replace(/\s+$/, "");
+    return (new String(str)).replace(/^\s+|\s+$/g, "");
 }
 
 
