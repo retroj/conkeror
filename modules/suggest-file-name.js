@@ -150,8 +150,14 @@ function maybe_filename_from_uri (spec) {
     return null;
 }
 
-function maybe_filename_from_title_if_no_document (spec) {
-    if (load_spec_document(spec))
+/**
+ * maybe_filename_from_title returns a filename from the load-spec's title
+ * property if and only if the load-spec has neither a document nor an
+ * element property.  In those cases, defer to generating the filename
+ * from the uri.
+ */
+function maybe_filename_from_title (spec) {
+    if (load_spec_document(spec) || load_spec_element(spec))
         return null;
     var title = load_spec_title(spec);
     if (title) {
@@ -239,7 +245,7 @@ function suggest_file_name (spec, extension) {
     if (! file_name) {
         file_name = generate_filename_safely_fn(
             maybe_filename_from_content_disposition(spec) ||
-            maybe_filename_from_title_if_no_document(spec) ||
+            maybe_filename_from_title(spec) ||
             maybe_filename_from_uri(spec) ||
             maybe_filename_from_url_last_directory(spec) ||
             maybe_filename_from_url_host(spec) ||
