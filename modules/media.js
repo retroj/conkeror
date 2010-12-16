@@ -45,8 +45,8 @@ function media_scrape_default (buffer, results) {
 
     // If there is exactly 1, use the document title as the video title
     if (initial_length == 0 && results.length == 1 &&
-        buffer.document.title && buffer.document.title.length > 0) {
-
+        buffer.document.title && buffer.document.title.length > 0)
+    {
         results[0].title = buffer.document.title;
         results[0].suggest_filename_from_uri = false;
     }
