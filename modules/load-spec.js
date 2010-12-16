@@ -47,9 +47,6 @@
  * filename_extension
  *              optional    string          Specifies a default filename extension to use to save the target.
  *
- * suggest_filename_from_uri
- *              optional    boolean         Specifies whether to attempt to generate a filename from the URI.
- *                                          Defaults to true.
  */
 
 in_module(null);

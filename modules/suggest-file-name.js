@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007 John J. Foerch
+ * (C) Copyright 2007,2010 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard.
  *
  * Portions of this file were derived from Mozilla,
@@ -108,8 +108,10 @@ function get_charset_for_save (doc) {
     return null;
 }
 
-
-function maybe_filename_from_content_disposition (content_disposition, charset) {
+function maybe_filename_from_content_disposition (spec) {
+    var document = load_spec_document(spec);
+    var content_disposition = (document && get_document_content_disposition(document));
+    var charset = get_charset_for_save(document);
     if (content_disposition) {
         const mhp = Cc["@mozilla.org/network/mime-hdrparam;1"]
             .getService(Ci.nsIMIMEHeaderParam);
@@ -131,7 +133,8 @@ function maybe_filename_from_content_disposition (content_disposition, charset) 
     return null;
 }
 
-function maybe_filename_from_uri (uri) {
+function maybe_filename_from_uri (spec) {
+    var uri = load_spec_uri(spec);
     try {
         var url = uri.QueryInterface(Ci.nsIURL);
         if (url.fileName != "") {
@@ -147,33 +150,35 @@ function maybe_filename_from_uri (uri) {
     return null;
 }
 
-function maybe_filename_from_title (title) {
+function maybe_filename_from_title_if_no_document (spec) {
+    if (load_spec_document(spec))
+        return null;
+    var title = load_spec_title(spec);
     if (title) {
-        title = title.replace(/^\s+|\s+$/g, "");
-        if (title && title.length > 0) {
-            // 3) Use the document title
-            return title;
-        }
+        title = trim_whitespace(title);
+        if (title)
+            return title + ".";
     }
     return null;
 }
 
-function maybe_filename_from_url_last_directory (uri) {
-    // 5) If this is a directory, use the last directory name
+function maybe_filename_from_url_last_directory (spec) {
+    var uri = load_spec_uri(spec);
     try {
         var path = uri.path.match(/\/([^\/]+)\/$/);
         if (path && path.length > 1)
-            return path[1];
+            return path[1] + ".";
         return null;
     } catch (e) {
         return null;
     }
 }
 
-function maybe_filename_from_url_host (uri) {
+function maybe_filename_from_url_host (spec) {
+    var uri = load_spec_uri(spec);
     if (uri && 'host' in uri) {
         try {
-            return uri.host;
+            return uri.host + ".";
         } catch (e) {}
     }
     return null;
@@ -224,37 +229,28 @@ define_variable("generate_filename_safely_fn",
  * extension may be null, in which case an extension is suggested as well
  */
 function suggest_file_name (spec, extension) {
-    var document;
-    var uri;
-    var content_type;
-
-    if (typeof(spec) == "string" || spec instanceof Ci.nsIDOMDocument)
+    if (typeof spec == "string" || spec instanceof Ci.nsIDOMDocument)
         spec = load_spec(spec);
 
     var file_name = load_spec_filename(spec);
+    var uri = load_spec_uri(spec);
+    var content_type = load_spec_mime_type(spec);
 
-    document = load_spec_document(spec);
-    uri = load_spec_uri(spec);
-    content_type = load_spec_mime_type(spec);
-
-    if (!file_name) {
+    if (! file_name) {
         file_name = generate_filename_safely_fn(
-            maybe_filename_from_content_disposition(
-                document && get_document_content_disposition(document),
-                get_charset_for_save(document)) ||
-            ((spec.suggest_filename_from_uri != false) && maybe_filename_from_uri(uri)) ||
-            maybe_filename_from_title(load_spec_title(spec)) ||
-            maybe_filename_from_url_last_directory(uri) ||
-            maybe_filename_from_url_host(uri) ||
+            maybe_filename_from_content_disposition(spec) ||
+            maybe_filename_from_title_if_no_document(spec) ||
+            maybe_filename_from_uri(spec) ||
+            maybe_filename_from_url_last_directory(spec) ||
+            maybe_filename_from_url_host(spec) ||
             maybe_filename_from_localization_default() ||
             "index");
-
     }
     var base_name = file_name.replace(/\.[^.]*$/, "");
 
     var file_ext = extension || load_spec_filename_extension(spec);
 
-    if (!file_ext) {
+    if (! file_ext) {
         file_ext = get_default_extension(file_name, uri, content_type);
         if (file_ext == "") {
             let x = file_name.lastIndexOf(".");
@@ -265,7 +261,9 @@ function suggest_file_name (spec, extension) {
         }
         if (!file_ext && (/^http(s?)/i).test(uri.scheme) && !content_type ||
             content_type == "application/octet-stream")
+        {
             file_ext = "html";
+        }
     }
 
     if (file_ext != null && file_ext.length > 0)

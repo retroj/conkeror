@@ -39,7 +39,6 @@ function media_scrape_google_video(buffer, results) {
         } else
             return;
         results.push(load_spec({uri: target_uri,
-                                suggest_filename_from_uri: false,
                                 title: doc.title,
                                 filename_extension: ext,
                                 source_frame: buffer.top_frame,

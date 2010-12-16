@@ -48,7 +48,6 @@ function media_scrape_default (buffer, results) {
         buffer.document.title && buffer.document.title.length > 0)
     {
         results[0].title = buffer.document.title;
-        results[0].suggest_filename_from_uri = false;
     }
     return results;
 }

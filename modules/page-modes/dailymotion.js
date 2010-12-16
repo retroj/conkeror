@@ -30,7 +30,6 @@ function media_scrape_dailymotion(buffer, results) {
     if (title)
         title = title.replace("Dailymotion : ", "");
     results.push(load_spec({uri: "http://dailymotion.com" + path,
-                            suggest_filename_from_uri: (title == null),
                             title: title,
                             filename_extension: "flv",
                             source_frame: buffer.top_frame,

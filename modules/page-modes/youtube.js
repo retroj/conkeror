@@ -121,7 +121,6 @@ function youtube_scrape_text (results, frame, id, text) {
     function push (url, extension, mime_type, description) {
         results.push(load_spec({
             uri: url,
-            suggest_filename_from_uri: false,
             title: title,
             filename_extension: extension,
             source_frame: frame,
