@@ -45,7 +45,6 @@ pref("conkeror.load.favicon", 1); // Enhances tab-bar mode
 
 // Page mode modules
 pref("conkeror.load.page-modes/youtube", 1);
-pref("conkeror.load.page-modes/reddit", 1);
 pref("conkeror.load.page-modes/google-calendar", 1);
 pref("conkeror.load.page-modes/google-reader", 1);
 pref("conkeror.load.page-modes/google-video", 1);
