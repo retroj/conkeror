@@ -19,6 +19,24 @@ interactive("github-keyboard-shortcuts", null, function (I) {
     d.body.appendChild(js);
 });
 
+interactive("github-focus-site-search", null, function (I) {
+    var buf = I.buffer;
+    var elem = buf.document.querySelector("#top_search_form input[name=q]");
+    if (elem)
+        browser_element_focus(buf, elem);
+    else
+        I.minibuffer.message("Site search box not found");
+});
+
+interactive("github-focus-issues-search", null, function (I) {
+    var buf = I.buffer;
+    var elem = buf.document.querySelector("#issues span.search input[name=q]");
+    if (elem)
+        browser_element_focus(buf, elem);
+    else
+        I.minibuffer.message("Issues search box not found");
+});
+
 [// Site-wide shortcuts
  "s",                        // Focus site search
  "?",                        // Bring up this help dialog
@@ -59,6 +77,8 @@ interactive("github-keyboard-shortcuts", null, function (I) {
     .map(function (x) define_key(github_keymap, x, null, $fallthrough));
 
 define_key(github_keymap, "?", "github-keyboard-shortcuts");
+define_key(github_keymap, "s", "github-focus-site-search");
+define_key(github_keymap, "/", "github-focus-issues-search");
 
 
 var github_modality = {
