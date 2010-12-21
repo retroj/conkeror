@@ -816,4 +816,9 @@ interactive("kill-ring-save",
         call_builtin_command(I.window, "cmd_copy", true);
     });
 
+interactive("password-manager",
+    "Open the password manager.",
+    "find-url-new-buffer",
+    $browser_object = "chrome://passwordmgr/content/passwordManager.xul");
+
 provide("commands");
