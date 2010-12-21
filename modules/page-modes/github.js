@@ -12,11 +12,12 @@ require("content-buffer.js");
 define_keymap("github_keymap", $display_name = "github");
 
 interactive("github-keyboard-shortcuts", null, function (I) {
-    var d = I.buffer.document;
-    var js = d.createElement("script");
-    js.setAttribute("type", "text/javascript");
-    js.textContent = "jQuery('#main a.keyboard-shortcuts').click();";
-    d.body.appendChild(js);
+    var buf = I.buffer;
+    var elem = buf.document.querySelector("#main a.keyboard-shortcuts");
+    if (elem)
+        browser_object_follow(buf, FOLLOW_DEFAULT, elem);
+    else
+        I.minibuffer.message("No keyboard shortcuts help link found on this page");
 });
 
 interactive("github-focus-site-search", null, function (I) {
