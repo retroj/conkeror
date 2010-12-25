@@ -31,6 +31,16 @@ interactive("content-policy-disable",
         I.minibuffer.message("Content-policy disabled.");
     });
 
+interactive("content-policy-toggle",
+    "Turn the content-policy off if it is on, and on if it is off.",
+    function (I) {
+        content_policy_listener.enabled = !content_policy_listener.enabled;
+        if (content_policy_listener.enabled)
+            I.minibuffer.message("Content-policy enabled.");
+        else
+            I.minibuffer.message("Content-policy disabled.");
+    });
+
 const content_policy_accept = Ci.nsIContentPolicy.ACCEPT;
 const content_policy_reject = Ci.nsIContentPolicy.REJECT_REQUEST;
 
