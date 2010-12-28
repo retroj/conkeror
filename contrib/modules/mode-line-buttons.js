@@ -62,11 +62,11 @@ function make_button_widget (command, attributes) {
         __proto__: button_widget.prototype,
         command: command,
         attributes: attributes
-    }
+    };
     new_widget.mode_line_adder = function (window) {
         var widget = new new_widget(window);
         window.mode_line.add_widget(widget, widget.make_element(window));
-    }
+    };
 
     return new_widget;
 }
