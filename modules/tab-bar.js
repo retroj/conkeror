@@ -146,4 +146,4 @@ define_global_mode("tab_bar_mode",
 tab_bar_mode(true);
 
 provide("new-tabs");
-provide("tab-bar.js");
+provide("tab-bar");
