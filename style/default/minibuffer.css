@@ -72,4 +72,3 @@ tree.completions treechildren::-moz-tree-cell-text(completion-description) {
 tree.completions treechildren::-moz-tree-cell-text(current) {
   color: HighlightText !important;
 }
-

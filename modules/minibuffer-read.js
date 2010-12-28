@@ -105,7 +105,7 @@ completions_tree_view.prototype = {
             return 0;
         return c.count;
     },
-    getCellText: function (row,column) {
+    getCellText: function (row, column) {
         var c = this.minibuffer_state.completions;
         if (row >= c.count)
             return null;

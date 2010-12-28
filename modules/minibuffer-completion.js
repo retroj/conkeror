@@ -42,8 +42,11 @@ function all_word_completer () {
                 var s = get_string(x);
                 var d = get_description(x);
                 for (var i = 0; i < words.length; ++i) {
-                    if (s.toLowerCase().indexOf(words[i]) == -1 && d.toLowerCase().indexOf(words[i]) == -1)
+                    if (s.toLowerCase().indexOf(words[i]) == -1 &&
+                        d.toLowerCase().indexOf(words[i]) == -1)
+                    {
                         return false;
+                    }
                 }
                 return true;
             });
@@ -56,7 +59,7 @@ function all_word_completer () {
                };
     };
     completer.refresh = function () {
-        if (typeof(completions) == "function") {
+        if (typeof completions == "function") {
             arr = [];
             completions(function (x) { arr.push(x); });
         } else
@@ -99,7 +102,7 @@ function prefix_completer () {
     var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
     var get_value = arguments.$get_value;
     var arr;
-    if (typeof(completions) == "function") {
+    if (typeof completions == "function") {
         arr = [];
         completions(function (x) { arr.push(x); });
     } else
@@ -122,11 +125,9 @@ function prefix_completer () {
         var i = 0;
         var data = arr.filter(function (x) {
             var s = get_string(x);
-            var retval;
-
             if (s == input) {
                 default_completion = i;
-                retval = true;
+                var retval = true;
             } else
                 retval = (s.length >= pos && s.substring(0,pos) == input_prefix);
             if (retval)
@@ -152,15 +153,15 @@ function prefix_completer () {
         return {count:data.length,
                 index_of:  function (x) data.indexOf(x),
                 get_string: function (i) get_string(data[i]),
-                get_description : function (i) get_description(data[i]),
-                get_input_state : function (i) get_partial_completion_input_state(get_string(data[i]), 0, pos, input),
-                get_value : function(i) (get_value ? get_value(data[i]) : data[i]),
+                get_description: function (i) get_description(data[i]),
+                get_input_state: function (i) get_partial_completion_input_state(get_string(data[i]), 0, pos, input),
+                get_value: function (i) (get_value ? get_value(data[i]) : data[i]),
                 get common_prefix_input_state () {
                     return common_prefix && get_partial_completion_input_state(common_prefix, 0, pos, input);
                 },
                 default_completion: default_completion
                };
-    }
+    };
 }
 
 function javascript_completer (buffer) {
@@ -294,7 +295,7 @@ function merge_completers (completers) {
                 return null;
             }
         }
-        function combine_or(name) {
+        function combine_or (name) {
             return function() {
                 var b = false;
                 for (var j=0; j < results.length; j++) {
@@ -349,14 +350,12 @@ function nest_completions (completions, prefix, suffix) {
  *   user can complete to.
  * - `query' is the string to show in the minibuffer.
  */
-function completer_with_mappings(options, query) {
-    let completer = all_word_completer(
+function completer_with_mappings (options, query) {
+    var completer = all_word_completer(
         $completions = function (push) {
-            for (let i in options)
+            for (var i in options)
                 push(i);
-        }
-    );
-
+        });
     yield co_return(
         yield get_recent_conkeror_window().minibuffer.read(
             $prompt = query,
