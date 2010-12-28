@@ -41,8 +41,6 @@ pref("conkeror.load.bindings/default/bindings", 1);
 pref("conkeror.load.mode-line", 1);
 pref("conkeror.load.daemon", 1);
 
-pref("conkeror.load.favicon", 1); // Enhances tab-bar mode
-
 // Page mode modules
 pref("conkeror.load.page-modes/youtube", 1);
 pref("conkeror.load.page-modes/google-calendar", 1);

@@ -7,6 +7,7 @@
 
 in_module(null);
 
+require("favicon.js");
 require("mode.js");
 
 function tab_bar (window) {
