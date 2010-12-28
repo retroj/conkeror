@@ -13,7 +13,6 @@ in_module(null);
 const favicon_service = Cc["@mozilla.org/browser/favicon-service;1"]
     .getService(Ci.nsIFaviconService);
 
-
 define_variable("favicon_image_max_size", 1024,
     "Maximum (pixel) width and height of an image document that "+
     "is considered for use as a favicon.");
@@ -35,8 +34,6 @@ function favicon_content_buffer_started_loading (buffer) {
     if (old != null)
         buffer_favicon_change_hook.run(buffer);
 }
-add_hook("content_buffer_started_loading_hook",
-         favicon_content_buffer_started_loading);
 
 
 function favicon_content_buffer_finished_loading (buffer) {
@@ -63,8 +60,6 @@ function favicon_content_buffer_finished_loading (buffer) {
     if (!favicon_service.isFailedFavicon(icon_url))
         favicon_set(buffer, icon_url);
 }
-add_hook("content_buffer_finished_loading_hook",
-         favicon_content_buffer_finished_loading);
 
 
 function favicon_content_buffer_dom_link_added (buffer, event) {
@@ -123,6 +118,14 @@ function favicon_content_buffer_dom_link_added (buffer, event) {
 
     favicon_set(buffer, uri);
 }
+
+
+add_hook("content_buffer_started_loading_hook",
+         favicon_content_buffer_started_loading);
+
+add_hook("content_buffer_finished_loading_hook",
+         favicon_content_buffer_finished_loading);
+
 add_hook("content_buffer_dom_link_added_hook",
          favicon_content_buffer_dom_link_added);
 
