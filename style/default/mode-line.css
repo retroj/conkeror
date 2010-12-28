@@ -4,4 +4,5 @@
 .mode-line {
   padding: 2px;
   -moz-appearance: toolbar;
+  -moz-box-align: center;
 }
