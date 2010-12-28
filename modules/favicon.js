@@ -18,6 +18,7 @@ define_variable("favicon_image_max_size", 1024,
     "is considered for use as a favicon.");
 
 define_buffer_local_hook("buffer_favicon_change_hook");
+define_current_buffer_hook("current_buffer_favicon_change_hook", "buffer_favicon_change_hook");
 
 
 function favicon_set (buffer, icon_url) {
