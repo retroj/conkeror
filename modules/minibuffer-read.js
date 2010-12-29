@@ -115,7 +115,7 @@ completions_tree_view.prototype = {
             return c.get_description(row);
         return "";
     },
-    setTree: function (treebox) { this.treebox = treebox; },
+    setTree: function (treebox) { this.treeBox = treebox; },
     isContainer: function (row) { return false; },
     isSeparator: function (row) { return false; },
     isSorted: function () { return false; },
