@@ -28,10 +28,12 @@ require("minibuffer.js");
  */
 define_keywords("$completions", "$get_string", "$get_description", "$get_value");
 function all_word_completer () {
-    keywords(arguments);
+    keywords(arguments,
+             $get_description = function (x) "",
+             $get_string = function (x) x);
     var completions = arguments.$completions;
-    var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
-    var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
+    var get_string = arguments.$get_string;
+    var get_description = arguments.$get_description;
     var get_value = arguments.$get_value;
     var arr;
     var completer = function (input, pos, conservative) {
@@ -96,10 +98,12 @@ function get_partial_completion_input_state (x, prefix_end, suffix_begin, orig_s
 }
 
 function prefix_completer () {
-    keywords(arguments);
+    keywords(arguments,
+             $get_description = function (x) "",
+             $get_string = function (x) x);
     var completions = arguments.$completions;
-    var get_string = arguments.$get_string ? arguments.$get_string : function (x) x;
-    var get_description = arguments.$get_description ? arguments.$get_description : function (x) "";
+    var get_string = arguments.$get_string;
+    var get_description = arguments.$get_description;
     var get_value = arguments.$get_value;
     var arr;
     if (typeof completions == "function") {
