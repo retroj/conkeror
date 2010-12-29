@@ -1,6 +1,7 @@
 /**
  * (C) Copyright 2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -235,6 +236,34 @@ loading_count_widget.prototype.update = function () {
     else
         this.view.text = "";
 };
+
+
+/**
+ * buffer_icon_widget shows the icon for the current buffer, if any, in
+ * the mode-line.
+ */
+function buffer_icon_widget (window) {
+    this.class_name = "buffer-icon-widget";
+    text_widget.call(this, window);
+    this.add_hook("current_buffer_icon_change_hook");
+    this.add_hook("select_buffer_hook");
+}
+buffer_icon_widget.prototype.__proto__ = text_widget.prototype;
+buffer_icon_widget.prototype.update = function () {
+    var buffer = this.window.buffers.current;
+    if (buffer.icon)
+        this.view.element.setAttribute("src", buffer.icon);
+    else
+        this.view.element.removeAttribute("src");
+};
+buffer_icon_widget.mode_line_adder = function (window) {
+    var element = create_XUL(window, "image");
+    element.setAttribute("class", "buffer-icon-widget");
+    element.setAttribute("width", "16");
+    element.setAttribute("height", "16");
+    window.mode_line.add_widget(new buffer_icon_widget(window), element);
+};
+
 
 function mode_line_adder (widget_constructor) {
     if (!('mode_line_adder' in widget_constructor))
