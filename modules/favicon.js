@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2010 John J. Foerch
  *
  * Portions of this file were derived from Mozilla,
  * (C) Copyright 1998-2008 Mozilla Foundation.
@@ -17,28 +18,21 @@ define_variable("favicon_image_max_size", 1024,
     "Maximum (pixel) width and height of an image document that "+
     "is considered for use as a favicon.");
 
-define_buffer_local_hook("buffer_favicon_change_hook");
-define_current_buffer_hook("current_buffer_favicon_change_hook", "buffer_favicon_change_hook");
-
 
 function favicon_set (buffer, icon_url) {
-    buffer.favicon = icon_url.spec;
     favicon_service.setAndLoadFaviconForPage(buffer.current_uri,
                                              icon_url, false);
-    buffer_favicon_change_hook.run(buffer);
+    buffer.icon = icon_url.spec;
 }
 
 
 function favicon_content_buffer_started_loading (buffer) {
-    var old = buffer.favicon;
-    buffer.favicon = null;
-    if (old != null)
-        buffer_favicon_change_hook.run(buffer);
+    buffer.icon = null;
 }
 
 
 function favicon_content_buffer_finished_loading (buffer) {
-    if (buffer.favicon != null)
+    if (buffer.icon != null)
         return;
 
     if (buffer.document instanceof Ci.nsIImageDocument) {

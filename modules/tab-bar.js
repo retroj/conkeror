@@ -26,7 +26,7 @@ function tab_bar (window) {
     add_hook.call(window, "create_buffer_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_description_change_hook", tab_bar_update_buffer_title);
-    add_hook.call(window, "buffer_favicon_change_hook", tab_bar_update_buffer_icon);
+    add_hook.call(window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
     window.buffers.for_each(tab_bar_add_buffer);
     this.update_multiple_attribute();
     if (window.buffers.current != null)
@@ -39,7 +39,7 @@ tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "create_buffer_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_description_change_hook", tab_bar_update_buffer_title);
-    remove_hook.call(this.window, "buffer_favicon_change_hook", tab_bar_update_buffer_icon);
+    remove_hook.call(this.window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
     this.window.buffers.for_each(function (b) {
             delete b.tab;
         });
@@ -67,8 +67,8 @@ function tab_bar_add_buffer (b) {
     image.setAttribute("class", "tab-icon");
     image.setAttribute("width", "16");
     image.setAttribute("height", "16");
-    if (b.favicon != null)
-        image.setAttribute("src", b.favicon);
+    if (b.icon != null)
+        image.setAttribute("src", b.icon);
     var label = create_XUL(b.window, "label");
     label.setAttribute("class", "tab-label");
     label.setAttribute("crop", "end");
@@ -114,8 +114,8 @@ function tab_bar_update_buffer_title (b) {
 }
 
 function tab_bar_update_buffer_icon (b) {
-    if (b.favicon != null)
-        b.tab.tab_image.setAttribute("src", b.favicon);
+    if (b.icon != null)
+        b.tab.tab_image.setAttribute("src", b.icon);
     else
         b.tab.tab_image.removeAttribute("src");
 }

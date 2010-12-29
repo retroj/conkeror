@@ -23,6 +23,7 @@ function define_current_buffer_hook (hook_name, existing_hook) {
 
 define_buffer_local_hook("buffer_title_change_hook");
 define_buffer_local_hook("buffer_description_change_hook");
+define_buffer_local_hook("buffer_icon_change_hook");
 define_buffer_local_hook("select_buffer_hook");
 define_buffer_local_hook("create_buffer_early_hook");
 define_buffer_local_hook("create_buffer_hook");
@@ -34,6 +35,7 @@ define_buffer_local_hook("set_input_mode_hook");
 
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
 define_current_buffer_hook("current_buffer_description_change_hook", "buffer_description_change_hook");
+define_current_buffer_hook("current_buffer_icon_change_hook", "buffer_icon_change_hook");
 define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 define_current_buffer_hook("current_buffer_dom_content_loaded_hook", "buffer_dom_content_loaded_hook");
 
@@ -150,6 +152,17 @@ buffer.prototype = {
     // occur.  Having this one property explicitly handled by the buffer
     // class allows for otherwise modular focus-blockers.
     focusblocker: null,
+
+    // icon is a string url of an icon to use for this buffer.  Setting it
+    // causes buffer_icon_change_hook to be run.
+    _icon: null,
+    get icon () this._icon,
+    set icon (x) {
+        if (this._icon != x) {
+            this._icon = x;
+            buffer_icon_change_hook.run(this);
+        }
+    },
 
     default_message: "",
 

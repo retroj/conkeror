@@ -42,7 +42,7 @@ function tab_bar (window) {
     add_hook.call(window, "create_buffer_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_description_change_hook", tab_bar_update_buffer_title);
-    //    add_hook.call(window, "buffer_favicon_change_hook", tab_bar_update_buffer_icon);
+    //    add_hook.call(window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
     window.buffers.for_each(tab_bar_add_buffer);
     this.update_multiple_attribute();
     if (window.buffers.current != null)
@@ -60,7 +60,7 @@ tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "create_buffer_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_description_change_hook", tab_bar_update_buffer_title);
-    //    remove_hook.call(this.window, "buffer_favicon_change_hook", tab_bar_update_buffer_icon);
+    //    remove_hook.call(this.window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
     this.window.buffers.for_each(function (b) {
             delete b.tab;
         });
