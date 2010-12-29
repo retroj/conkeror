@@ -64,11 +64,12 @@ function favicon_content_buffer_finished_loading (buffer) {
 
 
 function favicon_content_buffer_dom_link_added (buffer, event) {
-   var link = event.originalTarget;
-
-    if (!link || !link.ownerDocument || !link.rel || !link.href)
+    var link = event.originalTarget;
+    if (!link || !link.ownerDocument || !link.rel || !link.href ||
+        link.ownerDocument != buffer.document)
+    {
         return;
-
+    }
     var rel = link.rel.toLowerCase();
     var rel_strings = rel.split(/\s+/);
     if (rel_strings.indexOf("icon") == -1)
