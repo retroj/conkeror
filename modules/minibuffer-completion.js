@@ -1,6 +1,7 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  * (C) Copyright 2008 Nelson Elhage
+ * (C) Copyright 2010 John J. Foerch
  *
  * Portions of this file (the JavaScript completer) were derived from Vimperator,
  * (C) Copyright 2006-2007 Martin Stubenschrott.
@@ -23,18 +24,22 @@ require("minibuffer.js");
  * - $get_value: TODO.
  * - $get_string: TODO. Optional, default: identity function.
  * - $get_description: TODO: Optional, default: function returning "".
+ * - $get_icon: optional. returns an icon for the completions line.
  *
  * TODO: Exactly what does this function return and how do you use it?
  */
-define_keywords("$completions", "$get_string", "$get_description", "$get_value");
+define_keywords("$completions", "$get_string", "$get_description",
+                "$get_value", "$get_icon");
 function all_word_completer () {
     keywords(arguments,
              $get_description = function (x) "",
-             $get_string = function (x) x);
+             $get_string = function (x) x,
+             $get_icon = null);
     var completions = arguments.$completions;
     var get_string = arguments.$get_string;
     var get_description = arguments.$get_description;
     var get_value = arguments.$get_value;
+    var get_icon = arguments.$get_icon;
     var arr;
     var completer = function (input, pos, conservative) {
         if (input.length == 0 && conservative)
@@ -57,7 +62,8 @@ function all_word_completer () {
                 get_string: function (i) get_string(data[i]),
                 get_description : function (i) get_description(data[i]),
                 get_input_state: function (i) [get_string(data[i])],
-                get_value : function(i) (get_value ? get_value(data[i]) : data[i])
+                get_value: function (i) (get_value ? get_value(data[i]) : data[i]),
+                get_icon: function (i) (get_icon ? get_icon(data[i]) : null)
                };
     };
     completer.refresh = function () {
@@ -100,11 +106,13 @@ function get_partial_completion_input_state (x, prefix_end, suffix_begin, orig_s
 function prefix_completer () {
     keywords(arguments,
              $get_description = function (x) "",
-             $get_string = function (x) x);
+             $get_string = function (x) x,
+             $get_icon = null);
     var completions = arguments.$completions;
     var get_string = arguments.$get_string;
     var get_description = arguments.$get_description;
     var get_value = arguments.$get_value;
+    var get_icon = arguments.$get_icon;
     var arr;
     if (typeof completions == "function") {
         arr = [];
@@ -160,6 +168,7 @@ function prefix_completer () {
                 get_description: function (i) get_description(data[i]),
                 get_input_state: function (i) get_partial_completion_input_state(get_string(data[i]), 0, pos, input),
                 get_value: function (i) (get_value ? get_value(data[i]) : data[i]),
+                get_icon: function (i) (get_icon ? get_icon(data[i]) : null),
                 get common_prefix_input_state () {
                     return common_prefix && get_partial_completion_input_state(common_prefix, 0, pos, input);
                 },
@@ -315,6 +324,7 @@ function merge_completers (completers) {
                          get_string: forward('get_string'),
                          get_description: forward('get_description'),
                          get_input_state: forward('get_input_state'),
+                         get_icon: forward('get_icon'),
                          destroy: forward('destroy'),
                          get_match_required: combine_or('get_match_required')
                         });

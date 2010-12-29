@@ -44,11 +44,12 @@ define_variable("minibuffer_history_max_items", 100,
 define_keywords("$keymap", "$history", "$validator",
                 "$completer", "$match_required", "$default_completion",
                 "$auto_complete", "$auto_complete_initial", "$auto_complete_conservative",
-                "$auto_complete_delay",
+                "$auto_complete_delay", "$enable_icons",
                 "$space_completes");
 /* FIXME: support completing in another thread */
 function text_entry_minibuffer_state (minibuffer, continuation) {
-    keywords(arguments, $keymap = minibuffer_keymap);
+    keywords(arguments, $keymap = minibuffer_keymap,
+             $enable_icons = false);
 
     basic_minibuffer_state.call(this, minibuffer, forward_keywords(arguments));
 
@@ -88,6 +89,7 @@ function text_entry_minibuffer_state (minibuffer, continuation) {
         this.match_required_default = this.match_required;
         if (this.match_required)
             this.default_completion = arguments.$default_completion;
+        this.enable_icons = arguments.$enable_icons;
     }
 }
 
@@ -120,7 +122,15 @@ completions_tree_view.prototype = {
     isSeparator: function (row) { return false; },
     isSorted: function () { return false; },
     getLevel: function (row) { return 0; },
-    getImageSrc: function (row, col) { return null; },
+    getImageSrc: function (row, col) {
+        var c = this.minibuffer_state.completions;
+        if (this.minibuffer_state.enable_icons &&
+            c.get_icon && col.index == 0)
+        {
+            return c.get_icon(row);
+        }
+        return null;
+    },
     getRowProperties: function (row, props) {},
     getCellProperties: function (row, col, props) {
         if (col.index == 0)
@@ -156,6 +166,8 @@ text_entry_minibuffer_state.prototype = {
 
                 tree.setAttribute("hidecolumnpicker", "true");
                 tree.setAttribute("hideheader", "true");
+                if (this.enable_icons)
+                    tree.setAttribute("hasicons", "true");
 
                 var treecols = create_XUL(window, "treecols");
                 tree.appendChild(treecols);

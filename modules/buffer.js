@@ -587,6 +587,13 @@ let (queued_buffer_creators = null) {
 /*
  * Read Buffer
  */
+define_variable("read_buffer_show_icons", false,
+    "Boolean which says whether read_buffer should show buffer "+
+    "icons in the completions list.\nNote, setting this variable "+
+    "alone does not cause favicons or other kinds of icons to be "+
+    "fetched.  For that, load the `favicon' (or similar other) "+
+    "library.");
+
 minibuffer_auto_complete_preferences["buffer"] = true;
 define_keywords("$default");
 minibuffer.prototype.read_buffer = function () {
@@ -598,12 +605,15 @@ minibuffer.prototype.read_buffer = function () {
     var completer = all_word_completer(
         $completions = function (visitor) window.buffers.for_each(visitor),
         $get_string = function (x) x.description,
-        $get_description = function (x) x.title);
+        $get_description = function (x) x.title,
+        $get_icon = (read_buffer_show_icons ?
+                     function (x) x.icon : null));
     var result = yield this.read(
         $keymap = read_buffer_keymap,
         $prompt = arguments.$prompt,
         $history = arguments.$history,
         $completer = completer,
+        $enable_icons = read_buffer_show_icons,
         $match_required = true,
         $auto_complete = "buffer",
         $auto_complete_initial = true,

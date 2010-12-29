@@ -72,3 +72,9 @@ tree.completions treechildren::-moz-tree-cell-text(completion-description) {
 tree.completions treechildren::-moz-tree-cell-text(current) {
   color: HighlightText !important;
 }
+
+tree.completions[hasicons="true"] treechildren::-moz-tree-image {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
