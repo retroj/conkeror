@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2008-2009 John J. Foerch
+ * (C) Copyright 2008-2010 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -166,22 +166,30 @@ function get_filename_for_current_textfield (doc, elem) {
     return name;
 }
 
-function edit_field_in_external_editor (buffer, elem) {
-    if (elem instanceof Ci.nsIDOMHTMLInputElement) {
-        var type = elem.getAttribute("type");
-        if (type != null)
-            type = type.toLowerCase();
-        if (type == "hidden" || type == "checkbox" || type == "radio")
+function edit_field_in_external_editor (buffer, elem, doc) {
+    if (! doc) {
+        if (elem instanceof Ci.nsIDOMHTMLInputElement) {
+            var type = (elem.getAttribute("type") || "").toLowerCase();
+            if (type == "hidden" || type == "checkbox" || type == "radio")
+                throw interactive_error("Element is not a text field.");
+        } else if (!(elem instanceof Ci.nsIDOMHTMLTextAreaElement))
             throw interactive_error("Element is not a text field.");
-    } else if (!(elem instanceof Ci.nsIDOMHTMLTextAreaElement))
-        throw interactive_error("Element is not a text field.");
+    }
 
     var name = get_filename_for_current_textfield(buffer.document, elem);
     var file = get_temporary_file(name);
 
+    if (elem instanceof Ci.nsIDOMHTMLInputElement ||
+        elem instanceof Ci.nsIDOMHTMLTextAreaElement)
+    {
+        var content = elem.value;
+    } else {
+        content = elem.innerHTML;
+    }
+
     // Write to file
     try {
-        write_text_file(file, elem.value);
+        write_text_file(file, content);
     } catch (e) {
         file.remove(false);
         throw e;
@@ -193,8 +201,14 @@ function edit_field_in_external_editor (buffer, elem) {
 
     try {
         yield open_file_with_external_editor(file);
-
-        elem.value = read_text_file(file);
+        content = read_text_file(file);
+        if (elem instanceof Ci.nsIDOMHTMLInputElement ||
+            elem instanceof Ci.nsIDOMHTMLTextAreaElement)
+        {
+            elem.value = content;
+        } else {
+            elem.innerHTML = content;
+        }
     } finally {
         elem.className = old_class;
 
@@ -203,13 +217,24 @@ function edit_field_in_external_editor (buffer, elem) {
 }
 
 interactive("edit-current-field-in-external-editor",
-            "Edit the contents of the currently-focused text field in an external editor.",
-            function (I) {
-                var buf = I.buffer;
-                var elem = buf.focused_element;
-                yield edit_field_in_external_editor(buf, elem);
-                elem.blur();
-            });
+    "Edit the contents of the currently-focused text field in an external editor.",
+    function (I) {
+        var b = I.buffer;
+        var e = b.focused_element;
+        var frame = b.focused_frame;
+        var doc = null;
+        if (e) {
+            if (e.contentEditable == 'true')
+                doc = e.ownerDocument;
+        } else if (frame && frame.document.designMode &&
+                   frame.document.designMode == "on") {
+            doc = frame.document;
+            e = frame.document.body;
+        }
+        yield edit_field_in_external_editor(b, e, doc);
+        e.blur();
+    });
+
 
 define_variable("kill_whole_line", false,
                 "If true, `kill-line' with no arg at beg of line kills the whole line.");
