@@ -34,9 +34,9 @@ mime_type_table.prototype = {
         if (this.table[p[0]])
             return this.table[p[0]][p[1]] ||
                 this.table[p[0]]["*"] ||
-                this.table["*"];
+                this.table["*"] || null;
         else
-            return this.table["*"];
+            return this.table["*"] || null;
     },
     set: function (mime_type, value) {
         var p = mime_type_parse(mime_type);
