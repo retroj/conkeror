@@ -146,25 +146,32 @@ interactive("focus-previous-link",
             });
 
 
-define_variable('edit_field_in_external_editor_extension', "txt",
-    "File extension for the temp files created by "+
-    "edit-current-field-in-external-editor.");
+define_mime_type_table("external_editor_extension_overrides",
+    { text: { plain: "txt" } },
+    "Mime-type table for overriding file name extensions for the "+
+    "temporary file used by edit-current-field-in-external-editor.");
 
-function get_filename_for_current_textfield (doc, elem) {
-    var name = doc.URL
+
+/**
+ * external_editor_make_base_filename is called by
+ * edit_field_in_external_editor to generate a filename _without
+ * extension_ for the temporary file involved in external editing.
+ */
+function external_editor_make_base_filename (elem, top_doc) {
+    var name = top_doc.URL
         + "-"
         + ( elem.getAttribute("name")
             || elem.getAttribute("id")
-            || "textarea" );
+            || elem.tagName.toLowerCase() );
 
     // get rid filesystem unfriendly chars
-    name = name.replace(doc.location.protocol, "")
+    name = name.replace(top_doc.location.protocol, "")
         .replace(/[^a-zA-Z0-9]+/g, "-")
-        .replace(/(^-+|-+$)/g, "")
-        + '.' + edit_field_in_external_editor_extension;
+        .replace(/(^-+|-+$)/g, "");
 
     return name;
 }
+
 
 function edit_field_in_external_editor (buffer, elem, doc) {
     if (! doc) {
@@ -176,7 +183,14 @@ function edit_field_in_external_editor (buffer, elem, doc) {
             throw interactive_error("Element is not a text field.");
     }
 
-    var name = get_filename_for_current_textfield(buffer.document, elem);
+    var mime_type = doc ? doc.contentType : "text/plain";
+    var ext = external_editor_extension_overrides.get(mime_type);
+    if (! ext)
+        ext = mime_service.getPrimaryExtension(mime_type, null);
+
+    var name = external_editor_make_base_filename(elem, buffer.document);
+    if (ext)
+        name += "." + ext;
     var file = get_temporary_file(name);
 
     if (elem instanceof Ci.nsIDOMHTMLInputElement ||
