@@ -55,3 +55,6 @@ define_key(default_global_keymap, "C-r", "isearch-backward");
 
 define_key(default_global_keymap, "C-q", "quote-next-mode");
 define_key(default_global_keymap, "C-M-q", "quote-mode");
+
+// multimedia keys
+define_key(default_global_keymap, "cmdsearch", "isearch-forward");

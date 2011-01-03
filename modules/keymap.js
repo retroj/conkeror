@@ -104,6 +104,8 @@ function format_key_combo (event) {
         combo += keycode_to_vk_name[event.keyCode];
     } else if (event.button != null) {
         combo += "mouse" + (event.button + 1);
+    } else if (event.command) {
+        combo += "cmd" + event.command.toLowerCase();
     }
     return combo;
 }
@@ -112,6 +114,8 @@ function unformat_key_combo (combo) {
     var event = {
         keyCode: 0,
         charCode: 0,
+        button: null,
+        command: null,
         altKey: false,
         ctrlKey: false,
         metaKey: false,
@@ -131,6 +135,9 @@ function unformat_key_combo (combo) {
         event.charCode = key.charCodeAt(0);
     else if (key == 'space')
         event.charCode = 32;
+    else if (key.substring(0, 3) == 'cmd')
+        event.command = key.substr(3, 1).toUpperCase() +
+            key.substring(4);
     else if (vk_name_to_keycode[key])
         event.keyCode = vk_name_to_keycode[key];
     else if (key.substring(0, 5) == 'mouse')

@@ -37,6 +37,8 @@ function event_clone (event) {
     this.type = event.type;
     this.keyCode = event.keyCode;
     this.charCode = event.charCode;
+    this.button = event.button;
+    this.command = event.command;
     this.ctrlKey = event.ctrlKey;
     this.metaKey = event.metaKey;
     this.altKey = event.altKey;
@@ -179,6 +181,7 @@ sequence:
                     event_kill(event);
                 break;
             case "keypress":
+            case "AppCommand":
                 window.minibuffer.clear();
                 window.input.help_displayed = false;
                 input_help_timer_clear(window);
@@ -318,6 +321,16 @@ function input_handle_keyup (event) {
 }
 
 
+function input_handle_appcommand (event) {
+    var window = this;
+    var state = window.input.current;
+    if (state.continuation)
+        state.continuation(event);
+    else
+        co_call(input_handle_sequence.call(window, event));
+}
+
+
 // handler for command_event special events
 function input_handle_command (event) {
     var window = this;
@@ -349,6 +362,7 @@ function input_initialize_window (window) {
     window.addEventListener("keypress", input_handle_keypress, true);
     //window.addEventListener("keyup", input_handle_keyup, true);
     //TO-DO: mousedown, mouseup, click, dblclick
+    window.addEventListener("AppCommand", input_handle_appcommand, true);
 }
 
 add_hook("window_initialize_hook", input_initialize_window);

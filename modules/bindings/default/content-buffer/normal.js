@@ -39,3 +39,10 @@ define_key(content_buffer_normal_keymap, "R", "isearch-continue-backward");
 
 define_key(content_buffer_normal_keymap, "C-x return c", "charset-prefix");
 define_key(content_buffer_normal_keymap, "C-x return r", "reload-with-charset");
+
+// multimedia keys
+define_key(content_buffer_normal_keymap, "cmdback", "back");
+define_key(content_buffer_normal_keymap, "cmdforward", "forward");
+define_key(content_buffer_normal_keymap, "cmdreload", "reload");
+define_key(content_buffer_normal_keymap, "cmdstop", "stop-loading");
+define_key(content_buffer_normal_keymap, "cmdhome", "home");
