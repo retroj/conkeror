@@ -57,15 +57,12 @@ in_module(null);
         let windows = {};
         let x = 0;
         for_each_window(function (w) {
-            let buffers = {};
-            let y = 0;
+            let buffers = [];
             w.buffers.for_each(function (b) {
-                if (! b.browser || ! (b instanceof content_buffer))
-                    return;
-                buffers[y] = b.display_uri_string;
-                y++;
+                if (b instanceof content_buffer)
+                    buffers.push(b.display_uri_string);
             });
-            if (y == 0)
+            if (buffers.length == 0)
                 return;
             windows[x] = buffers;
             x++;
