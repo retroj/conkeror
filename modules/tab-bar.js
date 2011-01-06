@@ -65,8 +65,6 @@ function tab_bar_add_buffer (b) {
     tab.setAttribute("selected", "false");
     var image = create_XUL(b.window, "image");
     image.setAttribute("class", "tab-icon");
-    image.setAttribute("width", "16");
-    image.setAttribute("height", "16");
     if (b.icon != null)
         image.setAttribute("src", b.icon);
     var label = create_XUL(b.window, "label");
