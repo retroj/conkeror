@@ -2,6 +2,7 @@
  * (C) Copyright 2008 Jeremy Maitin-Shepard
  * (C) Copyright 2008 Nicholas A. Zigarovich
  * (C) Copyright 2008 John J. Foerch
+ * (C) Copyright 2011 Peter Lunicks
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -23,6 +24,12 @@ define_variable("tab_bar_button_close", 2,
                 "The mouse button that closes tabs." +
                 "0 = left, 1 = middle, 2 = right, null = disabled.");
 
+define_variable("tab_bar_show_icon", false,
+                "Whether or not to show buffer icons in tabs.");
+
+define_variable("tab_bar_show_index", true,
+                "Whether or not to show the tab index in each tab.");
+
 /**
  * Constructs a tab bar for the given window.
  */
@@ -42,7 +49,7 @@ function tab_bar (window) {
     add_hook.call(window, "create_buffer_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_description_change_hook", tab_bar_update_buffer_title);
-    //    add_hook.call(window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
+    add_hook.call(window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
     window.buffers.for_each(tab_bar_add_buffer);
     this.update_multiple_attribute();
     if (window.buffers.current != null)
@@ -60,7 +67,7 @@ tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "create_buffer_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_description_change_hook", tab_bar_update_buffer_title);
-    //    remove_hook.call(this.window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
+    remove_hook.call(this.window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
     this.window.buffers.for_each(function (b) {
             delete b.tab;
         });
@@ -100,11 +107,15 @@ function tab_bar_add_buffer (buffer) {
         }, false /* not capturing */);
     tab.setAttribute("selected", "false");
 
+    // Create the label to hold the buffer icon
+    var image = create_XUL(buffer.window, "image");
+    image.setAttribute("class", "tab2-icon");
+    if (buffer.icon != null)
+        image.setAttribute("src", buffer.icon);
+
     // Create the label to hold the tab number
-    // TODO: Make the numbers optional and use the favicon if that's what the
-    // user wants.
-    var iconlabel = create_XUL(buffer.window, "label");
-    iconlabel.setAttribute("class", "tab2-icon");
+    var index = create_XUL(buffer.window, "label");
+    index.setAttribute("class", "tab2-index");
 
     // Create the label to hold the tab title
     var label = create_XUL(buffer.window, "label");
@@ -120,10 +131,14 @@ function tab_bar_add_buffer (buffer) {
         }, false /* not capturing */);
 
     // Add all the stuff to the new tab
-    tab.appendChild(iconlabel);
+    tab.image = image;
+    tab.label = label;
+    tab.index = index;
+    if (tab_bar_show_icon)
+        tab.appendChild(image);
+    if (tab_bar_show_index)
+        tab.appendChild(index);
     tab.appendChild(label);
-    tab.tab_label = label;
-    tab.tab_icon = iconlabel;
     tabbar.element.appendChild(tab);
     buffer.tab = tab;
     tab_bar_update_buffer_title(buffer);
@@ -131,7 +146,7 @@ function tab_bar_add_buffer (buffer) {
     // Set the tab number. Remember that at this point, the tab has already been
     // added to the hbox.
     var total = tabbar.element.getElementsByClassName("tab2").length;
-    iconlabel.value = total;
+    index.value = total;
 }
 
 
@@ -174,7 +189,18 @@ function tab_bar_update_buffer_title (b) {
     var title = b.title;
     if (title == null || title.length == 0)
         title = b.description;
-    b.tab.tab_label.setAttribute("value", title);
+    b.tab.label.setAttribute("value", title);
+}
+
+
+/**
+ * Updates the tab icon for the given buffer.
+ */
+function tab_bar_update_buffer_icon (b) {
+    if (b.icon != null)
+        b.tab.image.setAttribute("src", b.icon);
+    else
+        b.tab.image.removeAttribute("src");
 }
 
 

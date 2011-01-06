@@ -18,8 +18,15 @@
     font: 11px Sans;
 }
 
-.tab2-icon {
+.tab2-index {
     padding: 0px 2px 0px 3px;
     font: 900 11px Sans;
     text-align: center;
+}
+
+.tab2-icon  {
+  width: 16px;
+  height: 16px;
+  -moz-margin-start: 4px;
+  -moz-margin-end: 3px;
 }
