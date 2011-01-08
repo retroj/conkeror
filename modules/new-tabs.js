@@ -134,10 +134,10 @@ function tab_bar_add_buffer (buffer) {
     tab.image = image;
     tab.label = label;
     tab.index = index;
-    if (tab_bar_show_icon)
-        tab.appendChild(image);
     if (tab_bar_show_index)
         tab.appendChild(index);
+    if (tab_bar_show_icon)
+        tab.appendChild(image);
     tab.appendChild(label);
     tabbar.element.appendChild(tab);
     buffer.tab = tab;
