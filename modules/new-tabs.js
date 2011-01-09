@@ -164,7 +164,7 @@ function tab_bar_kill_buffer (b) {
 
     // Renumber the tabs.
     for (var i = 0; i < t.element.childNodes.length; i++) {
-	t.element.childNodes[i].childNodes[0].value = i + 1;
+	t.element.childNodes[i].index.value = i + 1;
     }
 }
 
