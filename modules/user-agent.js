@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007-2010 John J. Foerch
+ * (C) Copyright 2007-2011 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -20,10 +20,10 @@ default_pref("general.useragent.extra.conkeror", "Conkeror/"+version);
 function set_user_agent (str) {
     const p = "general.useragent.override";
     if (str == null) {
-        var br=preferences.getDefaultBranch(p);
-        br.deleteBranch("");
-        user_pref(p, "");
-        clear_pref(p);
+        clear_default_pref(p);
+        try {
+            clear_pref(p);
+        } catch (e) {}
     } else
         session_pref(p, str);
 }

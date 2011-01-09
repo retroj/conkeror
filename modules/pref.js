@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2009,2011 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -63,6 +63,11 @@ function get_default_pref (name) {
 function clear_pref (name) {
     var branch = preferences.getBranch(null);
     return branch.clearUserPref(name);
+}
+
+function clear_default_pref (name) {
+    var branch = preferences.getDefaultBranch(null);
+    return branch.deleteBranch(name);
 }
 
 function pref_has_user_value (name) {
