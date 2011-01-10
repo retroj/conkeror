@@ -581,7 +581,7 @@ function send_http_request (lspec) {
     var req = xml_http_request();
     var cc = yield CONTINUATION;
     var aborting = false;
-    req.onreadystatechange = function send_http_request__onreadysatechange () {
+    req.onreadystatechange = function send_http_request__onreadystatechange () {
         if (req.readyState != 4)
             return;
         if (aborting)
