@@ -21,9 +21,8 @@ function set_user_agent (str) {
     const p = "general.useragent.override";
     if (str == null) {
         clear_default_pref(p);
-        try {
-            clear_pref(p);
-        } catch (e) {}
+        user_pref(p, "");
+        clear_pref(p);
     } else
         session_pref(p, str);
 }
