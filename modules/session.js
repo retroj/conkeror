@@ -110,9 +110,13 @@ in_module(null);
             // it is now safe to recycle the remaining buffers.
             for (let i = 0; session[s][i] != undefined; ++i, ++bi) {
                 let b = window.buffers.get_buffer(bi);
-                if (b)
+                if (b) {
+                    try {
+                        let history = b.web_navigation.sessionHistory;
+                        history.PurgeHistory(history.count);
+                    } catch (e) {}
                     b.load(session[s][i]);
-                else {
+                } else {
                     let c = buffer_creator(content_buffer, $load = session[s][i]);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
                 }
