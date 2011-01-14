@@ -50,6 +50,7 @@ function tab_bar (window) {
     add_hook.call(window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_description_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
+
     window.buffers.for_each(tab_bar_add_buffer);
     this.update_multiple_attribute();
     if (window.buffers.current != null)
@@ -68,9 +69,7 @@ tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_description_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
-    this.window.buffers.for_each(function (b) {
-            delete b.tab;
-        });
+    this.window.buffers.for_each(function (b) { delete b.tab; });
     this.selected_buffer = null;
     this.element.parentNode.removeChild(this.element);
 };
@@ -124,10 +123,10 @@ function tab_bar_add_buffer (buffer) {
 
     // No close button, just use the designated mouse button.
     tab.addEventListener("click", function (event) {
-	    if (event.button == tab_bar_button_close) {
-		kill_buffer(buffer);
-		event.stopPropagation();
-	    }
+            if (event.button == tab_bar_button_close) {
+                kill_buffer(buffer);
+                event.stopPropagation();
+            }
         }, false /* not capturing */);
 
     // Add all the stuff to the new tab
@@ -164,7 +163,7 @@ function tab_bar_kill_buffer (b) {
 
     // Renumber the tabs.
     for (var i = 0; i < t.element.childNodes.length; i++) {
-	t.element.childNodes[i].index.value = i + 1;
+        t.element.childNodes[i].index.value = i + 1;
     }
 }
 
