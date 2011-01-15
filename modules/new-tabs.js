@@ -72,6 +72,7 @@ tab_bar.prototype.destroy = function () {
     this.window.buffers.for_each(function (b) { delete b.tab; });
     this.selected_buffer = null;
     this.element.parentNode.removeChild(this.element);
+    delete this.window.tab_bar;
 };
 
 
@@ -221,7 +222,6 @@ function tab_bar_uninstall (window) {
     if (!window.tab_bar)
         throw new Error("tab bar not initialized for window");
     window.tab_bar.destroy();
-    delete window.tab_bar;
 }
 
 
