@@ -76,7 +76,7 @@ define_page_mode("google_images_mode",
     });
 
 
-let (rx = build_url_regex($domain = "images.google",
+let (rx = build_url_regex($domain = /(.*\.)?google/,
                           $path = "images")) {
     auto_mode_list.push([rx, google_images_mode]);
 };
