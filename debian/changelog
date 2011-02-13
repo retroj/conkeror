@@ -1,3 +1,12 @@
+conkeror (0.9.3+git110213-1) unstable; urgency=low
+
+  * New upstream snapshot
+    - Sorts keybindings and command line options alphabetically. Thanks
+      Jari Aalto for the patches. (Closes: #606878, #606880)
+  * Upload to unstable again since the Squeeze Release Freeze is over.
+
+ -- Axel Beckert <abe@debian.org>  Sun, 13 Feb 2011 14:20:11 +0100
+
 conkeror (0.9.3+git101015-1) experimental; urgency=low
 
   * New upstream snapshot
