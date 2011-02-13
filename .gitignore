@@ -8,4 +8,13 @@ conkeror
 plugins
 /components/xpti.dat
 /components/compreg.dat
-.pc
+/.pc
+/build-*-stamp
+/configure-stamp
+/debian/conkeror*.substvars
+/debian/conkeror*.debhelper.log
+/debian/conkeror*.debhelper
+/debian/conkeror-spawn-process-helper/
+/debian/conkeror/
+/debian/files
+/debian/stamp-patched
