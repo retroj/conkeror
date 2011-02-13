@@ -1,5 +1,8 @@
 conkeror (0.9.3+git110213-1) unstable; urgency=low
 
+  * The format of the auto-save session file has changed slightly to be
+    more robust. Conkeror automatically converts the file on first usage.
+
   * In the new-tabs module, the widgets that show the buffer index in each
     tab now have the class "tab2-index" instead of "tab2-icon". This
     change affects anybody who has written a theme which styles the
