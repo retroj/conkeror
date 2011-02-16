@@ -187,8 +187,8 @@ function handle_command_line (cmdline) {
         }
         var ctx = new interactive_context();
         ctx.command_line = cmdline;
-        ctx.local = { cwd: cmdline.resolveFile("."),
-                      __proto__: conkeror }
+        ctx.local = { __proto__: conkeror,
+                      cwd: cmdline.resolveURI(".").QueryInterface(Ci.nsIFileURL).file };
 
         for (let clen = cmdline.length; i < clen; ++i) {
             var arg = cmdline.getArgument(i);
