@@ -188,6 +188,7 @@ function handle_command_line (cmdline) {
         var ctx = new interactive_context();
         ctx.command_line = cmdline;
         ctx.local = { __proto__: conkeror,
+                      // see https://bugzilla.mozilla.org/show_bug.cgi?id=476326
                       cwd: cmdline.resolveURI(".").QueryInterface(Ci.nsIFileURL).file };
 
         for (let clen = cmdline.length; i < clen; ++i) {
