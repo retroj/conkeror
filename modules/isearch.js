@@ -90,6 +90,7 @@ isearch_session.prototype = {
         var body = doc.documentElement;
 
         finder.findBackwards = !dir;
+        finder.caseSensitive = (str != str.toLowerCase());
 
         searchRange = doc.createRange();
         startPt = doc.createRange();
