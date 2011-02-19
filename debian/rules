@@ -58,6 +58,7 @@ install-indep:
 	# debian/<package>
 	cp -pr branding chrome components content defaults	\
 	       locale modules search-engines help style	       	\
+	       chrome.manifest					\
 	       $(CURDIR)/debian/conkeror/usr/share/conkeror/
 	mkdir -p $(CURDIR)/debian/conkeror/usr/share/conkeror/contrib/
 	cp -pr contrib/xrev contrib/art contrib/modules	\
