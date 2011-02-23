@@ -1,3 +1,12 @@
+conkeror (0.9.3+git110224-1) unstable; urgency=low
+
+  * New upstream snapshot
+    - Further xulrunner-2.0 fixes
+  * Add missing alternative dependency on xulrunner-2.0 (Thanks to Micah
+    Gersten!)
+
+ -- Axel Beckert <abe@debian.org>  Thu, 24 Feb 2011 19:46:28 +0100
+
 conkeror (0.9.3+git110219-1) unstable; urgency=low
 
   * The Works-with-2.0 Package
