@@ -4,6 +4,7 @@ conkeror (0.9.3+git110224-1) unstable; urgency=low
     - Further xulrunner-2.0 fixes
   * Add missing alternative dependency on xulrunner-2.0 (Thanks to Micah
     Gersten!)
+  * Also look for xulrunner-2.0 in debian/conkeror.bin aka /usr/bin/conkeror
 
  -- Axel Beckert <abe@debian.org>  Thu, 24 Feb 2011 19:46:28 +0100
 
