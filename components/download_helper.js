@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2011 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -70,6 +71,10 @@ var module = {
 
     canUnload: function(compMgr) { return true; }
 };
+
+function NSGetFactory (cid) { // XULRunner 2.0
+    return module.factory;
+}
 
 function NSGetModule(compMgr, fileSpec) {
     return module;
