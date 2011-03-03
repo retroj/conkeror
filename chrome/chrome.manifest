@@ -10,8 +10,6 @@ content  conkeror-test           file:../tests/
 
 locale   branding       en-US    file:../branding/
 
-override chrome://global/locale/netErrorApp.dtd chrome://conkeror-gui/locale/netError.dtd
-
 component {72a7eea7-a894-47ec-93a9-a7bc172cf1ac} ../components/application.js
 contract @conkeror.mozdev.org/application;1 {72a7eea7-a894-47ec-93a9-a7bc172cf1ac}
 
