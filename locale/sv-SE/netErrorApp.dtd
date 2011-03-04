@@ -1,0 +1,9 @@
+<!ENTITY securityOverride.linkText "Eller så kan du lägga till ett undantag…">
+<!ENTITY securityOverride.warningText "
+<p>Du bör inte lägga till ett undantag om du använder en anslutning som du inte litar på helt och hållet eller om du inte brukar se denna varning för denna server.</p>
+<p>Om du ända vill lägga till ett undantag, använd <code>M-x&nbsp;ssl-add-exception</code>.</p>
+">
+<!ENTITY securityOverride.warningContent "
+<p>Du bör inte lägga till ett undantag om du använder en anslutning som du inte litar på helt och hållet eller om du inte brukar se denna varning för denna server.</p>
+<p>Om du ända vill lägga till ett undantag, använd <code>M-x&nbsp;ssl-add-exception</code>.</p>
+">
