@@ -1,3 +1,10 @@
+conkeror (0.9.3+git110307-1) unstable; urgency=low
+
+  * New upstream snapshot
+    - Fixes network and SSL error pages under xulrunner-2.0
+
+ -- Axel Beckert <abe@debian.org>  Mon, 07 Mar 2011 18:05:33 +0100
+
 conkeror (0.9.3+git110224-1) unstable; urgency=low
 
   * New upstream snapshot
