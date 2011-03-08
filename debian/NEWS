@@ -1,3 +1,29 @@
+conkeror (0.9.3+git110307-2) unstable; urgency=low
+
+  The search order for searching xulrunner binaries has been changed
+  since current state became quite confusing:
+  
+  /usr/bin/conkeror first looked for the xulrunner of Squeeze and Sid
+  (1.9.1), then the (former) experimental xulrunner (1.9.2), then the
+  one from Lenny (1.9.0/generic 1.9), then the current one from
+  experimental (2.0), and then for generic ones like the one from
+  Sarge.
+  
+  It now looks first for xulrunner 2.0, then 1.9.2, then 1.9.1, then
+  1.9 (aka 1.9.0) and then for a xulrunner binary without version
+  suffix (as e.g. xulrunner 1.8 from Sarge used to be called). This
+  means it now checks for the highest version first, then checks for
+  lower and less specific versions, taking the generic one as last
+  one.
+  
+  This should be more future-proof and is less Debian-centric,
+  i.e. helps Debian-based distributions which maintain their own
+  xulrunner packages. But it also helps people who have the xulrunner
+  packages from experimental installed as conkeror now uses the xulrunner
+  version from experimental if it is installed.
+
+ -- Axel Beckert <abe@debian.org>  Tue, 08 Mar 2011 16:41:21 +0100
+
 conkeror (0.9.3+git110213-1) unstable; urgency=low
 
   * The format of the auto-save session file has changed slightly to be

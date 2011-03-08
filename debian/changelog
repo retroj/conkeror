@@ -1,3 +1,14 @@
+conkeror (0.9.3+git110307-2) unstable; urgency=low
+
+  * debian/conkeror.bin: Change search order for searching xulrunner
+    binaries from the confusing current state of "squeeze/sid, (former)
+    experimental, lenny, experimental, generic/sarge" to descending
+    "highest, most specific versions first; lowest, generic versions
+    last", so it should take the newest xulrunner version which is
+    installed.
+
+ -- Axel Beckert <abe@debian.org>  Tue, 08 Mar 2011 16:28:38 +0100
+
 conkeror (0.9.3+git110307-1) unstable; urgency=low
 
   * New upstream snapshot
