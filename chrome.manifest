@@ -1,1 +1,18 @@
 manifest chrome/chrome.manifest
+
+component {72a7eea7-a894-47ec-93a9-a7bc172cf1ac} components/application.js
+contract @conkeror.mozdev.org/application;1 {72a7eea7-a894-47ec-93a9-a7bc172cf1ac}
+
+component {0f4dd758-b55a-4386-a79c-8698642eac51} components/command-line.js
+contract @mozilla.org/commandlinehandler/general-startup;1?type=conkeror {0f4dd758-b55a-4386-a79c-8698642eac51}
+category command-line-handler y-conkeror @mozilla.org/commandlinehandler/general-startup;1?type=conkeror
+
+component {2926dd11-4d76-4965-bcdc-4aaad70ada04} components/content-policy.js
+contract @conkeror.org/content-policy-listener;1 {2926dd11-4d76-4965-bcdc-4aaad70ada04}
+category content-policy content-policy @conkeror.org/content-policy-listener;1
+
+component {74FCB100-B972-11DC-95FF-0800200C9A66} components/download_helper.js
+contract @mozilla.org/helperapplauncherdialog;1 {74FCB100-B972-11DC-95FF-0800200C9A66}
+
+component {7770E0D0-C4A0-11DC-95FF-0800200C9A66} components/download_manager_ui.js
+contract @mozilla.org/download-manager-ui;1 {7770E0D0-C4A0-11DC-95FF-0800200C9A66}
