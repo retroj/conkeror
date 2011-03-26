@@ -149,7 +149,7 @@ function match_webjump (str) {
     // Look for a partial match
     if (!match && webjump_partial_match) {
         for (let [k,v] in Iterator(webjumps)) {
-            if (k.substring(0, key.length) == key) {
+            if (String(k).substring(0, key.length) == key) {
                 if (match) {
                     // key is not a unique prefix, as there are multiple partial matches
                     return null;
