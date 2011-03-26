@@ -24,76 +24,52 @@ define_variable("eye_guide_context_size", 50,
     "Context size in pixels for eye-guide-scroll-down and "+
     "eye-guide-scroll-up.");
 
+function eye_guide_scroll(I, scroll_down, context, interval) {
+    let win = I.buffer.focused_frame;
+    let doc = I.buffer.document;
+    let scroll_amount = win.innerHeight - context;
+    let old_y = win.scrollY;
+    win.scrollBy(0, scroll_down ? scroll_amount : -scroll_amount);
+    if (win.scrollY == old_y)
+        return;
+    if (Math.abs(win.scrollY - old_y) < scroll_amount)
+        context = win.innerHeight - (scroll_down ? win.scrollY - old_y : old_y);
+    let guide = doc.getElementById("__conkeror_eye_guide");
+    if (! guide) {
+        guide = doc.createElementNS(XHTML_NS, "div");
+        guide.id = "__conkeror_eye_guide";
+        doc.documentElement.appendChild(guide);
+    }
+    guide.style.top = scroll_down ? "0px" : (win.innerHeight - context) + "px";
+    guide.style.height = context+'px';
+    guide.style.display = "block";
+    guide.className =
+      "__conkeror_eye_guide_scroll_" + (scroll_down ? "down" : "up");
+    if (win.eye_guide_timer) {
+        win.clearTimeout(win.eye_guide_timer);
+        win.eye_guide_timer = null;
+    }
+    if (interval != 0) {
+        win.eye_guide_timer = win.setTimeout(
+            function () {
+                guide.style.display = "none";
+            },
+            interval);
+    }
+}
+
 interactive("eye-guide-scroll-down",
     "Alternative to scroll-page-down, displays a guide to help "+
     "your eyes follow the scroll.",
     function (I) {
-        let win = I.buffer.focused_frame;
-        let doc = I.buffer.document;
-        let context = eye_guide_context_size;
-        let old_y = win.scrollY;
-        win.scrollBy(0, win.innerHeight - context);
-        if (win.scrollY == old_y)
-            return;
-        if (win.scrollY - old_y < win.innerHeight - context)
-            context = win.innerHeight - (win.scrollY - old_y);
-        let guide = doc.getElementById("__conkeror_eye_guide");
-        if (! guide) {
-            guide = doc.createElementNS(XHTML_NS, "div");
-            guide.id = "__conkeror_eye_guide";
-            doc.documentElement.appendChild(guide);
-        }
-        guide.style.top = '0px';
-        guide.style.height = context+'px';
-        guide.style.display = "block";
-        guide.className = "__conkeror_eye_guide_scroll_down";
-        if (win.eye_guide_timer) {
-            win.clearTimeout(win.eye_guide_timer);
-            win.eye_guide_timer = null;
-        }
-        if (eye_guide_interval != 0) {
-            win.eye_guide_timer = win.setTimeout(
-                function () {
-                    guide.style.display = "none";
-                },
-                eye_guide_interval);
-        }
+        eye_guide_scroll(I, true, eye_guide_context_size, eye_guide_interval);
     });
 
 interactive("eye-guide-scroll-up",
     "Alternative to scroll-page-up, displays a guide to help "+
     "your eyes follow the scroll.",
     function (I) {
-        let win = I.buffer.focused_frame;
-        let doc = I.buffer.document;
-        let context = eye_guide_context_size;
-        let old_y = win.scrollY;
-        win.scrollBy(0, 0 - (win.innerHeight - context));
-        if (win.scrollY == old_y)
-            return;
-        if (old_y - win.scrollY < win.innerHeight - context)
-            context = win.innerHeight - old_y;
-        let guide = doc.getElementById("__conkeror_eye_guide");
-        if (! guide) {
-            guide = doc.createElementNS(XHTML_NS, "div");
-            guide.id = "__conkeror_eye_guide";
-            doc.documentElement.appendChild(guide);
-        }
-        guide.style.top = (win.innerHeight - context) + "px";
-        guide.style.height = context+'px';
-        guide.style.display = "block";
-        guide.className = "__conkeror_eye_guide_scroll_up";
-        if (win.eye_guide_timer) {
-            win.clearTimeout(win.eye_guide_timer);
-            win.eye_guide_timer = null;
-        }
-        if (eye_guide_interval != 0) {
-            win.eye_guide_timer = win.setTimeout(
-                function () {
-                    guide.style.display = "none";
-                },
-                eye_guide_interval);
-        }
+        eye_guide_scroll(I, false, eye_guide_context_size, eye_guide_interval);
     });
 
 provide("eye-guide");
