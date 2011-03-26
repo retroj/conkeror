@@ -24,7 +24,10 @@ define_variable("eye_guide_context_size", 50,
     "Context size in pixels for eye-guide-scroll-down and "+
     "eye-guide-scroll-up.");
 
-function eye_guide_scroll(I, scroll_down, context, interval) {
+define_variable("eye_guide_highlight_new", false,
+    "Highlight the new contents of the screen, instead of the old.");
+
+function eye_guide_scroll(I, scroll_down, hl_new, context, interval) {
     let win = I.buffer.focused_frame;
     let doc = I.buffer.document;
     let scroll_amount = win.innerHeight - context;
@@ -40,8 +43,15 @@ function eye_guide_scroll(I, scroll_down, context, interval) {
         guide.id = "__conkeror_eye_guide";
         doc.documentElement.appendChild(guide);
     }
-    guide.style.top = scroll_down ? "0px" : (win.innerHeight - context) + "px";
-    guide.style.height = context+'px';
+    if (hl_new) {
+        guide.style.top = scroll_down ? context + "px" : "0px";
+        guide.style.height = (win.innerHeight - context) + "px";
+
+    } else {
+        guide.style.top = scroll_down ? "0px"
+          : (win.innerHeight - context) + "px";
+        guide.style.height = context + "px";
+    }
     guide.style.display = "block";
     guide.className =
       "__conkeror_eye_guide_scroll_" + (scroll_down ? "down" : "up");
@@ -62,14 +72,16 @@ interactive("eye-guide-scroll-down",
     "Alternative to scroll-page-down, displays a guide to help "+
     "your eyes follow the scroll.",
     function (I) {
-        eye_guide_scroll(I, true, eye_guide_context_size, eye_guide_interval);
+        eye_guide_scroll(I, true, eye_guide_highlight_new,
+                         eye_guide_context_size, eye_guide_interval);
     });
 
 interactive("eye-guide-scroll-up",
     "Alternative to scroll-page-up, displays a guide to help "+
     "your eyes follow the scroll.",
     function (I) {
-        eye_guide_scroll(I, false, eye_guide_context_size, eye_guide_interval);
+        eye_guide_scroll(I, false, eye_guide_highlight_new,
+                         eye_guide_context_size, eye_guide_interval);
     });
 
 provide("eye-guide");
