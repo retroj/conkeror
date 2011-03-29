@@ -106,6 +106,7 @@ interactive("ns-toggle-temp", "Allow a site temporary access to javascript",   f
 	    }
 	}
 	urls = unique(urls);
+	urls = urls.filter(function (u) { return !ns.isJSEnabled(u); });
 	while ((url2 = urls.pop())) {
 	    ns_allow_temp(url2, I.buffer,I.P, (yield I.minibuffer.read ($prompt = "Allow "+url2+"? [Y/[N]]")));
 	}
