@@ -96,6 +96,11 @@ function buffer (window) {
         }, true /* capture */);
 
     this.browser.addEventListener("load", function (event) {
+            // In xulrunner >=2, the first buffer created in a new
+            // window seems to have scrollbars.visible set to false.
+            // This fixes it.
+            browser.contentWindow.scrollbars.visible = true;
+
             buffer_loaded_hook.run(buffer);
         }, true /* capture */);
 
