@@ -95,12 +95,14 @@ function buffer (window) {
             buffer_dom_content_loaded_hook.run(buffer);
         }, true /* capture */);
 
-    this.browser.addEventListener("load", function (event) {
+    this.window.setTimeout(function() {
             // In xulrunner >=2, the first buffer created in a new
             // window seems to have scrollbars.visible set to false.
             // This fixes it.
             browser.contentWindow.scrollbars.visible = true;
+        }, 0);
 
+    this.browser.addEventListener("load", function (event) {
             buffer_loaded_hook.run(buffer);
         }, true /* capture */);
 
