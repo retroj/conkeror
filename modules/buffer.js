@@ -26,6 +26,7 @@ define_buffer_local_hook("buffer_description_change_hook");
 define_buffer_local_hook("buffer_icon_change_hook");
 define_buffer_local_hook("select_buffer_hook");
 define_buffer_local_hook("create_buffer_early_hook");
+define_buffer_local_hook("create_buffer_late_hook");
 define_buffer_local_hook("create_buffer_hook");
 define_buffer_local_hook("kill_buffer_hook");
 define_buffer_local_hook("buffer_scroll_hook");
@@ -95,12 +96,7 @@ function buffer (window) {
             buffer_dom_content_loaded_hook.run(buffer);
         }, true /* capture */);
 
-    this.window.setTimeout(function() {
-            // In xulrunner >=2, the first buffer created in a new
-            // window seems to have scrollbars.visible set to false.
-            // This fixes it.
-            browser.contentWindow.scrollbars.visible = true;
-        }, 0);
+    this.window.setTimeout(function() { create_buffer_late_hook.run(buffer); }, 0);
 
     this.browser.addEventListener("load", function (event) {
             buffer_loaded_hook.run(buffer);
