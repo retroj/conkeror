@@ -8,18 +8,15 @@
 in_module(null);
 
 
-function adblockplus_settings (buffer, uri_string) {
+function adblockplus_settings (uri_string) {
     if (! ("@adblockplus.org/abp/startup;1" in Cc))
         throw interactive_error("Adblock Plus not found");
     Components.utils.import("chrome://adblockplus-modules/content/Utils.jsm");
-    var frame = null;
-    if (buffer)
-        frame = buffer.top_frame;
-    Utils.openSettingsDialog(frame, uri_string);
+    Utils.openSettingsDialog(uri_string);
 }
 interactive("adblockplus-settings",
     "Show the Adblock Plus settings dialog.",
-    function (I) { adblockplus_settings(I.buffer); });
+    function (I) { adblockplus_settings(); });
 
 
 interactive("adblockplus-add",
