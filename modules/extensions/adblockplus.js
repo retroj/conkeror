@@ -9,6 +9,8 @@ in_module(null);
 
 
 function adblockplus_settings (buffer, uri_string) {
+    if (! ("@adblockplus.org/abp/startup;1" in Cc))
+        throw interactive_error("Adblock Plus not found");
     Components.utils.import("chrome://adblockplus-modules/content/Utils.jsm");
     var frame = null;
     if (buffer)
@@ -23,6 +25,8 @@ interactive("adblockplus-settings",
 interactive("adblockplus-add",
     "Add a pattern to Adblock Plus.",
     function (I) {
+        if (! ("@adblockplus.org/abp/startup;1" in Cc))
+            throw interactive_error("Adblock Plus not found");
         Components.utils.import("chrome://adblockplus-modules/content/Public.jsm");
         var element = yield read_browser_object(I);
         var spec = load_spec(element);
