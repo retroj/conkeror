@@ -365,6 +365,7 @@ hint_manager.prototype = {
                 h.elem.style.backgroundColor = hint_background_color;
         }
         this.current_hint_number = index;
+        this.last_selected_hint = null;
         if (index >= 1 && index <= vl) {
             h = vh[index - 1];
             if (h.img_hint)
