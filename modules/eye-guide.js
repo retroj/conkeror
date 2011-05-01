@@ -29,7 +29,7 @@ define_variable("eye_guide_highlight_new", false,
 
 function eye_guide_scroll(I, scroll_down, hl_new, context, interval) {
     let win = I.buffer.focused_frame;
-    let doc = I.buffer.document;
+    let doc = win.document;
     let scroll_amount = win.innerHeight - context;
     let old_y = win.scrollY;
     win.scrollBy(0, scroll_down ? scroll_amount : -scroll_amount);
