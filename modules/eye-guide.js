@@ -27,8 +27,8 @@ define_variable("eye_guide_context_size", 50,
 define_variable("eye_guide_highlight_new", false,
     "Highlight the new contents of the screen, instead of the old.");
 
-function eye_guide_scroll(I, scroll_down, hl_new, context, interval) {
-    let win = I.buffer.focused_frame;
+function eye_guide_scroll (buffer, scroll_down, hl_new, context, interval) {
+    let win = buffer.focused_frame;
     let doc = win.document;
     let scroll_amount = win.innerHeight - context;
     let old_y = win.scrollY;
@@ -72,7 +72,7 @@ interactive("eye-guide-scroll-down",
     "Alternative to scroll-page-down, displays a guide to help "+
     "your eyes follow the scroll.",
     function (I) {
-        eye_guide_scroll(I, true, eye_guide_highlight_new,
+        eye_guide_scroll(I.buffer, true, eye_guide_highlight_new,
                          eye_guide_context_size, eye_guide_interval);
     });
 
@@ -80,7 +80,7 @@ interactive("eye-guide-scroll-up",
     "Alternative to scroll-page-up, displays a guide to help "+
     "your eyes follow the scroll.",
     function (I) {
-        eye_guide_scroll(I, false, eye_guide_highlight_new,
+        eye_guide_scroll(I.buffer, false, eye_guide_highlight_new,
                          eye_guide_context_size, eye_guide_interval);
     });
 
