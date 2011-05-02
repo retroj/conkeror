@@ -46,15 +46,14 @@ function eye_guide_scroll (buffer, scroll_down, hl_new, context, interval) {
     if (hl_new) {
         guide.style.top = scroll_down ? context + "px" : "0px";
         guide.style.height = (win.innerHeight - context) + "px";
-
     } else {
         guide.style.top = scroll_down ? "0px"
-          : (win.innerHeight - context) + "px";
+            : (win.innerHeight - context) + "px";
         guide.style.height = context + "px";
     }
     guide.style.display = "block";
     guide.className =
-      "__conkeror_eye_guide_scroll_" + (scroll_down ? "down" : "up");
+        "__conkeror_eye_guide_scroll_" + (scroll_down ? "down" : "up");
     if (win.eye_guide_timer) {
         win.clearTimeout(win.eye_guide_timer);
         win.eye_guide_timer = null;
