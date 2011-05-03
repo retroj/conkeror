@@ -423,7 +423,7 @@ function overlink_update_status (buffer, node) {
     if (node && node.href.length > 0)
         buffer.window.minibuffer.show("Link: " + node.href);
     else
-        buffer.window.minibuffer.show("");
+        buffer.window.minibuffer.clear();
 }
 
 function overlink_predicate (node) {
