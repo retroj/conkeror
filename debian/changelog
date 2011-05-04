@@ -1,3 +1,10 @@
+conkeror (0.9.3+git110504-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot
+  * Add alternative dependency on (upcoming) xulrunner-5.0 package
+
+ -- Axel Beckert <abe@debian.org>  Wed, 04 May 2011 15:55:43 +0200
+
 conkeror (0.9.3+git110307-2) unstable; urgency=low
 
   * debian/conkeror.bin: Change search order for searching xulrunner
