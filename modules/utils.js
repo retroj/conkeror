@@ -435,7 +435,10 @@ function read_from_x_primary_selection () {
 
 function predicate_alist_match (alist, key) {
     for each (let i in alist) {
-        if (i[0](key))
+        if (i[0] instanceof RegExp) {
+            if (i[0].exec(key))
+                return i[1];
+        } else if (i[0](key))
             return i[1];
     }
     return undefined;
