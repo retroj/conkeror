@@ -8,26 +8,26 @@
 .tab2 {
     -moz-appearance: tab;
     -moz-box-align: center;
-    min-width: 200px;
-    max-width: 300px;
+    min-width: 10em;
+    max-width: 15em;
 }
 
 .tab2-label {
     -moz-box-flex: 100;
-    margin-left: 4px;
-    padding-top: 1px;
-    font: 11px Sans;
+    margin-left: 4pt;
+    padding-top: 1pt;
+    font: 10pt Sans;
 }
 
 .tab2-index {
-    padding: 0px 2px 0px 3px;
-    font: 900 11px Sans;
+    padding: 0pt 2pt 0pt 3pt;
+    font: 900 10pt Sans;
     text-align: center;
 }
 
 .tab2-icon  {
   width: 16px;
   height: 16px;
-  -moz-margin-start: 4px;
-  -moz-margin-end: 3px;
+  -moz-margin-start: 4pt;
+  -moz-margin-end: 3pt;
 }
