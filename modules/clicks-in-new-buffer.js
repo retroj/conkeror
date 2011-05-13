@@ -53,7 +53,9 @@ function open_link_in_new_buffer (event) {
     let window = this.ownerDocument.defaultView;
     let buffer = window.buffers.current;
     create_buffer(window,
-                  buffer_creator(content_buffer, $load = spec),
+                  buffer_creator(content_buffer,
+                                 $opener = buffer,
+                                 $load = spec),
                   clicks_in_new_buffer_target);
 }
 
