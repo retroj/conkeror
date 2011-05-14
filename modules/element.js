@@ -461,9 +461,13 @@ function browser_object_follow (buffer, target, elem) {
     case OPEN_NEW_WINDOW:
     case OPEN_NEW_BUFFER:
     case OPEN_NEW_BUFFER_BACKGROUND:
+        if (element_dom_node_or_window_p(e))
+            var opener = buffer;
+        else
+            opener = null;
         create_buffer(buffer.window,
                       buffer_creator(content_buffer,
-                                     $opener = buffer,
+                                     $opener = opener,
                                      $load = spec),
                       target);
     }
