@@ -44,7 +44,7 @@ tab_bar.prototype.destroy = function () {
     this.window.buffers.for_each(function (b) { delete b.tab; });
     this.selected_buffer = null;
     this.element.parentNode.removeChild(this.element);
-    delete window.tab_bar;
+    delete this.window.tab_bar;
 };
 tab_bar.prototype.update_multiple_attribute = function () {
     if (this.window.buffers.count > 1)
