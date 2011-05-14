@@ -23,13 +23,15 @@ function tab_bar (window) {
     add_hook.call(window, "select_buffer_hook", tab_bar_select_buffer);
     add_hook.call(window, "create_buffer_early_hook", tab_bar_add_buffer);
     add_hook.call(window, "kill_buffer_hook", tab_bar_kill_buffer);
+    add_hook.call(window, "move_buffer_hook", tab_bar_move_buffer);
     add_hook.call(window, "create_buffer_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_description_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
 
-    window.buffers.for_each(tab_bar_add_buffer);
+    window.buffers.for_each(function (b) tab_bar_add_buffer(b, true));
     this.update_multiple_attribute();
+    this.update_ordinals();
     if (window.buffers.current != null)
         tab_bar_select_buffer(window.buffers.current);
 }
@@ -37,6 +39,7 @@ tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "select_buffer_hook", tab_bar_select_buffer);
     remove_hook.call(this.window, "create_buffer_early_hook", tab_bar_add_buffer);
     remove_hook.call(this.window, "kill_buffer_hook", tab_bar_kill_buffer);
+    remove_hook.call(this.window, "move_buffer_hook", tab_bar_move_buffer);
     remove_hook.call(this.window, "create_buffer_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_description_change_hook", tab_bar_update_buffer_title);
@@ -46,6 +49,19 @@ tab_bar.prototype.destroy = function () {
     this.element.parentNode.removeChild(this.element);
     delete this.window.tab_bar;
 };
+
+
+/**
+ * Updates the "ordinal" attribute of all tabs.
+ */
+tab_bar.prototype.update_ordinals = function () {
+    var buffers = this.window.buffers;
+    for (var i = 0, n = this.element.childNodes.length; i < n; i++) {
+        var ordinal = buffers.index_of(this.element.childNodes[i].buffer) + 1;
+        this.element.childNodes[i].setAttribute("ordinal", ordinal);
+    }
+};
+
 tab_bar.prototype.update_multiple_attribute = function () {
     if (this.window.buffers.count > 1)
         this.element.setAttribute("multiple", "true");
@@ -53,16 +69,27 @@ tab_bar.prototype.update_multiple_attribute = function () {
         this.element.setAttribute("multiple", "false");
 };
 
-function tab_bar_add_buffer (b) {
+/**
+ * Adds a tab for the given buffer.  When second argument 'noupdate' is
+ * true, a new tab in the middle of the buffer list will not cause the
+ * ordinals of other tabs to be updated.  This is used during
+ * initialization of the tab bar.
+ */
+function tab_bar_add_buffer (b, noupdate) {
     var t = b.window.tab_bar;
     t.update_multiple_attribute();
+    var ordinal = b.window.buffers.index_of(b) + 1;
+    if (ordinal < b.window.buffers.buffer_list.length && ! noupdate)
+        t.update_ordinals();
     var tab = create_XUL(b.window, "hbox");
+    tab.buffer = b;
     tab.setAttribute("class", "tab");
     tab.addEventListener("click", function () {
-            if (!b.dead)
-                b.window.buffers.current = b;
+            if (!tab.buffer.dead)
+                tab.buffer.window.buffers.current = tab.buffer;
         }, false /* not capturing */);
     tab.setAttribute("selected", "false");
+    tab.setAttribute("ordinal", ordinal);
     var image = create_XUL(b.window, "image");
     image.setAttribute("class", "tab-icon");
     if (b.icon != null)
@@ -73,7 +100,7 @@ function tab_bar_add_buffer (b) {
     var button = create_XUL(b.window, "toolbarbutton");
     button.setAttribute("class", "tab-close-button");
     button.addEventListener("click", function (event) {
-            kill_buffer(b);
+            kill_buffer(tab.buffer);
             event.stopPropagation();
         }, false /* not capturing */);
     tab.appendChild(image);
@@ -93,7 +120,19 @@ function tab_bar_kill_buffer (b) {
         t.selected_buffer = null;
     b.tab.parentNode.removeChild(b.tab);
     delete b.tab;
+    t.update_ordinals();
 }
+
+
+/**
+ * Updates all tab indices and ensure that the current tab is still visible.
+ */
+function tab_bar_move_buffer (b) {
+    var t = b.window.tab_bar;
+    t.update_ordinals();
+    t.element.ensureElementIsVisible(b.window.buffers.current.tab);
+}
+
 
 function tab_bar_select_buffer (b) {
     var t = b.window.tab_bar;

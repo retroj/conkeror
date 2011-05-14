@@ -130,7 +130,8 @@ in_module(null);
                 } else {
                     let c = buffer_creator(content_buffer,
                                            $load = session[s][i],
-                                           $opener = opener);
+                                           $opener = opener,
+                                           $position = buffer_position_end);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
                 }
             }
@@ -147,7 +148,8 @@ in_module(null);
                 for (let i = 1; session[i] != undefined; ++i) {
                     let c = buffer_creator(content_buffer,
                                            $load = session[i],
-                                           $opener = opener);
+                                           $opener = opener,
+                                           $position = buffer_position_end);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
                 }
             }
@@ -414,6 +416,7 @@ in_module(null);
         remove_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
         add_hook("create_buffer_hook", session_auto_save_save);
         add_hook("kill_buffer_hook", session_auto_save_save);
+        add_hook("move_buffer_hook", session_auto_save_save);
         add_hook("content_buffer_location_change_hook", session_auto_save_save);
         let user_gave_urls = false;
         for (let i = 0; i < command_line.length; ++i) {
@@ -433,6 +436,7 @@ in_module(null);
         if (conkeror_started) {
             add_hook("create_buffer_hook", session_auto_save_save);
             add_hook("kill_buffer_hook", session_auto_save_save);
+            add_hook("move_buffer_hook", session_auto_save_save);
             add_hook("content_buffer_location_change_hook", session_auto_save_save);
         } else
             add_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
@@ -441,6 +445,7 @@ in_module(null);
     let _session_auto_save_mode_disable = function () {
         remove_hook("create_buffer_hook", session_auto_save_save);
         remove_hook("kill_buffer_hook", session_auto_save_save);
+        remove_hook("move_buffer_hook", session_auto_save_save);
         remove_hook("content_buffer_location_change_hook", session_auto_save_save);
         // Just in case.
         remove_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);

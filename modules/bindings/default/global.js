@@ -49,6 +49,8 @@ define_key(default_global_keymap, "C-x left", "buffer-previous");
 define_key(default_global_keymap, "C-x right", "buffer-next");
 define_key(default_global_keymap, "M-p", "buffer-previous");
 define_key(default_global_keymap, "M-n", "buffer-next");
+define_key(default_global_keymap, "M-P", "buffer-move-backward");
+define_key(default_global_keymap, "M-N", "buffer-move-forward");
 define_key(default_global_keymap, "C-x C-f", "find-url-new-buffer");
 define_key(default_global_keymap, "C-s", "isearch-forward");
 define_key(default_global_keymap, "C-r", "isearch-backward");

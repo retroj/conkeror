@@ -212,6 +212,7 @@ function buffer_count_widget (window) {
     this.add_hook("select_buffer_hook");
     this.add_hook("create_buffer_hook");
     this.add_hook("kill_buffer_hook");
+    this.add_hook("move_buffer_hook");
 }
 buffer_count_widget.prototype.__proto__ = text_widget.prototype;
 buffer_count_widget.prototype.update = function () {

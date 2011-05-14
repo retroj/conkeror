@@ -46,12 +46,13 @@ function tab_bar (window) {
     add_hook.call(window, "select_buffer_hook", tab_bar_select_buffer);
     add_hook.call(window, "create_buffer_early_hook", tab_bar_add_buffer);
     add_hook.call(window, "kill_buffer_hook", tab_bar_kill_buffer);
+    add_hook.call(window, "move_buffer_hook", tab_bar_move_buffer);
     add_hook.call(window, "create_buffer_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_description_change_hook", tab_bar_update_buffer_title);
     add_hook.call(window, "buffer_icon_change_hook", tab_bar_update_buffer_icon);
 
-    window.buffers.for_each(tab_bar_add_buffer);
+    window.buffers.for_each(function (b) tab_bar_add_buffer(b, true));
     this.update_multiple_attribute();
     if (window.buffers.current != null)
         tab_bar_select_buffer(window.buffers.current);
@@ -65,6 +66,7 @@ tab_bar.prototype.destroy = function () {
     remove_hook.call(this.window, "select_buffer_hook", tab_bar_select_buffer);
     remove_hook.call(this.window, "create_buffer_early_hook", tab_bar_add_buffer);
     remove_hook.call(this.window, "kill_buffer_hook", tab_bar_kill_buffer);
+    remove_hook.call(this.window, "move_buffer_hook", tab_bar_move_buffer);
     remove_hook.call(this.window, "create_buffer_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_title_change_hook", tab_bar_update_buffer_title);
     remove_hook.call(this.window, "buffer_description_change_hook", tab_bar_update_buffer_title);
@@ -73,6 +75,19 @@ tab_bar.prototype.destroy = function () {
     this.selected_buffer = null;
     this.element.parentNode.removeChild(this.element);
     delete this.window.tab_bar;
+};
+
+
+/**
+ * Updates the "index" node and "ordinal" attribute of all tabs.
+ */
+tab_bar.prototype.update_ordinals = function () {
+    var buffers = this.window.buffers;
+    for (var i = 0, n = this.element.childNodes.length; i < n; i++) {
+        var ordinal = buffers.index_of(this.element.childNodes[i].buffer) + 1;
+        this.element.childNodes[i].setAttribute("ordinal", ordinal);
+        this.element.childNodes[i].index.setAttribute("value", ordinal);
+    }
 };
 
 
@@ -88,24 +103,33 @@ tab_bar.prototype.update_multiple_attribute = function () {
 
 
 /**
- * Adds a tab for the given buffer.
+ * Adds a tab for the given buffer.  When second argument 'noupdate' is
+ * true, a new tab in the middle of the buffer list will not cause the
+ * ordinals of other tabs to be updated.  This is used during
+ * initialization of the tab bar.
  */
-function tab_bar_add_buffer (buffer) {
+function tab_bar_add_buffer (buffer, noupdate) {
 
     // Get the tab bar
     var tabbar = buffer.window.tab_bar;
     tabbar.update_multiple_attribute();
 
+    var ordinal = buffer.window.buffers.index_of(buffer) + 1;
+    if (ordinal < buffer.window.buffers.buffer_list.length && ! noupdate)
+        tabbar.update_ordinals();
+
     // Create a tab and add it to the tab bar
     var tab = create_XUL(buffer.window, "hbox");
+    tab.buffer = buffer;
     tab.setAttribute("class", "tab2");
     tab.addEventListener("click", function (event) {
             if (event.button == tab_bar_button_select) {
-                if (!buffer.dead)
-                    buffer.window.buffers.current = buffer;
+                if (!tab.buffer.dead)
+                    tab.buffer.window.buffers.current = tab.buffer;
             }
         }, false /* not capturing */);
     tab.setAttribute("selected", "false");
+    tab.setAttribute("ordinal", ordinal);
 
     // Create the label to hold the buffer icon
     var image = create_XUL(buffer.window, "image");
@@ -116,6 +140,7 @@ function tab_bar_add_buffer (buffer) {
     // Create the label to hold the tab number
     var index = create_XUL(buffer.window, "label");
     index.setAttribute("class", "tab2-index");
+    index.setAttribute("value", ordinal);
 
     // Create the label to hold the tab title
     var label = create_XUL(buffer.window, "label");
@@ -125,7 +150,7 @@ function tab_bar_add_buffer (buffer) {
     // No close button, just use the designated mouse button.
     tab.addEventListener("click", function (event) {
             if (event.button == tab_bar_button_close) {
-                kill_buffer(buffer);
+                kill_buffer(tab.buffer);
                 event.stopPropagation();
             }
         }, false /* not capturing */);
@@ -142,11 +167,6 @@ function tab_bar_add_buffer (buffer) {
     tabbar.element.appendChild(tab);
     buffer.tab = tab;
     tab_bar_update_buffer_title(buffer);
-
-    // Set the tab number. Remember that at this point, the tab has already been
-    // added to the hbox.
-    var total = tabbar.element.getElementsByClassName("tab2").length;
-    index.value = total;
 }
 
 
@@ -163,9 +183,17 @@ function tab_bar_kill_buffer (b) {
     delete b.tab;
 
     // Renumber the tabs.
-    for (var i = 0; i < t.element.childNodes.length; i++) {
-        t.element.childNodes[i].index.value = i + 1;
-    }
+    t.update_ordinals();
+}
+
+
+/**
+ * Updates all tab indices and ensure that the current tab is still visible.
+ */
+function tab_bar_move_buffer (b) {
+    var t = b.window.tab_bar;
+    t.update_ordinals();
+    t.element.ensureElementIsVisible(b.window.buffers.current.tab);
 }
 
 
