@@ -469,6 +469,8 @@ buffer_container.prototype = {
         var new_buffer = this.buffer_list[0];
         if (b == new_buffer)
             new_buffer = this.buffer_list[1];
+        if (! new_buffer)
+            throw interactive_error("No other buffer");
         this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
         this.buffer_list.push(b);
         this.current = new_buffer;
