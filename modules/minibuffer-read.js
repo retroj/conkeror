@@ -246,9 +246,14 @@ text_entry_minibuffer_state.prototype = {
             if (this.completions && this.completions.count > 0) {
                 this.completions_display_element.view = this.completions_display_element.view;
                 this.completions_display_element.setAttribute("collapsed", "false");
-
                 this.completions_display_element.currentIndex = this.selected_completion_index;
-                this.completions_display_element.treeBoxObject.scrollToRow(this.selected_completion_index);
+                var max_display = this.completions_display_element.treeBoxObject.getPageLength();
+                var mid_point = Math.floor(max_display / 2);
+                if (this.completions.count - this.selected_completion_index <= mid_point)
+                    var pos = this.completions.count - max_display;
+                else
+                    pos = Math.max(0, this.selected_completion_index - mid_point);
+                this.completions_display_element.treeBoxObject.scrollToRow(pos);
             } else {
                 this.completions_display_element.setAttribute("collapsed", "true");
             }
