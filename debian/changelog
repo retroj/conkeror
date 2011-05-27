@@ -1,9 +1,10 @@
-conkeror (0.9.3+git110504-1) UNRELEASED; urgency=low
+conkeror (0.9.3+git110527-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
-  * Add alternative dependency on (upcoming) xulrunner-5.0 package
+  * Add alternative dependency on (upcoming) xulrunner-5.0 and -6.0
+    packages
 
- -- Axel Beckert <abe@debian.org>  Wed, 04 May 2011 15:55:43 +0200
+ -- Axel Beckert <abe@debian.org>  Fri, 27 May 2011 03:07:21 +0200
 
 conkeror (0.9.3+git110307-2) unstable; urgency=low
 
