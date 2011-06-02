@@ -1,7 +1,7 @@
-conkeror (0.9.3+git110602-1) UNRELEASED; urgency=low
+conkeror (0.9.3+git110602-1) unstable; urgency=low
 
   * New upstream snapshot
-  * Add alternative dependency on (upcoming) xulrunner-5.0 and -6.0
+  * Add alternative dependencies on (upcoming) xulrunner-5.0 and -6.0
     packages
   * Bump Standards-Version to 3.9.2 (no changes)
 
