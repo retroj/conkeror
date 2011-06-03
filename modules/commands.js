@@ -819,4 +819,17 @@ interactive("password-manager",
     "find-url-new-buffer",
     $browser_object = "chrome://passwordmgr/content/passwordManager.xul");
 
+
+interactive("toggle-full-screen",
+    "Toggle full screen mode for the current window.",
+    function (I) {
+        I.window.fullScreen = ! I.window.fullScreen;
+        I.window.hideChrome = I.window.fullScreen;
+        if (I.window.fullScreen)
+            I.minibuffer.message("Fullscreen mode on");
+        else
+            I.minibuffer.message("Fullscreen mode off");
+    });
+
+
 provide("commands");

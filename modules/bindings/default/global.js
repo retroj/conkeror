@@ -52,6 +52,8 @@ define_key(default_global_keymap, "M-n", "buffer-next");
 define_key(default_global_keymap, "C-x C-f", "find-url-new-buffer");
 define_key(default_global_keymap, "C-s", "isearch-forward");
 define_key(default_global_keymap, "C-r", "isearch-backward");
+define_key(default_global_keymap, "f11", "toggle-full-screen");
+define_key(default_global_keymap, "M-S-return", "toggle-full-screen");
 
 define_key(default_global_keymap, "C-q", "quote-next-mode");
 define_key(default_global_keymap, "C-M-q", "quote-mode");
