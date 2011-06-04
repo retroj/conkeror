@@ -823,8 +823,7 @@ interactive("password-manager",
 interactive("toggle-full-screen",
     "Toggle full screen mode for the current window.",
     function (I) {
-        I.window.fullScreen = ! I.window.fullScreen;
-        I.window.hideChrome = I.window.fullScreen;
+        window_set_full_screen(I.window);
         if (I.window.fullScreen)
             I.minibuffer.message("Fullscreen mode on");
         else

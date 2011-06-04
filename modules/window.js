@@ -326,4 +326,22 @@ function call_builtin_command (window, command, clear_mark) {
     }
 }
 
+
+/**
+ * window_set_full_screen sets or toggles the fullScreen and hideChrome
+ * properties of the given window.  When fullscreen is a boolean, it sets
+ * it to that value.  When it is null or not given, it toggles the current
+ * value.
+ */
+function window_set_full_screen (window, fullscreen) {
+    if (fullscreen === true || fullscreen === false) {
+        window.fullScreen = fullscreen;
+        window.hideChrome = fullscreen;
+    } else {
+        window.fullScreen = ! window.fullScreen;
+        window.hideChrome = window.fullScreen;
+    }
+}
+
+
 provide("window");
