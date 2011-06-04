@@ -43,7 +43,7 @@ function history_completer () {
     }
 }
 
-function url_completer() {
+function url_completer () {
     keywords(arguments);
     var use_webjumps = arguments.$use_webjumps;
     var use_history = arguments.$use_history;
@@ -63,7 +63,7 @@ function url_completer() {
 }
 
 
-function add_bookmark(url, title) {
+function add_bookmark (url, title) {
     nav_bookmarks_service.insertBookmark(nav_bookmarks_service.unfiledBookmarksFolder,
                                          make_uri(url), -1, title);
 }
