@@ -1,6 +1,7 @@
 /**
  * (C) Copyright 2008 Eli Naeher
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2011 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -9,12 +10,14 @@
 in_module(null);
 
 define_keywords("$use_webjumps", "$use_history", "$use_bookmarks",
-                "$match_required");
+                "$match_required", "$sort_order");
 function history_completer () {
-    keywords(arguments);
+    keywords(arguments, $sort_order = "visitcount_descending");
     var use_history = arguments.$use_history;
     var use_bookmarks = arguments.$use_bookmarks;
     let match_required = arguments.$match_required;
+    var sort_order = Ci.nsINavHistoryQueryOptions[
+        "SORT_BY_" + arguments.$sort_order.toUpperCase()];
     return function (input, pos, conservative) {
         if (conservative && input.length == 0)
             return null;
@@ -23,7 +26,7 @@ function history_completer () {
         if (!use_history)
             query.onlyBookmarked = true;
         var options = nav_history_service.getNewQueryOptions();
-        options.sortingMode = options.SORT_BY_VISITCOUNT_DESCENDING;
+        options.sortingMode = sort_order;
         if (use_bookmarks && !use_history)
             options.queryType = options.QUERY_TYPE_BOOKMARKS;
         else if (use_history && !use_bookmarks)
@@ -44,10 +47,11 @@ function history_completer () {
 }
 
 function url_completer () {
-    keywords(arguments);
+    keywords(arguments, $sort_order = "visitcount_descending");
     var use_webjumps = arguments.$use_webjumps;
     var use_history = arguments.$use_history;
     var use_bookmarks = arguments.$use_bookmarks;
+    var sort_order = arguments.$sort_order;
     var completers = [];
     completers.push(file_path_completer());
     if(use_webjumps) {
@@ -56,9 +60,11 @@ function url_completer () {
     /* Do queries separately (which can lead to duplicates).  The
      * queries can be combined when QUERY_TYPE_UNIFIED is implemented. */
     if (use_bookmarks)
-        completers.push(history_completer($use_bookmarks = true));
+        completers.push(history_completer($use_bookmarks = true,
+                                          $sort_order = sort_order));
     if (use_history)
-        completers.push(history_completer($use_history = true));
+        completers.push(history_completer($use_history = true,
+                                          $sort_order = sort_order));
     return merge_completers(completers);
 }
 

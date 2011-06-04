@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2009,2011 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -11,6 +11,7 @@ in_module(null);
 
 require("buffer.js");
 require("load-spec.js");
+require("history.js");
 
 define_variable("homepage", "chrome://conkeror-help/content/help.html",
                 "The url loaded by default for new content buffers.");
@@ -366,6 +367,17 @@ define_variable("url_completion_use_history", false,
     "Specifies whether URL completion should complete using browser "+
     "history.");
 
+define_variable("url_completion_sort_order", "visitcount_descending",
+    "Gives the default sort order for history and bookmark completion.\n"+
+    "The value is given as a string, and the available options include: "+
+    "'none', 'title_ascending', 'date_ascending', 'uri_ascending', "+
+    "'visitcount_ascending', 'keyword_ascending', 'dateadded_ascending', "+
+    "'lastmodified_ascending', 'tags_ascending', and 'annotation_ascending'. "+
+    "For every 'ascending' option, there is a corresponding 'descending' "+
+    "option.  Additionally, with XULRunner 6 and later, the options "+
+    "'frecency_ascending' and 'frecency_descending' are available.  See also "+
+    "<https://developer.mozilla.org/en/NsINavHistoryQueryOptions#Sorting_methods>.");
+
 define_variable("minibuffer_read_url_select_initial", true,
     "Specifies whether a URL  presented in the minibuffer for editing "+
     "should be selected.  This affects find-alternate-url.");
@@ -376,10 +388,12 @@ minibuffer.prototype.read_url = function () {
     keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "",
              $use_webjumps = url_completion_use_webjumps,
              $use_history = url_completion_use_history,
-             $use_bookmarks = url_completion_use_bookmarks);
+             $use_bookmarks = url_completion_use_bookmarks,
+             $sort_order = url_completion_sort_order);
     var completer = url_completer($use_webjumps = arguments.$use_webjumps,
         $use_bookmarks = arguments.$use_bookmarks,
-        $use_history = arguments.$use_history);
+        $use_history = arguments.$use_history,
+        $sort_order = arguments.$sort_order);
     var result = yield this.read(
         $prompt = arguments.$prompt,
         $history = arguments.$history,
