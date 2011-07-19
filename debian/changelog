@@ -4,6 +4,10 @@ conkeror (0.9.3+git110719-1) UNRELEASED; urgency=low
     - Fullscreen toggling support, use F11 or M-S-Return
   * Make reportbug helper script to work with any installed xulrunner
     package. Thanks to Luca Capello!
+  * Change versioned dependency on "xulrunner" to a non-versioned
+    dependency, because xulrunner 1.8 is really history (last seen in
+    Etch) and it should work with a potential virtual "xulrunner"
+    package. (See #567169)
 
  -- Axel Beckert <abe@debian.org>  Tue, 19 Jul 2011 15:21:26 +0200
 
