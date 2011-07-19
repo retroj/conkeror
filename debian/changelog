@@ -2,6 +2,8 @@ conkeror (0.9.3+git110719-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
     - Fullscreen toggling support, use F11 or M-S-Return
+  * Make reportbug helper script to work with any installed xulrunner
+    package. Thanks to Luca Capello!
 
  -- Axel Beckert <abe@debian.org>  Tue, 19 Jul 2011 15:21:26 +0200
 
