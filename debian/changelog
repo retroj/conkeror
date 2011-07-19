@@ -1,3 +1,10 @@
+conkeror (0.9.3+git110719-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot
+    - Fullscreen toggling support, use F11 or M-S-Return
+
+ -- Axel Beckert <abe@debian.org>  Tue, 19 Jul 2011 15:21:26 +0200
+
 conkeror (0.9.3+git110602-1) unstable; urgency=low
 
   * New upstream snapshot
