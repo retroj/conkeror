@@ -10,6 +10,8 @@ conkeror (0.9.3+git110719-1) UNRELEASED; urgency=low
     package. (See #567169)
   * debian/control: Prefer xulrunner-5.0 over xulrunner-1.9.1 as 5.0 is
     now in unstable and 1.9.1 will probably vanish soon.
+  * Add alternative dependency on xulrunner-6.0 which was missing in the
+    last upload.
 
  -- Axel Beckert <abe@debian.org>  Tue, 19 Jul 2011 15:21:26 +0200
 
