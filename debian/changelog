@@ -1,4 +1,4 @@
-conkeror (0.9.3+git110719-1) UNRELEASED; urgency=low
+conkeror (0.9.3+git110719-1) unstable; urgency=low
 
   * New upstream snapshot
     - Fullscreen toggling support, use F11 or M-S-Return
@@ -13,7 +13,7 @@ conkeror (0.9.3+git110719-1) UNRELEASED; urgency=low
   * Add alternative dependency on xulrunner-6.0 which was missing in the
     last upload.
 
- -- Axel Beckert <abe@debian.org>  Tue, 19 Jul 2011 15:21:26 +0200
+ -- Axel Beckert <abe@debian.org>  Tue, 19 Jul 2011 23:13:57 +0200
 
 conkeror (0.9.3+git110602-1) unstable; urgency=low
 
