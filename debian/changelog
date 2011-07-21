@@ -1,3 +1,9 @@
+conkeror (0.9.3+git110719-2) unstable; urgency=low
+
+  * Add xulrunner-7.0 support
+
+ -- Axel Beckert <abe@debian.org>  Thu, 21 Jul 2011 22:27:20 +0200
+
 conkeror (0.9.3+git110719-1) unstable; urgency=low
 
   * New upstream snapshot
