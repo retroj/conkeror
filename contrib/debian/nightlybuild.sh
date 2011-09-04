@@ -5,7 +5,7 @@
 # Inspired by an idea of Nicholas A. Zigarovich <nick@servo.cc>
 # Code by Axel Beckert <abe@deuxchevaux.org>
 #
-# Copyright (C) 2009, 2010 Axel Beckert <abe@deuxchevaux.org>
+# Copyright (C) 2009-2011 Axel Beckert <abe@deuxchevaux.org>
 #
 # Needs the following Debian packages and their dependencies installed
 # (besides "required" packages like coreutils and conkeror build
@@ -97,8 +97,8 @@ fi
 # Define places and version number
 MASTERDIR=$WORKDIR/MASTER
 BUILDDIR=$WORKDIR/BUILD
-UNIXTIME=`date +%s`
 DATE=`date -R`
+ZULUTIME=`date -u +%y%m%d%H%M`
 
 # Create build dir
 mkdir -p $BUILDDIR
@@ -166,8 +166,8 @@ else
 
     # Determine the correct version
     VERSION=`grep ^Version= $MASTERDIR/application.ini | \
-        sed -e 's/^Version=//;s/\(pre\)/~~\1/;s/\(rc\|b\|a\)/~\1/'`+git`date +%y%m%d`
-    RELEASE="$VERSION-~nightlybuild$UNIXTIME"
+        sed -e 's/^Version=//;s/\(pre\)/~~\1/;s/\(rc\|b\|a\)/~\1/'`+git$ZULUTIME
+    RELEASE="$VERSION-~nightly1"
     DATEDIR="$BUILDDIR/conkeror-$VERSION"
 
     # Copy tree into build environment
