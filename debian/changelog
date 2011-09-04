@@ -1,8 +1,14 @@
-conkeror (0.9.3+git110719-2) UNRELEASED; urgency=low
+conkeror (0.9.4-1) UNRELEASED; urgency=low
 
-  * Add xulrunner-7.0 support
+  * New upstream milestone
+  * Add support for xulrunner-7.0 and xulrunner-8.0
+  * Reorder xulrunner dependencies in debian/control:
+    + xulrunner-6.0 is the first dependency as that's the highest version
+      currently in Debian unstable.
+    + All other versions are sorted descending by their version, the
+      non-versioned xulrunner being the last one.
 
- -- Axel Beckert <abe@debian.org>  Thu, 21 Jul 2011 22:27:20 +0200
+ -- Axel Beckert <abe@debian.org>  Sun, 04 Sep 2011 21:23:28 +0200
 
 conkeror (0.9.3+git110719-1) unstable; urgency=low
 
