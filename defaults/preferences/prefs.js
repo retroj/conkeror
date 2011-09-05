@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2011 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -30,10 +31,27 @@ pref("security.warn_leaving_secure", false);
 pref("security.warn_submit_insecure", false);
 pref("security.warn_viewing_mixed", false);
 
-pref("extensions.getMoreExtensionsURL", "about:blank");
-pref("extensions.update.url", "");
+
+// Extensions
+//
+//  see https://developer.mozilla.org/en/XULRunner_tips#Extension_Manager
+//
+pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");
+pref("xpinstall.dialog.progress.skin", "chrome://mozapps/content/extensions/extensions.xul?type=themes");
+pref("xpinstall.dialog.progress.chrome", "chrome://mozapps/content/extensions/extensions.xul?type=extensions");
+pref("xpinstall.dialog.progress.type.skin", "Extension:Manager-themes");
+pref("xpinstall.dialog.progress.type.chrome", "Extension:Manager-extensions");
+pref("extensions.update.enabled", true);
+pref("extensions.update.interval", 86400);
 pref("extensions.dss.enabled", false);
 pref("extensions.dss.switchPending", false);
+pref("extensions.ignoreMTimeChanges", false);
+pref("extensions.logging.enabled", false);
+pref("general.skins.selectedSkin", "classic/1.0");
+pref("extensions.update.url", "chrome://mozapps/locale/extensions/extensions.properties");
+pref("extensions.getMoreExtensionsURL", "chrome://mozapps/locale/extensions/extensions.properties");
+pref("extensions.getMoreThemesURL", "chrome://mozapps/locale/extensions/extensions.properties");
+pref("extensions.getAddons.cache.enabled", false);
 
 
 /* FIXME: the following pref enables form autocompletion.  enable it
