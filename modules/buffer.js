@@ -68,10 +68,7 @@ function buffer (window) {
     var element = create_XUL(window, "vbox");
     element.setAttribute("flex", "1");
     var browser = create_XUL(window, "browser");
-    if (window.buffers.count == 0)
-        browser.setAttribute("type", "content-primary");
-    else
-        browser.setAttribute("type", "content");
+    browser.setAttribute("type", "content");
     browser.setAttribute("flex", "1");
     browser.setAttribute("autocompletepopup", "popup_autocomplete");
     element.appendChild(browser);
@@ -496,6 +493,20 @@ function buffer_initialize_window_early (window) {
 }
 
 add_hook("window_initialize_early_hook", buffer_initialize_window_early);
+
+
+/**
+ * initialize_first_buffer_type is a workaround for a XULRunner bug that
+ * first appeared in version 2.0, manifested as missing scrollbars in the
+ * first buffer of any window.  It only affects content-primary browsers,
+ * and the workaround is to initialize the browser as type "content" then
+ * change it to content-primary after a delay.
+ */
+function initialize_first_buffer_type (window) {
+    window.buffers.current.browser.setAttribute("type", "content-primary");
+}
+
+add_hook("window_initialize_late_hook", initialize_first_buffer_type);
 
 
 define_buffer_local_hook("buffer_kill_before_hook", RUN_HOOK_UNTIL_FAILURE);
