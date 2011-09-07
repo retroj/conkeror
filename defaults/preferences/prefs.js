@@ -54,6 +54,4 @@ pref("extensions.getMoreThemesURL", "chrome://mozapps/locale/extensions/extensio
 pref("extensions.getAddons.cache.enabled", false);
 
 
-/* FIXME: the following pref enables form autocompletion.  enable it
-/* when we have keyboard support for it. */
-// pref("browser.formfill.enable", true);
+pref("browser.formfill.enable", true);
