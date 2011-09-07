@@ -96,7 +96,7 @@ function buffer (window) {
             buffer_dom_content_loaded_hook.run(buffer);
         }, true /* capture */);
 
-    this.window.setTimeout(function() { create_buffer_late_hook.run(buffer); }, 0);
+    this.window.setTimeout(function () { create_buffer_late_hook.run(buffer); }, 0);
 
     this.browser.addEventListener("load", function (event) {
             buffer_loaded_hook.run(buffer);
