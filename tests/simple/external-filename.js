@@ -7,6 +7,8 @@ function mock_textfield (onlyid) {
             return null;
         return onlyid + "!text    box%--";
     };
+    if (! onlyid)
+        this.tagName = "textarea";
 }
 
 walnut_run({
@@ -26,15 +28,15 @@ walnut_run({
         };
 
         var elem = new mock_textfield();
-        assert_equals(get_filename_for_current_textfield(document, elem),
-                      "www-bbc-co-uk-textarea.txt");
+        assert_equals(external_editor_make_base_filename(elem, document),
+                      "www-bbc-co-uk-textarea");
 
         var elem = new mock_textfield("id");
-        assert_equals(get_filename_for_current_textfield(document, elem),
-                      "www-bbc-co-uk-id-text-box.txt");
+        assert_equals(external_editor_make_base_filename(elem, document),
+                      "www-bbc-co-uk-id-text-box");
 
         var elem = new mock_textfield("name");
-        assert_equals(get_filename_for_current_textfield(document, elem),
-                      "www-bbc-co-uk-name-text-box.txt");
+        assert_equals(external_editor_make_base_filename(elem, document),
+                      "www-bbc-co-uk-name-text-box");
     }
 });
