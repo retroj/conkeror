@@ -61,11 +61,13 @@ function page_fragment_load_spec (elem) {
         if (title) title += ' - ';
         title += elem.textContent;
     }
-    return {
+    var spec = {
         uri: uri,
         element: elem,
         title: title
     };
+    spec.__proto__ = load_spec.prototype;
+    return spec;
 }
 
 function load_spec_from_element (elem) {
