@@ -288,8 +288,37 @@ interactive("browser-object-text",
     },
     $prefix);
 
+function get_browser_object (I) {
+    var obj = I.browser_object;
+    var cmd = I.command;
+
+    // if there was no interactive browser-object,
+    // binding_browser_object becomes the default.
+    if (obj === undefined) {
+        obj = I.binding_browser_object;
+    }
+    // if the command's default browser object is a non-null literal,
+    // it overrides an interactive browser-object, but not a binding
+    // browser object.
+    if (cmd.browser_object != null &&
+        (! (cmd.browser_object instanceof browser_object_class)) &&
+        (I.binding_browser_object === undefined))
+    {
+        obj = cmd.browser_object;
+    }
+    // if we still have no browser-object, look for a page-mode
+    // default, or finally the command default.
+    if (obj === undefined) {
+        obj = (I.buffer &&
+               I.buffer.default_browser_object_classes[cmd.name]) ||
+            cmd.browser_object;
+    }
+
+    return obj;
+}
+
 function read_browser_object (I) {
-    var browser_object = I.browser_object;
+    var browser_object = get_browser_object(I);
     if (browser_object === undefined)
         throw interactive_error("No browser object");
 
