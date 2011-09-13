@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2009 Shawn Betts
- * (C) Copyright 2009 John J. Foerch <jjfoerch@earthlink.net>
+ * (C) Copyright 2009,2011 John J. Foerch <jjfoerch@earthlink.net>
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -79,14 +79,33 @@ define_browser_object_class("previous-heading", null,
 
 
 function scroll (I) {
-    var element = yield read_browser_object(I);
+    var o = yield read_browser_object(I);
     // no scrolling and no error if we failed to get an object.
-    if (! element)
-        return;
-    if (! (element instanceof Ci.nsIDOMNode))
+    if (! o)
+        yield co_return();
+    if (o instanceof load_spec)
+        o = load_spec_element(o);
+    if (o instanceof Ci.nsIDOMWindow) {
+        // scroll to #ref or top
+        var ref = o.document.documentURIObject.ref;
+        if (ref) {
+            var xpr = I.buffer.document.evaluate(
+                "//*[@id='"+ref+"']", o.document, xpath_lookup_namespace,
+                Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE, null);
+            var node = xpr.singleNodeValue;
+            if (node) {
+                var rect = node.getBoundingClientRect();
+                o.scrollTo(0, o.scrollY + rect.top);
+            } else
+                o.scrollTo(0, 0);
+        } else
+            o.scrollTo(0, 0);
+    } else if (o instanceof Ci.nsIDOMNode) {
+        o.scrollIntoView();
+        I.window.minibuffer.message(o.textContent);
+    } else {
         throw interactive_error("Cannot scroll to given item");
-    element.scrollIntoView();
-    I.window.minibuffer.message(element.textContent);
+    }
 }
 
 
