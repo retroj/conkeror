@@ -174,9 +174,13 @@ function window_initialize (window) {
         tag = window.args.tag;
     window.tag = generate_new_window_tag(tag);
 
-    // Add a getBrowser() function to help certain extensions designed
+    // Add a getBrowser() and content to help certain extensions designed
     // for Firefox work with conkeror
     window.getBrowser = window_get_this_browser;
+    window.__defineGetter__('content',
+                            function () {
+                                return this.buffers.current.browser.contentWindow;
+                            });
 
     window_initialize_early_hook.run(window);
     delete window.window_initialize_early_hook; // used only once
