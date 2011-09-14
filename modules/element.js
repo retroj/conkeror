@@ -231,7 +231,7 @@ define_browser_object_class("scrape-url",
     "urls scraped from the source code of the document.",
     function (I, prompt) {
         var completions = I.buffer.document.documentElement.innerHTML
-            .match(/https?:[^\s>)"]*/g)
+            .match(/https?:[^\s<>)"]*/g)
             .filter(remove_duplicates_filter());
         var completer = all_word_completer($completions = completions);
         var result = yield I.buffer.window.minibuffer.read(
