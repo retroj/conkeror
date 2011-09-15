@@ -90,7 +90,8 @@ function scroll (I) {
         var ref = o.document.documentURIObject.ref;
         if (ref) {
             var xpr = I.buffer.document.evaluate(
-                "//*[@id='"+ref+"']", o.document, xpath_lookup_namespace,
+                "//*[@id='"+ref+"']|//*[@name='"+ref+"']",
+                o.document, xpath_lookup_namespace,
                 Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE, null);
             var node = xpr.singleNodeValue;
             if (node) {
