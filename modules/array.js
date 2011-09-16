@@ -13,7 +13,8 @@ in_module(null);
  * array_p returns true if its argument is an array, otherwise false.
  */
 function array_p (ob) {
-    return ob && ob.constructor == Array || false;
+    return ob && ob.constructor &&
+        ob.constructor.name == "Array" || false;
 }
 
 /**
