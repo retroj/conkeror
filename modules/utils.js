@@ -871,4 +871,40 @@ function evaluate (s) {
     }
 }
 
+
+/**
+ * set_protocol_handler takes a scheme and an optional handler.  If the
+ * handler is not given, the user will be prompted for a handler when a
+ * resource of this protocol is requested.  Handler can be an nsIFile
+ * giving an external program, or a string, giving an url template for a
+ * web handler.  The sequence '%s' within an url template will be replaced
+ * by the url-encoded resource url.
+ */
+function set_protocol_handler (scheme, handler) {
+    var eps = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
+        .createInstance()
+        .QueryInterface(Ci.nsIExternalProtocolService);
+    var info = eps.getProtocolHandlerInfo(scheme);
+    if (handler) {
+        if (handler instanceof Ci.nsIFile) {
+            var h = Cc["@mozilla.org/uriloader/local-handler-app;1"]
+                .createInstance(Ci.nsILocalHandlerApp);
+            h.executable = handler;
+        } else if (typeof handler == "string") {
+            h = Cc["@mozilla.org/uriloader/local-handler-app;1"]
+                .createInstance(Ci.nsIWebHandlerApp);
+            h.uriTemplate = handler;
+        }
+        info.alwaysAskBeforeHandling = false;
+        info.preferredAction = Ci.nsIHandlerInfo.useHelperApp;
+        info.preferredApplicationHandler = h;
+    } else {
+        info.alwaysAskBeforeHandling = true;
+        info.preferredAction = Ci.nsIHandlerInfo.alwaysAsk;
+    }
+    var hs = Cc["@mozilla.org/uriloader/handler-service;1"].
+        getService(Ci.nsIHandlerService);
+    hs.store(info);
+}
+
 provide("utils");
