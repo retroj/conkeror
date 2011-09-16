@@ -224,7 +224,7 @@ sequence:
                 if (binding) {
                     if (binding.browser_object !== undefined)
                         I.binding_browser_object = binding.browser_object;
-                    if (binding.constructor == Array) {
+                    if (array_p(binding)) {
                         keymaps = binding;
                         input_show_partial_sequence(window, I);
                     } else if (binding.command) {

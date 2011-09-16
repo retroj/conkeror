@@ -158,13 +158,13 @@ opensearch_description.prototype = {
                     delete result;
                     delete lspec;
 
-                    if (!(data instanceof Array &&
+                    if (!(array_p(data) &&
                           data.length >= 2 &&
                           typeof(data[0]) == "string" &&
                           data[0] == str &&
-                          data[1] instanceof Array))
+                          array_p(data[1])))
                         yield co_return(null);
-                    if (data[2] && data[2] instanceof Array &&
+                    if (data[2] && array_p(data[2]) &&
                         data[2].length == data[1].length)
                     {
                         var descriptions = data[2];

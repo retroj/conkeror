@@ -486,7 +486,7 @@ function define_key (kmap, seq, cmd) {
         if (typeof seq == "string" && seq.length > 1)
             seq = seq.split(" ");
 
-        if (!(typeof seq == "object") || !(seq instanceof Array))
+        if (! array_p(seq))
             seq = [seq];
 
         // normalize the order of modifiers in key combos
@@ -592,7 +592,7 @@ function read_key_binding_key (window, state, event) {
         return;
     }
 
-    if (binding.constructor == Array) { //keymaps stack
+    if (array_p(binding)) { //keymaps stack
         window.minibuffer._restore_normal_state();
         window.minibuffer._input_text = state.key_sequence.join(" ") + " ";
         state.target_keymap = binding;

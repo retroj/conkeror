@@ -126,7 +126,7 @@ function alternates () {
     let alts = Array.prototype.slice.call(arguments, 0);
     return function (I) {
         var index = 0;
-        if (I.prefix_argument instanceof Array) {
+        if (array_p(I.prefix_argument)) {
             let num = I.prefix_argument = I.prefix_argument[0];
             while (num >= 4 && index + 1 < alts.length) {
                 num = num / 4;
