@@ -55,12 +55,3 @@ pref("extensions.getAddons.cache.enabled", false);
 
 
 pref("browser.formfill.enable", true);
-
-
-// protocol-handlers
-//
-pref("network.protocol-handler.expose-all", true);
-pref("network.protocol-handler.expose.mailto", false);
-pref("network.protocol-handler.expose.news", false);
-pref("network.protocol-handler.expose.snews", false);
-pref("network.protocol-handler.expose.nntp", false);
