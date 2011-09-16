@@ -14,7 +14,7 @@ require("env.js");
 function spawn_process_internal (program, args, blocking) {
     var process = Cc["@mozilla.org/process/util;1"]
         .createInstance(Ci.nsIProcess);
-    process.init(get_file_in_path(program));
+    process.init(find_file_in_path(program));
     return process.run(!!blocking, args, args.length);
 }
 
@@ -71,7 +71,7 @@ function find_spawn_helper () {
     f.append("conkeror-spawn-helper");
     if (f.exists())
         return f;
-    return get_file_in_path("conkeror-spawn-helper");
+    return find_file_in_path("conkeror-spawn-helper");
 }
 
 const STDIN_FILENO = 0;
@@ -128,7 +128,7 @@ function spawn_process (program_name, args, working_dir,
     if (args[0] == null)
         args[0] = (program_name instanceof Ci.nsIFile) ? program_name.path : program_name;
 
-    program_name = get_file_in_path(program_name).path;
+    program_name = find_file_in_path(program_name).path;
 
     const key_length = 100;
     const fd_spec_size = 15;

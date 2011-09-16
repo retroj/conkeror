@@ -106,7 +106,7 @@ function get_locale () {
 const PATH = getenv("PATH").split(POSIX ? ":" : ";");
 const path_component_regexp = POSIX ? /^[^\/]+$/ : /^[^\/\\]+$/;
 
-function get_file_in_path (name) {
+function find_file_in_path (name) {
     if (name instanceof Ci.nsIFile) {
         if (name.exists())
             return name;
