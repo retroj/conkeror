@@ -891,7 +891,7 @@ function set_protocol_handler (scheme, handler) {
                 .createInstance(Ci.nsILocalHandlerApp);
             h.executable = handler;
         } else if (typeof handler == "string") {
-            h = Cc["@mozilla.org/uriloader/local-handler-app;1"]
+            h = Cc["@mozilla.org/uriloader/web-handler-app;1"]
                 .createInstance(Ci.nsIWebHandlerApp);
             h.uriTemplate = handler;
         }
