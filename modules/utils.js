@@ -873,19 +873,26 @@ function evaluate (s) {
 
 
 /**
- * set_protocol_handler takes a scheme and an optional handler.  If the
- * handler is not given, the user will be prompted for a handler when a
- * resource of this protocol is requested.  Handler can be an nsIFile
- * giving an external program, or a string, giving an url template for a
- * web handler.  The sequence '%s' within an url template will be replaced
- * by the url-encoded resource url.
+ * set_protocol_handler takes a protocol and a handler spec.  If the
+ * handler is true, Mozilla will (try to) handle this protocol internally.
+ * If the handler null, the user will be prompted for a handler when a
+ * resource of this protocol is requested.  If the handler is an nsIFile,
+ * the program it gives will be launched with the url as an argument.  If
+ * the handler is a string, it will be interpreted as an URL template for
+ * a web service and the sequence '%s' within it will be replaced by the
+ * url-encoded url.
  */
-function set_protocol_handler (scheme, handler) {
+function set_protocol_handler (protocol, handler) {
     var eps = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
         .createInstance()
         .QueryInterface(Ci.nsIExternalProtocolService);
-    var info = eps.getProtocolHandlerInfo(scheme);
-    if (handler) {
+    var info = eps.getProtocolHandlerInfo(protocol);
+    var expose_pref = "network.protocol-handler.expose."+protocol;
+    if (handler == true) {
+        // internal handling
+        clear_default_pref(expose_pref);
+    } else if (handler) {
+        // external handling
         if (handler instanceof Ci.nsIFile) {
             var h = Cc["@mozilla.org/uriloader/local-handler-app;1"]
                 .createInstance(Ci.nsILocalHandlerApp);
@@ -898,9 +905,12 @@ function set_protocol_handler (scheme, handler) {
         info.alwaysAskBeforeHandling = false;
         info.preferredAction = Ci.nsIHandlerInfo.useHelperApp;
         info.preferredApplicationHandler = h;
+        session_pref(expose_pref, false);
     } else {
+        // prompt
         info.alwaysAskBeforeHandling = true;
         info.preferredAction = Ci.nsIHandlerInfo.alwaysAsk;
+        session_pref(expose_pref, false);
     }
     var hs = Cc["@mozilla.org/uriloader/handler-service;1"].
         getService(Ci.nsIHandlerService);
