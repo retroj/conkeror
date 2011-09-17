@@ -900,6 +900,8 @@ function set_protocol_handler (protocol, handler) {
         } else if (typeof handler == "string") {
             h = Cc["@mozilla.org/uriloader/web-handler-app;1"]
                 .createInstance(Ci.nsIWebHandlerApp);
+            var uri = make_uri(handler);
+            h.name = uri.host;
             h.uriTemplate = handler;
         }
         info.alwaysAskBeforeHandling = false;
