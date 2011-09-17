@@ -914,8 +914,8 @@ function set_protocol_handler (protocol, handler) {
         info.preferredAction = Ci.nsIHandlerInfo.alwaysAsk;
         session_pref(expose_pref, false);
     }
-    var hs = Cc["@mozilla.org/uriloader/handler-service;1"].
-        getService(Ci.nsIHandlerService);
+    var hs = Cc["@mozilla.org/uriloader/handler-service;1"]
+        .getService(Ci.nsIHandlerService);
     hs.store(info);
 }
 
