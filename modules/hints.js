@@ -146,6 +146,8 @@ hint_manager.prototype = {
             var scrollY = window.scrollY;
 
             var doc = window.document;
+            if (! doc.documentElement)
+                return;
             var res = doc.evaluate(xpath_expr, doc, xpath_lookup_namespace,
                                    Ci.nsIDOMXPathResult.UNORDERED_NODE_SNAPSHOT_TYPE,
                                    null /* existing results */);
