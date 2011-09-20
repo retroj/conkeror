@@ -69,7 +69,8 @@ function youtube_scrape_text (results, frame, url, id, text) {
         yield co_return();
     var info = yield youtube_get_video_info(url, id, t);
     for each (var d in info) {
-        var extension = mime_service.getPrimaryExtension(d.type, null);
+        var extension = mime_service.getPrimaryExtension(
+            d.type, regexp_exec(/\/([^;]+)/, d.type, 1));
         results.push(load_spec({
             uri: d.url,
             title: title,
