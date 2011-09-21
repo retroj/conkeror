@@ -135,9 +135,11 @@ walnut_run({
         this._pending_loads = pending_loads;
         this._features = features;
         this._after_load_functions = after_load_functions;
+        this._load_url = load_url;
     },
     teardown: function () {
         load_paths = this._load_paths;
+        load_url = this._load_url;
         loading_paths = this._loading_paths;
         loading_urls = this._loading_urls;
         loading_modules = this._loading_modules;
