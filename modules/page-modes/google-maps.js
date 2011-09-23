@@ -46,8 +46,8 @@ define_google_maps_command('pan-up', "Pan a google map up", 'pan_up');
 define_google_maps_command('pan-down', "Pan a google map down", 'pan_down');
 
 define_keymap("google_maps_keymap", $display_name = "google-maps");
-define_key(google_maps_keymap, "+",   "google-maps-zoom-in");
-define_key(google_maps_keymap, "-",   "google-maps-zoom-out");
+define_key(google_maps_keymap, "C-c +",   "google-maps-zoom-in");
+define_key(google_maps_keymap, "C-c -",   "google-maps-zoom-out");
 define_key(google_maps_keymap, "C-f", "google-maps-pan-right");
 define_key(google_maps_keymap, "C-b", "google-maps-pan-left");
 define_key(google_maps_keymap, "C-n", "google-maps-pan-down");
