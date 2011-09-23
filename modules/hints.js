@@ -183,6 +183,18 @@ hint_manager.prototype = {
                     rect = elem.getClientRects()[0];
                 if (!rect)
                     continue;
+                var nchildren = elem.childNodes.length;
+                if (elem instanceof Ci.nsIDOMHTMLAnchorElement &&
+                    rect.left == rect.right && rect.top == rect.bottom)
+                {
+                    for (var c = 0; c < nchildren; ++c) {
+                        var cc = elem.childNodes.item(c);
+                        if (cc.getBoundingClientRect) {
+                            rect = cc.getBoundingClientRect();
+                            break;
+                        }
+                    }
+                }
                 show_text = false;
                 if (elem instanceof Ci.nsIDOMHTMLInputElement || elem instanceof Ci.nsIDOMHTMLTextAreaElement)
                     text = elem.value;
@@ -194,7 +206,7 @@ hint_manager.prototype = {
                 } else if (elem instanceof Ci.nsIDOMHTMLFrameElement) {
                     text = elem.name ? elem.name : "";
                 } else if (/^\s*$/.test(elem.textContent) &&
-                           elem.childNodes.length == 1 &&
+                           nchildren == 1 &&
                            elem.childNodes.item(0) instanceof Ci.nsIDOMHTMLImageElement) {
                     text = elem.childNodes.item(0).alt;
                     show_text = true;
