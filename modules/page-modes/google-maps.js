@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2009-2010 John J. Foerch
+ * (C) Copyright 2009-2011 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -9,8 +9,7 @@ in_module(null);
 
 require("content-buffer.js");
 
-function google_maps_control (buffer, xpath) {
-    var doc = buffer.document;
+function dom_click_xpath (doc, xpath) {
     var iter = doc.evaluate(xpath,
                             doc,
                             xpath_lookup_namespace,
@@ -23,27 +22,47 @@ function google_maps_control (buffer, xpath) {
     }
 }
 
-function define_google_maps_command (name, doc, control) {
-    interactive("google-maps-" + name, doc, function(I) {
-                google_maps_control(I.buffer, "//div[@log='" + control + "']");
-                });
-}
-ignore_function_for_get_caller_source_code_reference("define_google_maps_command");
+interactive("google-maps-zoom-in",
+    "Zoom in on a google map",
+    function (I) {
+        dom_click_xpath(I.buffer.document,
+                        "//div[@guidedhelpid='zoom_in']/div[@title]");
+    });
 
-function define_google_maps_zoom_command (name, doc, control) {
-    interactive("google-maps-" + name, doc,
-                function (I) {
-                    google_maps_control(I.buffer, "//div[@guidedhelpid='"+control+"']/div[@title]");
-                });
-}
-ignore_function_for_get_caller_source_code_reference("define_google_maps_zoom_command");
+interactive("google-maps-zoom-out",
+    "Zoom out on a google map",
+    function (I) {
+        dom_click_xpath(I.buffer.document,
+                        "//div[@guidedhelpid='zoom_out']/div[@title]");
+    });
 
-define_google_maps_zoom_command('zoom-in', "Zoom in on a google map", "zoom_in");
-define_google_maps_zoom_command('zoom-out', "Zoom out on a google map", "zoom_out");
-define_google_maps_command('pan-left', "Pan a google map left", 'pan_lt');
-define_google_maps_command('pan-right', "Pan a google map right", 'pan_rt');
-define_google_maps_command('pan-up', "Pan a google map up", 'pan_up');
-define_google_maps_command('pan-down', "Pan a google map down", 'pan_down');
+interactive("google-maps-pan-left",
+    "Pan a google map left",
+    function (I) {
+        dom_click_xpath(I.buffer.document,
+                        "//div[@log='pan_lt']");
+    });
+
+interactive("google-maps-pan-right",
+    "Pan a google map right",
+    function (I) {
+        dom_click_xpath(I.buffer.document,
+                        "//div[@log='pan_rt']");
+    });
+
+interactive("google-maps-pan-up",
+    "Pan a google map up",
+    function (I) {
+        dom_click_xpath(I.buffer.document,
+                        "//div[@log='pan_up']");
+    });
+
+interactive("google-maps-pan-down",
+    "Pan a google map down",
+    function (I) {
+        dom_click_xpath(I.buffer.document,
+                        "//div[@log='pan_down']");
+    });
 
 define_keymap("google_maps_keymap", $display_name = "google-maps");
 define_key(google_maps_keymap, "C-c +",   "google-maps-zoom-in");
