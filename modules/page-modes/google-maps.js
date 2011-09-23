@@ -64,6 +64,34 @@ interactive("google-maps-pan-down",
                         "//div[@log='pan_down']");
     });
 
+interactive("google-maps-toggle-feature",
+    "Prompt for and toggle a secondary map feature",
+    function (I) {
+        var features = { "45 degrees": 0,
+                         labels: 1,
+                         terrain: 4,
+                         traffic: 6,
+                         photos: 7,
+                         videos: 8,
+                         wikipedia: 9,
+                         webcam: 10,
+                         buzz: 11,
+                         weather: 12,
+                         bicycling: 13,
+                         transit: 14 };
+        var feature = yield I.minibuffer.read(
+            $prompt = "Feature",
+            $history = "google-maps-feature",
+            $completer = prefix_completer(
+                $completions = [f for (f in features)]),
+            $match_required,
+            $space_completes);
+        var id = features[feature];
+        dom_click_xpath(I.buffer.document,
+                        "//div[@jsprops='activityId:"+id+"']//span");
+    });
+
+
 define_keymap("google_maps_keymap", $display_name = "google-maps");
 define_key(google_maps_keymap, "C-c +",   "google-maps-zoom-in");
 define_key(google_maps_keymap, "C-c -",   "google-maps-zoom-out");
@@ -71,6 +99,7 @@ define_key(google_maps_keymap, "C-f", "google-maps-pan-right");
 define_key(google_maps_keymap, "C-b", "google-maps-pan-left");
 define_key(google_maps_keymap, "C-n", "google-maps-pan-down");
 define_key(google_maps_keymap, "C-p", "google-maps-pan-up");
+define_key(google_maps_keymap, "C-c C-f", "google-maps-toggle-feature");
 
 var google_maps_modality = {
     normal: google_maps_keymap
