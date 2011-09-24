@@ -126,7 +126,7 @@ function buffer (window) {
 
     this.modalities = [buffer_modality];
 
-    // When create_buffer_hook_early runs, basic buffer properties
+    // When create_buffer_early_hook runs, basic buffer properties
     // will be available, but not the properties subclasses.
     create_buffer_early_hook.run(this);
 
