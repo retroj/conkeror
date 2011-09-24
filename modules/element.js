@@ -527,9 +527,8 @@ function element_get_operation_label (element, op_name, suffix) {
 
 
 function browser_element_copy (buffer, elem) {
-    var spec;
     try {
-       spec = load_spec(elem);
+       var spec = load_spec(elem);
     } catch (e) {}
     var text = null;
     if (typeof elem == "string" || elem instanceof String)
@@ -539,18 +538,18 @@ function browser_element_copy (buffer, elem) {
     else  {
         if (!(elem instanceof Ci.nsIDOMNode))
             throw interactive_error("Element has no associated text to copy.");
-        switch (elem.localName) {
-        case "INPUT":
-        case "TEXTAREA":
+        var tag = elem.localName.toLowerCase();
+        if ((tag == "input" || tag == "button") &&
+            elem.type == "submit" && elem.form && elem.form.action)
+        {
+            text = elem.form.action;
+        } else if (tag == "input" || tag == "textarea") {
             text = elem.value;
-            break;
-        case "SELECT":
+        } else if (tag == "select") {
             if (elem.selectedIndex >= 0)
                 text = elem.item(elem.selectedIndex).text;
-            break;
-        default:
+        } else {
             text = elem.textContent;
-            break;
         }
     }
     browser_set_element_focus(buffer, elem);
