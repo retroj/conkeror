@@ -34,6 +34,7 @@ function completions_tree_view (minibuffer_state) {
 }
 completions_tree_view.prototype = {
     constructor: completions_tree_view,
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsITreeView]),
     get rowCount () {
         var c = this.minibuffer_state.completions;
         if (!c)
