@@ -431,17 +431,24 @@ function hints_url_panel (hints, window) {
     window.minibuffer.insert_before(p);
 
     p.update = function () {
-	url_value.value = "";
+	var s = [];
 	if (hints.manager && hints.manager.last_selected_hint) {
             var spec;
+            var elem = hints.manager.last_selected_hint.elem;
+            if (elem.hasAttribute("onmousedown") ||
+                elem.hasAttribute("onclick"))
+            {
+                s.push("[script]");
+            }
             try {
-                spec = load_spec(hints.manager.last_selected_hint.elem);
+                spec = load_spec(elem);
             } catch (e) {}
             if (spec) {
                 var uri = load_spec_uri_string(spec);
-                if (uri) url_value.value = uri;
+                if (uri) s.push(uri);
             }
 	}
+        url_value.value = s.join(" ");
     };
 
     p.destroy = function () {
