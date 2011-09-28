@@ -99,7 +99,7 @@ function define_webjump (key, handler) {
 function define_delicious_webjumps (username) {
     define_webjump("delicious", "http://www.delicious.com/" + username + "/%s",
                    $alternative = "http://www.delicious.com/" + username);
-    define_webjump("adelicious", "javascript:location.href='http://www.delicious.com/"+username+
+    define_webjump("adelicious", "javascript:location.href='http://www.delicious.com/save"+
                    "?v=2&url='+encodeURIComponent(location.href)+'&title='+"+
                    "encodeURIComponent(document.title);");
     define_webjump("sdelicious", "http://www.delicious.com/search?p=%s&u="+username+
