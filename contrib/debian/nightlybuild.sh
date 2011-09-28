@@ -59,6 +59,7 @@
 #  UPLOAD_SSH_USER=abe
 #  UPLOAD_SSH_DIR=http/htdocs/conkeror-nightly
 #  USE_REPREPRO=yes
+#  REPREPRO_DISTS="lenny squeeze sid"
 #  BINARY_ONLY_BUILD=yes
 #  SOURCES_LIST_URL=http://noone.org/conkeror-nightly-debs/dists/lenny/main/source/Sources.gz
 #
@@ -211,7 +212,7 @@ if [ "$UPLOAD" = "yes" ]; then
 	    $UPLOAD_SSH_USER@$UPLOAD_SSH_HOST:$UPLOAD_SSH_DIR
 	if [ "$USE_REPREPRO" = "yes" ]; then
 	    ssh -i $UPLOAD_SSH_KEY $UPLOAD_SSH_USER@$UPLOAD_SSH_HOST \
-		"cd $UPLOAD_SSH_DIR; reprepro -v includedeb lenny" *.deb "; reprepro -v includedeb sid" *.deb ";"
+		"cd $UPLOAD_SSH_DIR; for i in $REPREPRO_DISTS; do reprepro --ignore=wrongdistribution -v includedeb" '$i' *.deb "; done"
 	fi
     else
 	scp -i $UPLOAD_SSH_KEY -p *build *deb *changes *dsc *gz \
@@ -219,7 +220,7 @@ if [ "$UPLOAD" = "yes" ]; then
 
 	if [ "$USE_REPREPRO" = "yes" ]; then
 	    ssh -i $UPLOAD_SSH_KEY $UPLOAD_SSH_USER@$UPLOAD_SSH_HOST \
-		"cd $UPLOAD_SSH_DIR; reprepro -v includedeb lenny" *.deb "; reprepro -v includedeb sid" *.deb "; reprepro -v includedsc lenny " *.dsc "; reprepro -v includedsc sid " *.dsc ";"
+		"cd $UPLOAD_SSH_DIR; for i in $REPREPRO_DISTS; do reprepro --ignore=wrongdistribution -v include" '$i' *.changes "; done"
 	fi
     fi
 fi
