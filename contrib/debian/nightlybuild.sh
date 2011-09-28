@@ -161,6 +161,12 @@ else
 	git clone git://repo.or.cz/conkeror.git $MASTERDIR
     fi
 
+    # Set the right options for debuild (signed vs unsigned packages)
+    DEBUILDOPTIONS='-uc -us'
+    if [ ! -z "$SIGNKEY" ]; then
+	DEBUILDOPTIONS="-k$SIGNKEY"
+    fi
+
     # Update master copy
     cd $MASTERDIR
     git pull
