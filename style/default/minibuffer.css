@@ -3,6 +3,7 @@
 
 #minibuffer {
   border-top: 1px solid -moz-Dialog;
+  -moz-box-align: baseline;
 }
 
 #minibuffer-input {
