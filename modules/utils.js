@@ -861,6 +861,9 @@ function do_when (hook, buffer, fun) {
  */
 function evaluate (s) {
     try {
+        var obs = Cc["@mozilla.org/observer-service;1"]
+            .getService(Ci.nsIObserverService);
+        obs.notifyObservers(null, "startupcache-invalidate", null);
         var temp = get_temporary_file("conkeror-evaluate.tmp.js");
         write_text_file(temp, s);
         var url = make_uri(temp).spec;
