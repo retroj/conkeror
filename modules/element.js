@@ -284,7 +284,7 @@ interactive("browser-object-text",
             if (e instanceof Ci.nsIDOMHTMLImageElement)
                 yield co_return(e.getAttribute("alt"));
             yield co_return(e.textContent);
-        }
+        };
     },
     $prefix);
 
