@@ -185,7 +185,7 @@ hint_manager.prototype = {
                     continue;
                 var nchildren = elem.childNodes.length;
                 if (elem instanceof Ci.nsIDOMHTMLAnchorElement &&
-                    rect.left == rect.right && rect.top == rect.bottom)
+                    rect.width == 0 && rect.height == 0)
                 {
                     for (var c = 0; c < nchildren; ++c) {
                         var cc = elem.childNodes.item(c);
