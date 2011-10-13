@@ -564,7 +564,7 @@ function browser_element_copy (buffer, elem) {
         text = elem;
     else if (spec)
         text = load_spec_uri_string(spec);
-    else  {
+    else {
         if (!(elem instanceof Ci.nsIDOMNode))
             throw interactive_error("Element has no associated text to copy.");
         var tag = elem.localName.toLowerCase();
