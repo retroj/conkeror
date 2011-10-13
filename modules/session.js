@@ -47,8 +47,6 @@ in_module(null);
     define_variable("session_dir", _session_dir_default,
         "Default directory for save/load interactive commands.");
 
-    let _json = Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
-
     /**
      * session_get generates and returns a structure containing session
      * data for the current group of open windows.
@@ -182,7 +180,7 @@ in_module(null);
             path = make_file(path);
         if (! session)
             session = session_get();
-        write_text_file(path, _json.encode(session));
+        write_text_file(path, JSON.stringify(session));
     }
 
     /**
@@ -192,7 +190,7 @@ in_module(null);
     function session_read (path) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
-        return _json.decode(read_text_file(path));
+        return JSON.parse(read_text_file(path));
     }
 
     /**

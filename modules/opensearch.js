@@ -113,8 +113,6 @@ opensearch_description.prototype = {
     get completer () {
         const response_type_json = "application/x-suggestions+json";
         const response_type_xml = "application/x-suggestions+xml";
-        const json = ("@mozilla.org/dom/json;1" in Cc) &&
-            Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
         var eng = this;
         if (this.supports_response_type(response_type_xml)) {
             return function (input, pos, conservative) {
@@ -150,7 +148,7 @@ opensearch_description.prototype = {
                     yield co_return(null);
                 }
             };
-        } else if (json && this.supports_response_type(response_type_json)) {
+        } else if (this.supports_response_type(response_type_json)) {
             return function (input, pos, conservative) {
                 if (pos == 0 && conservative)
                     yield co_return(undefined);
@@ -158,7 +156,7 @@ opensearch_description.prototype = {
                 try {
                     let lspec = eng.get_query_load_spec(str, response_type_json);
                     let result = yield send_http_request(lspec);
-                    let data = json.decode(result.responseText);
+                    let data = JSON.parse(result.responseText);
                     delete result;
                     delete lspec;
 

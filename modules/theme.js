@@ -64,7 +64,7 @@ in_module(null);
             let def = get_contents_synchronously(url+'theme.json');
             if (def === null)
                 continue;
-            def = eval('('+def+')');
+            def = JSON.parse(def);
             loaded_themes[name] = new theme(url, def.sheets);
             return loaded_themes[name];
         }
