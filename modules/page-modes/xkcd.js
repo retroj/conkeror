@@ -48,7 +48,7 @@ define_page_mode("xkcd_mode",
     $enable = function (buffer) {
         if (xkcd_add_title) {
             if (buffer.browser.webProgress.isLoadingDocument)
-                add_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_do_add_title);
+                add_hook.call(buffer, "buffer_loaded_hook", xkcd_do_add_title);
             else
                 xkcd_do_add_title(buffer);
         }
@@ -60,7 +60,7 @@ define_page_mode("xkcd_mode",
     },
     // When we disable the mode, remove the <span>
     $disable = function (buffer) {
-        remove_hook.call(buffer, "buffer_dom_content_loaded_hook", xkcd_do_add_title);
+        remove_hook.call(buffer, "buffer_loaded_hook", xkcd_do_add_title);
         var span = buffer.document.getElementById('conkeror:xkcd-title-text');
         if (span)
             span.parentNode.removeChild(span);
