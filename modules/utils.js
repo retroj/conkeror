@@ -887,8 +887,7 @@ function evaluate (s) {
  */
 function set_protocol_handler (protocol, handler) {
     var eps = Cc["@mozilla.org/uriloader/external-protocol-service;1"]
-        .createInstance()
-        .QueryInterface(Ci.nsIExternalProtocolService);
+        .getService(Ci.nsIExternalProtocolService);
     var info = eps.getProtocolHandlerInfo(protocol);
     var expose_pref = "network.protocol-handler.expose."+protocol;
     if (handler == true) {
@@ -909,6 +908,8 @@ function set_protocol_handler (protocol, handler) {
         }
         info.alwaysAskBeforeHandling = false;
         info.preferredAction = Ci.nsIHandlerInfo.useHelperApp;
+        info.possibleApplicationHandlers.clear();
+        info.possibleApplicationHandlers.appendElement(h, false);
         info.preferredApplicationHandler = h;
         session_pref(expose_pref, false);
     } else {
