@@ -420,7 +420,9 @@ hint_manager.prototype = {
     }
 };
 
-/* Show panel with currently selected URL. */
+/**
+ * Show panel with currently selected URL.
+ */
 function hints_url_panel (hints, window) {
     var g = new dom_generator(window.document, XUL_NS);
 
@@ -433,19 +435,25 @@ function hints_url_panel (hints, window) {
     p.update = function () {
 	var s = [];
 	if (hints.manager && hints.manager.last_selected_hint) {
-            var spec;
             var elem = hints.manager.last_selected_hint.elem;
             if (elem.hasAttribute("onmousedown") ||
                 elem.hasAttribute("onclick"))
             {
                 s.push("[script]");
             }
-            try {
-                spec = load_spec(elem);
-            } catch (e) {}
-            if (spec) {
-                var uri = load_spec_uri_string(spec);
-                if (uri) s.push(uri);
+            var tag = elem.localName.toLowerCase();
+            if ((tag == "input" || tag == "button") &&
+                elem.type == "submit" && elem.form && elem.form.action)
+            {
+                s.push((elem.form.method || "GET").toUpperCase() + ":" +
+                       elem.form.action);
+            } else {
+                try {
+                    var spec = load_spec(elem);
+                    var uri = load_spec_uri_string(spec);
+                    if (uri)
+                        s.push(uri);
+                } catch (e) {}
             }
 	}
         url_value.value = s.join(" ");
