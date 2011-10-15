@@ -353,7 +353,7 @@ function read_browser_object (I) {
  * otherwise prevent this from happening.
  */
 function browser_set_element_focus (buffer, elem, prevent_scroll) {
-    if (!element_dom_node_or_window_p(elem))
+    if (! dom_node_or_window_p(elem))
         return;
     if (! elem.focus)
         return;
@@ -364,7 +364,7 @@ function browser_set_element_focus (buffer, elem, prevent_scroll) {
 }
 
 function browser_element_focus (buffer, elem) {
-    if (!element_dom_node_or_window_p(elem))
+    if (! dom_node_or_window_p(elem))
         return;
 
     if (elem instanceof Ci.nsIDOMXULTextBoxElement)
@@ -461,7 +461,7 @@ function browser_object_follow (buffer, target, elem) {
     case OPEN_NEW_WINDOW:
     case OPEN_NEW_BUFFER:
     case OPEN_NEW_BUFFER_BACKGROUND:
-        if (element_dom_node_or_window_p(e))
+        if (dom_node_or_window_p(e))
             var opener = buffer;
         else
             opener = null;
