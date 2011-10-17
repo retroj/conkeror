@@ -31,6 +31,14 @@ function application () {
 
     this.module_assert_conflict_error.prototype = Error.prototype;
 
+    // clear the startup-cache so that modules and the user's rc are
+    // loaded from disk, not from a cache.  this problem is a
+    // characteristic of using mozIJSSubScriptLoader.loadSubScript as our
+    // primary means of loading, since XULRunner 8.0.
+    var obs = Cc["@mozilla.org/observer-service;1"]
+        .getService(Ci.nsIObserverService);
+    obs.notifyObservers(null, "startupcache-invalidate", null);
+
     try {
         this.require("conkeror.js", null);
     } catch (e) {
