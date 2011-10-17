@@ -4,10 +4,10 @@
 
 # Find an appropriate xulrunner binary
 XULRUNNER=''
-for xr in xulrunner-8.0 xulrunner-7.0 xulrunner-6.0 xulrunner-5.0 xulrunner-2.0 xulrunner-1.9.2 xulrunner-1.9.1 xulrunner-1.9 xulrunner; do
+for xr in xulrunner-8.0 xulrunner-7.0 xulrunner-6.0 xulrunner-5.0 xulrunner-2.0 xulrunner-1.9.2 xulrunner-1.9.1 xulrunner; do
     XRTMP=`which $xr`
     if [ -n "$XRTMP" -a -x "$XRTMP" ]; then
-	if expr `$XRTMP --gre-version | cut -d . -f 1,2` '>=' 1.9 > /dev/null; then
+	if expr `$XRTMP --gre-version | cut -d . -f 1,2,3` '>=' 1.9.1 > /dev/null; then
 	    # xulrunner is version 1.9 or higher, take it
 	    XULRUNNER=$XRTMP
 	    break
@@ -15,7 +15,7 @@ for xr in xulrunner-8.0 xulrunner-7.0 xulrunner-6.0 xulrunner-5.0 xulrunner-2.0 
 	    # xulrunner is older than version 1.9, forget it
 	    XRTMP=/usr/lib/$xr/xulrunner
 	    if [ -x $XRTMP ]; then
-		if expr `$XRTMP --gre-version | cut -d . -f 1,2` '>=' 1.9 > /dev/null; then
+		if expr `$XRTMP --gre-version | cut -d . -f 1,2,3` '>=' 1.9.1 > /dev/null; then
 		    # xulrunner is a 1.9 version, take it
 		    XULRUNNER=$XRTMP
 		    break
@@ -26,7 +26,7 @@ for xr in xulrunner-8.0 xulrunner-7.0 xulrunner-6.0 xulrunner-5.0 xulrunner-2.0 
 done
 
 if [ -z "$XULRUNNER" ]; then
-    echo "xulrunner version 1.9 required, but not found. Bailing out." 1>&2
+    echo "xulrunner version 1.9.1 or newer required, but not found. Bailing out." 1>&2
     exit 1;
 fi
 

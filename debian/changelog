@@ -1,8 +1,10 @@
 conkeror (1.0~~pre-1) UNRELEASED; urgency=low
 
   * Upstream version bump
+  * Upstream changed minimum xulrunner requirement to 1.9.1: Update
+    debian/control and debian/conkeror.bin accordingly.
 
- -- Axel Beckert <abe@debian.org>  Sun, 04 Sep 2011 23:34:05 +0200
+ -- Axel Beckert <abe@debian.org>  Mon, 17 Oct 2011 12:01:36 +0200
 
 conkeror (0.9.4-1) unstable; urgency=low
 
