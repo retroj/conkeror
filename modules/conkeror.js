@@ -28,6 +28,7 @@ require("stylesheet.js", null);
 require("array.js", null);
 require("builtin-commands.js", null);
 require("text.js", null);
+require("login.js", null);
 
 require("user-agent.js", null);
 require("utils.js", null);
