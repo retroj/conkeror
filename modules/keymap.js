@@ -462,9 +462,6 @@ sequence:
 /**
  * bind SEQ to a keymap or command CMD in keymap KMAP.
  *
- *   If CMD is the special value `fallthrough', it will be bound as a
- * fallthrough key.
- *
  * keywords:
  *
  *  $fallthrough: specifies that the keypress event will fall through
