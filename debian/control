@@ -19,9 +19,9 @@ Xb-Xul-AppId: {a79fe89b-6662-4ff4-8e88-09950ad4dfde}
 Description: keyboard focused web browser with Emacs look and feel
  Conkeror is a highly-programmable web browser based on Mozilla
  XULRunner which is the base of all Mozilla products including
- Firefox. It has a sophisticated keyboard system for running commands
- and interacting with web page content, modelled after Emacs and
- Lynx. It is self-documenting and extensible with JavaScript.
+ Firefox. Conkeror has a sophisticated keyboard system for running
+ commands and interacting with web page content, modelled after Emacs
+ and Lynx. It is self-documenting and extensible with JavaScript.
  .
  It comes with builtin support for several Web 2.0 sites like several
  Google services (Search, Gmail, Maps, Reader, etc.), Del.icio.us,
