@@ -1,5 +1,5 @@
 #!/bin/sh
-# Wrapper around xulrunner to start the xulrunner application conkeror
+# Wrapper around xulrunner/firefox to start the xulrunner application conkeror
 # Written by Axel Beckert <abe@deuxchevaux.org> for the Debian Project
 
 # Find an appropriate xulrunner binary
@@ -25,8 +25,17 @@ for xr in xulrunner-8.0 xulrunner-7.0 xulrunner-6.0 xulrunner-5.0 xulrunner-2.0 
     fi
 done
 
+# Try firefox if no xulrunner can be found
 if [ -z "$XULRUNNER" ]; then
-    echo "xulrunner version 1.9.1 or newer required, but not found. Bailing out." 1>&2
+    FFTMP=`which firefox`
+    if [ -n "$FFTMP" -a -x "$FFTMP" ]; then
+	echo "xulrunner not found, trying firefox instead." 1>&2
+	XULRUNNER="$FFTMP -app"
+    fi
+fi
+
+if [ -z "$XULRUNNER" ]; then
+    echo "xulrunner version 1.9.1 (or firefox version 3.5) or newer required, but not found. Bailing out." 1>&2
     exit 1;
 fi
 

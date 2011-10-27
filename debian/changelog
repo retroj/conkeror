@@ -5,6 +5,11 @@ conkeror (1.0~~pre-1) UNRELEASED; urgency=low
     debian/control and debian/conkeror.bin accordingly.
   * Reorder xulrunner alternative dependencies so the current xulrunner
     from unstable (7.0) is chosen by default.
+  * Make package usable on Ubuntu again despite their xulrunner removal.
+    - debian/control: Add alternative dependencies on firefox instead of
+      xulrunner
+    - debian/conkeror.bin: If no xulrunner is found, look for firefox
+      instead
 
  -- Axel Beckert <abe@debian.org>  Mon, 17 Oct 2011 12:01:36 +0200
 
