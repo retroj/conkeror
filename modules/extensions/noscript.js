@@ -73,7 +73,7 @@ function setObjectVisibility(document, callback) {
 function ns_allow_temp(url, buffer, P, allow) {
     var enabled, temp;
     const ns = noscript_service;
-    if (allow == "Y" || allow == "y" || allow == "yes" || allow == "Yes") {
+    if (allow) {
         enabled = true;
         temp = ns.getPref("toggle.temp");
         ns.setTemp(url, enabled && temp);
@@ -109,7 +109,9 @@ interactive("ns-toggle-temp", "Allow a site temporary access to javascript",   f
         urls = urls.filter(function (u) { return !ns.isJSEnabled(u); });
         while ((url2 = urls.pop())) {
             ns_allow_temp(url2, I.buffer, I.P,
-                          (yield I.minibuffer.read($prompt = "Allow "+url2+"? [Y/[N]]")));
+                          (yield I.minibuffer.read_single_character_option(
+                              $prompt = "Allow " + url2 + "? [y/[n]]",
+                              $options = ["y", "n"])) == "y");
         }
         reload(I.buffer, I.P);
     }
