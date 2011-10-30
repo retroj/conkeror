@@ -58,7 +58,7 @@ function setObjectVisibility(document, callback) {
         if (count) {
             objects = objects || [local_objects[--count]];
             while(count-- > 0) {
-	        objects.push(local_objects[count]);
+                objects.push(local_objects[count]);
             }
         }
     }
@@ -95,22 +95,23 @@ interactive("ns-toggle-temp", "Allow a site temporary access to javascript",   f
     if (!level) level = 3;
     const url = ns.getQuickSite(I.buffer.document.documentURI, level);
     if (url){
-	urls.push(url);
-	var scripts = I.buffer.document.getElementsByTagName("script");
-	for(i = 0;i < scripts.length;i++) {
-	    if (scripts[i].getAttribute("src")) {
-		matches = scripts[i].getAttribute("src").split("/");
-		if (matches[0] == "http:") {
-		    urls.push(matches[2]);
-		}
-	    }
-	}
-	urls = unique(urls);
-	urls = urls.filter(function (u) { return !ns.isJSEnabled(u); });
-	while ((url2 = urls.pop())) {
-	    ns_allow_temp(url2, I.buffer,I.P, (yield I.minibuffer.read ($prompt = "Allow "+url2+"? [Y/[N]]")));
-	}
-	reload(I.buffer, I.P);
+        urls.push(url);
+        var scripts = I.buffer.document.getElementsByTagName("script");
+        for(i = 0;i < scripts.length;i++) {
+            if (scripts[i].getAttribute("src")) {
+                matches = scripts[i].getAttribute("src").split("/");
+                if (matches[0] == "http:") {
+                    urls.push(matches[2]);
+                }
+            }
+        }
+        urls = unique(urls);
+        urls = urls.filter(function (u) { return !ns.isJSEnabled(u); });
+        while ((url2 = urls.pop())) {
+            ns_allow_temp(url2, I.buffer, I.P,
+                          (yield I.minibuffer.read($prompt = "Allow "+url2+"? [Y/[N]]")));
+        }
+        reload(I.buffer, I.P);
     }
 });
 
