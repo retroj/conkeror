@@ -1,0 +1,4 @@
+
+component {2926dd11-4d76-4965-bcdc-4aaad70ada04} components/content-policy.js
+contract @conkeror.org/content-policy-listener;1 {2926dd11-4d76-4965-bcdc-4aaad70ada04}
+category content-policy content-policy @conkeror.org/content-policy-listener;1

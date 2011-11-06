@@ -40,7 +40,7 @@ content_policy.prototype = {
     },
     _xpcom_categories: [{category: "content-policy"}],
 
-    enabled: false,
+    enabled: true,
     shouldLoad: function (content_type,     //unsigned long
                           content_location, //nsIURI
                           request_origin,   //nsIURI

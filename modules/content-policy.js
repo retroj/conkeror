@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2010 John J. Foerch
+ * (C) Copyright 2010-2011 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -7,7 +7,24 @@
 
 in_module(null);
 
-content_policy_listener.enabled = true;
+function content_policy_init () {
+    var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
+        .getService(Ci.nsIXULAppInfo)
+        .platformVersion;
+    var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]  
+        .getService(Ci.nsIVersionComparator);  
+    var reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+    var file = file_locator_service.get("CurProcD", Ci.nsIFile);
+    if (vc.compare(xulrunner_version, "2.0") >= 0) {
+        file.append("content-policy.manifest");
+    } else {
+        file.append("components");
+        file.append("content-policy.js");
+    }
+    reg.autoRegister(file);
+}
+
+content_policy_init();
 
 interactive("content-policy-enable",
     "Enable content-policy processing.",
