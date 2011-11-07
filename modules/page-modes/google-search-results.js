@@ -25,7 +25,7 @@ define_key(google_search_results_keymap, "return", "ensure-content-focused", $fa
  */
 
 define_browser_object_class("google-search-results-links", null,
-    xpath_browser_object_handler("//a[@class='l']|//a[@class='l vst']|//a[@class='gs-title']"),
+    xpath_browser_object_handler("//a[@class='l']|//a[@class='l vst']|//a[@class='gs-title']|//h3[@class='r']/a"),
     $hint = "select search result");
 
 
