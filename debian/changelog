@@ -5,7 +5,7 @@ conkeror (1.0~~pre-1) UNRELEASED; urgency=low
   * Upstream changed minimum xulrunner requirement to 1.9.1: Update
     debian/control and debian/conkeror.bin accordingly.
   * Reorder xulrunner alternative dependencies so the current xulrunner
-    from unstable (7.0) is chosen by default.
+    from unstable (8.0) is chosen by default.
   * Make package usable on Ubuntu again despite their xulrunner removal.
     - debian/control: Add alternative dependencies on firefox instead of
       xulrunner
