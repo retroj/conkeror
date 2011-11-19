@@ -10,7 +10,7 @@ Vcs-Git: git://repo.or.cz/conkeror.git
 
 Package: conkeror
 Architecture: all
-Depends: xulrunner-7.0 | xulrunner-8.0 | xulrunner-6.0 | xulrunner-5.0 | xulrunner-2.0 | xulrunner-1.9.2 | xulrunner-1.9.1 | firefox (>= 3.5), ${misc:Depends}
+Depends: xulrunner-7.0 | xulrunner-10.0 | xulrunner-9.0 | xulrunner-8.0 | xulrunner-6.0 | xulrunner-5.0 | xulrunner-2.0 | xulrunner-1.9.2 | xulrunner-1.9.1 | firefox (>= 3.5), ${misc:Depends}
 Recommends: conkeror-spawn-process-helper
 Breaks: conkeror-spawn-process-helper (<< 0.9~git080901-1)
 Suggests: emacs | emacsen

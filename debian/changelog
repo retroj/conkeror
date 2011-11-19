@@ -12,12 +12,13 @@ conkeror (1.0~~pre-1) UNRELEASED; urgency=low
     - debian/conkeror.bin: If no xulrunner is found, look for firefox
       instead
     - debian/control: Update long description to mention Firefox, too.
+  * Add alternative dependencies on xulrunner-10.0 and xulrunner-9.0.
 
   [ Luca Capello ]
   * Support xulrunner 10.0 and 9.0 in debian/conkeror.bin, drop support
     for unversioned xulrunner binaries. (Closes: #649199)
 
- -- Axel Beckert <abe@debian.org>  Thu, 27 Oct 2011 23:35:54 +0200
+ -- Axel Beckert <abe@debian.org>  Sat, 19 Nov 2011 01:42:05 +0100
 
 conkeror (0.9.4-1) unstable; urgency=low
 
