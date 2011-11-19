@@ -1,5 +1,6 @@
 conkeror (1.0~~pre-1) UNRELEASED; urgency=low
 
+  [ Axel Beckert ]
   * Upstream version bump
   * Upstream changed minimum xulrunner requirement to 1.9.1: Update
     debian/control and debian/conkeror.bin accordingly.
@@ -11,6 +12,10 @@ conkeror (1.0~~pre-1) UNRELEASED; urgency=low
     - debian/conkeror.bin: If no xulrunner is found, look for firefox
       instead
     - debian/control: Update long description to mention Firefox, too.
+
+  [ Luca Capello ]
+  * Support xulrunner 10.0 and 9.0 in debian/conkeror.bin, drop support
+    for unversioned xulrunner binaries. (Closes: #649199)
 
  -- Axel Beckert <abe@debian.org>  Thu, 27 Oct 2011 23:35:54 +0200
 
