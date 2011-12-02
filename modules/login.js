@@ -59,6 +59,16 @@ function login_remove (login_info) {
 
 
 /**
+ * Remove all logins from the login manager.
+ */
+function login_remove_all () {
+    var lm = Cc["@mozilla.org/login-manager;1"]
+        .getService(Ci.nsILoginManager);
+    lm.removeAllLogins();
+}
+
+
+/**
  * host, username, and password are mandatory arguments.  one or the other
  * of form_submit_url and httprealm is also mandatory, but if neither is
  * given, the host will be used for form_submit_url.  httprealm
