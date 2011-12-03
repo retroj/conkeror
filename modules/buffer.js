@@ -68,10 +68,7 @@ function buffer (window) {
     var element = create_XUL(window, "vbox");
     element.setAttribute("flex", "1");
     var browser = create_XUL(window, "browser");
-    if (window.buffers.count == 0)
-        browser.setAttribute("type", "content-primary");
-    else
-        browser.setAttribute("type", "content");
+    browser.setAttribute("type", "content");
     browser.setAttribute("flex", "1");
     browser.setAttribute("autocompletepopup", "popup_autocomplete");
     element.appendChild(browser);
