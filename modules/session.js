@@ -48,6 +48,17 @@ in_module(null);
         "Default directory for save/load interactive commands.");
 
     /**
+     * session_token is instantiated for the $opener property of buffers
+     * created by the session.  This allows the possibility of knowing,
+     * during buffer init, whether the buffer was created by a session or
+     * by other means.
+     */
+    function session_token () {}
+    session_token.prototype = {
+        constructor: session_token
+    };
+
+    /**
      * session_get generates and returns a structure containing session
      * data for the current group of open windows.
      */
@@ -78,6 +89,7 @@ in_module(null);
         if (! (session[0] && session[0][0]))
             throw new Error("Invalid 'session' argument.");
         let s = 0;
+        var opener = new session_token();
         if (window) {
             let bi = buffer_idx != undefined ?
                 buffer_idx : window.buffers.count;
@@ -99,7 +111,8 @@ in_module(null);
                 {
                     if (! safe2kill)
                         create_buffer(window,
-                                      buffer_creator(content_buffer),
+                                      buffer_creator(content_buffer,
+                                                     $opener = opener),
                                       OPEN_NEW_BUFFER_BACKGROUND);
                     kill_buffer(b, true);
                 }
@@ -115,7 +128,9 @@ in_module(null);
                     } catch (e) {}
                     b.load(session[s][i]);
                 } else {
-                    let c = buffer_creator(content_buffer, $load = session[s][i]);
+                    let c = buffer_creator(content_buffer,
+                                           $load = session[s][i],
+                                           $opener = opener);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
                 }
             }
@@ -130,7 +145,9 @@ in_module(null);
         function make_init_hook (session) {
             function init_hook (window) {
                 for (let i = 1; session[i] != undefined; ++i) {
-                    let c = buffer_creator(content_buffer, $load = session[i]);
+                    let c = buffer_creator(content_buffer,
+                                           $load = session[i],
+                                           $opener = opener);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
                 }
             }
@@ -139,7 +156,8 @@ in_module(null);
 
         for (; session[s] != undefined; ++s) {
             let w = make_window(buffer_creator(content_buffer,
-                                               $load = session[s][0]));
+                                               $load = session[s][0],
+                                               $opener = opener));
             add_hook.call(w, "window_initialize_late_hook",
                           make_init_hook(session[s]));
         }
