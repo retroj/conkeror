@@ -55,3 +55,10 @@ pref("extensions.getAddons.cache.enabled", false);
 
 
 pref("browser.formfill.enable", true);
+
+
+// Plugins
+//
+//  Use plugin-container to isolate crashes for the following plugins.
+//
+pref("dom.ipc.plugins.enabled.libflashplayer.so", true);
