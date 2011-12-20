@@ -138,7 +138,7 @@ function youtube_scrape_embedded (buffer, results) {
 
 
 let youtube_uri_regexp = build_url_regex($domain = /(?:[a-z]+\.)?youtube/,
-                                         $path = /watch\?v=([A-Za-z0-9\-_]+)/);
+                                         $path = /watch\?(?:.*?&)?v=([A-Za-z0-9\-_]+)/);
 media_scrapers.unshift([/.*/, youtube_scrape_embedded]);
 media_scrapers.unshift([youtube_uri_regexp, youtube_scrape_buffer]);
 auto_mode_list.push([youtube_uri_regexp, youtube_mode]);
