@@ -26,6 +26,8 @@ define_variable("minibuffer_history_max_items", 100,
     "Maximum number of minibuffer history entries stored. Older "+
     "history entries are truncated after this limit is reached.");
 
+define_variable("minibuffer_completion_rows", 8,
+    "Number of minibuffer completions to display at one time.");
 
 var atom_service = Cc["@mozilla.org/atom-service;1"].getService(Ci.nsIAtomService);
 
@@ -159,7 +161,7 @@ text_entry_minibuffer_state.prototype = {
                     }, true);
                 tree.setAttribute("class", "completions");
 
-                tree.setAttribute("rows", "8");
+                tree.setAttribute("rows", minibuffer_completion_rows);
 
                 tree.setAttribute("collapsed", "true");
 
