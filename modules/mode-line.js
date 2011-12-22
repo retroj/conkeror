@@ -1,7 +1,7 @@
 /**
  * (C) Copyright 2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2010 John J. Foerch
+ * (C) Copyright 2010-2011 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -262,6 +262,30 @@ buffer_icon_widget.mode_line_adder = function (window) {
     element.setAttribute("width", "16");
     element.setAttribute("height", "16");
     window.mode_line.add_widget(new buffer_icon_widget(window), element);
+};
+
+
+/**
+ * downloads_status_widget shows the number of active downloads.
+ */
+function downloads_status_widget (window) {
+    text_widget.call(this, window);
+    var obj = this;
+    this.updater = function () { obj.update(); };
+    add_hook("download_progress_change_hook", this.updater);
+    add_hook("download_state_change_hook", this.updater);
+}
+downloads_status_widget.prototype = {
+    constructor: downloads_status_widget,
+    __proto__: text_widget.prototype,
+    class_name: "downloads-status-widget",
+    update: function (info) {
+        this.view.text = download_manager_service.activeDownloadCount;
+    },
+    destroy: function () {
+        remove_hook("download_progress_change_hook", this.updater);
+        remove_hook("download_state_change_hook", this.updater);
+    }
 };
 
 
