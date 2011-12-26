@@ -16,12 +16,11 @@
     -moz-box-flex: 100;
     margin-left: 4pt;
     padding-top: 1pt;
-    font: 10pt Sans;
 }
 
 .tab2-index {
     padding: 0pt 2pt 0pt 3pt;
-    font: 900 10pt Sans;
+    font-weight: 900;
     text-align: center;
 }
 
