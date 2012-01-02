@@ -8,7 +8,7 @@
 # e.g. "0.9.1". If a parameter is given, no date based snapshot
 # version number is generated.
 #
-# Copyright (C) 2008-2009 Axel Beckert <abe@deuxchevaux.org>
+# Copyright (C) 2008-2009, 2012 Axel Beckert <abe@deuxchevaux.org>
 
 # Find the full path of the current packaging directory and cd to it
 currdir=`dirname $0`/../..
@@ -35,7 +35,10 @@ if [ -n "$1" ]; then
     version="$1"
 else
     version=`grep ^Version= application.ini | \
-             sed -e 's/^Version=//'`+git`date +%y%m%d`
+             sed -e 's/^Version=//;
+                     s/\([0-9]\)pre/\1~~pre/;
+                     s/\([0-9]\)\([ab][0-9]\|rc\|beta\|alpha\)/\1~\2/' \
+            `+git`date +%y%m%d`
 fi
 echo -n "Hit enter to rename directory from $olddir to conkeror-$version
 and generate source tar ball or hit Ctrl-C to abort."
