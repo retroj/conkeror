@@ -1,4 +1,4 @@
-conkeror (1.0~~pre-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 
   [ Axel Beckert ]
   * Upstream version bump
@@ -19,7 +19,7 @@ conkeror (1.0~~pre-1) UNRELEASED; urgency=low
   * Support xulrunner 10.0 and 9.0 in debian/conkeror.bin, drop support
     for unversioned xulrunner binaries. (Closes: #649199)
 
- -- Axel Beckert <abe@debian.org>  Tue, 27 Dec 2011 02:18:41 +0100
+ -- Axel Beckert <abe@debian.org>  Mon, 02 Jan 2012 20:12:01 +0100
 
 conkeror (0.9.4-1) unstable; urgency=low
 
