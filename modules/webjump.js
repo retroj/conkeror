@@ -133,7 +133,6 @@ function define_default_webjumps () {
     define_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
     define_webjump("maps",       "http://maps.google.com/?q=%s");
     define_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
-    define_webjump("clusty",     "http://www.clusty.com/search?query=%s");
     define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
     define_webjump("image",      "http://images.google.com/images?q=%s");
