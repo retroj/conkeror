@@ -308,5 +308,6 @@ define_opensearch_webjump("answers", "answers.xml");
 define_opensearch_webjump("yahoo", "yahoo.xml");
 define_opensearch_webjump("creativecommons", "creativecommons.xml");
 define_opensearch_webjump("ebay", "eBay.xml");
+define_opensearch_webjump("duckduckgo", "duckduckgo.xml");
 
 provide("opensearch");
