@@ -48,7 +48,7 @@ function youtube_parse_video_info (info) {
 }
 
 function youtube_get_video_info (url, id, t) {
-    for each (el in ["profilepage", "detailpage"]) {
+    for each (var el in ["profilepage", "detailpage"]) {
         var video_info_url =
             "http://www.youtube.com/get_video_info?&video_id="+
             encodeURIComponent(id)+"&el="+el+"&ps=default&eurl="+
