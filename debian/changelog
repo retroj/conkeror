@@ -1,3 +1,10 @@
+conkeror (1.0~~pre+git120119-1) unstable; urgency=low
+
+  * New upstream snapshot
+  * Update buildd-ports webjump. Thanks Christoph Egger!
+
+ -- Axel Beckert <abe@debian.org>  Fri, 20 Jan 2012 00:51:58 +0100
+
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 
   [ Axel Beckert ]

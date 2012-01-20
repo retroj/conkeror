@@ -26,7 +26,7 @@ Index: conkeror/modules/debian/debian-webjumps.js
 +define_webjump("debpts", "http://packages.qa.debian.org/%s");
 +define_webjump("debpopcon", "http://qa.debian.org/popcon.php?package=%s");
 +define_webjump("buildd", "https://buildd.debian.org/%s");
-+define_webjump("buildd-ports", "http://buildd.debian-ports.org/build.php?pkg=%s");
++define_webjump("buildd-ports", "http://buildd.debian-ports.org/%s");
 +define_webjump("debqa", "http://qa.debian.org/developer.php?login=%s");
 +
 +// Ubuntu //
