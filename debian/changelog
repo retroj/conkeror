@@ -2,6 +2,7 @@ conkeror (1.0~~pre+git120119-1) unstable; urgency=low
 
   * New upstream snapshot
   * Update buildd-ports webjump. Thanks Christoph Egger!
+  * Add debpopcon webjump.
 
  -- Axel Beckert <abe@debian.org>  Fri, 20 Jan 2012 00:51:58 +0100
 
