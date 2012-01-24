@@ -12,6 +12,7 @@ pref("app.releaseNotesURL", "http://conkeror.org/BreakingChanges");
 pref("browser.chromeURL", "chrome://conkeror-gui/content/conkeror.xul");
 
 pref("accessibility.typeaheadfind", false);
+pref("accessibility.typeaheadfind.flashBar", 1);
 
 // Make sure access keys do not override conkeror keys
 pref("ui.key.generalAccessKey", 0);
