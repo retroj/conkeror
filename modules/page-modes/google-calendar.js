@@ -40,20 +40,18 @@ var google_calendar_modality = {
 
 
 define_page_mode("google_calendar_mode",
-    $display_name = "Google Calendar",
-    $enable = function (buffer) {
+    build_url_regexp($domain = "google",
+                     $path   = "calendar/",
+                     $allow_www = true),
+    function enable (buffer) {
         buffer.content_modalities.push(google_calendar_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         var i = buffer.content_modalities.indexOf(google_calendar_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
-    });
+    },
+    $display_name = "Google Calendar");
 
-let (re = build_url_regex($domain = "google",
-                          $path   = "calendar/",
-                          $allow_www = true)) {
-    auto_mode_list.push([re, google_calendar_mode]);
-}
 
 provide("google-calendar");

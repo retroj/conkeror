@@ -70,19 +70,16 @@ var gmane_modality = {
 
 
 define_page_mode("gmane_mode",
-    $enable = function (buffer) {
+    build_url_regexp($domain = /(news|thread)\.gmane/, $tlds = ["org"]),
+    function enable (buffer) {
         buffer.content_modalities.push(gmane_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         var i = buffer.content_modalities.indexOf(gmane_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
     },
     $display_name = "Gmane");
 
-
-let (re = build_url_regex($domain = /(news|thread)\.gmane/, $tlds = ["org"])) {
-    auto_mode_list.push([re, gmane_mode]);
-}
 
 provide("gmane");

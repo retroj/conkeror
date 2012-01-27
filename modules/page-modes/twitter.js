@@ -45,19 +45,17 @@ var twitter_modality = {
 };
 
 define_page_mode("twitter_mode",
-                 $display_name = "Twitter",
-                 $enable = function (buffer) {
-                     buffer.content_modalities.push(twitter_modality);
-                 },
-                 $disable = function (buffer) {
-                     var i = buffer.content_modalities.indexOf(twitter_modality);
-                     if (i > -1)
-                         buffer.content_modalities.splice(i, 1);
-                 });
+    build_url_regexp($domain = "twitter",
+                     $allow_www = true),
+    function enable (buffer) {
+        buffer.content_modalities.push(twitter_modality);
+    },
+    function disable (buffer) {
+        var i = buffer.content_modalities.indexOf(twitter_modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    },
+    $display_name = "Twitter");
 
-let (re = build_url_regex($domain = "twitter",
-                          $allow_www = true)) {
-    auto_mode_list.push([re, twitter_mode]);
-}
 
 provide("twitter");

@@ -120,6 +120,8 @@ function content_buffer (window) {
             content_buffer_popup_blocked_hook.run(buffer, event);
         }, true /* capture */);
 
+        this.page_modes = [];
+
         this.ignore_initial_blank = true;
 
         var lspec = arguments.$load;
@@ -261,6 +263,10 @@ content_buffer.prototype = {
         /* Use the real location URI now */
         this._display_uri = null;
         this.set_input_mode();
+        this.page = {
+            local: { __proto__: this.local }
+        };
+        this.default_browser_object_classes = {};
         content_buffer_location_change_hook.run(this, request, location);
         buffer_description_change_hook.run(this);
     },
@@ -635,48 +641,60 @@ browser_dom_window.prototype = {
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
 
-define_keywords("$display_name", "$enable", "$disable", "$doc");
-function define_page_mode (name) {
+
+define_keywords("$display_name", "$doc");
+function define_page_mode (name, test, enable, disable) {
     keywords(arguments);
     var display_name = arguments.$display_name;
-    var enable = arguments.$enable;
-    var disable = arguments.$disable;
     var doc = arguments.$doc;
     define_buffer_mode(name,
-                       $display_name = display_name,
-                       $class = "page_mode",
-                       $enable = function (buffer) {
-                           buffer.page = {
-                               local: { __proto__: buffer.local }
-                           };
-                           if (enable)
-                               enable(buffer);
-                           buffer.set_input_mode();
-                       },
-                       $disable = function (buffer) {
-                           if (disable)
-                               disable(buffer);
-                           buffer.page = null;
-                           buffer.default_browser_object_classes = {};
-                           buffer.set_input_mode();
-                       },
-                       $doc = doc);
+        $display_name = display_name,
+        $enable = function (buffer) {
+            try {
+                enable(buffer);
+            } finally {
+                buffer.page_modes.push(name)
+                buffer.set_input_mode();
+            }
+        },
+        $disable = function (buffer) {
+            try {
+                disable(buffer);
+            } finally {
+                var i = buffer.page_modes.indexOf(this.name);
+                if (i > -1)
+                    buffer.page_modes.splice(i, 1);
+                buffer.set_input_mode();
+            }
+        },
+        $doc = doc);
+    conkeror[name].test = test;
+    conkeror[name].active = true;
+    page_modes[name] = conkeror[name];
 }
 ignore_function_for_get_caller_source_code_reference("define_page_mode");
 
 
-define_variable("auto_mode_list", [],
-    "A list of mappings from URI regular expressions to page modes.");
+define_variable("page_modes", {},
+    "Object containing all currently active page-modes.");
 
-function page_mode_auto_update (buffer) {
-    var uri = buffer.current_uri.spec;
-    var mode = predicate_alist_match(auto_mode_list, uri);
-    if (mode)
-        mode(buffer, true);
-    else if (buffer.page_mode)
-        conkeror[buffer.page_mode](buffer, false);
+function page_mode_update (buffer) {
+    for (var i = buffer.page_modes.length - 1; i >= 0; --i) {
+        var p = buffer.page_modes[i];
+        page_modes[p](buffer, false);
+    }
+    var uri = buffer.current_uri;
+    for (let [name, func] in Iterator(page_modes)) {
+        if (func.active) {
+            if (func.test instanceof RegExp) {
+                if (func.test.exec(uri.spec))
+                    func(buffer, true);
+            } else if (func.test(uri))
+                func(buffer, true);
+        }
+    }
 }
 
-add_hook("content_buffer_location_change_hook", page_mode_auto_update);
+add_hook("content_buffer_location_change_hook", page_mode_update);
 
 provide("content-buffer");

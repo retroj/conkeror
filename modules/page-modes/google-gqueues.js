@@ -47,19 +47,18 @@ var google_gqueues_modality = {
 };
 
 define_page_mode("google_gqueues_mode",
-                 $display_name = "Google GQueues",
-                 $enable = function (buffer) {
-                     buffer.content_modalities.push(google_gqueues_modality);
-                 },
-                 $disable = function (buffer) {
-                     var i = buffer.content_modalities.indexOf(google_gqueues_modality);
-                     if (i > -1)
-                         buffer.content_modalities.splice(i, 1);
-                 });
+    build_url_regexp($domain = "gqueues",
+                     $allow_www = true,
+                     $path = "main"),
+    function enable (buffer) {
+        buffer.content_modalities.push(google_gqueues_modality);
+    },
+    function disable (buffer) {
+        var i = buffer.content_modalities.indexOf(google_gqueues_modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    },
+    $display_name = "Google GQueues");
 
-var google_gqueues_re = build_url_regex($domain = "gqueues",
-                                        $allow_www = true,
-                                        $path = "main");
-auto_mode_list.push([google_gqueues_re, google_gqueues_mode]);
 
 provide("google-gqueues");

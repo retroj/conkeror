@@ -872,10 +872,8 @@ function define_buffer_mode (name) {
 
     mode_display_names[name] = display_name;
 
-    var can_disable;
-
     if (disable == false) {
-        can_disable = false;
+        var can_disable = false;
         disable = null;
     } else
         can_disable = true;

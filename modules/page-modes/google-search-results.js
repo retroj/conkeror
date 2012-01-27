@@ -60,33 +60,30 @@ var google_search_results_modality = {
 
 
 define_page_mode("google_search_results_mode",
-                 $display_name = "Google Search Results",
-                 $enable = function (buffer) {
-		     var link_using_commands = ["follow",
-						"follow-new-buffer",
-						"follow-new-buffer-background",
-						"follow-new-window",
-						"save",
-						"copy",
-						"shell-command-on-file"];
-		     for each (var c in link_using_commands)
-			 buffer.default_browser_object_classes[c] =
-			     browser_object_google_search_results_links;
-                     buffer.content_modalities.push(google_search_results_modality);
-                 },
-                 $disable = function (buffer) {
-                     var i = buffer.content_modalities.indexOf(google_search_results_modality);
-                     if (i > -1)
-                         buffer.content_modalities.splice(i, 1);
-                 });
+    build_url_regexp($domain = "google",
+                     $allow_www = true,
+                     $path = /search\?|cse\?/,
+                     $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
+                              "fr", "it", "no", "se", "uk"]),
+    function enable (buffer) {
+	var link_using_commands = ["follow",
+				   "follow-new-buffer",
+				   "follow-new-buffer-background",
+				   "follow-new-window",
+				   "save",
+				   "copy",
+				   "shell-command-on-file"];
+	for each (var c in link_using_commands)
+	    buffer.default_browser_object_classes[c] =
+	    browser_object_google_search_results_links;
+        buffer.content_modalities.push(google_search_results_modality);
+    },
+    function disable (buffer) {
+        var i = buffer.content_modalities.indexOf(google_search_results_modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    },
+    $display_name = "Google Search Results");
 
-let (google_search_re = build_url_regex(
-         $domain = "google",
-         $allow_www = true,
-         $path = /search\?|cse\?/,
-         $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
-                  "fr", "it", "no", "se", "uk"])) {
-    auto_mode_list.push([google_search_re, google_search_results_mode]);
-}
 
 provide("google-search-results");

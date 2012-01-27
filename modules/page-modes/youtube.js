@@ -91,12 +91,6 @@ function youtube_scrape_buffer (buffer, results) {
     yield youtube_scrape_text(results, buffer.top_frame, url, id, text);
 }
 
-define_page_mode("youtube_mode",
-    $display_name = "YouTube",
-    $enable = function (buffer) {
-        media_setup_local_object_classes(buffer);
-    });
-
 function youtube_scrape_embedded (buffer, results) {
     const embedded_youtube_regexp = /^http:\/\/[a-zA-Z0-9\-.]+\.youtube\.com\/v\/([^?]*).*$/;
     for (let frame in frame_iterator(buffer.top_frame, buffer.focused_frame)) {
@@ -137,10 +131,18 @@ function youtube_scrape_embedded (buffer, results) {
 }
 
 
-let youtube_uri_regexp = build_url_regex($domain = /(?:[a-z]+\.)?youtube/,
-                                         $path = /watch\?(?:.*?&)?v=([A-Za-z0-9\-_]+)/);
+var youtube_uri_regexp = build_url_regexp($domain = /(?:[a-z]+\.)?youtube/,
+                                          $path = /watch\?(?:.*?&)?v=([A-Za-z0-9\-_]+)/);
 media_scrapers.unshift([/.*/, youtube_scrape_embedded]);
 media_scrapers.unshift([youtube_uri_regexp, youtube_scrape_buffer]);
-auto_mode_list.push([youtube_uri_regexp, youtube_mode]);
+
+define_page_mode("youtube_mode",
+    youtube_uri_regexp,
+    function enable (buffer) {
+        media_setup_local_object_classes(buffer);
+    },
+    function disable (buffer) {},
+    $display_name = "YouTube");
+
 
 provide("youtube");

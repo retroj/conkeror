@@ -43,9 +43,13 @@ function xkcd_do_add_title (buffer) {
     img.parentNode.insertBefore(span, node.nextSibling);
 }
 
+
 define_page_mode("xkcd_mode",
-    $display_name = "XKCD",
-    $enable = function (buffer) {
+    build_url_regexp($domain = "xkcd",
+                     $allow_www = true,
+                     $tlds = ["com", "net", "org"],
+                     $path = /(\d+\/)?/),
+    function enable (buffer) {
         if (xkcd_add_title) {
             if (buffer.browser.webProgress.isLoadingDocument)
                 add_hook.call(buffer, "buffer_loaded_hook", xkcd_do_add_title);
@@ -58,19 +62,14 @@ define_page_mode("xkcd_mode",
         buffer.page.local.browser_relationship_patterns[RELATIONSHIP_PREVIOUS] =
             [new RegExp("\\bprev","i")];
     },
-    // When we disable the mode, remove the <span>
-    $disable = function (buffer) {
+    function disable (buffer) {
         remove_hook.call(buffer, "buffer_loaded_hook", xkcd_do_add_title);
+        // When we disable the mode, remove the <span>
         var span = buffer.document.getElementById('conkeror:xkcd-title-text');
         if (span)
             span.parentNode.removeChild(span);
-    });
+    },
+    $display_name = "XKCD");
 
-let (re = build_url_regex($domain = "xkcd",
-                          $allow_www = true,
-                          $tlds = ["com", "net", "org"],
-                          $path = /(\d+\/)?/)) {
-    auto_mode_list.push([re, xkcd_mode]);
-}
 
 provide("xkcd");

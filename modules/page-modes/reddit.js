@@ -262,29 +262,27 @@ var reddit_modality = {
 
 
 define_page_mode("reddit_mode",
-                 $display_name = "reddit",
-                 $enable = function (buffer) {
-                     let (cmds = ["follow-current",
-                                  "follow-current-new-buffer",
-                                  "follow-current-new-buffer-background",
-                                  "follow-current-new-window",
-                                  "copy"]) {
-                         for each (var c in cmds) {
-                             buffer.default_browser_object_classes[c] =
-                                 browser_object_reddit_current;
-                         }
-                     }
-                     buffer.content_modalities.push(reddit_modality);
-                 },
-                 $disable = function (buffer) {
-                     var i = buffer.content_modalities.indexOf(reddit_modality);
-                     if (i > -1)
-                         buffer.content_modalities.splice(i, 1);
-                 },
-                 $doc = "reddit page-mode: keyboard navigation for reddit.");
+    build_url_regexp($domain = /([a-zA-Z0-9\-]*\.)*reddit/),
+    function enable (buffer) {
+        let (cmds = ["follow-current",
+                     "follow-current-new-buffer",
+                     "follow-current-new-buffer-background",
+                     "follow-current-new-window",
+                     "copy"]) {
+            for each (var c in cmds) {
+                buffer.default_browser_object_classes[c] =
+                    browser_object_reddit_current;
+            }
+        }
+        buffer.content_modalities.push(reddit_modality);
+    },
+    function disable (buffer) {
+        var i = buffer.content_modalities.indexOf(reddit_modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    },
+    $display_name = "reddit",
+    $doc = "reddit page-mode: keyboard navigation for reddit.");
 
-let (re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/)) {
-    auto_mode_list.push([re, reddit_mode]);
-};
 
 provide("reddit");

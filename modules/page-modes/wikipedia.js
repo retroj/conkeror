@@ -87,10 +87,9 @@ function define_wikipedia_webjumps() {
     else
         prefixes = Array.slice(arguments);
     for each (let i in prefixes) {
-        let (rest = wikipedia_versions[i],
-             name = string_format(wikipedia_webjumps_format, {s: i})) {
-            define_webjump(name, "http://" + i + ".wikipedia.org/wiki/" + rest.search);
-        };
+        var rest = wikipedia_versions[i];
+        var name = string_format(wikipedia_webjumps_format, {s: i});
+        define_webjump(name, "http://" + i + ".wikipedia.org/wiki/" + rest.search);
     }
 }
 
@@ -136,25 +135,21 @@ var wikipedia_modality = {
 /*** MAIN LOADING FUNCTIONALITY ***/
 
 define_page_mode("wikipedia_mode",
-    $display_name = "Wikipedia",
-    $enable = function (buffer) {
+    /wikipedia/,
+    function enable (buffer) {
         if (wikipedia_enable_didyoumean) {
 	    do_when("buffer_dom_content_loaded_hook", buffer, wikipedia_didyoumean);
         }
         buffer.page.local.headings_xpath = '//h1[@id="firstHeading"] | //span[@class="mw-headline"] | //div[@id="toctitle"]';
         buffer.content_modalities.push(wikipedia_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         remove_hook.call(buffer, "buffer_dom_content_loaded_hook", wikipedia_didyoumean);
         var i = buffer.content_modalities.indexOf(wikipedia_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
-    }
-);
-
-let (wikipedia_mode_re = /wikipedia/) { // TODO: Better regular expression
-    auto_mode_list.push([wikipedia_mode_re, wikipedia_mode]);
-}
+    },
+    $display_name = "Wikipedia");
 
 
 /*** HERE BE DRAGONS ***/
