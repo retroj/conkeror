@@ -44,7 +44,7 @@ var twitter_modality = {
     normal: twitter_keymap
 };
 
-define_page_mode("twitter_mode",
+define_page_mode("twitter-mode",
     build_url_regexp($domain = "twitter",
                      $allow_www = true),
     function enable (buffer) {
@@ -57,5 +57,6 @@ define_page_mode("twitter_mode",
     },
     $display_name = "Twitter");
 
+page_mode_activate(twitter_mode);
 
 provide("twitter");

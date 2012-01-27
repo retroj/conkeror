@@ -68,7 +68,7 @@ var stackexchange_modality = {
 };
 
 
-define_page_mode("stackexchange_mode",
+define_page_mode("stackexchange-mode",
     /^https?:\/\/(?:www.|meta.)?(stackoverflow|serverfault|superuser|stackapps)\.(?:com)\//,
     function enable (buffer) {
         buffer.content_modalities.push(stackexchange_modality);
@@ -80,5 +80,6 @@ define_page_mode("stackexchange_mode",
     },
     $display_name = "StackExchange");
 
+page_mode_activate(stackexchange_mode);
 
 provide("stackexchange");

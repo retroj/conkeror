@@ -134,7 +134,7 @@ var wikipedia_modality = {
 
 /*** MAIN LOADING FUNCTIONALITY ***/
 
-define_page_mode("wikipedia_mode",
+define_page_mode("wikipedia-mode",
     /wikipedia/,
     function enable (buffer) {
         if (wikipedia_enable_didyoumean) {
@@ -151,6 +151,7 @@ define_page_mode("wikipedia_mode",
     },
     $display_name = "Wikipedia");
 
+page_mode_activate(wikipedia_mode);
 
 /*** HERE BE DRAGONS ***/
 /* No, here is really just "data" which is cumbersome to scroll through. */

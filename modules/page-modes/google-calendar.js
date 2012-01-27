@@ -38,8 +38,7 @@ var google_calendar_modality = {
     normal: google_calendar_keymap
 };
 
-
-define_page_mode("google_calendar_mode",
+define_page_mode("google-calendar-mode",
     build_url_regexp($domain = "google",
                      $path   = "calendar/",
                      $allow_www = true),
@@ -53,5 +52,6 @@ define_page_mode("google_calendar_mode",
     },
     $display_name = "Google Calendar");
 
+page_mode_activate(google_calendar_mode);
 
 provide("google-calendar");

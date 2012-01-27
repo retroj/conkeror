@@ -46,7 +46,7 @@ var google_gqueues_modality = {
     normal: google_gqueues_keymap
 };
 
-define_page_mode("google_gqueues_mode",
+define_page_mode("google-gqueues-mode",
     build_url_regexp($domain = "gqueues",
                      $allow_www = true,
                      $path = "main"),
@@ -60,5 +60,6 @@ define_page_mode("google_gqueues_mode",
     },
     $display_name = "Google GQueues");
 
+page_mode_activate("google_gqueues_mode");
 
 provide("google-gqueues");

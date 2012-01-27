@@ -44,7 +44,7 @@ function xkcd_do_add_title (buffer) {
 }
 
 
-define_page_mode("xkcd_mode",
+define_page_mode("xkcd-mode",
     build_url_regexp($domain = "xkcd",
                      $allow_www = true,
                      $tlds = ["com", "net", "org"],
@@ -71,5 +71,6 @@ define_page_mode("xkcd_mode",
     },
     $display_name = "XKCD");
 
+page_mode_activate(xkcd_mode);
 
 provide("xkcd");

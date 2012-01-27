@@ -47,7 +47,7 @@ function media_scrape_google_video(buffer, results) {
 }
 
 
-define_page_mode("google_video_mode",
+define_page_mode("google-video-mode",
     build_url_regexp($domain = "video.google"),
     function enable (buffer) {
         buffer.page.local.media_scraper = [media_scrape_google_video];
@@ -56,5 +56,6 @@ define_page_mode("google_video_mode",
     function disable (buffer) {},
     $display_name = "Google Video");
 
+page_mode_activate(google_video_mode);
 
 provide("google-video");

@@ -71,7 +71,7 @@ function gmail_focus_primary_frame (buffer) {
         buffer.top_frame.frames[3].focus();
 }
 
-define_page_mode("gmail_mode",
+define_page_mode("gmail-mode",
     build_url_regexp($domain = "mail.google",
                      $path = new RegExp('(?!support)')),
     function enable (buffer) {
@@ -90,5 +90,6 @@ define_page_mode("gmail_mode",
     },
     $display_name = "GMail");
 
+page_mode_activate(gmail_mode);
 
 provide("gmail");

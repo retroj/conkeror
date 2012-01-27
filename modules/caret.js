@@ -13,8 +13,7 @@ function caret_modality (buffer, elem) {
 }
 
 define_buffer_mode('caret_mode',
-    $display_name = 'CARET',
-    $enable = function (buffer) {
+    function enable (buffer) {
         buffer.browser.setAttribute('showcaret', 'true');
         var sc = buffer.focused_selection_controller;
         sc.setCaretEnabled(true);
@@ -22,7 +21,7 @@ define_buffer_mode('caret_mode',
         buffer.modalities.push(caret_modality);
         buffer.set_input_mode();
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         buffer.browser.setAttribute('showcaret', 'false');
         var sc = buffer.focused_selection_controller;
         sc.setCaretEnabled(false);
@@ -31,10 +30,11 @@ define_buffer_mode('caret_mode',
         if (i > -1)
             buffer.modalities.splice(i, 1);
         buffer.set_input_mode();
-    });
+    },
+    $display_name = 'CARET');
 
 function caret_mode_enable (buffer) {
-    caret_mode(buffer, true);
+    caret_mode.enable(buffer);
 }
 
 watch_pref('accessibility.browsewithcaret',

@@ -56,7 +56,7 @@ var google_reader_modality = {
     normal: google_reader_keymap
 };
 
-define_page_mode("google_reader_mode",
+define_page_mode("google-reader-mode",
     build_url_regexp($domain = "google",
                      $tlds = ["com", "co.uk"],
                      $allow_www = true,
@@ -71,5 +71,6 @@ define_page_mode("google_reader_mode",
     },
     $display_name = "Google Reader");
 
+page_mode_activate(google_reader_mode);
 
 provide("google-reader");

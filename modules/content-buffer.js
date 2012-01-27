@@ -642,56 +642,69 @@ browser_dom_window.prototype = {
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
 
 
-define_keywords("$display_name", "$doc");
-function define_page_mode (name, test, enable, disable) {
-    keywords(arguments);
-    var display_name = arguments.$display_name;
-    var doc = arguments.$doc;
-    define_buffer_mode(name,
-        $display_name = display_name,
-        $enable = function (buffer) {
-            try {
-                enable(buffer);
-            } finally {
-                buffer.page_modes.push(name)
-                buffer.set_input_mode();
-            }
-        },
-        $disable = function (buffer) {
-            try {
-                disable(buffer);
-            } finally {
-                var i = buffer.page_modes.indexOf(this.name);
-                if (i > -1)
-                    buffer.page_modes.splice(i, 1);
-                buffer.set_input_mode();
-            }
-        },
-        $doc = doc);
-    conkeror[name].test = test;
-    conkeror[name].active = true;
-    page_modes[name] = conkeror[name];
-}
-ignore_function_for_get_caller_source_code_reference("define_page_mode");
-
+/*
+ * Page Modes
+ */
 
 define_variable("page_modes", {},
     "Object containing all currently active page-modes.");
 
+define_keywords("$test");
+function page_mode (name, enable, disable) {
+    keywords(arguments);
+    buffer_mode.call(this, name, enable, disable,
+                     forward_keywords(arguments));
+    this.test = arguments.$test;
+}
+page_mode.prototype = {
+    constructor: page_mode,
+    __proto__: buffer_mode.prototype,
+    test: null,
+    enable: function (buffer) {
+        buffer_mode.prototype.enable.call(this, buffer);
+        buffer.page_modes.push(this.name);
+        buffer.set_input_mode();
+    },
+    disable: function (buffer) {
+        buffer_mode.prototype.disable.call(this, buffer);
+        var i = buffer.page_modes.indexOf(this.name);
+        if (i > -1)
+            buffer.page_modes.splice(i, 1);
+        buffer.set_input_mode();
+    }
+};
+
+function define_page_mode (name, test, enable, disable) {
+    keywords(arguments);
+    define_buffer_mode(name, enable, disable,
+                       $constructor = page_mode,
+                       $test = test,
+                       forward_keywords(arguments));
+}
+ignore_function_for_get_caller_source_code_reference("define_page_mode");
+
+
+function page_mode_activate (page_mode) {
+    page_modes[page_mode.name] = page_mode;
+}
+
+function page_mode_deactivate (page_mode) {
+    delete page_modes[page_mode.name];
+}
+
+
 function page_mode_update (buffer) {
     for (var i = buffer.page_modes.length - 1; i >= 0; --i) {
         var p = buffer.page_modes[i];
-        page_modes[p](buffer, false);
+        page_modes[p].disable(buffer);
     }
     var uri = buffer.current_uri;
-    for (let [name, func] in Iterator(page_modes)) {
-        if (func.active) {
-            if (func.test instanceof RegExp) {
-                if (func.test.exec(uri.spec))
-                    func(buffer, true);
-            } else if (func.test(uri))
-                func(buffer, true);
-        }
+    for (let [name, m] in Iterator(page_modes)) {
+        if (m.test instanceof RegExp) {
+            if (m.test.exec(uri.spec))
+                m.enable(buffer);
+        } else if (m.test(uri))
+            m.enable(buffer);
     }
 }
 

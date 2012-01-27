@@ -40,7 +40,7 @@ function media_scrape_dailymotion(buffer, results) {
 var dailymotion_re = build_url_regexp($domain = /(?:[^\/]*\.)?dailymotion/);
 media_scrapers.unshift([dailymotion_re, media_scrape_dailymotion]);
 
-define_page_mode("dailymotion_mode",
+define_page_mode("dailymotion-mode",
     dailymotion_re,
     function enable (buffer) {
         media_setup_local_object_classes(buffer);
@@ -48,5 +48,6 @@ define_page_mode("dailymotion_mode",
     function disable (buffer) {},
     $display_name = "Dailymotion");
 
+page_mode_activate(dailymotion_mode);
 
 provide("dailymotion");

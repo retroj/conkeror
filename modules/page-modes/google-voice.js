@@ -47,7 +47,7 @@ var google_voice_modality = {
 };
 
 
-define_page_mode("google_voice_mode",
+define_page_mode("google-voice-mode",
     build_url_regexp($domain = "google",
                      $allow_www = true,
                      $path = "voice"),
@@ -61,5 +61,6 @@ define_page_mode("google_voice_mode",
     },
     $display_name = "Google Voice");
 
+page_mode_activate(google_voice_mode);
 
 provide("google-voice");

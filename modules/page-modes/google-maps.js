@@ -76,7 +76,7 @@ var google_maps_modality = {
     normal: google_maps_keymap
 };
 
-define_page_mode("google_maps_mode",
+define_page_mode("google-maps-mode",
     build_url_regexp($domain = "maps.google"),
     function enable (buffer) {
         buffer.content_modalities.push(google_maps_modality);
@@ -88,5 +88,6 @@ define_page_mode("google_maps_mode",
     },
     $display_name = "Google Maps");
 
+page_mode_activate(google_maps_mode);
 
 provide("google-maps");

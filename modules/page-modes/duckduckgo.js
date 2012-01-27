@@ -81,7 +81,7 @@ var duckduckgo_modality = {
     select: duckduckgo_select_keymap
 };
 
-define_page_mode("duckduckgo_mode",
+define_page_mode("duckduckgo-mode",
     build_url_regexp($domain = "duckduckgo"),
     function enable (buffer) {
         buffer.content_modalities.push(duckduckgo_modality);
@@ -92,5 +92,7 @@ define_page_mode("duckduckgo_mode",
             buffer.content_modalities.splice(i, 1);
     },
     $display_name = "DuckDuckGo");
+
+page_mode_activate(duckduckgo_mode);
 
 provide("duckduckgo");

@@ -62,7 +62,7 @@ define_browser_object_class("google-images-imgurl", null,
             yield co_return(u);
     });
 
-define_page_mode("google_images_mode",
+define_page_mode("google-images-mode",
     build_url_regexp($domain = /(.*\.)?google/,
                      $path = "images"),
     function enable (buffer) {
@@ -78,5 +78,6 @@ define_page_mode("google_images_mode",
     function disable (buffer) {},
     $display_name = "Google Images");
 
+page_mode_activate(google_images_mode);
 
 provide("google-images");

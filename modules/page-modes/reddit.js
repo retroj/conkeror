@@ -261,7 +261,7 @@ var reddit_modality = {
 };
 
 
-define_page_mode("reddit_mode",
+define_page_mode("reddit-mode",
     build_url_regexp($domain = /([a-zA-Z0-9\-]*\.)*reddit/),
     function enable (buffer) {
         let (cmds = ["follow-current",
@@ -284,5 +284,6 @@ define_page_mode("reddit_mode",
     $display_name = "reddit",
     $doc = "reddit page-mode: keyboard navigation for reddit.");
 
+page_mode_activate(reddit_mode);
 
 provide("reddit");

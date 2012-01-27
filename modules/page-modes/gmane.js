@@ -68,8 +68,7 @@ var gmane_modality = {
     normal: gmane_keymap
 };
 
-
-define_page_mode("gmane_mode",
+define_page_mode("gmane-mode",
     build_url_regexp($domain = /(news|thread)\.gmane/, $tlds = ["org"]),
     function enable (buffer) {
         buffer.content_modalities.push(gmane_modality);
@@ -81,5 +80,6 @@ define_page_mode("gmane_mode",
     },
     $display_name = "Gmane");
 
+page_mode_activate(gmane_mode);
 
 provide("gmane");

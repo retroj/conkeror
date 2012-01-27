@@ -86,7 +86,7 @@ var github_modality = {
     normal: github_keymap
 };
 
-define_page_mode("github_mode",
+define_page_mode("github-mode",
     build_url_regexp($domain = "github", $allow_www = true),
     function enable (buffer) {
         buffer.content_modalities.push(github_modality);
@@ -98,5 +98,6 @@ define_page_mode("github_mode",
     },
     $display_name = "Github");
 
+page_mode_activate(github_mode);
 
 provide("github");

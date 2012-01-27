@@ -59,7 +59,7 @@ var google_search_results_modality = {
 };
 
 
-define_page_mode("google_search_results_mode",
+define_page_mode("google-search-results-mode",
     build_url_regexp($domain = "google",
                      $allow_www = true,
                      $path = /search\?|cse\?/,
@@ -85,5 +85,6 @@ define_page_mode("google_search_results_mode",
     },
     $display_name = "Google Search Results");
 
+page_mode_activate(google_search_results_mode);
 
 provide("google-search-results");

@@ -136,7 +136,7 @@ var youtube_uri_regexp = build_url_regexp($domain = /(?:[a-z]+\.)?youtube/,
 media_scrapers.unshift([/.*/, youtube_scrape_embedded]);
 media_scrapers.unshift([youtube_uri_regexp, youtube_scrape_buffer]);
 
-define_page_mode("youtube_mode",
+define_page_mode("youtube-mode",
     youtube_uri_regexp,
     function enable (buffer) {
         media_setup_local_object_classes(buffer);
@@ -144,5 +144,6 @@ define_page_mode("youtube_mode",
     function disable (buffer) {},
     $display_name = "YouTube");
 
+page_mode_activate(youtube_mode);
 
 provide("youtube");
