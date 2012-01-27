@@ -19,7 +19,7 @@ define_variable("daemon_quit_exits", true,
 function daemon_quit_hook_fn () {
     if (daemon_quit_exits)
         daemon_mode(-1);
-};
+}
 
 define_global_mode("daemon_mode",
     function () { // enable
