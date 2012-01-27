@@ -696,7 +696,7 @@ function page_mode_deactivate (page_mode) {
 function page_mode_update (buffer) {
     for (var i = buffer.page_modes.length - 1; i >= 0; --i) {
         var p = buffer.page_modes[i];
-        page_modes[p].disable(buffer);
+        conkeror[p].disable(buffer);
     }
     var uri = buffer.current_uri;
     for (let [name, m] in Iterator(page_modes)) {
