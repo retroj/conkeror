@@ -920,7 +920,6 @@ function define_buffer_mode (name, enable, disable) {
                 m.enable(I.buffer);
             I.minibuffer.message(m.hyphen_name + (enabledp ? " disabled" : " enabled"));
         });
-    dumpln("*** defined "+m.hyphen_name);
 }
 ignore_function_for_get_caller_source_code_reference("define_buffer_mode");
 
