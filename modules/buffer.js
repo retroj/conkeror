@@ -860,8 +860,8 @@ define_current_buffer_hook("current_buffer_mode_change_hook", "buffer_mode_chang
 define_keywords("$display_name", "$doc");
 function buffer_mode (name, enable, disable) {
     keywords(arguments);
-    var hyphen_name = name.replace("_","-","g");
-    this.name = hyphen_name.replace("-","_","g"); // normalize
+    this.hyphen_name = name.replace("_","-","g");
+    this.name = this.hyphen_name.replace("-","_","g"); // normalize
     this._enable = enable;
     this._disable = disable;
     this.display_name = arguments.$display_name;
@@ -920,6 +920,7 @@ function define_buffer_mode (name, enable, disable) {
                 m.enable(I.buffer);
             I.minibuffer.message(m.hyphen_name + (enabledp ? " disabled" : " enabled"));
         });
+    dumpln("*** defined "+m.hyphen_name);
 }
 ignore_function_for_get_caller_source_code_reference("define_buffer_mode");
 

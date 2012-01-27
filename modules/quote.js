@@ -8,14 +8,14 @@
 
 in_module(null);
 
-define_buffer_mode('quote_next_mode',
+define_buffer_mode("quote-next-mode",
     function enable (buffer) {
         buffer.override_keymaps([quote_next_keymap]);
     },
     function disable (buffer) {
         buffer.override_keymaps();
     },
-    $display_name = 'QUOTE-NEXT',
+    $display_name = "QUOTE-NEXT",
     $doc = "This mode sends the next key combo to the buffer, bypassing "+
         "normal key handling.  It disengages after one key combo.");
 
@@ -27,14 +27,14 @@ interactive("quote-next-mode-disable",
     });
 
 
-define_buffer_mode('quote_mode',
+define_buffer_mode("quote-mode",
     function enable (buffer) {
         buffer.override_keymaps([quote_keymap]);
     },
     function disable (buffer) {
         buffer.override_keymaps();
     },
-    $display_name = 'QUOTE',
+    $display_name = "QUOTE",
     $doc = "This mode sends all key combos to the buffer, "+
         "bypassing normal key handling, until the escape "+
         "key is pressed.");
