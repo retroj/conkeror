@@ -42,12 +42,12 @@ pref("conkeror.load.mode-line", 1);
 pref("conkeror.load.daemon", 1);
 
 // Page mode modules
-pref("conkeror.load.page-modes/youtube", 1);
+pref("conkeror.load.page-modes/dailymotion", 1);
 pref("conkeror.load.page-modes/google-calendar", 1);
+pref("conkeror.load.page-modes/google-maps", 1);
 pref("conkeror.load.page-modes/google-reader", 1);
 pref("conkeror.load.page-modes/google-video", 1);
-pref("conkeror.load.page-modes/google-maps", 1);
-pref("conkeror.load.page-modes/dailymotion", 1);
-pref("conkeror.load.page-modes/xkcd", 1);
 pref("conkeror.load.page-modes/stackexchange", 1);
+pref("conkeror.load.page-modes/xkcd", 1);
+pref("conkeror.load.page-modes/youtube", 1);
 pref("conkeror.load.page-modes/youtube-player", 1);
