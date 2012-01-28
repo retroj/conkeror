@@ -87,10 +87,9 @@ function define_wikipedia_webjumps() {
     else
         prefixes = Array.slice(arguments);
     for each (let i in prefixes) {
-        let (rest = wikipedia_versions[i],
-             name = string_format(wikipedia_webjumps_format, {s: i})) {
-            define_webjump(name, "http://" + i + ".wikipedia.org/wiki/" + rest.search);
-        };
+        var rest = wikipedia_versions[i];
+        var name = string_format(wikipedia_webjumps_format, {s: i});
+        define_webjump(name, "http://" + i + ".wikipedia.org/wiki/" + rest.search);
     }
 }
 
