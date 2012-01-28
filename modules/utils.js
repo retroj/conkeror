@@ -650,7 +650,7 @@ function scroll_selection_into_view (field) {
  * build_url_regexp builds a regular expression to match URLs for a given
  * web site.
  *
- * Both the $domain and $path arguments can be either regexes, in
+ * Both the $domain and $path arguments can be either regexps, in
  * which case they will be matched as is, or strings, in which case
  * they will be matched literally.
  *
@@ -675,7 +675,7 @@ function build_url_regexp () {
     }
     var path   = regexp_to_string(arguments.$path);
     var tlds   = arguments.$tlds;
-    var regexp = "^https?://" + domain + "\\." + choice_regex(tlds) + "/" + path;
+    var regexp = "^https?://" + domain + "\\." + choice_regexp(tlds) + "/" + path;
     return new RegExp(regexp);
 }
 
