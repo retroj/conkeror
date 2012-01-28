@@ -46,7 +46,7 @@ define_browser_object_class("google-images-imgrefurl", null,
     function (I, prompt) {
         var u = yield google_images_get_image_uri(I, prompt);
         if (u instanceof Ci.nsIURL) {
-            var imgrefurl = unescape(/&imgrefurl=([^&]*)/(u.query)[1]);
+            var imgrefurl = unescape(u.query.match(/&imgrefurl=([^&]*)/)[1]);
             yield co_return(imgrefurl);
         } else
             yield co_return(u);
@@ -56,7 +56,7 @@ define_browser_object_class("google-images-imgurl", null,
     function (I, prompt) {
         var u = yield google_images_get_image_uri(I, prompt);
         if (u instanceof Ci.nsIURL) {
-            var imgurl = unescape(/imgurl=([^&]*)/(u.query)[1]);
+            var imgurl = unescape(u.query.match(/imgurl=([^&]*)/)[1]);
             yield co_return(imgurl);
         } else
             yield co_return(u);
