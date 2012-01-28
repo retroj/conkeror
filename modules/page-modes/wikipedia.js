@@ -134,26 +134,24 @@ var wikipedia_modality = {
 
 /*** MAIN LOADING FUNCTIONALITY ***/
 
-define_page_mode("wikipedia_mode",
-    $display_name = "Wikipedia",
-    $enable = function (buffer) {
+define_page_mode("wikipedia-mode",
+    /wikipedia/,  // TODO: Better regular expression
+    function enable (buffer) {
         if (wikipedia_enable_didyoumean) {
 	    do_when("buffer_dom_content_loaded_hook", buffer, wikipedia_didyoumean);
         }
         buffer.page.local.headings_xpath = '//h1[@id="firstHeading"] | //span[@class="mw-headline"] | //div[@id="toctitle"]';
         buffer.content_modalities.push(wikipedia_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         remove_hook.call(buffer, "buffer_dom_content_loaded_hook", wikipedia_didyoumean);
         var i = buffer.content_modalities.indexOf(wikipedia_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
-    });
+    },
+    $display_name = "Wikipedia");
 
-let (wikipedia_mode_re = /wikipedia/) { // TODO: Better regular expression
-    auto_mode_list.push([wikipedia_mode_re, wikipedia_mode]);
-}
-
+page_mode_activate(wikipedia_mode);
 
 /*** HERE BE DRAGONS ***/
 /* No, here is really just "data" which is cumbersome to scroll through. */

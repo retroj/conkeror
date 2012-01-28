@@ -46,20 +46,20 @@ var google_gqueues_modality = {
     normal: google_gqueues_keymap
 };
 
-define_page_mode("google_gqueues_mode",
-    $display_name = "Google GQueues",
-    $enable = function (buffer) {
+define_page_mode("google-gqueues-mode",
+    build_url_regex($domain = "gqueues",
+                    $allow_www = true,
+                    $path = "main"),
+    function enable (buffer) {
         buffer.content_modalities.push(google_gqueues_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         var i = buffer.content_modalities.indexOf(google_gqueues_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
-    });
+    },
+    $display_name = "Google GQueues");
 
-var google_gqueues_re = build_url_regex($domain = "gqueues",
-                                        $allow_www = true,
-                                        $path = "main");
-auto_mode_list.push([google_gqueues_re, google_gqueues_mode]);
+page_mode_activate("google_gqueues_mode");
 
 provide("google-gqueues");

@@ -62,9 +62,9 @@ define_browser_object_class("google-images-imgurl", null,
             yield co_return(u);
     });
 
-define_page_mode("google_images_mode",
-    $display_name = "Google Images",
-    $enable = function (buffer) {
+define_page_mode("google-images-mode",
+    build_url_regex($domain = /(.*\.)?google/, $path = "images"),
+    function enable (buffer) {
         for each (var c in google_images_imgrefurl_commands) {
             buffer.default_browser_object_classes[c] =
                 browser_object_google_images_imgrefurl;
@@ -73,12 +73,10 @@ define_page_mode("google_images_mode",
             buffer.default_browser_object_classes[c] =
                 browser_object_google_images_imgurl;
         }
-    });
+    },
+    function disable (buffer) {},
+    $display_name = "Google Images");
 
-
-let (rx = build_url_regex($domain = /(.*\.)?google/,
-                          $path = "images")) {
-    auto_mode_list.push([rx, google_images_mode]);
-};
+page_mode_activate(google_images_mode);
 
 provide("google-images");

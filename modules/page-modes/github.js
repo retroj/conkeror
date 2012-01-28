@@ -86,20 +86,18 @@ var github_modality = {
     normal: github_keymap
 };
 
-define_page_mode("github_mode",
-    $enable = function (buffer) {
+define_page_mode("github-mode",
+    build_url_regex($domain = "github", $allow_www = true),
+    function enable (buffer) {
         buffer.content_modalities.push(github_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         var i = buffer.content_modalities.indexOf(github_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
     },
     $display_name = "Github");
 
-auto_mode_list.push([
-    build_url_regex($domain = "github", $allow_www = true),
-    github_mode
-]);
+page_mode_activate(github_mode);
 
 provide("github");

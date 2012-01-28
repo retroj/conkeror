@@ -261,9 +261,9 @@ var reddit_modality = {
 };
 
 
-define_page_mode("reddit_mode",
-    $display_name = "reddit",
-    $enable = function (buffer) {
+define_page_mode("reddit-mode",
+    build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/),
+    function enable (buffer) {
         let (cmds = ["follow-current",
                      "follow-current-new-buffer",
                      "follow-current-new-buffer-background",
@@ -276,15 +276,14 @@ define_page_mode("reddit_mode",
         }
         buffer.content_modalities.push(reddit_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         var i = buffer.content_modalities.indexOf(reddit_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
     },
+    $display_name = "reddit",
     $doc = "reddit page-mode: keyboard navigation for reddit.");
 
-let (re = build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/)) {
-    auto_mode_list.push([re, reddit_mode]);
-};
+page_mode_activate(reddit_mode);
 
 provide("reddit");

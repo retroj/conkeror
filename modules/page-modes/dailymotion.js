@@ -36,15 +36,16 @@ function media_scrape_dailymotion(buffer, results) {
                             mime_type: "video/x-flv"}));
 }
 
-define_page_mode("dailymotion_mode",
-    $display_name = "Dailymotion",
-    $enable = function (buffer) {
+define_page_mode("dailymotion-mode",
+    build_url_regex($domain = /(?:[^\/]*\.)?dailymotion/),
+    function enable (buffer) {
         media_setup_local_object_classes(buffer);
-    });
+    },
+    function disable (buffer) {},
+    $display_name = "Dailymotion");
 
+page_mode_activate(dailymotion_mode);
 
-var dailymotion_re = build_url_regex($domain = /(?:[^\/]*\.)?dailymotion/);
-auto_mode_list.push([dailymotion_re, dailymotion_mode]);
-media_scrapers.unshift([dailymotion_re, media_scrape_dailymotion]);
+media_scrapers.unshift([dailymotion_mode.test, media_scrape_dailymotion]);
 
 provide("dailymotion");

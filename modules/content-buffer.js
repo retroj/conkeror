@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009,2011 John J. Foerch
+ * (C) Copyright 2007-2009,2011-2012 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -119,6 +119,8 @@ function content_buffer (window) {
 	    dumpln("Blocked popup: " + event.popupWindowURI.spec);
             content_buffer_popup_blocked_hook.run(buffer, event);
         }, true /* capture */);
+
+        this.page_modes = [];
 
         this.ignore_initial_blank = true;
 
@@ -261,6 +263,10 @@ content_buffer.prototype = {
         /* Use the real location URI now */
         this._display_uri = null;
         this.set_input_mode();
+        this.page = {
+            local: { __proto__: this.local }
+        };
+        this.default_browser_object_classes = {};
         content_buffer_location_change_hook.run(this, request, location);
         buffer_description_change_hook.run(this);
     },
@@ -635,48 +641,74 @@ browser_dom_window.prototype = {
 
 add_hook("window_initialize_early_hook", initialize_browser_dom_window);
 
-define_keywords("$display_name", "$enable", "$disable", "$doc");
-function define_page_mode (name) {
+
+/*
+ * Page Modes
+ */
+
+define_variable("page_modes", {},
+    "Object containing all activated page-modes.  "+
+    "(See `page_mode_activate`.)");
+
+define_keywords("$test");
+function page_mode (name, enable, disable) {
     keywords(arguments);
-    var display_name = arguments.$display_name;
-    var enable = arguments.$enable;
-    var disable = arguments.$disable;
-    var doc = arguments.$doc;
-    define_buffer_mode(name,
-                       $display_name = display_name,
-                       $class = "page_mode",
-                       $enable = function (buffer) {
-                           buffer.page = {
-                               local: { __proto__: buffer.local }
-                           };
-                           if (enable)
-                               enable(buffer);
-                           buffer.set_input_mode();
-                       },
-                       $disable = function (buffer) {
-                           if (disable)
-                               disable(buffer);
-                           buffer.page = null;
-                           buffer.default_browser_object_classes = {};
-                           buffer.set_input_mode();
-                       },
-                       $doc = doc);
+    buffer_mode.call(this, name, enable, disable,
+                     forward_keywords(arguments));
+    this.test = arguments.$test;
+}
+page_mode.prototype = {
+    constructor: page_mode,
+    __proto__: buffer_mode.prototype,
+    test: null,
+    enable: function (buffer) {
+        buffer_mode.prototype.enable.call(this, buffer);
+        buffer.page_modes.push(this.name);
+        buffer.set_input_mode();
+    },
+    disable: function (buffer) {
+        buffer_mode.prototype.disable.call(this, buffer);
+        var i = buffer.page_modes.indexOf(this.name);
+        if (i > -1)
+            buffer.page_modes.splice(i, 1);
+        buffer.set_input_mode();
+    }
+};
+
+function define_page_mode (name, test, enable, disable) {
+    keywords(arguments);
+    define_buffer_mode(name, enable, disable,
+                       $constructor = page_mode,
+                       $test = test,
+                       forward_keywords(arguments));
 }
 ignore_function_for_get_caller_source_code_reference("define_page_mode");
 
 
-define_variable("auto_mode_list", [],
-    "A list of mappings from URI regular expressions to page modes.");
-
-function page_mode_auto_update (buffer) {
-    var uri = buffer.current_uri.spec;
-    var mode = predicate_alist_match(auto_mode_list, uri);
-    if (mode)
-        mode(buffer, true);
-    else if (buffer.page_mode)
-        conkeror[buffer.page_mode](buffer, false);
+function page_mode_activate (page_mode) {
+    page_modes[page_mode.name] = page_mode;
 }
 
-add_hook("content_buffer_location_change_hook", page_mode_auto_update);
+function page_mode_deactivate (page_mode) {
+    delete page_modes[page_mode.name];
+}
+
+
+function page_mode_update (buffer) {
+    for (var i = buffer.page_modes.length - 1; i >= 0; --i) {
+        var p = buffer.page_modes[i];
+        conkeror[p].disable(buffer);
+    }
+    var uri = buffer.current_uri;
+    for (let [name, m] in Iterator(page_modes)) {
+        if (m.test instanceof RegExp) {
+            if (m.test.exec(uri.spec))
+                m.enable(buffer);
+        } else if (m.test(uri))
+            m.enable(buffer);
+    }
+}
+
+add_hook("content_buffer_location_change_hook", page_mode_update);
 
 provide("content-buffer");

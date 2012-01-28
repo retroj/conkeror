@@ -68,18 +68,18 @@ var stackexchange_modality = {
 };
 
 
-define_page_mode("stackexchange_mode",
-    $display_name = "StackExchange",
-    $enable = function (buffer) {
+define_page_mode("stackexchange-mode",
+    /^https?:\/\/(?:www.|meta.)?(stackoverflow|serverfault|superuser|stackapps)\.(?:com)\//,
+    function enable (buffer) {
         buffer.content_modalities.push(stackexchange_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
          var i = buffer.content_modalities.indexOf(stackexchange_modality);
          if (i > -1)
              buffer.content_modalities.splice(i, 1);
-    });
+    },
+    $display_name = "StackExchange");
 
-auto_mode_list.push([/^https?:\/\/(?:www.|meta.)?(stackoverflow|serverfault|superuser|stackapps)\.(?:com)\//,
-    stackexchange_mode]);
+page_mode_activate(stackexchange_mode);
 
 provide("stackexchange");

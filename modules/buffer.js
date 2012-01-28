@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2010 John J. Foerch
+ * (C) Copyright 2007-2010,2012 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -851,95 +851,75 @@ function for_each_buffer (f) {
 
 
 /*
- * BUFFER MODES
+ * Buffer Modes
  */
-
-var mode_functions = {};
-var mode_display_names = {};
 
 define_buffer_local_hook("buffer_mode_change_hook");
 define_current_buffer_hook("current_buffer_mode_change_hook", "buffer_mode_change_hook");
 
-define_keywords("$display_name", "$class", "$enable", "$disable", "$doc");
-function define_buffer_mode (name) {
+define_keywords("$display_name", "$doc");
+function buffer_mode (name, enable, disable) {
     keywords(arguments);
-
-    var hyphen_name = name.replace("_","-","g");
-    var display_name = arguments.$display_name;
-    var mode_class = arguments.$class;
-    var enable = arguments.$enable;
-    var disable = arguments.$disable;
-
-    mode_display_names[name] = display_name;
-
-    var can_disable;
-
-    if (disable == false) {
-        can_disable = false;
-        disable = null;
-    } else
-        can_disable = true;
-
-    var state = (mode_class != null) ? mode_class : (name + "_enabled");
-    var enable_hook_name = name + "_enable_hook";
-    var disable_hook_name = name + "_disable_hook";
-    define_buffer_local_hook(enable_hook_name);
-    define_buffer_local_hook(disable_hook_name);
-
-    var change_hook_name = null;
-
-    if (mode_class) {
-        mode_functions[name] = { enable: enable,
-                                 disable: disable,
-                                 mode_class: mode_class,
-                                 disable_hook_name: disable_hook_name };
-        change_hook_name = mode_class + "_change_hook";
-        define_buffer_local_hook(change_hook_name);
-    }
-
-    function func (buffer, arg) {
-        var old_state = buffer[state];
-        var cur_state = (old_state == name);
-        var new_state = (arg == null) ? !cur_state : (arg > 0);
-        if ((new_state == cur_state) || (!can_disable && !new_state))
-            // perhaps show a message if (!can_disable && !new_state)
-            // to tell the user that this mode cannot be disabled.  do
-            // we have any existing modes that would benefit by it?
-            return null;
-        if (new_state) {
-            if (mode_class && old_state != null)  {
-                // Another buffer-mode of our same mode-class is
-                // enabled.  Buffer-modes within a mode-class are
-                // mutually exclusive, so turn the old one off.
-                buffer.enabled_modes.splice(buffer.enabled_modes.indexOf(old_state), 1);
-                let x = mode_functions[old_state];
-                let y = x.disable;
-                if (y) y(buffer);
-                conkeror[x.disable_hook_name].run(buffer);
-            }
-            buffer[state] = name;
-            if (enable)
-                enable(buffer);
-            conkeror[enable_hook_name].run(buffer);
-            buffer.enabled_modes.push(name);
-        } else {
-            buffer.enabled_modes.splice(buffer.enabled_modes.indexOf(name), 1);
-            disable(buffer);
-            conkeror[disable_hook_name].run(buffer);
-            buffer[state] = null;
+    this.name = name.replace("-","_","g");
+    this.hyphen_name = name.replace("_","-","g");
+    this._enable = enable;
+    this._disable = disable;
+    this.display_name = arguments.$display_name;
+    this.doc = arguments.$doc;
+    this.enable_hook = name + "_enable_hook";
+    this.disable_hook = name + "_disable_hook";
+}
+buffer_mode.prototype = {
+    constructor: buffer_mode,
+    name: null,
+    display_name: null,
+    doc: null,
+    enable_hook: null,
+    disable_hook: null,
+    _enable: null,
+    _disable: null,
+    enable: function (buffer) {
+        try {
+            this._enable(buffer);
+        } finally {
+            buffer.enabled_modes.push(this.name);
+            if (conkeror[this.enable_hook])
+                conkeror[this.enable_hook].run(buffer);
+            buffer_mode_change_hook.run(buffer);
         }
-        if (change_hook_name)
-            conkeror[change_hook_name].run(buffer, buffer[state]);
-        buffer_mode_change_hook.run(buffer);
-        return new_state;
+    },
+    disable: function (buffer) {
+        try {
+            this._disable(buffer);
+        } finally {
+            var i = buffer.enabled_modes.indexOf(this.name);
+            if (i > -1)
+                buffer.enabled_modes.splice(i, 1);
+            if (conkeror[this.disable_hook])
+                conkeror[this.disable_hook].run(buffer);
+            buffer_mode_change_hook.run(buffer);
+        }
     }
-
-    conkeror[name] = func;
-    interactive(hyphen_name, arguments.$doc, function (I) {
-        var arg = I.P;
-        var new_state = func(I.buffer, arg && univ_arg_to_number(arg));
-        I.minibuffer.message(hyphen_name + (new_state ? " enabled" : " disabled"));
-    });
+};
+define_keywords("$constructor");
+function define_buffer_mode (name, enable, disable) {
+    keywords(arguments, $constructor = buffer_mode);
+    var constructor = arguments.$constructor;
+    var m = new constructor(name, enable, disable, forward_keywords(arguments));
+    name = m.name; // normalized
+    conkeror[name] = m;
+    define_buffer_local_hook(m.enable_hook);
+    define_buffer_local_hook(m.disable_hook);
+    interactive(m.hyphen_name,
+        arguments.$doc,
+        function (I) {
+            var enabledp = (I.buffer.enabled_modes.indexOf(name) > -1);
+            if (enabledp)
+                m.disable(I.buffer);
+            else
+                m.enable(I.buffer);
+            I.minibuffer.message(m.hyphen_name + (enabledp ? " disabled" : " enabled"));
+        });
 }
 ignore_function_for_get_caller_source_code_reference("define_buffer_mode");
 
@@ -969,11 +949,7 @@ minibuffer_mode_indicator.prototype = {
         var buffer = this.window.buffers.current;
         var str = buffer.enabled_modes.map(
             function (x) {
-                let y = mode_display_names[x];
-                if (y)
-                    return y;
-                else
-                    return null;
+                return (conkeror[x].display_name || null);
             }).filter(function (x) x != null).join(" ");
         this.element.value = str;
     },

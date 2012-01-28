@@ -56,21 +56,21 @@ var google_reader_modality = {
     normal: google_reader_keymap
 };
 
-define_page_mode("google_reader_mode",
-    $display_name = "Google Reader",
-    $enable = function (buffer) {
+define_page_mode("google-reader-mode",
+    build_url_regex($domain = "google",
+                    $tlds = ["com", "co.uk"],
+                    $allow_www = true,
+                    $path = "reader/"),
+    function enable (buffer) {
         buffer.content_modalities.push(google_reader_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         var i = buffer.content_modalities.indexOf(google_reader_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
-    });
+    },
+    $display_name = "Google Reader");
 
-var google_reader_re = build_url_regex($domain = "google",
-                                       $tlds = ["com", "co.uk"],
-                                       $allow_www = true,
-                                       $path = "reader/");
-auto_mode_list.push([google_reader_re, google_reader_mode]);
+page_mode_activate(google_reader_mode);
 
 provide("google-reader");

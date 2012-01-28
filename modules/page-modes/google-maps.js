@@ -76,18 +76,18 @@ var google_maps_modality = {
     normal: google_maps_keymap
 };
 
-define_page_mode("google_maps_mode",
-    $display_name = "Google Maps",
-    $enable = function (buffer) {
+define_page_mode("google-maps-mode",
+    build_url_regex($domain = "maps.google"),
+    function enable (buffer) {
         buffer.content_modalities.push(google_maps_modality);
     },
-    $disable = function (buffer) {
+    function disable (buffer) {
         var i = buffer.content_modalities.indexOf(google_maps_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
-    });
+    },
+    $display_name = "Google Maps");
 
-var google_maps_re = build_url_regex($domain = "maps.google");
-auto_mode_list.push([google_maps_re, google_maps_mode]);
+page_mode_activate(google_maps_mode);
 
 provide("google-maps");

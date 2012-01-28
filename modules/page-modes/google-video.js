@@ -47,14 +47,15 @@ function media_scrape_google_video(buffer, results) {
 }
 
 
-define_page_mode("google_video_mode",
-    $display_name = "Google Video",
-    $enable = function (buffer) {
+define_page_mode("google-video-mode",
+    build_url_regex($domain = "video.google"),
+    function enable (buffer) {
         buffer.page.local.media_scraper = [media_scrape_google_video];
         media_setup_local_object_classes(buffer);
-    });
+    },
+    function disable (buffer) {},
+    $display_name = "Google Video");
 
-var google_video_re = build_url_regex($domain = "video.google");
-auto_mode_list.push([google_video_re, google_video_mode]);
+page_mode_activate(google_video_mode);
 
 provide("google-video");
