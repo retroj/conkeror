@@ -63,21 +63,9 @@ define_key(gmane_keymap, "down", null, $fallthrough);
 define_key(gmane_keymap, "up", null, $fallthrough);
 define_key(gmane_keymap, "S", null, $fallthrough);
 
-
-var gmane_modality = {
-    normal: gmane_keymap
-};
-
-define_page_mode("gmane-mode",
+define_keymaps_page_mode("gmane-mode",
     build_url_regexp($domain = /(news|thread)\.gmane/, $tlds = ["org"]),
-    function enable (buffer) {
-        buffer.content_modalities.push(gmane_modality);
-    },
-    function disable (buffer) {
-        var i = buffer.content_modalities.indexOf(gmane_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: gmane_keymap },
     $display_name = "Gmane");
 
 page_mode_activate(gmane_mode);

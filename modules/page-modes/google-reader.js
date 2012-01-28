@@ -51,24 +51,12 @@ define_key(google_reader_keymap, "2", null, $fallthrough);
 define_key(google_reader_keymap, "/", null, $fallthrough);
 define_key(google_reader_keymap, "a", null, $fallthrough);
 
-
-var google_reader_modality = {
-    normal: google_reader_keymap
-};
-
-define_page_mode("google-reader-mode",
+define_keymaps_page_mode("google-reader-mode",
     build_url_regexp($domain = "google",
                      $tlds = ["com", "co.uk"],
                      $allow_www = true,
                      $path = "reader/"),
-    function enable (buffer) {
-        buffer.content_modalities.push(google_reader_modality);
-    },
-    function disable (buffer) {
-        var i = buffer.content_modalities.indexOf(google_reader_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: google_reader_keymap },
     $display_name = "Google Reader");
 
 page_mode_activate(google_reader_mode);

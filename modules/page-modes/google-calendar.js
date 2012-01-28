@@ -34,22 +34,11 @@ define_key(google_calendar_keymap, "tab", null, $fallthrough);//PROBABLY BAD
 define_key(google_calendar_keymap, "M-s", null, $fallthrough);
 define_key(google_calendar_keymap, "escape", null, $fallthrough);
 
-var google_calendar_modality = {
-    normal: google_calendar_keymap
-};
-
-define_page_mode("google-calendar-mode",
+define_keymaps_page_mode("google-calendar-mode",
     build_url_regexp($domain = "google",
                      $path   = "calendar/",
                      $allow_www = true),
-    function enable (buffer) {
-        buffer.content_modalities.push(google_calendar_modality);
-    },
-    function disable (buffer) {
-        var i = buffer.content_modalities.indexOf(google_calendar_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: google_calendar_keymap },
     $display_name = "Google Calendar");
 
 page_mode_activate(google_calendar_mode);

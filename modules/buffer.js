@@ -862,8 +862,10 @@ function buffer_mode (name, enable, disable) {
     keywords(arguments);
     this.name = name.replace("-","_","g");
     this.hyphen_name = name.replace("_","-","g");
-    this._enable = enable;
-    this._disable = disable;
+    if (enable)
+        this._enable = enable;
+    if (disable)
+        this._disable = disable;
     this.display_name = arguments.$display_name;
     this.doc = arguments.$doc;
     this.enable_hook = name + "_enable_hook";
@@ -880,7 +882,8 @@ buffer_mode.prototype = {
     _disable: null,
     enable: function (buffer) {
         try {
-            this._enable(buffer);
+            if (this._enable)
+                this._enable(buffer);
         } finally {
             buffer.enabled_modes.push(this.name);
             if (conkeror[this.enable_hook])
@@ -890,7 +893,8 @@ buffer_mode.prototype = {
     },
     disable: function (buffer) {
         try {
-            this._disable(buffer);
+            if (this._disable)
+                this._disable(buffer);
         } finally {
             var i = buffer.enabled_modes.indexOf(this.name);
             if (i > -1)
@@ -903,7 +907,7 @@ buffer_mode.prototype = {
 };
 define_keywords("$constructor");
 function define_buffer_mode (name, enable, disable) {
-    keywords(arguments, $constructor = buffer_mode);
+    keywords(arguments, $constructor = buffer_mode, $doc = null);
     var constructor = arguments.$constructor;
     var m = new constructor(name, enable, disable, forward_keywords(arguments));
     name = m.name; // normalized

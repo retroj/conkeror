@@ -41,24 +41,11 @@ define_key(google_voice_keymap, "* n", null, $fallthrough);
 define_key(google_voice_keymap, "* r", null, $fallthrough);
 define_key(google_voice_keymap, "* u", null, $fallthrough);
 
-
-var google_voice_modality = {
-    normal: google_voice_keymap
-};
-
-
-define_page_mode("google-voice-mode",
+define_keymaps_page_mode("google-voice-mode",
     build_url_regexp($domain = "google",
                      $allow_www = true,
                      $path = "voice"),
-    function enable (buffer) {
-        buffer.content_modalities.push(google_voice_modality);
-    },
-    function disable (buffer) {
-        var i = buffer.content_modalities.indexOf(google_voice_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: google_voice_keymap },
     $display_name = "Google Voice");
 
 page_mode_activate(google_voice_mode);

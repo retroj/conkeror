@@ -62,22 +62,9 @@ define_key(stackexchange_keymap, "V", "stackexchange-vote");
 define_key(stackexchange_keymap, "A", "stackexchange-accept-answer");
 define_key(stackexchange_keymap, "O", "stackexchange-favorite-question");
 
-
-var stackexchange_modality = {
-    normal: stackexchange_keymap
-};
-
-
-define_page_mode("stackexchange-mode",
+define_keymaps_page_mode("stackexchange-mode",
     /^https?:\/\/(?:www.|meta.)?(stackoverflow|serverfault|superuser|stackapps)\.(?:com)\//,
-    function enable (buffer) {
-        buffer.content_modalities.push(stackexchange_modality);
-    },
-    function disable (buffer) {
-         var i = buffer.content_modalities.indexOf(stackexchange_modality);
-         if (i > -1)
-             buffer.content_modalities.splice(i, 1);
-    },
+    { normal: stackexchange_keymap },
     $display_name = "StackExchange");
 
 page_mode_activate(stackexchange_mode);

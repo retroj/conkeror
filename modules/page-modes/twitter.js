@@ -40,21 +40,10 @@ define_key(twitter_keymap, "n", null, $fallthrough);
 
 define_key(twitter_keymap, "return", null, $fallthrough);
 
-var twitter_modality = {
-    normal: twitter_keymap
-};
-
-define_page_mode("twitter-mode",
+define_keymaps_page_mode("twitter-mode",
     build_url_regexp($domain = "twitter",
                      $allow_www = true),
-    function enable (buffer) {
-        buffer.content_modalities.push(twitter_modality);
-    },
-    function disable (buffer) {
-        var i = buffer.content_modalities.indexOf(twitter_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: twitter_keymap },
     $display_name = "Twitter");
 
 page_mode_activate(twitter_mode);

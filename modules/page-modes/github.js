@@ -81,21 +81,9 @@ define_key(github_keymap, "?", "github-keyboard-shortcuts");
 define_key(github_keymap, "s", "github-focus-site-search");
 define_key(github_keymap, "/", "github-focus-issues-search");
 
-
-var github_modality = {
-    normal: github_keymap
-};
-
-define_page_mode("github-mode",
+define_keymaps_page_mode("github-mode",
     build_url_regexp($domain = "github", $allow_www = true),
-    function enable (buffer) {
-        buffer.content_modalities.push(github_modality);
-    },
-    function disable (buffer) {
-        var i = buffer.content_modalities.indexOf(github_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: github_keymap },
     $display_name = "Github");
 
 page_mode_activate(github_mode);

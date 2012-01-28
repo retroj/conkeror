@@ -75,22 +75,11 @@ define_key(duckduckgo_keymap, "d", "duckduckgo-domain-search");
 define_key(duckduckgo_anchor_keymap, "return", "duckduckgo-follow-current");
 define_key(duckduckgo_select_keymap, "return", "duckduckgo-follow-current");
 
-var duckduckgo_modality = {
-    normal: duckduckgo_keymap,
-    anchor: duckduckgo_anchor_keymap,
-    select: duckduckgo_select_keymap
-};
-
-define_page_mode("duckduckgo-mode",
+define_keymaps_page_mode("duckduckgo-mode",
     build_url_regexp($domain = "duckduckgo"),
-    function enable (buffer) {
-        buffer.content_modalities.push(duckduckgo_modality);
-    },
-    function disable (buffer) {
-        var i = buffer.content_modalities.indexOf(duckduckgo_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: duckduckgo_keymap,
+      anchor: duckduckgo_anchor_keymap,
+      select: duckduckgo_select_keymap },
     $display_name = "DuckDuckGo");
 
 page_mode_activate(duckduckgo_mode);

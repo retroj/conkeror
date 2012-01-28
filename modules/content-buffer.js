@@ -676,13 +676,42 @@ page_mode.prototype = {
 };
 
 function define_page_mode (name, test, enable, disable) {
-    keywords(arguments);
+    keywords(arguments, $constructor = page_mode);
     define_buffer_mode(name, enable, disable,
-                       $constructor = page_mode,
                        $test = test,
                        forward_keywords(arguments));
 }
 ignore_function_for_get_caller_source_code_reference("define_page_mode");
+
+
+define_keywords("$modality");
+function keymaps_page_mode (name, enable, disable) {
+    keywords(arguments);
+    page_mode.call(this, name, enable, disable,
+                   forward_keywords(arguments));
+    this.modality = arguments.$modality;
+}
+keymaps_page_mode.prototype = {
+    constructor: keymaps_page_mode,
+    __proto__: page_mode.prototype,
+    modality: null,
+    _enable: function (buffer) {
+        buffer.content_modalities.push(this.modality);
+    },
+    _disable: function (buffer) {
+        var i = buffer.content_modalities.indexOf(this.modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    }
+};
+function define_keymaps_page_mode (name, test, modality) {
+    keywords(arguments, $constructor = keymaps_page_mode);
+    define_buffer_mode(name, null, null,
+                       $test = test,
+                       $modality = modality,
+                       forward_keywords(arguments));
+}
+ignore_function_for_get_caller_source_code_reference("define_keymaps_page_mode");
 
 
 function page_mode_activate (page_mode) {
