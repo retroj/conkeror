@@ -868,8 +868,8 @@ function buffer_mode (name, enable, disable) {
         this._disable = disable;
     this.display_name = arguments.$display_name;
     this.doc = arguments.$doc;
-    this.enable_hook = name + "_enable_hook";
-    this.disable_hook = name + "_disable_hook";
+    this.enable_hook = this.name + "_enable_hook";
+    this.disable_hook = this.name + "_disable_hook";
 }
 buffer_mode.prototype = {
     constructor: buffer_mode,
