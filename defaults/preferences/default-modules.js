@@ -50,3 +50,4 @@ pref("conkeror.load.page-modes/google-maps", 1);
 pref("conkeror.load.page-modes/dailymotion", 1);
 pref("conkeror.load.page-modes/xkcd", 1);
 pref("conkeror.load.page-modes/stackexchange", 1);
+pref("conkeror.load.page-modes/youtube-player", 1);
