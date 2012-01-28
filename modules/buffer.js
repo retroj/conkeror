@@ -944,6 +944,10 @@ function define_buffer_mode (name) {
 ignore_function_for_get_caller_source_code_reference("define_buffer_mode");
 
 
+/*
+ * Mode Display in Minibuffer
+ */
+
 function minibuffer_mode_indicator (window) {
     this.window = window;
     var element = create_XUL(window, "label");
@@ -951,17 +955,19 @@ function minibuffer_mode_indicator (window) {
     element.setAttribute("class", "mode-text-widget");
     window.document.getElementById("minibuffer").appendChild(element);
     this.element = element;
-    this.hook_func = method_caller(this, this.update);
-    add_hook.call(window, "select_buffer_hook", this.hook_func);
-    add_hook.call(window, "current_buffer_mode_change_hook", this.hook_func);
+    this.hook_function = method_caller(this, this.update);
+    add_hook.call(window, "select_buffer_hook", this.hook_function);
+    add_hook.call(window, "current_buffer_mode_change_hook", this.hook_function);
     this.update();
 }
 minibuffer_mode_indicator.prototype = {
     constructor: minibuffer_mode_indicator,
+    window: null,
+    element: null,
+    hook_function: null,
     update: function () {
-        var buf = this.window.buffers.current;
-        var modes = buf.enabled_modes;
-        var str = modes.map(
+        var buffer = this.window.buffers.current;
+        var str = buffer.enabled_modes.map(
             function (x) {
                 let y = mode_display_names[x];
                 if (y)
@@ -972,8 +978,8 @@ minibuffer_mode_indicator.prototype = {
         this.element.value = str;
     },
     uninstall: function () {
-        remove_hook.call(this.window, "select_buffer_hook", this.hook_fun);
-        remove_hook.call(this.window, "current_buffer_mode_change_hook", this.hook_fun);
+        remove_hook.call(this.window, "select_buffer_hook", this.hook_function);
+        remove_hook.call(this.window, "current_buffer_mode_change_hook", this.hook_function);
         this.element.parentNode.removeChild(this.element);
     }
 };
