@@ -82,15 +82,15 @@ var duckduckgo_modality = {
 };
 
 define_page_mode("duckduckgo_mode",
-                 $display_name = "DuckDuckGo",
-                 $enable = function (buffer) {
-                     buffer.content_modalities.push(duckduckgo_modality);
-                 },
-                 $disable = function (buffer) {
-                     var i = buffer.content_modalities.indexOf(duckduckgo_modality);
-                     if (i > -1)
-                         buffer.content_modalities.splice(i, 1);
-                 });
+    $display_name = "DuckDuckGo",
+    $enable = function (buffer) {
+        buffer.content_modalities.push(duckduckgo_modality);
+    },
+    $disable = function (buffer) {
+        var i = buffer.content_modalities.indexOf(duckduckgo_modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    });
 
 var duckduckgo_re = build_url_regex($domain = "duckduckgo");
 auto_mode_list.push([duckduckgo_re, duckduckgo_mode]);

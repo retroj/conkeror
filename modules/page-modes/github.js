@@ -95,8 +95,7 @@ define_page_mode("github_mode",
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
     },
-    $display_name = "Github"
-);
+    $display_name = "Github");
 
 auto_mode_list.push([
     build_url_regex($domain = "github", $allow_www = true),

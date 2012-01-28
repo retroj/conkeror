@@ -72,21 +72,21 @@ function gmail_focus_primary_frame (buffer) {
 }
 
 define_page_mode("gmail_mode",
-                 $display_name = "GMail",
-                 $enable = function (buffer) {
-                     add_hook.call(buffer, "buffer_dom_content_loaded_hook",
-                                   gmail_focus_primary_frame);
-                     add_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
-                     buffer.content_modalities.push(gmail_modality);
-                 },
-                 $disable = function (buffer) {
-                     remove_hook.call(buffer, "buffer_dom_content_loaded_hook",
-                                      gmail_focus_primary_frame);
-                     remove_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
-                     var i = buffer.content_modalities.indexOf(gmail_modality);
-                     if (i > -1)
-                         buffer.content_modalities.splice(i, 1);
-                 });
+    $display_name = "GMail",
+    $enable = function (buffer) {
+        add_hook.call(buffer, "buffer_dom_content_loaded_hook",
+                      gmail_focus_primary_frame);
+        add_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
+        buffer.content_modalities.push(gmail_modality);
+    },
+    $disable = function (buffer) {
+        remove_hook.call(buffer, "buffer_dom_content_loaded_hook",
+                         gmail_focus_primary_frame);
+        remove_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
+        var i = buffer.content_modalities.indexOf(gmail_modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    });
 
 var gmail_re = build_url_regex($domain = "mail.google",
                                $path = new RegExp('(?!support)'));

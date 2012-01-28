@@ -148,8 +148,7 @@ define_page_mode("wikipedia_mode",
         var i = buffer.content_modalities.indexOf(wikipedia_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
-    }
-);
+    });
 
 let (wikipedia_mode_re = /wikipedia/) { // TODO: Better regular expression
     auto_mode_list.push([wikipedia_mode_re, wikipedia_mode]);

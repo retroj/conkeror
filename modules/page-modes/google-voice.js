@@ -48,15 +48,15 @@ var google_voice_modality = {
 
 
 define_page_mode("google_voice_mode",
-                 $display_name = "Google Voice",
-                 $enable = function (buffer) {
-                     buffer.content_modalities.push(google_voice_modality);
-                 },
-                 $disable = function (buffer) {
-                     var i = buffer.content_modalities.indexOf(google_voice_modality);
-                     if (i > -1)
-                         buffer.content_modalities.splice(i, 1);
-                 });
+    $display_name = "Google Voice",
+    $enable = function (buffer) {
+        buffer.content_modalities.push(google_voice_modality);
+    },
+    $disable = function (buffer) {
+        var i = buffer.content_modalities.indexOf(google_voice_modality);
+        if (i > -1)
+            buffer.content_modalities.splice(i, 1);
+    });
 
 var google_voice_re = build_url_regex($domain = "google",
                                       $allow_www = true,
