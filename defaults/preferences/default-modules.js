@@ -43,6 +43,7 @@ pref("conkeror.load.daemon", 1);
 
 // Page mode modules
 pref("conkeror.load.page-modes/dailymotion", 1);
+pref("conkeror.load.page-modes/grooveshark", 1);
 pref("conkeror.load.page-modes/google-calendar", 1);
 pref("conkeror.load.page-modes/google-maps", 1);
 pref("conkeror.load.page-modes/google-reader", 1);
