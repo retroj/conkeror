@@ -48,9 +48,9 @@ var google_voice_modality = {
 
 
 define_page_mode("google-voice-mode",
-    build_url_regex($domain = "google",
-                    $allow_www = true,
-                    $path = "voice"),
+    build_url_regexp($domain = "google",
+                     $allow_www = true,
+                     $path = "voice"),
     function enable (buffer) {
         buffer.content_modalities.push(google_voice_modality);
     },

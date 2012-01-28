@@ -77,7 +77,7 @@ var google_maps_modality = {
 };
 
 define_page_mode("google-maps-mode",
-    build_url_regex($domain = "maps.google"),
+    build_url_regexp($domain = "maps.google"),
     function enable (buffer) {
         buffer.content_modalities.push(google_maps_modality);
     },

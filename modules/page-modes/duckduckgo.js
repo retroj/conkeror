@@ -82,7 +82,7 @@ var duckduckgo_modality = {
 };
 
 define_page_mode("duckduckgo-mode",
-    build_url_regex($domain = "duckduckgo"),
+    build_url_regexp($domain = "duckduckgo"),
     function enable (buffer) {
         buffer.content_modalities.push(duckduckgo_modality);
     },

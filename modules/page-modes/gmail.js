@@ -72,8 +72,8 @@ function gmail_focus_primary_frame (buffer) {
 }
 
 define_page_mode("gmail-mode",
-    build_url_regex($domain = "mail.google",
-                    $path = new RegExp('(?!support)')),
+    build_url_regexp($domain = "mail.google",
+                     $path = new RegExp('(?!support)')),
     function enable (buffer) {
         add_hook.call(buffer, "buffer_dom_content_loaded_hook",
                       gmail_focus_primary_frame);

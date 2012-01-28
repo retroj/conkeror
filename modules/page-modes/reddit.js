@@ -262,7 +262,7 @@ var reddit_modality = {
 
 
 define_page_mode("reddit-mode",
-    build_url_regex($domain = /([a-zA-Z0-9\-]*\.)*reddit/),
+    build_url_regexp($domain = /([a-zA-Z0-9\-]*\.)*reddit/),
     function enable (buffer) {
         let (cmds = ["follow-current",
                      "follow-current-new-buffer",

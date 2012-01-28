@@ -63,7 +63,7 @@ define_browser_object_class("google-images-imgurl", null,
     });
 
 define_page_mode("google-images-mode",
-    build_url_regex($domain = /(.*\.)?google/, $path = "images"),
+    build_url_regexp($domain = /(.*\.)?google/, $path = "images"),
     function enable (buffer) {
         for each (var c in google_images_imgrefurl_commands) {
             buffer.default_browser_object_classes[c] =

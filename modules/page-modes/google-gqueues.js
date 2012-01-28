@@ -47,9 +47,9 @@ var google_gqueues_modality = {
 };
 
 define_page_mode("google-gqueues-mode",
-    build_url_regex($domain = "gqueues",
-                    $allow_www = true,
-                    $path = "main"),
+    build_url_regexp($domain = "gqueues",
+                     $allow_www = true,
+                     $path = "main"),
     function enable (buffer) {
         buffer.content_modalities.push(google_gqueues_modality);
     },

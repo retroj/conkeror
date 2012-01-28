@@ -131,8 +131,8 @@ function youtube_scrape_embedded (buffer, results) {
 }
 
 define_page_mode("youtube-mode",
-    build_url_regex($domain = /(?:[a-z]+\.)?youtube/,
-                    $path = /watch\?(?:.*?&)?v=([A-Za-z0-9\-_]+)/),
+    build_url_regexp($domain = /(?:[a-z]+\.)?youtube/,
+                     $path = /watch\?(?:.*?&)?v=([A-Za-z0-9\-_]+)/),
     function enable (buffer) {
         media_setup_local_object_classes(buffer);
     },

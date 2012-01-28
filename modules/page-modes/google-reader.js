@@ -57,10 +57,10 @@ var google_reader_modality = {
 };
 
 define_page_mode("google-reader-mode",
-    build_url_regex($domain = "google",
-                    $tlds = ["com", "co.uk"],
-                    $allow_www = true,
-                    $path = "reader/"),
+    build_url_regexp($domain = "google",
+                     $tlds = ["com", "co.uk"],
+                     $allow_www = true,
+                     $path = "reader/"),
     function enable (buffer) {
         buffer.content_modalities.push(google_reader_modality);
     },

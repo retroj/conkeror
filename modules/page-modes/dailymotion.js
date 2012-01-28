@@ -37,7 +37,7 @@ function media_scrape_dailymotion(buffer, results) {
 }
 
 define_page_mode("dailymotion-mode",
-    build_url_regex($domain = /(?:[^\/]*\.)?dailymotion/),
+    build_url_regexp($domain = /(?:[^\/]*\.)?dailymotion/),
     function enable (buffer) {
         media_setup_local_object_classes(buffer);
     },

@@ -60,11 +60,11 @@ var google_search_results_modality = {
 
 
 define_page_mode("google-search-results-mode",
-    build_url_regex($domain = "google",
-                    $allow_www = true,
-                    $path = /search\?|cse\?/,
-                    $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
-                             "fr", "it", "no", "se", "uk"]),
+    build_url_regexp($domain = "google",
+                     $allow_www = true,
+                     $path = /search\?|cse\?/,
+                     $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
+                              "fr", "it", "no", "se", "uk"]),
     function enable (buffer) {
 	var link_using_commands = ["follow",
 				   "follow-new-buffer",

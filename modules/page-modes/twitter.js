@@ -45,8 +45,8 @@ var twitter_modality = {
 };
 
 define_page_mode("twitter-mode",
-    build_url_regex($domain = "twitter",
-                    $allow_www = true),
+    build_url_regexp($domain = "twitter",
+                     $allow_www = true),
     function enable (buffer) {
         buffer.content_modalities.push(twitter_modality);
     },

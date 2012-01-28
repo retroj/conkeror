@@ -647,7 +647,7 @@ function scroll_selection_into_view (field) {
 
 
 /**
- * build_url_regex builds a regular expression to match URLs for a given
+ * build_url_regexp builds a regular expression to match URLs for a given
  * web site.
  *
  * Both the $domain and $path arguments can be either regexes, in
@@ -661,22 +661,22 @@ function scroll_selection_into_view (field) {
  * If $allow_www is true, www.domain.tld will also be allowed.
  */
 define_keywords("$domain", "$path", "$tlds", "$allow_www");
-function build_url_regex () {
-    function regex_to_string (obj) {
+function build_url_regexp () {
+    function regexp_to_string (obj) {
         if (typeof obj == "object" && "source" in obj)
             return obj.source;
         return quotemeta(obj);
     }
 
     keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
-    var domain = regex_to_string(arguments.$domain);
+    var domain = regexp_to_string(arguments.$domain);
     if(arguments.$allow_www) {
         domain = "(?:www\.)?" + domain;
     }
-    var path   = regex_to_string(arguments.$path);
+    var path   = regexp_to_string(arguments.$path);
     var tlds   = arguments.$tlds;
-    var regex = "^https?://" + domain + "\\." + choice_regex(tlds) + "/" + path;
-    return new RegExp(regex);
+    var regexp = "^https?://" + domain + "\\." + choice_regex(tlds) + "/" + path;
+    return new RegExp(regexp);
 }
 
 

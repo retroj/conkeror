@@ -44,10 +44,10 @@ function xkcd_do_add_title (buffer) {
 }
 
 define_page_mode("xkcd-mode",
-    build_url_regex($domain = "xkcd",
-                    $allow_www = true,
-                    $tlds = ["com", "net", "org"],
-                    $path = /(\d+\/)?/),
+    build_url_regexp($domain = "xkcd",
+                     $allow_www = true,
+                     $tlds = ["com", "net", "org"],
+                     $path = /(\d+\/)?/),
     function enable (buffer) {
         if (xkcd_add_title) {
             if (buffer.browser.webProgress.isLoadingDocument)

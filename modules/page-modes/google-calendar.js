@@ -39,9 +39,9 @@ var google_calendar_modality = {
 };
 
 define_page_mode("google-calendar-mode",
-    build_url_regex($domain = "google",
-                    $path   = "calendar/",
-                    $allow_www = true),
+    build_url_regexp($domain = "google",
+                     $path   = "calendar/",
+                     $allow_www = true),
     function enable (buffer) {
         buffer.content_modalities.push(google_calendar_modality);
     },

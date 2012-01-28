@@ -87,7 +87,7 @@ var github_modality = {
 };
 
 define_page_mode("github-mode",
-    build_url_regex($domain = "github", $allow_www = true),
+    build_url_regexp($domain = "github", $allow_www = true),
     function enable (buffer) {
         buffer.content_modalities.push(github_modality);
     },
