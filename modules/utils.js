@@ -670,11 +670,11 @@ function build_url_regexp () {
 
     keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
     var domain = regexp_to_string(arguments.$domain);
-    if(arguments.$allow_www) {
+    if (arguments.$allow_www) {
         domain = "(?:www\.)?" + domain;
     }
-    var path   = regexp_to_string(arguments.$path);
-    var tlds   = arguments.$tlds;
+    var path = regexp_to_string(arguments.$path);
+    var tlds = arguments.$tlds;
     var regexp = "^https?://" + domain + "\\." + choice_regexp(tlds) + "/" + path;
     return new RegExp(regexp);
 }
