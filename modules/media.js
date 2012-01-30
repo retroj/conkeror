@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * Default media scraper
  *

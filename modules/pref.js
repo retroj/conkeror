@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function set_branch_pref (branch, name, value) {
     if (typeof(value) == "string") {
         branch.setCharPref(name, value);

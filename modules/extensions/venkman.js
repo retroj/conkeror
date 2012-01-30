@@ -9,8 +9,6 @@
  * glue code between venkman and conkeror
  */
 
-in_module(null);
-
 function open_venkman () {
     make_chrome_window("chrome://venkman/content/venkman.xul");
 }

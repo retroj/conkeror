@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("content-buffer.js");
 
 define_keymap("youtube_player_keymap", $display_name = "youtube-player");

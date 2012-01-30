@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("mode.js");
 
 define_window_local_hook("mode_line_hook");

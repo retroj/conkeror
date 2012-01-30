@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("interactive.js");
 require("io.js");
 require("env.js");

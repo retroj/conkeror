@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("buffer.js");
 
 define_buffer_local_hook("special_buffer_generated_hook");

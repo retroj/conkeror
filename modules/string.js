@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * trim_whitespace removes whitespace from the beginning and end of the
  * given string.

@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * get_os returns a string identifying the current OS.
  * possible values include 'Darwin', 'Linux' and 'WINNT'.

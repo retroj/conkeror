@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_variable("editor_shell_command", getenv("VISUAL") || getenv("EDITOR") || "emacs",
     "Shell command used to invoke an external editor.\n" +
     "This defaults to the value of the EDITOR environment variable.  If " +

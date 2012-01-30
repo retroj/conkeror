@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("io");
 
 function string_hashset () {}

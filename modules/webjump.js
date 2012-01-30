@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 var webjumps = {};
 
 define_keywords("$completer", "$description", "$argument", "$alternative",

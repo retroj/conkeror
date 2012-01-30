@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * Find and return a login (an nsILoginInfo) matching the given host.  The
  * host can be given as a string (for an exact match) or as a RegExp.

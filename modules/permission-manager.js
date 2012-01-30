@@ -10,8 +10,6 @@
  * blocking whitelist, among other things.
  */
 
-in_module(null);
-
 let permission_manager = Cc["@mozilla.org/permissionmanager;1"].getService(Ci.nsIPermissionManager);
 
 let permission_types = {

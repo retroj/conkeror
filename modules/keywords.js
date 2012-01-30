@@ -5,8 +5,6 @@
  * COPYING file.
  **/
 
-in_module(null);
-
 {
     let _keyword_argument_list = [];
     let _get_keyword_argument_setter = function _get_keyword_argument_setter (name) {

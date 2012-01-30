@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_variable("default_minibuffer_auto_complete_delay", 150,
     "Delay (in milliseconds) after the most recent key-stroke "+
     "before auto-completing.");

@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function pretty_print_value (value) {
     if (value === undefined)
         return "undefined";

@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("interactive.js");
 
 interactive("set-mark",

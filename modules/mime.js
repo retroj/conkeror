@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 const mime_service = Cc["@mozilla.org/mime;1"].getService(Ci.nsIMIMEService);
 
 /**

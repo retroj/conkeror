@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function assert (got) {
     if (! got)
         throw new Error("expected a true value, got <"+got+">.");

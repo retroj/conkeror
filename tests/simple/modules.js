@@ -21,7 +21,6 @@ walnut_run({
         this._load_paths = load_paths;
         this._loading_paths = loading_paths;
         this._loading_urls = loading_urls;
-        this._loading_modules = loading_modules;
         this._loading_features = loading_features;
         this._pending_loads = pending_loads;
         this._features = features;
@@ -38,7 +37,6 @@ walnut_run({
         load_url = this._load_url;
         loading_paths = this._loading_paths;
         loading_urls = this._loading_urls;
-        loading_modules = this._loading_modules;
         loading_features = this._loading_features;
         pending_loads = this._pending_loads;
         features = this._features;
@@ -130,7 +128,6 @@ walnut_run({
         this._load_paths = load_paths;
         this._loading_paths = loading_paths;
         this._loading_urls = loading_urls;
-        this._loading_modules = loading_modules;
         this._loading_features = loading_features;
         this._pending_loads = pending_loads;
         this._features = features;
@@ -142,37 +139,10 @@ walnut_run({
         load_url = this._load_url;
         loading_paths = this._loading_paths;
         loading_urls = this._loading_urls;
-        loading_modules = this._loading_modules;
         loading_features = this._loading_features;
         pending_loads = this._pending_loads;
         features = this._features;
         after_load_functions = this._after_load_functions;
-    },
-    test_load__in_module_conflict_1: function () {
-        load_url = function () {
-            in_module(null);
-            in_module("bar");
-        };
-        var err;
-        try {
-            load("foo");
-        } catch (e) {
-            err = e;
-        }
-        assert(err instanceof module_assert_conflict_error);
-    },
-    test_load__in_module_conflict_2: function () {
-        load_url = function () {
-            in_module(null);
-            in_module("bar");
-        };
-        var err;
-        try {
-            load(make_uri("chrome://conkeror/content/foo.js"));
-        } catch (e) {
-            err = e;
-        }
-        assert(err instanceof module_assert_conflict_error);
     },
     test_load__circular_load_is_error: function () {
         load_url = function () {
@@ -186,7 +156,6 @@ walnut_run({
         load_paths = [];
         loading_paths = [];
         loading_urls = [];
-        loading_modules = [];
         loading_features = [];
         pending_loads = [];
         assert_error(function () load("foo"));
@@ -196,14 +165,12 @@ walnut_run({
         pending_loads = [];
         var ob = "";
         function mock_foo () {
-            in_module(null);
             ob += "a";
             require_later("bar");
             ob += "b";
             load_url = mock_bar;
         }
         function mock_bar () {
-            in_module(null);
             ob += "c";
         }
         load_url = mock_foo;
@@ -213,7 +180,6 @@ walnut_run({
     test_require_later_2: function () {
         loading_paths = [];
         loading_urls = [];
-        loading_modules = [];
         loading_features = [];
         pending_loads = [];
         after_load_functions = [];
@@ -221,25 +187,21 @@ walnut_run({
         var ob = [];
         var mock_modules = {
             foo: function () {
-                in_module(null);
                 ob.push("foo");
                 require_later("baz");
                 require("bar");
                 provide("foo");
             },
             bar: function () {
-                in_module(null);
                 ob.push("bar");
                 provide("bar");
             },
             baz: function () {
-                in_module(null);
                 ob.push("baz");
                 require_later("quux");
                 provide("baz");
             },
             quux: function () {
-                in_module(null);
                 ob.push("quux");
                 provide("quux");
             }
@@ -256,18 +218,14 @@ walnut_run({
         // after the completion of the load which provided the feature.
         loading_paths = [];
         loading_urls = [];
-        loading_modules = [];
         loading_features = [];
         pending_loads = [];
         after_load_functions = [];
         features = {};
 
-        var oldfoo = conkeror.foo;
-
         var called = false;
         var mock_modules = {
             foo: function () {
-                in_module("foo");
                 called = true;
                 provide("foo");
                 assert_not(featurep("foo"));
@@ -280,42 +238,10 @@ walnut_run({
         load("foo");
         assert(called);
         assert(featurep("foo"));
-
-        conkeror.foo = oldfoo;
-    },
-    test_call_after_load: function () {
-        loading_paths = [];
-        loading_urls = [];
-        loading_modules = [];
-        loading_features = [];
-        pending_loads = [];
-        after_load_functions = [];
-        features = {};
-
-        var oldfoo = conkeror.foo;
-
-        var mock_modules = {
-            foo: function () {
-                in_module("foo");
-                provide("foo");
-            }
-        };
-        load_url = function (url) {
-            var module = url.substr(url.lastIndexOf('/')+1);
-            mock_modules[module]();
-        };
-        call_after_load("foo", function () {
-            foo.called = true;
-        });
-        load("foo");
-        assert(foo.called);
-
-        conkeror.foo = oldfoo;
     },
     test_provide: function () {
         loading_paths = [];
         loading_urls = [];
-        loading_modules = [];
         loading_features = [];
         pending_loads = [];
         after_load_functions = [];

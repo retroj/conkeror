@@ -214,8 +214,6 @@
  * time, or completes.
  **/
 
-in_module(null);
-
 function _return_value (x) {
     this.value = x;
 }

@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_variable('selectively_unstyle_alist', [],
     "Alist mapping url-matching regular expressions to predicates to "+
     "selectively disable stylesheets.  All predicates corresponding to "+

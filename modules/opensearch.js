@@ -9,8 +9,6 @@
 // Supported OpenSearch parameters
 // http://www.opensearch.org/Specifications/OpenSearch/1.1#OpenSearch_URL_template_syntax
 
-in_module(null);
-
 require("webjump.js");
 
 

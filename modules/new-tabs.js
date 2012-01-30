@@ -12,8 +12,6 @@
  * simply override these defaults by normal CSS.
  **/
 
-in_module(null);
-
 require("mode.js");
 
 define_variable("tab_bar_button_select", 0,

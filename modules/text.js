@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * Given a callback func and an interactive context I, call func, passing
  * either a focused field, or the minibuffer's input element if the

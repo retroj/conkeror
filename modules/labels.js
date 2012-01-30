@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("pretty-print.js");
 
 /**

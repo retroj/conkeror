@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("mime-type-override.js");
 
 define_mime_type_table("content_handlers", {},

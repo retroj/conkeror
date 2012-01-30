@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("content-buffer.js");
 
 function dom_click_xpath (doc, xpath) {

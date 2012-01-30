@@ -10,8 +10,6 @@
  * the mouse.
  */
 
-in_module(null);
-
 /**
  * browser_object_class that finds the vote images
  */

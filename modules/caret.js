@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function caret_modality (buffer, elem) {
     buffer.keymaps.push(caret_keymap);
 }

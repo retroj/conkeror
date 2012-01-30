@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("source-code.js");
 
 var user_variables = {};

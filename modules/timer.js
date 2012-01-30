@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function timer_callback (callback) {
     this.callback = callback;
 }

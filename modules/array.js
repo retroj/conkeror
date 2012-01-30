@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * array_p returns true if its argument is an array, otherwise false.
  */

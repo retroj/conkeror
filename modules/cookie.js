@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 var cookie_manager = Cc["@mozilla.org/cookiemanager;1"]
     .getService(Ci.nsICookieManager2);
 

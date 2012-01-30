@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("special-buffer.js");
 require("mime-type-override.js");
 require("minibuffer-read-mime-type.js");

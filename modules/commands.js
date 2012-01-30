@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_coroutine_hook("before_quit_hook", RUN_HOOK_UNTIL_FAILURE);
 define_hook("quit_hook");
 

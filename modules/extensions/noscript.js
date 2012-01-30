@@ -1,6 +1,4 @@
 
-in_module(null);
-
 var noscript_service = Cc["@maone.net/noscript-service;1"]
     .createInstance().wrappedJSObject;
 

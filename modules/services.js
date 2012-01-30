@@ -13,8 +13,6 @@
  * best, because it keeps all the code in one place.
  */
 
-in_module(null);
-
 const file_locator_service = Cc["@mozilla.org/file/directory_service;1"]
     .getService(Ci.nsIProperties);
 

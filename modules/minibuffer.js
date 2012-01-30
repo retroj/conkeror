@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * minibuffer_state: abstact base class for minibuffer states.
  */

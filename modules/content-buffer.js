@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("buffer.js");
 require("load-spec.js");
 require("history.js");

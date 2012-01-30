@@ -9,8 +9,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 /**
  * maybe_get_filename_extension
  *

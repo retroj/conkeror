@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("content-buffer.js");
 
 define_keymap("gmane_keymap", $display_name = "gmane");

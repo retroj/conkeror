@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("coroutine.js");
 
 /* Adds the specified function to the specified hook.  To add a local

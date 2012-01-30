@@ -14,8 +14,6 @@
  * annoying frameset page from google again!
  */
 
-in_module(null);
-
 define_variable('google_images_imgrefurl_commands',
                 ["follow", "follow-new-buffer",
                  "follow-new-buffer-background",

@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function content_policy_init () {
     var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
         .getService(Ci.nsIXULAppInfo)

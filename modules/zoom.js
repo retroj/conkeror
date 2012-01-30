@@ -12,8 +12,6 @@
  * Text and full-page zoom
  */
 
-in_module(null);
-
 var zoom_levels = [ 1, 10, 25, 50, 75, 90, 100,
                     120, 150, 200, 300, 500, 1000, 2000 ];
 

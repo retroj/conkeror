@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("mode-line.js");
 
 function button_widget (window) {

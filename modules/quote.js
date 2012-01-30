@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_buffer_mode("quote-next-mode",
     function enable (buffer) {
         buffer.override_keymaps([quote_next_keymap]);

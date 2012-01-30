@@ -9,8 +9,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 const favicon_service = Cc["@mozilla.org/browser/favicon-service;1"]
     .getService(Ci.nsIFaviconService);
 

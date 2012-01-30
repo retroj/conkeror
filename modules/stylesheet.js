@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function register_user_stylesheet (url) {
     var uri = make_uri(url);
     var sss = Cc["@mozilla.org/content/style-sheet-service;1"]

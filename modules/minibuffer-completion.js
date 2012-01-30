@@ -10,8 +10,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("minibuffer.js");
 
 /**

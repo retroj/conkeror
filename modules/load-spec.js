@@ -49,8 +49,6 @@
  *
  */
 
-in_module(null);
-
 require("webjump.js");
 
 function page_fragment_load_spec (elem) {

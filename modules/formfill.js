@@ -14,8 +14,6 @@ notes for future development:
 http://mxr.mozilla.org/mozilla-central/source/xpfe/components/autocomplete/resources/content/autocomplete.xml
 */
 
-in_module(null);
-
 interactive("formfill-next",
     "Select next item in the formfill popup.",
     function (I) {

@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("minibuffer-read.js");
 
 define_keywords("$options");

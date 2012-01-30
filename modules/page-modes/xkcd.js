@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("content-buffer.js");
 
 define_variable('xkcd_add_title', false,

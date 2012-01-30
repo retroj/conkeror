@@ -14,8 +14,6 @@
  * - Probably more to come.
  **/
 
-in_module(null);
-
 require("minibuffer-completion.js");
 
 

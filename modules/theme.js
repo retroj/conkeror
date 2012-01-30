@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 {
     let themes = {};
     let loaded_themes = {};

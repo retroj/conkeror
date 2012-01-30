@@ -8,8 +8,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("special-buffer.js");
 require("interactive.js");
 

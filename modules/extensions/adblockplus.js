@@ -5,9 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
-
 function adblockplus_settings (uri_string) {
     if (! ("@adblockplus.org/abp/startup;1" in Cc))
         throw interactive_error("Adblock Plus not found");

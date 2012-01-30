@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("input.js");
 
 define_keymap("global_overlay_keymap");

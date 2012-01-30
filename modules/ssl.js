@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function ssl_add_exception(buffer) {
     /* FIXME: A user preference variable should specify whether to
      * pre-fill location and furthermore (dependent on pre-filling the

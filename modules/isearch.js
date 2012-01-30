@@ -8,8 +8,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_variable("isearch_keep_selection", false,
     "Set to `true' to make isearch leave the selection visible when a "+
     "search is completed.");

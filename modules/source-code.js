@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require_later("external-editor.js");
 
 var conkeror_source_code_path = null;

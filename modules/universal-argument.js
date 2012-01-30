@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_keymap("universal_argument_keymap");
 
 interactive("universal-argument",

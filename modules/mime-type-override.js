@@ -23,8 +23,6 @@
  *
  **/
 
-in_module(null);
-
 let EXAMINE_TOPIC = "http-on-examine-response";
 let EXAMINE_MERGED_TOPIC = "http-on-examine-merged-response";
 

@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 function open_dom_inspector () {
     make_chrome_window("chrome://inspector/content/");
 }

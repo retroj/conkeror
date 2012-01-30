@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 define_keywords("$use_webjumps", "$use_history", "$use_bookmarks",
                 "$match_required", "$sort_order");
 function history_completer () {

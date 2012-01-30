@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("content-buffer.js");
 
 define_keymap("grooveshark_keymap", $display_name = "grooveshark");

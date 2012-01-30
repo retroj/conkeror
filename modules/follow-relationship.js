@@ -9,8 +9,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("element.js");
 
 const RELATIONSHIP_NEXT = 0;

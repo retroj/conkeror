@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("content-buffer.js");
 require("load-spec.js");
 require("suggest-file-name.js");

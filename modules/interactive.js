@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("utils.js");
 
 var interactive_commands = new string_hashmap();

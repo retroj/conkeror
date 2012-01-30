@@ -10,8 +10,6 @@
  * pages.
 **/
 
-in_module(null);
-
 require("webjump.js");
 
 /* Objects with completion data for index webjumps. */

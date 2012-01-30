@@ -9,8 +9,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("hints.js");
 require("save.js");
 require("mime-type-override.js");

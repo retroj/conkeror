@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("io.js");
 require("minibuffer-completion.js");
 

@@ -7,8 +7,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("window.js");
 require("keymap.js");
 require("interactive.js");

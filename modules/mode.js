@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("interactive.js");
 
 function define_global_mode (name, enable, disable) {

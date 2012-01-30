@@ -5,8 +5,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 require("minibuffer-read.js");
 
 let _viewable_mime_type_list = null;

@@ -6,8 +6,6 @@
  * COPYING file.
 **/
 
-in_module(null);
-
 var command_line_handlers = [];
 
 define_variable("conkeror_started", false,
