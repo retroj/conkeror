@@ -129,7 +129,6 @@ function tab_bar_add_buffer (buffer, noupdate) {
             }
         }, false /* not capturing */);
     tab.setAttribute("selected", "false");
-    tab.setAttribute("ordinal", ordinal);
 
     // Create the label to hold the buffer icon
     var image = create_XUL(buffer.window, "image");
@@ -167,6 +166,10 @@ function tab_bar_add_buffer (buffer, noupdate) {
     tabbar.element.appendChild(tab);
     buffer.tab = tab;
     tab_bar_update_buffer_title(buffer);
+
+    // Note, XULRunner 1.9.x puts the tab in the wrong location if we set
+    // the ordinal before adding the tab to the tab-bar.
+    tab.setAttribute("ordinal", ordinal);
 }
 
 
