@@ -680,18 +680,15 @@ function build_url_regexp () {
 }
 
 
-function compute_url_up_path (url) {
-    var new_url = Cc["@mozilla.org/network/standard-url;1"]
-        .createInstance (Ci.nsIURL);
-    new_url.spec = url;
-    var up;
-    if (new_url.param != "" || new_url.query != "")
-        up = new_url.filePath;
-    else if (new_url.fileName != "")
-        up = ".";
-    else
-        up = "..";
-    return up;
+function compute_up_url (uri) {
+    uri = uri.clone().QueryInterface(Ci.nsIURL);
+    for each (var p in ["ref", "query", "param", "fileName"]) {
+        if (uri[p] != "") {
+            uri[p] = "";
+            return uri.spec;
+        }
+    }
+    return uri.resolve("..");
 }
 
 
