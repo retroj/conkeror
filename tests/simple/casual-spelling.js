@@ -1,6 +1,6 @@
 
 require("walnut.js");
-require("casual-spelling.js");
+require("casual-spelling");
 
 walnut_run({
     test_translate_1: function () {

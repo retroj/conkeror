@@ -19,8 +19,6 @@ such as accented letters and ligatures.
 
 */
 
-in_module("casual_spelling");
-
 function table_entry_features (entry) {
     var ret = { ligatures: false, multiples: false };
     if (typeof entry == "object") {
