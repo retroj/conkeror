@@ -57,10 +57,13 @@ walnut_run({
         assert_objects_equal(
             ["chrome://conkeror/content/foo",
              "chrome://conkeror/content/foo.js",
+             "chrome://conkeror/content/foo.jsx",
              "chrome://conkeror/content/extensions/foo",
              "chrome://conkeror/content/extensions/foo.js",
+             "chrome://conkeror/content/extensions/foo.jsx",
              "chrome://conkeror/content/page-modes/foo",
-             "chrome://conkeror/content/page-modes/foo.js"],
+             "chrome://conkeror/content/page-modes/foo.js",
+             "chrome://conkeror/content/page-modes/foo.jsx"],
             this.ob);
     },
     test_load_search_2__with_extension: function () {
@@ -115,10 +118,13 @@ walnut_run({
             this.ob,
             ["chrome://conkeror/content/page-modes/foo",
              "chrome://conkeror/content/page-modes/foo.js",
+             "chrome://conkeror/content/page-modes/foo.jsx",
              "chrome://conkeror/content/extensions/page-modes/foo",
              "chrome://conkeror/content/extensions/page-modes/foo.js",
+             "chrome://conkeror/content/extensions/page-modes/foo.jsx",
              "chrome://conkeror/content/page-modes/page-modes/foo",
-             "chrome://conkeror/content/page-modes/page-modes/foo.js"]);
+             "chrome://conkeror/content/page-modes/page-modes/foo.js",
+             "chrome://conkeror/content/page-modes/page-modes/foo.jsx"]);
     }
 });
 
@@ -260,5 +266,31 @@ walnut_run({
         };
         load(make_uri("chrome://conkeror/content/foo.js"));
         assert_equals(tried, "chrome://conkeror/content/bar.js");
+    },
+    test_load_relative_path_nested: function () {
+        loading_paths = [];
+        loading_urls = [];
+        loading_features = [];
+        pending_loads = [];
+        after_load_functions = [];
+        features = {};
+        var ob = [];
+        var mock_modules = {
+            foo: function () {
+                load("deeper/bar");
+                provide("foo");
+            },
+            bar: function () {
+                assert(loading_paths[0].indexOf("some-path/deeper") > 0);
+                provide("bar");
+            }
+        };
+        load_url = function (url) {
+            var module = url.substr(url.lastIndexOf('/')+1);
+            mock_modules[module]();
+        };
+        load("some-path/foo");
+        assert(featurep("foo"));
+        assert(featurep("bar"));
     }
 });

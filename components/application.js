@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007,2010 John J. Foerch
+ * (C) Copyright 2007,2010,2012 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -96,7 +96,18 @@ application.prototype = {
                 if (this.loading_urls.indexOf(url, 1) != -1)
                     throw new Error("Circular module dependency detected: "+
                                     this.loading_urls.join(",\n"));
-                this.load_url(url, this);
+                if (url.substr(-4) == ".jsx") {
+                    var scopename = url.substr(url.lastIndexOf('/')+1)
+                        .replace('-', '_', 'g');
+                    var dot = scopename.indexOf(".");
+                    if (dot > -1)
+                        scopename = scopename.substr(0, dot);
+                    var scope = { __proto__: this };
+                } else
+                    scope = this;
+                this.load_url(url, scope);
+                if (scopename)
+                    this[scopename] = scope;
                 var success = true;
                 // call-after-load callbacks
                 for (let f in this.loading_features[0]) {
@@ -123,27 +134,30 @@ application.prototype = {
             path = module.parent.path;
         if (path !== undefined) {
             var url = this.make_uri(module).spec;
-            load1.call(this, url, path);
+            load1.call(this.conkeror, url, path);
         } else {
             // module name or relative path
-            var autoext = module.substr(-3) != '.js';
-            var suffix = false;
+            var si = module.lastIndexOf('/');
+            var module_leaf = module.substr(si+1);
+            var autoext = module_leaf.lastIndexOf(".") <= 0;
+            var exts = { 0:"", 1:".js", 2:".jsx", len:3 };
+            var exti = 0;
             var i = -1;
             var tried = {};
             path = this.loading_paths[0];
             if (path === undefined)
                 path = this.load_paths[++i];
             while (path !== undefined) {
-                let truepath = path;
+                var truepath = path;
+                var sep = path.substr(-1) == '/' ? '' : '/';
+                var ext = exts[exti];
                 try {
-                    let sep = path.substr(-1) == '/' ? '' : '/';
-                    url = path + sep + module + (suffix ? '.js' : '');
-                    let si = module.lastIndexOf('/');
+                    url = path + sep + module + ext;
                     if (si > -1)
-                        truepath += module.substr(0, si);
+                        truepath += sep + module.substr(0, si);
                     if (! tried[url]) {
                         tried[url] = true;
-                        load1.call(this, url, truepath);
+                        load1.call(this.conkeror, url, truepath);
                         return;
                     }
                 } catch (e if (typeof e == 'string' &&
@@ -154,8 +168,8 @@ application.prototype = {
                     // null op. (suppress error, try next path)
                 }
                 if (autoext)
-                    suffix = !suffix;
-                if (! suffix)
+                    exti = (exti + 1) % exts.len;
+                if (exti == 0)
                     path = this.load_paths[++i];
             }
             throw new Error("Module not found ("+module+")");
@@ -191,7 +205,7 @@ application.prototype = {
                 try {
                     funcs[i]();
                 } catch (e) {
-                    dump_error(e);
+                    this.dump_error(e);
                 }
             }
         }
