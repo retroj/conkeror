@@ -163,6 +163,10 @@ function keymap () {
     this.notify = arguments.$notify;
     this.anonymous = arguments.$anonymous;
 }
+keymap.prototype = {
+    constructor: keymap,
+    toString: function () "#<keymap>"
+};
 
 function define_keymap (name) {
     keywords(arguments);

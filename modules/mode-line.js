@@ -61,6 +61,7 @@ function mode_line (window) {
 mode_line.prototype = {
     constructor: mode_line,
     __proto__: generic_element_widget_container.prototype,
+    toString: function () "#<mode_line>",
 
     uninstall: function () {
         this.container.parentNode.removeChild(this.window.mode_line.container);

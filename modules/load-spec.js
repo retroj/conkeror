@@ -155,7 +155,7 @@ function load_spec (x) {
 }
 load_spec.prototype = {
     constructor: load_spec,
-    toString: function () "[object load_spec]"
+    toString: function () "#<load_spec>"
 };
 
 function load_spec_document (x) {
