@@ -40,63 +40,6 @@ string_hashset.prototype = {
     }
 };
 
-function string_hashmap () {}
-string_hashmap.prototype = {
-    constructor: string_hashmap,
-
-    put: function (s,value) {
-        this["-" + s] = value;
-    },
-
-    contains: function (s) {
-        return (("-" + s) in this);
-    },
-
-    get: function (s, default_value) {
-        if (this.contains(s))
-            return this["-" + s];
-        return default_value;
-    },
-
-    get_put_default: function (s, default_value) {
-        if (this.contains(s))
-            return this["-" + s];
-        return (this["-" + s] = default_value);
-    },
-
-    remove: function (s) {
-        delete this["-" + s];
-    },
-
-    for_each: function (f) {
-        for (var i in this) {
-            if (i[0] == "-")
-                f(i.slice(1), this[i]);
-        }
-    },
-
-    for_each_value: function (f) {
-        for (var i in this) {
-            if (i[0] == "-")
-                f(this[i]);
-        }
-    },
-
-    iterator: function (only_keys) {
-        if (only_keys) {
-            for (let k in Iterator(this, true)) {
-                if (k[0] == "-")
-                    yield k.slice(1);
-            }
-        } else {
-            for (let [k,v] in Iterator(this, false)) {
-                if (k[0] == "-")
-                    yield [k.slice(1),v];
-            }
-        }
-    }
-};
-
 
 // Put the string on the clipboard
 function writeToClipboard (str) {
