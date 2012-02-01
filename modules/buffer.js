@@ -507,17 +507,17 @@ buffer_container.prototype = {
     },
 
     get unique_name_list () {
-        var existing_names = new string_hashset();
+        var existing_names = {};
         var bufs = [];
         this.for_each(function(b) {
                 var base_name = b.name;
                 var name = base_name;
                 var index = 1;
-                while (existing_names.contains(name)) {
+                while (existing_names[name]) {
                     ++index;
                     name = base_name + "<" + index + ">";
                 }
-                existing_names.add(name);
+                existing_names[name] = true;
                 bufs.push([name, b]);
             });
         return bufs;
