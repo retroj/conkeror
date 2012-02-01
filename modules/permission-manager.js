@@ -82,7 +82,7 @@ interactive("permission-manager", "View or edit the host-specific "
             function (I) {
                 I.minibuffer.message("Save the file and close the editor when done editing permissions.");
 
-                let existing_perms = new string_hashmap();
+                let existing_perms = {};
 
                 var file_buf =
                     "# -*- conf -*-\n" +
@@ -104,7 +104,7 @@ interactive("permission-manager", "View or edit the host-specific "
                         if (max_type_len < type.length)
                             max_type_len = type.length;
                         arr.push([host, type, cap]);
-                        existing_perms.put([host, type], cap);
+                        existing_perms[""+[host, type]] = cap;
                     }
                     ++max_host_len;
                     ++max_type_len;
@@ -231,7 +231,7 @@ interactive("permission-manager", "View or edit the host-specific "
                         let num_changed = 0;
                         for (let i = 0; i < arr.length; ++i) {
                             let [host,type,cap] = arr[i];
-                            let x = existing_perms.get([host,type]);
+                            let x = existing_perms[""+[host,type]];
                             let add = false;
                             if (x === undefined) {
                                 ++num_added;
@@ -241,13 +241,13 @@ interactive("permission-manager", "View or edit the host-specific "
                                     ++num_changed;
                                     add = true;
                                 }
-                                existing_perms.remove([host,type]);
+                                delete existing_perms[""+[host,type]];
                             }
                             if (add)
                                 permission_manager.add(make_uri("http://" + host), type, cap);
                         }
                         let num_removed = 0;
-                        for (let k in existing_perms.iterator(true)) {
+                        for (let [k,v] in Iterator(existing_perms)) {
                             let [host,type] = k.split(",",2);
                             ++num_removed;
                             permission_manager.remove(host,type);
