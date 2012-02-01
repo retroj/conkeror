@@ -9,38 +9,6 @@
 
 require("io");
 
-function string_hashset () {}
-string_hashset.prototype = {
-    constructor: string_hashset,
-
-    add: function (s) {
-        this["-" + s] = true;
-    },
-
-    contains: function (s) {
-        return (("-" + s) in this);
-    },
-
-    remove: function (s) {
-        delete this["-" + s];
-    },
-
-    for_each: function (f) {
-        for (var i in this) {
-            if (i[0] == "-")
-                f(i.slice(1));
-        }
-    },
-
-    iterator: function () {
-        for (let k in this) {
-            if (i[0] == "-")
-                yield i.slice(1);
-        }
-    }
-};
-
-
 // Put the string on the clipboard
 function writeToClipboard (str) {
     var gClipboardHelper = Cc["@mozilla.org/widget/clipboardhelper;1"]
