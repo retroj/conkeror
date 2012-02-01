@@ -180,7 +180,7 @@ interactive("permission-manager", "View or edit the host-specific "
                         if (lines[lines.length - 1].length == 0) // Remove extra line at end
                             lines.length = lines.length - 1;
                         let arr = [];
-                        let prev_entries = new string_hashset();
+                        let prev_entries = {};
                         for (let i = 0; i < lines.length; ++i) {
                             // Parse each line, checking for syntax errors
                             let x = lines[i];
@@ -214,9 +214,9 @@ interactive("permission-manager", "View or edit the host-specific "
                                 cap = parseInt(cap);
                                 if (parts.length > 3)
                                     throw "too many terms";
-                                if (prev_entries.contains([host,type]))
+                                if (prev_entries[""+[host,type]])
                                     throw "duplicate entry";
-                                prev_entries.add([host,type]);
+                                prev_entries[""+[host,type]] = true;
                                 arr.push([host,type,cap]);
                             } catch (syntax_err) {
                                 line = i + 1;
