@@ -28,13 +28,13 @@ function media_scrape_default (buffer, results) {
 
         let base_uri = frame.document.documentURIObject;
 
-        var uris = new string_hashset();
+        var uris = {};
         for each (let x in matches) {
             let str = x;
             try {
                 let uri_obj = make_uri(str, null, base_uri);
-                if (!uris.contains(uri_obj.spec))  {
-                    uris.add(uri_obj.spec);
+                if (! uris[uri_obj.spec])  {
+                    uris[uri_obj.spec] = true;
                     results.push(load_spec({uri: uri_obj.spec, source_frame: frame}));
                 }
             } catch (e) {}
