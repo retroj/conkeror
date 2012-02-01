@@ -408,6 +408,7 @@ function download_buffer (window) {
 download_buffer.prototype = {
     constructor: download_buffer,
     __proto__: special_buffer.prototype,
+    toString: function () "#<download_buffer>",
 
     destroy: function () {
         remove_hook.call(this.info, "download_progress_change_hook", this.progress_change_handler_fn);

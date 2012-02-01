@@ -29,9 +29,13 @@ function special_buffer (window) {
                                 null /* referrer */, null /* post data */, null /* headers */);
     this.constructor_end();
 }
-
-special_buffer.prototype.__proto__ = buffer.prototype;
-
-// Sub-classes must define a generate method
+special_buffer.prototype = {
+    constructor: special_buffer,
+    __proto__: buffer.prototype,
+    toString: function () "#<special_buffer>",
+    generate: function () {
+        throw Error("subclasses of special_buffer must define 'generate'");
+    }
+};
 
 provide("special-buffer");

@@ -156,6 +156,7 @@ function content_buffer (window) {
 }
 content_buffer.prototype = {
     constructor: content_buffer,
+    toString: function () "#<content_buffer>",
 
     destroy: function () {
         this.browser.removeProgressListener(this);

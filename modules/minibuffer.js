@@ -182,6 +182,8 @@ function minibuffer (window) {
 }
 minibuffer.prototype = {
     constructor: minibuffer,
+    toString: function () "#<minibuffer>",
+
     get _selection_start () { return this.input_element.selectionStart; },
     get _selection_end () { return this.input_element.selectionEnd; },
     get _input_text () { return this.input_element.value; },

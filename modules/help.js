@@ -155,6 +155,8 @@ function describe_bindings_buffer (window) {
 }
 describe_bindings_buffer.prototype = {
     constructor: describe_bindings_buffer,
+    toString: function () "#<describe_bindings_buffer>",
+
     title: "Key bindings",
 
     description: "*bindings*",
@@ -325,6 +327,8 @@ function apropos_command_buffer (window) {
 }
 apropos_command_buffer.prototype = {
     constructor: apropos_command_buffer,
+    toString: function () "#<apropos_command_buffer>",
+
     title: "Apropos commands",
 
     description: "*Apropos*",
@@ -424,6 +428,8 @@ function describe_command_buffer (window) {
 }
 describe_command_buffer.prototype = {
     constructor: describe_command_buffer,
+    toString: function () "#<describe_command_buffer>",
+
     get title () { return "Command help: " + this.command; },
 
     description: "*help*",
@@ -518,6 +524,8 @@ function describe_key_buffer (window) {
 }
 describe_key_buffer.prototype = {
     constructor: describe_key_buffer,
+    toString: function () "#<describe_key_buffer>",
+
     get title () { return "Key help: " + this.key_sequence; },
 
     description: "*help*",
@@ -667,6 +675,8 @@ function describe_variable_buffer (window) {
 }
 describe_variable_buffer.prototype = {
     constructor: describe_variable_buffer,
+    toString: function () "#<describe_variable_buffer>",
+
     get title () { return "Variable help: " + this.variable; },
 
     description: "*help*",

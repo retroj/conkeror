@@ -195,6 +195,7 @@ function buffer (window) {
 }
 buffer.prototype = {
     constructor: buffer,
+    toString: function () "#<buffer>",
 
     // default_position is the default value for the $position keyword to
     // the buffer constructor.  This property can be set on the prototype
@@ -397,6 +398,7 @@ function buffer_container (window, create_initial_buffer) {
 }
 buffer_container.prototype = {
     constructor: buffer_container,
+    toString: function () "#<buffer_container>",
 
     insert: function (buffer, position, opener) {
         var i = this.index_of(opener);
