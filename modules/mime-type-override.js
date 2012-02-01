@@ -26,7 +26,7 @@
 let EXAMINE_TOPIC = "http-on-examine-response";
 let EXAMINE_MERGED_TOPIC = "http-on-examine-merged-response";
 
-let table = new string_hashmap();
+let table = {};
 
 let timeout = 10000; // 10000 milliseconds = 10 seconds
 
@@ -38,7 +38,7 @@ function can_override_mime_type_for_uri(uri) {
 }
 
 let clear_override = function(uri_string) {
-    table.remove(uri_string);
+    delete table[uri_string];
     table_size--;
 
     if (table_size == 0) {
@@ -55,7 +55,7 @@ let observer = {
         subject.QueryInterface(Ci.nsIHttpChannel);
 
         var uri_string = subject.originalURI.spec;
-        var obj = table.get(uri_string);
+        var obj = table[uri_string];
         if (!obj)
             return;
 
@@ -79,7 +79,7 @@ let observer = {
 function override_mime_type_for_next_load(uri, mime_type) {
     cache_entry_clear(CACHE_ALL, CACHE_SESSION_HTTP, uri);
 
-    var obj = table.get(uri.spec);
+    var obj = table[uri.spec];
     if (obj)
         obj.timer.cancel();
     else
@@ -95,7 +95,7 @@ function override_mime_type_for_next_load(uri, mime_type) {
         observer_service.addObserver(observer, EXAMINE_TOPIC, false);
         observer_service.addObserver(observer, EXAMINE_MERGED_TOPIC, false);
     }
-    table.put(uri.spec, obj);
+    table[uri.spec] = obj;
 }
 
 provide("mime-type-override");
