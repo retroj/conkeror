@@ -233,7 +233,7 @@ sequence:
                             command = binding.repeat;
                         yield call_interactively(I, command);
                         if (typeof command == "string" &&
-                            interactive_commands.get(command).prefix)
+                            interactive_commands[command].prefix)
                         {
                             keymaps = get_current_keymaps(window); //back to top keymap
                             input_show_partial_sequence(window, I);
@@ -256,7 +256,7 @@ sequence:
                     input_help_timer_clear(window);
                     window.minibuffer.clear();
                     yield call_interactively(I, command);
-                    if (! interactive_commands.get(command).prefix)
+                    if (! interactive_commands[command].prefix)
                         break sequence;
                 }
                 break;

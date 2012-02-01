@@ -517,7 +517,11 @@ minibuffer.prototype.read_command = function () {
         arguments,
         $prompt = "Command", $history = "command",
         $completer = prefix_completer(
-            $completions = function (visitor) interactive_commands.for_each_value(visitor),
+            $completions = function (visitor) {
+                for (let [k,v] in Iterator(interactive_commands)) {
+                    visitor(v);
+                }
+            },
             $get_string = function (x) x.name,
             $get_description = function (x) x.shortdoc || "",
             $get_value = function (x) x.name),

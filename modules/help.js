@@ -215,7 +215,7 @@ describe_bindings_buffer.prototype = {
                         if (typeof(bind.command) == "function") {
                             g.text("[function]", command_td);
                         } else {
-                            let cmd = interactive_commands.get(bind.command);
+                            let cmd = interactive_commands[bind.command];
                             if (cmd != null) {
                                 g.command_reference(cmd.name, command_td);
                                 help_str = cmd.shortdoc;
@@ -374,12 +374,12 @@ apropos_command_buffer.prototype = {
 /* TODO: support regexps/etc. */
 function apropos_command (buffer, substring, target) {
     var list = [];
-    interactive_commands.for_each(function (name, cmd) {
+    for (let [name, cmd] in Iterator(interactive_commands)) {
         if (name.indexOf(substring) != -1) {
             var binding = {name: name, cmd: cmd};
             list.push(binding);
         }
-    });
+    }
     list.sort(function (a,b) {
                   if (a.name < b.name)
                       return -1;
@@ -421,7 +421,7 @@ function describe_command_buffer (window) {
     special_buffer.call(this, window, forward_keywords(arguments));
     this.bindings = arguments.$bindings;
     this.command = arguments.$command;
-    this.cmd = interactive_commands.get(this.command);
+    this.cmd = interactive_commands[this.command];
     this.source_code_reference = this.cmd.source_code_reference;
     this.modalities.push(help_buffer_modality);
     this.constructor_end();
@@ -446,7 +446,7 @@ describe_command_buffer.prototype = {
 
         p = g.element("p", d.body);
         g.command_reference(this.command, p);
-        var cmd = interactive_commands.get(this.command);
+        var cmd = interactive_commands[this.command];
         if (cmd.source_code_reference)  {
             g.text(" is an interactive command in ", p);
             g.source_code_reference(cmd.source_code_reference, p);
@@ -569,7 +569,7 @@ describe_key_buffer.prototype = {
         if (command != null) {
             p = g.element("p", d.body);
             g.command_reference(command, p);
-            var cmd = interactive_commands.get(command);
+            var cmd = interactive_commands[command];
             if (cmd.source_code_reference)  {
                 g.text(" is an interactive command in ", p);
                 g.source_code_reference(cmd.source_code_reference, p);

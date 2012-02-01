@@ -8,7 +8,7 @@
 
 require("utils.js");
 
-var interactive_commands = new string_hashmap();
+var interactive_commands = {};
 
 /**
  * name: string name of the command.
@@ -32,8 +32,7 @@ function interactive (name, doc, handler) {
         shortdoc: get_shortdoc_string(doc),
         prompt: arguments.$prompt,
         source_code_reference: get_caller_source_code_reference() };
-
-    interactive_commands.put(name, cmd);
+    interactive_commands[name] = cmd;
     return name;
 }
 
@@ -93,7 +92,7 @@ function call_interactively (I, command) {
         yield co_return();
     }
 
-    var cmd = interactive_commands.get(command);
+    var cmd = interactive_commands[command];
     if (!cmd) {
         handle_interactive_error(
             window,
@@ -106,7 +105,7 @@ function call_interactively (I, command) {
 
     try {
         while (typeof handler == "string") {
-            let parent = interactive_commands.get(handler);
+            let parent = interactive_commands[handler];
             handler = parent.handler;
             if (handler == command) {
                 throw (interactive_error("circular command alias, "+command));
@@ -145,12 +144,12 @@ function alternates () {
  * of interactive commands.
  */
 function set_handler (name, handler) {
-    var cmd = interactive_commands.get(name);
+    var cmd = interactive_commands[name];
     cmd.handler = handler;
 }
 
 function set_default_browser_object (name, browser_object) {
-    var cmd = interactive_commands.get(name);
+    var cmd = interactive_commands[name];
     cmd.browser_object = browser_object;
 }
 
