@@ -591,7 +591,7 @@ function build_url_regexp () {
 
 function compute_up_url (uri) {
     uri = uri.clone().QueryInterface(Ci.nsIURL);
-    for each (var p in ["ref", "query", "param", "fileName"]) {
+    for (let [k, p] in Iterator(["ref", "query", "param", "fileName"])) {
         if (uri[p] != "") {
             uri[p] = "";
             return uri.spec;
