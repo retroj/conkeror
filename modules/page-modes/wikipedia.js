@@ -113,12 +113,12 @@ function wikipedia_other_language(I) {
 
 
 interactive("wikipedia-other-language",
-            "Queries the user for another language to view the current article in.",
-            function (I) {
-                var options = wikipedia_other_language(I);
-                var chosen = yield completer_with_mappings(options, "Languages:");
-                I.buffer.document.location = options[chosen];
-            });
+    "Queries the user for another language to view the current article in.",
+    function (I) {
+        var options = wikipedia_other_language(I);
+        var chosen = yield completer_with_mappings(options, "Languages:");
+        I.buffer.document.location = options[chosen];
+    });
 
 
 define_keymap("wikipedia_keymap", $display_name = "wikipedia");

@@ -52,11 +52,10 @@ function url_completer () {
     var sort_order = arguments.$sort_order;
     var completers = [];
     completers.push(file_path_completer());
-    if(use_webjumps) {
+    if (use_webjumps)
         completers.push(webjump_completer());
-    }
-    /* Do queries separately (which can lead to duplicates).  The
-     * queries can be combined when QUERY_TYPE_UNIFIED is implemented. */
+    // Do queries separately (which can lead to duplicates).  The queries
+    // can be combined when QUERY_TYPE_UNIFIED is implemented.
     if (use_bookmarks)
         completers.push(history_completer($use_bookmarks = true,
                                           $sort_order = sort_order));

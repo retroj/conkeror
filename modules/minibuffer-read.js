@@ -115,7 +115,7 @@ function text_entry_minibuffer_state (minibuffer, continuation) {
     if (arguments.$completer != null) {
         this.completer = arguments.$completer;
         let auto = arguments.$auto_complete;
-        while (typeof(auto) == "string")
+        while (typeof auto == "string")
             auto = minibuffer_auto_complete_preferences[auto];
         if (auto == null)
             auto = minibuffer_auto_complete_default;
@@ -149,7 +149,7 @@ text_entry_minibuffer_state.prototype = {
         var window = this.minibuffer.window;
         if (this.completer) {
             // Create completion display element if needed
-            if (!this.completion_element) {
+            if (! this.completion_element) {
                 /* FIXME: maybe use the dom_generator */
                 var tree = create_XUL(window, "tree");
                 var s = this;
@@ -217,15 +217,13 @@ text_entry_minibuffer_state.prototype = {
     },
 
     handle_input: function () {
-        if (!this.completer) return;
-
+        if (! this.completer)
+            return;
         this.completions_valid = false;
-
-        if (!this.auto_complete) return;
-
+        if (! this.auto_complete)
+            return;
         var s = this;
         var window = this.minibuffer.window;
-
         if (this.auto_complete_delay > 0) {
             if (this.completions_timer_ID != null)
                 window.clearTimeout(this.completions_timer_ID);
@@ -267,24 +265,19 @@ text_entry_minibuffer_state.prototype = {
             window.clearTimeout(this.completions_timer_ID);
             this.completions_timer_ID = null;
         }
-
-        let m = this.minibuffer;
-
+        var m = this.minibuffer;
         if (this.completions_cont) {
             this.completions_cont.throw(abort());
             this.completions_cont = null;
         }
-
         let c = this.completer(m._input_text, m._selection_start,
                                auto && this.auto_complete_conservative);
-
         if (is_coroutine(c)) {
-            let s = this;
-            let already_done = false;
+            var s = this;
+            var already_done = false;
             this.completions_cont = co_call(function () {
-                var x;
                 try {
-                    x = yield c;
+                    var x = yield c;
                 } catch (e) {
                     handle_interactive_error(window, e);
                 } finally {
@@ -318,8 +311,8 @@ text_entry_minibuffer_state.prototype = {
         if (this.match_required == null)
             this.match_required = this.match_required_default;
 
-        let i = -1;
         if (c && c.count > 0) {
+            var i = -1;
             if (this.match_required) {
                 if (c.count == 1)
                     i = 0;
@@ -361,25 +354,25 @@ text_entry_minibuffer_state.prototype = {
 function minibuffer_complete (window, count) {
     var m = window.minibuffer;
     var s = m.current_state;
-    if (!(s instanceof text_entry_minibuffer_state))
+    if (! (s instanceof text_entry_minibuffer_state))
         throw new Error("Invalid minibuffer state");
-    if (!s.completer)
+    if (! s.completer)
         return;
     var just_completed_manually = false;
-    if (!s.completions_valid || s.completions === undefined) {
+    if (! s.completions_valid || s.completions === undefined) {
         if (s.completions_timer_ID == null)
             just_completed_manually = true;
         //XXX: may need to use ignore_input_events here
         s.update_completions(false /* not auto */, true /* update completions display */);
 
         // If the completer is a coroutine, nothing we can do here
-        if (!s.completions_valid)
+        if (! s.completions_valid)
             return;
     }
 
     var c = s.completions;
 
-    if (!c || c.count == 0)
+    if (! c || c.count == 0)
         return;
 
     var e = s.completions_display_element;
@@ -387,7 +380,7 @@ function minibuffer_complete (window, count) {
 
     let common_prefix;
 
-    if (count == 1 && !s.applied_common_prefix && (common_prefix = c.common_prefix_input_state)) {
+    if (count == 1 && ! s.applied_common_prefix && (common_prefix = c.common_prefix_input_state)) {
         //XXX: may need to use ignore_input_events here
         m.set_input_state(common_prefix);
         s.applied_common_prefix = true;
@@ -420,18 +413,18 @@ interactive("minibuffer-complete-previous", null,
 function exit_minibuffer (window) {
     var m = window.minibuffer;
     var s = m.current_state;
-    if (!(s instanceof text_entry_minibuffer_state))
+    if (! (s instanceof text_entry_minibuffer_state))
         throw new Error("Invalid minibuffer state");
 
     var val = m._input_text;
 
-    if (s.validator != null && !s.validator(val, m))
+    if (s.validator != null && ! s.validator(val, m))
         return;
 
     var match = null;
 
     if (s.completer && s.match_required) {
-        if (!s.completions_valid || s.completions === undefined)
+        if (! s.completions_valid || s.completions === undefined)
             s.update_completions(false /* not conservative */, false /* don't update */);
 
         let c = s.completions;
@@ -468,9 +461,9 @@ interactive("exit-minibuffer", null,
 function minibuffer_history_next (window, count) {
     var m = window.minibuffer;
     var s = m.current_state;
-    if (!(s instanceof text_entry_minibuffer_state))
+    if (! (s instanceof text_entry_minibuffer_state))
         throw new Error("Invalid minibuffer state");
-    if (!s.history || s.history.length == 0)
+    if (! s.history || s.history.length == 0)
         throw interactive_error("No history available.");
     if (count == 0)
         return;
