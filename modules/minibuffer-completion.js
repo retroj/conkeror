@@ -360,9 +360,9 @@ function nest_completions (completions, prefix, suffix) {
  *
  * - `options' is an associative array, where the key represents a string that the
  *   user can complete to.
- * - `query' is the string to show in the minibuffer.
+ * - `prompt' is the string to show in the minibuffer.
  */
-function completer_with_mappings (options, query) {
+function completer_with_mappings (options, prompt) {
     var completer = all_word_completer(
         $completions = function (push) {
             for (var i in options)
@@ -370,7 +370,7 @@ function completer_with_mappings (options, query) {
         });
     yield co_return(
         yield get_recent_conkeror_window().minibuffer.read(
-            $prompt = query,
+            $prompt = prompt,
             $completer = completer
         )
     );
