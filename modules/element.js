@@ -556,7 +556,7 @@ function element_get_operation_label (element, op_name, suffix) {
 }
 
 
-function browser_element_copy (buffer, elem) {
+function browser_element_text (buffer, elem) {
     try {
        var spec = load_spec(elem);
     } catch (e) {}
@@ -582,9 +582,30 @@ function browser_element_copy (buffer, elem) {
             text = elem.textContent;
         }
     }
+    return text;
+}
+
+function browser_element_copy (buffer, elem) {
+    var text = browser_element_text(buffer, elem);
     browser_set_element_focus(buffer, elem);
     writeToClipboard(text);
     buffer.window.minibuffer.message("Copied: " + text);
+}
+
+define_variable("copy_append_separator", "\n",
+    "String used to separate old and new text when text is appended to clipboard");
+
+function copy_text (I) {
+    var element = yield read_browser_object(I);
+    browser_element_copy(I.buffer, element);
+}
+
+function copy_text_append (I) {
+    var element = yield read_browser_object(I);
+    var new_text = browser_element_text(I.buffer, element);
+    var text = read_from_clipboard() + copy_append_separator + new_text;
+    writeToClipboard(text);
+    I.buffer.window.minibuffer.message("Copied: ..." + new_text);
 }
 
 

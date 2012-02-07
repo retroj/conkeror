@@ -297,28 +297,25 @@ function create_info_panel (window, panel_class, row_arr) {
 }
 
 
-/**
- * Paste from the X primary selection, unless the system doesn't support a
- * primary selection, in which case fall back to the clipboard.
+/*
+ * Return clipboard contents as string.  When which_clipboard is given, it
+ * may be an nsIClipboard constant specifying which clipboard to use.
  */
-function read_from_x_primary_selection () {
-    // Get clipboard.
-    let clipboard = Components.classes["@mozilla.org/widget/clipboard;1"]
-        .getService(Components.interfaces.nsIClipboard);
+function read_from_clipboard (which_clipboard) {
+    var clipboard = Cc["@mozilla.org/widget/clipboard;1"]
+        .getService(Ci.nsIClipboard);
+    if (which_clipboard == null)
+        which_clipboard = clipboard.kGlobalClipboard;
 
-    // Fall back to global clipboard if the system doesn't support a selection
-    let which_clipboard = clipboard.supportsSelectionClipboard() ?
-        clipboard.kSelectionClipboard : clipboard.kGlobalClipboard;
-
-    let flavors = ["text/unicode"];
+    var flavors = ["text/unicode"];
 
     // Don't barf if there's nothing on the clipboard
     if (!clipboard.hasDataMatchingFlavors(flavors, flavors.length, which_clipboard))
         return "";
 
     // Create transferable that will transfer the text.
-    let trans = Components.classes["@mozilla.org/widget/transferable;1"]
-        .createInstance(Components.interfaces.nsITransferable);
+    var trans = Cc["@mozilla.org/widget/transferable;1"]
+        .createInstance(Ci.nsITransferable);
 
     for each (let flavor in flavors) {
         trans.addDataFlavor(flavor);
@@ -331,14 +328,28 @@ function read_from_x_primary_selection () {
     trans.getAnyTransferData(data_flavor, data, dataLen);
 
     if (data) {
-        data = data.value.QueryInterface(Components.interfaces.nsISupportsString);
-        let data_length = dataLen.value;
+        data = data.value.QueryInterface(Ci.nsISupportsString);
+        var data_length = dataLen.value;
         if (data_flavor.value == "text/unicode")
             data_length = dataLen.value / 2;
         return data.data.substring(0, data_length);
-    } else {
+    } else
         return "";
-    }
+}
+
+
+/**
+ * Return selection clipboard contents as a string, or regular clipboard
+ * contents if the system does not support a selection clipboard.
+ */
+function read_from_x_primary_selection () {
+    var clipboard = Cc["@mozilla.org/widget/clipboard;1"]
+        .getService(Ci.nsIClipboard);
+    // fall back to global clipboard if the
+    // system doesn't support a selection
+    var which_clipboard = clipboard.supportsSelectionClipboard() ?
+        clipboard.kSelectionClipboard : clipboard.kGlobalClipboard;
+    return read_from_clipboard(which_clipboard);
 }
 
 

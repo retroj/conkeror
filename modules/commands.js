@@ -489,11 +489,8 @@ interactive("save",
 
 
 interactive("copy", null,
-    function (I) {
-        var element = yield read_browser_object(I);
-        browser_element_copy(I.buffer, element);
-    },
-    $browser_object = browser_object_links);
+            alternates(copy_text, copy_text_append),
+            $browser_object = browser_object_links);
 
 interactive("paste-url", "Open a URL from the clipboard in the current buffer.",
 	    alternates(follow_current_buffer, follow_new_buffer, follow_new_window),
