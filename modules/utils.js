@@ -334,7 +334,7 @@ function read_from_clipboard (which_clipboard) {
             data_length = dataLen.value / 2;
         return data.data.substring(0, data_length);
     } else
-        return "";
+        return ""; //XXX: is this even reachable?
 }
 
 
