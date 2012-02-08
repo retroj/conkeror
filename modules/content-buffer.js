@@ -124,7 +124,7 @@ function content_buffer (window) {
 
         var lspec = arguments.$load;
         if (lspec) {
-            if (lspec.url == "about:blank")
+            if (load_spec_uri_string(lspec) == "about:blank")
                 this.ignore_initial_blank = false;
             else {
                 /* Ensure that an existing load of about:blank is stopped */
