@@ -585,9 +585,8 @@ function browser_element_text (buffer, elem) {
     return text;
 }
 
-function browser_element_copy (buffer, elem) {
-    var text = browser_element_text(buffer, elem);
-    browser_set_element_focus(buffer, elem);
+function browser_element_copy (buffer, element) {
+    var text = browser_element_text(buffer, element);
     writeToClipboard(text);
     buffer.window.minibuffer.message("Copied: " + text);
 }
@@ -597,11 +596,13 @@ define_variable("copy_append_separator", "\n",
 
 function copy_text (I) {
     var element = yield read_browser_object(I);
+    browser_set_element_focus(I.buffer, element);
     browser_element_copy(I.buffer, element);
 }
 
 function copy_text_append (I) {
     var element = yield read_browser_object(I);
+    browser_set_element_focus(I.buffer, element);
     var new_text = browser_element_text(I.buffer, element);
     var text = read_from_clipboard() + copy_append_separator + new_text;
     writeToClipboard(text);
