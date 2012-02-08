@@ -585,11 +585,6 @@ function browser_element_text (buffer, elem) {
     return text;
 }
 
-function browser_element_copy (buffer, element) {
-    var text = browser_element_text(buffer, element);
-    writeToClipboard(text);
-    buffer.window.minibuffer.message("Copied: " + text);
-}
 
 define_variable("copy_append_separator", "\n",
     "String used to separate old and new text when text is appended to clipboard");
@@ -597,7 +592,9 @@ define_variable("copy_append_separator", "\n",
 function copy_text (I) {
     var element = yield read_browser_object(I);
     browser_set_element_focus(I.buffer, element);
-    browser_element_copy(I.buffer, element);
+    var text = browser_element_text(I.buffer, element);
+    writeToClipboard(text);
+    I.buffer.window.minibuffer.message("Copied: " + text);
 }
 
 function copy_text_append (I) {
