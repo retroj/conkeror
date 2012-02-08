@@ -233,7 +233,7 @@ function load_spec_post_data (x) {
         return x.post_data;
     if (x.raw_post_data) {
         let y = x.raw_post_data;
-        if (typeof(y) == "string")
+        if (typeof y == "string")
             y = string_input_stream(y);
         x.post_data = mime_input_stream(y, [["Content-Type", x.request_mime_type]]);
         return x.post_data;
