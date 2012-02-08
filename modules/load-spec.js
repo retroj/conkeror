@@ -155,7 +155,22 @@ function load_spec (x) {
 }
 load_spec.prototype = {
     constructor: load_spec,
-    toString: function () "#<load_spec>"
+    toString: function () "#<load_spec>",
+    cache_key: null,
+    document: null,
+    element: null,
+    filename: null,
+    filename_extension: null,
+    forced_charset: null,
+    load_spec_flags: null,
+    mime_type: null,
+    post_data: null,
+    raw_post_data: null,
+    referrer: null,
+    request_mime_type: null,
+    source_frame: null,
+    title: null,
+    uri: null
 };
 
 function load_spec_document (x) {
