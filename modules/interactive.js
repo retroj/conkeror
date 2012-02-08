@@ -58,14 +58,13 @@ function interactive_context (buffer) {
 }
 interactive_context.prototype = {
     constructor: interactive_context,
-
+    toString: function () "#<interactive_context>",
     get P () this.prefix_argument,
-
     get p () univ_arg_to_number(this.prefix_argument),
-
     set p (default_value) univ_arg_to_number(this.prefix_argument, default_value),
-
     get minibuffer () this.window.minibuffer,
+    prefix_argument: null,
+    repeat: null
 };
 
 
