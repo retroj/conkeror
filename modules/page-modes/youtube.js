@@ -82,7 +82,7 @@ function youtube_scrape_text (results, frame, url, id, text) {
 
 function youtube_scrape_buffer (buffer, results) {
     var url = buffer.current_uri.spec;
-    var id = regexp_exec(youtube_mode.test, url, 1);
+    var id = regexp_exec(youtube_mode_test, url, 1);
     if (! id)
         yield co_return();
     var text = buffer.document.documentElement.innerHTML;
@@ -128,9 +128,12 @@ function youtube_scrape_embedded (buffer, results) {
     }
 }
 
-define_page_mode("youtube-mode",
+var youtube_mode_test =
     build_url_regexp($domain = /(?:[a-z]+\.)?youtube/,
-                     $path = /watch\?(?:.*?&)?v=([A-Za-z0-9\-_]+)/),
+                     $path = /watch\?(?:.*?&)?v=([A-Za-z0-9\-_]+)/);
+
+define_page_mode("youtube-mode",
+    youtube_mode_test,
     function enable (buffer) {
         media_setup_local_object_classes(buffer);
     },
@@ -140,6 +143,6 @@ define_page_mode("youtube-mode",
 page_mode_activate(youtube_mode);
 
 media_scrapers.unshift([/.*/, youtube_scrape_embedded]);
-media_scrapers.unshift([youtube_mode.test, youtube_scrape_buffer]);
+media_scrapers.unshift([youtube_mode_test, youtube_scrape_buffer]);
 
 provide("youtube");
