@@ -654,7 +654,7 @@ function page_mode (name, enable, disable) {
     keywords(arguments);
     buffer_mode.call(this, name, enable, disable,
                      forward_keywords(arguments));
-    this.test = arguments.$test;
+    this.test = make_array(arguments.$test);
 }
 page_mode.prototype = {
     constructor: page_mode,
@@ -664,6 +664,7 @@ page_mode.prototype = {
         buffer_mode.prototype.enable.call(this, buffer);
         buffer.page_modes.push(this.name);
         buffer.set_input_mode();
+        return true;
     },
     disable: function (buffer) {
         buffer_mode.prototype.disable.call(this, buffer);
@@ -729,11 +730,15 @@ function page_mode_update (buffer) {
     }
     var uri = buffer.current_uri;
     for (let [name, m] in Iterator(page_modes)) {
-        if (m.test instanceof RegExp) {
-            if (m.test.exec(uri.spec))
-                m.enable(buffer);
-        } else if (m.test(uri))
-            m.enable(buffer);
+        m.test.some(
+            function (test) {
+                if (test instanceof RegExp) {
+                    if (test.exec(uri.spec))
+                        return m.enable(buffer);
+                } else if (test(uri))
+                    return m.enable(buffer);
+                return false;
+            });
     }
 }
 
