@@ -62,3 +62,5 @@ define_key(default_global_keymap, "C-M-q", "quote-mode");
 
 // multimedia keys
 define_key(default_global_keymap, "cmdsearch", "isearch-forward");
+
+define_key(default_global_keymap, "C-x %", "image-toggle-zoom-to-fit");

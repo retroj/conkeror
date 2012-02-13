@@ -826,4 +826,17 @@ interactive("toggle-full-screen",
     });
 
 
+interactive("image-toggle-zoom-to-fit",
+    "Toggle zoom-to-fit (viewport) on an image document.",
+    function (I) {
+        try {
+            var doc = I.buffer.document
+                .QueryInterface(Ci.nsIImageDocument);
+            doc.toggleImageSize();
+        } catch (e) {
+            I.minibuffer.message("Not an image document");
+        }
+    });
+
+
 provide("commands");
