@@ -68,9 +68,10 @@ define_page_mode("google-search-results-mode",
                      $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
                               "fr", "it", "no", "se", "uk"]),
     function enable (buffer) {
-	for each (var c in google_search_results_link_commands)
-	    buffer.default_browser_object_classes[c] =
-	    browser_object_google_search_results_links;
+        for each (var c in google_search_results_link_commands) {
+            buffer.default_browser_object_classes[c] =
+                browser_object_google_search_results_links;
+        }
         buffer.content_modalities.push(google_search_results_modality);
     },
     function disable (buffer) {
