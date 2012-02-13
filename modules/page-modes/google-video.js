@@ -51,7 +51,9 @@ define_page_mode("google-video-mode",
         buffer.page.local.media_scraper = [media_scrape_google_video];
         media_setup_local_object_classes(buffer);
     },
-    function disable (buffer) {}, //FIXME: uninstall scraper
+    function disable (buffer) {
+        media_disable_local_object_classes(buffer);
+    },
     $display_name = "Google Video");
 
 page_mode_activate(google_video_mode);

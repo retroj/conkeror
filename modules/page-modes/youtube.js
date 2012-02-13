@@ -137,7 +137,9 @@ define_page_mode("youtube-mode",
     function enable (buffer) {
         media_setup_local_object_classes(buffer);
     },
-    function disable (buffer) {}, //FIXME: uninstall scraper
+    function disable (buffer) {
+        media_disable_local_object_classes(buffer);
+    },
     $display_name = "YouTube");
 
 page_mode_activate(youtube_mode);

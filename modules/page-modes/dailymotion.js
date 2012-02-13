@@ -41,7 +41,9 @@ define_page_mode("dailymotion-mode",
     function enable (buffer) {
         media_setup_local_object_classes(buffer);
     },
-    function disable (buffer) {},
+    function disable (buffer) {
+        media_disable_local_object_classes(buffer);
+    },
     $display_name = "Dailymotion");
 
 page_mode_activate(dailymotion_mode);

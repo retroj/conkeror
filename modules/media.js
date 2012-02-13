@@ -107,4 +107,8 @@ function media_setup_local_object_classes (buffer) {
         browser_object_media;
 }
 
+function media_disable_local_object_classes (buffer) {
+    buffer.default_browser_object_classes = {};
+}
+
 provide("media");
