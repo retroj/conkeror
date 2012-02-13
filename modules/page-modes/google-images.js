@@ -72,7 +72,14 @@ define_page_mode("google-images-mode",
                 browser_object_google_images_imgurl;
         }
     },
-    function disable (buffer) {},
+    function disable (buffer) {
+        for each (var c in google_images_imgrefurl_commands) {
+            delete buffer.default_browser_object_classes[c];
+        }
+        for each (var c in google_images_imgurl_commands) {
+            delete buffer.default_browser_object_classes[c];
+        }
+    },
     $display_name = "Google Images");
 
 page_mode_activate(google_images_mode);

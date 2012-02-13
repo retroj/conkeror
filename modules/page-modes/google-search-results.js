@@ -52,6 +52,10 @@ function google_search_bind_number_shortcuts () {
 }
 
 
+var google_search_results_link_commands =
+    ["follow", "follow-new-buffer", "follow-new-buffer-background",
+     "follow-new-window", "save", "copy", "shell-command-on-file"];
+
 var google_search_results_modality = {
     normal: google_search_results_keymap
 };
@@ -64,19 +68,15 @@ define_page_mode("google-search-results-mode",
                      $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
                               "fr", "it", "no", "se", "uk"]),
     function enable (buffer) {
-	var link_using_commands = ["follow",
-				   "follow-new-buffer",
-				   "follow-new-buffer-background",
-				   "follow-new-window",
-				   "save",
-				   "copy",
-				   "shell-command-on-file"];
-	for each (var c in link_using_commands)
+	for each (var c in google_search_results_link_commands)
 	    buffer.default_browser_object_classes[c] =
 	    browser_object_google_search_results_links;
         buffer.content_modalities.push(google_search_results_modality);
     },
     function disable (buffer) {
+        for each (var c in google_search_results_link_commands) {
+            delete buffer.default_browser_object_classes[c];
+        }
         var i = buffer.content_modalities.indexOf(google_search_results_modality);
         if (i > -1)
             buffer.content_modalities.splice(i, 1);
