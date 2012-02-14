@@ -353,7 +353,7 @@ function read_url_make_blank_url_handler (url) {
     };
 }
 
-minibuffer.prototype.try_read_url_handlers = function (input) {
+function try_read_url_handlers (input) {
     var result;
     for (var i = 0; i < read_url_handler_list.length; ++i) {
         if ((result = read_url_handler_list[i](input)))
@@ -408,7 +408,7 @@ minibuffer.prototype.read_url = function () {
         $select = minibuffer_read_url_select_initial,
         $match_required = false);
     if (!possibly_valid_url(result) && !get_webjump(result))
-        result = this.try_read_url_handlers(result);
+        result = try_read_url_handlers(result);
     if (result == "") // well-formedness check. (could be better!)
         throw ("invalid url or webjump (\""+ result +"\")");
     yield co_return(load_spec(result));
