@@ -32,12 +32,14 @@ define_buffer_local_hook("buffer_scroll_hook");
 define_buffer_local_hook("buffer_dom_content_loaded_hook");
 define_buffer_local_hook("buffer_loaded_hook");
 define_buffer_local_hook("set_input_mode_hook");
+define_buffer_local_hook("zoom_hook");
 
 define_current_buffer_hook("current_buffer_title_change_hook", "buffer_title_change_hook");
 define_current_buffer_hook("current_buffer_description_change_hook", "buffer_description_change_hook");
 define_current_buffer_hook("current_buffer_icon_change_hook", "buffer_icon_change_hook");
 define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 define_current_buffer_hook("current_buffer_dom_content_loaded_hook", "buffer_dom_content_loaded_hook");
+define_current_buffer_hook("current_buffer_zoom_hook", "zoom_hook");
 
 
 function buffer_position_before (container, b, i) {

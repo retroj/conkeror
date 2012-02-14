@@ -833,6 +833,7 @@ interactive("image-toggle-zoom-to-fit",
             var doc = I.buffer.document
                 .QueryInterface(Ci.nsIImageDocument);
             doc.toggleImageSize();
+            zoom_hook.run(I.buffer);
         } catch (e) {
             I.minibuffer.message("Not an image document");
         }

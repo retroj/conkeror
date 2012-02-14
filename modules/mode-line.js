@@ -289,6 +289,39 @@ downloads_status_widget.prototype = {
 };
 
 
+/**
+ * zoom_widget
+ */
+function zoom_widget (window) {
+    text_widget.call(this, window);
+    this.add_hook("select_buffer_hook");
+    this.add_hook("current_buffer_zoom_hook");
+    this.add_hook("current_content_buffer_location_change_hook");
+    this.add_hook("current_content_buffer_finished_loading_hook");
+}
+zoom_widget.prototype = {
+    constructor: zoom_widget,
+    __proto__: text_widget.prototype,
+    class_name: "zoom-widget",
+    update: function () {
+        var buffer = this.window.buffers.current;
+        var t = Math.round(buffer.markup_document_viewer.textZoom * 100);
+        var f = Math.round(buffer.markup_document_viewer.fullZoom * 100);
+        var str = t + "%/" + f + "%";
+        try {
+            var doc = buffer.document.QueryInterface(Ci.nsIImageDocument);
+            if (doc.imageIsResized) {
+                if (t == 100 && f == 100)
+                    str = "zoom-to-fit";
+                else
+                    str += "/zoom-to-fit";
+            }
+        } catch (e) {}
+        this.view.text = str;
+    }
+};
+
+
 function mode_line_adder (widget_constructor) {
     if (!('mode_line_adder' in widget_constructor))
         widget_constructor.mode_line_adder = function (window) {
