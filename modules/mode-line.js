@@ -133,6 +133,10 @@ text_widget.prototype = {
 
 define_global_window_mode("mode_line", "window_initialize_early_hook");
 
+
+/**
+ * current_buffer_name_widget shows the name of the current buffer.
+ */
 function current_buffer_name_widget (window) {
     this.class_name = "current-buffer-name-widget";
     text_widget.call(this, window);
@@ -141,9 +145,12 @@ function current_buffer_name_widget (window) {
     this.add_hook("current_content_buffer_location_change_hook");
     this.add_hook("select_buffer_hook");
 }
-current_buffer_name_widget.prototype.__proto__ = text_widget.prototype;
-current_buffer_name_widget.prototype.update = function () {
-    this.view.text = this.window.buffers.current.description;
+current_buffer_name_widget.prototype = {
+    constructor: current_buffer_name_widget,
+    __proto__: text_widget.prototype,
+    update: function () {
+        this.view.text = this.window.buffers.current.description;
+    }
 };
 
 
