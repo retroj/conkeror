@@ -48,6 +48,7 @@ pref("conkeror.load.page-modes/google-calendar", 1);
 pref("conkeror.load.page-modes/google-maps", 1);
 pref("conkeror.load.page-modes/google-reader", 1);
 pref("conkeror.load.page-modes/google-video", 1);
+pref("conkeror.load.page-modes/smbc", 1);
 pref("conkeror.load.page-modes/stackexchange", 1);
 pref("conkeror.load.page-modes/xkcd", 1);
 pref("conkeror.load.page-modes/youtube", 1);
