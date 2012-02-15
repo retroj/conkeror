@@ -159,7 +159,8 @@ function buffer (window) {
     this.window.setTimeout(function () { create_buffer_late_hook.run(buffer); }, 0);
 
     this.browser.addEventListener("load", function (event) {
-            buffer_loaded_hook.run(buffer);
+            if (event.target == buffer.document)
+                buffer_loaded_hook.run(buffer);
         }, true /* capture */);
 
     this.browser.addEventListener("DOMWindowClose", function (event) {
