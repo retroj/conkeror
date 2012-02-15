@@ -29,6 +29,7 @@ require("text.js");
 require("login.js");
 
 require("user-agent.js");
+require("dom.js");
 require("utils.js");
 require("interactive.js");
 require("minibuffer.js");

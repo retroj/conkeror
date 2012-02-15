@@ -48,7 +48,7 @@ define_variable('wikipedia_webjumps_format', 'wikipedia-%s',
 function wikipedia_didyoumean(buffer) {
     let doc = buffer.document;
     let didyoumean_xpath = '//div[@class="searchdidyoumean"]/a[1]';
-    let didyoumean = xpath_lookup(doc, didyoumean_xpath);
+    let didyoumean = xpath_find_any(doc, didyoumean_xpath);
     let found = didyoumean.iterateNext();
     if (found) {
 	// "Did you mean" found.
@@ -57,7 +57,7 @@ function wikipedia_didyoumean(buffer) {
 	// Follow the first hit if wikipedia_didyoumean_follow_first_hit.
 	if (wikipedia_didyoumean_follow_first_hit) {
 	    let firsthit_xpath = '//ul[@class="mw-search-results"]/li[1]/a';
-	    let firsthit = xpath_lookup(doc, firsthit_xpath);
+	    let firsthit = xpath_find_any(doc, firsthit_xpath);
 	    found = firsthit.iterateNext();
 	    if (found) {
 		doc.location = found.href;

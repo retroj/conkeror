@@ -136,16 +136,6 @@ function create_XUL (window, tag_name) {
 }
 
 
-/* Used in calls to XPath evaluate */
-function xpath_lookup_namespace (prefix) {
-    return {
-        xhtml: XHTML_NS,
-        m: MATHML_NS,
-        xul: XUL_NS,
-        svg: SVG_NS
-    }[prefix] || null;
-}
-
 function method_caller (obj, func) {
     return function () {
         func.apply(obj, arguments);
@@ -626,18 +616,6 @@ function url_path_trim (url) {
  */
 function possibly_valid_url (url) {
     return !(/\S\s+\S/.test(url)) && !(/^\s*$/.test(url));
-}
-
-
-/**
- * Convenience function for making simple XPath lookups in a document.
- *
- * @param doc The document to look in.
- * @param exp The XPath expression to search for.
- * @return The XPathResult object representing the set of found nodes.
- */
-function xpath_lookup (doc, exp) {
-    return doc.evaluate(exp, doc, null, Ci.nsIDOMXPathResult.ANY_TYPE, null);
 }
 
 
