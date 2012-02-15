@@ -223,6 +223,10 @@ clock_widget.prototype = {
     }
 };
 
+
+/**
+ * buffer_count_widget shows the number of buffers in the window.
+ */
 function buffer_count_widget (window) {
     this.class_name = "buffer-count-widget";
     text_widget.call(this, window);
@@ -231,10 +235,13 @@ function buffer_count_widget (window) {
     this.add_hook("kill_buffer_hook");
     this.add_hook("move_buffer_hook");
 }
-buffer_count_widget.prototype.__proto__ = text_widget.prototype;
-buffer_count_widget.prototype.update = function () {
-    this.view.text = ("[" + (this.window.buffers.selected_index+1) + "/" +
-                      this.window.buffers.count + "]");
+buffer_count_widget.prototype = {
+    constructor: buffer_count_widget,
+    __proto__: text_widget.prototype,
+    update: function () {
+        this.view.text = ("[" + (this.window.buffers.selected_index+1) + "/" +
+                          this.window.buffers.count + "]");
+    }
 };
 
 
