@@ -645,8 +645,6 @@ add_hook("window_initialize_early_hook", initialize_browser_dom_window);
  * Page Modes
  */
 
-var active_page_modes = [];
-
 define_keywords("$test");
 function page_mode (name, enable, disable) {
     keywords(arguments);
@@ -711,6 +709,8 @@ function define_keymaps_page_mode (name, test, modality) {
 }
 ignore_function_for_get_caller_source_code_reference("define_keymaps_page_mode");
 
+
+var active_page_modes = [];
 
 function page_mode_activate (page_mode) {
     var i = active_page_modes.indexOf(page_mode.name);
