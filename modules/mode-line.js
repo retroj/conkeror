@@ -200,24 +200,27 @@ function clock_widget (window) {
     this.timer_ID = window.setTimeout(this.do_update, 0);
     this.timer_timeout = true;
 }
-clock_widget.prototype.__proto__ = text_widget.prototype;
-clock_widget.prototype.update = function () {
-    var time = new Date();
-    this.view.text = time.toLocaleFormat(clock_time_format);
-    if (time.getSeconds() > 0 || time.getMilliseconds() > 100) {
+clock_widget.prototype = {
+    constructor: clock_widget,
+    __proto__: text_widget.prototype,
+    update: function () {
+        var time = new Date();
+        this.view.text = time.toLocaleFormat(clock_time_format);
+        if (time.getSeconds() > 0 || time.getMilliseconds() > 100) {
+            this.window.clearTimeout(this.timer_ID);
+            var time = time.getSeconds() * 1000 + time.getMilliseconds();
+            time = 60000 - time;
+            this.timer_ID = this.window.setTimeout(this.do_update, time);
+            this.timer_timeout = true;
+        } else if (this.timer_timeout) {
+            this.window.clearTimeout(this.timer_ID);
+            this.timer_ID = this.window.setInterval(this.do_update, 60000);
+            this.timer_timeout = false;
+        }
+    },
+    destroy: function () {
         this.window.clearTimeout(this.timer_ID);
-        var time = time.getSeconds() * 1000 + time.getMilliseconds();
-        time = 60000 - time;
-        this.timer_ID = this.window.setTimeout(this.do_update, time);
-        this.timer_timeout = true;
-    } else if (this.timer_timeout) {
-        this.window.clearTimeout(this.timer_ID);
-        this.timer_ID = this.window.setInterval(this.do_update, 60000);
-        this.timer_timeout = false;
     }
-};
-clock_widget.prototype.destroy = function () {
-    this.window.clearTimeout(this.timer_ID);
 };
 
 function buffer_count_widget (window) {
