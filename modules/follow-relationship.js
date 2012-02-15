@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2012 John Foerch
  *
  * Portions of this file were derived from Vimperator,
  * (C) Copyright 2007 Doug Kearns
