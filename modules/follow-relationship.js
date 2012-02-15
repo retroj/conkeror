@@ -47,27 +47,27 @@ function document_get_element_by_relationship (doc, patterns, relationship) {
 
     var elems = doc.getElementsByTagName("link");
     // links have higher priority than anchors
-    for (var i = 0; i < elems.length; i++) {
+    for (var i = 0, n = elems.length; i < n; i++) {
         if (rel_name.test(elems[i].rel) || rev_name.test(elems[i].rev))
             return elems[i];
     }
 
     // no links? look for anchors
     elems = doc.getElementsByTagName("a");
-    for (var i = 0; i < elems.length; i++) {
+    for (i = 0, n = elems.length; i < n; i++) {
         if (rel_name.test(elems[i].rel) || rev_name.test(elems[i].rev))
             return elems[i];
     }
 
-    for (var j = 0; j < patterns.length; ++j) {
+    for (var j = 0, p = patterns.length; j < p; ++j) {
         var pattern = patterns[j];
-        for (var i = 0; i < elems.length; i++) { // loop through list of anchors again
+        for (i = 0, n = elems.length; i < n; i++) { // loop through list of anchors again
             if (pattern.test(elems[i].textContent))
                 return elems[i];
 
             // images with alt text being href
             var children = elems[i].childNodes;
-            for (var k = 0; k < children.length; k++) {
+            for (var k = 0, c = children.length; k < c; k++) {
                 if (children[k].alt && pattern.test(children[k].alt))
                     return elems[i];
             }
