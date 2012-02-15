@@ -61,15 +61,20 @@ function document_get_element_by_relationship (doc, patterns, relationship) {
 
     for (var j = 0, p = patterns.length; j < p; ++j) {
         var pattern = patterns[j];
-        for (i = 0, n = elems.length; i < n; i++) { // loop through list of anchors again
-            if (pattern.test(elems[i].textContent))
-                return elems[i];
-
-            // images with alt text being href
-            var children = elems[i].childNodes;
-            for (var k = 0, c = children.length; k < c; k++) {
-                if (children[k].alt && pattern.test(children[k].alt))
+        if (pattern instanceof Function) {
+            var elem = pattern(doc);
+            if (elem)
+                return elem;
+        } else {
+            for (i = 0, n = elems.length; i < n; i++) { // loop through list of anchors again
+                if (pattern.test(elems[i].textContent))
                     return elems[i];
+                // images with alt text being href
+                var children = elems[i].childNodes;
+                for (var k = 0, c = children.length; k < c; k++) {
+                    if (children[k].alt && pattern.test(children[k].alt))
+                        return elems[i];
+                }
             }
         }
     }
