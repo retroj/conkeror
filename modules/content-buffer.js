@@ -645,9 +645,7 @@ add_hook("window_initialize_early_hook", initialize_browser_dom_window);
  * Page Modes
  */
 
-define_variable("page_modes", {},
-    "Object containing all activated page-modes.  "+
-    "(See `page_mode_activate`.)");
+var active_page_modes = [];
 
 define_keywords("$test");
 function page_mode (name, enable, disable) {
@@ -715,11 +713,15 @@ ignore_function_for_get_caller_source_code_reference("define_keymaps_page_mode")
 
 
 function page_mode_activate (page_mode) {
-    page_modes[page_mode.name] = page_mode;
+    var i = active_page_modes.indexOf(page_mode.name);
+    if (i == -1)
+        active_page_modes.push(page_mode.name);
 }
 
 function page_mode_deactivate (page_mode) {
-    delete page_modes[page_mode.name];
+    var i = active_page_modes.indexOf(page_mode.name);
+    if (i > -1)
+        active_page_modes.splice(i, 1);
 }
 
 
@@ -729,7 +731,8 @@ function page_mode_update (buffer) {
         conkeror[p].disable(buffer);
     }
     var uri = buffer.current_uri;
-    for (let [name, m] in Iterator(page_modes)) {
+    for each (var name in active_page_modes) {
+        var m = conkeror[name];
         m.test.some(
             function (test) {
                 if (test instanceof RegExp) {
