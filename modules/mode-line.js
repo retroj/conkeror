@@ -185,6 +185,9 @@ current_buffer_scroll_position_widget.prototype = {
 };
 
 
+/**
+ * clock_widget shows a clock.
+ */
 define_variable("clock_time_format", "%R",
     "Format string for the mode-line clock widget.\n"+
     "It takes the same format as strftime() in C. "+
