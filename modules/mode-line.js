@@ -284,13 +284,16 @@ function buffer_icon_widget (window) {
     this.add_hook("current_buffer_icon_change_hook");
     this.add_hook("select_buffer_hook");
 }
-buffer_icon_widget.prototype.__proto__ = text_widget.prototype;
-buffer_icon_widget.prototype.update = function () {
-    var buffer = this.window.buffers.current;
-    if (buffer.icon)
-        this.view.element.setAttribute("src", buffer.icon);
-    else
-        this.view.element.removeAttribute("src");
+buffer_icon_widget.prototype = {
+    constructor: buffer_icon_widget,
+    __proto__: text_widget.prototype,
+    update: function () {
+        var buffer = this.window.buffers.current;
+        if (buffer.icon)
+            this.view.element.setAttribute("src", buffer.icon);
+        else
+            this.view.element.removeAttribute("src");
+    }
 };
 buffer_icon_widget.mode_line_adder = function (window) {
     var element = create_XUL(window, "image");
