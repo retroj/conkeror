@@ -1,7 +1,7 @@
 /**
  * (C) Copyright 2005 Shawn Betts
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
- * (C) Copyright 2010-2011 John J. Foerch
+ * (C) Copyright 2010-2012 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
