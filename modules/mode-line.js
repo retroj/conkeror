@@ -234,6 +234,11 @@ buffer_count_widget.prototype.update = function () {
                       this.window.buffers.count + "]");
 };
 
+
+/**
+ * loading_count_widget shows how many buffers in the current window are
+ * loading.
+ */
 function loading_count_widget (window) {
     this.class_name = "loading-count-widget";
     text_widget.call(this, window);
@@ -242,14 +247,17 @@ function loading_count_widget (window) {
     this.add_hook("content_buffer_finished_loading_hook");
     this.add_hook("kill_buffer_hook");
 }
-loading_count_widget.prototype.__proto__ = text_widget.prototype;
-loading_count_widget.prototype.update = function () {
-    var count = 0;
-    for_each_buffer(function (b) { if (b.loading) count++; });
-    if (count)
-        this.view.text = "(" + count + " loading)";
-    else
-        this.view.text = "";
+loading_count_widget.prototype = {
+    constructor: loading_count_widget,
+    __proto__: text_widget.prototype,
+    update: function () {
+        var count = 0;
+        for_each_buffer(function (b) { if (b.loading) count++; });
+        if (count)
+            this.view.text = "(" + count + " loading)";
+        else
+            this.view.text = "";
+    }
 };
 
 
