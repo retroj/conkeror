@@ -364,8 +364,12 @@ function browser_element_focus (buffer, elem) {
     if (! dom_node_or_window_p(elem))
         return;
 
-    if (elem instanceof Ci.nsIDOMXULTextBoxElement)
-        elem = elem.wrappedJSObject.inputField; // focus the input field
+    if (elem instanceof Ci.nsIDOMXULTextBoxElement) {
+        if (elem.wrappedJSObject)
+            elem = elem.wrappedJSObject.inputField; // focus the input field
+        else
+            elem = elem.inputField;
+    }
 
     browser_set_element_focus(buffer, elem);
     if (elem instanceof Ci.nsIDOMWindow)
