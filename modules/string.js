@@ -139,4 +139,39 @@ function or_string (options) {
         .join(", ") + " or " + options[options.length - 1];
 }
 
+
+/**
+ * build_url_regexp builds a regular expression to match URLs for a given
+ * web site.
+ *
+ * Both the $domain and $path arguments can be either regexps, in
+ * which case they will be matched as is, or strings, in which case
+ * they will be matched literally.
+ *
+ * $tlds specifies a list of valid top-level-domains to match, and
+ * defaults to .com. Useful for when e.g. foo.org and foo.com are the
+ * same.
+ *
+ * If $allow_www is true, www.domain.tld will also be allowed.
+ */
+define_keywords("$domain", "$path", "$tlds", "$allow_www");
+function build_url_regexp () {
+    function regexp_to_string (obj) {
+        if (typeof obj == "object" && "source" in obj)
+            return obj.source;
+        return quotemeta(obj);
+    }
+
+    keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
+    var domain = regexp_to_string(arguments.$domain);
+    if (arguments.$allow_www) {
+        domain = "(?:www\.)?" + domain;
+    }
+    var path = regexp_to_string(arguments.$path);
+    var tlds = arguments.$tlds;
+    var regexp = "^https?://" + domain + "\\." + choice_regexp(tlds) + "/" + path;
+    return new RegExp(regexp);
+}
+
+
 provide("string");

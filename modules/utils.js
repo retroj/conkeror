@@ -125,17 +125,6 @@ function abs_point (node) {
 }
 
 
-const XHTML_NS = "http://www.w3.org/1999/xhtml";
-const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-const MATHML_NS = "http://www.w3.org/1998/Math/MathML";
-const XLINK_NS = "http://www.w3.org/1999/xlink";
-const SVG_NS = "http://www.w3.org/2000/svg";
-
-function create_XUL (window, tag_name) {
-    return window.document.createElementNS(XUL_NS, tag_name);
-}
-
-
 function method_caller (obj, func) {
     return function () {
         func.apply(obj, arguments);
@@ -170,49 +159,6 @@ function get_buffer_from_frame (window, frame) {
     return null;
 }
 
-
-function dom_generator (document, ns) {
-    this.document = document;
-    this.ns = ns;
-}
-dom_generator.prototype = {
-    constructor: dom_generator,
-    element: function (tag, parent) {
-        var node = this.document.createElementNS(this.ns, tag);
-        var i = 1;
-        if (parent != null && (parent instanceof Ci.nsIDOMNode)) {
-            parent.appendChild(node);
-            i = 2;
-        }
-        for (var nargs = arguments.length; i < nargs; i += 2)
-            node.setAttribute(arguments[i], arguments[i+1]);
-        return node;
-    },
-
-    text: function (str, parent) {
-        var node = this.document.createTextNode(str);
-        if (parent)
-            parent.appendChild(node);
-        return node;
-    },
-
-
-    stylesheet_link: function (href, parent) {
-        var node = this.element("link");
-        node.setAttribute("rel", "stylesheet");
-        node.setAttribute("type", "text/css");
-        node.setAttribute("href", href);
-        if (parent)
-            parent.appendChild(node);
-        return node;
-    },
-
-
-    add_stylesheet: function (url) {
-        var head = this.document.documentElement.firstChild;
-        this.stylesheet_link(url, head);
-    }
-};
 
 /**
  * Generates a QueryInterface function suitable for an implemenation
@@ -556,40 +502,6 @@ function scroll_selection_into_view (field) {
 }
 
 
-/**
- * build_url_regexp builds a regular expression to match URLs for a given
- * web site.
- *
- * Both the $domain and $path arguments can be either regexps, in
- * which case they will be matched as is, or strings, in which case
- * they will be matched literally.
- *
- * $tlds specifies a list of valid top-level-domains to match, and
- * defaults to .com. Useful for when e.g. foo.org and foo.com are the
- * same.
- *
- * If $allow_www is true, www.domain.tld will also be allowed.
- */
-define_keywords("$domain", "$path", "$tlds", "$allow_www");
-function build_url_regexp () {
-    function regexp_to_string (obj) {
-        if (typeof obj == "object" && "source" in obj)
-            return obj.source;
-        return quotemeta(obj);
-    }
-
-    keywords(arguments, $path = "", $tlds = ["com"], $allow_www = false);
-    var domain = regexp_to_string(arguments.$domain);
-    if (arguments.$allow_www) {
-        domain = "(?:www\.)?" + domain;
-    }
-    var path = regexp_to_string(arguments.$path);
-    var tlds = arguments.$tlds;
-    var regexp = "^https?://" + domain + "\\." + choice_regexp(tlds) + "/" + path;
-    return new RegExp(regexp);
-}
-
-
 function compute_up_url (uri) {
     uri = uri.clone().QueryInterface(Ci.nsIURL);
     for (let [k, p] in Iterator(["ref", "query", "param", "fileName"])) {
@@ -643,46 +555,6 @@ function get_contents_synchronously (url) {
     scriptableStream.close();
     input.close();
     return str;
-}
-
-
-/**
- * dom_add_class adds a css class to the given dom node.
- */
-function dom_add_class (node, cssclass) {
-    if (node.className) {
-        var cs = node.className.split(" ");
-        if (cs.indexOf(cssclass) != -1)
-            return;
-        cs.push(cssclass);
-        node.className = cs.join(" ");
-    } else
-        node.className = cssclass;
-}
-
-/**
- * dom_remove_class removes the given css class from the given dom node.
- */
-function dom_remove_class (node, cssclass) {
-    if (! node.className)
-        return;
-    var classes = node.className.split(" ");
-    classes = classes.filter(function (x) { return x != cssclass; });
-    node.className = classes.join(" ");
-}
-
-
-/**
- * dom_node_flash adds the given cssclass to the node for a brief interval.
- * this class can be styled, to create a flashing effect.
- */
-function dom_node_flash (node, cssclass) {
-    dom_add_class(node, cssclass);
-    call_after_timeout(
-        function () {
-            dom_remove_class(node, cssclass);
-        },
-        400);
 }
 
 
