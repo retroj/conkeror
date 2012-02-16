@@ -503,7 +503,11 @@ function scroll_selection_into_view (field) {
 
 
 function compute_up_url (uri) {
-    uri = uri.clone().QueryInterface(Ci.nsIURL);
+    try {
+        uri = uri.clone().QueryInterface(Ci.nsIURL);
+    } catch (e) {
+        return uri.spec;
+    }
     for (let [k, p] in Iterator(["ref", "query", "param", "fileName"])) {
         if (p in uri && uri[p] != "") {
             uri[p] = "";

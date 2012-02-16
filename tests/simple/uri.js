@@ -12,3 +12,30 @@ walnut_run({
         assert_error(function () { make_uri("chrome://conkeror"); });
     }
 });
+
+walnut_run({
+    test_compute_up_url_1: function () {
+        assert_equals(compute_up_url(make_uri("http://example.com/")),
+                      "http://example.com/");
+    },
+    test_compute_up_url_2: function () {
+        assert_equals(compute_up_url(make_uri("http://example.com/foo")),
+                      "http://example.com/");
+    },
+    test_compute_up_url_3: function () {
+        assert_equals(compute_up_url(make_uri("about:config")),
+                      "about:config");
+    },
+    test_compute_up_url_4: function () {
+        assert_equals(compute_up_url(make_uri("http://example.com/foo#bar")),
+                      "http://example.com/foo");
+    },
+    test_compute_up_url_5: function () {
+        assert_equals(compute_up_url(make_uri("http://example.com/foo?baz=quux#bar")),
+                      "http://example.com/foo?baz=quux");
+    },
+    test_compute_up_url_6: function () {
+        assert_equals(compute_up_url(make_uri("http://example.com/foo?baz=quux")),
+                      "http://example.com/foo");
+    }
+});
