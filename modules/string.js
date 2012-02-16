@@ -22,13 +22,19 @@ function shell_quote (str) {
     return s;
 }
 
-/* Like perl's quotemeta. Backslash all non-alphanumerics. */
+
+/**
+ * Like perl's quotemeta. Backslash all non-alphanumerics.
+ */
 function quotemeta (str) {
     return str.replace(/([^a-zA-Z0-9])/g, "\\$1");
 }
 
-/* Given a list of choices (strings), return a regexp which matches any
-   of them*/
+
+/**
+ * Given a list of choices (strings), return a regexp which matches any
+ * of them
+ */
 function choice_regexp (choices) {
     return ("(?:" + choices.map(quotemeta).join("|") + ")");
 }
