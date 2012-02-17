@@ -54,3 +54,39 @@ walnut_run({
         assert_objects_equal(make_array(null), [null]);
     }
 });
+
+walnut_run({
+    test_possibly_valid_url_1: function () {
+        assert_not(possibly_valid_url(""));
+    },
+    test_possibly_valid_url_2: function () {
+        assert_not(possibly_valid_url("         "));
+    },
+    test_possibly_valid_url_3: function () {
+        assert(possibly_valid_url("example"));
+    },
+    test_possibly_valid_url_4: function () {
+        assert(possibly_valid_url("  example  "));
+    },
+    test_possibly_valid_url_5: function () {
+        assert_not(possibly_valid_url("example foo"));
+    },
+    test_possibly_valid_url_6: function () {
+        assert(possibly_valid_url("example/ foo"));
+    },
+    test_possibly_valid_url_7: function () {
+        assert_not(possibly_valid_url("example /foo"));
+    },
+    test_possibly_valid_url_8: function () {
+        assert(possibly_valid_url("/example foo"));
+    },
+    test_possibly_valid_url_9: function () {
+        assert(possibly_valid_url(" /example foo"));
+    },
+    test_possibly_valid_url_10: function () {
+        assert(possibly_valid_url(" ex/ample foo"));
+    },
+    test_possibly_valid_url_11: function () {
+        assert(possibly_valid_url("/"));
+    }
+});

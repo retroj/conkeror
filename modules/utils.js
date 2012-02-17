@@ -525,13 +525,14 @@ function url_path_trim (url) {
     return uri.spec;
 }
 
-/* possibly_valid_url returns true if the string might be a valid
- * thing to pass to nsIWebNavigation.loadURI.  Currently just checks
- * that there's no whitespace in the middle and that it's not entirely
- * whitespace.
+/**
+ * possibly_valid_url returns true if its argument is an url-like string,
+ * meaning likely a valid thing to pass to nsIWebNavigation.loadURI.
  */
-function possibly_valid_url (url) {
-    return !(/\S\s+\S/.test(url)) && !(/^\s*$/.test(url));
+function possibly_valid_url (str) {
+    // no inner space before first /
+    return /^\s*[^\/\s]*(\/|\s*$)/.test(str)
+        && !(/^\s*$/.test(str));
 }
 
 
