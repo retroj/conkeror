@@ -10,6 +10,15 @@ walnut_run({
     },
     test_make_uri_3: function () {
         assert_error(function () { make_uri("chrome://conkeror"); });
+    },
+    test_make_uri_4: function () {
+        assert(make_uri("http://example.com/") instanceof Ci.nsIURI);
+    },
+    test_make_uri_5: function () {
+        assert(make_uri(make_file("/a/b/c")) instanceof Ci.nsIURI);
+    },
+    test_make_uri_6: function () {
+        assert_equals(make_uri(make_file("/a/b/c")).spec.substr(0,5), "file:");
     }
 });
 
