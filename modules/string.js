@@ -76,7 +76,7 @@ function html_escape (str) {
     return str.replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace('"', '&quot;', 'g');
 }
 
 
