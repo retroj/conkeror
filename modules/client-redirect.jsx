@@ -35,7 +35,7 @@ function do_client_redirect (buffer, request, location) {
             if (redirect) {
                 var history = buffer.web_navigation.sessionHistory;
                 if (history.index > 0)
-                    history.getEntryAtIndex(history.index - 1, true)
+                    history.getEntryAtIndex(history.index - 1, true);
                 else
                     history.PurgeHistory(1);
                 buffer.load(redirect);
