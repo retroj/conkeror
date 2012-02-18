@@ -34,9 +34,11 @@ function do_client_redirect (buffer, request, location) {
             var redirect = handler(location);
             if (redirect) {
                 var history = buffer.web_navigation.sessionHistory;
-                if (history.index > 0)
-                    history.getEntryAtIndex(history.index - 1, true);
-                else
+                var entry = history.getEntryAtIndex(history.index, false);
+                if (history.index > 0) {
+                    if (entry.URI.spec == location.spec)
+                        history.getEntryAtIndex(history.index - 1, true);
+                } else if (entry.URI.spec == location.spec)
                     history.PurgeHistory(1);
                 buffer.load(redirect);
                 return;
