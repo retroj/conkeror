@@ -5,6 +5,7 @@
   padding: 2px;
   -moz-appearance: toolbar;
   -moz-box-align: center;
+  overflow: hidden;
 }
 
 .mode-line label[value=""] {
