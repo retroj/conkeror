@@ -6,3 +6,7 @@
   -moz-appearance: toolbar;
   -moz-box-align: center;
 }
+
+.mode-line label[value=""] {
+  display: none;
+}
