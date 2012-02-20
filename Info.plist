@@ -17,9 +17,6 @@
     <key>CFBundleShortVersionString</key>
     <string>$CONKEROR_SHORT_VERSION$</string>
 
-    <key>CFBundleSignature</key>
-    <string>conk</string> <!-- four letter code, supposed to be unique?!? -->
-
     <key>CFBundleVersion</key>
     <string>1.0pre</string>
 
@@ -34,6 +31,27 @@
 
     <key>CFBundleGetInfoString</key>
     <string>Conkeror 1.0pre, A 100% keyboard driven mozilla based web browser.</string>
+
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>Web site URL</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>http</string>
+                <string>https</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>Local file URL</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>file</string>
+            </array>
+        </dict>
+    </array>
 
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string> <!-- I have no good reference as to why this is 6.0 -->
