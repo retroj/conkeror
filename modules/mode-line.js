@@ -346,7 +346,10 @@ zoom_widget.prototype = {
         var buffer = this.window.buffers.current;
         var t = Math.round(buffer.markup_document_viewer.textZoom * 100);
         var f = Math.round(buffer.markup_document_viewer.fullZoom * 100);
-        var str = t + "%/" + f + "%";
+        if (t == 100 && f == 100)
+            var str = "";
+        else
+            str = t + "%/" + f + "%";
         try {
             var doc = buffer.document.QueryInterface(Ci.nsIImageDocument);
             if (doc.imageIsResized) {
