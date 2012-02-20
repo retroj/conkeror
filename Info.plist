@@ -15,7 +15,7 @@
     <string>APPL</string>
 
     <key>CFBundleShortVersionString</key>
-    <string>$CONKEROR_SHORT_VERSION$</string>
+    <string>1.0</string>
 
     <key>CFBundleVersion</key>
     <string>1.0pre</string>
