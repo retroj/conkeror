@@ -657,7 +657,7 @@ function hints_next (window, s, count) {
             cur += vl;
         s.manager.select_hint(cur + 1);
     }
-    s.update_minibuffer(window);
+    s.update_minibuffer(window.minibuffer);
 }
 interactive("hints-next", null,
     function (I) {
