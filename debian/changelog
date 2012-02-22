@@ -1,11 +1,12 @@
-conkeror (1.0~~pre+git120131-1) unstable; urgency=low
+conkeror (1.0~~pre+git120222-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
     - Update debian patches to fit new module API
   * Update buildd-ports webjump. Thanks Christoph Egger!
   * Add debpopcon webjump.
+  * Also install new file content-policy.manifest. Thanks Joseph Gay!
 
- -- Axel Beckert <abe@debian.org>  Tue, 31 Jan 2012 18:39:20 +0100
+ -- Axel Beckert <abe@debian.org>  Wed, 22 Feb 2012 23:22:19 +0100
 
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 
