@@ -577,6 +577,20 @@ buffer_container.prototype = {
         return true;
     },
 
+    unbury_buffer: function (b) {
+        var c = this.current;
+        if (bury_buffer_position != null) {
+            this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
+            this.buffer_list.splice(this.buffer_list.indexOf(c), 0, b);
+        }
+        this.buffer_history.splice(this.buffer_history.indexOf(b), 1);
+        this.buffer_history.unshift(b);
+        this.current = b;
+        if (bury_buffer_position != null)
+            move_buffer_hook.run(b);
+        return true;
+    },
+
     for_each: function (f) {
         var count = this.count;
         for (var i = 0; i < count; ++i)
@@ -714,15 +728,15 @@ define_variable("read_buffer_show_icons", false,
     "library.");
 
 minibuffer_auto_complete_preferences["buffer"] = true;
-define_keywords("$default");
+define_keywords("$buffers", "$default");
 minibuffer.prototype.read_buffer = function () {
     var window = this.window;
-    var buffer = this.window.buffers.current;
     keywords(arguments, $prompt = "Buffer:",
-             $default = buffer,
+             $buffers = function (visitor) window.buffers.for_each(visitor),
+             $default = window.buffers.current,
              $history = "buffer");
     var completer = all_word_completer(
-        $completions = function (visitor) window.buffers.for_each(visitor),
+        $completions = arguments.$buffers,
         $get_string = function (x) x.description,
         $get_description = function (x) x.title,
         $get_icon = (read_buffer_show_icons ?
@@ -866,6 +880,23 @@ interactive("bury-buffer",
     "the buffer list, so that it is the least likely buffer to be " +
     "selected by `switch-to-buffer'.",
     function (I) { I.window.buffers.bury_buffer(I.buffer); });
+
+interactive("unbury-buffer",
+    "Unbury a buffer.\nPrompt for a buffer in reverse access-order, "+
+    "and switch to it.  When `bury_buffer_position` is non-null, move "+
+    "the buffer to the current position in the buffer list.",
+    function (I) {
+        var buffers = I.window.buffers;
+        buffers.unbury_buffer(
+            (yield I.minibuffer.read_buffer(
+                $prompt = "Switch to buffer:",
+                $buffers = function (visitor) {
+                    var count = buffers.count;
+                    for (var i = count - 1; i >= 0; --i)
+                        visitor(buffers.buffer_history[i]);
+                },
+                $default = buffers.buffer_history[buffers.count - 1])));
+    });
 
 function change_directory (buffer, dir) {
     if (buffer.page != null)
