@@ -789,7 +789,7 @@ function switch_to_buffer (window, buffer) {
         window.buffers.current = buffer;
 }
 interactive("switch-to-buffer",
-    "Switch to a buffer specified in the minibuffer.",
+    "Prompt for a buffer and switch to it.",
     function (I) {
         switch_to_buffer(
             I.window,
@@ -801,8 +801,8 @@ interactive("switch-to-buffer",
     });
 
 define_variable("can_kill_last_buffer", true,
-    "If this is set to true, kill-buffer can kill the last "+
-    "remaining buffer, and close the window.");
+    "When true, kill-buffer can kill the last  buffer in a window, "+
+    "and close the window.");
 
 function kill_other_buffers (buffer) {
     if (!buffer)
@@ -862,7 +862,7 @@ interactive("read-buffer-kill-buffer",
     });
 
 interactive("bury-buffer",
-    "Bury the current buffer.\n Put the current buffer at the end of " +
+    "Bury the current buffer.\nPut the current buffer at the end of " +
     "the buffer list, so that it is the least likely buffer to be " +
     "selected by `switch-to-buffer'.",
     function (I) { I.window.buffers.bury_buffer(I.buffer); });
