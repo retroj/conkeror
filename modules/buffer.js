@@ -882,20 +882,24 @@ interactive("bury-buffer",
     function (I) { I.window.buffers.bury_buffer(I.buffer); });
 
 interactive("unbury-buffer",
-    "Unbury a buffer.\nPrompt for a buffer in reverse access-order, "+
-    "and switch to it.  When `bury_buffer_position` is non-null, move "+
-    "the buffer to the current position in the buffer list.",
+    "Unbury the buffer lowest in the buffer-history list.\n"+
+    "With universal argument, prompt for a buffer.  When "+
+    "`bury_buffer_position` is non-null, move the buffer "+
+    "to the current position in the buffer list.",
     function (I) {
         var buffers = I.window.buffers;
-        buffers.unbury_buffer(
-            (yield I.minibuffer.read_buffer(
+        if (I.prefix_argument)
+            var b = yield I.minibuffer.read_buffer(
                 $prompt = "Switch to buffer:",
                 $buffers = function (visitor) {
                     var count = buffers.count;
                     for (var i = count - 1; i >= 0; --i)
                         visitor(buffers.buffer_history[i]);
                 },
-                $default = buffers.buffer_history[buffers.count - 1])));
+                $default = buffers.buffer_history[buffers.count - 1]);
+        else
+            b = buffers.buffer_history[buffers.count - 1];
+        buffers.unbury_buffer(b);
     });
 
 function change_directory (buffer, dir) {
