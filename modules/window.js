@@ -208,6 +208,7 @@ define_window_local_hook("window_close_hook", RUN_HOOK);
  */
 
 function define_global_window_mode (name, hook_name) {
+    keywords(arguments);
     function install (window) {
         if (name in window)
             throw new Error(name + " already initialized for window");
@@ -227,7 +228,8 @@ function define_global_window_mode (name, hook_name) {
                        function () { // disable
                            remove_hook(hook_name, install);
                            for_each_window(uninstall);
-                       });
+                       },
+                       forward_keywords(arguments));
 }
 ignore_function_for_get_caller_source_code_reference("define_global_window_mode");
 
