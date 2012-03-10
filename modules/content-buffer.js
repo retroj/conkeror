@@ -444,7 +444,7 @@ function overlink_initialize (buffer) {
             buffer.current_overlink = event.target;
             overlink_update_status(buffer, node);
         }
-    }
+    };
     buffer.overlink_mouseout = function (event) {
         if (buffer != buffer.window.buffers.current)
             return;
@@ -452,7 +452,7 @@ function overlink_initialize (buffer) {
             buffer.current_overlink = null;
             overlink_update_status(buffer, null);
         }
-    }
+    };
     buffer.browser.addEventListener("mouseover", buffer.overlink_mouseover, true);
     buffer.browser.addEventListener("mouseout", buffer.overlink_mouseout, true);
 }
@@ -471,7 +471,7 @@ define_global_mode("overlink_mode",
             delete b.overlink_mouseover;
             delete b.overlink_mouseout;
         });
-    })
+    });
 
 overlink_mode(true);
 
