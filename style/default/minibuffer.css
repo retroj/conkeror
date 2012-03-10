@@ -10,6 +10,17 @@
   background-color: -moz-field !important;
 }
 
+#minibuffer-input .textbox-input-box {
+  width: 5em;
+}
+
+#minibuffer-input [anonid="annotation"] {
+  font-style: oblique;
+}
+
+#minibuffer-input [anonid="strut"] {
+  padding-right: 1em !important;
+}
 
 /* mode text widgets */
 

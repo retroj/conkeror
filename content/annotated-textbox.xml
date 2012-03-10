@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!--
+(C) Copyright 2012 David Kettler
+
+Use, modification, and distribution are subject to the terms specified in the
+COPYING file.
+-->
+<bindings
+    xmlns="http://www.mozilla.org/xbl"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:xbl="http://www.mozilla.org/xbl">
+
+  <binding id="annotated-textbox"
+           extends="chrome://global/content/bindings/textbox.xml#textbox">
+
+    <content>
+      <children/>
+      <xul:deck flex="1">
+        <xul:hbox class="textbox-input-box" flex="1" xbl:inherits="context,spellcheck">
+          <html:input class="textbox-input" flex="1" anonid="input"
+                      xbl:inherits="onfocus,onblur,value,type,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey,noinitialfocus,mozactionhint,spellcheck"/>
+        </xul:hbox>
+        <xul:hbox style="overflow: hidden">
+          <xul:label class="plain" anonid="strut"/>
+        </xul:hbox>
+      </xul:deck>
+      <xul:label class="plain" anonid="annotation"
+                 xbl:inherits="value=annotation"
+                 flex="1000" crop="right" collapsed="true"/>
+    </content>
+
+    <implementation>
+
+      <field name="_annotate"> false </field>
+      <field name="_annot" readonly="true">
+        document.getAnonymousElementByAttribute(this, "anonid", "annotation");
+      </field>
+      <field name="_strut" readonly="true">
+        document.getAnonymousElementByAttribute(this, "anonid", "strut");
+      </field>
+
+      <property name="annotate">
+        <getter>
+          return this._annotate;
+        </getter>
+        <setter><![CDATA[
+          this._annotate = !!val;
+          this.annotation = "";
+          this._strut.setAttribute("value", "");
+          this._annot.setAttribute("collapsed",
+                                   this._annotate ? "false" : "true");
+          return this._annotate;
+        ]]></setter>
+      </property>
+
+      <property name="annotation"
+                onset="this.setAttribute('annotation', val); return val;"
+                onget="return this.getAttribute('annotation');"/>
+
+    </implementation>
+
+    <handlers>
+      <handler event="input">
+        if (this._annotate)
+          this._strut.setAttribute("value", this.value);
+      </handler>
+    </handlers>
+
+  </binding>
+</bindings>

@@ -1,0 +1,3 @@
+#minibuffer-input {
+    -moz-binding: url("chrome://conkeror-gui/content/annotated-textbox.xml#annotated-textbox");
+}

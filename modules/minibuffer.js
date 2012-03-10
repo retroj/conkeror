@@ -447,4 +447,38 @@ function minibuffer_abort (window) {
 interactive("minibuffer-abort", null, function (I) { minibuffer_abort(I.window); });
 
 
+/*
+ * Minibuffer-annotation-mode
+ */
+
+var minibuffer_annotation_mode = {
+    stylesheet: "chrome://conkeror-gui/content/minibuffer-annotation.css",
+    users: [],
+    enabled: false,
+    register: function (user) {
+        this.users.push(user);
+        this._switch_if_needed();
+    },
+    unregister: function (user) {
+        var i = this.users.indexOf(user);
+        if (i > -1)
+            this.users.splice(i, 1);
+        this._switch_if_needed();
+    },
+    _switch_if_needed: function (user) {
+        if (this.enabled && this.users.length == 0)
+            this._disable();
+        if (!this.enabled && this.users.length != 0)
+            this._enable();
+    },
+    _enable: function () {
+        register_agent_stylesheet(this.stylesheet);
+        this.enabled = true;
+    },
+    _disable: function () {
+        unregister_agent_stylesheet(this.stylesheet);
+        this.enabled = false;
+    }
+};
+
 provide("minibuffer");
