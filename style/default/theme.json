@@ -5,7 +5,7 @@
       "mode-line.css",
       "tab-bar.css",
       "new-tabs.css",
-      "hints--url-panel.css",
+      "window--panel.css",
       "eye-guide.css"
   ]
 }

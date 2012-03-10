@@ -419,21 +419,20 @@ hint_manager.prototype = {
 };
 
 /**
- * Show panel with currently selected URL.
+ * Display the URL and other information for the currently selected node.
  */
-function hints_url_panel (hints, window) {
-    var g = new dom_generator(window.document, XUL_NS);
+function hints_minibuffer_annotation (hints, window) {
+    this.hints = hints;
+    this.input = window.minibuffer.input_element;
+    this.input.annotate = true;
+}
+hints_minibuffer_annotation.prototype = {
+    constructor: hints_minibuffer_annotation,
 
-    var p = g.element("hbox", "class", "panel url", "flex", "0");
-    g.element("label", p, "value", "URL:", "class", "url-panel-label");
-    var url_value = g.element("label", p, "class", "url-panel-value",
-                              "crop", "end", "flex", "1");
-    window.minibuffer.insert_before(p);
-
-    p.update = function () {
+    update: function () {
 	var s = [];
-	if (hints.manager && hints.manager.last_selected_hint) {
-            var elem = hints.manager.last_selected_hint.elem;
+	if (this.hints.manager && this.hints.manager.last_selected_hint) {
+            var elem = this.hints.manager.last_selected_hint.elem;
             if (elem.hasAttribute("onmousedown") ||
                 elem.hasAttribute("onclick"))
             {
@@ -454,21 +453,24 @@ function hints_url_panel (hints, window) {
                 } catch (e) {}
             }
 	}
-        url_value.value = s.join(" ");
-    };
+        this.input.annotation = s.join(" ");
+    },
 
-    p.destroy = function () {
-        this.parentNode.removeChild(this);
-    };
+    destroy: function () {
+        this.input.annotate = false;
+    }
+};
 
-    return p;
-}
-
-define_variable("hints_display_url_panel", false,
-    "When selecting a hint, the URL can be displayed in a panel above "+
-    "the minibuffer.  This is useful for confirming that the correct "+
-    "link is selected and that the URL is not evil.  This option is "+
-    "most useful when hints_auto_exit_delay is long or disabled.");
+define_global_mode("hints_minibuffer_annotation_mode",
+    function enable () {
+        minibuffer_annotation_mode.register(hints_minibuffer_annotation_mode);
+    },
+    function disable () {
+        minibuffer_annotation_mode.unregister(hints_minibuffer_annotation_mode);
+    },
+    $doc = "Display the URL associated with the currently selected hint in "+
+           "a minibuffer annotation.\nThis mode is most useful when "+
+           "hints_auto_exit_delay is long or disabled.");
 
 /**
  * keyword arguments:
@@ -482,8 +484,8 @@ function hints_minibuffer_state (minibuffer, continuation, buffer) {
     keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, minibuffer, $prompt = arguments.$prompt,
                                 $keymap = arguments.$keymap);
-    if (hints_display_url_panel)
-	this.url_panel = hints_url_panel(this, buffer.window);
+    if (hints_minibuffer_annotation_mode_enabled)
+	this.hints_minibuffer_annotation = new hints_minibuffer_annotation(this, buffer.window);
     this.original_prompt = arguments.$prompt;
     this.continuation = continuation;
     this.auto_exit = arguments.$auto ? true : false;
@@ -507,8 +509,8 @@ hints_minibuffer_state.prototype = {
                                             this.focused_frame, this.focused_element);
         }
         this.manager.update_valid_hints();
-        if (this.url_panel)
-            this.url_panel.update();
+        if (this.hints_minibuffer_annotation)
+            this.hints_minibuffer_annotation.update();
     },
     clear_auto_exit_timer: function () {
         var window = this.minibuffer.window;
@@ -525,8 +527,8 @@ hints_minibuffer_state.prototype = {
     destroy: function () {
         this.clear_auto_exit_timer();
         this.manager.remove();
-        if (this.url_panel)
-            this.url_panel.destroy();
+        if (this.hints_minibuffer_annotation)
+            this.hints_minibuffer_annotation.destroy();
         basic_minibuffer_state.prototype.destroy.call(this);
     },
     update_minibuffer: function (m) {
@@ -534,8 +536,8 @@ hints_minibuffer_state.prototype = {
             m.prompt = this.original_prompt + " #" + this.typed_number;
         else
             m.prompt = this.original_prompt;
-        if (this.url_panel)
-            this.url_panel.update();
+        if (this.hints_minibuffer_annotation)
+            this.hints_minibuffer_annotation.update();
     },
 
     handle_auto_exit: function (ambiguous) {
