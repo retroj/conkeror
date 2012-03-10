@@ -471,7 +471,10 @@ define_global_mode("overlink_mode",
             delete b.overlink_mouseover;
             delete b.overlink_mouseout;
         });
-    });
+    },
+    $doc = "Overlink-mode is a programmable mode for showing information "+
+           "about DOM nodes (such as link URLs) in the minibuffer when "+
+           "hovering with the mouse.");
 
 overlink_mode(true);
 
