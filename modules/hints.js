@@ -424,7 +424,6 @@ hint_manager.prototype = {
 function hints_minibuffer_annotation (hints, window) {
     this.hints = hints;
     this.input = window.minibuffer.input_element;
-    this.input.annotate = true;
 }
 hints_minibuffer_annotation.prototype = {
     constructor: hints_minibuffer_annotation,
@@ -456,7 +455,12 @@ hints_minibuffer_annotation.prototype = {
         this.input.annotation = s.join(" ");
     },
 
-    destroy: function () {
+    load: function () {
+        this.input.annotate = true;
+        this.update();
+    },
+
+    unload: function () {
         this.input.annotate = false;
     }
 };
@@ -510,7 +514,7 @@ hints_minibuffer_state.prototype = {
         }
         this.manager.update_valid_hints();
         if (this.hints_minibuffer_annotation)
-            this.hints_minibuffer_annotation.update();
+            this.hints_minibuffer_annotation.load();
     },
     clear_auto_exit_timer: function () {
         var window = this.minibuffer.window;
@@ -522,13 +526,15 @@ hints_minibuffer_state.prototype = {
     unload: function () {
         this.clear_auto_exit_timer();
         this.manager.hide_hints();
+        if (this.hints_minibuffer_annotation)
+            this.hints_minibuffer_annotation.unload();
         basic_minibuffer_state.prototype.unload.call(this);
     },
     destroy: function () {
         this.clear_auto_exit_timer();
         this.manager.remove();
         if (this.hints_minibuffer_annotation)
-            this.hints_minibuffer_annotation.destroy();
+            this.hints_minibuffer_annotation.unload();
         basic_minibuffer_state.prototype.destroy.call(this);
     },
     update_minibuffer: function (m) {
