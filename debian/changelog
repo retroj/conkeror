@@ -9,6 +9,8 @@ conkeror (1.0~~pre+git120315-1) UNRELEASED; urgency=low
     - Update search list in debian/conkeror.bin
     - Add alternative dependency on xulrunner-12.0
   * Make 10.0 (ESR) first xulrunner dependency.
+  * Reformat long list of alternative xulrunner dependencies to one
+    alternative per line for better readability and better diffing.
 
  -- Axel Beckert <abe@debian.org>  Wed, 22 Feb 2012 23:22:19 +0100
 
