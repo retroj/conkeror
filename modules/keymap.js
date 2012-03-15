@@ -353,7 +353,7 @@ function keymap_lookup_command (keymaps, command) {
     var list = [];
     for_each_key_binding(keymaps, function (bind_seq) {
             var bind = bind_seq[bind_seq.length - 1];
-            if (bind.command == command)
+            if (bind.command && bind.command == command)
                 list.push(format_binding_sequence(bind_seq));
         });
     return list;
