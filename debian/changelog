@@ -11,6 +11,8 @@ conkeror (1.0~~pre+git120317-1) UNRELEASED; urgency=low
   * Make 10.0 (ESR) first xulrunner dependency.
   * Reformat long list of alternative xulrunner dependencies to one
     alternative per line for better readability and better diffing.
+  * debian/conkeror.bin: Generate long list of consecutive versioned
+    xulrunner binary names with seq and tac.
 
  -- Axel Beckert <abe@debian.org>  Sat, 17 Mar 2012 01:10:57 +0100
 
