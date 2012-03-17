@@ -13,8 +13,9 @@ conkeror (1.0~~pre+git120317-1) UNRELEASED; urgency=low
     alternative per line for better readability and better diffing.
   * debian/conkeror.bin: Generate long list of consecutive versioned
     xulrunner binary names with seq and tac.
+  * Bump Standards-Version to 3.9.3 (no changes)
 
- -- Axel Beckert <abe@debian.org>  Sat, 17 Mar 2012 01:10:57 +0100
+ -- Axel Beckert <abe@debian.org>  Sat, 17 Mar 2012 02:08:49 +0100
 
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 
