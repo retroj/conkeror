@@ -18,7 +18,7 @@ define_variable('xkcd_add_title', false,
 function xkcd_do_add_title (buffer) {
     var document = buffer.document;
     // Find the <img> tag
-    var img = document.evaluate("//div[@id='middleContent']//img",
+    var img = document.evaluate("//div[@id='comic']//img",
         document, null,
         Ci.nsIDOMXPathResult.ANY_TYPE,null).iterateNext();
     if (!img)
@@ -27,18 +27,12 @@ function xkcd_do_add_title (buffer) {
     // In some comics, the <img> is a link, so walk up to the surrounding <A>
     if (img.parentNode.tagName == 'A')
         img = img.parentNode;
-    var node = img.nextSibling;
-    while (node && node.nodeName != 'BR') {
-        node = node.nextSibling;
-    }
-    if (!node)
-        return;
     // Insert the text inside a <span> with a known ID
     var text = document.createTextNode(title);
     var span = document.createElement('span');
     span.id = 'conkeror:xkcd-title-text';
     span.appendChild(text);
-    img.parentNode.insertBefore(span, node.nextSibling);
+    img.parentNode.appendChild(span);
 }
 
 define_page_mode("xkcd-mode",
