@@ -27,9 +27,9 @@ function xkcd_do_add_title (buffer) {
     // In some comics, the <img> is a link, so walk up to the surrounding <A>
     if (img.parentNode.tagName == 'A')
         img = img.parentNode;
-    // Insert the text inside a <span> with a known ID
+    // Insert the text inside a <p> with a known ID
     var text = document.createTextNode(title);
-    var span = document.createElement('span');
+    var span = document.createElement('p');
     span.id = 'conkeror:xkcd-title-text';
     span.appendChild(text);
     img.parentNode.appendChild(span);
