@@ -18,11 +18,6 @@ hints_auto_exit_delay = 500;
 hints_ambiguous_auto_exit_delay = 500;
 
 
-// display properties of the current selected node during
-// the hints interaction.
-hints_minibuffer_annotation_mode(true);
-
-
 // default directory for downloads and shell commands.
 cwd = get_home_directory();
 cwd.append("downloads");

@@ -476,6 +476,8 @@ define_global_mode("hints_minibuffer_annotation_mode",
            "a minibuffer annotation.\nThis mode is most useful when "+
            "hints_auto_exit_delay is long or disabled.");
 
+hints_minibuffer_annotation_mode(true);
+
 /**
  * keyword arguments:
  *
