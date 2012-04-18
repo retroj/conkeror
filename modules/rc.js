@@ -52,6 +52,9 @@ function load_rc () {
         files.push(path);
         ret = path.path;
     }
+    var obs = Cc["@mozilla.org/observer-service;1"]
+        .getService(Ci.nsIObserverService);
+    obs.notifyObservers(null, "startupcache-invalidate", null);
     for (var i = 0; files[i]; i++) {
         try {
             load(files[i]);
