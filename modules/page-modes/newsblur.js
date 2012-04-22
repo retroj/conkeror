@@ -42,10 +42,8 @@ define_key(newsblur_keymap, "+", null, $fallthrough); // change intelligence
 define_key(newsblur_keymap, "-", null, $fallthrough); // change intelligence
 
 define_keymaps_page_mode("newsblur-mode",
-    build_url_regexp($domain = "newsblur",
-                     $tlds = ["com", "co.uk"],
-                     $allow_www),
-    { normal: newsblur_keymap },
+    build_url_regexp($domain = /(?:[a-z]+\.)?newsblur/),
+    { normal: newsblur_keymap},
     $display_name = "Newsblur");
 
 page_mode_activate(newsblur_mode);
