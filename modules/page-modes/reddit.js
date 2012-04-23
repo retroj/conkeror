@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2008 Martin Dybdal
- * (C) Copyright 2009-2010 John Foerch
+ * (C) Copyright 2009-2010,2012 John Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -21,7 +21,7 @@ register_user_stylesheet(
     "data:text/css," +
         escape (
             "@-moz-document url-prefix(http://www.reddit.com/) {" +
-                ".last-clicked {" +
+                "body>.content .last-clicked {" +
                 " background-color: #bfb !important;" +
                 " border: 0px !important;"+
                 "}}"));
@@ -44,7 +44,7 @@ function reddit_next (I) {
     // the behavior of this command depends on whether we have downloaded
     // enough of the page to include all of the article links.
     var complete = doc.getElementsByClassName('footer').length > 0;
-    var links = doc.getElementsByClassName('link');
+    var links = doc.querySelectorAll("body>.content .link");
     var first = null;
     var current = null;
     var next = null;
@@ -98,12 +98,8 @@ function reddit_next (I) {
     if (current)
         dom_remove_class(current, "last-clicked");
     dom_add_class(next, "last-clicked");
-    let (anchor = doc.evaluate(
-        '//*[contains(@class,"last-clicked")]//a[contains(@class,"title")]',
-        next, null, Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE, null))
-    {
-        browser_set_element_focus(I.buffer, anchor.singleNodeValue);
-    }
+    var anchor = doc.querySelector("body>.content .last-clicked a.title");
+    browser_set_element_focus(I.buffer, anchor);
     reddit_scroll_into_view(I.buffer.focused_frame, next);
 }
 interactive("reddit-next-link",
@@ -120,7 +116,7 @@ function reddit_prev (I) {
     // the behavior of this command depends on whether we have downloaded
     // enough of the page to include all of the article links.
     var complete = doc.getElementsByClassName('footer').length > 0;
-    var links = doc.getElementsByClassName('link');
+    var links = doc.querySelectorAll("body>.content .link");
     var llen = links.length;
     var first = null;
     var prev = null;
@@ -171,12 +167,8 @@ function reddit_prev (I) {
     if (current)
         dom_remove_class(current, "last-clicked");
     dom_add_class(prev, "last-clicked");
-    let (anchor = doc.evaluate(
-        '//*[contains(@class,"last-clicked")]//a[contains(@class,"title")]',
-        prev, null, Ci.nsIDOMXPathResult.FIRST_ORDERED_NODE_TYPE, null))
-    {
-        browser_set_element_focus(I.buffer, anchor.singleNodeValue);
-    }
+    var anchor = doc.querySelector("body>.content .last-clicked a.title");
+    browser_set_element_focus(I.buffer, anchor);
     reddit_scroll_into_view(I.buffer.focused_frame, prev);
 }
 interactive("reddit-prev-link",
@@ -185,12 +177,9 @@ interactive("reddit-prev-link",
 
 
 function reddit_open_comments (I, target) {
-    var xpr = I.buffer.document.evaluate(
-        '//*[contains(@class,"last-clicked")]/descendant::a[@class="comments"]',
-        I.buffer.document, null,
-        Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-    let link;
-    if (xpr && (link = xpr.iterateNext()))
+    var doc = I.buffer.document;
+    var link = doc.querySelector("body>.content .last-clicked a.comments");
+    if (link)
         browser_object_follow(I.buffer, target || FOLLOW_DEFAULT, link);
 }
 function reddit_open_comments_new_buffer (I) {
@@ -208,12 +197,9 @@ interactive("reddit-open-comments",
 
 function reddit_vote_up (I) {
     // get the current article and send a click to its vote-up button.
-    var xpr = I.buffer.document.evaluate(
-        '//*[contains(@class,"last-clicked")]/div[contains(@class,"midcol")]/div[contains(@class,"up")]',
-        I.buffer.document, null,
-        Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-    let link;
-    if (xpr && (link = xpr.iterateNext()))
+    var doc = I.buffer.document;
+    var link = doc.querySelector("body>.content .last-clicked .midcol .up");
+    if (link)
         browser_object_follow(I.buffer, FOLLOW_DEFAULT, link);
 }
 interactive("reddit-vote-up",
@@ -223,12 +209,9 @@ interactive("reddit-vote-up",
 
 function reddit_vote_down (I) {
     // get the current article and send a click to its vote-down button.
-    var xpr = I.buffer.document.evaluate(
-        '//*[contains(@class,"last-clicked")]/div[contains(@class,"midcol")]/div[contains(@class,"down")]',
-        I.buffer.document, null,
-        Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-    let link;
-    if (xpr && (link = xpr.iterateNext()))
+    var doc = I.buffer.document;
+    var link = doc.querySelector("body>.content .last-clicked .midcol .down");
+    if (link)
         browser_object_follow(I.buffer, FOLLOW_DEFAULT, link);
 }
 interactive("reddit-vote-down",
@@ -238,11 +221,9 @@ interactive("reddit-vote-down",
 
 define_browser_object_class("reddit-current", null,
     function (I, prompt) {
-        var xpr = I.buffer.document.evaluate(
-            '//*[contains(@class,"last-clicked")]/*[contains(@class,"entry")]/p[@class="title"]/a',
-            I.buffer.document, null,
-            Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-        yield co_return(xpr.iterateNext());
+        var doc = I.buffer.document;
+        var link = doc.querySelector("body>.content .last-clicked .entry p.title a");
+        yield co_return(link);
     });
 
 
