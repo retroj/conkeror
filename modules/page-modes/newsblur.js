@@ -28,13 +28,15 @@ define_key(newsblur_keymap, "m", null, $fallthrough); // find oldest unread stor
 
 
 // Acting
-define_key(newsblur_keymap, "U", null, $fallthrough); // toggle unread/read on current story
+define_key(newsblur_keymap, "u", null, $fallthrough); // toggle unread/read on current story
 define_key(newsblur_keymap, "s", null, $fallthrough); // toggle save/unsave story
 define_key(newsblur_keymap, "o", null, $fallthrough); // open story in new window
 define_key(newsblur_keymap, "A", null, $fallthrough); // mark all stories as read
+define_key(newsblur_keymap, "S", null, $fallthrough); // share story
+define_key(newsblur_keymap, "C-return", null, $fallthrough); // save comments
 
 // Application
-define_key(newsblur_keymap, "u", null, $fallthrough); // hide sidebar
+define_key(newsblur_keymap, "U", null, $fallthrough); // hide sidebar
 define_key(newsblur_keymap, "a", null, $fallthrough); // add new rss feed
 define_key(newsblur_keymap, "t", null, $fallthrough); // open story trainer
 define_key(newsblur_keymap, "f", null, $fallthrough); // open site/feed trainer
