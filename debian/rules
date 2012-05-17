@@ -11,6 +11,8 @@ DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(
 
 BUILDID := $(shell echo -n `whoami`@`hostname`)_$(shell date +%s)
 
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
 include /usr/share/quilt/quilt.make
 
 configure: configure-stamp

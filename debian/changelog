@@ -1,4 +1,4 @@
-conkeror (1.0~~pre+git120317-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git120518-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
     - Update debian patches to fit new module API
@@ -13,9 +13,11 @@ conkeror (1.0~~pre+git120317-1) UNRELEASED; urgency=low
     alternative per line for better readability and better diffing.
   * debian/conkeror.bin: Generate long list of consecutive versioned
     xulrunner binary names with seq and tac.
+  * debian/rules: Enable hardening options for conkeror-spawn-helper
+    - Add build-dependency on dpkg-dev (>= 1.16.1~).
   * Bump Standards-Version to 3.9.3 (no changes)
 
- -- Axel Beckert <abe@debian.org>  Sat, 17 Mar 2012 02:08:49 +0100
+ -- Axel Beckert <abe@debian.org>  Fri, 18 May 2012 01:43:40 +0200
 
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 

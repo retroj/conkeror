@@ -2,7 +2,7 @@ Source: conkeror
 Section: web
 Priority: extra
 Maintainer: Axel Beckert <abe@debian.org>
-Build-Depends: debhelper (>= 7.2.3~), quilt
+Build-Depends: debhelper (>= 7.2.3~), quilt, dpkg-dev (>= 1.16.1~)
 Standards-Version: 3.9.3
 Homepage: http://conkeror.org/
 Vcs-Browser: http://repo.or.cz/w/conkeror.git
