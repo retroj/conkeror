@@ -15,6 +15,7 @@ conkeror (1.0~~pre+git120518-1) UNRELEASED; urgency=low
     xulrunner binary names with seq and tac.
   * debian/rules: Enable hardening options for conkeror-spawn-helper
     - Add build-dependency on dpkg-dev (>= 1.16.1~).
+    - Consistently use "$(MAKE)" instead of "make".
   * Bump Standards-Version to 3.9.3 (no changes)
 
  -- Axel Beckert <abe@debian.org>  Fri, 18 May 2012 01:43:40 +0200
