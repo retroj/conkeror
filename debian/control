@@ -24,7 +24,7 @@ Depends: ${misc:Depends},
  xulrunner-1.9.2 |
  xulrunner-1.9.1 |
  firefox (>= 3.5)
-Recommends: conkeror-spawn-process-helper
+Recommends: conkeror-spawn-process-helper, xdg-utils
 Breaks: conkeror-spawn-process-helper (<< 0.9~git080901-1)
 Suggests: emacs | emacsen
 Provides: www-browser

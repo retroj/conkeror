@@ -1,0 +1,40 @@
+Let Debian's sensible-editor guess the editor and let xdg-open find
+the right application to open an file instead of hardcoded
+applications which may not be installed. Closes: #570086
+
+Index: conkeror/modules/external-editor.js
+===================================================================
+--- conkeror.orig/modules/external-editor.js	2012-01-31 18:28:37.000000000 +0100
++++ conkeror/modules/external-editor.js	2012-01-31 18:35:45.000000000 +0100
+@@ -5,7 +5,7 @@
+  * COPYING file.
+ **/
+ 
+-define_variable("editor_shell_command", getenv("VISUAL") || getenv("EDITOR") || "emacs",
++define_variable("editor_shell_command", "/usr/bin/sensible-editor",
+     "Shell command used to invoke an external editor.\n" +
+     "This defaults to the value of the EDITOR environment variable.  If " +
+     "`run_external_editor_function' is non-null, it is used instead to " +
+Index: conkeror-1.0~~pre+git120518/modules/mime.js
+===================================================================
+--- conkeror-1.0~~pre+git120518.orig/modules/mime.js	2012-02-22 23:15:54.000000000 +0100
++++ conkeror-1.0~~pre+git120518/modules/mime.js	2012-05-19 00:52:56.000000000 +0200
+@@ -70,16 +70,8 @@
+ 
+ define_mime_type_table("external_content_handlers",
+     {
+-        "*": getenv("EDITOR"),
+-        text: { "*": getenv("EDITOR") },
+-        image: { "*": "feh" },
+-        video: { "*": "mplayer" },
+-        audio: { "*": "mplayer" },
+-        application: {
+-            pdf: "evince",
+-            postscript: "evince",
+-            "x-dvi": "evince"
+-        }
++        "*": "xdg-open",
++        text: { "*": "sensible-editor" }
+     },
+     "Structure associating MIME types and MIME type patterns with "+
+     "the names of programs for handling those them.  The key \"*\" "+

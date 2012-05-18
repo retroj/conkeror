@@ -9,6 +9,10 @@ conkeror (1.0~~pre+git120518-1) UNRELEASED; urgency=low
     - Update search list in debian/conkeror.bin
     - Add alternative dependency on xulrunner-12.0 and xulrunner-13.0
   * Make 10.0 (ESR) first xulrunner dependency.
+  * Expand sensible-editor.diff to also patch modules/mime.js, replace
+    hardcoded application names with xdg-open. (Closes: #570086)
+    - Rename patch to sensible-editor-xdg-open.diff
+    - Recommend xdg-utils
   * Reformat long list of alternative xulrunner dependencies to one
     alternative per line for better readability and better diffing.
   * debian/conkeror.bin: Generate long list of consecutive versioned
@@ -18,7 +22,7 @@ conkeror (1.0~~pre+git120518-1) UNRELEASED; urgency=low
     - Consistently use "$(MAKE)" instead of "make".
   * Bump Standards-Version to 3.9.3 (no changes)
 
- -- Axel Beckert <abe@debian.org>  Fri, 18 May 2012 01:43:40 +0200
+ -- Axel Beckert <abe@debian.org>  Sat, 19 May 2012 01:12:09 +0200
 
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 
