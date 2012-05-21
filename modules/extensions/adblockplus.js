@@ -5,16 +5,21 @@
  * COPYING file.
 **/
 
-function adblockplus_settings (uri_string) {
-    if (! ("@adblockplus.org/abp/startup;1" in Cc))
-        throw interactive_error("Adblock Plus not found");
-    Components.utils.import("chrome://adblockplus-modules/content/Utils.jsm");
-    Utils.openSettingsDialog(uri_string);
-}
 interactive("adblockplus-settings",
     "Show the Adblock Plus settings dialog.",
-    function (I) { adblockplus_settings(); });
+    function (I) {
+        if (! ("@adblockplus.org/abp/startup;1" in Cc))
+            throw interactive_error("Adblock Plus not found");
+        make_chrome_window("chrome://adblockplus/content/ui/settings.xul");
+    });
 
+interactive("adblockplus-filters",
+    "Show the Adblock Plus filter settings dialog.",
+    function (I) {
+        if (! ("@adblockplus.org/abp/startup;1" in Cc))
+            throw interactive_error("Adblock Plus not found");
+        make_chrome_window("chrome://adblockplus/content/ui/filters.xul");
+    });
 
 interactive("adblockplus-add",
     "Add a pattern to Adblock Plus.",
