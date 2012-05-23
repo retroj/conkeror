@@ -4,7 +4,7 @@
 
 # Find an appropriate xulrunner binary
 XULRUNNER=''
-for version in `seq 5.0 13.0 | tac` 2.0 1.9.2 1.9.1; do
+for version in `LC_ALL=C seq 5.0 13.0 | tac` 2.0 1.9.2 1.9.1; do
     XRTMP=`which xulrunner-$version`
     if [ -n "$XRTMP" -a -x "$XRTMP" ]; then
 	XULRUNNER=$XRTMP

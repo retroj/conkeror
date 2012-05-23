@@ -1,7 +1,8 @@
-conkeror (1.0~~pre+git120518-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git120523-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
     - Update debian patches to fit new module API
+  * Don't pass locale settings to seq in /usr/bin/conkeror (Closes: #674171)
   * Update buildd-ports webjump. Thanks Christoph Egger!
   * Add debpopcon webjump.
   * Also install new file content-policy.manifest. Thanks Joseph Gay!
@@ -22,7 +23,7 @@ conkeror (1.0~~pre+git120518-1) UNRELEASED; urgency=low
     - Consistently use "$(MAKE)" instead of "make".
   * Bump Standards-Version to 3.9.3 (no changes)
 
- -- Axel Beckert <abe@debian.org>  Sat, 19 May 2012 01:12:09 +0200
+ -- Axel Beckert <abe@debian.org>  Wed, 23 May 2012 17:29:56 +0200
 
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 
