@@ -1,4 +1,4 @@
-conkeror (1.0~~pre+git120527-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git120527-1) unstable; urgency=low
 
   * New upstream snapshot
     - Update debian patches to fit new module API
@@ -31,7 +31,7 @@ conkeror (1.0~~pre+git120527-1) UNRELEASED; urgency=low
   * Rename debian/NEWS to debian/conkeror.NEWS so it no more gets included
     in the conkeror-spawn-process-helper package.
 
- -- Axel Beckert <abe@debian.org>  Sun, 27 May 2012 16:53:28 +0200
+ -- Axel Beckert <abe@debian.org>  Sun, 27 May 2012 17:07:33 +0200
 
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 
