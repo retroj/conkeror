@@ -1,7 +1,8 @@
-conkeror (1.0~~pre+git120523-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git120527-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
     - Update debian patches to fit new module API
+    - Synced debian/NEWS with http://conkeror.org/BreakingChanges
   * Don't pass locale settings to seq in /usr/bin/conkeror (Closes: #674171)
   * Update buildd-ports webjump. Thanks Christoph Egger!
   * Add debpopcon webjump.
@@ -9,6 +10,8 @@ conkeror (1.0~~pre+git120523-1) UNRELEASED; urgency=low
   * Support xulrunner 12.0 and 13.0
     - Update search list in debian/conkeror.bin
     - Add alternative dependency on xulrunner-12.0 and xulrunner-13.0
+    - xulrunner-14.0 and newer not yet supported due to
+      https://bugzilla.mozilla.org/show_bug.cgi?id=756786
   * Make 10.0 (ESR) first xulrunner dependency.
   * Expand sensible-editor.diff to also patch modules/mime.js, replace
     hardcoded application names with xdg-open. (Closes: #570086)
@@ -23,7 +26,7 @@ conkeror (1.0~~pre+git120523-1) UNRELEASED; urgency=low
     - Consistently use "$(MAKE)" instead of "make".
   * Bump Standards-Version to 3.9.3 (no changes)
 
- -- Axel Beckert <abe@debian.org>  Wed, 23 May 2012 17:29:56 +0200
+ -- Axel Beckert <abe@debian.org>  Sun, 27 May 2012 16:38:24 +0200
 
 conkeror (1.0~~pre+git120102-1) unstable; urgency=low
 

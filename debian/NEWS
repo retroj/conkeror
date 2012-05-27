@@ -1,3 +1,95 @@
+conkeror (1.0~~pre+git120527-1) unstable; urgency=low
+
+  * hints-minibuffer-annotation-mode is now enabled by default. To disable:
+
+    hints_minibuffer_annotation_mode(false);
+
+  * Variable hints_display_url_panel removed. Instead of the url-panel,
+    Conkeror now has hints-minibuffer-annotation-mode. To use it:
+
+    hints_minibuffer_annotation_mode(true);
+
+  * buffer_loaded_hook now fires only for the main document of the buffer,
+    not documents in subframes.
+
+  * The test property of page-mode objects is now an array.
+
+  * in_module removed
+
+    The module system introduced 2010-03-19 had a fatal flaw in its
+    design. We have known about this for quite some time, but fixing it
+    was a complex undertaking. Now the 'in_module' procedure has been
+    removed from the program, because it doesn't work, and a new module
+    system has been added, the jsx module system.
+
+    Anybody who has written a module that is not part of Conkeror will
+    need to update their code. Remove uses of 'in_module'. If you only did
+    'in_module(null);' then you can just remove that line and you are
+    done. If you used 'in_module("module_name");' you will need to remove
+    that, and rename your file to have the extension ".jsx". The rest of
+    the filename should match the name of the module, except using hyphens
+    to separate words.
+
+  * skip_module_load removed
+
+  * casual-spelling.js renamed to casual-spelling.jsx
+
+  * The "up-url" browser object will now trim a #ref fragment as one of its
+    steps. New buffers with an opener buffer in the same window open to the
+    right of their opener.
+
+  * build_url_regex renamed to build_url_regexp
+
+  * choice_regex renamed to choice_regexp
+
+  * Call forms of define_buffer_mode and define_page_mode changed.  See
+    http://conkeror.org/WritingBufferModes and
+    http://conkeror.org/WritingPageModes.
+
+  * auto_mode_alist no longer exists.
+
+    The way to deactivate page-modes has changed.
+
+    Instead of the old way of doing complicated array manipulations on
+    'auto_mode_list', the new way is much simpler. If I want to deactivate
+    xkcd-mode for example (make it so it won't automatically turn on when
+    I visit xkcd), I do the following:
+
+    page_mode_deactivate(xkcd_mode);
+
+    The call form to enable or disable a buffer-mode or page-mode in javascript has changed.
+
+    (Note the distinction between 'deactivating' and 'disabling'.) Instead
+    of the mode being a function that takes a flag -1/+1 or true/false
+    (like in emacs), it is now an object with 'enable' and 'disable'
+    methods:
+
+    some_mode.enable(buffer);
+
+    some_mode.disable(buffer);
+
+ -- Axel Beckert <abe@debian.org>  Sun, 27 May 2012 16:37:13 +0200
+
+conkeror (1.0~~pre+git120102-1) unstable; urgency=low
+
+  * clusty webjump removed. clusty no longer exists.
+
+  * The copy command now copies the action attribute of the form when
+    called on a submit button.
+
+  * Google-maps: changed bindings '+' and '-' to 'C-c +' and 'C-c -',
+    because it is poor practice to override basic browsing keys then they
+    are still clearly useful on the site in question.
+
+  * Renamed get_file_in_path to find_file_in_path.
+
+  * Formfill is now enabled by default. To turn it off, do:
+    session_pref("browser.formfill.enable", false);
+
+  * youtube_scrape_function and associated helpers removed.
+
+ -- Axel Beckert <abe@debian.org>  Sun, 27 May 2012 16:37:13 +0200
+
 conkeror (0.9.3+git110307-2) unstable; urgency=low
 
   The search order for searching xulrunner binaries has been changed
