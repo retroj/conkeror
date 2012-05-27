@@ -25,6 +25,9 @@ conkeror (1.0~~pre+git120527-1) UNRELEASED; urgency=low
     - Add build-dependency on dpkg-dev (>= 1.16.1~).
     - Consistently use "$(MAKE)" instead of "make".
   * Bump Standards-Version to 3.9.3 (no changes)
+  * Switch source format to "3.0 (quilt)"
+    - Remove quilt usage from debian/rules
+    - Drop build dependency on quilt
   * Rename debian/NEWS to debian/conkeror.NEWS so it no more gets included
     in the conkeror-spawn-process-helper package.
 

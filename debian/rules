@@ -13,10 +13,9 @@ BUILDID := $(shell echo -n `whoami`@`hostname`)_$(shell date +%s)
 
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
-include /usr/share/quilt/quilt.make
 
 configure: configure-stamp
-configure-stamp: $(QUILT_STAMPFN)
+configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 
@@ -39,7 +38,7 @@ build-indep-stamp: configure-stamp
 
 	touch $@
 
-clean: unpatch
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp configure-stamp
