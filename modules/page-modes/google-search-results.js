@@ -62,7 +62,7 @@ var google_search_results_modality = {
 
 
 define_page_mode("google-search-results-mode",
-    build_url_regexp($domain = "google",
+    build_url_regexp($domain = /(?:encrypted\.)?google/,
                      $allow_www = true,
                      $path = /search\?|cse\?/,
                      $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
