@@ -308,8 +308,9 @@ function isearch_backspace (window) {
         s.states.pop();
     s.restore_state();
 }
-interactive("isearch-backspace", null,
-            function (I) { isearch_backspace(I.window); });
+interactive("isearch-backspace",
+    "Undo last action in interactive search.",
+    function (I) { isearch_backspace(I.window); });
 
 function isearch_done (window, keep_selection) {
     var s = window.minibuffer.current_state;
@@ -329,7 +330,8 @@ function isearch_done (window, keep_selection) {
     if (! isearch_keep_selection && ! keep_selection)
         s.collapse_selection();
 }
-interactive("isearch-done", null,
-            function (I) { isearch_done(I.window); });
+interactive("isearch-done",
+    "Complete interactive search.",
+    function (I) { isearch_done(I.window); });
 
 provide("isearch");
