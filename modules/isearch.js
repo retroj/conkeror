@@ -277,10 +277,14 @@ function isearch_continue (window, direction) {
         s.find(s.top.search_str, direction, s.top.range);
     return s.restore_state();
 }
-interactive("isearch-continue-forward", null,
-            function (I) { isearch_continue(I.window, true); });
-interactive("isearch-continue-backward", null,
-            function (I) { isearch_continue(I.window, false); });
+
+interactive("isearch-continue-forward",
+    "Continue the last isearch, forward.",
+    function (I) { isearch_continue(I.window, true); });
+
+interactive("isearch-continue-backward",
+    "Continue the last isearch, backward.",
+    function (I) { isearch_continue(I.window, false); });
 
 function isearch_start (window, direction) {
     var s = new isearch_session(window.minibuffer, direction);
