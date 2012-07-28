@@ -278,16 +278,35 @@ function isearch_continue (window, direction) {
     return s.restore_state();
 }
 
+interactive("isearch-continue",
+    "Continue the last isearch in the same direction.",
+    function (I) {
+        isearch_continue(I.window, I.window.isearch_last_direction || false);
+    });
+
+interactive("isearch-continue-reverse",
+    "Continue the last isearch in the opposite direction.",
+    function (I) {
+        isearch_continue(I.window, !(I.window.isearch_last_direction || false));
+    });
+
 interactive("isearch-continue-forward",
     "Continue the last isearch, forward.",
-    function (I) { isearch_continue(I.window, true); });
+    function (I) {
+        I.window.isearch_last_direction = true;
+        isearch_continue(I.window, true);
+    });
 
 interactive("isearch-continue-backward",
     "Continue the last isearch, backward.",
-    function (I) { isearch_continue(I.window, false); });
+    function (I) {
+        I.window.isearch_last_direction = false;
+        isearch_continue(I.window, false);
+    });
 
 function isearch_start (window, direction) {
     var s = new isearch_session(window.minibuffer, direction);
+    window.isearch_last_direction = direction;
     window.minibuffer.push_state(s);
     s.restore_state();
 }
