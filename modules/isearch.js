@@ -291,10 +291,14 @@ function isearch_start (window, direction) {
     window.minibuffer.push_state(s);
     s.restore_state();
 }
-interactive("isearch-forward", null,
-            function (I) { isearch_start(I.window, true); });
-interactive("isearch-backward", null,
-            function (I) { isearch_start(I.window, false); });
+
+interactive("isearch-forward",
+    "Start interactive text search, forward from point.",
+    function (I) { isearch_start(I.window, true); });
+
+interactive("isearch-backward",
+    "Start interactive text search, backwards from point.",
+    function (I) { isearch_start(I.window, false); });
 
 function isearch_backspace (window) {
     var s = window.minibuffer.current_state;
