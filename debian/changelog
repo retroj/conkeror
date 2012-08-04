@@ -1,3 +1,14 @@
+conkeror (1.0~~pre+git120804-1) UNRELEASED; urgency=low
+
+  * Add support for xulrunner 15 and 16 with according versioned
+    dependencies plus conflicts for earlier package versions (See #683157
+    and https://bugzilla.mozilla.org/show_bug.cgi?id=756786)
+  * Add Lintian overrides for using Conflicts instead of Breaks as
+    Conkeror fails if these versions are just only unpacked.
+  * Use `seq 13.0 -1 5.0` instead of `seq 5.0 13.0 | tac` in conkeror.bin
+
+ -- Axel Beckert <abe@debian.org>  Sat, 04 Aug 2012 14:48:27 +0200
+
 conkeror (1.0~~pre+git120527-1) unstable; urgency=low
 
   * New upstream snapshot
