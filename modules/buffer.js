@@ -450,6 +450,8 @@ buffer_container.prototype = {
         old_value.saved_focused_frame = old_value.focused_frame;
         old_value.saved_focused_element = old_value.focused_element;
 
+        if ('isActive' in old_value.browser.docShell)
+            old_value.browser.docShell.isActive = false;
         old_value.browser.setAttribute("type", "content");
     },
 
@@ -458,6 +460,8 @@ buffer_container.prototype = {
         this.container.selectedPanel = buffer.element;
 
         buffer.browser.setAttribute("type", "content-primary");
+        if ('isActive' in buffer.browser.docShell)
+            buffer.browser.docShell.isActive = true;
 
         /**
          * This next focus call seems to be needed to avoid focus
