@@ -48,5 +48,7 @@ COPYING file.
          onpopupshowing="conkeror.formfill_mode(true, this);"
          onpopuphiding="conkeror.formfill_mode(false, this);"/>
 
-  <deck flex="1" id="buffer-container"/>
+  <stack flex="1" id="buffer-outer-container">
+    <deck flex="1" id="buffer-container"/>
+  </stack>
 </window>

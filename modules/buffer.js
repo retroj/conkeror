@@ -134,6 +134,16 @@ function buffer (window) {
     browser.setAttribute("flex", "1");
     browser.setAttribute("autocompletepopup", "popup_autocomplete");
     element.appendChild(browser);
+
+    var point = create_XUL(window, "box");
+    point.setAttribute("class", "point");
+    point.setAttribute("top", "0");
+    point.setAttribute("left", "0");
+    if (window.buffers.count > 1)
+        point.setAttribute("hidden", "true");
+    window.buffers.container.parentNode.appendChild(point);
+    this.point = point;
+
     this.window.buffers.container.appendChild(element);
     this.window.buffers.insert(this, arguments.$position, this.opener);
     this.window.buffers.buffer_history.push(this);
@@ -214,6 +224,8 @@ buffer.prototype = {
     // get name ()    [must be defined by subclasses]
     dead: false, /* This is set when the buffer is killed */
 
+    point: null,
+
     keymaps: null,
     mark_active: false,
 
@@ -265,6 +277,8 @@ buffer.prototype = {
         this.saved_focused_element = null;
         // prevent modalities from accessing dead browser
         this.modalities = [];
+        this.point.parentNode.removeChild(this.point);
+        this.point = null;
     },
 
     set_input_mode: function () {
@@ -450,6 +464,8 @@ buffer_container.prototype = {
         old_value.saved_focused_frame = old_value.focused_frame;
         old_value.saved_focused_element = old_value.focused_element;
 
+        old_value.point.setAttribute("hidden", "true");
+
         if ('isActive' in old_value.browser.docShell)
             old_value.browser.docShell.isActive = false;
         old_value.browser.setAttribute("type", "content");
@@ -458,6 +474,8 @@ buffer_container.prototype = {
     _switch_to: function (buffer) {
         // Select new buffer in the XUL deck
         this.container.selectedPanel = buffer.element;
+
+        buffer.point.setAttribute("hidden", "false");
 
         buffer.browser.setAttribute("type", "content-primary");
         if ('isActive' in buffer.browser.docShell)

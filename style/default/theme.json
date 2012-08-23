@@ -6,6 +6,7 @@
       "tab-bar.css",
       "new-tabs.css",
       "window--panel.css",
-      "eye-guide.css"
+      "eye-guide.css",
+      "buffer--point.css"
   ]
 }

@@ -1,0 +1,9 @@
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+
+.point {
+  width: 30px;
+  height: 30px;
+  background-color: none;
+  border: 2px solid red;
+}
