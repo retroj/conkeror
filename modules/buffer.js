@@ -134,22 +134,30 @@ function buffer (window) {
     browser.setAttribute("flex", "1");
     browser.setAttribute("autocompletepopup", "popup_autocomplete");
     element.appendChild(browser);
-
-    var point = create_XUL(window, "box");
-    point.setAttribute("class", "point");
-    point.setAttribute("top", "0");
-    point.setAttribute("left", "0");
-    if (window.buffers.count > 1)
-        point.setAttribute("hidden", "true");
-    window.buffers.container.parentNode.appendChild(point);
-    this.point = point;
-
     this.window.buffers.container.appendChild(element);
     this.window.buffers.insert(this, arguments.$position, this.opener);
     this.window.buffers.buffer_history.push(this);
     this.element = element;
     this.browser = element.firstChild;
     this.element.conkeror_buffer_object = this;
+
+    var point = create_XUL(window, "box");
+    point.setAttribute("class", "point");
+    point.setAttribute("top", "0");
+    point.setAttribute("left", "0");
+    window.buffers.container.parentNode.appendChild(point);
+    this.point = point;
+    if (window.buffers.count == 1)
+        point.focus();
+    else
+        point.setAttribute("hidden", "true");
+    /*
+     * Test stuff
+     */
+    function point_debug_keydown (e) {
+        dumpln("point keydown: "+format_key_combo(e));
+    }
+    point.addEventListener("keydown", point_debug_keydown, true);
 
     this.local = { __proto__: conkeror };
     this.page = null;
@@ -464,6 +472,7 @@ buffer_container.prototype = {
         old_value.saved_focused_frame = old_value.focused_frame;
         old_value.saved_focused_element = old_value.focused_element;
 
+        old_value.point.blur();
         old_value.point.setAttribute("hidden", "true");
 
         if ('isActive' in old_value.browser.docShell)
@@ -494,6 +503,9 @@ buffer_container.prototype = {
             set_focus_no_scroll(this.window, buffer.saved_focused_element);
         else if (buffer.saved_focused_frame)
             set_focus_no_scroll(this.window, buffer.saved_focused_frame);
+
+        if (! buffer.saved_focused_element)
+            buffer.point.focus();
 
         buffer.saved_focused_element = null;
         buffer.saved_focused_frame = null;

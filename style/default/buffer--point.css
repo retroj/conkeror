@@ -6,4 +6,5 @@
   height: 30px;
   background-color: none;
   border: 2px solid red;
+  -moz-user-focus: normal;
 }
