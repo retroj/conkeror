@@ -157,6 +157,9 @@ function content_buffer (window) {
 content_buffer.prototype = {
     constructor: content_buffer,
     toString: function () "#<content_buffer>",
+    QueryInterface: generate_QI(Ci.nsISHistoryListener,
+                                Ci.nsIWebProgressListener,
+                                Ci.nsISupportsWeakReference),
 
     destroy: function () {
         this.browser.removeProgressListener(this);
@@ -196,7 +199,6 @@ content_buffer.prototype = {
 
     // nsIWebProgressListener interface
     //
-    QueryInterface: generate_QI(Ci.nsIWebProgressListener, Ci.nsISupportsWeakReference),
 
     // This method is called to indicate state changes.
     onStateChange: function (aWebProgress, aRequest, aStateFlags, aStatus) {

@@ -58,6 +58,7 @@ require("commands.js");
 require("webjump.js");
 require("history.js");
 require("scroll.js");
+require("point-commands.js");
 
 require("save.js");
 

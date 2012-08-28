@@ -174,6 +174,8 @@ function window_initialize (window) {
         tag = window.args.tag;
     window.tag = generate_new_window_tag(tag);
 
+    window.point = window.document.getElementById("point");
+
     // Add a getBrowser() function to help certain extensions designed
     // for Firefox work with conkeror
     window.getBrowser = window_get_this_browser;

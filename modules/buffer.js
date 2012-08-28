@@ -118,6 +118,17 @@ function buffer_creator (type) {
     };
 }
 
+function point_state () {
+}
+point_state.prototype = {
+    constructor: point_state,
+    toString: function () "#<point_state>",
+    top: 0,
+    left: 0,
+    width: 30,
+    height: 30
+};
+
 function buffer_modality (buffer) {
     buffer.keymaps.push(default_global_keymap);
 }
@@ -140,24 +151,6 @@ function buffer (window) {
     this.element = element;
     this.browser = element.firstChild;
     this.element.conkeror_buffer_object = this;
-
-    var point = create_XUL(window, "box");
-    point.setAttribute("class", "point");
-    point.setAttribute("top", "0");
-    point.setAttribute("left", "0");
-    window.buffers.container.parentNode.appendChild(point);
-    this.point = point;
-    if (window.buffers.count == 1)
-        point.focus();
-    else
-        point.setAttribute("hidden", "true");
-    /*
-     * Test stuff
-     */
-    function point_debug_keydown (e) {
-        dumpln("point keydown: "+format_key_combo(e));
-    }
-    point.addEventListener("keydown", point_debug_keydown, true);
 
     this.local = { __proto__: conkeror };
     this.page = null;
@@ -206,6 +199,12 @@ function buffer (window) {
         buffer.set_input_mode();
     }, true);
 
+    // point init
+    //
+    this.web_navigation.sessionHistory.addSHistoryListener(this);
+    this.point_history = [];
+    this.point_history.index = -1;
+
     this.modalities = [buffer_modality];
 
     // When create_buffer_early_hook runs, basic buffer properties
@@ -217,6 +216,7 @@ function buffer (window) {
 buffer.prototype = {
     constructor: buffer,
     toString: function () "#<buffer>",
+    QueryInterface: generate_QI(Ci.nsISHistoryListener, Ci.nsISupportsWeakReference),
 
     // default_position is the default value for the $position keyword to
     // the buffer constructor.  This property can be set on the prototype
@@ -231,8 +231,6 @@ buffer.prototype = {
     // get title ()   [must be defined by subclasses]
     // get name ()    [must be defined by subclasses]
     dead: false, /* This is set when the buffer is killed */
-
-    point: null,
 
     keymaps: null,
     mark_active: false,
@@ -279,14 +277,14 @@ buffer.prototype = {
 
     destroy: function () {
         this.dead = true;
+        this.web_navigation.sessionHistory.removeSHistoryListener(this);
+        this.point_history = null;
         this.browser = null;
         this.element = null;
         this.saved_focused_frame = null;
         this.saved_focused_element = null;
         // prevent modalities from accessing dead browser
         this.modalities = [];
-        this.point.parentNode.removeChild(this.point);
-        this.point = null;
     },
 
     set_input_mode: function () {
@@ -380,6 +378,54 @@ buffer.prototype = {
                 break;
             win = win.parent;
         }
+    },
+
+    // nsISHistoryListener interface
+    //
+    point_history: null,
+    get point () this.point_history[this.point_history.index] || null,
+    point_update: function () {
+        var p = this.point_history[this.point_history.index];
+        this.window.point.setAttribute("top", p.top);
+        this.window.point.setAttribute("left", p.left);
+        this.window.point.style.width = p.width + "px";
+        this.window.point.style.height = p.height + "px";
+    },
+    OnHistoryNewEntry: function (uri) {
+        dumpln("point_history_listener OnHistoryNewEntry");
+        this.point_history.push(new point_state());
+        this.point_history.index++;
+        this.point_update();
+    },
+    OnHistoryGoBack: function (uri) {
+        dumpln("point_history_listener OnHistoryGoBack");
+        this.point_history.index--;
+        this.point_update();
+        return true;
+    },
+    OnHistoryGoForward: function (uri) {
+        dumpln("point_history_listener OnHistoryGoForward");
+        this.point_history.index++;
+        this.point_update();
+        return true;
+    },
+    OnHistoryReload: function (uri, reload_flags) {
+        dumpln("point_history_listener OnHistoryReload");
+        // perhaps save the xpath of any currently selected node so that
+        // we can attempt to reselect the same node after reload.
+        return true;
+    },
+    OnHistoryGotoIndex: function (index, uri) {
+        dumpln("point_history_listener OnHistoryGotoIndex");
+        this.point_history.index = index;
+        this.point_update();
+        return true;
+    },
+    OnHistoryPurge: function (num_entries) {
+        dumpln("point_history_listener OnHistoryPurge");
+        this.point_history.splice(0, num_entries);
+        this.point_history.index -= num_entries;
+        return true;
     }
 };
 
@@ -472,9 +518,6 @@ buffer_container.prototype = {
         old_value.saved_focused_frame = old_value.focused_frame;
         old_value.saved_focused_element = old_value.focused_element;
 
-        old_value.point.blur();
-        old_value.point.setAttribute("hidden", "true");
-
         if ('isActive' in old_value.browser.docShell)
             old_value.browser.docShell.isActive = false;
         old_value.browser.setAttribute("type", "content");
@@ -483,8 +526,6 @@ buffer_container.prototype = {
     _switch_to: function (buffer) {
         // Select new buffer in the XUL deck
         this.container.selectedPanel = buffer.element;
-
-        buffer.point.setAttribute("hidden", "false");
 
         buffer.browser.setAttribute("type", "content-primary");
         if ('isActive' in buffer.browser.docShell)
@@ -504,11 +545,11 @@ buffer_container.prototype = {
         else if (buffer.saved_focused_frame)
             set_focus_no_scroll(this.window, buffer.saved_focused_frame);
 
-        if (! buffer.saved_focused_element)
-            buffer.point.focus();
-
         buffer.saved_focused_element = null;
         buffer.saved_focused_frame = null;
+
+        if (buffer.point)
+            buffer.point_update();
 
         buffer.set_input_mode();
 

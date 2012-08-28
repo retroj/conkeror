@@ -50,5 +50,6 @@ COPYING file.
 
   <stack flex="1" id="buffer-outer-container">
     <deck flex="1" id="buffer-container"/>
+    <box id="point" top="0" left="0" onload="this.focus();"/>
   </stack>
 </window>
