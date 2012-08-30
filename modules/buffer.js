@@ -39,6 +39,7 @@ define_current_buffer_hook("current_buffer_description_change_hook", "buffer_des
 define_current_buffer_hook("current_buffer_icon_change_hook", "buffer_icon_change_hook");
 define_current_buffer_hook("current_buffer_scroll_hook", "buffer_scroll_hook");
 define_current_buffer_hook("current_buffer_dom_content_loaded_hook", "buffer_dom_content_loaded_hook");
+define_current_buffer_hook("current_buffer_loaded_hook", "buffer_loaded_hook");
 define_current_buffer_hook("current_buffer_zoom_hook", "zoom_hook");
 
 
@@ -145,8 +146,9 @@ function point_update_element (b) {
         b.point_update();
     }
 }
-add_hook("buffer_loaded_hook", point_update_element);
-add_hook("buffer_dom_content_loaded_hook", point_update_element);
+add_hook("current_buffer_loaded_hook", point_update_element);
+add_hook("current_buffer_dom_content_loaded_hook", point_update_element);
+add_hook("current_buffer_scroll_hook", point_update_element);
 
 function buffer_modality (buffer) {
     buffer.keymaps.push(default_global_keymap);
