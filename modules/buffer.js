@@ -123,11 +123,30 @@ function point_state () {
 point_state.prototype = {
     constructor: point_state,
     toString: function () "#<point_state>",
+    xpath: null,
     top: 0,
     left: 0,
     width: 30,
     height: 30
 };
+
+function point_update_element (b) {
+    var p = b.point;
+    if (p.xpath) {
+        var e = xpath_find_node(b.document, p.xpath);
+        if (e) {
+            var rect = e.getBoundingClientRect();
+            p.top = rect.top;
+            p.left = rect.left;
+            p.width = rect.width;
+            p.height = rect.height;
+        } else
+            b.point_history[b.point_history.index] = new point_state();
+        b.point_update();
+    }
+}
+add_hook("buffer_loaded_hook", point_update_element);
+add_hook("buffer_dom_content_loaded_hook", point_update_element);
 
 function buffer_modality (buffer) {
     buffer.keymaps.push(default_global_keymap);
@@ -383,9 +402,12 @@ buffer.prototype = {
     // nsISHistoryListener interface
     //
     point_history: null,
-    get point () this.point_history[this.point_history.index] || null,
+    get point () {
+        return this.point_history[this.point_history.index]
+            || new point_state();
+    },
     point_update: function () {
-        var p = this.point_history[this.point_history.index];
+        var p = this.point;
         this.window.point.setAttribute("top", p.top);
         this.window.point.setAttribute("left", p.left);
         this.window.point.style.width = p.width + "px";
@@ -411,8 +433,6 @@ buffer.prototype = {
     },
     OnHistoryReload: function (uri, reload_flags) {
         dumpln("point_history_listener OnHistoryReload");
-        // perhaps save the xpath of any currently selected node so that
-        // we can attempt to reselect the same node after reload.
         return true;
     },
     OnHistoryGotoIndex: function (index, uri) {
@@ -548,8 +568,7 @@ buffer_container.prototype = {
         buffer.saved_focused_element = null;
         buffer.saved_focused_frame = null;
 
-        if (buffer.point)
-            buffer.point_update();
+        buffer.point_update();
 
         buffer.set_input_mode();
 

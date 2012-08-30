@@ -695,4 +695,27 @@ function set_protocol_handler (protocol, handler) {
     hs.store(info);
 }
 
+
+/**
+ * Get a weak reference to an object that implements
+ * nsISupportsWeakReference
+ */
+function get_weak_reference (obj) {
+    return obj.QueryInterface(Ci.nsISupportsWeakReference)
+        .GetWeakReference();
+}
+
+
+/**
+ * Query the referent of a weak reference with the given interface.
+ */
+function query_weak_reference (ref, iface) {
+    try {
+        return ref.QueryReferent(iface);
+    } catch (e) {
+        return null;
+    }
+}
+
+
 provide("utils");

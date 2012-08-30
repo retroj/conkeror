@@ -132,4 +132,36 @@ function xpath_find_any (doc, xpath) {
                         Ci.nsIDOMXPathResult.ANY_TYPE, null);
 }
 
+
+/**
+ * Compute unique xpath for given element.
+ */
+function get_xpath_for_element (el) {
+    var xpath = '';
+    var root = el.ownerDocument.documentElement;
+    while (el !== root) {       
+        var pos = 0;
+        var temp = el;
+        while (temp) {
+            if (temp.nodeType === 1 &&
+                temp.nodeName === el.nodeName)
+            { // If it is ELEMENT_NODE of the same name
+                pos++;
+            }
+            temp = temp.previousSibling;
+        }
+        xpath = "*[name()='" + el.nodeName + "' and namespace-uri()='" +
+            (el.namespaceURI === null ? '' : el.namespaceURI) +
+            "'][" + pos + ']' + '/' + xpath;
+        el = el.parentNode;
+    }
+    xpath = '/*'+"[name()='" + root.nodeName +
+        "' and namespace-uri()='" +
+        (el.namespaceURI === null ? '' : el.namespaceURI) +
+        "']" + '/' + xpath;
+    xpath = xpath.replace(/\/$/, '');
+    return xpath;
+}
+
+
 provide("dom");
