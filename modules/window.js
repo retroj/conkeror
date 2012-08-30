@@ -174,6 +174,14 @@ function window_initialize (window) {
         tag = window.args.tag;
     window.tag = generate_new_window_tag(tag);
 
+    var stack = window.document.getElementById("buffer-outer-container");
+    var deck = window.document.getElementById("buffer-container");
+    window.addEventListener("resize",
+        function (e) {
+            deck.style.height = stack.clientHeight + "px";
+            deck.style.width = stack.clientWidth + "px";
+        }, true);
+
     window.point = window.document.getElementById("point");
 
     // Add a getBrowser() function to help certain extensions designed
