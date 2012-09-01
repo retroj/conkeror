@@ -1,3 +1,10 @@
+conkeror (1.0~~pre+git120901-1) experimental; urgency=low
+
+  * New upstream snapshot
+  * Add support for xulrunner 17
+
+ -- Axel Beckert <abe@debian.org>  Sat, 01 Sep 2012 11:20:23 +0200
+
 conkeror (1.0~~pre+git120804-1) experimental; urgency=low
 
   * Add support for xulrunner 15 and 16 with according versioned
