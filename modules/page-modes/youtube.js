@@ -34,7 +34,6 @@ function youtube_parse_video_info (info) {
         res.url_encoded_fmt_stream_map.split(",");
     var data = [];
     for each (var chunk in url_encoded_fmt_stream_map) {
-        var url = "", itag = "";
         var d = {};
         for each (kv in chunk.split("&")) {
             let [k, v] = kv.split("=");
