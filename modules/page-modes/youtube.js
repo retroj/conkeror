@@ -69,7 +69,7 @@ function youtube_scrape_text (results, frame, url, id, text) {
         var extension = mime_service.getPrimaryExtension(
             d.type, regexp_exec(/\/([^;]+)/, d.type, 1));
         results.push(load_spec({
-            uri: d.url,
+            uri: d.url + "&signature=" + d.sig,
             title: title,
             filename_extension: extension,
             source_frame: frame,
