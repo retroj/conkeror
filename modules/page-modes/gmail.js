@@ -59,33 +59,10 @@ define_key(gmail_keymap, "return", null, $fallthrough);
 define_key(gmail_keymap, "tab", null, $fallthrough);
 
 
-var gmail_modality = {
-    normal: gmail_keymap
-};
-
-function gmail_focus_primary_frame (buffer) {
-    var frames = buffer.top_frame.frames;
-    if (frames.length >= 4)
-        buffer.top_frame.frames[3].focus();
-}
-
-define_page_mode("gmail-mode",
+define_keymaps_page_mode("gmail-mode",
     build_url_regexp($domain = "mail.google",
                      $path = new RegExp('(?!support)')),
-    function enable (buffer) {
-        add_hook.call(buffer, "buffer_dom_content_loaded_hook",
-                      gmail_focus_primary_frame);
-        add_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
-        buffer.content_modalities.push(gmail_modality);
-    },
-    function disable (buffer) {
-        remove_hook.call(buffer, "buffer_dom_content_loaded_hook",
-                         gmail_focus_primary_frame);
-        remove_hook.call(buffer, "unfocus_hook", gmail_focus_primary_frame);
-        var i = buffer.content_modalities.indexOf(gmail_modality);
-        if (i > -1)
-            buffer.content_modalities.splice(i, 1);
-    },
+    { normal: gmail_keymap },
     $display_name = "GMail");
 
 page_mode_activate(gmail_mode);
