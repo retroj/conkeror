@@ -1,3 +1,9 @@
+conkeror (1.0~~pre+git121018-1) UNRELEASED; urgency=low
+
+  * Add support for xulrunner 18
+
+ -- Axel Beckert <abe@debian.org>  Thu, 18 Oct 2012 11:17:54 +0200
+
 conkeror (1.0~~pre+git120901-1) experimental; urgency=low
 
   * New upstream snapshot
