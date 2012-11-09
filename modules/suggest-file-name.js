@@ -48,7 +48,7 @@ function maybe_get_url_extension (url_o) {
  * content type, or the extension part of file_name_s.
  */
 function maybe_get_preferred_filename_extension (file_name_s, content_type) {
-    var ext = maybe_get_filename_extension (file_name_s);
+    var ext = maybe_get_filename_extension(file_name_s);
     var mimeInfo = null;
     var primary = null;
     if (content_type) {
