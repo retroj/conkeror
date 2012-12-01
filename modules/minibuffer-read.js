@@ -377,10 +377,11 @@ function minibuffer_complete (window, count) {
 
     var e = s.completions_display_element;
     var new_index = -1;
+    var common_prefix;
 
-    let common_prefix;
-
-    if (count == 1 && ! s.applied_common_prefix && (common_prefix = c.common_prefix_input_state)) {
+    if (count == 1 && ! s.applied_common_prefix &&
+        (common_prefix = c.common_prefix_input_state))
+    {
         //XXX: may need to use ignore_input_events here
         m.set_input_state(common_prefix);
         s.applied_common_prefix = true;
