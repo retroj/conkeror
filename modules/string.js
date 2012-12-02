@@ -175,4 +175,25 @@ function build_url_regexp () {
 }
 
 
+/**
+ * position_in_strings takes a position and an array of strings, and
+ * returns the index of the string in the array that the position is in.
+ * At any position which is on the boundary between two strings, the lower
+ * string is the one that the position is considered to be in.  This
+ * counts also for the first string, so a position of 0 always returns the
+ * index -1, that is, "before the first string".
+ */
+function position_in_strings (strings, pos) {
+    for (var i = 0, t = 0, n = strings.length;
+         i < n;
+         ++i)
+    {
+        if (strings[i] == null || pos <= t)
+            break;
+        t += strings[i].length;
+    }
+    return i - 1;
+}
+
+
 provide("string");

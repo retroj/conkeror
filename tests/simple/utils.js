@@ -46,6 +46,7 @@ walnut_run({
     }
 });
 
+
 walnut_run({
     test_possibly_valid_url_1: function () {
         assert_not(possibly_valid_url(""));
@@ -79,5 +80,66 @@ walnut_run({
     },
     test_possibly_valid_url_11: function () {
         assert(possibly_valid_url("/"));
+    }
+});
+
+
+walnut_run({
+    test_position_in_strings_1: function () {
+        assert_equals(position_in_strings([null], 0), -1);
+    },
+    test_position_in_strings_2: function () {
+        assert_equals(position_in_strings([], 0), -1);
+    },
+    test_position_in_strings_3: function () {
+        assert_equals(position_in_strings(["a"], 0), -1);
+    },
+    test_position_in_strings_4: function () {
+        assert_equals(position_in_strings(["a"], 1), 0);
+    },
+    test_position_in_strings_5: function () {
+        assert_equals(position_in_strings(["a"], 2), 0);
+    },
+    test_position_in_strings_6: function () {
+        assert_equals(position_in_strings(["a", "b"], 1), 0);
+    },
+    test_position_in_strings_7: function () {
+        assert_equals(position_in_strings(["a", "b"], 2), 1);
+    },
+    test_position_in_strings_8: function () {
+        assert_equals(position_in_strings(["a", "b"], 3), 1);
+    },
+    test_position_in_strings_9: function () {
+        assert_equals(position_in_strings(["a", "b", "c"], 3), 2);
+    },
+    test_position_in_strings_10: function () {
+        assert_equals(position_in_strings([""], 1), 0);
+    },
+    test_position_in_strings_11: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 0), -1);
+    },
+    test_position_in_strings_12: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 1), 0);
+    },
+    test_position_in_strings_13: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 2), 0);
+    },
+    test_position_in_strings_14: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 3), 0);
+    },
+    test_position_in_strings_15: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 4), 1);
+    },
+    test_position_in_strings_16: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 5), 2);
+    },
+    test_position_in_strings_17: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 6), 2);
+    },
+    test_position_in_strings_18: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 7), 2);
+    },
+    test_position_in_strings_19: function () {
+        assert_equals(position_in_strings(["foo", " ", "bar"], 8), 2);
     }
 });
