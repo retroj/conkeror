@@ -286,11 +286,9 @@ text_entry_minibuffer_state.prototype = {
                 }
                 s.update_completions_done(x, update_display);
             }());
-
             // In case the completer actually already finished
             if (already_done)
                 this.completions_cont = null;
-            return;
         } else
             this.update_completions_done(c, update_display);
     },
