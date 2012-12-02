@@ -30,7 +30,7 @@ function history_completer () {
         else if (use_history && !use_bookmarks)
             options.queryType = options.QUERY_TYPE_HISTORY;
         else
-            options.queryType = options.QUERY_TYPE_UNIFIED; //WTF: not implemented yet?
+            options.queryType = options.QUERY_TYPE_UNIFIED; //XXX: not implemented yet
         var root = nav_history_service.executeQuery(query, options).root;
         root.containerOpen = true;
         var history_count = root.childCount;
