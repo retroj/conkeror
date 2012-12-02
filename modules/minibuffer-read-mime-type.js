@@ -32,7 +32,7 @@ minibuffer.prototype.read_viewable_mime_type = function () {
         forward_keywords(arguments),
         $completer = prefix_completer(
             $completions = viewable_mime_type_list),
-        $match_required,
+        $require_match,
         $space_completes);
     yield co_return(result);
 };

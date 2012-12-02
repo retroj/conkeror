@@ -1046,7 +1046,7 @@ if (use_downloads_jsm) {
                  },
                  $auto_complete = "download",
                  $auto_complete_initial = true,
-                 $match_required = true);
+                 $require_match = true);
         var result = yield this.read(forward_keywords(arguments));
         yield co_return(result);
     };
@@ -1067,7 +1067,7 @@ if (use_downloads_jsm) {
                      $get_value = function (x) x),
                  $auto_complete = "download",
                  $auto_complete_initial = true,
-                 $match_required = true);
+                 $require_match = true);
         var result = yield this.read(forward_keywords(arguments));
         yield co_return(result);
     };

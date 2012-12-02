@@ -87,7 +87,7 @@ define_browser_object_class("media", null,
             });
         let result = yield I.buffer.window.minibuffer.read(
             $prompt = prompt,
-            $match_required,
+            $require_match,
             $completer = completer,
             $auto_complete_initial,
             $auto_complete = "media");

@@ -91,15 +91,15 @@ completions_tree_view.prototype = {
  *
  * completer
  *
- * match_required
+ * require_match
  *
- * default_completion  only used if match_required is set to true
+ * default_completion  only used if require_match is set to true
  *
  * $valiator          [optional]
  *          specifies a function
  */
 define_keywords("$keymap", "$history", "$validator",
-                "$completer", "$match_required", "$default_completion",
+                "$completer", "$require_match", "$default_completion",
                 "$auto_complete", "$auto_complete_initial", "$auto_complete_conservative",
                 "$auto_complete_delay", "$enable_icons",
                 "$space_completes");
@@ -145,9 +145,9 @@ function text_entry_minibuffer_state (minibuffer) {
         this.completions_timer_ID = null;
         this.completions_display_element = null;
         this.selected_completion_index = -1;
-        this.match_required  = !!arguments.$match_required;
-        this.match_required_default = this.match_required;
-        if (this.match_required)
+        this.require_match = !!arguments.$require_match;
+        this.require_match_default = this.require_match;
+        if (this.require_match)
             this.default_completion = arguments.$default_completion;
         this.enable_icons = arguments.$enable_icons;
     }
@@ -315,14 +315,14 @@ text_entry_minibuffer_state.prototype = {
         this.completions_valid = true;
         this.applied_common_prefix = false;
 
-        if (c && ("get_match_required" in c))
-            this.match_required = c.get_match_required();
-        if (this.match_required == null)
-            this.match_required = this.match_required_default;
+        if (c && ("get_require_match" in c))
+            this.require_match = c.get_require_match();
+        if (this.require_match == null)
+            this.require_match = this.require_match_default;
 
         if (c && c.count > 0) {
             var i = -1;
-            if (this.match_required) {
+            if (this.require_match) {
                 if (c.count == 1)
                     i = 0;
                 else if (c.default_completion != null)
@@ -355,7 +355,7 @@ text_entry_minibuffer_state.prototype = {
         var m = this.minibuffer;
         var c = this.completions;
 
-        if (this.completions_valid && c && !this.match_required && i >= 0 && i < c.count)
+        if (this.completions_valid && c && !this.require_match && i >= 0 && i < c.count)
             m.set_input_state(c.get_input_state(i));
     }
 };
@@ -433,7 +433,7 @@ function exit_minibuffer (window) {
 
     var match = null;
 
-    if (s.completer && s.match_required) {
+    if (s.completer && s.require_match) {
         if (! s.completions_valid || s.completions === undefined)
             s.update_completions(false /* not conservative */, false /* don't update */);
 
@@ -457,7 +457,7 @@ function exit_minibuffer (window) {
     }
     var deferred = s.deferred;
     if (deferred) {
-        if (s.match_required) {
+        if (s.require_match) {
             deferred.resolve(match);
         }
         else {
@@ -528,7 +528,7 @@ minibuffer.prototype.read_command = function () {
             $get_string = function (x) x.name,
             $get_description = function (x) x.shortdoc || "",
             $get_value = function (x) x.name),
-        $match_required,
+        $require_match,
         $space_completes);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
@@ -545,7 +545,7 @@ minibuffer.prototype.read_user_variable = function () {
             $get_string = function (x) x,
             $get_description = function (x) user_variables[x].shortdoc || "",
             $get_value = function (x) x),
-        $match_required,
+        $require_match,
         $space_completes);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
@@ -580,7 +580,7 @@ minibuffer.prototype.read_preference = function () {
                          out += " (" + pretty_print_value(default_value) + ")";
                      return out;
                  }),
-             $match_required,
+             $require_match,
              $space_completes);
     var result = yield this.read(forward_keywords(arguments));
     yield co_return(result);
@@ -599,7 +599,7 @@ minibuffer.prototype.read_object_property = function () {
                 for (var i in o)
                     push(i);
             }),
-        $match_required,
+        $require_match,
         $space_completes);
     yield co_return(result);
 };

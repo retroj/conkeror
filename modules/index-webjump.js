@@ -118,7 +118,7 @@ index_webjump.prototype = {
                   get_string: function (i) data[i][0],
                   get_description: function (i) data[i][1],
                   get_input_state: function (i) [data[i][0]],
-                  get_match_required: function() require
+                  get_require_match: function() require
                 };
         yield co_return(c);
     },
@@ -221,7 +221,7 @@ interactive("webjump-get-index",
             $history = "webjump",
             $completer = all_word_completer(
                 $completions = completions),
-            $match_required = true);
+            $require_match = true);
         var jmp = index_webjumps[key];
         if (jmp)
             jmp.get_index(I.buffer);

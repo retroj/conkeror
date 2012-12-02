@@ -7,13 +7,13 @@
  * COPYING file.
 **/
 
-define_keywords("$use_history", "$use_bookmarks", "$match_required",
+define_keywords("$use_history", "$use_bookmarks", "$require_match",
                 "$sort_order");
 function history_completer () {
     keywords(arguments, $sort_order = "visitcount_descending");
     var use_history = arguments.$use_history;
     var use_bookmarks = arguments.$use_bookmarks;
-    let match_required = arguments.$match_required;
+    let require_match = arguments.$require_match;
     var sort_order = Ci.nsINavHistoryQueryOptions[
         "SORT_BY_" + arguments.$sort_order.toUpperCase()];
     return function (input, pos, conservative) {
@@ -39,7 +39,7 @@ function history_completer () {
                 get_description: function (i) root.getChild(i).title,
                 get_input_state: function (i) [root.getChild(i).uri],
                 destroy: function () { root.containerOpen = false; },
-                get_match_required: function() match_required
+                get_require_match: function() require_match
                };
     }
 }
