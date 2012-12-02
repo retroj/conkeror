@@ -238,7 +238,7 @@ define_browser_object_class("scrape-url",
             $initial_value = null,
             $auto_complete = "url",
             $select,
-            $match_required = false);
+            $require_match = false);
         yield co_return(result);
     },
     $hint = "choose scraped URL");

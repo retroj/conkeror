@@ -406,7 +406,7 @@ minibuffer.prototype.read_url = function () {
         $initial_value = arguments.$initial_value,
         $auto_complete = "url",
         $select = minibuffer_read_url_select_initial,
-        $match_required = false);
+        $require_match = false);
     if (!possibly_valid_url(result) && !get_webjump(result))
         result = try_read_url_handlers(result);
     if (result == "") // well-formedness check. (could be better!)

@@ -771,7 +771,7 @@ interactive("charset-prefix",
             $completer = prefix_completer(
                 $completions = charsets,
                 $get_string = function (x) x.toLowerCase()),
-            $match_required,
+            $require_match,
             $space_completes);
     },
     $prefix);
@@ -792,7 +792,7 @@ interactive("reload-with-charset",
             $completer = prefix_completer(
                 $completions = charsets,
                 $get_string = function (x) x.toLowerCase()),
-            $match_required,
+            $require_match,
             $space_completes);
         reload(I.buffer, false, null, forced_charset);
     });
