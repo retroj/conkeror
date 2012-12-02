@@ -89,21 +89,21 @@ function define_wikipedia_webjumps() {
 }
 
 
-function wikipedia_other_language(I) {
-    var doc = I.buffer.document;
+function wikipedia_other_language (doc) {
+    var regexp = new RegExp("//([^\\.]+)\\.wikipedia\\.org");
     var links = doc.querySelectorAll('#p-lang li a');
-    
-    // Extract which language each link corresponds to...
-    var regexp = new RegExp("http://([^\.]+)\.wikipedia.org");
     var options = {};
-    for each (link in links) {
-        let (matched = link.href.match(regexp)) {
-            // TODO: Check for errors
-            if (wikipedia_versions[matched[1]] != undefined)
-                options[wikipedia_versions[matched[1]]["language"]] = link.href;
-            else
-                dumpln("Found unknown language: " + matched[1] + "... Please, report a bug.");
-        }
+    for (let [_, link] in Iterator(links)) {
+        var href = link.getAttribute("href");
+        if (! href)
+            continue;
+        var matched = href.match(regexp);
+        if (! matched)
+            continue;
+        if (wikipedia_versions[matched[1]] != undefined)
+            options[wikipedia_versions[matched[1]]["language"]] = link.href;
+        else
+            dumpln("Found unknown language: " + matched[1] + "... Please, report a bug.");
     }
     return options;
 }
@@ -112,7 +112,7 @@ function wikipedia_other_language(I) {
 interactive("wikipedia-other-language",
     "Queries the user for another language to view the current article in.",
     function (I) {
-        var options = wikipedia_other_language(I);
+        var options = wikipedia_other_language(I.buffer.document);
         var chosen = yield I.minibuffer.read_object_property(
             $prompt = "Languages:",
             $object = options);
