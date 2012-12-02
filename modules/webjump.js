@@ -99,9 +99,9 @@ function clear_webjumps () {
 }
 
 define_variable("webjump_partial_match", true,
-                "When entering a url, if the input is not a webjump, " +
-                "but would uniquely complete to a webjump, then accept " +
-                "that webjump only if this is true.");
+    "When entering a url, if the input is not a webjump, " +
+    "but would uniquely complete to a webjump, then accept " +
+    "that webjump only if this is true.");
 
 function match_webjump (str) {
     var sp = str.indexOf(' ');
