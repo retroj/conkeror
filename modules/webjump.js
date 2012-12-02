@@ -94,58 +94,8 @@ function define_webjump (key, handler) {
                       alternative: alternative};
 }
 
-function define_delicious_webjumps (username) {
-    define_webjump("delicious", "http://www.delicious.com/" + username + "/%s",
-                   $alternative = "http://www.delicious.com/" + username);
-    define_webjump("adelicious", "javascript:location.href='http://www.delicious.com/save"+
-                   "?v=2&url='+encodeURIComponent(location.href)+'&title='+"+
-                   "encodeURIComponent(document.title);");
-    define_webjump("sdelicious", "http://www.delicious.com/search?p=%s&u="+username+
-                   "&chk=&context=userposts&fr=del_icio_us&lc=1");
-    define_webjump("sadelicious", "http://www.delicious.com/search/all?search=%s");
-}
-
-add_delicious_webjumps = define_delicious_webjumps;
-
-function define_lastfm_webjumps (username) {
-    if (! username) username = "";
-    define_webjump("lastfm", "http://www.last.fm/user/"+username);
-    define_webjump("lastfm-user", "http://www.last.fm/user/%s");
-    define_webjump("lastfm-music", "http://www.last.fm/search?m=all&q=%s");
-    define_webjump("lastfm-group", "http://www.last.fm/users/groups?s_bio=%s");
-    define_webjump("lastfm-tag", "http://www.last.fm/search?m=tag&q=%s");
-    define_webjump("lastfm-label", "http://www.last.fm/search?m=label&q=%s");
-    define_webjump("lastfm-event", "http://www.last.fm/events?by=artists&q=%s");
-}
-
-add_lastfm_webjumps = define_lastfm_webjumps;
-
 function clear_webjumps () {
     webjumps = {};
-}
-
-// Some built in web jumps
-function define_default_webjumps () {
-    define_webjump("conkerorwiki",
-                   "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
-    define_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
-    define_webjump("maps",       "http://maps.google.com/?q=%s");
-    define_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
-    define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
-    define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
-    define_webjump("image",      "http://images.google.com/images?q=%s");
-    define_webjump("clhs",
-                   "http://www.xach.com/clhs?q=%s",
-                   $alternative = "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm");
-    define_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
-    define_webjump("ratpoisonwiki", "http://ratpoison.antidesktop.net/?search=%s");
-    define_webjump("stumpwmwiki", "http://stumpwm.antidesktop.net/wiki?search=%s");
-    define_webjump("savannah",
-                   "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
-    define_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
-    define_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
-    define_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
-    define_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
 }
 
 define_variable("webjump_partial_match", true,
@@ -210,8 +160,6 @@ function get_url_or_webjump (input) {
         return input;
 }
 
-define_default_webjumps();
-
 function webjump_completer () {
     let base_completer = prefix_completer(
         $completions = [ v for ([k,v] in Iterator(webjumps)) ],
@@ -235,5 +183,57 @@ function webjump_completer () {
         yield co_return(base_completer(input, pos, conservative));
     };
 }
+
+
+/*
+ * Built-in webjumps
+ */
+
+function define_delicious_webjumps (username) {
+    define_webjump("delicious", "http://www.delicious.com/" + username + "/%s",
+                   $alternative = "http://www.delicious.com/" + username);
+    define_webjump("adelicious", "javascript:location.href='http://www.delicious.com/save"+
+                   "?v=2&url='+encodeURIComponent(location.href)+'&title='+"+
+                   "encodeURIComponent(document.title);");
+    define_webjump("sdelicious", "http://www.delicious.com/search?p=%s&u="+username+
+                   "&chk=&context=userposts&fr=del_icio_us&lc=1");
+    define_webjump("sadelicious", "http://www.delicious.com/search/all?search=%s");
+}
+
+function define_lastfm_webjumps (username) {
+    if (! username) username = "";
+    define_webjump("lastfm", "http://www.last.fm/user/"+username);
+    define_webjump("lastfm-user", "http://www.last.fm/user/%s");
+    define_webjump("lastfm-music", "http://www.last.fm/search?m=all&q=%s");
+    define_webjump("lastfm-group", "http://www.last.fm/users/groups?s_bio=%s");
+    define_webjump("lastfm-tag", "http://www.last.fm/search?m=tag&q=%s");
+    define_webjump("lastfm-label", "http://www.last.fm/search?m=label&q=%s");
+    define_webjump("lastfm-event", "http://www.last.fm/events?by=artists&q=%s");
+}
+
+function define_default_webjumps () {
+    define_webjump("conkerorwiki",
+                   "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
+    define_webjump("lucky",      "http://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
+    define_webjump("maps",       "http://maps.google.com/?q=%s");
+    define_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
+    define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
+    define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
+    define_webjump("image",      "http://images.google.com/images?q=%s");
+    define_webjump("clhs",
+                   "http://www.xach.com/clhs?q=%s",
+                   $alternative = "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm");
+    define_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
+    define_webjump("ratpoisonwiki", "http://ratpoison.antidesktop.net/?search=%s");
+    define_webjump("stumpwmwiki", "http://stumpwm.antidesktop.net/wiki?search=%s");
+    define_webjump("savannah",
+                   "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
+    define_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
+    define_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
+    define_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
+    define_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
+}
+
+define_default_webjumps();
 
 provide("webjump");
