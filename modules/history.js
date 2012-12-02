@@ -7,8 +7,8 @@
  * COPYING file.
 **/
 
-define_keywords("$use_webjumps", "$use_history", "$use_bookmarks",
-                "$match_required", "$sort_order");
+define_keywords("$use_history", "$use_bookmarks", "$match_required",
+                "$sort_order");
 function history_completer () {
     keywords(arguments, $sort_order = "visitcount_descending");
     var use_history = arguments.$use_history;
@@ -44,6 +44,7 @@ function history_completer () {
     }
 }
 
+define_keywords("$use_webjumps");
 function url_completer () {
     keywords(arguments, $sort_order = "visitcount_descending");
     var use_webjumps = arguments.$use_webjumps;
