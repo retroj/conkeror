@@ -85,7 +85,8 @@ function html_escape (str) {
  */
 function get_spaces (n) {
     var x = "";
-    while (x.length < n) x += " ";
+    while (x.length < n)
+        x += " ";
     return x;
 }
 
