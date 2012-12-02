@@ -577,4 +577,23 @@ minibuffer.prototype.read_preference = function () {
     yield co_return(result);
 };
 
+
+define_keywords("$object");
+minibuffer.prototype.read_object_property = function () {
+    keywords(arguments,
+             $prompt = "Property:");
+    var o = arguments.$object || {};
+    var result = yield this.read(
+        $prompt = arguments.$prompt,
+        $completer = new prefix_completer(
+            $completions = function (push) {
+                for (var i in o)
+                    push(i);
+            }),
+        $match_required,
+        $space_completes);
+    yield co_return(result);
+};
+
+
 provide("minibuffer-read");

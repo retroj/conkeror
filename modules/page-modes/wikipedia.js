@@ -14,9 +14,6 @@
  * - Probably more to come.
  **/
 
-require("minibuffer-completion.js");
-
-
 /*** VARIABLES ***/
 
 define_variable("wikipedia_didyoumean_follow_first_hit", false,
@@ -116,7 +113,9 @@ interactive("wikipedia-other-language",
     "Queries the user for another language to view the current article in.",
     function (I) {
         var options = wikipedia_other_language(I);
-        var chosen = yield completer_with_mappings(options, "Languages:");
+        var chosen = yield I.minibuffer.read_object_property(
+            $prompt = "Languages:",
+            $object = options);
         I.buffer.document.location = options[chosen];
     });
 
