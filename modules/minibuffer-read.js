@@ -182,9 +182,9 @@ text_entry_minibuffer_state.prototype = {
                 tree.view = new completions_tree_view(this);
                 this.completions_display_element = tree;
 
-                /* This is the initial loading of this minibuffer
-                 * state.  If this.complete_initial is true, generate
-                 * completions. */
+                // This is the initial loading of this minibuffer state.
+                // If this.auto_complete_initial is true, generate
+                // completions.
                 if (this.auto_complete_initial)
                     this.handle_input();
             }
