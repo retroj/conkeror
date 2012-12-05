@@ -23,6 +23,17 @@ const POSIX = !WINDOWS;
 
 
 /**
+ * get_xulrunner_version returns the version string of the running
+ * platform.
+ */
+function get_mozilla_version () {
+    return Cc['@mozilla.org/xre/app-info;1']
+        .getService(Ci.nsIXULAppInfo)
+        .platformVersion;
+}
+
+
+/**
  * getenv returns the value of a named environment variable or null if
  * the environment variable does not exist.
  */

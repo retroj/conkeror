@@ -196,4 +196,15 @@ function position_in_strings (strings, pos) {
 }
 
 
+/**
+ * version_compare: compare two version strings with nsIVersionComparator.
+ * If a == b, returns 0; if a < b, returns <0; if a > b, returns >0.
+ */
+function version_compare (a, b) {
+    var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]  
+        .getService(Ci.nsIVersionComparator);  
+    return vc.compare(a, b);
+}
+
+
 provide("string");
