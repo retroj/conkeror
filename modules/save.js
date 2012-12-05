@@ -75,7 +75,7 @@ function save_uri (lspec, output_file) {
             load_spec_mime_info(lspec),
             null /* start time */,
             null /* temp file */,
-            persist);
+            persist, false);
     persist.progressListener = tr;
     persist.saveURI(uri, cache_key, referrer_uri, post_data, null /* no extra headers */, file_uri);
 
