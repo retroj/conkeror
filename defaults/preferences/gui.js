@@ -5,4 +5,5 @@
  * COPYING file.
 **/
 
+pref("layout.spellcheckDefault", 0);
 pref("layout.word_select.stop_at_punctuation", true);
