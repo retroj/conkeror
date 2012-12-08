@@ -40,6 +40,7 @@ function index_webjump (key, url, file) {
 }
 index_webjump.prototype = {
     constructor: index_webjump,
+    toString: function () "#<index_webjump>",
     mime_type: null,
     xpath_expr: null,
     make_completion: null,
@@ -170,6 +171,8 @@ function index_webjump_xhtml (key, url, file, xpath_expr) {
 }
 index_webjump_xhtml.prototype = {
     constructor: index_webjump_xhtml,
+    __proto__: index_webjump.prototype,
+    toString: function () "#<index_webjump_xhtml>",
     require_completions: true,
     mime_type: "application/xhtml+xml",
     tidy_command: index_xpath_webjump_tidy_command,
@@ -185,9 +188,7 @@ index_webjump_xhtml.prototype = {
                 throw interactive_error("Completions required for " + this.key);
             return term;
         };
-    },
-
-    __proto__: index_webjump.prototype
+    }
 }
 
 
@@ -196,13 +197,14 @@ function index_webjump_gitweb (key, url, file) {
 }
 index_webjump_gitweb.prototype = {
     constructor: index_webjump_gitweb,
+    __proto__: index_webjump.prototype,
+    toString: function () "#<index_webjump_gitweb>",
     mime_type: "text/xml",
     xpath_expr: '//outline[@type="rss"]',
     make_completion: function (node) {
         var name = node.getAttribute("text");
         return [name.replace(/\.git$/, ""), ""];
-    },
-    __proto__: index_webjump.prototype
+    }
 }
 
 
