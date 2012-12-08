@@ -73,7 +73,7 @@ function reddit_next (I) {
                 next = first;
             if (reddit_end_behavior == 'page') {
                 let (xpr = doc.evaluate(
-                    '//p[@class="nextprev"]/a[text()="next"]', doc, null,
+                    '//p[@class="nextprev"]/a[contains(text(),"next")]', doc, null,
                     Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null))
                 {
                     let nextpage;
@@ -151,7 +151,7 @@ function reddit_prev (I) {
             }
         } else if (reddit_end_behavior == 'page') {
             let (xpr = doc.evaluate(
-                '//p[@class="nextprev"]/a[text()="prev"]', doc, null,
+                '//p[@class="nextprev"]/a[contains(text(),"prev")]', doc, null,
                 Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null))
             {
                 let prevpage;
