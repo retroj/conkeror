@@ -150,7 +150,7 @@ function save_document_as_text (document, output_file) {
             mime_info_from_mime_type("text/plain"),
             null /* start time */,
             null /* temp file */,
-            persist);
+            persist, false);
     persist.progressListener = tr;
     persist.saveDocument(document, file_uri, null /* data path */,
                          "text/plain", encoding_flags,
@@ -204,7 +204,7 @@ function save_document_complete (document, output_file, output_dir) {
             mime_info_from_mime_type(mime_type),
             null /* start time */,
             null /* temp file */,
-            persist);
+            persist, false);
     persist.progressListener = tr;
     persist.saveDocument(document, file_uri, output_dir /* data path */,
                          mime_type, encoding_flags,
