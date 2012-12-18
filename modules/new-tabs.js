@@ -6,10 +6,6 @@
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
- *
- * This is a tab bar which is based on tab-bar.js but makes customization of the
- * tabs much easier. It provides sensible default styles but lets the user
- * simply override these defaults by normal CSS.
  **/
 
 require("mode.js");
