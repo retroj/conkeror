@@ -70,7 +70,8 @@ function user_stylesheet_registered_p (url) {
  *                @-moz-document url-prefix(...) header.
  *
  * $regexps: optional string or RegExp, or array of strings or RegExps,
- *           for a @-moz-document regexp(...) header.
+ *           for a @-moz-document regexp(...) header.  This header is only
+ *           available in XULRunner 6 or higher.
  */
 define_keywords("$namespace", "$domains", "$urls", "$url_prefixes", "$regexps");
 function make_css_data_uri (rules) {
