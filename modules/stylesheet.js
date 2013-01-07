@@ -68,19 +68,28 @@ function user_stylesheet_registered_p (url) {
  *
  * $url_prefixes: optional string, or array of strings, for a
  *                @-moz-document url-prefix(...) header.
+ *
+ * $regexps: optional string or RegExp, or array of strings or RegExps,
+ *           for a @-moz-document regexp(...) header.
  */
-define_keywords("$namespace", "$domains", "$urls", "$url_prefixes");
+define_keywords("$namespace", "$domains", "$urls", "$url_prefixes", "$regexps");
 function make_css_data_uri (rules) {
     keywords(arguments);
     var namespace = arguments.$namespace;
     var domains = arguments.$domains;
     var urls = arguments.$urls;
     var url_prefixes = arguments.$url_prefixes;
+    var regexps = arguments.$regexps;
     rules = make_array(rules).join("\n");
     var restrictions = Array.prototype.concat(
         make_array(domains).map(function (x) "domain("+x+")"),
         make_array(urls).map(function (x) "url("+x+")"),
-        make_array(url_prefixes).map(function (x) "url-prefix("+x+")"))
+        make_array(url_prefixes).map(function (x) "url-prefix("+x+")"),
+        make_array(regexps).map(function (x) {
+            return "regexp(\""+
+                ((x instanceof RegExp) ? x.source : x)+
+                "\")";
+        }))
         .join(",\n");
     if (restrictions)
         rules = "@-moz-document "+restrictions+" {\n"+rules+"\n}";
