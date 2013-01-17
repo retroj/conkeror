@@ -19,7 +19,7 @@ configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
 
-	touch configure-stamp
+	touch $@
 
 # Architecture
 build: build-arch build-indep
