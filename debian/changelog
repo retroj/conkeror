@@ -12,6 +12,7 @@ conkeror (1.0~~pre+git130117-1) UNRELEASED; urgency=low
     - Use more debhelper magic, no more manual cp, ln, or mkdir.
     - Remove unnecessary comments and blank lines.
     - Add some blank lines to gather related lines together in blocks.
+    - Finally switch to a dh style debian/rules.
 
  -- Axel Beckert <abe@debian.org>  Thu, 17 Jan 2013 01:42:48 +0100
 

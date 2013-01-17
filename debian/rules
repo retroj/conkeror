@@ -3,41 +3,15 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-# This has to be exported to make some magic below work.
-export DH_OPTIONS
-
 # Generating a xulrunner build id and other strings
 DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
 BUILDID := $(shell echo -n `whoami`@`hostname`)_$(shell date +%s)
 USC = $(CURDIR)/debian/conkeror/usr/share/conkeror
 
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-	touch $@
+%:
+	dh $@
 
-build: build-arch build-indep
-build-arch: build-arch-stamp 
-build-arch-stamp: configure-stamp
-	dh_auto_build
-	touch $@
-
-build-indep: build-indep-stamp
-build-indep-stamp: configure-stamp
-	touch $@
-
-clean:
-	dh_testdir
-	dh_testroot
-	dh_auto_clean
-	dh_clean
-
-install: install-indep install-arch
-install-indep:
-	dh_testdir
-	dh_testroot
-	dh_prep -i
-	dh_installdirs -i
+override_dh_install-indep:
 	dh_install -i
 
 	# Add generated Build ID and Debian version to version output
@@ -47,46 +21,3 @@ install-indep:
 	# Use Debian version for M-x version output
 	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' \
 	    -i $(USC)/components/application.js
-
-install-arch:
-	dh_testdir
-	dh_testroot
-	dh_prep -s
-	dh_installdirs -s
-	dh_link -s
-	dh_install -s
-
-# Must not depend on anything. This is to be called by
-# binary-arch/binary-indep in another 'make' thread.
-binary-common:
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs
-	dh_installdocs
-#	dh_installexamples
-	dh_installmenu
-#	dh_installemacsen
-	dh_installman
-	dh_bugfiles
-	dh_lintian
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-# Build architecture independant packages using the common target.
-binary-indep: build-indep install-indep
-	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
-
-# Build architecture dependant packages using the common target.
-binary-arch: build-arch install-arch
-	$(MAKE) -f debian/rules DH_OPTIONS=-s binary-common
-
-binary: binary-arch binary-indep
-.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure
