@@ -12,6 +12,7 @@ Package: conkeror
 Architecture: all
 Depends: ${misc:Depends},
  xulrunner-10.0  |
+ xulrunner-20.0  |
  xulrunner-19.0  |
  xulrunner-18.0  |
  xulrunner-17.0  |
