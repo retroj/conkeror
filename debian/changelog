@@ -4,6 +4,8 @@ conkeror (1.0~~pre+git130117-1) UNRELEASED; urgency=low
   * Add support for xulrunner 18 to 20
   * Consistently use "touch $@" for stamp files.
   * Use dh_auto_build and dh_auto_clean.
+  * Don't clean up stamp files manually; this is already done by dh_clean
+    plus debhelper compatibility level 7.
 
  -- Axel Beckert <abe@debian.org>  Thu, 17 Jan 2013 01:42:48 +0100
 
