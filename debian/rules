@@ -8,8 +8,8 @@ export DH_OPTIONS
 
 # Generating a xulrunner build id and other strings
 DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
-
 BUILDID := $(shell echo -n `whoami`@`hostname`)_$(shell date +%s)
+USC = $(CURDIR)/debian/conkeror/usr/share/conkeror
 
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
@@ -45,11 +45,11 @@ install-indep:
 
 	# Add generated Build ID and Debian version to version output
 	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' \
-	    -i $(CURDIR)/debian/conkeror/usr/share/conkeror/application.ini
+	    -i $(USC)/application.ini
 
 	# Use Debian version for M-x version output
 	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' \
-	    -i $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
+	    -i $(USC)/components/application.js
 
 install-arch:
 	dh_testdir
