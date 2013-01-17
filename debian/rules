@@ -41,16 +41,15 @@ install-indep:
 	dh_testroot
 	dh_prep -i
 	dh_installdirs -i
+	dh_install -i
 
 	# Add generated Build ID and Debian version to version output
-	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' application.ini \
-	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/application.ini
+	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' \
+	    -i $(CURDIR)/debian/conkeror/usr/share/conkeror/application.ini
 
 	# Use Debian version for M-x version output
-	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' components/application.js \
-	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
-
-	dh_install -i
+	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' \
+	    -i $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
 
 install-arch:
 	dh_testdir
