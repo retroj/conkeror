@@ -27,7 +27,7 @@ build: build-arch build-indep
 build-arch: build-arch-stamp 
 build-arch-stamp: configure-stamp
 	# Add here commands to compile the arch part of the package.
-	$(MAKE)
+	dh_auto_build
 
 	touch $@
 
@@ -44,7 +44,7 @@ clean:
 	rm -f build-arch-stamp build-indep-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	$(MAKE) clean
+	dh_auto_clean
 
 	dh_clean
 

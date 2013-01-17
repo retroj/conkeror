@@ -3,6 +3,7 @@ conkeror (1.0~~pre+git130117-1) UNRELEASED; urgency=low
   * New upstream snapshot
   * Add support for xulrunner 18 to 20
   * Consistently use "touch $@" for stamp files.
+  * Use dh_auto_build and dh_auto_clean.
 
  -- Axel Beckert <abe@debian.org>  Thu, 17 Jan 2013 01:42:48 +0100
 
