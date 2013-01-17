@@ -7,6 +7,7 @@ conkeror (1.0~~pre+git130117-1) UNRELEASED; urgency=low
   * Don't clean up stamp files manually; this is already done by dh_clean
     plus debhelper compatibility level 7.
   * Clean up debian/rules:
+    - Use more debhelper magic, no more manual cp, ln, or mkdir.
     - Remove unnecessary comments and blank lines.
     - Add some blank lines to gather related lines together in blocks.
 

@@ -42,14 +42,6 @@ install-indep:
 	dh_prep -i
 	dh_installdirs -i
 
-	cp -pr branding chrome components content defaults	\
-	       locale modules search-engines help style	       	\
-	       *.manifest					\
-	       $(CURDIR)/debian/conkeror/usr/share/conkeror/
-	mkdir -p $(CURDIR)/debian/conkeror/usr/share/conkeror/contrib/
-	cp -pr contrib/xrev contrib/art contrib/modules	\
-	       $(CURDIR)/debian/conkeror/usr/share/conkeror/contrib/
-
 	# Add generated Build ID and Debian version to version output
 	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' application.ini \
 	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/application.ini
@@ -57,8 +49,6 @@ install-indep:
 	# Use Debian version for M-x version output
 	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' components/application.js \
 	       > $(CURDIR)/debian/conkeror/usr/share/conkeror/components/application.js
-	cp -p debian/conkeror.bin $(CURDIR)/debian/conkeror/usr/bin/conkeror
-	cp -p debian/conkeror.desktop $(CURDIR)/debian/conkeror/usr/share/applications/
 
 	dh_install -i
 
@@ -67,8 +57,7 @@ install-arch:
 	dh_testroot
 	dh_prep -s
 	dh_installdirs -s
-	cp -p conkeror-spawn-helper $(CURDIR)/debian/conkeror-spawn-process-helper/usr/lib/conkeror/
-	ln -s /usr/lib/conkeror/conkeror-spawn-helper $(CURDIR)/debian/conkeror-spawn-process-helper/usr/share/conkeror/
+	dh_link -s
 	dh_install -s
 
 # Must not depend on anything. This is to be called by
