@@ -1,6 +1,6 @@
 .PHONY: clean
 
-CFLAGS = -O2 -g
+CFLAGS ?= -O2 -g
 
 conkeror-spawn-helper: conkeror-spawn-helper.c
 
