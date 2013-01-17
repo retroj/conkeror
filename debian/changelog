@@ -1,6 +1,7 @@
 conkeror (1.0~~pre+git130117-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
+    - Properly passes CFLAGS, fully enables dpkg build flags
   * Add support for xulrunner 18 to 20
   * Bump debhelper compatibility to 9
     - Remove inclusion of buildflags.mk from debian/rules, no more needed
