@@ -153,7 +153,7 @@ function content_handler_view_internally (ctx) {
 
 function content_handler_view_as_text (ctx) {
     ctx.abort(); // abort before reloading
-    override_mime_type_for_next_load(ctx.launcher.source, "text/plain");
+    yield override_mime_type_for_next_load(ctx.launcher.source, "text/plain");
     ctx.frame.location = ctx.launcher.source.spec; // reload
 }
 

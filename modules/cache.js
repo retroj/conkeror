@@ -35,7 +35,7 @@ function cache_entry_open(cache_session, uri) {
 
     let cc = yield CONTINUATION;
 
-    cache_listener = {
+    let cache_listener = {
         onCacheEntryAvailable: function onCacheEntryAvailable(descriptor, accessGranted, status) {
             if (status != Cr.NS_OK)
                 cc.throw(cache_error(status));
@@ -58,7 +58,7 @@ function cache_entry_clear(cache_session, uri) {
 
     let cc = yield CONTINUATION;
 
-    cache_listener = {
+    let cache_listener = {
         onCacheEntryDoomed: function onCacheEntryDoomed(status) {
             switch (status) {
             case Cr.NS_OK:
