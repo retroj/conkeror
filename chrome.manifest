@@ -12,3 +12,9 @@ contract @mozilla.org/helperapplauncherdialog;1 {74FCB100-B972-11DC-95FF-0800200
 
 component {7770E0D0-C4A0-11DC-95FF-0800200C9A66} components/download_manager_ui.js
 contract @mozilla.org/download-manager-ui;1 {7770E0D0-C4A0-11DC-95FF-0800200C9A66}
+
+# This overrides the DownloadsStartup app-startup entry created by firefox, to
+# keep our download-manager-ui registration from being overridden.
+# "@conkeror.mozdev.org/downloadsstartup-not-defined;1" is never defined and will
+# be silently ignored by embedding/components/appstartup/src/nsAppStartupNotifier.cpp
+category app-startup DownloadsStartup @conkeror.mozdev.org/downloadsstartup-not-defined;1
