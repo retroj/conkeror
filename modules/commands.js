@@ -234,9 +234,11 @@ interactive("source",
             function (fo) { load_rc (fo.path); }, [['f', function (a) { return "Source File: "; }, null, "source"]]);
 */
 function reinit (window) {
-    var path;
     try {
-        path = load_rc();
+        var obs = Cc["@mozilla.org/observer-service;1"]
+            .getService(Ci.nsIObserverService);
+        obs.notifyObservers(null, "startupcache-invalidate", null);
+        var path = load_rc();
         window.minibuffer.message("Loaded: " + path);
     } catch (e) {
         window.minibuffer.message("Failed to load: "+path);
