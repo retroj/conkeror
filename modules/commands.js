@@ -715,7 +715,7 @@ function view_as_mime_type (I, target) {
             $prompt = "View internally as",
             $initial_value = suggested_type,
             $select);
-        override_mime_type_for_next_load(load_spec_uri(spec), mime_type);
+        yield override_mime_type_for_next_load(load_spec_uri(spec), mime_type);
         browser_object_follow(I.buffer, target, spec);
     } finally {
         panel.destroy();

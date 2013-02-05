@@ -147,7 +147,7 @@ function content_handler_view_internally (ctx) {
         $initial_value = suggested_type,
         $select);
     ctx.abort(); // abort before reloading
-    override_mime_type_for_next_load(ctx.launcher.source, mime_type);
+    yield override_mime_type_for_next_load(ctx.launcher.source, mime_type);
     ctx.frame.location = ctx.launcher.source.spec; // reload
 }
 

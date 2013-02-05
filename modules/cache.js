@@ -17,35 +17,65 @@ const CACHE_SESSION_HTTP         = "HTTP";
 const CACHE_SESSION_HTTP_OFFLINE = "HTTP-offline";
 const CACHE_SESSION_FTP          = "FTP";
 
-// Returns null if uri is not cached.
-function cache_entry_open (cache_type, cache_session, uri) {
+function cache_error (code) {
+    let xpcom_exc = Components.Exception("", code);
+    let e = new Error("cache error: " + xpcom_exc.name);
+    e.result = code;
+    e.__proto__ = cache_error.prototype;
+    return e;
+}
+cache_error.prototype.__proto__ = Error.prototype;
+
+function cache_entry_open(cache_session, uri) {
     if (uri instanceof Ci.nsIURI)
         uri = uri.spec;
+
     let session = cache_service.createSession(cache_session, 0, true);
     session.doomEntriesIfExpired = false;
-    // Remove the ref component of the URL
+
+    let cc = yield CONTINUATION;
+
+    cache_listener = {
+        onCacheEntryAvailable: function onCacheEntryAvailable(descriptor, accessGranted, status) {
+            if (status != Cr.NS_OK)
+                cc.throw(cache_error(status));
+            else
+                cc(descriptor);
+        }
+    };
+
     let cache_key = uri.replace(/#.*$/, "");
-    try {
-        return session.openCacheEntry(cache_key,
-                                      Ci.nsICache.ACCESS_READ,
-                                      false);
-    }
-    catch (ex) {
-        if (ex.name == "NS_ERROR_CACHE_KEY_NOT_FOUND" ||
-            ex.name == "NS_ERROR_CACHE_WAIT_FOR_VALIDATION")
-            return null;
-        throw ex;
-    }
+    session.asyncOpenCacheEntry(cache_key, Ci.nsICache.ACCESS_READ, cache_listener);
+    yield co_return(yield SUSPEND);
 }
 
-// Returns false if uri is not cached, else true.
-function cache_entry_clear (cache_type, cache_session, uri) {
-    let entry = cache_entry_open(cache_type, cache_session, uri);
-    if (entry == null)
-        return false;
-    entry.doom();
-    entry.close();
-    return true;
+function cache_entry_clear(cache_session, uri) {
+    if (uri instanceof Ci.nsIURI)
+        uri = uri.spec;
+
+    let session = cache_service.createSession(cache_session, 0, true);
+    session.doomEntriesIfExpired = false;
+
+    let cc = yield CONTINUATION;
+
+    cache_listener = {
+        onCacheEntryDoomed: function onCacheEntryDoomed(status) {
+            switch (status) {
+            case Cr.NS_OK:
+                cc(true);
+                break;
+            case Cr.NS_ERROR_NOT_AVAILABLE:
+                cc(false);
+                break;
+            default:
+                cc.throw(cache_error(status));
+            }
+        }
+    };
+
+    let cache_key = uri.replace(/#.*$/, "");
+    session.doomEntry(cache_key, cache_listener);
+    yield co_return(yield SUSPEND);
 }
 
 function cache_clear (cache_type) {

@@ -22,80 +22,81 @@
  * Unfortunately, due to the design, this hack does not work for FTP.
  *
  **/
+{ // new scope
 
-let EXAMINE_TOPIC = "http-on-examine-response";
-let EXAMINE_MERGED_TOPIC = "http-on-examine-merged-response";
+    let EXAMINE_TOPIC = "http-on-examine-response";
+    let EXAMINE_MERGED_TOPIC = "http-on-examine-merged-response";
 
-let table = {};
+    let table = {};
 
-let timeout = 10000; // 10000 milliseconds = 10 seconds
+    let timeout = 10000; // 10000 milliseconds = 10 seconds
 
-let table_size = 0;
+    let table_size = 0;
 
-// uri must be an instance of nsIURI
-function can_override_mime_type_for_uri(uri) {
-    return uri.schemeIs("http") || uri.schemeIs("https");
-}
+    // uri must be an instance of nsIURI
+    function can_override_mime_type_for_uri(uri) {
+        return uri.schemeIs("http") || uri.schemeIs("https");
+    }
 
-let clear_override = function(uri_string) {
-    delete table[uri_string];
-    table_size--;
+    let clear_override = function(uri_string) {
+        delete table[uri_string];
+        table_size--;
 
-    if (table_size == 0) {
-        observer_service.removeObserver(observer, EXAMINE_TOPIC);
-        observer_service.removeObserver(observer, EXAMINE_MERGED_TOPIC);
+        if (table_size == 0) {
+            observer_service.removeObserver(observer, EXAMINE_TOPIC);
+            observer_service.removeObserver(observer, EXAMINE_MERGED_TOPIC);
+        }
+    }
+
+    let observer = {
+        observe: function (subject, topic, data) {
+            if (topic != EXAMINE_TOPIC && topic != EXAMINE_MERGED_TOPIC)
+                return;
+
+            subject.QueryInterface(Ci.nsIHttpChannel);
+
+            var uri_string = subject.originalURI.spec;
+            var obj = table[uri_string];
+            if (!obj)
+                return;
+
+            obj.timer.cancel();
+
+            subject.contentType = obj.mime_type;
+
+            // drop content-disposition header
+            subject.setResponseHeader("Content-Disposition", "", false);
+
+            clear_override(uri_string);
+        }
+    };
+
+
+
+    // uri must be an instance of nsIURI and can_override_mime_type_for_uri must
+    // return true for the passed uri.
+
+    // mime_type must be a string
+    function override_mime_type_for_next_load(uri, mime_type) {
+        yield cache_entry_clear(CACHE_SESSION_HTTP, uri);
+
+        var obj = table[uri.spec];
+        if (obj)
+            obj.timer.cancel();
+        else
+            table_size++;
+
+        obj = { mime_type: mime_type };
+
+        obj.timer = call_after_timeout(function () {
+            clear_override(uri.spec);
+        }, timeout);
+
+        if (table_size == 1) {
+            observer_service.addObserver(observer, EXAMINE_TOPIC, false);
+            observer_service.addObserver(observer, EXAMINE_MERGED_TOPIC, false);
+        }
+        table[uri.spec] = obj;
     }
 }
-
-let observer = {
-    observe: function (subject, topic, data) {
-        if (topic != EXAMINE_TOPIC && topic != EXAMINE_MERGED_TOPIC)
-            return;
-
-        subject.QueryInterface(Ci.nsIHttpChannel);
-
-        var uri_string = subject.originalURI.spec;
-        var obj = table[uri_string];
-        if (!obj)
-            return;
-
-        obj.timer.cancel();
-
-        subject.contentType = obj.mime_type;
-
-        // drop content-disposition header
-        subject.setResponseHeader("Content-Disposition", "", false);
-
-        clear_override(uri_string);
-    }
-};
-
-
-
-// uri must be an instance of nsIURI and can_override_mime_type_for_uri must
-// return true for the passed uri.
-
-// mime_type must be a string
-function override_mime_type_for_next_load(uri, mime_type) {
-    cache_entry_clear(CACHE_ALL, CACHE_SESSION_HTTP, uri);
-
-    var obj = table[uri.spec];
-    if (obj)
-        obj.timer.cancel();
-    else
-        table_size++;
-
-    obj = { mime_type: mime_type };
-
-    obj.timer = call_after_timeout(function () {
-                                       clear_override(uri.spec);
-                                   }, timeout);
-
-    if (table_size == 1) {
-        observer_service.addObserver(observer, EXAMINE_TOPIC, false);
-        observer_service.addObserver(observer, EXAMINE_MERGED_TOPIC, false);
-    }
-    table[uri.spec] = obj;
-}
-
 provide("mime-type-override");
