@@ -393,12 +393,19 @@ hint_manager.prototype = {
             if (h.visible) {
                 h.visible = false;
                 if (h.saved_color != null) {
-                    h.elem.style.color = h.saved_color;
-                    h.elem.style.backgroundColor = h.saved_bgcolor;
+                    try {
+                        h.elem.style.color = h.saved_color;
+                        h.elem.style.backgroundColor = h.saved_bgcolor;
+                    } catch (e) { /* element may be dead */ }
                 }
-                if (h.img_hint)
-                    h.img_hint.style.display = "none";
-                h.hint.style.display = "none";
+                if (h.img_hint) {
+                    try {
+                        h.img_hint.style.display = "none";
+                    } catch (e) { /* element may be dead */ }
+                }
+                try {
+                    h.hint.style.display = "none";
+                } catch (e) { /* element may be dead */ }
             }
         }
     },
@@ -406,12 +413,19 @@ hint_manager.prototype = {
     remove: function () {
         for (var i = 0, h; h = this.hints[i]; ++i) {
             if (h.visible && h.saved_color != null) {
-                h.elem.style.color = h.saved_color;
-                h.elem.style.backgroundColor = h.saved_bgcolor;
+                try {
+                    h.elem.style.color = h.saved_color;
+                    h.elem.style.backgroundColor = h.saved_bgcolor;
+                } catch (e) { /* element may be dead */ }
             }
-            if (h.img_hint)
-                h.img_hint.parentNode.removeChild(h.img_hint);
-            h.hint.parentNode.removeChild(h.hint);
+            if (h.img_hint) {
+                try {
+                    h.img_hint.parentNode.removeChild(h.img_hint);
+                } catch (e) { /* element may be dead */ }
+            }
+            try {
+                h.hint.parentNode.removeChild(h.hint);
+            } catch (e) { /* element may be dead */ }
         }
         this.hints = [];
         this.valid_hints = [];
