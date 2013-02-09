@@ -35,8 +35,10 @@ function content_handler_context (launcher, context) {
                           Ci.nsIDOMWindow :
                           Ci.nsIDOMWindowInternal)
         this.window = get_window_from_frame(this.frame);
-        this.buffer = get_buffer_from_frame(this.frame);
+        this.buffer = get_buffer_from_frame(this.window, this.frame);
     } catch (e) {
+        dumpln("Error: Failed to find buffer corresponding to content handler context");
+        dump_error(e);
         this.window = get_recent_conkeror_window();
         if (this.window) {
             this.buffer = this.window.buffers.current;
@@ -223,6 +225,7 @@ download_helper.prototype = {
     show: function (launcher, context, reason) {
         var ctx = new content_handler_context(launcher, context);
         if (! ctx.window) {
+            dumpln("Warning: Aborting download because of lack of window");
             ctx.abort(); //XXX: impolite; need better solution.
             return;
         }
