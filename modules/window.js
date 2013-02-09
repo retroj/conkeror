@@ -64,24 +64,36 @@ function make_chrome_window (chrome_uri, args) {
 
 var conkeror_chrome_uri = "chrome://conkeror-gui/content/conkeror.xul";
 
+/**
+ * This is called by Conkeror to explicitly create a conkeror.xul window.
+ * However, windows are sometimes created internally be Mozilla, for example due
+ * to the logic in content-buffer.js:browser_dom_window.openURI.  In that case,
+ * make_window is not called and Conkeror sees the window for the first time in
+ * window_initialize, which needs to take care of all of the initialization that
+ * would normally happen in make_window.
+ **/
 function make_window (initial_buffer_creator, tag) {
     var args = { tag: tag,
                  initial_buffer_creator: initial_buffer_creator };
     var result = make_chrome_window(conkeror_chrome_uri, null);
     result.args = args;
     make_window_hook.run(result);
-    var close = result.close;
-    result.close = function () {
+    window_install_close_intercept(result);
+    return result;
+}
+
+function window_install_close_intercept (window) {
+    var close = window.close;
+    window.close = function () {
         function attempt_close () {
-            var res = yield window_before_close_hook.run(result);
+            var res = yield window_before_close_hook.run(window);
             if (res) {
-                window_close_hook.run(result);
-                close.call(result);
+                window_close_hook.run(window);
+                close.call(window);
             }
         }
         co_call(attempt_close());
     };
-    return result;
 }
 
 function get_window_by_tag (tag) {
@@ -127,9 +139,18 @@ var window_extra_argument_list = [];
 
 define_variable("window_extra_argument_max_delay", 100);
 
+/**
+ * Called by window_initialize.  If the window was created using make_window (as
+ * indicated by window.args having been set), nothing needs to be done.
+ * Otherwise, we need to perform the setup that would otherwise occur in
+ * make_window.
+ **/
 function window_setup_args (window) {
     if (window.args != null)
         return;
+
+    window_install_close_intercept(window);
+
 
     var cur_time = Date.now();
     var i;
