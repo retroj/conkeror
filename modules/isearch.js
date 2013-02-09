@@ -338,8 +338,7 @@ function isearch_done (window, keep_selection) {
     s.sel_ctrl.setDisplaySelection(Ci.nsISelectionController.SELECTION_NORMAL);
 
     // Prevent focus from being reverted
-    window.minibuffer.saved_focused_element = null;
-    window.minibuffer.saved_focused_window = null;
+    s.buffer.clear_saved_focus();
 
     s.done = true;
 

@@ -210,6 +210,11 @@ buffer.prototype = {
     saved_focused_frame: null,
     saved_focused_element: null,
 
+    clear_saved_focus: function () {
+        this.saved_focused_frame = null;
+        this.saved_focused_element = null;
+    },
+
     // get title ()   [must be defined by subclasses]
     // get name ()    [must be defined by subclasses]
     dead: false, /* This is set when the buffer is killed */
@@ -445,10 +450,58 @@ buffer_container.prototype = {
         select_buffer_hook.run(buffer);
     },
 
+    // Ensure the focus state for the current buffer is updated
+    save_focus: function () {
+        // If minibuffer is active, the focus is already saved, so leave that focus state as is
+        if (this.window.minibuffer.active)
+            return;
+
+        var b = this.current;
+        b.saved_focused_frame = b.focused_frame;
+        b.saved_focused_element = b.focused_element;
+    },
+
+    // Restore the focus state for the current buffer, unless the minibuffer is still active
+    restore_focus: function () {
+        /**
+         * This next focus call seems to be needed to avoid focus
+         * somehow getting lost (and the keypress handler therefore
+         * not getting called at all) when killing buffers.
+         */
+        this.window.focus();
+
+        // If the minibuffer is active, keep the saved focus state but don't
+        // restore it until the minibuffer becomes inactive
+        if (this.window.minibuffer.active)
+            return;
+
+        var b = this.current;
+
+        b.browser.focus();
+
+        var saved_focused_element = b.saved_focused_element;
+        var saved_focused_frame = b.saved_focused_frame;
+        b.clear_saved_focus();
+
+        if (saved_focused_element) {
+            try {
+                if (saved_focused_element.focus) {
+                    set_focus_no_scroll(this.window, saved_focused_element);
+                    return;
+                }
+            } catch (e) { /* saved_focused_element may be dead */ }
+        }
+
+        if (saved_focused_frame) {
+            try {
+                set_focus_no_scroll(this.window, saved_focused_frame);
+            } catch (e) { /* saved_focused_frame may be dead */ }
+        }
+    },
+
+    // Note: old_value is still the current buffer when this is called
     _switch_away_from: function (old_value) {
-        // Save focus state
-        old_value.saved_focused_frame = old_value.focused_frame;
-        old_value.saved_focused_element = old_value.focused_element;
+        this.save_focus();
 
         if ('isActive' in old_value.browser.docShell)
             old_value.browser.docShell.isActive = false;
@@ -463,22 +516,7 @@ buffer_container.prototype = {
         if ('isActive' in buffer.browser.docShell)
             buffer.browser.docShell.isActive = true;
 
-        /**
-         * This next focus call seems to be needed to avoid focus
-         * somehow getting lost (and the keypress handler therefore
-         * not getting called at all) when killing buffers.
-         */
-        this.window.focus();
-
-        // Restore focus state
-        buffer.browser.focus();
-        if (buffer.saved_focused_element)
-            set_focus_no_scroll(this.window, buffer.saved_focused_element);
-        else if (buffer.saved_focused_frame)
-            set_focus_no_scroll(this.window, buffer.saved_focused_frame);
-
-        buffer.saved_focused_element = null;
-        buffer.saved_focused_frame = null;
+        this.restore_focus();
 
         buffer.set_input_mode();
 

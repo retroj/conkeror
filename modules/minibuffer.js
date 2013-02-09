@@ -346,22 +346,13 @@ minibuffer.prototype = {
     _restore_state: function () {
         var s = this.current_state;
         if (s) {
-            if (!this.active) {
-                this.saved_focused_frame = this.window.document.commandDispatcher.focusedWindow;
-                this.saved_focused_element = this.window.document.commandDispatcher.focusedElement;
-            }
+            this.window.buffers.save_focus();
             s.load();
             this.active = true;
         } else {
             if (this.active) {
                 this.active = false;
-                this.window.buffers.current.browser.focus();
-                if (this.saved_focused_element && this.saved_focused_element.focus)
-                    set_focus_no_scroll(this.window, this.saved_focused_element);
-                else if (this.saved_focused_frame)
-                    set_focus_no_scroll(this.window, this.saved_focused_frame);
-                this.saved_focused_element = null;
-                this.saved_focused_frame = null;
+                this.window.buffers.restore_focus();
                 this._show(this.current_message || this.default_message);
             }
         }
