@@ -190,6 +190,10 @@ void setup_fds(struct fd_info *fds, int fd_count) {
   int i, j, result;
   for (i = 0; i < fd_count; ++i) {
     int fd = fds[i].desired_fd;
+    if (fd == fds[i].orig_fd) {
+      /* file descriptor is already correct, nothing needs to be done for it */
+      continue;
+    }
     /* Check if this file descriptor is still in use by any subsequent
        redirection. */
     for (j = i + 1; j < fd_count; ++j) {
@@ -253,6 +257,21 @@ int main(int argc, char **argv) {
       closedir(dir);
     }
   }
+
+  /* Create a default redirection of STDIN and STDOUT to /dev/null, because some
+     programs except STDIN and STDOUT to always be present.  Any user-specified
+     redirections will override these.
+  */
+
+  /* At this point, the only open file descriptor is STDERR (2).  Therefore, the
+     next two calls to open are guaranteed to use file descriptors 1 and 2
+     (STDIN and STDOUT, respectively).
+  */
+  if (open("/dev/null", O_RDONLY) != STDIN_FILENO)
+    fail("Failed to redirect STDIN to /dev/null");
+
+  if (open("/dev/null", O_RDWR) != STDOUT_FILENO)
+    fail("Failed to redirect STDOUT to /dev/null");
 
   /* Parse key file */
   {
