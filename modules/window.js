@@ -203,17 +203,23 @@ function window_initialize (window) {
                                 return this.buffers.current.browser.contentWindow;
                             });
 
-    window_initialize_early_hook.run(window);
-    delete window.window_initialize_early_hook; // used only once
+    // Tell Mozilla the window_initialize_late_hook to run after a timeout
 
-    window_initialize_hook.run(window);
-    delete window.window_initialize_hook; // used only once
-
+    // Do this here, before doing the rest of the window
+    // initialization, so that window_initialize_late_hook will be run
+    // prior to any other "late" hooks set up by other modules in a
+    // function registered in window_initialize{_early,}_hook.
     window.setTimeout(function () {
             window_initialize_late_hook.run(window);
             delete window.window_initialize_late_hook; // used only once
             delete window.args; // get rid of args
         }, 0);
+
+    window_initialize_early_hook.run(window);
+    delete window.window_initialize_early_hook; // used only once
+
+    window_initialize_hook.run(window);
+    delete window.window_initialize_hook; // used only once
 
     window.addEventListener("close",
                             function (event) {
