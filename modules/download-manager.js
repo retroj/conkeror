@@ -40,7 +40,7 @@ function download_info (source_buffer, mozilla_info, target_file) {
 }
 download_info.prototype = {
     constructor: download_info,
-    attach: function (mozilla_info) {
+    attach: function (mozilla_info, existing) {
         if (!this.target_file)
             this.__defineGetter__("target_file", function () {
                     return this.mozilla_info.targetFile;
@@ -49,7 +49,10 @@ download_info.prototype = {
             throw interactive_error("Download target file unexpected.");
         this.mozilla_info = mozilla_info;
         id_to_download_info[mozilla_info.id] = this;
-        download_added_hook.run(this);
+        if (existing)
+            existing_download_added_hook.run(this);
+        else
+            download_added_hook.run(this);
     },
     target_file: null,
     shell_command: null,
@@ -257,6 +260,7 @@ function match_registered_download (mozilla_info) {
     return null;
 }
 
+define_download_local_hook("existing_download_added_hook");
 define_download_local_hook("download_added_hook");
 define_download_local_hook("download_removed_hook");
 define_download_local_hook("download_finished_hook");
@@ -854,10 +858,10 @@ minibuffer.prototype.read_download = function () {
                      var dls = download_manager_service.activeDownloads;
                      while (dls.hasMoreElements()) {
                          let dl = dls.getNext();
-                         visitor(id_to_download_info[dl.id]);
+                         visitor(dl);
                      }
                  },
-                 $get_string = function (x) x.display_name,
+                 $get_string = function (x) x.displayName,
                  $get_description = function (x) x.source.spec,
                  $get_value = function (x) x),
              $auto_complete = "download",
@@ -867,25 +871,31 @@ minibuffer.prototype.read_download = function () {
     yield co_return(result);
 };
 
-function download_show (window, target, info) {
+function download_show (window, target, mozilla_info) {
     if (! window)
         target = OPEN_NEW_WINDOW;
+    if (mozilla_info.id in id_to_download_info) {
+        var info = id_to_download_info[mozilla_info.id];
+    } else {
+        var info = new download_info(null, null);
+        info.attach(mozilla_info, true /* existing */);
+    }
     create_buffer(window, buffer_creator(download_buffer, $info = info), target);
 }
 
 function download_show_new_window (I) {
-    var info = yield I.minibuffer.read_download($prompt = "Show download:");
-    download_show(I.window, OPEN_NEW_WINDOW, info);
+    var mozilla_info = yield I.minibuffer.read_download($prompt = "Show download:");
+    download_show(I.window, OPEN_NEW_WINDOW, mozilla_info);
 }
 
 function download_show_new_buffer (I) {
-    var info = yield I.minibuffer.read_download($prompt = "Show download:");
-    download_show(I.window, OPEN_NEW_BUFFER, info);
+    var mozilla_info = yield I.minibuffer.read_download($prompt = "Show download:");
+    download_show(I.window, OPEN_NEW_BUFFER, mozilla_info);
 }
 
 function download_show_new_buffer_background (I) {
-    var info = yield I.minibuffer.read_download($prompt = "Show download:");
-    download_show(I.window, OPEN_NEW_BUFFER_BACKGROUND, info);
+    var mozilla_info = yield I.minibuffer.read_download($prompt = "Show download:");
+    download_show(I.window, OPEN_NEW_BUFFER_BACKGROUND, mozilla_info);
 }
 
 function open_download_buffer_automatically (info) {
