@@ -1,6 +1,7 @@
 /**
  * (C) Copyright 2008 Martin Dybdal
  * (C) Copyright 2009-2010,2012 John Foerch
+ * (C) Copyright 2013 Joren Van Onder
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
