@@ -211,7 +211,7 @@ function reddit_next_comment (I, select_all_comments) {
     var current = null;
     var next = null;
     for (var i = 0, elen = entries.length; i < elen && !next; i++) {
-        var parent_div_current = entries[i].parentElement.parentElement;
+        var parent_div_current = entries[i].parentNode.parentNode;
         // Next link/comment can be selected if either:
         //  1) All comments have to be selected
         //  2) It's the first entry, which is the top link
@@ -390,7 +390,7 @@ function reddit_prev_comment (I, select_all_comments) {
                     prev = prev_parent;
             }
         }
-        var parent_div_current = entries[i].parentElement.parentElement;
+        var parent_div_current = entries[i].parentNode.parentNode;
         // Remember the last parent comment and consider the top
         // link to be a parent comment
         if (i == 0 || parent_div_current.id == comments_div.id)
