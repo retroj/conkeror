@@ -40,6 +40,13 @@ var modifiers = {
                     function (event) { event.ctrlKey = true; }),
     M: new modifier(function (event) { return event.metaKey; },
                     function (event) { event.metaKey = true; }),
+    s: new modifier(function (event) {
+                        if (event.superKey)
+                            return true;
+                        return ("getModifierState" in event &&
+                                event.getModifierState("OS"));
+                    },
+                    function (event) { event.superKey = true; }),
     S: new modifier(function (event) {
                         if (event.shiftKey) {
                             var name;
@@ -53,7 +60,7 @@ var modifiers = {
                     },
                     function (event) { event.shiftKey = true; })
 };
-var modifier_order = ['C', 'M', 'S'];
+var modifier_order = ['C', 'M', 's', 'S'];
 
 // check the platform and guess whether we should treat Alt as Meta
 if (get_os() == 'Darwin') {
@@ -117,7 +124,8 @@ function unformat_key_combo (combo) {
         altKey: false,
         ctrlKey: false,
         metaKey: false,
-        shiftKey: false
+        shiftKey: false,
+        superKey: false
     };
     var M;
     var i = 0;
@@ -200,6 +208,7 @@ define_key_match_predicate('match_any_unmodified_character', 'any unmodified cha
                 && !modifiers.A.in_event_p(event)
                 && !event.metaKey
                 && !event.ctrlKey
+                && !modifiers.s.in_event_p(event)
                 && !event.sticky_modifiers;
         } catch (e) { return false; }
     });
@@ -210,7 +219,8 @@ define_key_match_predicate('match_checkbox_keys', 'checkbox keys',
             && !event.shiftKey
             && !event.metaKey
             && !event.altKey
-            && !event.ctrlKey;
+            && !event.ctrlKey
+            && !modifiers.s.in_event_p(event);
         //XXX: keycode fallthroughs don't support sticky modifiers
     });
 
@@ -220,7 +230,8 @@ define_key_match_predicate('match_text_keys', 'text editing keys',
                 || event.keyCode == 13 || event.keyCode > 31)
             && !event.ctrlKey
             && !event.metaKey
-            && !modifiers.A.in_event_p(event);
+            && !modifiers.A.in_event_p(event)
+            && !modifiers.s.in_event_p(event);
         //XXX: keycode fallthroughs don't support sticky modifiers
     });
 
@@ -234,7 +245,8 @@ define_key_match_predicate('match_not_escape_key', 'any key but escape',
                               // whether the "M" modifier was pressed,
                               // which is not necessarily the same as
                               // event.metaKey.
-             event.ctrlKey;
+             event.ctrlKey ||
+             modifiers.s.in_event_p(event);
     });
 
 
