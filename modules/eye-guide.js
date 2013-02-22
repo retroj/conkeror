@@ -25,6 +25,9 @@ define_variable("eye_guide_context_size", 50,
 define_variable("eye_guide_highlight_new", false,
     "Highlight the new contents of the screen, instead of the old.");
 
+define_variable("eye_guide_on_image_buffers", true,
+    "Enable eye guide on image-only buffers.");
+
 function eye_guide_scroll (buffer, scroll_down, hl_new, context, interval) {
     let win = buffer.focused_frame;
     let doc = win.document;
@@ -33,6 +36,9 @@ function eye_guide_scroll (buffer, scroll_down, hl_new, context, interval) {
     win.scrollBy(0, scroll_down ? scroll_amount : -scroll_amount);
     if (win.scrollY == old_y)
         return;
+    if (!eye_guide_on_image_buffers && doc instanceof Ci.nsIImageDocument) {
+        return;
+    }
     if (Math.abs(win.scrollY - old_y) < scroll_amount)
         context = win.innerHeight - (scroll_down ? win.scrollY - old_y : old_y);
     let guide = doc.getElementById("__conkeror_eye_guide");
