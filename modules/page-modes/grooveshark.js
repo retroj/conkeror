@@ -22,22 +22,22 @@ function grooveshark_click_command (selector, error_message) {
 
 interactive("grooveshark-play-or-pause",
     "Click the Groovshark play/pause button.",
-    grooveshark_click_command("button#player_play_pause",
+    grooveshark_click_command("#play-pause",
                               "No play or pause button found"));
 
 interactive("grooveshark-mute",
     "Click the Grooveshark mute button.",
-    grooveshark_click_command("button#player_volume",
+    grooveshark_click_command("#volume",
                               "No mute button found"));
 
 interactive("grooveshark-previous",
     "Click the Grooveshark previous-video button.",
-    grooveshark_click_command("button#player_previous",
+    grooveshark_click_command("#play-prev",
                               "No previous button found"));
 
 interactive("grooveshark-next",
     "Click the Grooveshark next-video button.",
-    grooveshark_click_command("button#player_next",
+    grooveshark_click_command("#play-next",
                               "No next button found"));
 
 define_key(grooveshark_keymap, "C-c return", "grooveshark-play-or-pause");
