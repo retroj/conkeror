@@ -1,3 +1,15 @@
+conkeror (1.0~~pre+git130407-1) experimental; urgency=low
+
+  * Spellchecking is no longer enabled by default. To allow Gecko to
+    decorate your text boxes with red marks, put the following in your
+    rc: session_pref("layout.spellcheckDefault", 1);
+
+  * The deprecated procedures add_delicious_webjumps and
+    add_lastfm_webjumps have now been removed. Use
+    define_delicious_webjumps and define_lastfm_webjumps instead.
+
+ -- Axel Beckert <abe@debian.org>  Mon, 04 Mar 2013 20:32:59 +0100
+
 conkeror (1.0~~pre+git120527-1) unstable; urgency=low
 
   * hints-minibuffer-annotation-mode is now enabled by default. To disable:

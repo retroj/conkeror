@@ -1,4 +1,4 @@
-conkeror (1.0~~pre+git130407-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git130407-1) experimental; urgency=low
 
   * New upstream snapshot
     - Properly passes CFLAGS, fully enables dpkg build flags
@@ -13,7 +13,7 @@ conkeror (1.0~~pre+git130407-1) UNRELEASED; urgency=low
     - Use more debhelper magic, no more manual cp, ln, or mkdir.
     - Finally switch to a dh style debian/rules.
 
- -- Axel Beckert <abe@debian.org>  Sun, 07 Apr 2013 01:11:16 +0200
+ -- Axel Beckert <abe@debian.org>  Sun, 07 Apr 2013 03:47:35 +0200
 
 conkeror (1.0~~pre+git120901-1) experimental; urgency=low
 
