@@ -513,7 +513,10 @@ interactive("view-source",
 
 
 interactive("shell-command-on-url",
-    "Run a shell command on the url of a browser object.",
+    "Run a shell command on the url of a browser object.\n\n"+
+    "If the given shell command contains the string '{}', the "+
+    "url will be substituted in its place, otherwise the url "+
+    "will be added to the end of the command.",
     function (I) {
         var cwd = I.local.cwd;
         var element = yield read_browser_object(I);
