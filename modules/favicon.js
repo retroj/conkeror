@@ -20,7 +20,7 @@ define_variable("favicon_image_max_size", 1024,
 let (favicon_set_internal) {
     if (version_compare(get_mozilla_version(), "18.0") >= 0) {
         favicon_set_internal = function (buffer, icon_url) {
-            favicon_service.setAndLoadFaviconForPage(
+            favicon_service.setAndFetchFaviconForPage(
                 buffer.current_uri, icon_url, false,
                 favicon_service.FAVICON_LOAD_NON_PRIVATE);
         };
