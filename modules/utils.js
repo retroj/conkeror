@@ -54,6 +54,24 @@ function make_file_from_chrome (url) {
     return make_file(file.path);
 }
 
+
+/**
+ * file_symlink_p takes an nsIFile and returns the value of
+ * file.isSymlink(), but also catches the error and returns false if the
+ * file does not exist.  Note that this cannot be tested with
+ * file.exists(), because that method automatically resolves symlinks.
+ */
+function file_symlink_p (file) {
+    try {
+        return file.isSymlink();
+    } catch (e if (e instanceof Ci.nsIException) &&
+             e.result == Cr.NS_ERROR_FILE_TARGET_DOES_NOT_EXIST)
+    {
+        return false;
+    }
+}
+
+
 function get_document_content_disposition (document_o) {
     var content_disposition = null;
     try {

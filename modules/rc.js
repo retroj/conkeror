@@ -20,7 +20,7 @@ function load_rc () {
         return;
     path = make_file(rcfile);
     if (! path.exists()) {
-        if (path.isSymlink())
+        if (file_symlink_p(path))
             dumpln("w: broken symlink, \""+rcfile+"\"");
         else if (pref_has_user_value("conkeror.rcfile"))
             dumpln("w: preference conkeror.rcfile is set to "+
