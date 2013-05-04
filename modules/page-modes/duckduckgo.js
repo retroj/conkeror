@@ -70,7 +70,6 @@ define_key(duckduckgo_keymap, "m", "duckduckgo-main-results");
 define_key(duckduckgo_keymap, "/", "duckduckgo-focus-search");
 define_key(duckduckgo_keymap, "!", "duckduckgo-bang-dropdown");
 define_key(duckduckgo_keymap, "d", "duckduckgo-domain-search");
-define_key(duckduckgo_anchor_keymap, "return", "duckduckgo-follow-current");
 define_key(duckduckgo_select_keymap, "return", "duckduckgo-follow-current");
 
 define_keymaps_page_mode("duckduckgo-mode",
