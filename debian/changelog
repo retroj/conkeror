@@ -2,6 +2,8 @@ conkeror (1.0~~pre+git130522-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
   * Add support for xulrunner 23
+  * Make xulrunner-17.0 the default xulrunner dependency as that's the
+    version currently in Debian unstable.
 
  -- Axel Beckert <abe@debian.org>  Wed, 22 May 2013 22:39:47 +0200
 
