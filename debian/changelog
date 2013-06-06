@@ -1,11 +1,12 @@
-conkeror (1.0~~pre+git130522-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git130522-1) unstable; urgency=low
 
   * New upstream snapshot
+  * Upload to unstable again
   * Add support for xulrunner 23
   * Make xulrunner-17.0 the default xulrunner dependency as that's the
     version currently in Debian unstable.
 
- -- Axel Beckert <abe@debian.org>  Wed, 22 May 2013 22:39:47 +0200
+ -- Axel Beckert <abe@debian.org>  Thu, 06 Jun 2013 02:09:43 +0200
 
 conkeror (1.0~~pre+git130407-1) experimental; urgency=low
 
