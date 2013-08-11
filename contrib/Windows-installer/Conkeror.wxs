@@ -2,23 +2,88 @@
 <!--
 *************************************************************************************
 Spencer Allen
-8/4/13
+8/11/13
 Use, modification, and distribution are subject to the terms specified in the COPYING
 file.
 *************************************************************************************
 -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!--Your basic installer information-->
 	<Product Id="{73E081D9-8071-4a88-85DA-E3006C7EE198}" Name="Conkeror" Language="1033" Version="1.9.1.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="d966bc99-195c-4693-b154-c53f1f857978">
 		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
     <Media Id="1" Cabinet="Conkeror" EmbedCab="yes"/>
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
-		<Feature Id="ProductFeature" Title="Conkeror" Level="1" Absent="disallow">
-			<ComponentGroupRef Id="ProductComponents" />
-		</Feature>
-    <Property Id="ARPHELPLINK">http://www.conkeror.org/FindPage</Property>
-    <Property Id="ARPURLINFOABOUT">http://www.conkeror.org/</Property>
-    <UIRef Id="WixUI_Minimal" />
+    
+    <!--Building the feature list that is presented to the users when they customize their install.-->
+		<Feature Id="ConkerorFeature" Title="Conkeror" Description="Conkeror is a keyboard-oriented, highly-customizable, highly-extensible web browser based on Mozilla XULRunner." Level="1" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="INSTALLFOLDER">
+			<ComponentGroupRef Id="ConkerorMain" />
+      <Feature Id="XulrunnerFeature" Title="Modzilla XULRunner" Description="Modzilla XULRunner 22.0.0.4918 is a requried component of conkeror and must be installed for it to work." Level="1" Absent="disallow" AllowAdvertise="no">
+        <ComponentGroupRef Id="XulRunnerMain"/>        
+      </Feature>
+      
+      <!--Listing the optional feature items-->
+      <Feature Id="UserContribs" Title="User contributions" Description="Installing this feature will install all of the user contribution source files including those were used to create this installer." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+        <ComponentGroupRef Id="UserContrib"/>
+      </Feature>
+      <!--.conkerorrc customization-->
+      <Feature Id="Conkerorrc" Title=".conkerorrc" Description="These customizations were copied from http://conkeror.org and are only a small subset of the customizations you can make to this application." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent" Display="collapse">
+        <Feature Id="New_tabs" Title="Get tabs" Description="Enables the new tabs module." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="New_tabs"/>
+        </Feature>
+        <Feature Id="Sessions" Title="Enable sessions" Description="See the conkeror wiki page for a discription." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="Sessions"/>
+        </Feature>
+        <Feature Id="History" Title="History" Description="Have the find-url prompt include history urls in its completions." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="History"/>
+        </Feature>
+        <Feature Id="History_command" Title="History command" Description="Use seperate commands M-x find-url and M-x find-url-new-buffer to browse history outside the find-url prompt." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="History_command"/>
+        </Feature>
+        <Feature Id="History_clearing_preference" Title="History clearing preference" Description="Determines how long in days history entries are kept before being automatically expired. The default is seven days." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="History_clearing_preference"/>
+        </Feature>
+        <Feature Id="Downloads_dir" Title="Downloads directory" Description="The default directory for new downloads will be the downloads directory." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="Downloads_dir"/>
+        </Feature>
+        <Feature Id="Download_NewBuffer" Title="Buffer downloads" Description="Downloads status will display in a new buffer in the same window." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="Download_NewBuffer"/>
+        </Feature>
+        <Feature Id="Darken_page" Title="Darken the current page" Description="Allows you to darken the current page with M-x darken-page or C-d." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentRef Id="Darken_page"/>
+        </Feature>
+        <!--Modifing the mode line-->
+        <Feature Id="Mode_Line_widgests" Title="Mode Line widgets" Description="Inside this feature you'll find several options to modify the mode line." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent" Display="collapse">
+          <Feature Id="Download_ModLine" Title="Downloads" Description="Enables the downloads status mode line widget." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Download_ModLine"/>
+          </Feature>
+          <Feature Id="Favicons" Title="Display favicons" Description="Allows websites the ability to display their favicon in your mode line." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Favicons"/>
+          </Feature>
+          <Feature Id="DisableClock" Title="Disable clock" Description="Disables the clock in your mode line." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="DisableClock"/>
+          </Feature>
+          <Feature Id="ModeLine_Buffers_count" Title="Count buffers" Description="This widget shows how many buffers are in the current window, and which one is currently selected." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="ModeLine_Buffers_count"/>
+          </Feature>
+          <Feature Id="Loding_count" Title="Count buffers" Description="This widget shows how many buffers are currently loading." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Loading_count"/>
+          </Feature>
+          <Feature Id="Remove_scroll" Title="Remove scroll numbers" Description="This will disable the scroll widget which displays the scroll position (#,#)." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Remove_scroll"/>
+          </Feature>
+        </Feature>
+      </Feature>
+      <!--end optional feature list-->
+      
+      <!--Shortcuts for Conkeror-->
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+    <!--Customizing the installer UI-->
+    <UIRef Id="WixUI_Mondo" />
     <WixVariable Id="WixUILicenseRtf" Value="Source\COPYING.rtf"/>
+    <Property Id="LicenseAccepted" Value="1" />
+    <Property Id="INSTALLSHORTCUTS" Value="1" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Conkeror" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Conkeror. You'll find the install files in your program files directory." />
@@ -28,8 +93,14 @@ file.
       <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
       <UIRef Id="WixUI_ErrorProgressText"/>
     </UI>
+    <!--Windows Add Remove programs registry values-->
+    <Property Id="ARPHELPLINK">http://www.conkeror.org/FindPage</Property>
+    <Property Id="ARPURLINFOABOUT">http://www.conkeror.org/</Property>
+    <!--An evil custom property to give us access to the users profile folder-->
+    <SetProperty Id="MyUserFolder" Value="[%USERPROFILE]" Before="AppSearch" />
   </Product>
 
+  <!--Building the directory tree-->
 	<Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
@@ -42,45 +113,76 @@ file.
             <Directory Id="SIMPLE" Name="simple" />
           </Directory>
           <Directory Id="STYLE" Name="style">
-            <Directory Id="MONO" Name="mono"/>
-            <Directory Id="GESSO" Name="gesso"/>
-            <Directory Id="DEFAULT" Name="default"/>
+            <Directory Id="MONO" Name="mono" />
+            <Directory Id="GESSO" Name="gesso" />
+            <Directory Id="DEFAULT" Name="default" />
           </Directory>
-          <Directory Id="SEARCH_ENGINES" Name="search-engines"/>
+          <Directory Id="SEARCH_ENGINES" Name="search-engines" />
           <Directory Id="MODULES" Name="modules">
-            <Directory Id="PAGE_MODES" Name="page-modes"/>
-            <Directory Id="EXTENSIONS" Name="extensions"/>
+            <Directory Id="PAGE_MODES" Name="page-modes" />
+            <Directory Id="EXTENSIONS" Name="extensions" />
             <Directory Id="BINDINGS" Name="bindings">
               <Directory Id="DEFAULT2" Name="default">
-                <Directory Id="CONTENT_BUFFER" Name="content-buffer"/>
+                <Directory Id="CONTENT_BUFFER" Name="content-buffer" />
               </Directory>
             </Directory>
           </Directory>
           <Directory Id="LOCALE" Name="locale">
-            <Directory Id="SV_SE" Name="sv-SE"/>
-            <Directory Id="EN_US" Name="en-US"/>
+            <Directory Id="SV_SE" Name="sv-SE" />
+            <Directory Id="EN_US" Name="en-US" />
           </Directory>
           <Directory Id="HELP" Name="help"/>
           <Directory Id="DEFAULTS" Name="defaults">
-            <Directory Id="PREFERENCES" Name="preferences"/>
+            <Directory Id="PREFERENCES" Name="preferences" />
           </Directory>
-          <Directory Id="CONTENT" Name="content"/>
-          <Directory Id="COMPONENTS" Name="components"/>
-          <Directory Id="CHROME" Name="chrome"/>
-          <Directory Id="BRANDING" Name="branding">
-            <Directory Id="CONTENT2" Name="content"/>
+          <!--Optional user contributed directories-->
+          <Directory Id="DEBIAN" Name="debian">
+            <Directory Id="SOURCE" Name="source" />
+            <Directory Id="PATCHES" Name="patches" />
+            <Directory Id="BIN" Name="bin" />            
           </Directory>
           <Directory Id="CONTRIB" Name="contrib">
-            <Directory Id="MSI" Name="msi"/>
+            <Directory Id="XREV" Name="xrev">
+              <Directory Id="DEFAULTS2" Name="defaults">
+                <Directory Id="PREFERENCES2" Name="preferences" />
+              </Directory>
+              <Directory Id="CONTENT3" Name="content" />
+              <Directory Id="CHROME2" Name="chrome" />
+            </Directory>
+            <Directory Id="WINDOWSINSTALLER" Name="Windows-installer">
+              <Directory Id="CONKERORRC" Name="conkerorrc"/>
+            </Directory>
+            <Directory Id="MODULES2" Name="modules" />
+            <Directory Id="MAN" Name="man" />
+            <Directory Id="DEBIAN2" Name="debian" />
+            <Directory Id="CONFIG" Name="config" />
+            <Directory Id="ART" Name="art" />
+          </Directory>
+          <!--End optional user contributed directories-->
+          <Directory Id="CONTENT" Name="content" />
+          <Directory Id="COMPONENTS" Name="components" />
+          <Directory Id="CHROME" Name="chrome" />
+          <Directory Id="BRANDING" Name="branding">
+            <Directory Id="CONTENT2" Name="content" />
           </Directory>
         </Directory>
+        <!--.conkerorrc-->
+        <Directory Id="MyUserFolder">
+          <Directory Id="_CONKERORRC" Name=".conkerorrc"/>
+        </Directory>
       </Directory>
+      <!--Shortcut directories-->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Conkeror" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
     </Directory>
 	</Fragment>
   
+  <!--Listing the components that make up the conkeror feature-->
 	<Fragment>
-		<ComponentGroup Id="ProductComponents">
-      <!--Conkeror-->
+    <!--Conkeror directory-->
+		<ComponentGroup Id="ConkerorMain">
       <Component Id="Makefile" Directory="INSTALLFOLDER" Guid="*">
         <File Id="Makefile" Source="Source\Makefile" KeyPath="yes" Checksum="yes"/>
       </Component>
@@ -119,125 +221,6 @@ file.
       </Component>
       <Component Id="gitignore" Directory="INSTALLFOLDER" Guid="*">
         <File Id="gitignore" Source="Source\.gitignore" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <!--xulrunner-->
-      <Component Id="xulrunner_stub.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="xulrunner_stub.exe" Source="Source\xulrunner\xulrunner-stub.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="xulrunner.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="xulrunner.exe" Source="Source\xulrunner\xulrunner.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="xul.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="xul.dll" Source="Source\xulrunner\xul.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="xulupdater.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="xulupdater.exe" Source="Source\xulrunner\updater.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="softokn3.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="softokn3.dll" Source="Source\xulrunner\softokn3.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="softokn3.chk" Directory="XULRUNNER" Guid="*">
-        <File Id="softokn3.chk" Source="Source\xulrunner\softokn3.chk" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="redit.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="redit.exe" Source="Source\xulrunner\redit.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="README.xulrunner" Directory="XULRUNNER" Guid="*">
-        <File Id="README.xulrunner" Source="Source\xulrunner\README.xulrunner" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="precomplete" Directory="XULRUNNER" Guid="*">
-        <File Id="precomplete" Source="Source\xulrunner\precomplete" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="plugin_hang_ui.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="plugin_hang_ui.exe" Source="Source\xulrunner\plugin-hang-ui.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="plugin_container.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="plugin_container.exe" Source="Source\xulrunner\plugin-container.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="platform.ini" Directory="XULRUNNER" Guid="*">
-        <File Id="platform.ini" Source="Source\xulrunner\platform.ini" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="omni.ja" Directory="XULRUNNER" Guid="*">
-        <File Id="omni.ja" Source="Source\xulrunner\omni.ja" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="nssdbm3.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="nssdbm3.dll" Source="Source\xulrunner\nssdbm3.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="nssdbm3.chk" Directory="XULRUNNER" Guid="*">
-        <File Id="nssdbm3.chk" Source="Source\xulrunner\nssdbm3.chk" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="nssckbi.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="nssckbi.dll" Source="Source\xulrunner\nssckbi.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="nss3.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="nss3.dll" Source="Source\xulrunner\nss3.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="msvcr100.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="msvcr100.dll" Source="Source\xulrunner\msvcr100.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="msvcp100.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="msvcp100.dll" Source="Source\xulrunner\msvcp100.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="mozjs.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="mozjs.dll" Source="Source\xulrunner\mozjs.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="mozglue.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="mozglue.dll" Source="Source\xulrunner\mozglue.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="mozalloc.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="mozalloc.dll" Source="Source\xulrunner\mozalloc.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="LICENSE" Directory="XULRUNNER" Guid="*">
-        <File Id="LICENSE" Source="Source\xulrunner\LICENSE" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="libGLESv2.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="libGLESv2.dll" Source="Source\xulrunner\libGLESv2.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="libEGL.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="libEGL.dll" Source="Source\xulrunner\libEGL.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="js_gdb.py" Directory="XULRUNNER" Guid="*">
-        <File Id="js_gdb.py" Source="Source\xulrunner\js-gdb.py" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="js.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="js.exe" Source="Source\xulrunner\js.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="IA2Marshal.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="IA2Marshal.dll" Source="Source\xulrunner\IA2Marshal.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="gkmedias.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="gkmedias.dll" Source="Source\xulrunner\gkmedias.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="freebl3.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="freebl3.dll" Source="Source\xulrunner\freebl3.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="freebl3.chk" Directory="XULRUNNER" Guid="*">
-        <File Id="freebl3.chk" Source="Source\xulrunner\freebl3.chk" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="dependentlibs.list" Directory="XULRUNNER" Guid="*">
-        <File Id="dependentlibs.list" Source="Source\xulrunner\dependentlibs.list" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="D3DCompiler_43.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="D3DCompiler_43.dll" Source="Source\xulrunner\D3DCompiler_43.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="crashreporter.ini" Directory="XULRUNNER" Guid="*">
-        <File Id="crashreporter.ini" Source="Source\xulrunner\crashreporter.ini" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="crashreporter.exe" Directory="XULRUNNER" Guid="*">
-        <File Id="crashreporter.exe" Source="Source\xulrunner\crashreporter.exe" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="breakpadinjector.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="breakpadinjector.dll" Source="Source\xulrunner\breakpadinjector.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="AccessibleMarshal.dll" Directory="XULRUNNER" Guid="*">
-        <File Id="AccessibleMarshal.dll" Source="Source\xulrunner\AccessibleMarshal.dll" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <!--xulrunner\dictionaries folder-->
-      <Component Id="en_US.dic" Directory="DICTIONARIES" Guid="*">
-        <File Id="en_US.dic" Source="Source\xulrunner\dictionaries\en-US.dic" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="en_US.aff" Directory="DICTIONARIES" Guid="*">
-        <File Id="en_US.aff" Source="Source\xulrunner\dictionaries\en-US.aff" KeyPath="yes" Checksum="yes"/>
       </Component>
       <!--tests\simple folder-->
       <Component Id="xpath_webjump_test.xhtml" Directory="SIMPLE" Guid="*">
@@ -851,10 +834,6 @@ file.
       <Component Id="debug.js2" Directory="PREFERENCES" Guid="*">
         <File Id="debug.js2" Source="Source\defaults\preferences\debug.js" KeyPath="yes" Checksum="yes"/>
       </Component>
-      <!--contrib\msi folder-->
-      <Component Id="Product.wxs" Directory="MSI" Guid="*">
-        <File Id="Product.wxs" Source="Source\contrib\msi\Product.wxs" KeyPath="yes" Checksum="yes"/>
-      </Component>
       <!--content folder-->
       <Component Id="minibuffer_annotation.css" Directory="CONTENT" Guid="*">
         <File Id="minibuffer_annotation.css" Source="Source\content\minibuffer-annotation.css" KeyPath="yes" Checksum="yes"/>
@@ -916,7 +895,433 @@ file.
       <!--branding\content folder-->
       <Component Id="about.png" Directory="CONTENT2" Guid="*">
         <File Id="about.png" Source="Source\branding\content\about.png" KeyPath="yes" Checksum="yes"/>
-      </Component>
+      </Component>      
     </ComponentGroup>
 	</Fragment>
+  
+  <!--Listing the components that make up the xulrunner feature-->
+  <Fragment>
+    <ComponentGroup Id="XulRunnerMain">
+      <!--xulrunner folder-->
+      <Component Id="xulrunner_stub.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="xulrunner_stub.exe" Source="Source\xulrunner\xulrunner-stub.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="xulrunner.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="xulrunner.exe" Source="Source\xulrunner\xulrunner.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="xul.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="xul.dll" Source="Source\xulrunner\xul.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="xulupdater.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="xulupdater.exe" Source="Source\xulrunner\updater.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="softokn3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="softokn3.dll" Source="Source\xulrunner\softokn3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="softokn3.chk" Directory="XULRUNNER" Guid="*">
+        <File Id="softokn3.chk" Source="Source\xulrunner\softokn3.chk" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="redit.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="redit.exe" Source="Source\xulrunner\redit.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README.xulrunner" Directory="XULRUNNER" Guid="*">
+        <File Id="README.xulrunner" Source="Source\xulrunner\README.xulrunner" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="precomplete" Directory="XULRUNNER" Guid="*">
+        <File Id="precomplete" Source="Source\xulrunner\precomplete" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="plugin_hang_ui.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="plugin_hang_ui.exe" Source="Source\xulrunner\plugin-hang-ui.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="plugin_container.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="plugin_container.exe" Source="Source\xulrunner\plugin-container.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="platform.ini" Directory="XULRUNNER" Guid="*">
+        <File Id="platform.ini" Source="Source\xulrunner\platform.ini" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="omni.ja" Directory="XULRUNNER" Guid="*">
+        <File Id="omni.ja" Source="Source\xulrunner\omni.ja" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nssdbm3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="nssdbm3.dll" Source="Source\xulrunner\nssdbm3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nssdbm3.chk" Directory="XULRUNNER" Guid="*">
+        <File Id="nssdbm3.chk" Source="Source\xulrunner\nssdbm3.chk" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nssckbi.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="nssckbi.dll" Source="Source\xulrunner\nssckbi.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nss3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="nss3.dll" Source="Source\xulrunner\nss3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="msvcr100.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="msvcr100.dll" Source="Source\xulrunner\msvcr100.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="msvcp100.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="msvcp100.dll" Source="Source\xulrunner\msvcp100.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mozjs.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="mozjs.dll" Source="Source\xulrunner\mozjs.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mozglue.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="mozglue.dll" Source="Source\xulrunner\mozglue.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mozalloc.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="mozalloc.dll" Source="Source\xulrunner\mozalloc.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="LICENSE" Directory="XULRUNNER" Guid="*">
+        <File Id="LICENSE" Source="Source\xulrunner\LICENSE" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="libGLESv2.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="libGLESv2.dll" Source="Source\xulrunner\libGLESv2.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="libEGL.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="libEGL.dll" Source="Source\xulrunner\libEGL.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="js_gdb.py" Directory="XULRUNNER" Guid="*">
+        <File Id="js_gdb.py" Source="Source\xulrunner\js-gdb.py" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="js.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="js.exe" Source="Source\xulrunner\js.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="IA2Marshal.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="IA2Marshal.dll" Source="Source\xulrunner\IA2Marshal.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="gkmedias.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="gkmedias.dll" Source="Source\xulrunner\gkmedias.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="freebl3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="freebl3.dll" Source="Source\xulrunner\freebl3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="freebl3.chk" Directory="XULRUNNER" Guid="*">
+        <File Id="freebl3.chk" Source="Source\xulrunner\freebl3.chk" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="dependentlibs.list" Directory="XULRUNNER" Guid="*">
+        <File Id="dependentlibs.list" Source="Source\xulrunner\dependentlibs.list" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="D3DCompiler_43.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="D3DCompiler_43.dll" Source="Source\xulrunner\D3DCompiler_43.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="crashreporter.ini" Directory="XULRUNNER" Guid="*">
+        <File Id="crashreporter.ini" Source="Source\xulrunner\crashreporter.ini" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="crashreporter.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="crashreporter.exe" Source="Source\xulrunner\crashreporter.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="breakpadinjector.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="breakpadinjector.dll" Source="Source\xulrunner\breakpadinjector.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="AccessibleMarshal.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="AccessibleMarshal.dll" Source="Source\xulrunner\AccessibleMarshal.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--xulrunner\dictionaries folder-->
+      <Component Id="en_US.dic" Directory="DICTIONARIES" Guid="*">
+        <File Id="en_US.dic" Source="Source\xulrunner\dictionaries\en-US.dic" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="en_US.aff" Directory="DICTIONARIES" Guid="*">
+        <File Id="en_US.aff" Source="Source\xulrunner\dictionaries\en-US.aff" KeyPath="yes" Checksum="yes"/>
+      </Component>      
+    </ComponentGroup>
+  </Fragment>
+
+  <!--Listing the components that create the user contribuion feature-->
+  <Fragment>
+    <ComponentGroup Id="UserContrib">
+      <!--debian folder-->
+      <Component Id="watch" Directory="DEBIAN" Guid="*">
+        <File Id="watch" Source="Source\debian\watch" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="rules" Directory="DEBIAN" Guid="*">
+        <File Id="rules" Source="Source\debian\rules" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README.source" Directory="DEBIAN" Guid="*">
+        <File Id="README.source" Source="Source\debian\README.source" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README.Debian" Directory="DEBIAN" Guid="*">
+        <File Id="README.Debian" Source="Source\debian\README.Debian" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="MPL" Directory="DEBIAN" Guid="*">
+        <File Id="MPL" Source="Source\debian\MPL" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="CREDITS.Debian" Directory="DEBIAN" Guid="*">
+        <File Id="CREDITS.Debian" Source="Source\debian\CREDITS.Debian" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="copyright" Directory="DEBIAN" Guid="*">
+        <File Id="copyright" Source="Source\debian\copyright" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="control" Directory="DEBIAN" Guid="*">
+        <File Id="control" Source="Source\debian\control" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.links" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.links" Source="Source\debian\conkeror-spawn-process-helper.links" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.install" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.install" Source="Source\debian\conkeror-spawn-process-helper.install" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.docs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.docs" Source="Source\debian\conkeror-spawn-process-helper.docs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.dirs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.dirs" Source="Source\debian\conkeror-spawn-process-helper.dirs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.prerm" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.prerm" Source="Source\debian\conkeror.prerm" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.postinst" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.postinst" Source="Source\debian\conkeror.postinst" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.NEWS" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.NEWS" Source="Source\debian\conkeror.NEWS" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.menu" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.menu" Source="Source\debian\conkeror.menu" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.manpages" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.manpages" Source="Source\debian\conkeror.manpages" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.lintian_overrides" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.lintian_overrides" Source="Source\debian\conkeror.lintian-overrides" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.install" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.install" Source="Source\debian\conkeror.install" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.docs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.docs" Source="Source\debian\conkeror.docs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.dirs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.dirs" Source="Source\debian\conkeror.dirs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.desktop" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.desktop" Source="Source\debian\conkeror.desktop" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.bug_script" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.bug_script" Source="Source\debian\conkeror.bug-script" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="compat" Directory="DEBIAN" Guid="*">
+        <File Id="compat" Source="Source\debian\compat" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="changelog" Directory="DEBIAN" Guid="*">
+        <File Id="changelog" Source="Source\debian\changelog" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--debian\source folder-->
+      <Component Id="format" Directory="SOURCE" Guid="*">
+        <File Id="format" Source="Source\debian\source\format" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--debian\patches folder-->
+      <Component Id="series" Directory="PATCHES" Guid="*">
+        <File Id="series" Source="Source\debian\patches\series" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="sensible_editor_xdg_open.diff" Directory="PATCHES" Guid="*">
+        <File Id="sensible_editor_xdg_open.diff" Source="Source\debian\patches\sensible-editor-xdg-open.diff" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="deb_webjumps.diff" Directory="PATCHES" Guid="*">
+        <File Id="deb_webjumps.diff" Source="Source\debian\patches\deb-webjumps.diff" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--debian\bin folder-->
+      <Component Id="conkeror" Directory="BIN" Guid="*">
+        <File Id="conkeror" Source="Source\debian\bin\conkeror" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib folder-->
+      <Component Id="testrun.sh" Directory="CONTRIB" Guid="*">
+        <File Id="testrun.sh" Source="Source\contrib\testrun.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="run_conkeror" Directory="CONTRIB" Guid="*">
+        <File Id="run_conkeror" Source="Source\contrib\run-conkeror" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mketags.sh" Directory="CONTRIB" Guid="*">
+        <File Id="mketags.sh" Source="Source\contrib\mketags.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="list_xulrunner_versions" Directory="CONTRIB" Guid="*">
+        <File Id="list_xulrunner_versions" Source="Source\contrib\list-xulrunner-versions" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="install.sh" Directory="CONTRIB" Guid="*">
+        <File Id="install.sh" Source="Source\contrib\install.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="build.sh" Directory="CONTRIB" Guid="*">
+        <File Id="build.sh" Source="Source\contrib\build.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev folder-->
+      <Component Id="chrome.manifest3" Directory="XREV" Guid="*">
+        <File Id="chrome.manifest3" Source="Source\contrib\xrev\chrome.manifest" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="application.ini2" Directory="XREV" Guid="*">
+        <File Id="application.ini2" Source="Source\contrib\xrev\application.ini" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev\defaults\preferences folder-->
+      <Component Id="prefs.js2" Directory="PREFERENCES2" Guid="*">
+        <File Id="prefs.js2" Source="Source\contrib\xrev\defaults\preferences\prefs.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev\content folder-->
+      <Component Id="xrev.js" Directory="CONTENT3" Guid="*">
+        <File Id="xrev.js" Source="Source\contrib\xrev\content\xrev.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="main.xul" Directory="CONTENT3" Guid="*">
+        <File Id="main.xul" Source="Source\contrib\xrev\content\main.xul" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev\chrome folder-->
+      <Component Id="chrome.manifest4" Directory="CHROME2" Guid="*">
+        <File Id="chrome.manifest4" Source="Source\contrib\xrev\chrome\chrome.manifest" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\Windows-installer folder-->
+      <Component Id="Conkeror.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="Conkeror.wxs" Source="Source\contrib\Windows-installer\Conkeror.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="WindowsInstallerNotes.pdf" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="WindowsInstallerNotes.pdf" Source="Source\contrib\Windows-installer\WindowsInstallerNotes.pdf" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Conkeror.msi" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="Conkeror.msi" Source="Source\contrib\Windows-installer\Conkeror.msi" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\Windows-installer\conkerorrc folder-->
+      <Component Id="New_tabs.js2" Directory="CONKERORRC" Guid="*">
+        <File Id="New_tabs.js2" Source="Source\contrib\Windows-installer\conkerorrc\New-tabs.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Sessions.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Sessions.js" Source="Source\contrib\Windows-installer\conkerorrc\Sessions.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="History.js2" Directory="CONKERORRC" Guid="*">
+        <File Id="History.js2" Source="Source\contrib\Windows-installer\conkerorrc\History.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="History_command.js" Directory="CONKERORRC" Guid="*">
+        <File Id="History_command.js" Source="Source\contrib\Windows-installer\conkerorrc\History-command.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="History_preference.js" Directory="CONKERORRC" Guid="*">
+        <File Id="History_preference.js" Source="Source\contrib\Windows-installer\conkerorrc\History-preference.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Downloads_dir.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Downloads_dir.js" Source="Source\contrib\Windows-installer\conkerorrc\Downloads-dir.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Download_NewBuffer.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Download_NewBuffer.js" Source="Source\contrib\Windows-installer\conkerorrc\Download-NewBuffer.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Darken_page.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Darken_page.js" Source="Source\contrib\Windows-installer\conkerorrc\Darken-page.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Download_ModLine.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Download_ModLine.js" Source="Source\contrib\Windows-installer\conkerorrc\Download-ModLine.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Favicons.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Favicons.js" Source="Source\contrib\Windows-installer\conkerorrc\Favicons.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="DisableClock.js" Directory="CONKERORRC" Guid="*">
+        <File Id="DisableClock.js" Source="Source\contrib\Windows-installer\conkerorrc\DisableClock.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="ModeLine_Buffers_count.js" Directory="CONKERORRC" Guid="*">
+        <File Id="ModeLine_Buffers_count.js" Source="Source\contrib\Windows-installer\conkerorrc\ModeLine-Buffers-count.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Loading_count.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Loading_count.js" Source="Source\contrib\Windows-installer\conkerorrc\Loading-count.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="Remove_scroll.js" Directory="CONKERORRC" Guid="*">
+        <File Id="Remove_scroll.js" Source="Source\contrib\Windows-installer\conkerorrc\Remove-scroll.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README" Directory="CONKERORRC" Guid="*">
+        <File Id="README" Source="Source\contrib\Windows-installer\conkerorrc\README" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\modules folder-->
+      <Component Id="mode_line_buttons.js" Directory="MODULES2" Guid="*">
+        <File Id="mode_line_buttons.js" Source="Source\contrib\modules\mode-line-buttons.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\man folder-->
+      <Component Id="conkeror.1" Directory="MAN" Guid="*">
+        <File Id="conkeror.1" Source="Source\contrib\man\conkeror.1" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\debian folder-->
+      <Component Id="update.sh" Directory="DEBIAN2" Guid="*">
+        <File Id="update.sh" Source="Source\contrib\debian\update.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nightlybuild.sh" Directory="DEBIAN2" Guid="*">
+        <File Id="nightlybuild.sh" Source="Source\contrib\debian\nightlybuild.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\config folder-->
+      <Component Id="common.js" Directory="CONFIG" Guid="*">
+        <File Id="common.js" Source="Source\contrib\config\common.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\art folder-->
+      <Component Id="outline.svg" Directory="ART" Guid="*">
+        <File Id="outline.svg" Source="Source\contrib\art\outline.svg" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nut.svg" Directory="ART" Guid="*">
+        <File Id="nut.svg" Source="Source\contrib\art\nut.svg" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conker.svg" Directory="ART" Guid="*">
+        <File Id="conker.svg" Source="Source\contrib\art\conker.svg" KeyPath="yes" Checksum="yes"/>
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+  
+  <!--Listing the components that make up the .conkerorrc feature-->
+  <Fragment>
+    <!--.conkerorrc folder-->
+    <Component Id="New_tabs" Directory="_CONKERORRC" Guid="*">
+      <File Id="New_tabs" Source="Source\contrib\Windows-installer\conkerorrc\New-tabs.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Sessions" Directory="_CONKERORRC" Guid="*">
+      <File Id="Sessions" Source="Source\contrib\Windows-installer\conkerorrc\Sessions.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="History" Directory="_CONKERORRC" Guid="*">
+      <File Id="History" Source="Source\contrib\Windows-installer\conkerorrc\History.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="History_command" Directory="_CONKERORRC" Guid="*">
+      <File Id="History_command" Source="Source\contrib\Windows-installer\conkerorrc\History-command.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="History_clearing_preference" Directory="_CONKERORRC" Guid="*">
+      <File Id="History_clearing_preference" Source="Source\contrib\Windows-installer\conkerorrc\History-preference.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Downloads_dir" Directory="_CONKERORRC" Guid="*">
+      <File Id="Downloads_dir" Source="Source\contrib\Windows-installer\conkerorrc\Downloads-dir.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Download_NewBuffer" Directory="_CONKERORRC" Guid="*">
+      <File Id="Download_NewBuffer" Source="Source\contrib\Windows-installer\conkerorrc\Download-NewBuffer.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Darken_page" Directory="_CONKERORRC" Guid="*">
+      <File Id="Darken_page" Source="Source\contrib\Windows-installer\conkerorrc\Darken-page.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Download_ModLine" Directory="_CONKERORRC" Guid="*">
+      <File Id="Download_ModLine" Source="Source\contrib\Windows-installer\conkerorrc\Download-ModLine.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Favicons" Directory="_CONKERORRC" Guid="*">
+      <File Id="Favicons" Source="Source\contrib\Windows-installer\conkerorrc\Favicons.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="DisableClock" Directory="_CONKERORRC" Guid="*">
+      <File Id="DisableClock" Source="Source\contrib\Windows-installer\conkerorrc\DisableClock.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="ModeLine_Buffers_count" Directory="_CONKERORRC" Guid="*">
+      <File Id="ModeLine_Buffers_count" Source="Source\contrib\Windows-installer\conkerorrc\ModeLine-Buffers-count.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Loading_count" Directory="_CONKERORRC" Guid="*">
+      <File Id="Loading_count" Source="Source\contrib\Windows-installer\conkerorrc\Loading-count.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Remove_scroll" Directory="_CONKERORRC" Guid="*">
+      <File Id="Remove_scroll" Source="Source\contrib\Windows-installer\conkerorrc\Remove-scroll.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+  </Fragment>
+  
+  <!--Creating shortcuts-->
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcut" Guid="*">
+        <Condition>INSTALLSHORTCUTS</Condition>
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Conkeror"
+                  Description="Conkeror is a keyboard-oriented, highly-customizable, highly-extensible web browser based on Mozilla XULRunner."
+                  Target="[INSTALLFOLDER]conkeror.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\Conkeror" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="{33BC2DD4-73FF-41f8-A83D-250AB6FB244C}">
+        <Condition>INSTALLSHORTCUTS</Condition>
+        <Shortcut Id="DesktopFolderShortcut"
+                  Name="Conkeror"
+                  Description="Conkeror is a keyboard-oriented, highly-customizable, highly-extensible web browser based on Mozilla XULRunner."
+                  Target="[INSTALLFOLDER]conkeror.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RemoveFile Id="DesktopFolderShortcut" Name="DesktopConkeror" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\Conkeror" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
 </Wix>
