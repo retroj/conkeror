@@ -10,7 +10,7 @@ file.
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <!--Your basic installer information-->
 	<Product Id="{73E081D9-8071-4a88-85DA-E3006C7EE198}" Name="Conkeror" Language="1033" Version="1.9.1.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="d966bc99-195c-4693-b154-c53f1f857978">
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+		<Package InstallerVersion="405" Compressed="yes" InstallScope="perMachine" />
     <Media Id="1" Cabinet="Conkeror" EmbedCab="yes"/>
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     
@@ -1168,9 +1168,6 @@ file.
       </Component>
       <Component Id="WindowsInstallerNotes.pdf" Directory="WINDOWSINSTALLER" Guid="*">
         <File Id="WindowsInstallerNotes.pdf" Source="Source\contrib\Windows-installer\WindowsInstallerNotes.pdf" KeyPath="yes" Checksum="yes"/>
-      </Component>
-      <Component Id="Conkeror.msi" Directory="WINDOWSINSTALLER" Guid="*">
-        <File Id="Conkeror.msi" Source="Source\contrib\Windows-installer\Conkeror.msi" KeyPath="yes" Checksum="yes"/>
       </Component>
       <!--contrib\Windows-installer\conkerorrc folder-->
       <Component Id="New_tabs.js2" Directory="CONKERORRC" Guid="*">
