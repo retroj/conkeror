@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+Spencer Allen
+8/25/13
+Use, modification, and distribution are subject to the terms specified in the COPYING
+file.
+*************************************************************************************
+-->
+
+  <!--Listing the components that make up the .conkerorrc feature-->
+	<Fragment>
+    <!--.conkerorrc folder-->
+    <Component Id="New_tabs" Directory="_CONKERORRC" Guid="*">
+      <File Id="New_tabs" Source="Source\contrib\Windows-installer\conkerorrc\New-tabs.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Sessions" Directory="_CONKERORRC" Guid="*">
+      <File Id="Sessions" Source="Source\contrib\Windows-installer\conkerorrc\Sessions.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="History" Directory="_CONKERORRC" Guid="*">
+      <File Id="History" Source="Source\contrib\Windows-installer\conkerorrc\History.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="History_command" Directory="_CONKERORRC" Guid="*">
+      <File Id="History_command" Source="Source\contrib\Windows-installer\conkerorrc\History-command.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="History_clearing_preference" Directory="_CONKERORRC" Guid="*">
+      <File Id="History_clearing_preference" Source="Source\contrib\Windows-installer\conkerorrc\History-preference.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Downloads_dir" Directory="_CONKERORRC" Guid="*">
+      <File Id="Downloads_dir" Source="Source\contrib\Windows-installer\conkerorrc\Downloads-dir.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Download_NewBuffer" Directory="_CONKERORRC" Guid="*">
+      <File Id="Download_NewBuffer" Source="Source\contrib\Windows-installer\conkerorrc\Download-NewBuffer.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Darken_page" Directory="_CONKERORRC" Guid="*">
+      <File Id="Darken_page" Source="Source\contrib\Windows-installer\conkerorrc\Darken-page.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Download_ModLine" Directory="_CONKERORRC" Guid="*">
+      <File Id="Download_ModLine" Source="Source\contrib\Windows-installer\conkerorrc\Download-ModLine.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Favicons" Directory="_CONKERORRC" Guid="*">
+      <File Id="Favicons" Source="Source\contrib\Windows-installer\conkerorrc\Favicons.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="DisableClock" Directory="_CONKERORRC" Guid="*">
+      <File Id="DisableClock" Source="Source\contrib\Windows-installer\conkerorrc\DisableClock.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="ModeLine_Buffers_count" Directory="_CONKERORRC" Guid="*">
+      <File Id="ModeLine_Buffers_count" Source="Source\contrib\Windows-installer\conkerorrc\ModeLine-Buffers-count.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Loading_count" Directory="_CONKERORRC" Guid="*">
+      <File Id="Loading_count" Source="Source\contrib\Windows-installer\conkerorrc\Loading-count.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="Remove_scroll" Directory="_CONKERORRC" Guid="*">
+      <File Id="Remove_scroll" Source="Source\contrib\Windows-installer\conkerorrc\Remove-scroll.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+	</Fragment>
+</Wix>

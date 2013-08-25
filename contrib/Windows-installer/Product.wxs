@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+Spencer Allen
+8/25/13
+Use, modification, and distribution are subject to the terms specified in the COPYING
+file.
+*************************************************************************************
+-->
+  
+	<!--Your basic installer information-->
+	<Product Id="{BB462EE8-1EDA-440d-82AE-1E5FB7B2FB94}" Name="Conkeror" Language="1033" Version="1.9.1.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="a79fe89b-6662-4ff4-8e88-09950ad4dfde">
+		<Package InstallerVersion="405" Compressed="yes" InstallScope="perMachine" />
+		<Media Id="1" Cabinet="Conkeror.cab" EmbedCab="yes"/>
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <FeatureGroupRef Id="ConkerorFeatures"/>
+    <UIRef Id="MyWixUI_Mondo" />
+    <!--Windows Add Remove programs registry values-->
+    <Property Id="ARPHELPLINK">http://www.conkeror.org/FindPage</Property>
+    <Property Id="ARPURLINFOABOUT">http://www.conkeror.org/</Property>
+    <!--An evil custom property to give us access to the users profile folder-->
+    <SetProperty Id="MyUserFolder" Value="[%USERPROFILE]" Before="AppSearch" />
+  </Product>
+</Wix>
