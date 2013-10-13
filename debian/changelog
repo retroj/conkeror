@@ -1,3 +1,10 @@
+conkeror (1.0~~pre+git131013-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot
+  * Add support for xulrunner 26.
+
+ -- Axel Beckert <abe@debian.org>  Sun, 13 Oct 2013 15:34:42 +0200
+
 conkeror (1.0~~pre+git130817-1) unstable; urgency=low
 
   * New upstream snapshot
