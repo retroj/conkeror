@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+© Copyright
+Spencer Allen
+2013
+
+Use, modification, and distribution are subject to the terms specified in the license.rtf
+file.
+*************************************************************************************
+-->
+
+  <!--Listing the components that make up the xulrunner feature-->
+	<Fragment>
+    <ComponentGroup Id="XulRunnerMain">
+      <!--xulrunner folder-->
+      <Component Id="xulrunner_stub.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_xulrunner_stub.exe" Source="Source\xulrunner\xulrunner-stub.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="xulrunner.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_xulrunner.exe" Source="Source\xulrunner\xulrunner.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="xul.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_xul.dll" Source="Source\xulrunner\xul.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="xulupdater.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_xulupdater.exe" Source="Source\xulrunner\updater.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="softokn3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_softokn3.dll" Source="Source\xulrunner\softokn3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="softokn3.chk" Directory="XULRUNNER" Guid="*">
+        <File Id="v_softokn3.chk" Source="Source\xulrunner\softokn3.chk" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="redit.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_redit.exe" Source="Source\xulrunner\redit.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README.xulrunner" Directory="XULRUNNER" Guid="*">
+        <File Id="v_README.xulrunner" Source="Source\xulrunner\README.xulrunner" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="precomplete" Directory="XULRUNNER" Guid="*">
+        <File Id="v_precomplete" Source="Source\xulrunner\precomplete" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="plugin_hang_ui.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_plugin_hang_ui.exe" Source="Source\xulrunner\plugin-hang-ui.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="plugin_container.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_plugin_container.exe" Source="Source\xulrunner\plugin-container.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="platform.ini" Directory="XULRUNNER" Guid="*">
+        <File Id="v_platform.ini" Source="Source\xulrunner\platform.ini" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="omni.ja" Directory="XULRUNNER" Guid="*">
+        <File Id="v_omni.ja" Source="Source\xulrunner\omni.ja" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nssdbm3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_nssdbm3.dll" Source="Source\xulrunner\nssdbm3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nssdbm3.chk" Directory="XULRUNNER" Guid="*">
+        <File Id="v_nssdbm3.chk" Source="Source\xulrunner\nssdbm3.chk" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nssckbi.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_nssckbi.dll" Source="Source\xulrunner\nssckbi.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nss3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_nss3.dll" Source="Source\xulrunner\nss3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="msvcr100.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_msvcr100.dll" Source="Source\xulrunner\msvcr100.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="msvcp100.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_msvcp100.dll" Source="Source\xulrunner\msvcp100.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mozjs.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_mozjs.dll" Source="Source\xulrunner\mozjs.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mozglue.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_mozglue.dll" Source="Source\xulrunner\mozglue.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mozalloc.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_mozalloc.dll" Source="Source\xulrunner\mozalloc.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="LICENSE" Directory="XULRUNNER" Guid="*">
+        <File Id="v_LICENSE" Source="Source\xulrunner\LICENSE" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="libGLESv2.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_libGLESv2.dll" Source="Source\xulrunner\libGLESv2.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="libEGL.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_libEGL.dll" Source="Source\xulrunner\libEGL.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="js_gdb.py" Directory="XULRUNNER" Guid="*">
+        <File Id="v_js_gdb.py" Source="Source\xulrunner\js-gdb.py" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="js.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_js.exe" Source="Source\xulrunner\js.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="IA2Marshal.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_IA2Marshal.dll" Source="Source\xulrunner\IA2Marshal.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="gkmedias.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_gkmedias.dll" Source="Source\xulrunner\gkmedias.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="freebl3.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_freebl3.dll" Source="Source\xulrunner\freebl3.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="freebl3.chk" Directory="XULRUNNER" Guid="*">
+        <File Id="v_freebl3.chk" Source="Source\xulrunner\freebl3.chk" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="dependentlibs.list" Directory="XULRUNNER" Guid="*">
+        <File Id="v_dependentlibs.list" Source="Source\xulrunner\dependentlibs.list" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="D3DCompiler_43.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_D3DCompiler_43.dll" Source="Source\xulrunner\D3DCompiler_43.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="crashreporter.ini" Directory="XULRUNNER" Guid="*">
+        <File Id="v_crashreporter.ini" Source="Source\xulrunner\crashreporter.ini" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="crashreporter.exe" Directory="XULRUNNER" Guid="*">
+        <File Id="v_crashreporter.exe" Source="Source\xulrunner\crashreporter.exe" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="breakpadinjector.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_breakpadinjector.dll" Source="Source\xulrunner\breakpadinjector.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="AccessibleMarshal.dll" Directory="XULRUNNER" Guid="*">
+        <File Id="v_AccessibleMarshal.dll" Source="Source\xulrunner\AccessibleMarshal.dll" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--xulrunner\dictionaries folder-->
+      <Component Id="en_US.dic" Directory="DICTIONARIES" Guid="*">
+        <File Id="w_en_US.dic" Source="Source\xulrunner\dictionaries\en-US.dic" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="en_US.aff" Directory="DICTIONARIES" Guid="*">
+        <File Id="w_en_US.aff" Source="Source\xulrunner\dictionaries\en-US.aff" KeyPath="yes" Checksum="yes"/>
+      </Component>
+    </ComponentGroup>
+	</Fragment>
+</Wix>

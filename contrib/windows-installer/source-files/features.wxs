@@ -7,7 +7,7 @@
 Spencer Allen
 2013
 
-Use, modification, and distribution are subject to the terms specified in the COPYING
+Use, modification, and distribution are subject to the terms specified in the license.rtf
 file.
 *************************************************************************************
 -->
@@ -30,6 +30,7 @@ file.
         </Feature>
         <!--.conkerorrc customization-->
         <Feature Id="conkerorrc" Title=".conkerorrc" Description="These customizations were copied from http://conkeror.org and are only a small subset of the customizations you can make to this application." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent" Display="expand">
+          <ComponentRef Id="Active_Setup"/>
           <Feature Id="new_tabs" Title="Tabs" Description="Enables the new tabs module." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
             <ComponentRef Id="new_tabs"/>
           </Feature>

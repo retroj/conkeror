@@ -7,7 +7,7 @@
 Spencer Allen
 2013
 
-Use, modification, and distribution are subject to the terms specified in the COPYING
+Use, modification, and distribution are subject to the terms specified in the license.rtf
 file.
 *************************************************************************************
 -->
@@ -63,6 +63,8 @@ file.
             </Directory>
             <Directory Id="WINDOWSINSTALLER" Name="windows-installer">
               <Directory Id="CONKERORRC" Name="conkerorrc"/>
+              <Directory Id="ARTWORK" Name="artwork"/>
+              <Directory Id="SOURCEFILES" Name="source-files"/>
             </Directory>
             <Directory Id="MODULES2" Name="modules" />
             <Directory Id="MAN" Name="man" />
