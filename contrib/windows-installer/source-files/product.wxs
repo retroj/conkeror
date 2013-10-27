@@ -13,7 +13,7 @@ file.
 -->
   
 	<!--Your basic installer information-->
-	<Product Id="{a79fe89b-6662-4ff4-8e88-09950ad4dfde}" Name="Conkeror" Language="1033" Version="1.9.1.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="{63D67972-BB98-4f36-A948-D6CDA7F2996A}">
+	<Product Id="*" Name="Conkeror" Language="1033" Version="1.9.2.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="{63D67972-BB98-4f36-A948-D6CDA7F2996A}">
 		<Package InstallerVersion="200" Compressed="yes"/>
 		<Media Id="1" Cabinet="Conkeror.cab" EmbedCab="yes"/>
     <!--This property sets the default as a Per Machine install.-->
@@ -27,8 +27,9 @@ file.
     <SetProperty Id="ProgramFilesFolder" Value="[LocalAppDataFolder]Apps" Before="CostFinalize">
       <![CDATA[ALLUSERS = ""]]>      
     </SetProperty>
-    <!--A warning about installing old versions when newer versions are already installed.-->
-		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <!--Setting up the project to perform a major upgrade and-->
+    <!--a warning about installing old versions when newer versions are already installed.-->
+		<MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <!--Rerencing the Feature list and User Interface.-->
     <!--Without these refereces the code for those sections of the isntaller would have to be stored in this file instead of their own files.-->
     <FeatureGroupRef Id="ConkerorFeatures"/>
