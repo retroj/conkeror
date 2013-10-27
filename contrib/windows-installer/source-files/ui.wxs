@@ -7,7 +7,7 @@
 Spencer Allen
 2013
 
-Use, modification, and distribution are subject to the terms specified in the COPYING
+Use, modification, and distribution are subject to the terms specified in the license.rtf
 file.
 *************************************************************************************
 -->
@@ -15,12 +15,14 @@ file.
   <!--Customizing the installer UI-->
 	<Fragment>
     <UIRef Id="WixUI_Mondo" />
-    <WixVariable Id="WixUILicenseRtf" Value="Source\COPYING.rtf" />
+    <WixVariable Id="WixUILicenseRtf" Value="Source\contrib\windows-installer\lisense.rtf" />
     <Property Id="LicenseAccepted" Value="1" />
+    <WixVariable Id="WixUIBannerBmp" Value ="Source\contrib\windows-installer\artwork\banner.bmp"/>
+    <WixVariable Id="WixUIDialogBmp" Value="Source\contrib\windows-installer\artwork\dialog.bmp"/>
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Conkeror" />
     <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
-    <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Conkeror. You'll find the install files in your program files directory." />
-    <Property Id="WixShellExecTarget" Value="[#conkeror.exe]" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Conkeror." />
+    <Property Id="WixShellExecTarget" Value="[#a_conkeror.exe]" />
     <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
     <UI Id="MyWixUI_Mondo">
       <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+© Copyright
+Spencer Allen
+2013
+
+Use, modification, and distribution are subject to the terms specified in the license.rtf
+file.
+*************************************************************************************
+-->
+
+  <!--Listing the components that make up the .conkerorrc feature-->
+	<Fragment>
+    <DirectoryRef Id="_CONKERORRC">
+      <!--Active setup is a Windows feature itroduced with IE6.-->
+      <!--It runs the command in StubPath the next time a user logs in but only if it hasn't run for that user before.-->
+      <!--We use it to repair the install adding any missing files.-->
+      <!--The .conkerorrc directory and config files only get installed to the current users profile during the inital install.-->
+      <!--So this component distributes them to the other user profiles on the machine.-->
+      <!--But only does so during Per Machine installs if the conkerorrc feature was installed.-->
+      <Component Id="Active_Setup" Guid="{6E16792D-2F0C-4d98-8294-7B5B2722084B}" KeyPath="yes">
+        <RegistryKey Key="SOFTWARE\Microsoft\Active Setup\Installed Components\{A79FE89B-6662-4FF4-8E88-09950AD4DFDE}" Root="HKLM" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+          <RegistryValue Value="Conkeror" Type="string" />
+          <RegistryValue Name="StubPath" Value="msiexec.exe /fpu {A79FE89B-6662-4FF4-8E88-09950AD4DFDE} /qn" Type="string" />
+          <RegistryValue Name="Version" Value="1" Type="string" />
+        </RegistryKey>
+        <Condition>ALLUSERS >= 1</Condition>
+      </Component>
+    </DirectoryRef>
+    <!--Listing the features that are available to be installed inside the .conkerorrc directory-->
+    <!--Since each component is a feature no component group is needed here.-->
+    <Component Id="new_tabs" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_new_tabs" Source="Source\contrib\windows-installer\conkerorrc\new-tabs.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="sessions" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_sessions" Source="Source\contrib\windows-installer\conkerorrc\sessions.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="history" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_history" Source="Source\contrib\windows-installer\conkerorrc\history.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="history_command" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_history_command" Source="Source\contrib\windows-installer\conkerorrc\history-command.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="history_clearing_preference" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_history_clearing_preference" Source="Source\contrib\windows-installer\conkerorrc\history-clearing-preference.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="downloads_dir" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_downloads_dir" Source="Source\contrib\windows-installer\conkerorrc\downloads-dir.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="download_new_buffer" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_download_new_buffer" Source="Source\contrib\windows-installer\conkerorrc\download-new-buffer.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="darken_page" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_darken_page" Source="Source\contrib\windows-installer\conkerorrc\darken-page.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="download_mode_line" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_download_mode_line" Source="Source\contrib\windows-installer\conkerorrc\download-mode-line.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="favicons" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_favicons" Source="Source\contrib\windows-installer\conkerorrc\favicons.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="disable_clock" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_disable_clock" Source="Source\contrib\windows-installer\conkerorrc\disable-clock.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="buffers_count" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_buffers_count" Source="Source\contrib\windows-installer\conkerorrc\buffers-count.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="loading_count" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_loading_count" Source="Source\contrib\windows-installer\conkerorrc\loading-count.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+    <Component Id="remove_scroll" Directory="_CONKERORRC" Guid="*">
+      <File Id="zp_remove_scroll" Source="Source\contrib\windows-installer\conkerorrc\remove-scroll.js" KeyPath="yes" Checksum="yes"/>
+    </Component>
+	</Fragment>
+</Wix>

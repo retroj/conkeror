@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+© Copyright
+Spencer Allen
+2013
+
+Use, modification, and distribution are subject to the terms specified in the license.rtf
+file.
+*************************************************************************************
+-->
+  
+	<!--Your basic installer information-->
+	<Product Id="{a79fe89b-6662-4ff4-8e88-09950ad4dfde}" Name="Conkeror" Language="1033" Version="1.9.1.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="{63D67972-BB98-4f36-A948-D6CDA7F2996A}">
+		<Package InstallerVersion="200" Compressed="yes"/>
+		<Media Id="1" Cabinet="Conkeror.cab" EmbedCab="yes"/>
+    <!--This property sets the default as a Per Machine install.-->
+    <!--I.E. conkeror will be available to all users.-->
+    <Property Id="ALLUSERS" Value="1" />
+    <!--This conditon changes the install to Per User if the user is not an admin.-->
+    <SetProperty Id="ALLUSERS" Value="" Before="CostFinalize">
+      <![CDATA[Not Privileged]]>      
+    </SetProperty>
+    <!--This condition changes the install location for Per User installs.-->
+    <SetProperty Id="ProgramFilesFolder" Value="[LocalAppDataFolder]Apps" Before="CostFinalize">
+      <![CDATA[ALLUSERS = ""]]>      
+    </SetProperty>
+    <!--A warning about installing old versions when newer versions are already installed.-->
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <!--Rerencing the Feature list and User Interface.-->
+    <!--Without these refereces the code for those sections of the isntaller would have to be stored in this file instead of their own files.-->
+    <FeatureGroupRef Id="ConkerorFeatures"/>
+    <UIRef Id="MyWixUI_Mondo" />
+    <!--Windows Add Remove programs registry values-->
+    <Icon Id="icon.ico" SourceFile="Source\contrib\windows-installer\artwork\icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+    <Property Id="ARPHELPLINK">http://www.conkeror.org/FindPage</Property>
+    <Property Id="ARPURLINFOABOUT">http://www.conkeror.org/</Property>
+    <!--Custom property to give us access to the required user profile folder-->
+    <SetProperty Id="MyUserFolder" Value="[%USERPROFILE]" Before="AppSearch" />
+  </Product>
+</Wix>
