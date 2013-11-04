@@ -1,177 +1,96 @@
-.\" -*- nroff -*-
-.TH CONKEROR 1 "June 4, 2008"
-.SH NAME
-conkeror \(hy a web browser modeled after Emacs
-.SH SYNOPSIS
-.B conkeror
-.RI [ options ]
-.RI [ url ]
-.RI ...
-.SH DESCRIPTION
-This manual page documents briefly
-.B conkeror
-.PP
-\fBconkeror\fP is a web browser based on xulrunner, the Mozilla
-application framework that also powers Mozilla Firefox. It can be
-controlled completely with the keyboard. The key bindings are very
-similar to those from Emacs, so Emacs users should immediately feel at
-home.
-.SH OPTIONS
-This program has the same options as all other xulrunner applications.
-A summary of more important options is included below. All options are
-listed by calling \fBconkeror \-\-help\fP.
-.TP
-.B \-\-display=DISPLAY
+.\" This man page was created following the guidelines in GROFF_MDOC(7).
+.Dd $Mdocdate: Novermber 3, 2013 $
+.Dt CONKEROR 1
+.Os
+.Sh NAME
+.Nm Conkeror
+.Nd a keyboard-oriented, highly-customizable web browser
+.Sh SYNOPSIS
+.Nm conkeror
+.Op Ar options ...
+.Op Ar url
+.Sh DESCRIPTION
+.Nm
+is a keyboard-oriented, highly-customizable, highly-extensible web browser based
+on Mozilla XULRunner, written mainly in JavaScript, and inspired by Emacs and
+vi.
+.Nm
+features a sophisticated keyboard system, allowing users to run
+commands and interact with content in powerful and novel ways. It is
+self-documenting, featuring a powerful interactive help system.
+.Pp
+The primary documentation is the inline manual.  To read the manual use the key
+combination C-h i (CTRL-h i).  The manual includes a tutorial for new users that
+can be accessed directly with C-h t (CTRL-h t).  The
+.Nm
+wiki, found at
+http://conkeror.org, is another resource.
+.Sh OPTIONS
+.Nm
+has the same options as all other XULRunner applications plus a few more.
+.Pp
+X11 options
+.Bl -tag -width indent
+.It \fB--display=DISPLAY\fR
 X display to use
-.TP
-.B \-h, \-\-help
-Show summary of options.
-.TP
-.B \-jsconsole
-Open the Error console.
-.TP
-.B \-no\-remote
-Open new instance, not a new window in running instance.
-.TP
-.B \-P <profile>
-Start with profile <profile>
-.TP
-.B \-ProfileManager
-Start with ProfileManager.
-.TP
-.B \-safe\-mode
-Disables extensions and themes for this session.
-.TP
-.B \-UILocale <locale>
-Start with <locale> resources as UI Locale.
-.TP
-.B \-v, \-\-version
-Show version of program.
-.SH CONCEPTS
-Similar to Emacs Conkeror works with windows and buffers instead of
-windows and tabs.
-.PP
-When changing buffers with \fBC\(hyx b\fP or killing buffers with \fBC\(hyx
-k\fP, you can cut down the list of buffers by typing a few characters
-which filters the list for buffers which match these characters and
-then choosing them from the matching list of buffers with cursor keys.
-.PP
-The same idea is present with bookmarks: Bookmarks are looked up by
-pressing \fBg\fP to go to a new page and then start typing parts of the
-bookmarks title or URL.
-.SH TIPS AND TRICKS
-If you want to bookmark a page with \fBb\fP and the page has frames or
-inline frames (e.g. advertisements) you will be asked which frame to
-bookmark. If you want to bookmark the whole page with all frames,
-press \fB0\fP.
-.PP
-If you want to copy the link of the current page, press \fBc\fP for
-copy link and then type \fB0\fP for the current page instead of a link
-on this page.
-.PP
-Instead of typing the link number when following or copying a link,
-you can also type a part of the linked text. If don't type a number
-and one links is already active (e.g. after going back one page in the
-history) that link will be selected.
-.SH KEYBINDINGS
-.PP
-When you start it up initially you see the help page with all
-information and a tutorial on how to use Conkeror. You always come
-back there by typing \fBC\(hyh i\fP which means pressing and holding the
-Control key (on PCs this often is the Alt key) and then pressing
-"i". The tutorial can be reached by pressing \fBC\(hyh t\fP.
-.PP
-This is a short list of the most important key bindings:
-.TP
-.B [[
-Go to previous page (Backward) in site navigation (if present)
-.TP
-.B ]]
-Go to next page (Forward) in site navigation (if present)
-.TP
-.B b
-Bookmark page
-.TP
-.B B
-Go to previous page (Backward) in page history
-.TP
-.B c
-Copy a link to clipboard
-.TP
-.B f
-Follow a link
-.TP
-.B C\(hyu f
-Follow a link and open it in a new window
-.TP
-.B F
-Go to next page (Forward) in page history
-.TP
-.B g
-Go to another URL
-.TP
-.B r
-Reload page
-.TP
-.B M\(hyn
-Change to next buffer
-.TP
-.B M\(hyp
-Change to previous buffer
-.TP
-.B C\(hyg
-Stop (loading a the page, incremental search, etc.)
-.TP
-.B C\(hyr
-Incremental search backward
-.TP
-.B C\(hys
-Incremental search forward
-.TP
-.B C\(hyw
-Cut
-.TP
-.B C\(hyy
-Paste
-.TP
-.B C\(hyx b
-Change buffer
-.TP
-.B C\(hyx k
-Kill (close) buffer
-.TP
-.B C\(hyx C\(hyc
-Exit the program
-.TP
-.B C\(hyx C\(hyf
-Open an URL in a new buffer.
-.TP
-.B C\(hyx C\(hyv
-Open an URL in the current buffer by editing the current URL.
-.SH KNOWN BUGS
-conkeror (respectively xulrunner) sometimes hangs at \-\-help (and
-possibly other situations) if \fI/dev/random\fP does not provide
-enough entropy.
-
-conkeror doesn't give feedback if a spawned external process crashes
-or exits unsuccessfully.
-.SH FILES
-The default location of Conkeror's user configuration file is
-\fI$HOME/.conkerorrc\fP.
-
-This can be changed by setting the preference
-\fBconkeror.rcfile\fP. The rc can be an ordinary file or a
-directory. If it is an ordinary file, Conkeror will evaluate that file
-as javascript. If it is a directory, Conkeror will evaluate all files
-in that directory that have the \fI.js\fP file extension.
-
-See \fIhttp://conkeror.org/ConkerorRC\fP for the details.
-.SH SEE ALSO
-\fBxulrunner\-1.9(1)\fP, the Conkeror wiki at \fIhttp://conkeror.org/\fP
-.SH AUTHOR
-Conkeror was written by Shawn Betts, John J. Foerch, Jeremy
-Maitin-Shepard and other. See \fI/usr/share/doc/conkeror/CREDITS\fP
+.It \fB--sync\fR
+Make X calls synchronous
+.It \fB--g-fatal-warnings\fR
+Make all warnings fatal
+.El
+.Bl -tag -width indent
+.Pp
+.Nm
+options
+.It \fB-h\fR or \fB-help\fR
+Print this message
+.It \fB-v\fR or \fB-version\fR
+Print conkeror version
+.It \fB-P <profile>\fR
+Start with <profile>
+.It \fB-migration\fR
+Start with migration wizard
+.It \fB-ProfileManager\fR
+Start with ProfileManager
+.It \fB-no-remote\fR
+Do not accept or send remote commands; implies -new-instance
+.It \fB-new-instance\fR
+Open new instance, not a new window in running instance
+.It \fB-UILocale <locale>\fR
+Start with <locale> resources as UI Locale
+.It \fB-safe-mode\fR
+Disables extensions and themes for this session
+.It \fB-jsconsole\fR
+Open the Error console
+.It \fB-recording <file>\fR
+Record drawing for a given URL
+.It \fB-recording-output <file>\fR
+Specify destination file for a drawing recording
+.El
+.Sh KNOWN BUGS
+See http://bugs.conkeror.org/.
+.Sh FILES
+The default location of the user configuration file is \fI$HOME/.conkerorrc\fP.
+.Pp
+This can be changed by setting the preference \fBconkeror.rcfile\fP. The rc can
+be an ordinary file or a directory. If it is an ordinary file,
+.Nm
+will evaluate that file as javascript. If it is a directory,
+.Nm
+will evaluate all files in that directory that have the \fI.js\fP file
+extension.  See \fIhttp://conkeror.org/ConkerorRC\fP for the details.
+.Sh SEE ALSO
+The
+.Nm
+manual (C-h i), tutorial (C-h t) and wiki (http://conkeror.org).
+.Sh AUTHORS
+.Nm
+was written by Shawn Betts, John J. Foerch, Jeremy Maitin-Shepard and
+others. See the \fBCREDITS\fP file included with
+.Nm
 for a full list of contributors.
-.PP
-This manual page was written by Axel Beckert <abe@deuxchevaux.org>,
-for the Debian project (but may be used by others).
+.Pp
+The
+.Nm
+manual page was originally written by Axel Beckert <abe@deuxchevaux.org>
+and updated by Joseph Mingrone <jrm@ftfl.ca>.
