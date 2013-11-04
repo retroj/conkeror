@@ -128,7 +128,7 @@ opensearch_description.prototype = {
                             let node = elems[i];
                             let name = node.firstChild.getAttribute("data");
                             let desc = node.lastChild.getAttribute("int");
-                            if (name && desc)
+                            if (name)
                                 data.push([name,desc]);
                         }
                         delete doc;
@@ -137,7 +137,11 @@ opensearch_description.prototype = {
                         delete lspec;
                         let c = { count: data.length,
                                   get_string: function (i) data[i][0],
-                                  get_description: function (i) data[i][1] + " results",
+                                  get_description: function (i) {
+                                      if (data[i][1])
+                                          return data[i][1] + " results";
+                                      return "";
+                                  },
                                   get_input_state: function (i) [data[i][0]]
                                 };
                         yield co_return(c);
