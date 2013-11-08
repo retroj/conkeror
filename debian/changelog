@@ -1,3 +1,20 @@
+conkeror (1.0~~pre+git131029-1) UNRELEASED; urgency=low
+
+  * New upstream snapshot
+    + Fixes scroll-top-left issue (Closes: #726245)
+  * Add support for xulrunner 26.
+  * Follow Debian Unstable and switch default xulrunner dependency from 17
+    to 24.
+
+ -- Axel Beckert <abe@debian.org>  Tue, 29 Oct 2013 02:24:37 +0100
+
+conkeror (1.0~~pre+git130817-1) unstable; urgency=low
+
+  * New upstream snapshot
+  * Add support for xulrunner 25.
+
+ -- Axel Beckert <abe@debian.org>  Sat, 17 Aug 2013 15:42:01 +0200
+
 conkeror (1.0~~pre+git130522-2) unstable; urgency=low
 
   * Add support for xulrunner 24.
