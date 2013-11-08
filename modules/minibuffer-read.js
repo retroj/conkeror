@@ -68,9 +68,12 @@ completions_tree_view.prototype = {
     getRowProperties: function (row, props) {},
     getCellProperties: function (row, col, props) {
         if (col.index == 0)
-            props.AppendElement(atom_service.getAtom("completion-string"));
+            var a = atom_service.getAtom("completion-string");
         else
-            props.AppendElement(atom_service.getAtom("completion-description"));
+            a = atom_service.getAtom("completion-description");
+        if (props)
+            props.AppendElement(a);
+        return a;
     },
     getColumnProperties: function (colid, col, props) {}
 };
