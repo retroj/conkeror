@@ -241,7 +241,7 @@ function is_coroutine (obj) {
 function _do_call (f) {
 
     /* Suspend immediately so that co_call can pass us the continuation object. */
-    var cc = yield;
+    var cc = yield undefined;
 
     /**
      * Stack of (partially-run) prepared coroutines/generator objects
@@ -293,7 +293,7 @@ function _do_call (f) {
                  **/
                 try {
                     /* our execution will be suspended until send or throw is called on our generator object */
-                    x = yield;
+                    x = yield undefined;
 
                     /**
                      * Since no exception was thrown, user must have requested that we resume
