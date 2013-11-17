@@ -1,3 +1,9 @@
+conkeror (1.0~~pre+git131116-2) UNRELEASED; urgency=low
+
+  * Reformat debian/control in wrap-and-sort style.
+
+ -- Axel Beckert <abe@debian.org>  Sun, 17 Nov 2013 14:43:47 +0100
+
 conkeror (1.0~~pre+git131116-1) unstable; urgency=low
 
   * New upstream snapshot

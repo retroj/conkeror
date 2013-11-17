@@ -2,7 +2,8 @@ Source: conkeror
 Section: web
 Priority: extra
 Maintainer: Axel Beckert <abe@debian.org>
-Build-Depends: debhelper (>= 9~), dpkg-dev (>= 1.16.1~)
+Build-Depends: debhelper (>= 9~),
+               dpkg-dev (>= 1.16.1~)
 Standards-Version: 3.9.4
 Homepage: http://conkeror.org/
 Vcs-Browser: http://repo.or.cz/w/conkeror.git
@@ -11,37 +12,37 @@ Vcs-Git: git://repo.or.cz/conkeror.git
 Package: conkeror
 Architecture: all
 Depends: ${misc:Depends},
- xulrunner-24.0  |
- xulrunner-27    |
- xulrunner-26.0  |
- xulrunner-25.0  |
- xulrunner-23.0  |
- xulrunner-22.0  |
- xulrunner-21.0  |
- xulrunner-20.0  |
- xulrunner-19.0  |
- xulrunner-18.0  |
- xulrunner-17.0  |
- xulrunner-16.0 (>= 16.0~a2+20120803042008) |
- xulrunner-15.0 (>= 15.0~b3) |
- xulrunner-13.0  |
- xulrunner-12.0  |
- xulrunner-11.0  |
- xulrunner-10.0  |
- xulrunner-9.0   |
- xulrunner-8.0   |
- xulrunner-7.0   |
- xulrunner-6.0   |
- xulrunner-5.0   |
- xulrunner-2.0   |
- xulrunner-1.9.2 |
- xulrunner-1.9.1 |
- firefox (>= 3.5)
-Recommends: conkeror-spawn-process-helper, xdg-utils
+         xulrunner-24.0  |
+         xulrunner-27    |
+         xulrunner-26.0  |
+         xulrunner-25.0  |
+         xulrunner-23.0  |
+         xulrunner-22.0  |
+         xulrunner-21.0  |
+         xulrunner-20.0  |
+         xulrunner-19.0  |
+         xulrunner-18.0  |
+         xulrunner-17.0  |
+         xulrunner-16.0 (>= 16.0~a2+20120803042008) |
+         xulrunner-15.0 (>= 15.0~b3) |
+         xulrunner-13.0  |
+         xulrunner-12.0  |
+         xulrunner-11.0  |
+         xulrunner-10.0  |
+         xulrunner-9.0   |
+         xulrunner-8.0   |
+         xulrunner-7.0   |
+         xulrunner-6.0   |
+         xulrunner-5.0   |
+         xulrunner-2.0   |
+         xulrunner-1.9.2 |
+         xulrunner-1.9.1 |
+         firefox (>= 3.5)
+Recommends: conkeror-spawn-process-helper,
+            xdg-utils
 Breaks: conkeror-spawn-process-helper (<< 0.9~git080901-1)
-Conflicts:
- xulrunner-16.0 (<< 16.0~a2+20120803042008),
- xulrunner-15.0 (<< 15.0~b3)
+Conflicts: xulrunner-16.0 (<< 16.0~a2+20120803042008),
+           xulrunner-15.0 (<< 15.0~b3)
 Suggests: emacs | emacsen
 Provides: www-browser
 Xb-Xul-AppId: {a79fe89b-6662-4ff4-8e88-09950ad4dfde}
@@ -63,7 +64,8 @@ Description: keyboard focused web browser with Emacs look and feel
 
 Package: conkeror-spawn-process-helper
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
 Suggests: conkeror
 Breaks: conkeror (<< 0.9~git080901-1)
 Description: spawn external processes in Conkeror
