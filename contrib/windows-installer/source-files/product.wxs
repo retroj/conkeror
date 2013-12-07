@@ -13,9 +13,9 @@ file.
 -->
   
 	<!--Your basic installer information-->
-	<Product Id="*" Name="Conkeror" Language="1033" Version="1.9.2.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="{63D67972-BB98-4f36-A948-D6CDA7F2996A}">
+	<Product Id="*" Name="Conkeror" Language="1033" Version="1.0.2.0" Manufacturer="http://www.conkeror.org/" UpgradeCode="{63D67972-BB98-4f36-A948-D6CDA7F2996A}">
 		<Package InstallerVersion="200" Compressed="yes"/>
-		<Media Id="1" Cabinet="Conkeror.cab" EmbedCab="yes"/>
+		<Media Id="1" Cabinet="Conkeror.cab" EmbedCab="yes" CompressionLevel="high"/>
     <!--This property sets the default as a Per Machine install.-->
     <!--I.E. conkeror will be available to all users.-->
     <Property Id="ALLUSERS" Value="1" />
@@ -29,7 +29,7 @@ file.
     </SetProperty>
     <!--Setting up the project to perform a major upgrade and-->
     <!--a warning about installing old versions when newer versions are already installed.-->
-		<MajorUpgrade Schedule="afterInstallInitialize" DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MajorUpgrade Schedule="afterInstallFinalize" DowngradeErrorMessage="Due to extensive changes please uninstall any previously installed versions of conkeror prior to performing this upgrade." />
     <!--Rerencing the Feature list and User Interface.-->
     <!--Without these refereces the code for those sections of the isntaller would have to be stored in this file instead of their own files.-->
     <FeatureGroupRef Id="ConkerorFeatures"/>

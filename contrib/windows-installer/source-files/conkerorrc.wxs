@@ -22,11 +22,12 @@ file.
       <!--So this component distributes them to the other user profiles on the machine.-->
       <!--But only does so during Per Machine installs if the conkerorrc feature was installed.-->
       <Component Id="Active_Setup" Guid="{6E16792D-2F0C-4d98-8294-7B5B2722084B}" KeyPath="yes">
-        <RegistryKey Key="SOFTWARE\Microsoft\Active Setup\Installed Components\{A79FE89B-6662-4FF4-8E88-09950AD4DFDE}" Root="HKLM" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
+        <RegistryKey Key="SOFTWARE\Microsoft\Active Setup\Installed Components\conkeror" Root="HKLM" ForceCreateOnInstall="yes" ForceDeleteOnUninstall="yes">
           <RegistryValue Value="Conkeror" Type="string" />
-          <RegistryValue Name="StubPath" Value="msiexec.exe /fpu {A79FE89B-6662-4FF4-8E88-09950AD4DFDE} /qn" Type="string" />
+          <RegistryValue Name="StubPath" Value="msiexec.exe /fpu [ProductCode] /qn" Type="string" />
           <RegistryValue Name="Version" Value="1" Type="string" />
         </RegistryKey>
+        <RemoveRegistryKey Id="RemoveOldKey" Key="SOFTWARE\Microsoft\Active Setup\Installed Components\{A79FE89B-6662-4FF4-8E88-09950AD4DFDE}" Root="HKLM" Action="removeOnInstall"/>
         <Condition>ALLUSERS >= 1</Condition>
       </Component>
     </DirectoryRef>
