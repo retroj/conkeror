@@ -510,6 +510,9 @@ file.
       <Component Id="github.js" Directory="PAGE_MODES" Guid="*">
         <File Id="i_github.js" Source="Source\modules\page-modes\github.js" KeyPath="yes" Checksum="yes"/>
       </Component>
+      <Component Id="feedly.js" Directory="PAGE_MODES" Guid="*">
+        <File Id="i_feedly.js" Source="Source\modules\page-modes\feedly.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
       <Component Id="facebook.js" Directory="PAGE_MODES" Guid="*">
         <File Id="i_facebook.js" Source="Source\modules\page-modes\facebook.js" KeyPath="yes" Checksum="yes"/>
       </Component>
