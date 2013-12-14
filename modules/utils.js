@@ -12,7 +12,7 @@ require("io");
 // Put the string on the clipboard
 function writeToClipboard (str) {
     var gClipboardHelper = Cc["@mozilla.org/widget/clipboardhelper;1"]
-	.getService(Ci.nsIClipboardHelper);
+        .getService(Ci.nsIClipboardHelper);
     gClipboardHelper.copyString(str);
 }
 
@@ -20,7 +20,7 @@ function writeToClipboard (str) {
 function makeURLAbsolute (base, url) {
     // Construct nsIURL.
     var ioService = Cc["@mozilla.org/network/io-service;1"]
-	.getService(Ci.nsIIOService);
+        .getService(Ci.nsIIOService);
     var baseURI  = ioService.newURI(base, null, null);
     return ioService.newURI(baseURI.resolve(url), null, null).spec;
 }
@@ -133,11 +133,11 @@ function abs_point (node) {
             node = node.offsetParent;
         }
     } catch(e) {
-// 	node = orig;
-// 	while (node.tagName != "BODY") {
-// 	    alert("okay: " + node + " " + node.tagName + " " + pt.x + " " + pt.y);
-// 	    node = node.offsetParent;
-// 	}
+        // node = orig;
+        // while (node.tagName != "BODY") {
+        //     alert("okay: " + node + " " + node.tagName + " " + pt.x + " " + pt.y);
+        //     node = node.offsetParent;
+        // }
     }
     return pt;
 }
@@ -639,9 +639,9 @@ function dom_node_or_window_p (elem) {
  */
 function do_when (hook, buffer, fun) {
     if (buffer.browser.webProgress.isLoadingDocument)
-	add_hook.call(buffer, hook, fun);
+        add_hook.call(buffer, hook, fun);
     else
-	fun(buffer);
+        fun(buffer);
 }
 
 
