@@ -114,7 +114,7 @@ function content_buffer (window) {
         }, true /* capture */);
 
         this.browser.addEventListener("DOMPopupBlocked", function (event) {
-	    dumpln("Blocked popup: " + event.popupWindowURI.spec);
+            dumpln("Blocked popup: " + event.popupWindowURI.spec);
             content_buffer_popup_blocked_hook.run(buffer, event);
         }, true /* capture */);
 
@@ -336,7 +336,7 @@ define_variable("read_url_handler_list", [],
  */
 function read_url_make_default_webjump_handler (default_webjump) {
     return function (input) {
-	return default_webjump + " " + input;
+        return default_webjump + " " + input;
     };
 }
 
@@ -347,9 +347,9 @@ function read_url_make_default_webjump_handler (default_webjump) {
  */
 function read_url_make_blank_url_handler (url) {
     return function (input) {
-	if (input.length == 0)
-	    return url;
-	return null;
+        if (input.length == 0)
+            return url;
+        return null;
     };
 }
 
