@@ -866,10 +866,10 @@ function kill_other_buffers (buffer) {
     var bs = buffer.window.buffers;
     var b;
     while ((b = bs.get_buffer(0)) != buffer)
-	bs.kill_buffer(b);
+        bs.kill_buffer(b);
     var count = bs.count;
     while (--count)
-	bs.kill_buffer(bs.get_buffer(1));
+        bs.kill_buffer(bs.get_buffer(1));
 }
 interactive("kill-other-buffers",
     "Kill all buffers except current one.\n",
