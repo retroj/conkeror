@@ -224,7 +224,7 @@ function define_default_webjumps () {
                    "http://www.xach.com/clhs?q=%s",
                    $alternative = "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm");
     define_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
-    define_webjump("ratpoisonwiki", "http://ratpoison.antidesktop.net/?search=%s");
+    define_webjump("ratpoisonwiki", "http://ratpoison.wxcvbn.org/cgi-bin/wiki.pl?search=%s");
     define_webjump("stumpwmwiki", "http://github.com/sabetts/stumpwm/search?q=%s");
     define_webjump("savannah",
                    "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
