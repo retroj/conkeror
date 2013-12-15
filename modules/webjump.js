@@ -220,17 +220,6 @@ function define_default_webjumps () {
     define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
     define_webjump("image",      "http://images.google.com/images?q=%s");
-    define_webjump("clhs",
-                   "http://www.xach.com/clhs?q=%s",
-                   $alternative = "http://www.lispworks.com/documentation/HyperSpec/Front/index.htm");
-    define_webjump("cliki",      "http://www.cliki.net/admin/search?words=%s");
-    define_webjump("stumpwmwiki", "http://github.com/sabetts/stumpwm/search?q=%s");
-    define_webjump("savannah",
-                   "http://savannah.gnu.org/search/?words=%s&type_of_search=soft&Search=Search&exact=1");
-    define_webjump("sourceforge", "http://sourceforge.net/search/?words=%s");
-    define_webjump("freshmeat", "http://freshmeat.net/search/?q=%s");
-    define_webjump("slashdot", "http://slashdot.org/search.pl?query=%s");
-    define_webjump("kuro5hin", "http://www.kuro5hin.org/?op=search&string=%s");
 }
 
 define_default_webjumps();
