@@ -355,6 +355,14 @@ queue.prototype = {
     }
 };
 
+function for_each_frame (win, callback) {
+    callback(win);
+    if (win.frames && win.frames.length) {
+        for (var i = 0, n = win.frames.length; i < n; ++i)
+            for_each_frame(win.frames[i], callback);
+    }
+}
+
 function frame_iterator (root_frame, start_with) {
     var q = new queue, x;
     if (start_with) {
