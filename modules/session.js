@@ -45,6 +45,9 @@
     define_variable("session_dir", _session_dir_default,
         "Default directory for save/load interactive commands.");
 
+    define_variable("session_save_hist_index", false,
+                    "Whether to store last-accessed order in the sessions file.");
+
     /**
      * session_token is instantiated for the $opener property of buffers
      * created by the session.  This allows the possibility of knowing,
@@ -66,8 +69,14 @@
         for_each_window(function (w) {
             let buffers = [];
             w.buffers.for_each(function (b) {
-                if (b instanceof content_buffer)
-                    buffers.push(b.display_uri_string);
+                if (b instanceof content_buffer) {
+                    if (!(session_save_hist_index)) {
+                        buffers.push(b.display_uri_string);
+                    }
+                    else {
+		        buffers.push({url: b.display_uri_string, hist_index: w.buffers.buffer_history.indexOf(b)});
+                    }
+                }
             });
             if (buffers.length == 0)
                 return;
@@ -124,10 +133,10 @@
                         let history = b.web_navigation.sessionHistory;
                         history.PurgeHistory(history.count);
                     } catch (e) {}
-                    b.load(session[s][i]);
+                    b.load(session[s][i].url);
                 } else {
                     let c = buffer_creator(content_buffer,
-                                           $load = session[s][i],
+                                           $load = session[s][i].url,
                                            $opener = opener,
                                            $position = buffer_position_end);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
@@ -138,6 +147,21 @@
             {
                 kill_buffer(b, true);
             }
+            if ('hist_index' in session[s][0]) {
+                var ts = session[s].slice(0);
+                ts.sort(function (b,a) { return a.hist_index - b.hist_index; });
+                for (let i = 0, m = ts.length; i < m; ++i) {
+                    for (let j = 0, n = window.buffers.count; j < n; j++) {
+                        var b = window.buffers.get_buffer(j);
+                        if (ts[i].url == b.display_uri_string) {
+                            window.buffers.buffer_history.splice(window.buffers.buffer_history.indexOf(b), 1);
+                            window.buffers.buffer_history.unshift(b);
+                            break;
+                        }
+                    }
+                }
+                switch_to_buffer(window, window.buffers.buffer_history[0]);
+            }
             ++s;
         }
 
@@ -145,10 +169,25 @@
             function init_hook (window) {
                 for (let i = 1; session[i] != undefined; ++i) {
                     let c = buffer_creator(content_buffer,
-                                           $load = session[i],
+                                           $load = session[i].url,
                                            $opener = opener,
                                            $position = buffer_position_end);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
+                }
+                if ('hist_index' in session[0]) {
+                    var ts = session.slice(0);
+                    ts.sort(function (b,a) { return a.hist_index - b.hist_index; });
+                    for (let i = 0, n = ts.length; i < n; ++i) {
+                        for (let j = 0, m = window.buffers.count; j < m; j++) {
+                            var b = window.buffers.get_buffer(j);
+                            if (ts[i].url == b.display_uri_string) {
+                                window.buffers.buffer_history.splice(window.buffers.buffer_history.indexOf(b), 1);
+                                window.buffers.buffer_history.unshift(b);
+                                break;
+                            }
+                        }
+                    }
+                    switch_to_buffer(window, window.buffers.buffer_history[0]);
                 }
             }
             return init_hook;
@@ -156,7 +195,7 @@
 
         for (; session[s] != undefined; ++s) {
             let w = make_window(buffer_creator(content_buffer,
-                                               $load = session[s][0],
+                                               $load = session[s][0].url,
                                                $opener = opener));
             add_hook.call(w, "window_initialize_late_hook",
                           make_init_hook(session[s]));
@@ -208,7 +247,15 @@
     function session_read (path) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
-        return JSON.parse(read_text_file(path));
+        var rv = JSON.parse(read_text_file(path));
+        for (var i in rv) {
+            for (let e = 0; e < rv[i].length; e++) {
+                if (typeof rv[i][e] == "string") {
+                    rv[i][e] = {url: rv[i][e]};
+                }
+            }
+        }
+        return rv;
     }
 
     /**
@@ -416,6 +463,7 @@
         add_hook("kill_buffer_hook", session_auto_save_save);
         add_hook("move_buffer_hook", session_auto_save_save);
         add_hook("content_buffer_location_change_hook", session_auto_save_save);
+        add_hook("select_buffer_hook", session_auto_save_save);
         let user_gave_urls = false;
         for (let i = 0; i < command_line.length; ++i) {
             if (command_line[i][0] != '-') {
@@ -436,6 +484,7 @@
             add_hook("kill_buffer_hook", session_auto_save_save);
             add_hook("move_buffer_hook", session_auto_save_save);
             add_hook("content_buffer_location_change_hook", session_auto_save_save);
+            add_hook("select_buffer_hook", session_auto_save_save);
         } else
             add_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
     };
@@ -445,6 +494,7 @@
         remove_hook("kill_buffer_hook", session_auto_save_save);
         remove_hook("move_buffer_hook", session_auto_save_save);
         remove_hook("content_buffer_location_change_hook", session_auto_save_save);
+        remove_hook("select_buffer_hook", session_auto_save_save);
         // Just in case.
         remove_hook("window_initialize_late_hook", _session_auto_save_mode_bootstrap);
     };
