@@ -26,3 +26,28 @@ function set_user_agent (str) {
     } else
         session_pref(p, str);
 }
+
+
+/**
+ * user_agent_firefox returns a Firefox-like user agent string.  It is
+ * alas, not perfect in all configurations, but should suffice for most
+ * ua-spoofing purposes.
+ */
+function user_agent_firefox () {
+    var appinfo = Cc['@mozilla.org/xre/app-info;1']
+        .getService(Ci.nsIXULAppInfo);
+    var platform = { Darwin: "Macintosh",
+                     Linux: "X11",
+                     WINNT: "Windows NT"
+                   }[get_os()] || get_os();
+    var geckoversion = appinfo.platformVersion;
+    var dot = geckoversion.indexOf(".");
+    var ldot = geckoversion.indexOf(".", dot + 1);
+    if (ldot > dot)
+        geckoversion = geckoversion.substring(0, ldot);
+    var geckotrail = appinfo.platformBuildID.substr(0, 8);
+    var firefoxversion = geckoversion;
+    return "Mozilla/5.0 "+
+        "("+platform+"; rv:"+geckoversion+") "+
+        "Gecko/"+geckotrail+" Firefox/"+firefoxversion;
+}
