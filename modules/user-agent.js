@@ -38,6 +38,7 @@ function user_agent_firefox () {
         .getService(Ci.nsIXULAppInfo);
     var platform = { Darwin: "Macintosh",
                      Linux: "X11",
+                     OpenBSD: "X11",
                      WINNT: "Windows NT"
                    }[get_os()] || get_os();
     var geckoversion = appinfo.platformVersion;
