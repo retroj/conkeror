@@ -9,8 +9,8 @@ function content_policy_init () {
     var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
         .getService(Ci.nsIXULAppInfo)
         .platformVersion;
-    var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]  
-        .getService(Ci.nsIVersionComparator);  
+    var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]
+        .getService(Ci.nsIVersionComparator);
     var reg = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
     var file = file_locator_service.get("CurProcD", Ci.nsIFile);
     if (vc.compare(xulrunner_version, "2.0") >= 0) {
