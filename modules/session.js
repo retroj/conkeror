@@ -46,7 +46,7 @@
         "Default directory for save/load interactive commands.");
 
     define_variable("session_save_hist_index", false,
-                    "Whether to store last-accessed order in the sessions file.");
+        "Whether to store last-accessed order in the sessions file.");
 
     /**
      * session_token is instantiated for the $opener property of buffers
@@ -70,11 +70,13 @@
             let buffers = [];
             w.buffers.for_each(function (b) {
                 if (b instanceof content_buffer) {
-                    if (!(session_save_hist_index)) {
+                    if (session_save_hist_index) {
+                        buffers.push({
+                            url: b.display_uri_string,
+                            hist_index: w.buffers.buffer_history.indexOf(b)
+                        });
+                    } else {
                         buffers.push(b.display_uri_string);
-                    }
-                    else {
-		        buffers.push({url: b.display_uri_string, hist_index: w.buffers.buffer_history.indexOf(b)});
                     }
                 }
             });
@@ -149,12 +151,13 @@
             }
             if ('hist_index' in session[s][0]) {
                 var ts = session[s].slice(0);
-                ts.sort(function (b,a) { return a.hist_index - b.hist_index; });
+                ts.sort(function (a, b) { return b.hist_index - a.hist_index; });
                 for (let i = 0, m = ts.length; i < m; ++i) {
                     for (let j = 0, n = window.buffers.count; j < n; j++) {
                         var b = window.buffers.get_buffer(j);
                         if (ts[i].url == b.display_uri_string) {
-                            window.buffers.buffer_history.splice(window.buffers.buffer_history.indexOf(b), 1);
+                            window.buffers.buffer_history.splice(
+                                window.buffers.buffer_history.indexOf(b), 1);
                             window.buffers.buffer_history.unshift(b);
                             break;
                         }
@@ -176,12 +179,13 @@
                 }
                 if ('hist_index' in session[0]) {
                     var ts = session.slice(0);
-                    ts.sort(function (b,a) { return a.hist_index - b.hist_index; });
+                    ts.sort(function (a, b) { return b.hist_index - a.hist_index; });
                     for (let i = 0, n = ts.length; i < n; ++i) {
                         for (let j = 0, m = window.buffers.count; j < m; j++) {
                             var b = window.buffers.get_buffer(j);
                             if (ts[i].url == b.display_uri_string) {
-                                window.buffers.buffer_history.splice(window.buffers.buffer_history.indexOf(b), 1);
+                                window.buffers.buffer_history.splice(
+                                    window.buffers.buffer_history.indexOf(b), 1);
                                 window.buffers.buffer_history.unshift(b);
                                 break;
                             }
@@ -249,10 +253,9 @@
             path = make_file(path);
         var rv = JSON.parse(read_text_file(path));
         for (var i in rv) {
-            for (let e = 0; e < rv[i].length; e++) {
-                if (typeof rv[i][e] == "string") {
-                    rv[i][e] = {url: rv[i][e]};
-                }
+            for (let e = 0, n = rv[i].length; e < n; ++e) {
+                if (typeof rv[i][e] == "string")
+                    rv[i][e] = { url: rv[i][e] };
             }
         }
         return rv;
@@ -292,7 +295,7 @@
         });
 
     interactive("session-load-window-new",
-        "Load a session in a new window.", 
+        "Load a session in a new window.",
         function (I) {
             let file = make_file(yield _session_prompt_file(I));
             if (! file.exists())
@@ -311,7 +314,7 @@
                 session_load_window_current(session_read(file), I.window);
         });
 
-    interactive("session-load-window-current-replace", 
+    interactive("session-load-window-current-replace",
         "Replace all buffers in the current window with buffers "+
         "in the saved session.",
         function (I) {
@@ -355,12 +358,12 @@
     function session_auto_save_load_window_current_replace (window) {
         session_load_window_current_replace(_session_auto_save_cached, window);
     }
-    
+
     define_variable("session_auto_save_auto_load_fn",
         null,
         "Function to be called to load the auto-saved session at start-up " +
         "when URLs are given on the command-line. May be " +
-        "session_auto_save_load_window_new, " + 
+        "session_auto_save_load_window_new, " +
         "session_auto_save_load_window_current, or null. If null, the" +
         "session will not be auto-loaded when URLs are given.");
 
@@ -423,7 +426,7 @@
 
     interactive("session-auto-save-load-window-new",
         "Load the auto-save session in a new window.",
-        function (I) { 
+        function (I) {
             if (_session_auto_save_cached == null)
                 _session_file_not_found(I, _session_auto_save_file_get());
             else
