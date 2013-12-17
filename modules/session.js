@@ -45,7 +45,7 @@
     define_variable("session_dir", _session_dir_default,
         "Default directory for save/load interactive commands.");
 
-    define_variable("session_save_hist_index", false,
+    define_variable("session_save_buffer_access_order", false,
         "Whether to store last-accessed order in the sessions file.");
 
     /**
@@ -70,10 +70,10 @@
             let buffers = [];
             w.buffers.for_each(function (b) {
                 if (b instanceof content_buffer) {
-                    if (session_save_hist_index) {
+                    if (session_save_buffer_access_order) {
                         buffers.push({
                             url: b.display_uri_string,
-                            hist_index: w.buffers.buffer_history.indexOf(b)
+                            access_index: w.buffers.buffer_history.indexOf(b)
                         });
                     } else {
                         buffers.push(b.display_uri_string);
@@ -149,9 +149,9 @@
             {
                 kill_buffer(b, true);
             }
-            if ('hist_index' in session[s][0]) {
+            if ('access_index' in session[s][0]) {
                 var ts = session[s].slice(0);
-                ts.sort(function (a, b) { return b.hist_index - a.hist_index; });
+                ts.sort(function (a, b) { return b.access_index - a.access_index; });
                 for (let i = 0, m = ts.length; i < m; ++i) {
                     for (let j = 0, n = window.buffers.count; j < n; j++) {
                         var b = window.buffers.get_buffer(j);
@@ -177,9 +177,9 @@
                                            $position = buffer_position_end);
                     create_buffer(window, c, OPEN_NEW_BUFFER_BACKGROUND);
                 }
-                if ('hist_index' in session[0]) {
+                if ('access_index' in session[0]) {
                     var ts = session.slice(0);
-                    ts.sort(function (a, b) { return b.hist_index - a.hist_index; });
+                    ts.sort(function (a, b) { return b.access_index - a.access_index; });
                     for (let i = 0, n = ts.length; i < n; ++i) {
                         for (let j = 0, m = window.buffers.count; j < m; j++) {
                             var b = window.buffers.get_buffer(j);
