@@ -22,7 +22,7 @@ function youtube_player_click_command (selector, error_message) {
 
 interactive("youtube-player-play-or-pause",
     "Click the Youtube html5 player play/pause button.",
-    youtube_player_click_command("button.html5-pause-button, button.html5-play-button",
+    youtube_player_click_command(".ytp-button-pause, .ytp-button-play",
                                  "No play or pause button found"));
 
 interactive("youtube-player-mute",
@@ -32,7 +32,7 @@ interactive("youtube-player-mute",
 
 interactive("youtube-player-fullscreen",
     "Click the Youtube html5 player fullscreen button.",
-    youtube_player_click_command("button.html5-fullscreen-button",
+    youtube_player_click_command(".ytp-button-fullscreen-enter, .ytp-button-fullscreen-exit",
                                  "No fullscreen button found"));
 
 define_key(youtube_player_keymap, "C-c return", "youtube-player-play-or-pause");
