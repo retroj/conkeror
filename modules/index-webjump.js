@@ -24,7 +24,7 @@ define_variable("index_webjumps_directory", null,
     "the webjump will provide completions for the indexed URLs.");
 
 define_variable("index_xpath_webjump_tidy_command",
-                "tidy -asxhtml -wrap 0  -numeric --clean yes" +
+                "tidy -asxhtml -wrap 0 -numeric --clean yes" +
                 " -modify -quiet --show-warnings no",
     "A command to run on the downloaded index.  The xulrunner " +
     "parser is quite fussy and specifically requires xhtml (or " +
@@ -62,8 +62,8 @@ index_webjump.prototype = {
                                          this.file.fileSize, this.mime_type);
 
         /* Extract the completion items. */
-        var cmpl = [], node, res;
-        res = doc.evaluate(
+        var cmpl = [], node;
+        var res = doc.evaluate(
             this.xpath_expr, doc, xpath_lookup_namespace,
             Ci.nsIDOMXPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
         while ((node = res.iterateNext()))
@@ -162,7 +162,7 @@ index_webjump.prototype = {
         }
         return file;
     }
-}
+};
 
 
 function index_webjump_xhtml (key, url, file, xpath_expr) {
@@ -175,7 +175,7 @@ index_webjump_xhtml.prototype = {
     toString: function () "#<index_webjump_xhtml>",
     require_completions: true,
     mime_type: "application/xhtml+xml",
-    tidy_command: index_xpath_webjump_tidy_command,
+    get tidy_command () index_xpath_webjump_tidy_command,
 
     make_completion: function (node) {
         return [makeURLAbsolute(this.url, node.href), node.text];
@@ -189,7 +189,7 @@ index_webjump_xhtml.prototype = {
             return term;
         };
     }
-}
+};
 
 
 function index_webjump_gitweb (key, url, file) {
@@ -205,7 +205,7 @@ index_webjump_gitweb.prototype = {
         var name = node.getAttribute("text");
         return [name.replace(/\.git$/, ""), ""];
     }
-}
+};
 
 
 interactive("webjump-get-index",
