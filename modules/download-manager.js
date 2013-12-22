@@ -1031,47 +1031,56 @@ define_variable("download_buffer_automatic_open_target", OPEN_NEW_WINDOW,
 
 minibuffer_auto_complete_preferences.download = true;
 
-if (use_downloads_jsm) {
-    minibuffer.prototype.read_download = function () {
-        keywords(arguments,
-                 $prompt = "Download",
-                 $completer = function () {
-                     let list = yield Downloads.getList(Downloads.ALL);
-                     let all_downloads = yield list.getAll();
-                     let c = all_word_completer($completions = all_downloads,
-                                                $get_string = function (x) x.target.path,
-                                                $get_description = function (x) x.source.url,
-                                                $get_value = function (x) x);
-                     yield co_return(c.apply(this, arguments));
-                 },
-                 $auto_complete = "download",
-                 $auto_complete_initial = true,
-                 $require_match = true);
-        var result = yield this.read(forward_keywords(arguments));
-        yield co_return(result);
-    };
-} else {
-    minibuffer.prototype.read_download = function () {
-        keywords(arguments,
-                 $prompt = "Download",
-                 $completer = all_word_completer(
-                     $completions = function (visitor) {
-                         var dls = download_manager_service.activeDownloads;
-                         while (dls.hasMoreElements()) {
-                             let dl = dls.getNext();
-                             visitor(dl);
-                         }
-                     },
-                     $get_string = function (x) x.displayName,
-                     $get_description = function (x) x.source.spec,
-                     $get_value = function (x) x),
-                 $auto_complete = "download",
-                 $auto_complete_initial = true,
-                 $require_match = true);
-        var result = yield this.read(forward_keywords(arguments));
-        yield co_return(result);
-    };
+function download_completer (completions) {
+    keywords(arguments);
+    if (! use_downloads_jsm) {
+        completions = function (visitor) {
+            var dls = download_manager_service.activeDownloads;
+            while (dls.hasMoreElements()) {
+                let dl = dls.getNext();
+                visitor(dl);
+            }
+        };
+    }
+    all_word_completer.call(this, forward_keywords(arguments),
+                            $completions = completions);
 }
+download_completer.prototype = {
+    constructor: download_completer,
+    __proto__: all_word_completer.prototype,
+    toString: function () "#<download_completer>",
+    get_string: function (x) {
+        if (use_downloads_jsm)
+            return x.target.path;
+        else
+            return x.displayName;
+    },
+    get_description: function (x) {
+        if (use_downloads_jsm)
+            return x.source.url;
+        else
+            return x.source.spec
+    }
+};
+
+minibuffer.prototype.read_download = function () {
+    keywords(arguments,
+             $prompt = "Download",
+             $auto_complete = "download",
+             $auto_complete_initial = true,
+             $require_match = true);
+    if (use_downloads_jsm) {
+        var list = yield Downloads.getList(Downloads.ALL);
+        var all_downloads = yield list.getAll();
+        var completer = new download_completer(all_downloads);
+    } else {
+        completer = new download_completer();
+    }
+    var result = yield this.read(forward_keywords(arguments),
+                                 $completer = completer);
+    yield co_return(result);
+};
+
 
 function download_show (window, target, mozilla_info) {
     if (! window)

@@ -30,7 +30,7 @@ var category_manager = Cc["@mozilla.org/categorymanager;1"]
 minibuffer.prototype.read_viewable_mime_type = function () {
     var result = yield this.read(
         forward_keywords(arguments),
-        $completer = prefix_completer(
+        $completer = new prefix_completer(
             $completions = viewable_mime_type_list),
         $require_match,
         $space_completes);

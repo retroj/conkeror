@@ -278,7 +278,7 @@ interactive("eval-expression",
         var s = yield I.minibuffer.read(
             $prompt = "Eval:",
             $history = "eval-expression",
-            $completer = javascript_completer(I.buffer));
+            $completer = new javascript_completer(conkeror));
         var result = evaluate(s);
         if (result !== undefined)
             I.window.minibuffer.message(String(result));
@@ -768,7 +768,7 @@ interactive("charset-prefix",
             charsets.push(decoders.getNext());
         I.forced_charset = yield I.minibuffer.read(
             $prompt = "Charset:",
-            $completer = prefix_completer(
+            $completer = new prefix_completer(
                 $completions = charsets,
                 $get_string = function (x) x.toLowerCase()),
             $require_match,
@@ -789,7 +789,7 @@ interactive("reload-with-charset",
             charsets.push(decoders.getNext());
         var forced_charset = yield I.minibuffer.read(
             $prompt = "Charset:",
-            $completer = prefix_completer(
+            $completer = new prefix_completer(
                 $completions = charsets,
                 $get_string = function (x) x.toLowerCase()),
             $require_match,

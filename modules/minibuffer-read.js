@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2007-2010 John J. Foerch
+ * (C) Copyright 2007-2010,2012 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -47,9 +47,7 @@ completions_tree_view.prototype = {
             return null;
         if (column.index == 0)
             return c.get_string(row);
-        if (c.get_description)
-            return c.get_description(row);
-        return "";
+        return c.get_description(row);
     },
     setTree: function (treebox) { this.treeBox = treebox; },
     isContainer: function (row) { return false; },
@@ -59,7 +57,7 @@ completions_tree_view.prototype = {
     getImageSrc: function (row, col) {
         var c = this.minibuffer_state.completions;
         if (this.minibuffer_state.enable_icons &&
-            c.get_icon && col.index == 0)
+            col.index == 0)
         {
             return c.get_icon(row);
         }
@@ -205,7 +203,7 @@ text_entry_minibuffer_state.prototype = {
     },
 
     destroy: function () {
-        if (this.completions != null && this.completions.destroy)
+        if (this.completions)
             this.completions.destroy();
         delete this.completions;
         if (this.completions_cont)
@@ -238,9 +236,9 @@ text_entry_minibuffer_state.prototype = {
                     s.completions_timer_ID = null;
                     s.update_completions(true /* auto */, true /* update completions display */);
                 }, this.auto_complete_delay);
-            return;
+        } else {
+            s.update_completions(true /* auto */, true /* update completions display */);
         }
-        s.update_completions(true /* auto */, true /* update completions display */);
     },
 
     update_completions_display: function () {
@@ -276,8 +274,8 @@ text_entry_minibuffer_state.prototype = {
             this.completions_cont.cancel();
             this.completions_cont = null;
         }
-        let c = this.completer(m._input_text, m._selection_start,
-                               auto && this.auto_complete_conservative);
+        if (m._selection_start > 0 || ! auto || ! this.auto_complete_conservative)
+            var c = this.completer.complete(m._input_text, m._selection_start);
         if (is_coroutine(c)) {
             var s = this;
             var already_done = false;
@@ -303,15 +301,14 @@ text_entry_minibuffer_state.prototype = {
         /* The completer should return undefined if completion was not
          * attempted due to auto being true.  Otherwise, it can return
          * null to indicate no completions. */
-        if (this.completions != null && this.completions.destroy)
+        if (this.completions)
             this.completions.destroy();
 
         this.completions = c;
         this.completions_valid = true;
         this.applied_common_prefix = false;
 
-        if (c && ("get_require_match" in c))
-            this.require_match = c.get_require_match();
+        this.require_match = this.completer.require_match;
         if (this.require_match == null)
             this.require_match = this.require_match_default;
 
@@ -322,7 +319,7 @@ text_entry_minibuffer_state.prototype = {
                     i = 0;
                 else if (c.default_completion != null)
                     i = c.default_completion;
-                else if (this.default_completion && this.completions.index_of)
+                else if (this.default_completion)
                     i = this.completions.index_of(this.default_completion);
             }
             this.selected_completion_index = i;
@@ -435,10 +432,7 @@ function exit_minibuffer (window) {
         let c = s.completions;
         let i = s.selected_completion_index;
         if (c != null && i >= 0 && i < c.count) {
-            if (c.get_value != null)
-                match = c.get_value(i);
-            else
-                match = c.get_string(i);
+            match = c.get_value(i);
         } else {
             m.message("No match");
             return;
@@ -514,7 +508,7 @@ minibuffer.prototype.read_command = function () {
     keywords(
         arguments,
         $prompt = "Command", $history = "command",
-        $completer = prefix_completer(
+        $completer = new prefix_completer(
             $completions = function (visitor) {
                 for (let [k,v] in Iterator(interactive_commands)) {
                     visitor(v);
@@ -533,7 +527,7 @@ minibuffer.prototype.read_user_variable = function () {
     keywords(
         arguments,
         $prompt = "User variable", $history = "user_variable",
-        $completer = prefix_completer(
+        $completer = new prefix_completer(
             $completions = function (visitor) {
                 for (var i in user_variables) visitor(i);
             },
@@ -549,7 +543,7 @@ minibuffer.prototype.read_user_variable = function () {
 minibuffer.prototype.read_preference = function () {
     keywords(arguments,
              $prompt = "Preference:", $history = "preference",
-             $completer = prefix_completer(
+             $completer = new prefix_completer(
                  $completions = preferences.getBranch(null).getChildList("", {}),
                  $get_description = function (pref) {
                      let default_value = get_default_pref(pref);

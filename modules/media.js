@@ -74,7 +74,7 @@ define_browser_object_class("media", null,
             throw interactive_error("No media found.");
         if (media.length == 1)
             yield co_return(media[0]);
-        let completer = all_word_completer(
+        let completer = new all_word_completer(
             $completions = media,
             $get_string = function (x) {
                 x = load_spec(x);
