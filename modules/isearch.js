@@ -12,6 +12,9 @@ define_variable("isearch_keep_selection", false,
     "Set to `true' to make isearch leave the selection visible when a "+
     "search is completed.");
 
+define_variable("isearch_scroll_center_vertically", false,
+    "Set to `true' to vertically center the selection when scrolling during " +
+    "an isearch.  Only available with XULRunner >= 12.");
 
 function initial_isearch_state (buffer, frame, forward) {
     this.screenx = frame.scrollX;
@@ -53,9 +56,21 @@ isearch_session.prototype = {
         var sel = this.sel_ctrl.getSelection(selctrlcomp.SELECTION_NORMAL);
         sel.removeAllRanges();
         sel.addRange(range.cloneRange());
+        var xulrunner_version = get_mozilla_version();
+        if (version_compare(xulrunner_version, "2.0") < 0) {
+            var flags = true;
+        } else {
+            flags = selctrlcomp.SCROLL_SYNCHRONOUS;
+            if (isearch_scroll_center_vertically &&
+                version_compare(xulrunner_version, "12.0") >= 0)
+            {
+                flags |= selctrlcomp.SCROLL_CENTER_VERTICALLY;
+            }
+        }
         this.sel_ctrl.scrollSelectionIntoView(selctrlcomp.SELECTION_NORMAL,
                                               selctrlcomp.SELECTION_FOCUS_REGION,
-                                              true);
+                                              flags);
+
     },
     _clear_selection: function () {
         const selctrlcomp = Ci.nsISelectionController;
