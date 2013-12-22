@@ -395,7 +395,8 @@ minibuffer.prototype.read_url = function () {
              $use_history = url_completion_use_history,
              $use_bookmarks = url_completion_use_bookmarks,
              $sort_order = url_completion_sort_order);
-    var completer = url_completer($use_webjumps = arguments.$use_webjumps,
+    var completer = new url_completer(
+        $use_webjumps = arguments.$use_webjumps,
         $use_bookmarks = arguments.$use_bookmarks,
         $use_history = arguments.$use_history,
         $sort_order = arguments.$sort_order);

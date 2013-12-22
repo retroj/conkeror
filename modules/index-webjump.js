@@ -1,5 +1,6 @@
 /**
  * (C) Copyright 2009 David Kettler
+ * (C) Copyright 2012 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -11,9 +12,6 @@
 **/
 
 require("webjump.js");
-
-/* Objects with completion data for index webjumps. */
-index_webjumps = {};
 
 define_variable("index_webjumps_directory", null,
     "A directory (instance of nsILocalFile) for storing the " +
@@ -31,23 +29,102 @@ define_variable("index_xpath_webjump_tidy_command",
     "other xml).  Running something like html tidy can avoid " +
     "parser problems.");
 
-function index_webjump (key, url, file) {
-    this.key = key;
+/**
+ * Try to make a suitable file object when the supplied file is a string
+ * or null.
+ */
+function index_webjump_canonicalize_file (file, webjump_name) {
+    if (typeof file == "string")
+        return make_file(file);
+    if (! file && index_webjumps_directory) {
+        file = index_webjumps_directory.clone()
+            .QueryInterface(Ci.nsILocalFile);
+        file.appendRelativePath(webjump_name + ".index");
+    }
+    return file;
+}
+
+
+function index_webjump_completions (completer, data, descriptions) {
+    completions.call(this, completer, data);
+    this.descriptions = descriptions;
+}
+index_webjump_completions.prototype = {
+    constructor: index_webjump_completions,
+    __proto__: completions.prototype,
+    toString: function () "#<index_webjump_completions>",
+    descriptions: null,
+    get_description: function (i) this.descriptions[i]
+};
+
+
+function index_webjump_completer (webjump) {
+    completer.call(this);
+    this.webjump = webjump;
+}
+index_webjump_completer.prototype = {
+    constructor: index_webjump_completer,
+    __proto__: completer.prototype,
+    toString: function () "#<index_webjump_completer>",
+    complete: function (input, pos) {
+        var require = this.webjump.require_match;
+
+        /* Update full completion list if necessary. */
+        if (require && ! this.webjump.file.exists())
+            throw interactive_error("Index file missing for " + this.webjump.name);
+        if (this.webjump.file.exists() &&
+            this.webjump.file.lastModifiedTime > this.webjump.file_time)
+        {
+            this.webjump.file_time = this.webjump.file.lastModifiedTime;
+            this.webjump.extract_completions();
+        }
+        if (require && !(this.webjump.completions && this.webjump.completions.length))
+            throw interactive_error("No completions for " + this.webjump.name);
+        if (! this.webjump.completions)
+            yield co_return(null);
+
+        /* Match completions against input. */
+        var words = trim_whitespace(input.toLowerCase()).split(/\s+/);
+        var data = this.webjump.completions.filter(function (x) {
+            for (var i = 0; i < words.length; ++i) {
+                if (x[0].toLowerCase().indexOf(words[i]) == -1 &&
+                    x[1].toLowerCase().indexOf(words[i]) == -1)
+                {
+                    return false;
+                }
+            }
+            return true;
+        });
+        var descriptions = data.map(second);
+        data = data.map(first);
+        yield co_return(new index_webjump_completions(this, data, descriptions));
+    }
+};
+
+
+function index_webjump (name, url, file) {
+    keywords(arguments);
     this.url = url;
-    this.file = this.canonicalize_file(file);
-    if (this.require_completions && ! this.file)
-        throw interactive_error("Index file not defined for " + this.key);
+    this.file = index_webjump_canonicalize_file(file, name);
+    webjump.call(this, name, this.make_handler(),
+                 $completer = this.make_completer(),
+                 forward_keywords(arguments));
+    if (this.require_match && ! this.file)
+        throw interactive_error("Index file not defined for " + this.name);
 }
 index_webjump.prototype = {
     constructor: index_webjump,
+    __proto__: webjump.prototype,
     toString: function () "#<index_webjump>",
     mime_type: null,
     xpath_expr: null,
     make_completion: null,
-    require_completions: false,
     completions: null,
     file_time: 0,
     tidy_command: null,
+    make_handler: function () {
+        throw new Error("Subclasses of index_webjump must implement make_handler.");
+    },
 
     /* Extract full completion list from index file. */
     extract_completions: function () {
@@ -80,64 +157,18 @@ index_webjump.prototype = {
         this.completions = cmpl;
     },
 
-    /* The guts of the completer. */
-    internal_completer: function (input, pos, conservative) {
-        if (pos == 0 && conservative)
-            yield co_return(undefined);
-
-        let require = this.require_completions;
-
-        /* Update full completion list if necessary. */
-        if (require && ! this.file.exists())
-            throw interactive_error("Index file missing for " + this.key);
-        if (this.file.exists() &&
-            this.file.lastModifiedTime > this.file_time)
-        {
-            this.file_time = this.file.lastModifiedTime;
-            this.extract_completions();
-        }
-        if (require && !(this.completions && this.completions.length))
-            throw interactive_error("No completions for " + this.key);
-        if (! this.completions)
-            yield co_return(null);
-
-        /* Match completions against input. */
-        let words = trim_whitespace(input.toLowerCase()).split(/\s+/);
-        let data = this.completions.filter(function (x) {
-            for (var i = 0; i < words.length; ++i) {
-                if (x[0].toLowerCase().indexOf(words[i]) == -1 &&
-                    x[1].toLowerCase().indexOf(words[i]) == -1)
-                {
-                    return false;
-                }
-            }
-            return true;
-        });
-
-        let c = { count: data.length,
-                  get_string: function (i) data[i][0],
-                  get_description: function (i) data[i][1],
-                  get_input_state: function (i) [data[i][0]],
-                  get_require_match: function() require
-                };
-        yield co_return(c);
-    },
-
     /* A completer suitable for supplying to define_webjump. */
     make_completer: function () {
         if (! this.file)
             return null;
-        let jmp = this;
-        return function (input, pos, conservative) {
-            return jmp.internal_completer(input, pos, conservative);
-        };
+        return new index_webjump_completer(this);
     },
 
     /* Fetch and save the index for later use with completion.
      * (buffer is used only to associate with the download) */
     get_index: function (buffer) {
         if (! this.file)
-            throw interactive_error("Index file not defined for " + this.key);
+            throw interactive_error("Index file not defined for " + this.name);
 
         var info = save_uri(load_spec(this.url), this.file,
                             $buffer = buffer, $use_cache = false,
@@ -147,33 +178,21 @@ index_webjump.prototype = {
         // is renamed; that requires support in save_uri.
         if (this.tidy_command)
             info.set_shell_command(this.tidy_command, index_webjumps_directory);
-    },
-
-    /* Try to make a suitable file object when the supplied file is a
-     * string or null. */
-    canonicalize_file: function (file) {
-        if (typeof file == 'string')
-            file = make_file(file);
-        if (! file && index_webjumps_directory) {
-            file = Cc["@mozilla.org/file/local;1"]
-                .createInstance(Ci.nsILocalFile);
-            file.initWithFile(index_webjumps_directory);
-            file.appendRelativePath(this.key + ".index");
-        }
-        return file;
     }
 };
 
 
-function index_webjump_xhtml (key, url, file, xpath_expr) {
-    index_webjump.call(this, key, url, file);
+function index_webjump_xhtml (name, url, file, xpath_expr) {
+    keywords(arguments);
+    index_webjump.call(this, name, url, file,
+                       $require_match = true,
+                       forward_keywords(arguments));
     this.xpath_expr = xpath_expr;
 }
 index_webjump_xhtml.prototype = {
     constructor: index_webjump_xhtml,
     __proto__: index_webjump.prototype,
     toString: function () "#<index_webjump_xhtml>",
-    require_completions: true,
     mime_type: "application/xhtml+xml",
     get tidy_command () index_xpath_webjump_tidy_command,
 
@@ -185,25 +204,41 @@ index_webjump_xhtml.prototype = {
         let jmp = this;
         return function (term) {
             if (!(jmp.completions && jmp.completions.length))
-                throw interactive_error("Completions required for " + this.key);
+                throw interactive_error("Completions required for " + this.name);
             return term;
         };
     }
 };
 
 
-function index_webjump_gitweb (key, url, file) {
-    index_webjump.call(this, key, url, file);
+define_keywords("$default");
+function index_webjump_gitweb (name, base_url, file) {
+    keywords(arguments);
+    var alternative = arguments.$alternative;
+    var gitweb_url = base_url + "/gitweb.cgi";
+    this.summary_url = gitweb_url + "?p=%s.git;a=summary";
+    var opml_url = gitweb_url + "?a=opml";
+    if (arguments.$default)
+        alternative = this.summary_url.replace("%s", arguments.$default);
+    if (! alternative)
+        alternative = gitweb_url;
+    index_webjump.call(this, name, opml_url, file,
+                       $alternative = alternative,
+                       forward_keywords(arguments));
 }
 index_webjump_gitweb.prototype = {
     constructor: index_webjump_gitweb,
     __proto__: index_webjump.prototype,
     toString: function () "#<index_webjump_gitweb>",
+    summary_url: null,
     mime_type: "text/xml",
     xpath_expr: '//outline[@type="rss"]',
     make_completion: function (node) {
         var name = node.getAttribute("text");
         return [name.replace(/\.git$/, ""), ""];
+    },
+    make_handler: function () {
+        return this.summary_url;
     }
 };
 
@@ -213,16 +248,18 @@ interactive("webjump-get-index",
     "webjump.  It will then be available to the completer.",
     function (I) {
         var completions = [];
-        for (let i in index_webjumps)
-            completions.push(i);
+        for (let [name, w] in Iterator(webjumps)) {
+            if (w instanceof index_webjump)
+                completions.push(name);
+        }
         completions.sort();
-        var key = yield I.minibuffer.read(
+        var name = yield I.minibuffer.read(
             $prompt = "Fetch index for index webjump:",
-            $history = "webjump",
-            $completer = all_word_completer(
+            $history = "index-webjump",
+            $completer = new all_word_completer(
                 $completions = completions),
             $require_match = true);
-        var jmp = index_webjumps[key];
+        var jmp = webjumps[name];
         if (jmp)
             jmp.get_index(I.buffer);
     });
@@ -243,17 +280,16 @@ interactive("webjump-get-index",
  * will check if the file has been updated and reload if necessary.
  * This kind of webjump is not useful without the completions.
  */
-define_keywords("$alternative", "$index_file", "$description");
-function define_xpath_webjump (key, index_url, xpath_expr) {
+define_keywords("$index_file");
+function define_xpath_webjump (name, index_url, xpath_expr) {
     keywords(arguments);
-    let alternative = arguments.$alternative || index_url;
-    var jmp = new index_webjump_xhtml(key, index_url, arguments.$index_file,
-                                      xpath_expr);
-    index_webjumps[key] = jmp;
-    define_webjump(key, jmp.make_handler(),
-                   $completer = jmp.make_completer(),
-                   $alternative = alternative,
-                   $description = arguments.$description);
+    var alternative = arguments.$alternative || index_url;
+    var w = new index_webjump_xhtml(name, index_url,
+                                    arguments.$index_file,
+                                    xpath_expr,
+                                    $alternative = alternative,
+                                    forward_keywords(arguments));
+    webjumps[w.name] = w;
 }
 
 /**
@@ -262,14 +298,16 @@ function define_xpath_webjump (key, index_url, xpath_expr) {
  * run using mozrepl or eval in the browser with the dump parameter
  * set.
  */
-function index_webjump_try_xpath (key, xpath_expr, dump) {
-    jmp = index_webjumps[key];
+function index_webjump_try_xpath (name, xpath_expr, dump) {
+    var jmp = webjumps[name];
+    if (!(jmp instanceof index_webjump))
+        throw new Error(name + " is not an index_webjump");
     if (xpath_expr)
         jmp.xpath_expr = xpath_expr;
     jmp.extract_completions();
     if (dump)
         dumpln(dump_obj(jmp.completions,
-                        "Completions for index webjump " + key));
+                        "Completions for index webjump " + name));
     return jmp.completions;
 }
 
@@ -288,26 +326,12 @@ function index_webjump_try_xpath (key, xpath_expr, dump) {
  * way as for define_xpath_webjump, but the webjump will work without
  * the completions.
  */
-define_keywords("$default", "$alternative", "$opml_file", "$description");
-function define_gitweb_summary_webjump (key, base_url) {
+define_keywords("$opml_file");
+function define_gitweb_summary_webjump (name, base_url) {
     keywords(arguments);
-    let alternative = arguments.$alternative;
-    let gitweb_url = base_url + "/gitweb.cgi";
-    let summary_url = gitweb_url + "?p=%s.git;a=summary";
-    let opml_url = gitweb_url + "?a=opml";
-
-    if (arguments.$default)
-        alternative = summary_url.replace("%s", arguments.$default);
-    if (! alternative)
-        alternative = gitweb_url;
-
-    var jmp = new index_webjump_gitweb(key, opml_url, arguments.$opml_file);
-    index_webjumps[key] = jmp;
-
-    define_webjump(key, summary_url,
-                   $completer = jmp.make_completer(),
-                   $alternative = alternative,
-                   $description = arguments.$description);
+    var w = new index_webjump_gitweb(name, base_url, arguments.$opml_file,
+                                     forward_keywords(arguments));
+    webjumps[w.name] = w;
 }
 
 provide("index-webjump");

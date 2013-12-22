@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2011 John J. Foerch
+ * (C) Copyright 2007-2012 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -697,5 +697,24 @@ function set_protocol_handler (protocol, handler) {
         .getService(Ci.nsIHandlerService);
     hs.store(info);
 }
+
+
+/**
+ * The identity function; returns its argument unchanged.
+ */
+function identity (x) {
+    return x;
+}
+
+
+/**
+ * Return a function that always returns x.
+ */
+function constantly (x) {
+    return function () {
+        return x;
+    };
+}
+
 
 provide("utils");

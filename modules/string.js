@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2004-2007 Shawn Betts
- * (C) Copyright 2007-2009 John J. Foerch
+ * (C) Copyright 2007-2009,2012 John J. Foerch
  * (C) Copyright 2007-2008 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
@@ -204,6 +204,22 @@ function version_compare (a, b) {
     var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]  
         .getService(Ci.nsIVersionComparator);  
     return vc.compare(a, b);
+}
+
+
+/**
+ * common_prefix_length returns the length of the portions at the start of
+ * strings A and B that are the same, up to optional LIMIT.
+ */
+function common_prefix_length (a, b, limit) {
+    var alen = a.length;
+    var blen = b.length;
+    if (limit == null || alen < limit)
+        limit = alen;
+    if (blen < limit)
+        limit = blen;
+    for (var i = 0; i < limit && a[i] == b[i]; ++i);
+    return i;
 }
 
 

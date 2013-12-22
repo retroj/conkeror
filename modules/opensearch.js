@@ -1,6 +1,6 @@
 /**
  * (C) Copyright 2008 Jeremy Maitin-Shepard
- * (C) Copyright 2010 John J. Foerch
+ * (C) Copyright 2010,2012 John J. Foerch
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -20,6 +20,9 @@ define_variable("opensearch_load_paths",
     "includes the subdirectory called 'search-engines' in your profile "+
     "directory and the Conkeror installation directory.");
 
+const opensearch_response_type_json = "application/x-suggestions+json";
+const opensearch_response_type_xml = "application/x-suggestions+xml";
+
 
 function opensearch_parse_error (msg) {
     var e = new Error(msg);
@@ -27,6 +30,112 @@ function opensearch_parse_error (msg) {
     return e;
 }
 opensearch_parse_error.prototype.__proto__ = Error.prototype;
+
+
+function opensearch_xml_completions (completer, data) {
+    completions.call(this, completer, data);
+}
+opensearch_xml_completions.prototype = {
+    constructor: opensearch_xml_completions,
+    __proto__: completions.prototype,
+    toString: function () "#<opensearch_xml_completions>",
+    get_string: function (i) this.data[i][0],
+    get_description: function (i) {
+        if (this.data[i][1])
+            return this.data[i][1] + " results";
+        return "";
+    }
+};
+
+
+function opensearch_json_completions (completer, data, descriptions) {
+    completions.call(this, completer, data);
+    this.descriptions = descriptions;
+}
+opensearch_json_completions.prototype = {
+    constructor: opensearch_json_completions,
+    __proto__: completions.prototype,
+    toString: function () "#<opensearch_json_completions>",
+    descriptions: null,
+    get_string: function (i) String(this.data[i]),
+    get_description: function (i) {
+        if (this.descriptions)
+            return String(this.descriptions[i]);
+        return null;
+    }
+};
+
+
+function opensearch_xml_completer (eng) {
+    this.eng = eng;
+}
+opensearch_xml_completer.prototype = {
+    constructor: opensearch_xml_completer,
+    __proto__: completer.prototype,
+    toString: function () "#<opensearch_xml_completer>",
+    eng: null,
+    complete: function (input, pos) {
+        let str = input.substring(0, pos);
+        try {
+            let lspec = this.eng.get_query_load_spec(str, opensearch_response_type_xml);
+            let result = yield send_http_request(lspec);
+            let doc = result.responseXML;
+            var narrowed = [];
+            if (doc) {
+                let elems = doc.getElementsByTagName("CompleteSuggestion");
+                for (let i = 0; i < elems.length; ++i) {
+                    let node = elems[i];
+                    let name = node.firstChild.getAttribute("data");
+                    let desc = node.lastChild.getAttribute("int");
+                    if (name)
+                        narrowed.push([name,desc]);
+                }
+                delete doc;
+                delete elem;
+                delete result;
+                delete lspec;
+                yield co_return(new opensearch_xml_completions(this, narrowed));
+            }
+        } catch (e) {
+            yield co_return(null);
+        }
+    }
+};
+
+
+function opensearch_json_completer (eng) {
+    this.eng = eng;
+}
+opensearch_json_completer.prototype = {
+    constructor: opensearch_json_completer,
+    __proto__: completer.prototype,
+    toString: function () "#<opensearch_json_completer>",
+    eng: null,
+    complete: function (input, pos) {
+        let str = input.substring(0,pos);
+        try {
+            let lspec = this.eng.get_query_load_spec(str, opensearch_response_type_json);
+            let result = yield send_http_request(lspec);
+            let data = JSON.parse(result.responseText);
+            delete result;
+            delete lspec;
+            if (!(array_p(data) &&
+                  data.length >= 2 &&
+                  typeof data[0] == "string" &&
+                  data[0] == str &&
+                  array_p(data[1])))
+                yield co_return(null);
+            if (data[2] && array_p(data[2]) &&
+                data[2].length == data[1].length)
+            {
+                var descriptions = data[2];
+            }
+            yield co_return(new opensearch_json_completions(this, data[1], descriptions));
+        } catch (e) {
+            yield co_return(null);
+        }
+    }
+};
 
 
 function opensearch_description () {
@@ -109,83 +218,11 @@ opensearch_description.prototype = {
     },
 
     get completer () {
-        const response_type_json = "application/x-suggestions+json";
-        const response_type_xml = "application/x-suggestions+xml";
-        var eng = this;
-        if (this.supports_response_type(response_type_xml)) {
-            return function (input, pos, conservative) {
-                if (pos == 0 && conservative)
-                    yield co_return(undefined);
-                let str = input.substring(0,pos);
-                try {
-                    let lspec = eng.get_query_load_spec(str, response_type_xml);
-                    let result = yield send_http_request(lspec);
-                    let doc = result.responseXML;
-                    let data = [];
-                    if (doc) {
-                        let elems = doc.getElementsByTagName("CompleteSuggestion");
-                        for (let i = 0; i < elems.length; ++i) {
-                            let node = elems[i];
-                            let name = node.firstChild.getAttribute("data");
-                            let desc = node.lastChild.getAttribute("int");
-                            if (name)
-                                data.push([name,desc]);
-                        }
-                        delete doc;
-                        delete elem;
-                        delete result;
-                        delete lspec;
-                        let c = { count: data.length,
-                                  get_string: function (i) data[i][0],
-                                  get_description: function (i) {
-                                      if (data[i][1])
-                                          return data[i][1] + " results";
-                                      return "";
-                                  },
-                                  get_input_state: function (i) [data[i][0]]
-                                };
-                        yield co_return(c);
-                    }
-                } catch (e) {
-                    yield co_return(null);
-                }
-            };
-        } else if (this.supports_response_type(response_type_json)) {
-            return function (input, pos, conservative) {
-                if (pos == 0 && conservative)
-                    yield co_return(undefined);
-                let str = input.substring(0,pos);
-                try {
-                    let lspec = eng.get_query_load_spec(str, response_type_json);
-                    let result = yield send_http_request(lspec);
-                    let data = JSON.parse(result.responseText);
-                    delete result;
-                    delete lspec;
-
-                    if (!(array_p(data) &&
-                          data.length >= 2 &&
-                          typeof(data[0]) == "string" &&
-                          data[0] == str &&
-                          array_p(data[1])))
-                        yield co_return(null);
-                    if (data[2] && array_p(data[2]) &&
-                        data[2].length == data[1].length)
-                    {
-                        var descriptions = data[2];
-                    }
-                    let c = { count: data[1].length,
-                              get_string: function (i) String(data[1][i]),
-                              get_description: (descriptions && (function (i) String(descriptions[i]))),
-                              get_input_state: function (i) [String(data[1][i])]
-                            };
-                    yield co_return(c);
-                } catch (e) {
-                    yield co_return(null);
-                }
-            };
-        } else {
-            return null;
-        }
+        if (this.supports_response_type(opensearch_response_type_xml))
+            return new opensearch_xml_completer(this);
+        if (this.supports_response_type(opensearch_response_type_json))
+            return new opensearch_json_completer(this);
+        return null;
     }
 };
 
@@ -298,7 +335,7 @@ function define_opensearch_webjump (name, spec) {
                        return eng.get_query_load_spec(arg);
                    },
                    $alternative = alternative,
-                   $description = eng.description,
+                   $doc = eng.description,
                    $completer = eng.completer);
 }
 

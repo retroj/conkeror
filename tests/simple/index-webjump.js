@@ -4,20 +4,17 @@ require('index-webjump.js');
 { let suite = {
       suite_setup: function () {
           this.real_webjumps = webjumps;
-          this.real_index_webjumps = index_webjumps;
           conkeror.webjumps = {};
-          conkeror.index_webjumps = {};
       },
       suite_teardown: function () {
           conkeror.webjumps = this.real_webjumps;
-          conkeror.index_webjumps = this.real_index_webjumps;
       },
       path: make_file_from_chrome("chrome://conkeror-test/content/simple").path,
       test_xpath_webjump: function () {
           define_xpath_webjump(
               "xpath", "http://dummy/xpath", '//xhtml:a[@class="index"]',
               $index_file = this.path + '/xpath-webjump-test.xhtml');
-          var w = index_webjumps.xpath;
+          var w = webjumps.xpath;
           w.extract_completions();
           assert_equals(get_webjump("xpath foo"), "foo");
           assert_equals(w.completions.length, 2);
@@ -34,7 +31,7 @@ require('index-webjump.js');
                         "http://dummy/gitweb/gitweb.cgi?p=bar.git;a=summary");
           assert_equals(get_webjump("gitweb foo"),
                         "http://dummy/gitweb/gitweb.cgi?p=foo.git;a=summary");
-          var w = index_webjumps.gitweb;
+          var w = webjumps.gitweb;
           w.extract_completions();
           assert_equals(w.completions.length, 2);
           assert_equals(w.completions[0][0], "bar");

@@ -35,7 +35,7 @@ require("interactive.js");
 require("minibuffer.js");
 require("minibuffer-read.js");
 require("minibuffer-read-option.js");
-require("minibuffer-completion.js");
+require("completers.js");
 require("minibuffer-read-file.js");
 require("spawn-process.js");
 require("mime.js");
