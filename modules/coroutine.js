@@ -1,5 +1,5 @@
 /**
- * (C) Copyright 2008 Jeremy Maitin-Shepard
+ * (C) Copyright 2008, 2014 Jeremy Maitin-Shepard
  *
  * Use, modification, and distribution are subject to the terms specified in the
  * COPYING file.
@@ -8,6 +8,16 @@
 /**
  * Coroutine (i.e. cooperative multithreading) implementation in
  * JavaScript based on Mozilla JavaScript 1.7 generators.
+ *
+ * This is very similar to the Task mechanism implemented in Task.jsm:
+ * https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/Task.jsm
+ *
+ * Like Task.jsm, Conkeror's coroutines integrate with Promises:
+ * https://developer.mozilla.org/en-US/docs/Mozilla/JavaScript_code_modules/Promise.jsm
+ *
+ * Conkeror uses resource://gre/modules/Promise.jsm if it is available (Gecko >=
+ * 25); otherwise, a copy of Gecko 26 Promise.jsm file in
+ * modules/compat/Promise.jsm is used.
  *
  * Before trying to understand this file, first read about generators
  * as described here:
@@ -28,7 +38,7 @@
  * generator function `foo' can be invoked using the same syntax as
  * any other function, i.e.:
  *
- * foo(a,b,c)
+ *   foo(a,b,c)
  *
  * this "function call" merely serves to bind the arguments (including
  * the special `this' argument) without actually running any of the
@@ -70,11 +80,11 @@
  * return `undefined' to the caller. In order to return a value,
  * though, the special syntax:
  *
- * yield co_return(<expr>);
+ *   yield co_return(<expr>);
  *
  * must be used in place of the normal syntax:
  *
- * return <expr>;
+ *   return <expr>;
  *
  * --- Invoking another coroutine function synchronously ---
  *
@@ -86,17 +96,17 @@
  * opposed to being invoked asynchronously, in which case it would be
  * run in a new "thread". This is done using the syntax:
  *
- * yield <prepared-coroutine-expr>
+ *   yield <prepared-coroutine-expr>
  *
  * where <prepared-coroutine-expr> is some expression that evaluates to
  * a generator object, most typically a direct call to a coroutine
  * function in the form of
  *
- * yield foo(a,b,c)
+ *   yield foo(a,b,c)
  *
  * or
  *
- * yield obj.foo(a,b,c)
+ *   yield obj.foo(a,b,c)
  *
  * in the case that "foo" is a coroutine method of some object
  * `obj'.
@@ -104,7 +114,7 @@
  * If the specified coroutine returns a value normally, the yield
  * expression evaluates to that value. That is, using the the syntax
  *
- * var x = yield foo(a,b,c);
+ *   var x = yield foo(a,b,c);
  *
  * if foo is a coroutine and returns a normal value, that value will
  * be stored in `x'.
@@ -118,7 +128,7 @@
  * Note that it is safe to invoke a normal function using `yield' as
  * well as if it were a coroutine. That is, the syntax
  *
- * yield foo(a,b,c)
+ *   yield foo(a,b,c)
  *
  * can likewise be used if foo is a normal function, and the same
  * return value and exception propagation semantics
@@ -132,11 +142,32 @@
  * due to the normal exception propagation, yield is never even
  * called.)
  *
- * --- Current continutation/"thread" handle ---
+ * --- Integration with Promise API ---
+ *
+ * Promises provide a simple, standard interface for asynchronous operations.
+ * Coroutines can wait synchronously for the result of a Promise by using yield:
+ *
+ *   yield <promise>
+ *
+ * Promises are detected by presence of a `then' member of type function.  If
+ * the Promise is resolved, the yield expression will evaluate to the resolved
+ * value.  Otherwise, if the Promise is rejected, the yield expression will
+ * cause the rejection exception to be thrown.
+ *
+ * In effect, a function that starts an asyncronous operation and returns a
+ * Promise can be called synchronously from a coroutine, in the same way that
+ * another coroutine can be called synchronously, by using:
+ *
+ *   yield function_that_returns_a_promise()
+ *
+ * --- [[deprecated]] Current continutation/"thread" handle ---
+ *
+ * Note: This API is deprecated because it is error-prone.  Instead, use the
+ * Promise integration.
  *
  * The special syntax
  *
- * var cc = yield CONTINUATION;
+ *   var cc = yield CONTINUATION;
  *
  * can be used to obtain a special "continuation" object that serves
  * as a sort of "handle" to the current thread. Note that while in a
@@ -146,24 +177,24 @@
  * The continuation object is used in conjuction with another special
  * operation:
  *
- * yield SUSPEND;
+ *   yield SUSPEND;
  *
  * This operation suspends execution of the current "thread" until it
  * is resumed using a reference to the continuation object for the
  * "thread". There are two ways to resume executation. To resume
  * execution normally, the syntax:
  *
- * cc(value)
+ *   cc(value)
  *
  * or
  *
- * cc() (equivalent to cc(undefined))
+ *   cc() (equivalent to cc(undefined))
  *
  * can be used. This resumes execution and causes the yield SUSPEND
  * expression to evaluate to the specified value. Alternatively, the
  * syntax:
  *
- * cc.throw(e)
+ *   cc.throw(e)
  *
  * can be used. This causes the specified exception `e' to be thrown
  * from the yield SUSPEND expression.
@@ -189,30 +220,67 @@
  * A coroutine function can be called asynchronously from either a
  * normal function or a coroutine function. Conceptually, this is
  * equivalent to spawning a new "thread" to run the specified
- * coroutine function. This operation is done using the co_call
+ * coroutine function. This operation is done using the spawn
  * function as follows:
  *
- * co_call(<prepared-coroutine-expr>)
+ *   spawn(<prepared-coroutine-expr>)
  *
  * or, for example,
  *
- * co_call(foo(a,b,c))
+ *   spawn(foo(a,b,c))
  *
  * or
  *
- * co_call(function (){ yield foo(a,b,c); }())
+ *   spawn(function (){ yield foo(a,b,c); }())
  *
- * In the last example, by modifying the anonymous coroutine function,
- * the return value of the coroutine foo, or an exception it throws,
- * could be processed, which is not possible in the case that foo is
- * called directly by co_call.
+ * The `spawn' function returns a Promise representing the result of the
+ * asyncronous call.
  *
- * The function co_call returns the continuation for the new "thread"
- * created. The return value of the specified continuation is ignored,
- * as are any exceptions it throws. The call to co_call returns as
- * soon as the specified coroutine suspends execution for the first
- * time, or completes.
+ * As a convenience, if the argument to `spawn' is a Promise instead of a
+ * prepared coroutine (i.e. a generator), it is returned as is, such that
+ * spawn can be used transparently with both generator functions and functions
+ * returning Promises.
+ *
+ * === Cancelation ===
+ *
+ * Conkeror's coroutines support an extension to the Promise API for
+ * cancelation: a Promise may have a `cancel' member of type function, which
+ * attempts to cancel the corresponding asynchronous operation.
+ *
+ * The `cancel' function should not make use of the implicit `this' argument.
+ * The `cancel' function takes one optional argument (defaults to
+ * task_canceled()), which specifies the exception with which the Promise should
+ * be rejected if the cancelation is successful.
+ *
+ * The `cancel' function is asynchronous and returns without providing any
+ * indication of whether the cancelation was successful.  There is no guarantee
+ * that cancelation will be possible or even successful, for instance the
+ * Promise may have already been resolved or rejected, or the asynchronous
+ * operation may not be in a cancelable state, or the cancelation notification
+ * may be ignored for some reason.  However, if the cancelation is successful,
+ * this should be indicated by rejecting the Promise with the specified
+ * exception.
+ *
+ * The helper functions `make_cancelable' and `make_simple_cancelable' are
+ * useful for creating Promises that support the cancelation API.
+ *
+ * The Promise returned by `spawn' supports cancelation, and works as follows:
+ *
+ * The `cancel' function in the returned Promise marks the "thread" for
+ * cancelation.  While a "thread" is marked for cancelation, any Promise the
+ * thread waits on synchronously (including one in progress when `cancel' is
+ * called) will be immediately canceled if it supports cancelation.  The
+ * "thread" will remain marked for cancelation until one of the cancelation
+ * requests is successful, i.e. one of the canceled Promises is rejected with
+ * the cancelation exception.
  **/
+
+try {
+    Components.utils.import("resource://gre/modules/Promise.jsm");
+} catch (e) {
+    // Gecko < 25
+    Components.utils.import("chrome://conkeror/content/compat/Promise.jsm");
+}
 
 function _return_value (x) {
     this.value = x;
@@ -238,196 +306,262 @@ function is_coroutine (obj) {
         typeof(obj.send) == "function";
 }
 
-function _do_call (f) {
+/**
+ * Returns an object that behaves like a Promise but also has a
+ * `cancel` method, which invokes the specified `canceler` function.
+ * The returned object has the specified promise as its prototype.
+ * Note that we have to create a new object to add the `cancel` method
+ * because Promise objects are sealed.
+ *
+ * The canceler function must take one argument `e`, a cancelation
+ * exception.  The canceler function should arrange so that the
+ * promise is rejected with `e` if the cancelation is successful.  Any
+ * other result of the promise indicates that the cancelation was not
+ * successfully delivered.  If `e` is undefined, it defaults to
+ * task_canceled().
+ *
+ * This protocol is important for coroutines as it makes it possible
+ * to retry delivering the cancelation notification until it is
+ * delivered successfully at least once.
+ **/
+function make_cancelable (promise, canceler) {
+    return { __proto__: promise,
+             cancel: function (e) {
+                 if (e === undefined)
+                     e = task_canceled();
+                 canceler(e);
+             }
+           };
+}
 
-    /* Suspend immediately so that co_call can pass us the continuation object. */
-    var cc = yield undefined;
+/**
+ * Returns a Promise that supports cancelation by simply rejecting the specified
+ * `deferred` object with the cancelation exception.
+ *
+ * This will likely leave the asynchronous operation running, and a proper
+ * cancelation function that actually stops the asynchronous operation should be
+ * used instead when possible.
+ **/
+function make_simple_cancelable(deferred) {
+    return make_cancelable(deferred.promise, deferred.reject);
+}
 
+function task_canceled () {
+    let e = new Error("task_canceled");
+    e.__proto__ = task_canceled.prototype;
+    return e;
+}
+task_canceled.prototype.__proto__ = Error.prototype;
+
+function _co_impl (f) {
+
+    // Current generator function currently at top of call stack
+    this.f = f;
     /**
      * Stack of (partially-run) prepared coroutines/generator objects
      * that specifies the call-chain of the current coroutine function
      * `f'.  Conceptually, `f' is at the top of the stack.
      **/
-    var stack = [];
+    this.stack = [];
 
     /**
-     * `y' and `throw_value' together specify how execution of `f' will be resumed.
-     * If `throw_value' is false, f.send(y) is called to resume execution normally.
-     * If `throw_value' is true, f.throw(y) is called to throw the exception `y' in `f'.
-     *
-     * Because `f' is initially a just-created prepared coroutine that has not run any
-     * code yet, we must start it by calling f.send(undefined) (which is equivalent to
-     * calling f.next()).
+     * Deferred object used to return the result of the coroutine.
      **/
-    var y = undefined;
-    var throw_value = false;
-    while (true) {
-        try { // We must capture any exception thrown by `f'
+    this.deferred = Promise.defer();
 
-            /**
-             * If `f' yields again after being resumed, the value
-             * passed to yield will be stored in `x'.
-             **/
-            let x;
+    /**
+     * The current canceler function, used to interrupt this coroutine.  If null, then any cancelation will be delayed.
+     **/
+    this.canceler = null;
 
-            if (throw_value) {
-                throw_value = false;
-                x = f.throw(y); // f.throw returns the next value passed to yield
-            } else
-                x = f.send(y); // f.send also returns the next value passed to yield
+    /**
+     * A pending cancelation.
+     **/
+    this.pending_cancelation = undefined;
+}
 
-            if (x === CONTINUATION) {
+_co_impl.prototype = {
+    constructor: _co_impl,
+    cancel: function _co_impl__cancel (e) {
+        this.pending_cancelation = e;
+        if (this.canceler) {
+            this.canceler(e);
+        }
+    },
+    send: function _co_impl__send(throw_value, y) {
+        if (this.canceler === undefined) {
+            let e = new Error("Programming error: _co_impl.send called on already-running coroutine.");
+            dump_error(e);
+            throw e;
+        }
+        this.canceler = undefined;
+
+        // Cancelation has been successfully delivered, remove pending cancelation
+        if (throw_value && this.pending_cancelation == y && y !== undefined)
+            this.pending_cancelation = undefined;
+        
+        while (true) {
+            try { // We must capture any exception thrown by `f'
+
                 /**
-                 * The coroutine (`f') asked us to pass it a reference
-                 * to the current continuation.  We don't need to make
-                 * any adjustments to the call stack.
+                 * If `f' yields again after being resumed, the value
+                 * passed to yield will be stored in `x'.
                  **/
-                y = cc;
-                continue;
-            }
+                let x;
+                if (throw_value) {
+                    throw_value = false;
+                    x = this.f.throw(y); // f.throw returns the next value passed to yield
+                } else
+                    x = this.f.send(y); // f.send also returns the next value passed to yield
 
-            if (x === SUSPEND) {
-                /**
-                 * The coroutine `f' asked us to suspend execution of
-                 * the current thread.  We do this by calling yield ourself.
-                 **/
-                try {
-                    /* our execution will be suspended until send or throw is called on our generator object */
-                    x = yield undefined;
+                // [[Deprecated]]
+                // The promise API should be used instead.
+                if (x === CONTINUATION) {
+                    /**
+                     * The coroutine (`f') asked us to pass it a reference
+                     * to the current continuation.  We don't need to make
+                     * any adjustments to the call stack.
+                     **/
+                    let cc = this.send.bind(this, false);
+                    cc.throw = this.send.bind(this, true);
 
-                    /**
-                     * Since no exception was thrown, user must have requested that we resume
-                     * normally using cc(value); we simply pass that value back to `f', which
-                     * asked us to suspend in the first place.
-                     **/
-                    y = x;
-                } catch (e) {
-                    /**
-                     * User requested that we resume by throwing an exception, so we re-throw
-                     * the exception in `f'.
-                     **/
-                    throw_value = true;
-                    y = e;
+                    y = cc;
+                    continue;
                 }
-                continue;
-            }
 
-            if (is_coroutine(x)) {
-                // `f' wants to synchronously call the coroutine `x'
-                stack[stack.length] = f; // push the current coroutine `f' onto the call stack
-                f = x; // make `x' the new top of the stack
-                y = undefined; // `x` is a new coroutine so we must start it by passing `undefined'
-                continue;
-            }
+                // [[Deprecated]]
+                // The promise API should be used instead.
+                if (x === SUSPEND) {
+                    this.canceler = null;
+                    return;
+                }
 
-            if (x instanceof _return_value) {
-                // `f' wants to return a value
-                f.close();
-                if (stack.length == 0) {
+                if (is_coroutine(x)) {
+                    // `f' wants to synchronously call the coroutine `x'
+                    this.stack[this.stack.length] = this.f; // push the current coroutine `f' onto the call stack
+                    this.f = x; // make `x' the new top of the stack
+                    y = undefined; // `x` is a new coroutine so we must start it by passing `undefined'
+                    continue;
+                }
+
+                if (x && typeof(x.then) == "function") {
+                    // x is assumed to be a Promise
+                    // Wait for result before returning to caller
+                    if (typeof(x.cancel) == "function") {
+                        if (this.pending_cancelation !== undefined)
+                            x.cancel(this.pending_cancelation);
+                        this.canceler = x.cancel;
+                    } else
+                        this.canceler = null;
+
+                    x.then(this.send.bind(this, false), this.send.bind(this, true));
+                    return;
+                }
+
+                if (x instanceof _return_value) {
+                    // `f' wants to return a value
+                    this.f.close();
+                    if (this.stack.length == 0) {
+                        /**
+                         * `f' doesn't have a caller, so we resolve
+                         * this.deferred with the return value and
+                         * terminate the coroutine.
+                         */
+                        this.deferred.resolve(x.value);
+                        return;
+                    }
+                    // Pop the caller of `f' off the top of the stack
+                    this.f = this.stack[this.stack.length - 1];
+                    this.stack.length--;
+                    // Pass the return value to the caller, which is now the current coroutine
+                    y = x.value;
+                    continue;
+                }
+
+                /**
+                 * `f' yielded to us a value without any special
+                 * interpretation. Most likely, this is due to `f' calling
+                 * a normal function as if it were a coroutine, in which
+                 * case `x' simply contains the return value of that
+                 * normal function. Just return the value back to `f'.
+                 **/
+                y = x;
+            } catch (e) {
+                /**
+                 * `f' threw an exception. If `e' is a StopIteration
+                 * exception, then `f' exited without returning a value
+                 * (equivalent to returning a value of
+                 * `undefined'). Otherwise, `f' threw or propagted a real
+                 * exception.
+                 **/
+                if (this.stack.length == 0) {
                     /**
-                     * `f' doesn't have a caller, so we simply ignore
-                     * the return value and terminate the thread.
+                     * `f' doesn't have a caller, so we resolve/reject
+                     * this.deferred and terminate the coroutine.
                      */
+                    if (e instanceof StopIteration)
+                        this.deferred.resolve(undefined);
+                    else
+                        this.deferred.reject(e);
                     return;
                 }
                 // Pop the caller of `f' off the top of the stack
-                f = stack[stack.length - 1];
-                stack.length--;
-                // Pass the return value to the caller, which is now the current coroutine
-                y = x.value;
-                continue;
-            }
-
-            /**
-             * `f' yielded to us a value without any special
-             * interpretation. Most likely, this is due to `f' calling
-             * a normal function as if it were a coroutine, in which
-             * case `x' simply contains the return value of that
-             * normal function. Just return the value back to `f'.
-             **/
-            y = x;
-        } catch (e) {
-            /**
-             * `f' threw an exception. If `e' is a StopIteration
-             * exception, then `f' exited without returning a value
-             * (equivalent to returning a value of
-             * `undefined'). Otherwise, `f' threw or propagted a real
-             * exception.
-             **/
-            if (stack.length == 0) {
-                /**
-                 * `f' doesn't have a caller, so regardless of whether
-                 * `f' exited normally or threw an exception, we
-                 * simply terminate the thread.
-                 */
-                return;
-            }
-            // Pop the caller of `f' off the top of the stack
-            f = stack[stack.length - 1];
-            stack.length--;
-            if (e instanceof StopIteration)
-                y = undefined; // propagate a return value of `undefined' to the caller
-            else {
-                // propagate the exception to the caller
-                y = e;
-                throw_value = true;
+                this.f = this.stack[this.stack.length - 1];
+                this.stack.length--;
+                if (e instanceof StopIteration)
+                    y = undefined; // propagate a return value of `undefined' to the caller
+                else {
+                    // propagate the exception to the caller
+                    y = e;
+                    throw_value = true;
+                }
             }
         }
+    },
+};
+
+/**
+ * Runs the specified coroutine asynchronously.  Returns a potentially-cancelable
+ * Promise representing the result.
+ *
+ * In the normal case, the `f` is a prepared coroutine (i.e. generator).
+ *
+ * If `f` is instead a Promise, it is returned as is, with a no-op canceler.
+ *
+ * If `f` is some other value, this returns `Promise.resolve(f)` with a no-op canceler.
+ **/
+function spawn (f) {
+    if (!is_coroutine(f)) {
+        if (f && typeof(f.then) == "function") {
+            // f is a Promise, just return as is
+            if (typeof(f.cancel) != "function")
+                return make_cancelable(f, function () {} );
+            return f;
+        }
+        return make_cancelable(Promise.resolve(f), function () {});
     }
+
+    let x = new _co_impl(f);
+    x.send(false, undefined); // initialize
+
+    return make_cancelable(x.deferred.promise, x.cancel.bind(x));
 }
 
 /**
- * Invokes the specified coroutine. If the argument is not a (already
- * prepared) coroutine, this function simply returns, doing
- * nothing. Thus, the syntax:
+ * [[deprecated]] Runs the specified coroutine asynchronously.
+ * Returns the corresponding continuation object.
  *
- * co_call(foo(a,b,c))
- *
- * can be used to call the function foo with the arguments [a,b,c]
- * regardless of whether foo is a normal function or a coroutine
- * function. Note, though, that using this syntax, if foo is a normal
- * function and throws an exception, it will be propagated, while if
- * foo is a coroutine, any exceptions it throws will be ignored.
- *
+ * Use `spawn' instead, which returns a Promise rather than a continuation object.
  **/
 function co_call (f) {
     if (!is_coroutine(f))
         return;
 
-    /** The _do_call helper function is called to actually do all of
-     * the work.  `_do_call' is written as a generator function for
-     * implementation convenience.
-     **/
-    var g = _do_call(f);
-    g.next();
-    var cc = function (x) {
-        try {
-            // We resume execution of the thread by calling send on
-            // the generator object corresponding to our invocation of
-            // _do_call.
-            g.send(x);
-        } catch (e if e instanceof StopIteration) {}
-        catch (e) {
-            // Dump this error, because it indicates a programming error
-            dump_error(e);
-        }
-    };
-    cc.throw = function (x) {
-        try {
-            g.throw(x);
-        } catch (e if e instanceof StopIteration) {}
-        catch (e) {
-            // Dump this error, because it indicates a programming error
-            dump_error(e);
-        }
-    };
-    try {
-        g.send(cc);
-    } catch (e if e instanceof StopIteration) {}
-    catch (e) {
-        // Dump this error, because it indicates a programming error
-        dump_error(e);
-    }
+    let x = new _co_impl(f);
+    x.send(false, undefined); // initialize
+
+    let cc = x.send.bind(this, false);
+    cc.throw = x.send.bind(this, true);
     return cc;
 }
 
