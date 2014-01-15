@@ -9,12 +9,30 @@
 require("special-buffer.js");
 require("mime-type-override.js");
 require("minibuffer-read-mime-type.js");
+require("compat/Map.js");
 
 var download_manager_service = Cc["@mozilla.org/download-manager;1"]
     .getService(Ci.nsIDownloadManager);
 
 var unmanaged_download_info_list = [];
-var id_to_download_info = {};
+
+var id_to_download_info = new Map();
+
+try {
+    Components.utils.import("resource://gre/modules/Downloads.jsm");
+    var use_downloads_jsm = true;
+
+    function lookup_download(download) {
+        return id_to_download_info.get(download);
+    }
+} catch (e) {
+    var use_downloads_jsm = false;
+
+    function lookup_download(download) {
+        return id_to_download_info.get(download.id);
+    }
+}
+
 
 // Import these constants for convenience
 const DOWNLOAD_NOTSTARTED = Ci.nsIDownloadManager.DOWNLOAD_NOTSTARTED;
@@ -40,20 +58,6 @@ function download_info (source_buffer, mozilla_info, target_file) {
 }
 download_info.prototype = {
     constructor: download_info,
-    attach: function (mozilla_info, existing) {
-        if (!this.target_file)
-            this.__defineGetter__("target_file", function () {
-                    return this.mozilla_info.targetFile;
-                });
-        else if (this.target_file.path != mozilla_info.targetFile.path)
-            throw interactive_error("Download target file unexpected.");
-        this.mozilla_info = mozilla_info;
-        id_to_download_info[mozilla_info.id] = this;
-        if (existing)
-            existing_download_added_hook.run(this);
-        else
-            download_added_hook.run(this);
-    },
     target_file: null,
     shell_command: null,
     shell_command_cwd: null,
@@ -71,29 +75,7 @@ download_info.prototype = {
      */
 
     // Reflectors to properties of nsIDownload
-    get state () { return this.mozilla_info.state; },
-    get display_name () { return this.mozilla_info.displayName; },
-    get amount_transferred () { return this.mozilla_info.amountTransferred; },
-    get percent_complete () { return this.mozilla_info.percentComplete; },
-    get size () {
-        var s = this.mozilla_info.size;
-        /* nsIDownload.size is a PRUint64, and will have value
-         * LL_MAXUINT (2^64 - 1) to indicate an unknown size.  Because
-         * JavaScript only has a double numerical type, this value
-         * cannot be represented exactly, so 2^36 is used instead as the cutoff. */
-        if (s < 68719476736 /* 2^36 */)
-            return s;
-        return -1;
-    },
     get source () { return this.mozilla_info.source; },
-    get start_time () { return this.mozilla_info.startTime; },
-    get speed () { return this.mozilla_info.speed; },
-    get MIME_info () { return this.mozilla_info.MIMEInfo; },
-    get MIME_type () {
-        if (this.MIME_info)
-            return this.MIME_info.MIMEType;
-        return null;
-    },
     get id () { return this.mozilla_info.id; },
     get referrer () { return this.mozilla_info.referrer; },
 
@@ -136,10 +118,14 @@ download_info.prototype = {
         case DOWNLOAD_DOWNLOADING:
         case DOWNLOAD_PAUSED:
         case DOWNLOAD_QUEUED:
-            try {
-                download_manager_service.cancelDownload(this.id);
-            } catch (e) {
-                throw interactive_error("Download cannot be canceled.");
+            if (use_downloads_jsm) {
+                yield this.mozilla_info.finalize(true);
+            } else {
+                try {
+                    download_manager_service.cancelDownload(this.id);
+                } catch (e) {
+                    throw interactive_error("Download cannot be canceled.");
+                }
             }
             break;
         default:
@@ -152,10 +138,14 @@ download_info.prototype = {
         switch (this.state) {
         case DOWNLOAD_CANCELED:
         case DOWNLOAD_FAILED:
-            try {
-                download_manager_service.retryDownload(this.id);
-            } catch (e) {
-                throw interactive_error("Download cannot be retried.");
+            if (use_downloads_jsm) {
+                yield this.mozilla_info.start();
+            } else {
+                try {
+                    download_manager_service.retryDownload(this.id);
+                } catch (e) {
+                    throw interactive_error("Download cannot be retried.");
+                }
             }
             break;
         default:
@@ -167,10 +157,15 @@ download_info.prototype = {
         this.throw_if_removed();
         switch (this.state) {
         case DOWNLOAD_PAUSED:
-            try {
-                download_manager_service.resumeDownload(this.id);
-            } catch (e) {
-                throw interactive_error("Download cannot be resumed.");
+            if (use_downloads_jsm) {
+                yield this.mozilla_info.start();
+            } else {
+
+                try {
+                    download_manager_service.resumeDownload(this.id);
+                } catch (e) {
+                    throw interactive_error("Download cannot be resumed.");
+                }
             }
             break;
         default:
@@ -183,10 +178,14 @@ download_info.prototype = {
         switch (this.state) {
         case DOWNLOAD_DOWNLOADING:
         case DOWNLOAD_QUEUED:
-            try {
-                download_manager_service.pauseDownload(this.id);
-            } catch (e) {
-                throw interactive_error("Download cannot be paused.");
+            if (use_downloads_jsm) {
+                yield this.mozilla_info.cancel();
+            } else {
+                try {
+                    download_manager_service.pauseDownload(this.id);
+                } catch (e) {
+                    throw interactive_error("Download cannot be paused.");
+                }
             }
             break;
         default:
@@ -200,12 +199,17 @@ download_info.prototype = {
         case DOWNLOAD_FAILED:
         case DOWNLOAD_CANCELED:
         case DOWNLOAD_FINISHED:
-            try {
-                download_manager_service.removeDownload(this.id);
-            } catch (e) {
-                throw interactive_error("Download cannot be removed.");
+            if (use_downloads_jsm) {
+                let list = yield Downloads.getList(Downloads.ALL);
+                yield list.remove(this.mozilla_info);
+            } else {
+                try {
+                    download_manager_service.removeDownload(this.id);
+                } catch (e) {
+                    throw interactive_error("Download cannot be removed.");
+                }
             }
-            break;
+                break;
         default:
             throw interactive_error("Download is still in progress.");
         }
@@ -232,6 +236,99 @@ download_info.prototype = {
     }
 };
 
+if (!use_downloads_jsm) {
+    download_info.prototype.__proto__ = {
+        attach: function (mozilla_info, existing) {
+            if (!this.target_file)
+                this.__defineGetter__("target_file", function () {
+                    return this.mozilla_info.targetFile;
+                });
+            else if (this.target_file.path != mozilla_info.targetFile.path)
+                throw interactive_error("Download target file unexpected.");
+
+            this.mozilla_info = mozilla_info;
+
+            if (use_downloads_jsm) {
+                id_to_download_info.set(mozilla_info, this);
+            } else {
+                id_to_download_info.set(mozilla_info.id, this);
+            }
+
+            if (existing)
+                existing_download_added_hook.run(this);
+            else
+                download_added_hook.run(this);
+        },
+        get source_uri_string () { return this.mozilla_info.source.spec; },
+        get source_uri () { return this.mozilla_info.source; },
+        get display_name () { return this.mozilla_info.displayName; },
+        get amount_transferred () { return this.mozilla_info.amountTransferred; },
+        get percent_complete () { return this.mozilla_info.percentComplete; },
+        get speed () { return this.mozilla_info.speed; },
+        get state () { return this.mozilla_info.state; },
+        get start_time () { return this.mozilla_info.startTime / 1000; },
+        get MIME_info () { return this.mozilla_info.MIMEInfo; },
+        get MIME_type () {
+            if (this.MIME_info)
+                return this.MIME_info.MIMEType;
+            return null;
+        },
+        get size () {
+            var s = this.mozilla_info.size;
+            /* nsIDownload.size is a PRUint64, and will have value
+             * LL_MAXUINT (2^64 - 1) to indicate an unknown size.  Because
+             * JavaScript only has a double numerical type, this value
+             * cannot be represented exactly, so 2^36 is used instead as the cutoff. */
+            if (s < 68719476736 /* 2^36 */)
+                return s;
+            return -1;
+        },
+    };
+} else {
+    download_info.prototype.__proto__ = {
+        attach: function (mozilla_info, existing) {
+            if (!this.target_file)
+                this.__defineGetter__("target_file", function () {
+                    return make_file(this.mozilla_info.target.path);
+                });
+            else if (this.target_file.path != mozilla_info.target.path)
+                throw interactive_error("Download target file unexpected.");
+
+            this.mozilla_info = mozilla_info;
+            id_to_download_info.set(mozilla_info, this);
+
+            if (existing)
+                existing_download_added_hook.run(this);
+            else
+                download_added_hook.run(this);
+        },
+        get source_uri () { return make_uri(this.mozilla_info.source.url); },
+        get source_uri_string () { return this.mozilla_info.source.url; },
+        get display_name () { return this.mozilla_info.target.path; },
+        get amount_transferred () { return this.mozilla_info.currentBytes; },
+        get percent_complete () { return this.mozilla_info.progress; },
+        get speed () { return 1000 * this.amount_transferred / (Date.now() - this.start_time); },
+        get start_time () { return this.mozilla_info.startTime.getTime(); },
+        get MIME_type () { return this.mozilla_info.contentType; },
+        get state () {
+            if (this.mozilla_info.succeeded)
+                return DOWNLOAD_FINISHED;
+            if (this.mozilla_info.canceled)
+                return DOWNLOAD_CANCELED;
+            if (this.mozilla_info.error)
+                return DOWNLOAD_FAILED;
+            if (!this.mozilla_info.startTime)
+                return DOWNLOAD_NOTSTARTED;
+            return DOWNLOAD_DOWNLOADING;
+        },
+        get size () {
+            if (this.mozilla_info.hasProgress)
+                return this.mozilla_info.totalBytes;
+            return -1;
+        },
+    };
+}
+
 var define_download_local_hook = simple_local_hook_definer();
 
 function register_download (buffer, source_uri, target_file) {
@@ -242,12 +339,12 @@ function register_download (buffer, source_uri, target_file) {
     return info;
 }
 
-function match_registered_download (mozilla_info) {
+function match_registered_download (source) {
     let list = unmanaged_download_info_list;
     let t = Date.now();
     for (let i = 0; i < list.length; ++i) {
         let x = list[i];
-        if (x.registered_source_uri == mozilla_info.source) {
+        if (x.registered_source_uri.spec == source) {
             list.splice(i, 1);
             return x;
         }
@@ -275,112 +372,184 @@ define_variable('delete_temporary_files_for_command', true,
 
 var download_info_max_queue_delay = 100;
 
-var download_progress_listener = {
-    QueryInterface: generate_QI(Ci.nsIDownloadProgressListener),
+if (!use_downloads_jsm) {
 
-    onDownloadStateChange: function (state, download) {
-        var info = null;
-        /* FIXME: Determine if only new downloads will have this state
-         * as their previous state. */
+    var download_progress_listener = {
+        QueryInterface: generate_QI(Ci.nsIDownloadProgressListener),
 
-        dumpln("download state change: " + download.source.spec + ": " + state + ", " + download.state + ", " + download.id);
+        onDownloadStateChange: function (state, download) {
+            var info = null;
+            /* FIXME: Determine if only new downloads will have this state
+             * as their previous state. */
 
-        if (state == DOWNLOAD_NOTSTARTED) {
-            info = match_registered_download(download);
-            if (info == null) {
-                info = new download_info(null, download);
-                dumpln("error: encountered unknown new download");
+            dumpln("download state change: " + download.source.spec + ": " + state + ", " + download.state + ", " + download.id);
+
+            if (state == DOWNLOAD_NOTSTARTED) {
+                info = match_registered_download(download.source.spec);
+                if (info == null) {
+                    info = new download_info(null, download);
+                    dumpln("error: encountered unknown new download");
+                } else {
+                    info.attach(download);
+                }
             } else {
-                info.attach(download);
-            }
-        } else {
-            info = id_to_download_info[download.id];
-            if (info == null) {
-                dumpln("Error: encountered unknown download");
+                info = id_to_download_info.get(download.id);
+                if (info == null) {
+                    dumpln("Error: encountered unknown download");
 
-            } else {
-                info.mozilla_info = download;
-                download_state_change_hook.run(info);
-                if (info.state == DOWNLOAD_FINISHED) {
-                    download_finished_hook.run(info);
+                } else {
+                    info.mozilla_info = download;
+                    download_state_change_hook.run(info);
+                    if (info.state == DOWNLOAD_FINISHED) {
+                        download_finished_hook.run(info);
 
-                    if (info.shell_command != null) {
-                        info.running_shell_command = true;
-                        co_call(function () {
-                            try {
-                                yield shell_command_with_argument(info.shell_command,
-                                                                  info.target_file.path,
-                                                                  $cwd = info.shell_command_cwd);
-                            } catch (e) {
-                                handle_interactive_error(info.source_buffer.window, e);
-                            } finally  {
-                                if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
-                                    if(delete_temporary_files_for_command) {
-                                        info.target_file.remove(false /* not recursive */);
-                                    }
-                                info.running_shell_command = false;
-                                download_shell_command_change_hook.run(info);
-                            }
-                        }());
-                        download_shell_command_change_hook.run(info);
+                        if (info.shell_command != null) {
+                            info.running_shell_command = true;
+                            spawn(function () {
+                                try {
+                                    yield shell_command_with_argument(info.shell_command,
+                                                                      info.target_file.path,
+                                                                      $cwd = info.shell_command_cwd);
+                                } catch (e) {
+                                    handle_interactive_error(info.source_buffer.window, e);
+                                } finally  {
+                                    if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
+                                        if(delete_temporary_files_for_command) {
+                                            info.target_file.remove(false /* not recursive */);
+                                        }
+                                    info.running_shell_command = false;
+                                    download_shell_command_change_hook.run(info);
+                                }
+                            }());
+                            download_shell_command_change_hook.run(info);
+                        }
                     }
                 }
             }
-        }
-    },
+        },
 
-    onProgressChange: function (progress, request, cur_self_progress, max_self_progress,
-                                cur_total_progress, max_total_progress,
-                                download) {
-        var info = id_to_download_info[download.id];
-        if (info == null) {
-            dumpln("error: encountered unknown download in progress change");
-            return;
-        }
-        info.mozilla_info = download;
-        download_progress_change_hook.run(info);
-        //dumpln("download progress change: " + download.source.spec + ": " + cur_self_progress + "/" + max_self_progress + " "
-        // + cur_total_progress + "/" + max_total_progress + ", " + download.state + ", " + download.id);
-    },
-
-    onSecurityChange: function (progress, request, state, download) {
-    },
-
-    onStateChange: function (progress, request, state_flags, status, download) {
-    }
-};
-
-var download_observer = {
-    observe: function (subject, topic, data) {
-        switch(topic) {
-        case "download-manager-remove-download":
-            var ids = [];
-            if (!subject) {
-                // Remove all downloads
-                for (let i in id_to_download_info)
-                    ids.push(i);
-            } else {
-                let id = subject.QueryInterface(Ci.nsISupportsPRUint32);
-                /* FIXME: determine if this should really be an error */
-                if (!(id in id_to_download_info)) {
-                    dumpln("Error: download-manager-remove-download event received for unknown download: " + id);
-                } else
-                    ids.push(id);
+        onProgressChange: function (progress, request, cur_self_progress, max_self_progress,
+                                    cur_total_progress, max_total_progress,
+                                    download) {
+            var info = id_to_download_info.get(download.id);
+            if (info == null) {
+                dumpln("error: encountered unknown download in progress change");
+                return;
             }
-            for each (let i in ids) {
-                dumpln("deleting download: " + i);
-                let d = id_to_download_info[i];
-                d.removed = true;
-                download_removed_hook.run(d);
-                delete id_to_download_info[i];
-            }
-            break;
-        }
-    }
-};
-observer_service.addObserver(download_observer, "download-manager-remove-download", false);
+            info.mozilla_info = download;
+            download_progress_change_hook.run(info);
+            //dumpln("download progress change: " + download.source.spec + ": " + cur_self_progress + "/" + max_self_progress + " "
+            // + cur_total_progress + "/" + max_total_progress + ", " + download.state + ", " + download.id);
+        },
 
-download_manager_service.addListener(download_progress_listener);
+        onSecurityChange: function (progress, request, state, download) {
+        },
+
+        onStateChange: function (progress, request, state_flags, status, download) {
+        }
+    };
+
+    var download_observer = {
+        observe: function (subject, topic, data) {
+            switch(topic) {
+            case "download-manager-remove-download":
+                var ids = [];
+                if (!subject) {
+                    // Remove all downloads
+                    for (let i in id_to_download_info)
+                        ids.push(i);
+                } else {
+                    let id = subject.QueryInterface(Ci.nsISupportsPRUint32);
+                    /* FIXME: determine if this should really be an error */
+                    if (!(id in id_to_download_info)) {
+                        dumpln("Error: download-manager-remove-download event received for unknown download: " + id);
+                    } else
+                        ids.push(id);
+                }
+                for each (let i in ids) {
+                    dumpln("deleting download: " + i);
+                    let d = id_to_download_info[i];
+                    d.removed = true;
+                    download_removed_hook.run(d);
+                    id_to_download_info.delete(i);
+                }
+                break;
+            }
+        }
+    };
+
+    observer_service.addObserver(download_observer, "download-manager-remove-download", false);
+
+    try {
+        download_manager_service.addListener(download_progress_listener);
+    } catch (e) {
+        dumpln("Failed to register download progress listener.");
+        dump_error(e);
+    }
+} else {
+
+    spawn(function() {
+        let list = yield Downloads.getList(Downloads.ALL);
+        let view = {
+            onDownloadAdded: function (download) {
+                let info = match_registered_download(download.source.url);
+
+                if (info == null) {
+                    info = new download_info(null, download);
+                    dumpln("Encountered unknown new download");
+                } else {
+                    info.attach(download);
+                }
+            },
+            onDownloadChanged: function (download) {
+                let info = lookup_download(download);
+                if (!info)
+                    dumpln("error: onDownloadChanged: encountered unknown download");
+                else {
+                    download_progress_change_hook.run(info);
+                    download_state_change_hook.run(info);
+
+                    if (info.state == DOWNLOAD_FINISHED) {
+                        download_finished_hook.run(info);
+
+                        if (info.shell_command != null) {
+                            info.running_shell_command = true;
+                            spawn(function () {
+                                try {
+                                    yield shell_command_with_argument(info.shell_command,
+                                                                      info.target_file.path,
+                                                                      $cwd = info.shell_command_cwd);
+                                } catch (e) {
+                                    handle_interactive_error(info.source_buffer.window, e);
+                                } finally  {
+                                    if (info.temporary_status == DOWNLOAD_TEMPORARY_FOR_COMMAND)
+                                        if(delete_temporary_files_for_command) {
+                                            info.target_file.remove(false /* not recursive */);
+                                        }
+                                    info.running_shell_command = false;
+                                    download_shell_command_change_hook.run(info);
+                                }
+                            }());
+                            download_shell_command_change_hook.run(info);
+                        }
+                    }
+                }
+            },
+            onDownloadRemoved: function (download) {
+                let info = lookup_download(download);
+                if (!info)
+                    dumpln("error: onDownloadRemoved: encountered unknown download");
+                else {
+                    dumpln("Removing download: " + info.source_uri_string);
+                    info.removed = true;
+                    download_removed_hook.run(info);
+                    id_to_download_info.delete(download);
+                }
+            }
+        };
+        list.addView(view);
+    }());
+}
 
 define_variable("download_buffer_min_update_interval", 2000,
     "Minimum interval (in milliseconds) between updates in download progress buffers.\n" +
@@ -397,12 +566,16 @@ function download_buffer (window) {
     keywords(arguments);
     special_buffer.call(this, window, forward_keywords(arguments));
     this.info = arguments.$info;
-    this.local.cwd = this.info.mozilla_info.targetFile.parent;
-    this.description = this.info.mozilla_info.source.spec;
+    this.local.cwd = this.info.target_file.parent;
+    this.description = this.info.source_uri_string;
     this.update_title();
 
     this.progress_change_handler_fn = method_caller(this, this.handle_progress_change);
-    add_hook.call(this.info, "download_progress_change_hook", this.progress_change_handler_fn);
+
+    // With Downloads.jsm integration, download_progress_change_hook is redundant with download_state_change_hook
+    if (!use_downloads_jsm)
+        add_hook.call(this.info, "download_progress_change_hook", this.progress_change_handler_fn);
+
     add_hook.call(this.info, "download_state_change_hook", this.progress_change_handler_fn);
     this.command_change_handler_fn = method_caller(this, this.update_command_field);
     add_hook.call(this.info, "download_shell_command_change_hook", this.command_change_handler_fn);
@@ -415,7 +588,9 @@ download_buffer.prototype = {
     toString: function () "#<download_buffer>",
 
     destroy: function () {
-        remove_hook.call(this.info, "download_progress_change_hook", this.progress_change_handler_fn);
+        if (!use_downloads_jsm)
+            remove_hook.call(this.info, "download_progress_change_hook", this.progress_change_handler_fn);
+
         remove_hook.call(this.info, "download_state_change_hook", this.progress_change_handler_fn);
         remove_hook.call(this.info, "download_shell_command_change_hook", this.command_change_handler_fn);
 
@@ -436,64 +611,69 @@ download_buffer.prototype = {
     },
 
     update_title: function () {
-        // FIXME: do this properly
-        var new_title;
-        var info = this.info;
-        var append_transfer_info = false;
-        var append_speed_info = true;
-        var label = null;
-        switch(info.state) {
-        case DOWNLOAD_DOWNLOADING:
-            label = "Downloading";
-            append_transfer_info = true;
-            break;
-        case DOWNLOAD_FINISHED:
-            label = "Download complete";
-            break;
-        case DOWNLOAD_FAILED:
-            label = "Download failed";
-            append_transfer_info = true;
-            append_speed_info = false;
-            break;
-        case DOWNLOAD_CANCELED:
-            label = "Download canceled";
-            append_transfer_info = true;
-            append_speed_info = false;
-            break;
-        case DOWNLOAD_PAUSED:
-            label = "Download paused";
-            append_transfer_info = true;
-            append_speed_info = false;
-            break;
-        case DOWNLOAD_QUEUED:
-        default:
-            label = "Download queued";
-            break;
-        }
+        try {
+            // FIXME: do this properly
+            var new_title;
+            var info = this.info;
+            var append_transfer_info = false;
+            var append_speed_info = true;
+            var label = null;
+            switch(info.state) {
+            case DOWNLOAD_DOWNLOADING:
+                label = "Downloading";
+                append_transfer_info = true;
+                break;
+            case DOWNLOAD_FINISHED:
+                label = "Download complete";
+                break;
+            case DOWNLOAD_FAILED:
+                label = "Download failed";
+                append_transfer_info = true;
+                append_speed_info = false;
+                break;
+            case DOWNLOAD_CANCELED:
+                label = "Download canceled";
+                append_transfer_info = true;
+                append_speed_info = false;
+                break;
+            case DOWNLOAD_PAUSED:
+                label = "Download paused";
+                append_transfer_info = true;
+                append_speed_info = false;
+                break;
+            case DOWNLOAD_QUEUED:
+            default:
+                label = "Download queued";
+                break;
+            }
 
-        if (append_transfer_info) {
-            if (append_speed_info)
-                new_title = label + " at " + pretty_print_file_size(info.speed).join(" ") + "/s: ";
-            else
-                new_title = label + ": ";
-            var trans = pretty_print_file_size(info.amount_transferred);
-            if (info.size >= 0) {
-                var total = pretty_print_file_size(info.size);
-                if (trans[1] == total[1])
-                    new_title += trans[0] + "/" + total[0] + " " + total[1];
+            if (append_transfer_info) {
+                if (append_speed_info)
+                    new_title = label + " at " + pretty_print_file_size(info.speed).join(" ") + "/s: ";
                 else
-                    new_title += trans.join(" ") + "/" + total.join(" ");
+                    new_title = label + ": ";
+                var trans = pretty_print_file_size(info.amount_transferred);
+                if (info.size >= 0) {
+                    var total = pretty_print_file_size(info.size);
+                    if (trans[1] == total[1])
+                        new_title += trans[0] + "/" + total[0] + " " + total[1];
+                    else
+                        new_title += trans.join(" ") + "/" + total.join(" ");
+                } else
+                    new_title += trans.join(" ");
+                if (info.percent_complete >= 0)
+                    new_title += " (" + info.percent_complete + "%)";
             } else
-                new_title += trans.join(" ");
-            if (info.percent_complete >= 0)
-                new_title += " (" + info.percent_complete + "%)";
-        } else
-            new_title = label;
-        if (new_title != this.title) {
-            this.title = new_title;
-            return true;
+                new_title = label;
+            if (new_title != this.title) {
+                this.title = new_title;
+                return true;
+            }
+            return false;
+        } catch (e) { 
+            dump_error(e);
+            throw e;
         }
-        return false;
     },
 
     handle_progress_change: function () {
@@ -534,7 +714,7 @@ download_buffer.prototype = {
         cell = g.element("td", row, "class", "download-label");
         this.status_textnode = g.text("", cell);
         cell = g.element("td", row, "class", "download-value");
-        g.text(info.source.spec, cell);
+        g.text(info.source_uri_string, cell);
 
         row = g.element("tr", table, "class", "download-info", "id", "download-target");
         cell = g.element("td", row, "class", "download-label");
@@ -648,7 +828,7 @@ download_buffer.prototype = {
 
     update_time_field: function () {
         var info = this.info;
-        var elapsed_text = pretty_print_time((Date.now() - info.start_time / 1000) / 1000) + " elapsed";
+        var elapsed_text = pretty_print_time((Date.now() - info.start_time) / 1000) + " elapsed";
         var text = "";
         if (info.state == DOWNLOAD_DOWNLOADING)
             text = pretty_print_file_size(info.speed).join(" ") + "/s, ";
@@ -685,7 +865,7 @@ download_buffer.prototype = {
 function download_cancel (buffer) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
-    info.cancel();
+    yield info.cancel();
     buffer.window.minibuffer.message("Download canceled");
 }
 interactive("download-cancel",
@@ -697,13 +877,13 @@ interactive("download-cancel",
             $prompt = "Cancel this download? (y/n)",
             $options = ["y", "n"]);
         if (result == "y")
-            download_cancel(I.buffer);
+            yield download_cancel(I.buffer);
     });
 
 function download_retry (buffer) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
-    info.retry();
+    yield info.retry();
     buffer.window.minibuffer.message("Download retried");
 }
 interactive("download-retry",
@@ -711,68 +891,68 @@ interactive("download-retry",
     "This command can be used to retry a download that failed or "+
     "was canceled using the `download-cancel' command.  The download "+
     "will begin from the start again.",
-    function (I) { download_retry(I.buffer); });
+    function (I) { yield download_retry(I.buffer); });
 
 function download_pause (buffer) {
     check_buffer(buffer, download_buffer);
-    buffer.info.pause();
+    yield buffer.info.pause();
     buffer.window.minibuffer.message("Download paused");
 }
 interactive("download-pause",
     "Pause the current download.\n" +
     "The download can later be resumed using the `download-resume' command. "+
     "The data already transferred will not be lost.",
-    function (I) { download_pause(I.buffer); });
+    function (I) { yield download_pause(I.buffer); });
 
 function download_resume (buffer) {
     check_buffer(buffer, download_buffer);
-    buffer.info.resume();
+    yield buffer.info.resume();
     buffer.window.minibuffer.message("Download resumed");
 }
 interactive("download-resume",
     "Resume the current download.\n" +
     "This command can be used to resume a download paused using the "+
     "`download-pause' command.",
-    function (I) { download_resume(I.buffer); });
+    function (I) { yield download_resume(I.buffer); });
 
 function download_remove (buffer) {
     check_buffer(buffer, download_buffer);
-    buffer.info.remove();
+    yield buffer.info.remove();
     buffer.window.minibuffer.message("Download removed");
 }
 interactive("download-remove",
     "Remove the current download from the download manager.\n" +
     "This command can only be used on inactive (paused, canceled, "+
     "completed, or failed) downloads.",
-    function (I) { download_remove(I.buffer); });
+    function (I) { yield download_remove(I.buffer); });
 
 function download_retry_or_resume (buffer) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
     if (info.state == DOWNLOAD_PAUSED)
-        download_resume(buffer);
+        yield download_resume(buffer);
     else
-        download_retry(buffer);
+        yield download_retry(buffer);
 }
 interactive("download-retry-or-resume",
     "Retry or resume the current download.\n" +
     "This command can be used to resume a download paused using the " +
     "`download-pause' command or canceled using the `download-cancel' "+
     "command.",
-    function (I) { download_retry_or_resume(I.buffer); });
+    function (I) { yield download_retry_or_resume(I.buffer); });
 
 function download_pause_or_resume (buffer) {
     check_buffer(buffer, download_buffer);
     var info = buffer.info;
     if (info.state == DOWNLOAD_PAUSED)
-        download_resume(buffer);
+        yield download_resume(buffer);
     else
-        download_pause(buffer);
+        yield download_pause(buffer);
 }
 interactive("download-pause-or-resume",
     "Pause or resume the current download.\n" +
     "This command toggles the paused state of the current download.",
-    function (I) { download_pause_or_resume(I.buffer); });
+    function (I) { yield download_pause_or_resume(I.buffer); });
 
 function download_delete_target (buffer) {
     check_buffer(buffer, download_buffer);
@@ -850,34 +1030,55 @@ define_variable("download_buffer_automatic_open_target", OPEN_NEW_WINDOW,
     "`open_download_buffer_automatically'.");
 
 minibuffer_auto_complete_preferences.download = true;
-minibuffer.prototype.read_download = function () {
-    keywords(arguments,
-             $prompt = "Download",
-             $completer = all_word_completer(
-                 $completions = function (visitor) {
-                     var dls = download_manager_service.activeDownloads;
-                     while (dls.hasMoreElements()) {
-                         let dl = dls.getNext();
-                         visitor(dl);
-                     }
+
+if (use_downloads_jsm) {
+    minibuffer.prototype.read_download = function () {
+        keywords(arguments,
+                 $prompt = "Download",
+                 $completer = function () {
+                     let list = yield Downloads.getList(Downloads.ALL);
+                     let all_downloads = yield list.getAll();
+                     let c = all_word_completer($completions = all_downloads,
+                                                $get_string = function (x) x.target.path,
+                                                $get_description = function (x) x.source.url,
+                                                $get_value = function (x) x);
+                     yield co_return(c.apply(this, arguments));
                  },
-                 $get_string = function (x) x.displayName,
-                 $get_description = function (x) x.source.spec,
-                 $get_value = function (x) x),
-             $auto_complete = "download",
-             $auto_complete_initial = true,
-             $match_required = true);
-    var result = yield this.read(forward_keywords(arguments));
-    yield co_return(result);
-};
+                 $auto_complete = "download",
+                 $auto_complete_initial = true,
+                 $match_required = true);
+        var result = yield this.read(forward_keywords(arguments));
+        yield co_return(result);
+    };
+} else {
+    minibuffer.prototype.read_download = function () {
+        keywords(arguments,
+                 $prompt = "Download",
+                 $completer = all_word_completer(
+                     $completions = function (visitor) {
+                         var dls = download_manager_service.activeDownloads;
+                         while (dls.hasMoreElements()) {
+                             let dl = dls.getNext();
+                             visitor(dl);
+                         }
+                     },
+                     $get_string = function (x) x.displayName,
+                     $get_description = function (x) x.source.spec,
+                     $get_value = function (x) x),
+                 $auto_complete = "download",
+                 $auto_complete_initial = true,
+                 $match_required = true);
+        var result = yield this.read(forward_keywords(arguments));
+        yield co_return(result);
+    };
+}
 
 function download_show (window, target, mozilla_info) {
     if (! window)
         target = OPEN_NEW_WINDOW;
-    if (mozilla_info.id in id_to_download_info) {
-        var info = id_to_download_info[mozilla_info.id];
-    } else {
-        var info = new download_info(null, null);
+    var info = lookup_download(mozilla_info);
+    if (!info) {
+        info = new download_info(null, null);
         info.attach(mozilla_info, true /* existing */);
     }
     create_buffer(window, buffer_creator(download_buffer, $info = info), target);
@@ -904,7 +1105,7 @@ function open_download_buffer_automatically (info) {
     if (info.temporary_status == DOWNLOAD_NOT_TEMPORARY ||
         download_temporary_file_open_buffer_delay == 0)
     {
-        download_show(buf.window, target, info);
+        download_show(buf ? buf.window : null, target, info.mozilla_info);
     } else {
         var timer = null;
         function finish () {
@@ -912,9 +1113,9 @@ function open_download_buffer_automatically (info) {
         }
         add_hook.call(info, "download_finished_hook", finish);
         timer = call_after_timeout(function () {
-                remove_hook.call(info, "download_finished_hook", finish);
-                download_show(buf.window, target, info);
-            }, download_temporary_file_open_buffer_delay);
+            remove_hook.call(info, "download_finished_hook", finish);
+            download_show(buf ? buf.window : null, target, info.mozilla_info);
+        }, download_temporary_file_open_buffer_delay);
     }
 }
 add_hook("download_added_hook", open_download_buffer_automatically);
