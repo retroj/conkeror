@@ -234,7 +234,7 @@ download_helper.prototype = {
             var mime_type = launcher.MIMEInfo.MIMEType;
             var action = content_handlers.get(mime_type) ||
                 content_handler_prompt;
-            co_call(action(ctx));
+            spawn(action(ctx));
         } catch (e) {
             handle_interactive_error(ctx.window, e);
         }

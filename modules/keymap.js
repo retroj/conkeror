@@ -559,10 +559,11 @@ define_keymap("key_binding_reader_keymap");
 define_key(key_binding_reader_keymap, match_any_key, "read-key-binding-key");
 
 define_keywords("$keymap");
-function key_binding_reader (minibuffer, continuation) {
+function key_binding_reader (minibuffer) {
     keywords(arguments, $prompt = "Describe key:");
     minibuffer_input_state.call(this, minibuffer, key_binding_reader_keymap, arguments.$prompt);
-    this.continuation = continuation;
+    this.deferred = Promise.defer();
+    this.promise = make_simple_cancelable(this.deferred);
     if (arguments.$keymap)
         this.target_keymap = arguments.$keymap;
     else
@@ -573,8 +574,7 @@ key_binding_reader.prototype = {
     constructor: key_binding_reader,
     __proto__: minibuffer_input_state.prototype,
     destroy: function () {
-        if (this.continuation)
-            this.continuation.throw(abort());
+        this.promise.cancel();
         minibuffer_input_state.prototype.destroy.call(this);
     }
 };
@@ -597,10 +597,8 @@ function read_key_binding_key (window, state, event) {
     state.key_sequence.push(combo);
 
     if (binding == null) {
-        var c = state.continuation;
-        delete state.continuation;
+        state.deferred.reject(invalid_key_binding(state.key_sequence));
         window.minibuffer.pop_state();
-        c.throw(invalid_key_binding(state.key_sequence));
         return;
     }
 
@@ -611,13 +609,8 @@ function read_key_binding_key (window, state, event) {
         return;
     }
 
-    var c = state.continuation;
-    delete state.continuation;
-
+    state.deferred.resolve([state.key_sequence, binding]);
     window.minibuffer.pop_state();
-
-    if (c != null)
-        c([state.key_sequence, binding]);
 }
 interactive("read-key-binding-key",
     "Handle a keystroke in the key binding reader minibuffer state.",
@@ -629,10 +622,9 @@ interactive("read-key-binding-key",
 
 minibuffer.prototype.read_key_binding = function () {
     keywords(arguments);
-    var s = new key_binding_reader(this, (yield CONTINUATION), forward_keywords(arguments));
+    var s = new key_binding_reader(this, forward_keywords(arguments));
     this.push_state(s);
-    var result = yield SUSPEND;
-    yield co_return(result);
+    yield co_return(yield s.promise);
 };
 
 provide("keymap");

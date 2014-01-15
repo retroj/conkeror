@@ -33,20 +33,20 @@ function cache_entry_open(cache_session, uri) {
     let session = cache_service.createSession(cache_session, 0, true);
     session.doomEntriesIfExpired = false;
 
-    let cc = yield CONTINUATION;
+    let deferred = Promise.defer();
 
     let cache_listener = {
         onCacheEntryAvailable: function onCacheEntryAvailable(descriptor, accessGranted, status) {
             if (status != Cr.NS_OK)
-                cc.throw(cache_error(status));
+                deferred.reject(cache_error(status));
             else
-                cc(descriptor);
+                deferred.resolve(descriptor);
         }
     };
 
     let cache_key = uri.replace(/#.*$/, "");
     session.asyncOpenCacheEntry(cache_key, Ci.nsICache.ACCESS_READ, cache_listener);
-    yield co_return(yield SUSPEND);
+    return make_simple_cancelable(deferred);
 }
 
 function cache_entry_clear(cache_session, uri) {
@@ -56,26 +56,26 @@ function cache_entry_clear(cache_session, uri) {
     let session = cache_service.createSession(cache_session, 0, true);
     session.doomEntriesIfExpired = false;
 
-    let cc = yield CONTINUATION;
+    let deferred = Promise.defer();
 
     let cache_listener = {
         onCacheEntryDoomed: function onCacheEntryDoomed(status) {
             switch (status) {
             case Cr.NS_OK:
-                cc(true);
+                deferred.resolve(true);
                 break;
             case Cr.NS_ERROR_NOT_AVAILABLE:
-                cc(false);
+                deferred.resolve(false);
                 break;
             default:
-                cc.throw(cache_error(status));
+                deferred.reject(cache_error(status));
             }
         }
     };
 
     let cache_key = uri.replace(/#.*$/, "");
     session.doomEntry(cache_key, cache_listener);
-    yield co_return(yield SUSPEND);
+    return make_simple_cancelable(deferred);
 }
 
 function cache_clear (cache_type) {

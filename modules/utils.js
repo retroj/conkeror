@@ -196,14 +196,7 @@ function generate_QI () {
     return new Function("iid", fstr);
 }
 
-
-function abort (str) {
-    var e = new Error(str);
-    e.__proto__ = abort.prototype;
-    return e;
-}
-abort.prototype.__proto__ = Error.prototype;
-
+var abort = task_canceled;
 
 function get_temporary_file (name) {
     if (name == null)
@@ -420,7 +413,7 @@ var xml_http_request_load_listener = {
 
 
 /**
- * Coroutine interface for sending an HTTP request and waiting for the
+ * Promise interface for sending an HTTP request and waiting for the
  * response. (This includes so-called "AJAX" requests.)
  *
  * @param lspec (required) a load_spec object or URI string (see load-spec.js)
@@ -443,16 +436,11 @@ var xml_http_request_load_listener = {
  *                 a two-element array) specifying additional headers to add to
  *                 the request.
  *
- * @returns After the request completes (either successfully or with an error),
- *          the nsIXMLHttpRequest object is returned.  Its responseText (for any
- *          arbitrary document) or responseXML (if the response type is an XML
- *          content type) properties can be accessed to examine the response
- *          document.
- *
- * If an exception is thrown to the continutation (which can be obtained by the
- * caller by calling yield CONTINUATION prior to calling this function) while the
- * request is in progress (i.e. before this coroutine returns), the request will
- * be aborted, and the exception will be propagated to the caller.
+ * @returns Promise that resolves to nsIXMLHttpRequest after the request
+ *          completes (either successfully or with an error).  Its responseText
+ *          (for any arbitrary document) or responseXML (if the response type is
+ *          an XML content type) properties can be accessed to examine the
+ *          response document.
  *
  **/
 define_keywords("$user", "$password", "$override_mime_type", "$headers");
@@ -464,14 +452,12 @@ function send_http_request (lspec) {
     if (! (lspec instanceof load_spec))
         lspec = load_spec(lspec);
     var req = xml_http_request();
-    var cc = yield CONTINUATION;
-    var aborting = false;
+
+    let deferred = Promise.defer();
     req.onreadystatechange = function send_http_request__onreadystatechange () {
         if (req.readyState != 4)
             return;
-        if (aborting)
-            return;
-        cc();
+        deferred.resolve(req);
     };
 
     if (arguments.$override_mime_type)
@@ -494,16 +480,7 @@ function send_http_request (lspec) {
     } else
         req.send(null);
 
-    try {
-        yield SUSPEND;
-    } catch (e) {
-        aborting = true;
-        req.abort();
-        throw e;
-    }
-
-    // Let the caller access the status and reponse data
-    yield co_return(req);
+    return make_simple_cancelable(deferred);
 }
 
 

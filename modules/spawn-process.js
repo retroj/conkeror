@@ -117,8 +117,10 @@ var spawn_process_helper_setup_timeout = 2000;
  *        process.
  */
 function spawn_process (program_name, args, working_dir,
-                        success_callback, failure_callback, fds,
-                        fd_wait_timeout) {
+                        fds, fd_wait_timeout) {
+
+    let deferred = Promise.defer();
+
     var spawn_process_helper_program = find_spawn_helper();
     if (spawn_process_helper_program == null)
         throw new Error("Error spawning process: conkeror-spawn-helper not found");
@@ -202,9 +204,8 @@ function spawn_process (program_name, args, working_dir,
 
     function fail (e) {
         if (!terminate_pending) {
+            deferred.reject(e);
             terminate();
-            if (failure_callback)
-                failure_callback(e);
         }
     }
 
@@ -277,12 +278,18 @@ function spawn_process (program_name, args, working_dir,
         return exit_status;
     }
 
+    function canceler (e) {
+        if (!terminate_pending) {
+            deferred.reject(e);
+            terminate();
+        }
+    }
+
     function finished () {
         // Only call success_callback if terminate was not already called
         if (!terminate_pending) {
+            deferred.resolve(exit_status);
             terminate();
-            if (success_callback)
-                success_callback(exit_status);
         }
     }
 
@@ -477,7 +484,7 @@ function spawn_process (program_name, args, working_dir,
             });
 
         spawn_process_internal(spawn_process_helper_program, [key_file.path, server.port], false);
-        return terminate;
+        return make_cancelable(deferred.promise, canceler);
     } catch (e) {
         terminate();
 
@@ -504,10 +511,7 @@ function spawn_process_blind (program_name, args) {
     if (cwd == null && fds == null && args[0] == null)
         spawn_process_internal(program_name, args.slice(1));
     else {
-        spawn_process(program_name, args, cwd,
-                      null /* success callback */,
-                      null /* failure callback */,
-                      fds);
+        spawn_process(program_name, args, cwd, fds);
     }
 }
 
@@ -515,11 +519,8 @@ function spawn_process_blind (program_name, args) {
 //  Keyword arguments: $cwd, $fds
 function spawn_and_wait_for_process (program_name, args) {
     keywords(arguments, $cwd = null, $fds = null);
-    var cc = yield CONTINUATION;
-    spawn_process(program_name, args, arguments.$cwd,
-                  cc, cc.throw,
-                  arguments.$fds);
-    var result = yield SUSPEND;
+    let result = yield spawn_process(program_name, args, arguments.$cwd,
+                                     arguments.$fds);
     yield co_return(result);
 }
 
