@@ -92,7 +92,7 @@ function window_install_close_intercept (window) {
                 close.call(window);
             }
         }
-        co_call(attempt_close());
+        spawn(attempt_close());
     };
 }
 

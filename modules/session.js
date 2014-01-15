@@ -474,7 +474,7 @@
                 break;
             }
         }
-        co_call(_session_auto_save_auto_load(user_gave_urls));
+        spawn(_session_auto_save_auto_load(user_gave_urls));
     };
 
     let _session_auto_save_mode_enable = function () {

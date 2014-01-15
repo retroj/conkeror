@@ -51,7 +51,7 @@ help_document_generator.prototype = {
                              "class", "source-code-reference",
                              "href", "javascript:");
         x.addEventListener("click", function (event) {
-            co_call(function () {
+            spawn(function () {
                 try {
                     yield ref.open_in_editor();
                 } catch (e) {

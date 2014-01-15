@@ -33,29 +33,26 @@ minibuffer.prototype.read_yes_or_no = function () {
     yield co_return(result == "yes");
 };
 
-function single_character_options_minibuffer_state (minibuffer, continuation) {
+function single_character_options_minibuffer_state (minibuffer) {
     keywords(arguments);
     minibuffer_input_state.call(this, minibuffer, single_character_options_minibuffer_keymap, arguments.$prompt);
-    this.continuation = continuation;
+    this.deferred = Promise.defer();
+    this.promise = make_simple_cancelable(this.deferred);
     this.options = arguments.$options;
 }
 single_character_options_minibuffer_state.prototype = {
     constructor: single_character_options_minibuffer_state,
     __proto__: minibuffer_input_state.prototype,
     destroy: function () {
-        if (this.continuation)
-            this.continuation.throw(abort());
+        this.promise.cancel();
         minibuffer_input_state.prototype.destroy.call(this);
     }
 };
 function single_character_options_enter_character (window, s, event) {
     var ch = String.fromCharCode(event.charCode);
     if (s.options.indexOf(ch) != -1) {
-        var c = s.continuation;
-        delete s.continuation;
+        s.deferred.resolve(ch);
         window.minibuffer.pop_state();
-        if (c)
-            c(ch);
         return;
     }
     var str = "Please answer " + or_string(s.options) + ".";
@@ -72,10 +69,9 @@ interactive("single-character-options-enter-character", null,
 
 minibuffer.prototype.read_single_character_option = function () {
     keywords(arguments);
-    var s = new single_character_options_minibuffer_state(this, (yield CONTINUATION), forward_keywords(arguments));
+    var s = new single_character_options_minibuffer_state(this, forward_keywords(arguments));
     this.push_state(s);
-    var result = yield SUSPEND;
-    yield co_return(result);
+    yield co_return(yield s.promise);
 };
 
 provide("minibuffer-read-options");

@@ -104,13 +104,16 @@ define_keywords("$keymap", "$history", "$validator",
                 "$auto_complete_delay", "$enable_icons",
                 "$space_completes");
 /* FIXME: support completing in another thread */
-function text_entry_minibuffer_state (minibuffer, continuation) {
+function text_entry_minibuffer_state (minibuffer) {
     keywords(arguments, $keymap = minibuffer_keymap,
              $enable_icons = false);
 
     basic_minibuffer_state.call(this, minibuffer, forward_keywords(arguments));
 
-    this.continuation = continuation;
+    let deferred = Promise.defer();
+    this.deferred = deferred;
+    this.promise = make_simple_cancelable(deferred);
+
     if (arguments.$history) {
         this.history = minibuffer_history_data[arguments.$history] =
             minibuffer_history_data[arguments.$history] || [];
@@ -211,7 +214,7 @@ text_entry_minibuffer_state.prototype = {
             this.completions.destroy();
         delete this.completions;
         if (this.completions_cont)
-            this.completions_cont.throw(abort());
+            this.completions_cont.cancel();
         delete this.completions_cont;
 
         var el = this.completions_display_element;
@@ -219,8 +222,8 @@ text_entry_minibuffer_state.prototype = {
             el.parentNode.removeChild(el);
             this.completions_display_element = null;
         }
-        if (this.continuation)
-            this.continuation.throw(abort());
+        if (this.promise)
+            this.promise.cancel();
         basic_minibuffer_state.prototype.destroy.call(this);
     },
 
@@ -275,7 +278,7 @@ text_entry_minibuffer_state.prototype = {
         }
         var m = this.minibuffer;
         if (this.completions_cont) {
-            this.completions_cont.throw(abort());
+            this.completions_cont.cancel();
             this.completions_cont = null;
         }
         let c = this.completer(m._input_text, m._selection_start,
@@ -283,7 +286,7 @@ text_entry_minibuffer_state.prototype = {
         if (is_coroutine(c)) {
             var s = this;
             var already_done = false;
-            this.completions_cont = co_call(function () {
+            this.completions_cont = spawn(function () {
                 try {
                     var x = yield c;
                 } catch (e) {
@@ -452,15 +455,16 @@ function exit_minibuffer (window) {
         if (s.history.length > minibuffer_history_max_items)
             s.history.splice(0, s.history.length - minibuffer_history_max_items);
     }
-    var cont = s.continuation;
-    delete s.continuation;
-    m.pop_state();
-    if (cont) {
-        if (s.match_required)
-            cont(match);
-        else
-            cont(val);
+    var deferred = s.deferred;
+    if (deferred) {
+        if (s.match_required) {
+            deferred.resolve(match);
+        }
+        else {
+            deferred.resolve(val);
+        }
     }
+    m.pop_state();
 }
 interactive("exit-minibuffer", null,
     function (I) { exit_minibuffer(I.window); });
@@ -506,10 +510,9 @@ interactive("minibuffer-history-previous", null,
 
 // Define the asynchronous minibuffer.read function
 minibuffer.prototype.read = function () {
-    var s = new text_entry_minibuffer_state(this, (yield CONTINUATION), forward_keywords(arguments));
+    var s = new text_entry_minibuffer_state(this, forward_keywords(arguments));
     this.push_state(s);
-    var result = yield SUSPEND;
-    yield co_return(result);
+    yield co_return(yield s.promise);
 };
 
 minibuffer.prototype.read_command = function () {

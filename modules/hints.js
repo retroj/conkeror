@@ -500,14 +500,18 @@ hints_minibuffer_annotation_mode(true);
  * $abort_callback
  */
 define_keywords("$keymap", "$auto", "$hint_xpath_expression", "$multiple");
-function hints_minibuffer_state (minibuffer, continuation, buffer) {
+function hints_minibuffer_state (minibuffer, buffer) {
     keywords(arguments, $keymap = hint_keymap, $auto);
     basic_minibuffer_state.call(this, minibuffer, $prompt = arguments.$prompt,
                                 $keymap = arguments.$keymap);
     if (hints_minibuffer_annotation_mode_enabled)
 	this.hints_minibuffer_annotation = new hints_minibuffer_annotation(this, buffer.window);
     this.original_prompt = arguments.$prompt;
-    this.continuation = continuation;
+
+    let deferred = Promise.defer();
+    this.deferred = deferred;
+    this.promise = make_simple_cancelable(deferred);
+
     this.auto_exit = arguments.$auto ? true : false;
     this.xpath_expr = arguments.$hint_xpath_expression;
     this.auto_exit_timer_ID = null;
@@ -547,6 +551,7 @@ hints_minibuffer_state.prototype = {
         basic_minibuffer_state.prototype.unload.call(this);
     },
     destroy: function () {
+        this.promise.cancel();
         this.clear_auto_exit_timer();
         this.manager.remove();
         if (this.hints_minibuffer_annotation)
@@ -701,11 +706,8 @@ function hints_exit (window, s) {
     else if (cur == 0)
         elem = window.buffers.current.top_frame;
     if (elem !== null) {
-        var c = s.continuation;
-        delete s.continuation;
+        s.deferred.resolve(elem);
         window.minibuffer.pop_state();
-        if (c)
-            c(elem);
     }
 }
 
@@ -725,10 +727,9 @@ define_keywords("$buffer");
 minibuffer.prototype.read_hinted_element = function () {
     keywords(arguments);
     var buf = arguments.$buffer;
-    var s = new hints_minibuffer_state(this, (yield CONTINUATION), buf, forward_keywords(arguments));
+    var s = new hints_minibuffer_state(this, buf, forward_keywords(arguments));
     this.push_state(s);
-    var result = yield SUSPEND;
-    yield co_return(result);
+    yield co_return(yield s.promise);
 };
 
 provide("hints");

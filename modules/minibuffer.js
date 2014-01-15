@@ -410,17 +410,11 @@ minibuffer.prototype.show_wait_message = function (initial_message, cleanup_func
 };
 
 minibuffer.prototype.wait_for = function (message, coroutine) {
-    var cc = yield CONTINUATION;
-    var done = false;
-    var s = this.show_wait_message(message, function () { if (!done) cc.throw(abort()); });
-    var result;
-    try {
-        result = yield coroutine;
-    } finally {
-        done = true;
-        this.remove_state(s);
-    }
-    yield co_return(result);
+    let promise = spawn(coroutine);
+    var s = this.show_wait_message(message, promise.cancel);
+    let cleanup = s.minibuffer.remove_state.bind(s);
+    promise.then(cleanup, cleanup);
+    return promise;
 };
 
 

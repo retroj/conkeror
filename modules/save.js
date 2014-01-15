@@ -238,12 +238,12 @@ function download_as_temporary (lspec) {
     if (uri.scheme == "file") {
         let file = uri.QueryInterface(Ci.nsIFileURL).file;
 
-        yield co_return([file, false /* not temporary */]);
+        return Promise.resolve([file, false /* not temporary */]);
     }
 
     var file = get_temporary_file(suggest_file_name(lspec));
 
-    var cc = yield CONTINUATION;
+    var deferred = Promise.defer();
 
     function handle_state_change (info) {
         var state = info.state;
@@ -255,10 +255,10 @@ function download_as_temporary (lspec) {
                 // Delete the temporary file
                 file.remove(false /*non-recursive*/);
             } catch (e) {}
-            cc.throw(download_failed_error());
+            deferred.reject(download_failed_error());
             break;
         case DOWNLOAD_FINISHED:
-            cc([file, true /* temporary */]);
+            deferred.resolve([file, true /* temporary */]);
             break;
         }
     }
@@ -277,8 +277,8 @@ function download_as_temporary (lspec) {
                  add_hook.call(info, "download_state_change_hook", handle_state_change);
              });
 
-    var result = yield SUSPEND;
-    yield co_return(result);
+    // FIXME: add cancelation support: tricky to handle cancelation coming before download starts
+    return deferred.promise;
 }
 
 provide("save");
