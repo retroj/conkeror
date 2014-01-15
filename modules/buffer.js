@@ -588,10 +588,14 @@ buffer_container.prototype = {
         // exists.
         var element = b.element;
         b.destroy();
+
+        // Switch to new buffer before destroying this buffer so that
+        // there always remains a selected buffer
+        this._switch_to(new_buffer);
+
         this.container.removeChild(element);
         this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
         this.buffer_history.splice(this.buffer_history.indexOf(b), 1);
-        this._switch_to(new_buffer);
         if (changed) {
             select_buffer_hook.run(new_buffer);
             this.buffer_history.splice(this.buffer_history.indexOf(new_buffer), 1);
