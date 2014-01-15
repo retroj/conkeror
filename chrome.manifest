@@ -18,3 +18,7 @@ contract @mozilla.org/download-manager-ui;1 {7770E0D0-C4A0-11DC-95FF-0800200C9A6
 # "@conkeror.mozdev.org/downloadsstartup-not-defined;1" is never defined and will
 # be silently ignored by embedding/components/appstartup/src/nsAppStartupNotifier.cpp
 category app-startup DownloadsStartup @conkeror.mozdev.org/downloadsstartup-not-defined;1
+
+# This is a Mozilla component that implements nsITransfer in a way that is compatible with Downloads.jsm
+# For some reason as of Gecko 26 this is not registered by default.
+contract @mozilla.org/transfer;1 {1b4c85df-cbdd-4bb6-b04e-613caece083c} platformversion>=26
