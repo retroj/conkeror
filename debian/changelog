@@ -1,5 +1,7 @@
-conkeror (1.0~~pre+git131116-2) UNRELEASED; urgency=low
+conkeror (1.0~~pre+git140115-1) UNRELEASED; urgency=low
 
+  * New upstream snapshot
+  * Add support for xulrunner 28.
   * Reformat debian/control in wrap-and-sort style.
   * Bump Standards-Version to 3.9.5 (no changes).
 
