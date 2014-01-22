@@ -67,6 +67,11 @@ completions_tree_view.prototype = {
     },
     getRowProperties: function (row, props) {},
     getCellProperties: function (row, col, props) {
+        /* Since Gecko 22 props is obsolated
+         *https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsITreeView#getCellProperties()
+         */
+        if (typeof props == 'undefined')
+            return;
         if (col.index == 0)
             var a = atom_service.getAtom("completion-string");
         else
