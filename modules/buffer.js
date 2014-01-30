@@ -432,7 +432,10 @@ buffer_container.prototype = {
     },
 
     get current () {
-        return this.container.selectedPanel.conkeror_buffer_object;
+        if (this.container.selectedPanel)
+            return this.container.selectedPanel.conkeror_buffer_object;
+        else
+            return null;
     },
 
     set current (buffer) {
