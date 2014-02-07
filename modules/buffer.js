@@ -401,6 +401,13 @@ function buffer_container (window, create_initial_buffer) {
     this.container = window.document.getElementById("buffer-container");
     this.buffer_list = [];
     this.buffer_history = [];
+
+    // Stores the current buffer object, because
+    // this.container.selectedPanel may be temporarily invalid while
+    // killing a buffer.  Use the `this.current' getter rather than
+    // accessing this property directly.
+    this.current_buffer_object = null;
+
     window.buffers = this;
     create_initial_buffer(window);
 }
@@ -432,6 +439,8 @@ buffer_container.prototype = {
     },
 
     get current () {
+        if (this.current_buffer_object)
+            return this.current_buffer_object;
         return this.container.selectedPanel.conkeror_buffer_object;
     },
 
@@ -510,6 +519,7 @@ buffer_container.prototype = {
 
     _switch_to: function (buffer) {
         // Select new buffer in the XUL deck
+        this.current_buffer_object = buffer;
         this.container.selectedPanel = buffer.element;
 
         buffer.browser.setAttribute("type", "content-primary");
@@ -593,7 +603,19 @@ buffer_container.prototype = {
         // there always remains a selected buffer
         this._switch_to(new_buffer);
 
+        // In Gecko >= 25, the selectedIndex property of the xul:deck
+        // remains the same even after removing a child, which means
+        // if the removed child has a lower index than that of the new
+        // current buffer, the correct child will no longer be
+        // selected.  In the worst case, selectedIndex will fall out
+        // of the valid range, resulting in no buffer being selected
+        // which breaks Conkeror.  As a workaround, we reassign the
+        // selectedPanel immediately after removing the child.
+        var new_element = this.current.element;
         this.container.removeChild(element);
+        this.container.selectedPanel = new_element;
+
+
         this.buffer_list.splice(this.buffer_list.indexOf(b), 1);
         this.buffer_history.splice(this.buffer_history.indexOf(b), 1);
         if (changed) {
