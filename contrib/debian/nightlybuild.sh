@@ -15,7 +15,8 @@
 # following packages: gnupg, openssh-client, dctrl-tools, gzip, bzip2
 #
 # And on the machine hosting the APT repository, you'll need the
-# package reprepro.
+# package reprepro. Configure all distributions with "AlsoAcceptFor:
+# UNRELEASED experimental unstable sid".
 #
 # If you do only binary rebuilds for other architectures, you do _not_
 # need to have the nightly builds APT repository in your
@@ -218,7 +219,7 @@ if [ "$UPLOAD" = "yes" ]; then
 	    $UPLOAD_SSH_USER@$UPLOAD_SSH_HOST:$UPLOAD_SSH_DIR
 	if [ "$USE_REPREPRO" = "yes" ]; then
 	    ssh -i $UPLOAD_SSH_KEY $UPLOAD_SSH_USER@$UPLOAD_SSH_HOST \
-		"cd $UPLOAD_SSH_DIR; for i in $REPREPRO_DISTS; do reprepro --ignore=wrongdistribution -v includedeb" '$i' *.deb "; done"
+		"cd $UPLOAD_SSH_DIR; for i in $REPREPRO_DISTS; do reprepro -v includedeb" '$i' *.deb "; done"
 	fi
     else
 	scp -i $UPLOAD_SSH_KEY -p *build *deb *changes *dsc *gz \
@@ -226,7 +227,7 @@ if [ "$UPLOAD" = "yes" ]; then
 
 	if [ "$USE_REPREPRO" = "yes" ]; then
 	    ssh -i $UPLOAD_SSH_KEY $UPLOAD_SSH_USER@$UPLOAD_SSH_HOST \
-		"cd $UPLOAD_SSH_DIR; for i in $REPREPRO_DISTS; do reprepro --ignore=wrongdistribution -v include" '$i' *.changes "; done"
+		"cd $UPLOAD_SSH_DIR; for i in $REPREPRO_DISTS; do reprepro -v include" '$i' *.changes "; done"
 	fi
     fi
 fi
