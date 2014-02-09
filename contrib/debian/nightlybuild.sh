@@ -171,6 +171,7 @@ else
     # Update master copy
     cd $MASTERDIR
     git pull
+    git gc
 
     # Determine the correct version
     VERSION=`grep ^Version= $MASTERDIR/application.ini | \
