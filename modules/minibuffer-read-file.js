@@ -20,14 +20,16 @@ function separator_p (s) {
 }
 
 
-function file_path_completions (completer, data, suffix) {
+function file_path_completions (completer, data, common_prefix, suffix) {
     completions.call(this, completer, data);
+    this.common_prefix = common_prefix;
     this.suffix = suffix;
 }
 file_path_completions.prototype = {
     constructor: file_path_completions,
     __proto__: completions.prototype,
     toString: function () "#<file_path_completions>",
+    common_prefix: null,
     suffix: null,
     get_string: function (i) this.data[i].path,
     get_input_state: function (i) {
@@ -40,6 +42,17 @@ file_path_completions.prototype = {
         }
         var sel = s.length;
         return [s + this.suffix, sel, sel];
+    },
+    get common_prefix_input_state () {
+        if (this.count == 1) {
+            var prefix = this.get_string(0);
+            if (this.data[0].isDirectory())
+                prefix += "/";
+        } else {
+            prefix = this.common_prefix;
+        }
+        var i = prefix.length;
+        return [prefix, i, i];
     }
 };
 
@@ -58,10 +71,10 @@ file_path_completer.prototype = {
     complete: function (input, pos) {
         var s = input.substring(0, pos);
         var suffix = input.substring(pos);
-        var ents = [];
+        var entries = [];
         try {
             var f = make_file(s);
-            if (directory_p(f)) {
+            if (separator_p(s.substr(pos - 1, 1))) {
                 var dir = f;
                 var leaf = "";
             } else {
@@ -77,13 +90,26 @@ file_path_completer.prototype = {
                 if (e.leafName.substr(0, ll) == leaf &&
                     this.test(e))
                 {
-                    ents.push(e);
+                    entries.push(e);
                 }
             }
         } catch (e) {
             return null;
         }
-        return new file_path_completions(this, ents, suffix);
+        entries.sort(function (a, b) {
+            a = a.path;
+            b = b.path;
+            if (a < b)
+                return -1;
+            if (a > b)
+                return 1;
+            return 0;
+        });
+        var first = entries[0].path;
+        var last = entries[entries.length - 1].path;
+        var cpi = common_prefix_length(first, last);
+        var common_prefix = first.substring(0, cpi);
+        return new file_path_completions(this, entries, common_prefix, suffix);
     }
 };
 
@@ -96,10 +122,8 @@ minibuffer.prototype.read_file_path = function () {
              $history = "file",
              $completer = null);
     var result = yield this.read(
-        $prompt = arguments.$prompt,
-        $initial_value = arguments.$initial_value,
-        $history = arguments.$history,
         $completer = arguments.$completer || new file_path_completer(),
+        forward_keywords(arguments),
         $auto_complete);
     yield co_return(result);
 };
@@ -110,16 +134,24 @@ minibuffer.prototype.read_file = function () {
 };
 
 minibuffer.prototype.read_existing_file = function () {
+    function validator (x) {
+        try {
+            return make_file(x).exists();
+        } catch (e) {
+            return false;
+        }
+    }
     var result = yield this.read_file_path(
         forward_keywords(arguments),
-        $require_match);
+        $validator = validator);
     yield co_return(result);
 };
 
 minibuffer.prototype.read_directory_path = function () {
     function validator (x) {
         try {
-            return directory_p(make_file(x));
+            var f = make_file(x);
+            return !f.exists() || f.isDirectory();
         } catch (e) {
             return false;
         }
@@ -127,16 +159,21 @@ minibuffer.prototype.read_directory_path = function () {
     var result = yield this.read_file_path(
         forward_keywords(arguments),
         $completer = new file_path_completer($test = directory_p),
-        $validator = validator); //XXX: check if this works.  it's okay if
-                                 //the result doesn't exist, but not okay
-                                 //if it exists but is not a directory.
+        $validator = validator); //XXX: overridden by read_existing_directory_path?
     yield co_return(result);
 };
 
 minibuffer.prototype.read_existing_directory_path = function () {
+    function validator (x) {
+        try {
+            return directory_p(make_file(x));
+        } catch (e) {
+            return false;
+        }
+    }
     var result = yield this.read_directory_path(
         forward_keywords(arguments),
-        $require_match);
+        $validator = validator);
     yield co_return(result);
 };
 
