@@ -972,8 +972,12 @@ function download_shell_command (buffer, cwd, cmd) {
         shell_command_with_argument_blind(cmd, info.target_file.path, $cwd = cwd);
         return;
     }
-    if (info.state != DOWNLOAD_DOWNLOADING && info.state != DOWNLOAD_PAUSED && info.state != DOWNLOAD_QUEUED)
+    if (info.state != DOWNLOAD_DOWNLOADING &&
+        info.state != DOWNLOAD_PAUSED &&
+        info.state != DOWNLOAD_QUEUED)
+    {
         info.throw_state_error();
+    }
     if (cmd == null || cmd.length == 0)
         info.set_shell_command(null, cwd);
     else
@@ -1016,7 +1020,7 @@ interactive("download-manager-show-builtin-ui",
 
 /*
  * Download-show
- */ 
+ */
 
 define_variable("download_temporary_file_open_buffer_delay", 500,
     "Delay (in milliseconds) before a download buffer is opened for "+
