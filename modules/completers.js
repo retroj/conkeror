@@ -196,6 +196,8 @@ prefix_completer.prototype = {
             });
         var nnarrowed = narrowed.length;
         if (nnarrowed > 0) {
+            // the completions were already sorted by 'refresh', so we can
+            // get the common prefix by comparing the first and last items.
             var a = this.get_string(narrowed[0]);
             var b = this.get_string(narrowed[nnarrowed - 1]);
             let i = common_prefix_length(a, b);
