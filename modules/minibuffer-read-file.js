@@ -147,6 +147,7 @@ minibuffer.prototype.read_existing_file = function () {
     yield co_return(result);
 };
 
+//XXX: why '_path' instead of just 'read_directory' returning an nsIFile?
 minibuffer.prototype.read_directory_path = function () {
     function validator (x) {
         try {
@@ -163,6 +164,7 @@ minibuffer.prototype.read_directory_path = function () {
     yield co_return(result);
 };
 
+//XXX: why '_path' instead of just 'read_existing_directory' returning an nsIFile?
 minibuffer.prototype.read_existing_directory_path = function () {
     function validator (x) {
         try {
