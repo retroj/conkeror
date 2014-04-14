@@ -11,6 +11,8 @@ Vcs-Git: git://repo.or.cz/conkeror.git
 Package: conkeror
 Architecture: all
 Depends: ${misc:Depends},
+ xulrunner-24.0  |
+ xulrunner-17.0  |
  xulrunner-10.0  |
  xulrunner-13.0  |
  xulrunner-12.0  |
