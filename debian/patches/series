@@ -1,2 +1,7 @@
 sensible-editor-xdg-open.diff
 deb-webjumps.diff
+cherry-pick-for-stable-3fa86d908.patch
+cherry-pick-for-stable-9bb360e64.patch
+cherry-pick-for-stable-bbd010b5a.patch
+cherry-pick-for-stable-38b6279c2.patch
+cherry-pick-for-stable-2c36b5072.patch

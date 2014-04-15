@@ -1,0 +1,35 @@
+commit 38b6279c2053854c2e8f24e70facb5328d9f170c
+Author: John Foerch <jjfoerch@earthlink.net>
+Date:   Thu Nov 7 23:29:47 2013 -0500
+
+    completions_tree_view.getCellProperties: fix for XULRunner >= 22
+    
+    Conkeror would issue errors like the following to the terminal when
+    running on XULRunner 22 or later:
+    
+        Console error: [JavaScript Error: "TypeError: props is undefined"
+          {file: "chrome://conkeror/content/minibuffer-read.js" line: 69}]
+          Category: chrome javascript
+    
+    The behavior of getCellProperties was changed in XULRunner 22, so this
+    patch is an update for that change.
+
+diff --git a/modules/minibuffer-read.js b/modules/minibuffer-read.js
+index be35ed3..000bbed 100644
+--- a/modules/minibuffer-read.js
++++ b/modules/minibuffer-read.js
+@@ -68,9 +68,12 @@ completions_tree_view.prototype = {
+     getRowProperties: function (row, props) {},
+     getCellProperties: function (row, col, props) {
+         if (col.index == 0)
+-            props.AppendElement(atom_service.getAtom("completion-string"));
++            var a = atom_service.getAtom("completion-string");
+         else
+-            props.AppendElement(atom_service.getAtom("completion-description"));
++            a = atom_service.getAtom("completion-description");
++        if (props)
++            props.AppendElement(a);
++        return a;
+     },
+     getColumnProperties: function (colid, col, props) {}
+ };

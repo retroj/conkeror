@@ -1,0 +1,85 @@
+commit 9bb360e6454ce4fd70daba0cd49d017f32276f0a
+Author: John Foerch <jjfoerch@earthlink.net>
+Date:   Tue Dec 4 19:59:11 2012 -0500
+
+    favicon_set: fix for xulrunner 18
+    
+    The call form of favicon_service.setAndLoadFaviconForPage changed in
+    xulrunner 18.
+    
+    get_mozilla_version, version_compare: new utils
+
+Index: conkeror-wheezy/modules/env.js
+===================================================================
+--- conkeror-wheezy.orig/modules/env.js	2014-04-15 02:25:15.415561032 +0200
++++ conkeror-wheezy/modules/env.js	2014-04-15 02:25:20.203649913 +0200
+@@ -23,6 +23,17 @@
+ 
+ 
+ /**
++ * get_xulrunner_version returns the version string of the running
++ * platform.
++ */
++function get_mozilla_version () {
++    return Cc['@mozilla.org/xre/app-info;1']
++        .getService(Ci.nsIXULAppInfo)
++        .platformVersion;
++}
++
++
++/**
+  * getenv returns the value of a named environment variable or null if
+  * the environment variable does not exist.
+  */
+Index: conkeror-wheezy/modules/favicon.js
+===================================================================
+--- conkeror-wheezy.orig/modules/favicon.js	2014-04-15 02:25:15.415561032 +0200
++++ conkeror-wheezy/modules/favicon.js	2014-04-15 02:25:20.203649913 +0200
+@@ -17,10 +17,23 @@
+     "is considered for use as a favicon.");
+ 
+ 
+-function favicon_set (buffer, icon_url) {
+-    favicon_service.setAndLoadFaviconForPage(buffer.current_uri,
+-                                             icon_url, false);
+-    buffer.icon = icon_url.spec;
++let (favicon_set_internal) {
++    if (version_compare(get_mozilla_version(), "18.0") >= 0) {
++        favicon_set_internal = function (buffer, icon_url) {
++            favicon_service.setAndLoadFaviconForPage(
++                buffer.current_uri, icon_url, false,
++                favicon_service.FAVICON_LOAD_NON_PRIVATE);
++        };
++    } else {
++        favicon_set_internal = function (buffer, icon_url) {
++            favicon_service.setAndLoadFaviconForPage(
++                buffer.current_uri, icon_url, false);
++        };
++    }
++    function favicon_set (buffer, icon_url) {
++        favicon_set_internal(buffer, icon_url);
++        buffer.icon = icon_url.spec;
++    }
+ }
+ 
+ 
+Index: conkeror-wheezy/modules/string.js
+===================================================================
+--- conkeror-wheezy.orig/modules/string.js	2014-04-15 02:25:15.415561032 +0200
++++ conkeror-wheezy/modules/string.js	2014-04-15 02:25:20.203649913 +0200
+@@ -174,4 +174,15 @@
+ }
+ 
+ 
++/**
++ * version_compare: compare two version strings with nsIVersionComparator.
++ * If a == b, returns 0; if a < b, returns <0; if a > b, returns >0.
++ */
++function version_compare (a, b) {
++    var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]  
++        .getService(Ci.nsIVersionComparator);  
++    return vc.compare(a, b);
++}
++
++
+ provide("string");

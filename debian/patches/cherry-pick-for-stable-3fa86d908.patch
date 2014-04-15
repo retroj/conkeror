@@ -1,0 +1,106 @@
+commit 3fa86d908d5604a80f6ffb8beacb23a316b3de58
+Author: John Foerch <jjfoerch@earthlink.net>
+Date:   Thu Feb 14 22:14:10 2013 +0700
+
+    modifiers.s: support for Super key / Windows-logo key
+    
+    In XULRunner 12 and earlier, Windows-logo key was recognized as the
+    metaKey modifier.  In 13 and 14, it was not recognized at all.  XULRunner
+    15 introduced the DOM3 method event.getModifierState, which brought back
+    support for the Windows-logo key, aka Super key, as the "OS key".  With
+    this patch, Conkeror maps that to the "s" modifier.
+    
+    This patch is based on work by Nguyễn Tuấn Anh.
+    
+    See also:
+      https://developer.mozilla.org/en-US/docs/DOM/KeyboardEvent#getModifierState()
+    
+    Resolves issue443 <http://bugs.conkeror.org/issue443>
+
+diff --git a/modules/input.js b/modules/input.js
+index 6adbec1..3b1cdbb 100644
+--- a/modules/input.js
++++ b/modules/input.js
+@@ -41,6 +41,7 @@ function event_clone (event) {
+     this.metaKey = event.metaKey;
+     this.altKey = event.altKey;
+     this.shiftKey = event.shiftKey;
++    this.superKey = modifiers.s.in_event_p(event);
+     this.sticky_modifiers = event.sticky_modifiers;
+ }
+ 
+diff --git a/modules/keymap.js b/modules/keymap.js
+index ee02f22..d7f1d4c 100644
+--- a/modules/keymap.js
++++ b/modules/keymap.js
+@@ -40,6 +40,13 @@ var modifiers = {
+                     function (event) { event.ctrlKey = true; }),
+     M: new modifier(function (event) { return event.metaKey; },
+                     function (event) { event.metaKey = true; }),
++    s: new modifier(function (event) {
++                        if (event.superKey)
++                            return true;
++                        return ("getModifierState" in event &&
++                                event.getModifierState("OS"));
++                    },
++                    function (event) { event.superKey = true; }),
+     S: new modifier(function (event) {
+                         if (event.shiftKey) {
+                             var name;
+@@ -53,7 +60,7 @@ var modifiers = {
+                     },
+                     function (event) { event.shiftKey = true; })
+ };
+-var modifier_order = ['C', 'M', 'S'];
++var modifier_order = ['C', 'M', 's', 'S'];
+ 
+ // check the platform and guess whether we should treat Alt as Meta
+ if (get_os() == 'Darwin') {
+@@ -117,7 +124,8 @@ function unformat_key_combo (combo) {
+         altKey: false,
+         ctrlKey: false,
+         metaKey: false,
+-        shiftKey: false
++        shiftKey: false,
++        superKey: false
+     };
+     var M;
+     var i = 0;
+@@ -200,6 +208,7 @@ define_key_match_predicate('match_any_unmodified_character', 'any unmodified cha
+                 && !modifiers.A.in_event_p(event)
+                 && !event.metaKey
+                 && !event.ctrlKey
++                && !modifiers.s.in_event_p(event)
+                 && !event.sticky_modifiers;
+         } catch (e) { return false; }
+     });
+@@ -210,7 +219,8 @@ define_key_match_predicate('match_checkbox_keys', 'checkbox keys',
+             && !event.shiftKey
+             && !event.metaKey
+             && !event.altKey
+-            && !event.ctrlKey;
++            && !event.ctrlKey
++            && !modifiers.s.in_event_p(event);
+         //XXX: keycode fallthroughs don't support sticky modifiers
+     });
+ 
+@@ -220,7 +230,8 @@ define_key_match_predicate('match_text_keys', 'text editing keys',
+                 || event.keyCode == 13 || event.keyCode > 31)
+             && !event.ctrlKey
+             && !event.metaKey
+-            && !modifiers.A.in_event_p(event);
++            && !modifiers.A.in_event_p(event)
++            && !modifiers.s.in_event_p(event);
+         //XXX: keycode fallthroughs don't support sticky modifiers
+     });
+ 
+@@ -234,7 +245,8 @@ define_key_match_predicate('match_not_escape_key', 'any key but escape',
+                               // whether the "M" modifier was pressed,
+                               // which is not necessarily the same as
+                               // event.metaKey.
+-             event.ctrlKey;
++             event.ctrlKey ||
++             modifiers.s.in_event_p(event);
+     });
+ 
+ 

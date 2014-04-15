@@ -1,0 +1,25 @@
+commit bbd010b5a3c31725c33823979c67ddfbdaa9d3db
+Author: Scott Jaderholm <jaderholm@gmail.com>
+Date:   Thu Mar 14 19:03:49 2013 -0700
+
+    favicon.js: use setAndFetchFaviconForPage for xulrunner 18 and above
+    
+    nsIFaviconService::setAndLoadFaviconForPage was marked deprecated in
+    favor of mozIAsyncFavicons::setAndFetchFaviconForPage in xulrunner 21.
+    Since we already have a branch for xulrunner 18+ when the privacy
+    argument was added, and since favicon_service implements
+    mozIAsyncFavicons at least as far back as 18, I'm reusing that branch.
+
+diff --git a/modules/favicon.js b/modules/favicon.js
+index abbe60b..ea606b2 100644
+--- a/modules/favicon.js
++++ b/modules/favicon.js
+@@ -20,7 +20,7 @@ define_variable("favicon_image_max_size", 1024,
+ let (favicon_set_internal) {
+     if (version_compare(get_mozilla_version(), "18.0") >= 0) {
+         favicon_set_internal = function (buffer, icon_url) {
+-            favicon_service.setAndLoadFaviconForPage(
++            favicon_service.setAndFetchFaviconForPage(
+                 buffer.current_uri, icon_url, false,
+                 favicon_service.FAVICON_LOAD_NON_PRIVATE);
+         };

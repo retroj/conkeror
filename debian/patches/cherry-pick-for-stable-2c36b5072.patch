@@ -1,0 +1,25 @@
+commit 2c36b5072cdcfeb1effe308a83b9121f9a5bed08
+Author: John Foerch <jjfoerch@earthlink.net>
+Date:   Thu Oct 17 09:12:40 2013 -0400
+
+    scroll-top-left: fix for xulrunner >= 23
+    
+    resolves issue450 (see http://bugs.conkeror.org/issue450 for details).
+
+diff --git a/modules/commands.js b/modules/commands.js
+index dd13267..2123365 100644
+--- a/modules/commands.js
++++ b/modules/commands.js
+@@ -52,8 +52,10 @@ interactive("scroll-end-of-line",
+ 
+ interactive("scroll-top-left",
+     "Scroll the current frame all the way to the top left",
+-     function (I) { I.buffer.do_command("cmd_scrollTop");
+-                    scroll_horiz_complete(I.buffer, -1); });
++     function (I) {
++         scroll_horiz_complete(I.buffer, -1);
++         I.buffer.do_command("cmd_scrollTop");
++     });
+ 
+ 
+ function delete_window (window) {
