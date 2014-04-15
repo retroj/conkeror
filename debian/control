@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 7.2.3~), dpkg-dev (>= 1.16.1~)
 Standards-Version: 3.9.3
 Homepage: http://conkeror.org/
 Vcs-Browser: http://repo.or.cz/w/conkeror.git
-Vcs-Git: git://repo.or.cz/conkeror.git
+Vcs-Git: git://repo.or.cz/conkeror.git -b debian-wheezy
 
 Package: conkeror
 Architecture: all

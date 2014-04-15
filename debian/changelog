@@ -7,6 +7,7 @@ conkeror (1.0~~pre+git120527-1+deb7u1) stable-proposed-updates; urgency=low
     + bbd010b5a: favicon.js: use setAndFetchFaviconForPage for XR >= 18
     + 9bb360e64: favicon_set: fix for XR 18
     + 3fa86d908: modifiers.s: Meta vs Super key (regression after XR 12)
+  * Update Vcs-Git to sport proper branch for stable updates
 
  -- Axel Beckert <abe@debian.org>  Tue, 15 Apr 2014 01:48:08 +0200
 
