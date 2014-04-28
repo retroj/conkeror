@@ -5,7 +5,7 @@
 # Find an appropriate xulrunner binary
 XULRUNNER=''
 # Due to http://bugs.debian.org/683157 we currently have to skip xulrunner-14.0
-for version in `LC_ALL=C seq 28 -1 15` `LC_ALL=C seq 13 -1 5` 2 1.9.2 1.9.1; do
+for version in `LC_ALL=C seq 30 -1 15` `LC_ALL=C seq 13 -1 5` 2 1.9.2 1.9.1; do
     for subversion in $version $version.0; do
         XRTMP=`which xulrunner-$subversion`
         if [ -n "$XRTMP" -a -x "$XRTMP" ]; then
