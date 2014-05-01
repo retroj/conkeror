@@ -910,13 +910,8 @@ function kill_buffer (buffer, force) {
         if (can_kill_last_buffer || force) {
             delete_window(buffer.window);
             return;
-        } else {
-            try {
-                let history = buffer.web_navigation.sessionHistory;
-                history.PurgeHistory(history.count);
-            } catch (e) {}
-            buffer.load("about:blank");
-        }
+        } else
+            throw interactive_error("Can't kill last buffer.");
     }
     buffers.kill_buffer(buffer);
 }
