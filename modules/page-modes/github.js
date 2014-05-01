@@ -39,6 +39,8 @@ interactive("github-focus-issues-search", null, function (I) {
 [// Site-wide shortcuts
  "s",                        // Focus site search
  "?",                        // Bring up this help dialog
+ "g",                        // go to stuff
+ "C-return",                 // submit comments/issues
  // Commit list
  "j",                        // Move selected down
  "k",                        // Move selected up
@@ -50,6 +52,7 @@ interactive("github-focus-issues-search", null, function (I) {
  "k",                        // Move selected up
  "o", "return",              // Open issue
  // Issues
+ "i",                        // g i, goes to issues
  "j",                        // Move selected down
  "k",                        // Move selected up
  "x",                        // Toggle select target
