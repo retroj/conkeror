@@ -16,7 +16,7 @@ let (xul_runtime = Cc['@mozilla.org/xre/app-info;1']
     function get_os () {
         return xul_runtime.OS;
     }
-};
+}
 
 const WINDOWS = (get_os() == "WINNT");
 const POSIX = !WINDOWS;
