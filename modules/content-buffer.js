@@ -384,7 +384,7 @@ define_variable("url_completion_sort_order", "visitcount_descending",
     "<https://developer.mozilla.org/en/NsINavHistoryQueryOptions#Sorting_methods>.");
 
 define_variable("minibuffer_read_url_select_initial", true,
-    "Specifies whether a URL  presented in the minibuffer for editing "+
+    "Specifies whether a URL presented in the minibuffer for editing "+
     "should be selected.  This affects find-alternate-url.");
 
 
