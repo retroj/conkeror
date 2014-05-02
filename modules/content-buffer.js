@@ -391,6 +391,7 @@ define_variable("minibuffer_read_url_select_initial", true,
 minibuffer_auto_complete_preferences["url"] = true;
 minibuffer.prototype.read_url = function () {
     keywords(arguments, $prompt = "URL:", $history = "url", $initial_value = "",
+             $select = minibuffer_read_url_select_initial,
              $use_webjumps = url_completion_use_webjumps,
              $use_history = url_completion_use_history,
              $use_bookmarks = url_completion_use_bookmarks,
@@ -406,7 +407,7 @@ minibuffer.prototype.read_url = function () {
         $completer = completer,
         $initial_value = arguments.$initial_value,
         $auto_complete = "url",
-        $select = minibuffer_read_url_select_initial,
+        $select = arguments.$select,
         $require_match = false);
     if (!possibly_valid_url(result) && !get_webjump(result))
         result = try_read_url_handlers(result);
