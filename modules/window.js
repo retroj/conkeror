@@ -30,7 +30,7 @@ function generate_new_window_tag (tag) {
         re = new RegExp ("^(\\d+)$");
     while (en.hasMoreElements()) {
         var w = en.getNext().QueryInterface(Ci.nsIDOMWindow);
-        if ('tag' in w)  {
+        if ('tag' in w) {
             if (tag && w.tag == tag) {
                 exact_match = true;
                 continue;
