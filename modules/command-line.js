@@ -96,7 +96,7 @@ command_line_param_handler("chrome", true, function (uri, ctx) {
             make_chrome_window(uri);
         } catch (e) { dump_error(e); }
     });
-command_line_param_handler("q", false, function () {
+command_line_handler("q", false, function () {
         dumpln ("w: -q may only be used as the first argument.");
     });
 
