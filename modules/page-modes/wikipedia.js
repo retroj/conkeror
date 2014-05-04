@@ -17,17 +17,17 @@
 /*** VARIABLES ***/
 
 define_variable("wikipedia_didyoumean_follow_first_hit", false,
-		"When true, follows the first hit in the result list"
-		+ "unless a \"did you mean\" in shown.");
+    "When true, follows the first hit in the result list"+
+    "unless a \"did you mean\" in shown.");
 
 define_variable("wikipedia_enable_didyoumean", false,
-		"When true, enables \"did you mean\".");
+    "When true, enables \"did you mean\".");
 
 define_variable('wikipedia_webjumps_format', 'wikipedia-%s',
-                "This variable controls the names of the webjumps defined "+
-                "by the wikipedia-webjumps module.  It is a simple string "+
-                "format spec.  The format code `%s' will be replaced by the "+
-                "language code for the webjump.");
+    "This variable controls the names of the webjumps defined "+
+    "by the wikipedia-webjumps module.  It is a simple string "+
+    "format spec.  The format code `%s' will be replaced by the "+
+    "language code for the webjump.");
 
 /**
  * Given the buffer, searches the document for a "did you mean" suggestion box,
@@ -48,18 +48,18 @@ function wikipedia_didyoumean(buffer) {
     let didyoumean = xpath_find_any(doc, didyoumean_xpath);
     let found = didyoumean.iterateNext();
     if (found) {
-	// "Did you mean" found.
-	doc.location = found.href;
+        // "Did you mean" found.
+        doc.location = found.href;
     } else {
-	// Follow the first hit if wikipedia_didyoumean_follow_first_hit.
-	if (wikipedia_didyoumean_follow_first_hit) {
-	    let firsthit_xpath = '//ul[@class="mw-search-results"]/li[1]/a';
-	    let firsthit = xpath_find_any(doc, firsthit_xpath);
-	    found = firsthit.iterateNext();
-	    if (found) {
-		doc.location = found.href;
-	    }
-	}
+        // Follow the first hit if wikipedia_didyoumean_follow_first_hit.
+        if (wikipedia_didyoumean_follow_first_hit) {
+            let firsthit_xpath = '//ul[@class="mw-search-results"]/li[1]/a';
+            let firsthit = xpath_find_any(doc, firsthit_xpath);
+            found = firsthit.iterateNext();
+            if (found) {
+                doc.location = found.href;
+            }
+        }
     }
 }
 
@@ -135,7 +135,7 @@ define_page_mode("wikipedia-mode",
     /wikipedia/,  // TODO: Better regular expression
     function enable (buffer) {
         if (wikipedia_enable_didyoumean) {
-	    do_when("buffer_dom_content_loaded_hook", buffer, wikipedia_didyoumean);
+            do_when("buffer_dom_content_loaded_hook", buffer, wikipedia_didyoumean);
         }
         buffer.page.local.headings_xpath = '//h1[@id="firstHeading"] | //span[@class="mw-headline"] | //div[@id="toctitle"]';
         buffer.content_modalities.push(wikipedia_modality);
