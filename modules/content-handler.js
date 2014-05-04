@@ -26,8 +26,8 @@ function content_handler_context (launcher, context) {
     var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
         .getService(Ci.nsIXULAppInfo)
         .platformVersion;
-    var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]  
-        .getService(Ci.nsIVersionComparator);  
+    var vc = Cc["@mozilla.org/xpcom/version-comparator;1"]
+        .getService(Ci.nsIVersionComparator);
     this.launcher = launcher;
     try {
         this.frame = context.QueryInterface(Ci.nsIInterfaceRequestor)
