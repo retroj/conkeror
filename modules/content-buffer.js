@@ -578,7 +578,7 @@ interactive("reload",
     function (I) {
         check_buffer(I.buffer, content_buffer);
         var element = yield read_browser_object(I);
-        reload(I.buffer, I.P, element, I.forced_charset);
+        reload(I.buffer, I.P, element, I.forced_charset || null);
     },
     $browser_object = null);
 
