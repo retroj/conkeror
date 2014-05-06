@@ -46,7 +46,7 @@ function make_table (table) {
 
 
 /**
- * make_table_from_ranges is a constructor of a casual-spelling 
+ * make_table_from_ranges is a constructor of a casual-spelling
  * table which generates the table from a shorthand form
  * called a "range table".  A range table is an array where each element
  * is an array of three elements: range-low, range-high, and range-spec.

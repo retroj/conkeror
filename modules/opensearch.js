@@ -312,7 +312,7 @@ function define_opensearch_webjump (name, spec) {
     let alternative = arguments.$alternative;
 
     var path = null;
-    if (spec instanceof Ci.nsIFile) 
+    if (spec instanceof Ci.nsIFile)
         path = spec;
     else {
         for (i = 0, n = opensearch_load_paths.length; i < n; ++i) {
