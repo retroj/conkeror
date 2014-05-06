@@ -399,7 +399,7 @@ _co_impl.prototype = {
         // Cancelation has been successfully delivered, remove pending cancelation
         if (throw_value && this.pending_cancelation == y && y !== undefined)
             this.pending_cancelation = undefined;
-        
+
         while (true) {
             try { // We must capture any exception thrown by `f'
 

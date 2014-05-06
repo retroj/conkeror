@@ -112,7 +112,7 @@ download_info.prototype = {
     },
 
     // Download manager operations
-    cancel: function ()  {
+    cancel: function () {
         this.throw_if_removed();
         switch (this.state) {
         case DOWNLOAD_DOWNLOADING:
@@ -670,7 +670,7 @@ download_buffer.prototype = {
                 return true;
             }
             return false;
-        } catch (e) { 
+        } catch (e) {
             dump_error(e);
             throw e;
         }

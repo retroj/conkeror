@@ -92,7 +92,7 @@ var spawn_process_helper_setup_timeout = 2000;
  *        An array of strings to pass as the arguments to the program.  The
  *        first argument should be the program name.  These strings must not
  *        have any NUL bytes in them.
- * @param working_dir       
+ * @param working_dir
  *        If non-null, must be an nsILocalFile.  spawn_process will switch
  *        to this path before running the program.
  * @param finished_callback
