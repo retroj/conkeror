@@ -443,8 +443,8 @@ hints_minibuffer_annotation.prototype = {
     constructor: hints_minibuffer_annotation,
 
     update: function () {
-	var s = [];
-	if (this.hints.manager && this.hints.manager.last_selected_hint) {
+        var s = [];
+        if (this.hints.manager && this.hints.manager.last_selected_hint) {
             var elem = this.hints.manager.last_selected_hint.elem;
             if (elem.hasAttribute("onmousedown") ||
                 elem.hasAttribute("onclick"))
@@ -465,7 +465,7 @@ hints_minibuffer_annotation.prototype = {
                         s.push(uri);
                 } catch (e) {}
             }
-	}
+        }
         this.input.annotation = s.join(" ");
     },
 
@@ -505,7 +505,7 @@ function hints_minibuffer_state (minibuffer, buffer) {
     basic_minibuffer_state.call(this, minibuffer, $prompt = arguments.$prompt,
                                 $keymap = arguments.$keymap);
     if (hints_minibuffer_annotation_mode_enabled)
-	this.hints_minibuffer_annotation = new hints_minibuffer_annotation(this, buffer.window);
+        this.hints_minibuffer_annotation = new hints_minibuffer_annotation(this, buffer.window);
     this.original_prompt = arguments.$prompt;
 
     let deferred = Promise.defer();
