@@ -492,6 +492,10 @@ if (!use_downloads_jsm) {
         let list = yield Downloads.getList(Downloads.ALL);
         let view = {
             onDownloadAdded: function (download) {
+                // We never want the automatic launching to be used
+                // This is set by default when using nsIWebBrowserPersist
+                download.launchWhenSucceeded = false;
+
                 let info = match_registered_download(download.source.url);
 
                 if (info == null) {
