@@ -20,6 +20,8 @@ var id_to_download_info = new Map();
 
 try {
     Components.utils.import("resource://gre/modules/Downloads.jsm");
+    if (typeof(Downloads.getList) == 'undefined')
+        throw "bad Downloads.jsm version";
     var use_downloads_jsm = true;
 
     function lookup_download(download) {
