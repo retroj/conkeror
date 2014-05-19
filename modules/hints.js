@@ -28,6 +28,9 @@ define_variable("hint_digits", null,
     "and ascending.  If null, base 10 will be used with the normal "+
     "hindu-arabic numerals.");
 
+define_variable("hints_display_alt", true,
+    "Display alt text in hints.");
+
 
 /**
  * hints_enumerate is a generator of natural numbers in the base defined
@@ -207,7 +210,7 @@ hint_manager.prototype = {
                            nchildren == 1 &&
                            elem.childNodes.item(0) instanceof Ci.nsIDOMHTMLImageElement) {
                     text = elem.childNodes.item(0).alt;
-                    show_text = true;
+                    show_text = hints_display_alt;
                 } else
                     text = elem.textContent;
 
