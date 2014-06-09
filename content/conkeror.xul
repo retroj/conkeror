@@ -18,7 +18,8 @@ COPYING file.
     id="main-window"
     width="640" height="480"
     persist="screenX screenY width height sizemode"
-    windowtype="navigator:browser">
+    windowtype="navigator:browser"
+    fullscreenbutton="true">
 
   <stringbundleset id="stringbundleset">
   </stringbundleset>
