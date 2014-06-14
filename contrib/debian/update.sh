@@ -36,6 +36,7 @@ if [ -n "$1" ]; then
 else
     version=`grep ^Version= application.ini | \
              sed -e 's/^Version=//;
+                     s/\([0-9]\)pre\([0-9]\)/\1~~pre-\2/;
                      s/\([0-9]\)pre/\1~~pre/;
                      s/\([0-9]\)\([ab][0-9]\|rc\|beta\|alpha\)/\1~\2/' \
             `+git`date +%y%m%d`
