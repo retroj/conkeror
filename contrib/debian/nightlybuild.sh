@@ -175,7 +175,7 @@ else
 
     # Determine the correct version
     VERSION=`grep ^Version= $MASTERDIR/application.ini | \
-        sed -e 's/^Version=//;s/\(pre\)/~~\1/;s/\(rc\|b\|a\)/~\1/'`+git$ZULUTIME
+        sed -e 's/^Version=//;s/\(pre\)\([0-9]\)/~~\1-\2/;s/\(pre[^-]\)/~~\1/;s/\(rc\|b\|a\)/~\1/'`+git$ZULUTIME
     RELEASE="$VERSION-~nightly1"
     DATEDIR="$BUILDDIR/conkeror-$VERSION"
 
