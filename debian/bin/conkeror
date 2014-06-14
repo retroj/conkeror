@@ -4,16 +4,25 @@
 
 # Find an appropriate xulrunner binary
 XULRUNNER=''
-# Due to http://bugs.debian.org/683157 we have to skip xulrunner-14.0
-for version in `LC_ALL=C seq 30 -1 15` `LC_ALL=C seq 13 -1 5` 2 1.9.2 1.9.1; do
-    for subversion in $version $version.0; do
-        XRTMP=`which xulrunner-$subversion`
-        if [ -n "$XRTMP" -a -x "$XRTMP" ]; then
-	    XULRUNNER=$XRTMP
-	    break 2
-        fi
+
+# *sigh* No more xulrunner since iceweasel 30
+if [ -x /usr/bin/iceweasel ]; then
+    XULRUNNER="/usr/bin/iceweasel -app"
+fi
+
+
+if [ -z "$XULRUNNER" ]; then
+    # Due to http://bugs.debian.org/683157 we have to skip xulrunner-14.0
+    for version in `LC_ALL=C seq 30 -1 15` `LC_ALL=C seq 13 -1 5` 2 1.9.2 1.9.1; do
+        for subversion in $version $version.0; do
+            XRTMP=`which xulrunner-$subversion`
+            if [ -n "$XRTMP" -a -x "$XRTMP" ]; then
+	        XULRUNNER=$XRTMP
+	        break 2
+            fi
+        done
     done
-done
+fi
 
 # Try firefox if no xulrunner can be found
 if [ -z "$XULRUNNER" ]; then
@@ -25,7 +34,7 @@ if [ -z "$XULRUNNER" ]; then
 fi
 
 if [ -z "$XULRUNNER" ]; then
-    echo "xulrunner version 1.9.1 (or firefox version 3.5) or newer required, but not found. Bailing out." 1>&2
+    echo "xulrunner version 1.9.1 (or iceweasel/firefox version 3.5) or newer required, but not found. Bailing out." 1>&2
     exit 1;
 fi
 
