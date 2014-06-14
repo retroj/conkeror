@@ -62,5 +62,11 @@ tar cvzf conkeror_$version.orig.tar.gz \
 	--exclude=configure-stamp \
 	conkeror-$version
 
-# Change back to the packaging directory
-cd conkeror-$version
+
+if [ "$olddir" = "conkeror" ]; then
+    echo "Renaming conkeror-$version back to conkeror"
+    mv -vi "conkeror-$version" conkeror
+else
+    # Change back to the packaging directory
+    cd conkeror-$version
+fi
