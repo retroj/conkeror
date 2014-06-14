@@ -100,7 +100,7 @@ fi
 MASTERDIR=$WORKDIR/MASTER
 BUILDDIR=$WORKDIR/BUILD
 DATE=`date -R`
-ZULUTIME=`date -u +%y%m%d%H%M`
+ZULUTIME=`date -u +%y%m%d+%H%M`
 
 # Create build dir
 mkdir -p $BUILDDIR
