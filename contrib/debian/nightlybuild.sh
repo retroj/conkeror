@@ -170,7 +170,12 @@ else
 
     # Update master copy
     cd $MASTERDIR
-    git pull
+    git pull | fgrep -v 'Already up-to-date.'
+    # Only build if something changed
+    if [ $? -ne 0 ]; then
+        echo 'Already up-to-date.'
+        exit 0
+    fi
     git gc
 
     # Determine the correct version
