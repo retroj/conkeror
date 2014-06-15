@@ -1,4 +1,4 @@
-conkeror for Debian
+Conkeror for Debian
 -------------------
 
 The conkeror package is split up into two packages:
@@ -10,4 +10,18 @@ The conkeror package is split up into two packages:
 + conkeror-spawn-process-helper including the helper binary
   conkeror-spawn-helper (formerly spawn-process-helper)
 
- -- Axel Beckert <abe@deuxchevaux.org>, Sun,  1 Feb 2009 20:48:59 +0100
+/usr/bin/conkeror is a wrapper script which finds the probably most
+appropriate rendering engine found on the system:
+
++ If the iceweasel package is installed, it uses iceweasel's rendering
+  engine, even if newer versions of xulrunner are installed.
+
++ If no iceweasel is found, it checks for all supported xulrunner
+  versions, taking the highest version found.
+
++ If neither iceweasel nor xulrunner are found, it checks for firefox
+  in the search path. This is necessary as fallback for Ubuntu (and
+  likely most Ubuntu derivatives) which does ship a firefox package
+  instead of Debian's debranded iceweasel package.
+
+ -- Axel Beckert <abe@debian.org>, Sun, 15 Jun 2014 22:38:22 +0200
