@@ -5,11 +5,11 @@
 # Inspired by an idea of Nicholas A. Zigarovich <nick@servo.cc>
 # Code by Axel Beckert <abe@deuxchevaux.org>
 #
-# Copyright (C) 2009-2011 Axel Beckert <abe@deuxchevaux.org>
+# Copyright (C) 2009-2011, 2014 Axel Beckert <abe@deuxchevaux.org>
 #
 # Needs the following Debian packages and their dependencies installed
 # (besides "required" packages like coreutils and conkeror build
-# dependencies) to work: devscripts, git-core
+# dependencies) to work: devscripts, git
 #
 # If you want to use all features of this script, you need also the
 # following packages: gnupg, openssh-client, dctrl-tools, gzip, bzip2
