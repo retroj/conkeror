@@ -12,7 +12,7 @@ Vcs-Git: git://repo.or.cz/conkeror.git
 Package: conkeror
 Architecture: all
 Depends: ${misc:Depends},
-         iceweasel (>= 3.5) |
+         iceweasel (>= 30) |
          xulrunner-24.0  |
          xulrunner-30    |
          xulrunner-29    |
