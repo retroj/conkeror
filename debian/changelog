@@ -1,4 +1,4 @@
-conkeror (1.0~~pre-1+git140614-1) UNRELEASED; urgency=medium
+conkeror (1.0~~pre-1+git140616-1) unstable; urgency=medium
 
   * New upstream pre-release 1.0pre1
   * Support using "iceweasel -app" since there's no more xulrunner. :-(
@@ -6,7 +6,7 @@ conkeror (1.0~~pre-1+git140614-1) UNRELEASED; urgency=medium
     + Update README.Debian explaining how /usr/bin/conkeror works
     + Closes: #751557
 
- -- Axel Beckert <abe@debian.org>  Sat, 14 Jun 2014 12:49:42 +0200
+ -- Axel Beckert <abe@debian.org>  Mon, 16 Jun 2014 00:00:50 +0200
 
 conkeror (1.0~~pre+git140428-1) unstable; urgency=medium
 
