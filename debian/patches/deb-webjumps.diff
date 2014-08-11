@@ -5,7 +5,7 @@ Index: conkeror/modules/debian/debian-webjumps.js
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
 +++ conkeror/modules/debian/debian-webjumps.js	2010-09-29 07:55:36.000000000 +0200
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,30 @@
 +/**
 + * (C) Copyright 2008-2010 Axel Beckert
 + *
@@ -27,6 +27,7 @@ Index: conkeror/modules/debian/debian-webjumps.js
 +define_webjump("buildd-ports", "http://buildd.debian-ports.org/%s");
 +define_webjump("debqa", "https://qa.debian.org/developer.php?login=%s");
 +define_webjump("debpopcon", "https://qa.debian.org/popcon.php?package=%s");
++define_webjump("debtracker", "https://tracker.debian.org/%s");
 +
 +// Ubuntu //
 +define_webjump("ubuntupkg", "http://packages.ubuntu.com/%s");
