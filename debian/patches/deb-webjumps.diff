@@ -19,7 +19,7 @@ Index: conkeror/modules/debian/debian-webjumps.js
 +
 +// Debian //
 +define_webjump("debpkg", "https://packages.debian.org/%s");
-+define_webjump("debfile", "https://packages.debian.org/?searchon=contents&keywords=%s&mode=path&suite=unstable&arch=any");
++define_webjump("debfile", "https://packages.debian.org/file:%s");
 +define_webjump("debbugs", "https://bugs.debian.org/%s");
 +define_webjump("debpts", "https://packages.qa.debian.org/%s");
 +define_webjump("debpopcon", "https://qa.debian.org/popcon.php?package=%s");
