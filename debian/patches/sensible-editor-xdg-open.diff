@@ -1,6 +1,9 @@
-Let Debian's sensible-editor guess the editor and let xdg-open find
-the right application to open an file instead of hardcoded
-applications which may not be installed. Closes: #570086
+Description: Use sensible-editor and xdg-open instead of hardcoded applications
+ Let Debian's sensible-editor guess the editor and let xdg-open find
+ the right application to open an file instead of hardcoded
+ applications which may not be installed.
+Bug-Debian: https://bugs.debian.org/570086
+Author: Axel Beckert <abe@debian.org>
 
 Index: conkeror/modules/external-editor.js
 ===================================================================

@@ -8,6 +8,8 @@ conkeror (1.0~~pre-1+git140812-1) UNRELEASED; urgency=low
     + debfile webjump working again
     + debtracker webjump added (Thanks Christoph Egger for the idea!)
     + lpbugnr webjump added (ubuntubugs only works for source packages)
+  * Update patch headers to conform to DEP-3
+  * Update copyright years in debian/patches/deb-webjumps.diff
 
  -- Axel Beckert <abe@debian.org>  Tue, 12 Aug 2014 00:55:24 +0200
 
