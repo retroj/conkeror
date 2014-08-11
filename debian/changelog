@@ -6,6 +6,7 @@ conkeror (1.0~~pre-1+git140812-1) UNRELEASED; urgency=low
   * Updated Debian and Ubuntu webjumps
     + Most Debian and some Ubuntu webjumps now with HTTPS
     + debfile webjump working again
+    + drop non-working ubuntufile webjump (doesn't work without suite)
     + debtracker webjump added (Thanks Christoph Egger for the idea!)
     + lpbugnr webjump added (ubuntubugs only works for source packages)
   * Update patch headers to conform to DEP-3
