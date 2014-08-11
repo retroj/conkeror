@@ -223,7 +223,7 @@ function define_default_webjumps () {
     define_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
     define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
     define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
-    define_webjump("image",      "http://images.google.com/images?q=%s");
+    define_webjump("image",      "http://www.google.com/images?q=%s");
 }
 
 define_default_webjumps();
