@@ -5,7 +5,7 @@ Index: conkeror/modules/debian/debian-webjumps.js
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
 +++ conkeror/modules/debian/debian-webjumps.js	2010-09-29 07:55:36.000000000 +0200
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,31 @@
 +/**
 + * (C) Copyright 2008-2010 Axel Beckert
 + *
@@ -33,6 +33,7 @@ Index: conkeror/modules/debian/debian-webjumps.js
 +define_webjump("ubuntupkg", "http://packages.ubuntu.com/%s");
 +define_webjump("ubuntufile", "http://packages.ubuntu.com/search?searchon=contents&keywords=%s&mode=path&arch=any");
 +define_webjump("ubuntubugs", "http://bugs.launchpad.net/ubuntu/+source/%s");
++define_webjump("lpbugnr", "http://bugs.launchpad.net/bugs/%s");
 +define_webjump("launchpad", "https://launchpad.net/+search?field.text=%s");
 +
 +provide("debian-webjumps");
