@@ -3,6 +3,7 @@ Description: Use sensible-editor and xdg-open instead of hardcoded applications
  the right application to open an file instead of hardcoded
  applications which may not be installed.
 Bug-Debian: https://bugs.debian.org/570086
+Forwarded: not-needed
 Author: Axel Beckert <abe@debian.org>
 
 Index: conkeror/modules/external-editor.js
