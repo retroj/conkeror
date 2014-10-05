@@ -1,4 +1,4 @@
-conkeror (1.0~~pre-1+git140812-1) UNRELEASED; urgency=low
+conkeror (1.0~~pre-1+git140812-1) unstable; urgency=low
 
   * New upstream snapshot
     + Updated Google Images webjump
@@ -16,7 +16,7 @@ conkeror (1.0~~pre-1+git140812-1) UNRELEASED; urgency=low
   * Update copyright years in debian/patches/deb-webjumps.diff
   * Bump Standards-Version to 3.9.6 (no changes needed)
 
- -- Axel Beckert <abe@debian.org>  Tue, 12 Aug 2014 00:55:24 +0200
+ -- Axel Beckert <abe@debian.org>  Mon, 06 Oct 2014 01:05:32 +0200
 
 conkeror (1.0~~pre-1+git140616-1) unstable; urgency=medium
 
