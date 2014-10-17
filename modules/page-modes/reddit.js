@@ -184,9 +184,7 @@ function get_entries_without_collapsed_comments (entries) {
             }
         }
         // Collapsed comment
-        if (i != 0 &&
-            entries[i].getElementsByTagName("div")[1].style.display == "none")
-        {
+        if (i != 0 && entries[i].parentNode.className.match(/\bcollapsed\b/)) {
             collapsed_parent = entries[i].parentNode;
         }
         entries_without_collapsed.push(entries[i]);
