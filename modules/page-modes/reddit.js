@@ -345,8 +345,9 @@ function reddit_prev_link (I) {
                 if (xpr && (prevpage = xpr.iterateNext())) {
                     dom_remove_class(current, "last-clicked");
                     browser_object_follow(I.buffer, FOLLOW_DEFAULT, prevpage);
-                    return;
                 }
+
+                return;
             }
         }
     }
