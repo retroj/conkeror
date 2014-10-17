@@ -21,9 +21,7 @@ define_variable("reddit_end_behavior", "stop",
 register_user_stylesheet(
     "data:text/css," +
         escape (
-            "@-moz-document url-prefix(http://www.reddit.com/)," +
-                "url-prefix(https://pay.reddit.com)," +
-                "url-prefix(https://www.reddit.com) {" +
+            "@-moz-document domain(reddit.com) {" +
                 "body>.content .last-clicked {" +
                 " background-color: #bfb !important;" +
                 " border: 0px !important;"+
