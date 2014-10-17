@@ -173,10 +173,13 @@ function get_entries_without_collapsed_comments (entries) {
     var collapsed_parent = null;
     for (var i = 0, elen = entries.length; i < elen; i++) {
         if (collapsed_parent) {
-            // Discard the 'load more comments' buttons
-            var current_classname = entries[i].getElementsByTagName("span")[0].className;
+            // Discard the 'load more comments' links
+            var load_more_comments = entries[i].querySelector(".morecomments");
+            // Discard the 'continue this thread' links
+            var continue_this_thread = entries[i].querySelector(".deepthread");
+
             if (!comment_is_child(collapsed_parent, entries[i].parentNode) &&
-                current_classname != "morecomments")
+                !load_more_comments && !continue_this_thread)
             {
                 collapsed_parent = null;
             } else { // Skip collapsed comments
