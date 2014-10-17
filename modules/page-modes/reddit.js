@@ -331,11 +331,7 @@ function reddit_prev_link (I) {
         } else if (reddit_end_behavior == 'wrap') {
             // need to get last link on page.
             if (complete) {
-                for (var i = 0; i < llen; i++) {
-                    if (links[i].style.display == 'none')
-                        continue;
-                    prev = links[i];
-                }
+                prev = links[llen - 1];
             }
         } else if (reddit_end_behavior == 'page') {
             let (xpr = doc.evaluate(
