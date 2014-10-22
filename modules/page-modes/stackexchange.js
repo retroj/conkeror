@@ -15,13 +15,13 @@
  */
 define_browser_object_class("stackexchange-votes",
     "Browser object class for selecting a vote arrow via hinting.",
-                            xpath_browser_object_handler('//span[contains(@class,"vote-up-off")]' +
-                                  ' | //span[contains(@class,"vote-down-off")]'),
-     $hint = "select a vote");
+    xpath_browser_object_handler('//a[contains(@class,"vote-up-off")]' +
+                                 ' | //a[contains(@class,"vote-down-off")]'),
+    $hint = "select a vote");
 
 define_browser_object_class("stackexchange-accept-answers",
     "Browser object class for selecting an accepted answer check via hinting.",
-                            xpath_browser_object_handler('//span[contains(@class,"vote-accepted-off")]'),
+    xpath_browser_object_handler('//a[contains(@class,"vote-accepted-off")]'),
     $hint = "select an accepted answer");
 
 
@@ -45,7 +45,7 @@ interactive("stackexchange-favorite-question",
     "Favorite a question on StackExchange site",
     function (I) {
         var xpr = I.buffer.document.evaluate(
-            '//span[contains(@class,"star-off")]',
+            '//a[contains(@class,"star-off")]',
             I.buffer.document, null,
             Ci.nsIDOMXPathResult.ORCERD_NOTE_ITERATOR_TYPE, null);
         let elem;
