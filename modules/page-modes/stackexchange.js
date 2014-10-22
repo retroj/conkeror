@@ -60,6 +60,34 @@ define_key(stackexchange_keymap, "V", "stackexchange-vote");
 define_key(stackexchange_keymap, "A", "stackexchange-accept-answer");
 define_key(stackexchange_keymap, "O", "stackexchange-favorite-question");
 
+[// Site-wide shortcuts
+    "?",   // Bring up the help dialog
+    "a",   // ask question
+    "b",   // badges
+    "c",   // chat
+    "e",   // edit
+    "f",   // Freshly Updated
+    "g",   // Goto
+    "h",   // home page
+    "i",   // Inbox
+    "j",   // Next
+    "k",   // Previous
+    "l",   // link
+    "m",   // meta site
+    "n",   // unanswered
+    "o",   // Order by
+    "p",   // my profile
+    "q",   // questions
+    "r",   // Recent
+    "s",   // Search
+    "t",   // tags
+    "u",   // First question
+    "v",   // vote...
+    "0", "1", "2", "3", "4",
+    "5", "6", "7", "8", "9",
+    "return"
+].map(function (x) define_key(stackexchange_keymap, x, null, $fallthrough));
+
 define_keymaps_page_mode("stackexchange-mode",
     /^https?:\/\/(?:www.|meta.)?(stackoverflow|serverfault|superuser|stackapps)\.(?:com)\//,
     { normal: stackexchange_keymap },
