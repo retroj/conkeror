@@ -89,7 +89,7 @@ define_key(stackexchange_keymap, "O", "stackexchange-favorite-question");
 ].map(function (x) define_key(stackexchange_keymap, x, null, $fallthrough));
 
 define_keymaps_page_mode("stackexchange-mode",
-    /^https?:\/\/(?:www.|meta.)?(stackoverflow|serverfault|superuser|stackapps)\.(?:com)\//,
+    /^https?:\/\/(?:www\.|meta\.)?(stackoverflow|[a-z]+\.stackexchange|serverfault|superuser|stackapps)\.(?:com)\/(?!review|users)/,
     { normal: stackexchange_keymap },
     $display_name = "StackExchange");
 
