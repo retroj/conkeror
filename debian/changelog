@@ -2,6 +2,8 @@ conkeror (1.0~~pre-1+git141017-1) UNRELEASED; urgency=low
 
   * New upstream snapshot
     + Updated reddit-mode to keep up with Reddit website changes
+  * Resync conkeror.desktop's MimeType with iceweasel's, but ignore
+    application/vnd.mozilla.xul+xml. (Closes: #746691)
 
  -- Axel Beckert <abe@debian.org>  Sat, 25 Oct 2014 12:22:20 +0200
 
