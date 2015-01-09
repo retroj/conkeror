@@ -1052,24 +1052,24 @@ function download_completer (completions) {
         };
     }
     all_word_completer.call(this, forward_keywords(arguments),
-                            $completions = completions);
+                            $completions = completions,
+                            $get_string = function (x) {
+                                if (use_downloads_jsm)
+                                    return x.target.path;
+                                else
+                                    return x.displayName;
+                            },
+                            $get_description = function (x) {
+                                if (use_downloads_jsm)
+                                    return x.source.url;
+                                else
+                                    return x.source.spec
+                            });
 }
 download_completer.prototype = {
     constructor: download_completer,
     __proto__: all_word_completer.prototype,
-    toString: function () "#<download_completer>",
-    get_string: function (x) {
-        if (use_downloads_jsm)
-            return x.target.path;
-        else
-            return x.displayName;
-    },
-    get_description: function (x) {
-        if (use_downloads_jsm)
-            return x.source.url;
-        else
-            return x.source.spec
-    }
+    toString: function () "#<download_completer>"
 };
 
 minibuffer.prototype.read_download = function () {
