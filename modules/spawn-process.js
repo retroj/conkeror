@@ -95,11 +95,6 @@ var spawn_process_helper_setup_timeout = 2000;
  * @param working_dir
  *        If non-null, must be an nsILocalFile.  spawn_process will switch
  *        to this path before running the program.
- * @param finished_callback
- *        Called with a single argument, the exit code of the process, as
- *        returned by the wait system call.
- * @param failure_callback
- *        Called with a single argument, an exception, if one occurs.
  * @param fds
  *        If non-null, must be an object with only non-negative integer
  *        properties set.  Each such property specifies that the corresponding
@@ -292,7 +287,6 @@ function spawn_process (program_name, args, working_dir,
     }
 
     function finished () {
-        // Only call success_callback if terminate was not already called
         if (!terminate_pending) {
             deferred.resolve(exit_status);
             terminate();
