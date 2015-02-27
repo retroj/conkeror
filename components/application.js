@@ -161,10 +161,9 @@ application.prototype = {
                         return;
                     }
                 } catch (e if (typeof e == 'string' &&
-                               {"ContentLength not available (not a local URL?)":true,
-                                "Error creating channel (invalid URL scheme?)":true,
-                                "Error opening input stream (invalid filename?)":true}
-                               [e])) {
+                               (e.startsWith("ContentLength not available (not a local URL?)") ||
+                                e.startsWith("Error creating channel (invalid URL scheme?)") ||
+                                e.startsWith("Error opening input stream (invalid filename?)")))) {
                     // null op. (suppress error, try next path)
                 }
                 if (autoext)
