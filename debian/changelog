@@ -2,6 +2,7 @@ conkeror (1.0~~pre-1+git150129-1) UNRELEASED; urgency=medium
 
   * New upstream snapshot:
     + StackExchange page-mode no more loaded by default (Closes: #772655)
+    + Update debian/conkeror.install to new location of conkeror.desktop
   * Try to make debian package builds reproducible.
     + Set dates and hostname in BuildID to data only depending on the
       current changelog entry.
