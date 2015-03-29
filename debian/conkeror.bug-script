@@ -1,5 +1,8 @@
 #!/bin/sh
 
-for xrrbhs in /usr/lib/xulrunner-*/reportbug-helper-script; do
-     $xrrbhs conkeror
+for xrrbhs in /usr/lib/xulrunner-*/reportbug-helper-script /usr/share/bug/iceweasel/script; do
+    if [ -x "$xrrbhs" ]; then
+        echo "Calling '$xrrbhs conkeror'" >&3
+        "$xrrbhs" conkeror
+    fi
 done
