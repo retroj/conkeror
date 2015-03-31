@@ -30,7 +30,7 @@ function save_uri (lspec, output_file) {
             .createInstance(Ci.nsILocalFile);
         temp_file.initWithFile(output_file);
         temp_file.leafName = "temp";
-        temp_file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0666);
+        temp_file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0666", 8));
     }
     if (temp_file)
         download_file = temp_file;

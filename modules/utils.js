@@ -204,7 +204,7 @@ function get_temporary_file (name) {
     var file = file_locator_service.get("TmpD", Ci.nsIFile);
     file.append(name);
     // Create the file now to ensure that no exploits are possible
-    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0600);
+    file.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, parseInt("0600", 8));
     return file;
 }
 
