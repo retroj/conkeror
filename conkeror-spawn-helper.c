@@ -19,6 +19,7 @@
 #include <netinet/in.h>
 #include <dirent.h>
 #include <sys/resource.h>
+#include <arpa/inet.h>
 
 void fail(const char *msg) {
   fprintf(stderr, "%s\n", msg);
