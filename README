@@ -1,0 +1,62 @@
+Description
+===========
+
+Conkeror is a programmable Web browser based on Mozilla's
+XULRunner, inspired by GNU Emacs.
+
+Type `C-h t' to view the tutorial, or see the wiki at
+http://conkeror.org for more information.
+
+Official git repository: http://repo.or.cz/conkeror.git
+
+Installation instructions
+-------------------------
+
+Run `make' to compile conkeror-spawn-helper and create the
+conkeror launch script. Run `make install' to install
+conkeror.
+
+Compilation options
+-------------------
+
+   - make PREFIX=/usr:
+     Install conkeror to /usr instead of /usr/local.
+     Needed in both the build stage and the install stage.
+   - make DESTDIR=../pkg PREFIX=/usr install:
+     Install conkeror to ../pkg/usr.
+   - make etags:
+     Extrude etags for ease of emacsing.
+   - make dist:
+     Create conkeror-$version.tar.gz, where
+     version=$(grep '^Version=' application.ini | cut -d '=' -f 2)
+   - make clean:
+     Removes conkeror, conkeror-spawn-helper, versioned
+     tarballs, and etags from the current working directory.
+   - make uninstall:
+     Remove files created by make install (remember to set
+     PREFIX and DESTDIR, if need be). You should probably
+     install by creating a proper package using your
+     disribution's packaging tools instead.
+
+Advanced Installation
+---------------------
+
+Please read the page from the following list most specific
+to your OS.
+
+For Debian, Ubuntu, and similar OSes:
+    http://conkeror.org/InstallationDebian
+
+For Mac OS X:
+    http://conkeror.org/InstallationOSX
+
+For other Unix-like systems and Windows:
+    http://conkeror.org/Installation
+
+Community
+---------
+
+  - Wiki: http://conkeror.org
+  - IRC: irc://irc.freenode.net/#conkeror
+  - Mailing list: http://conkeror.org/MailingList
+  - Reporting bugs: http://conkeror.org/ConkerorBugs
