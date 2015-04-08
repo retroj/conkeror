@@ -18,6 +18,7 @@ all: conkeror conkeror-bin conkeror-spawn-helper
 
 clean:
 	$(RM) conkeror conkeror-bin conkeror-spawn-helper conkeror-$(VERSION).tar.gz TAGS
+	$(RM) -r conkeror-$(VERSION)
 
 conkeror: conkeror.in
 	$(RM) $@ $@.tmp
