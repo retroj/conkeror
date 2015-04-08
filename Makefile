@@ -36,7 +36,7 @@ conkeror-spawn-helper: conkeror-spawn-helper.c
 conkeror-$(VERSION).tar.gz:
 	mkdir conkeror-$(VERSION)
 	cp -a $(dirs) $(files) \
-	      conkeror.in conkeror-spawn-helper.c COPYING CREDITS contrib debian INSTALL Makefile \
+	      conkeror.in conkeror-spawn-helper.c COPYING CREDITS contrib INSTALL Makefile \
 	      conkeror-$(VERSION)
 	tar czf conkeror-$(VERSION).tar.gz conkeror-$(VERSION)
 	$(RM) -r conkeror-$(VERSION)
