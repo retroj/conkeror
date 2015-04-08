@@ -1,4 +1,2 @@
-application.ini branding chrome components content defaults locale modules search-engines help style *.manifest usr/share/conkeror
-contrib/xrev contrib/art contrib/modules usr/share/conkeror/contrib
-contrib/conkeror.desktop usr/share/applications
+usr/share
 debian/bin/conkeror usr/bin
