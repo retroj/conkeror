@@ -9,6 +9,8 @@ conkeror (1.0~~pre-1+git150129-1) UNRELEASED; urgency=medium
       current changelog entry.
   * Update bug report script to also look for iceweasel's bug report
     script. (Closes: #781482)
+  * debian/rules: Remove long-time obsolete and non-functional build-time
+    modification of components/application.js.
 
  -- Axel Beckert <abe@debian.org>  Thu, 29 Jan 2015 14:32:32 +0100
 

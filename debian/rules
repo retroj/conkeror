@@ -18,7 +18,3 @@ override_dh_install-indep:
 	# Add generated Build ID and Debian version to version output
 	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' \
 	    -i $(USC)/application.ini
-
-	# Use Debian version for M-x version output
-	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' \
-	    -i $(USC)/components/application.js
