@@ -9,7 +9,7 @@ tagged_files != find . -name '*.js'
 BUILDDIR != pwd
 VERSION != grep '^Version=' application.ini | cut -d '=' -f 2
 
-dirs = branding chrome components content defaults help locale modules search-engines style tests
+dirs = branding chrome components content defaults help locale modules search-engines style
 files = application.ini chrome.manifest content-policy.manifest Info.plist
 contrib = contrib/art contrib/list-xulrunner-versions contrib/modules contrib/run-conkeror contrib/xrev
 docs = COPYING CREDITS contrib/config
@@ -36,7 +36,7 @@ conkeror-spawn-helper: conkeror-spawn-helper.c
 conkeror-$(VERSION).tar.gz:
 	mkdir conkeror-$(VERSION)
 	cp -a $(dirs) $(files) \
-	      conkeror.in conkeror-spawn-helper.c COPYING CREDITS contrib INSTALL Makefile \
+	      conkeror.in conkeror-spawn-helper.c COPYING CREDITS contrib INSTALL Makefile tests \
 	      conkeror-$(VERSION)
 	tar czf conkeror-$(VERSION).tar.gz conkeror-$(VERSION)
 	$(RM) -r conkeror-$(VERSION)
