@@ -15,7 +15,7 @@ Copyright: 2004-2009 Shawn Betts
            2006-2008 Martin Stubenschrott
            2006      Sylvain Pasche
            2007-2013 John J. Foerch
-           2007-2014 Jeremy Maitin-Shepard
+           2007-2015 Jeremy Maitin-Shepard
            2007      Doug Kearns
            2008      Ævar Arnfjörð Bjarmason
            2008      David Glasser
@@ -25,7 +25,7 @@ Copyright: 2004-2009 Shawn Betts
            2008      Will Farrington
            2008-2012 David Kettler
            2008-2009 Nicholas A. Zigarovich
-           2008-2014 Axel Beckert
+           2008-2015 Axel Beckert
            2009      Deniz Dogan
            2010      Dave Kerschner
            2010      Desmond O. Chang
@@ -34,9 +34,11 @@ Copyright: 2004-2009 Shawn Betts
            2011      Peter Lunicks
            2012      Scott Jaderholm
            2012-2013 Benjamin Slade
-           2013      Artur Malabarba
-           2013      Joren Van Onder
+           2012-2015 Ivy F. Foster
+           2013-2014 Artur Malabarba
+           2013-2014 Joren Van Onder
            2013      Raimon Grau
+           2013-2015 Joseph Mingrone
 License: MPL or GPL-2 or LGPL-2.1
 Comment:
  Conkeror is triple-licensed under MPL 1.1 (see file MPL in the
