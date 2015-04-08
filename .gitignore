@@ -19,3 +19,4 @@ plugins
 /debian/files
 /debian/stamp-patched
 /xulrunner
+/conkeror-bin
