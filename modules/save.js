@@ -77,9 +77,22 @@ function save_uri (lspec, output_file) {
             null /* temp file */,
             persist, false);
     persist.progressListener = tr;
-    persist.saveURI(uri, cache_key, referrer_uri, post_data,
-                    null /* no extra headers */, file_uri,
-                    null /* no privacy context */);
+
+    if (version_compare(get_mozilla_version(), "36.0") >= 0) {
+        var channel = Cc["@mozilla.org/network/io-service;1"]
+            .getService(Components.interfaces.nsIIOService).newChannelFromURI(uri);
+
+        persist.saveURI(uri, cache_key, referrer_uri,
+                        // this arg was added in Gecko 36
+                        channel.REFERRER_POLICY_NO_REFERRER_WHEN_DOWNGRADE,
+                        post_data,
+                        null /* no extra headers */, file_uri,
+                        null /* no privacy context */);
+    } else {
+        persist.saveURI(uri, cache_key, referrer_uri, post_data,
+                        null /* no extra headers */, file_uri,
+                        null /* no privacy context */);
+    }
     return info;
 }
 
