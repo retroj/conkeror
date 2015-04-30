@@ -1,4 +1,4 @@
-conkeror (1.0~~pre-1+git150129-1) UNRELEASED; urgency=medium
+conkeror (1.0~~pre-1+git150409-1) unstable; urgency=medium
 
   * New upstream snapshot:
     + StackExchange page-mode no more loaded by default (Closes: #772655)
@@ -18,13 +18,13 @@ conkeror (1.0~~pre-1+git150129-1) UNRELEASED; urgency=medium
       - debian/conkeror.manpages
     + Massively reduced (list of upstream files now in upstream Makefile):
       - debian/conkeror.install
-    + Modifed, includes the mentioned blacklist:
+    + Modified, includes the mentioned blacklist:
       - debian/rules
   * debian/rules: Remove long-time obsolete and non-functional build-time
     modification of components/application.js.
   * debian/copyright: Update authors and years.
 
- -- Axel Beckert <abe@debian.org>  Thu, 29 Jan 2015 14:32:32 +0100
+ -- Axel Beckert <abe@debian.org>  Thu, 30 Apr 2015 02:35:32 +0200
 
 conkeror (1.0~~pre-1+git141025-1) unstable; urgency=low
 
