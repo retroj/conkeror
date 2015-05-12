@@ -8,7 +8,7 @@
 interactive("adblockplus-settings",
     "Show the Adblock Plus settings dialog.",
     function (I) {
-        if (! ("@adblockplus.org/abp/startup;1" in Cc))
+        if (! ("@adblockplus.org/abp/public;1" in Cc))
             throw interactive_error("Adblock Plus not found");
         make_chrome_window("chrome://adblockplus/content/ui/settings.xul");
     });
@@ -16,7 +16,7 @@ interactive("adblockplus-settings",
 interactive("adblockplus-filters",
     "Show the Adblock Plus filter settings dialog.",
     function (I) {
-        if (! ("@adblockplus.org/abp/startup;1" in Cc))
+        if (! ("@adblockplus.org/abp/public;1" in Cc))
             throw interactive_error("Adblock Plus not found");
         make_chrome_window("chrome://adblockplus/content/ui/filters.xul");
     });
@@ -24,9 +24,15 @@ interactive("adblockplus-filters",
 interactive("adblockplus-add",
     "Add a pattern to Adblock Plus.",
     function (I) {
-        if (! ("@adblockplus.org/abp/startup;1" in Cc))
+        if (! ("@adblockplus.org/abp/public;1" in Cc))
             throw interactive_error("Adblock Plus not found");
-        Components.utils.import("chrome://adblockplus-modules/content/Public.jsm");
+
+        // Access the API per the instructions here:
+        // https://adblockplus.org/en/IAdblockPlus
+        var abpURL = Components.classes["@adblockplus.org/abp/public;1"]
+            .getService(Components.interfaces.nsIURI);
+        var AdblockPlus = Components.utils.import(abpURL.spec, null).AdblockPlus;
+
         var element = yield read_browser_object(I);
         var spec = load_spec(element);
         var pattern = yield I.minibuffer.read_url(
