@@ -92,4 +92,29 @@ function add_bookmark (url, title) {
                                          make_uri(url), -1, title);
 }
 
+// See
+// http://mxr.mozilla.org/mozilla-central/source/browser/base/content/sanitize.js
+// for the Firefox implementation for clearing various history information.
+
+function clear_form_history() {
+    var FormHistory = Components.utils.import("resource://gre/modules/FormHistory.jsm", null).FormHistory;
+    // This is asynchronous, but we don't care about waiting for it to finish.
+    FormHistory.update( { op: "remove" } );
+}
+interactive("clear-form-history", "Permanently delete all form autocomplete history.",
+          function (I) {
+              clear_form_history();
+              I.minibuffer.message("Form history cleared.");
+          });
+
+function clear_history() {
+    var PlacesUtils = Components.utils.import("resource://gre/modules/PlacesUtils.jsm").PlacesUtils;
+    PlacesUtils.history.removeAllPages();
+}
+interactive("clear-history", "Permanently delete all location history.",
+          function (I) {
+              clear_history();
+              I.minibuffer.message("Location history cleared.");
+          });
+
 provide("history");
