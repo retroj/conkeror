@@ -297,7 +297,7 @@ function opensearch_parse (node) {
 function opensearch_read_file (file) {
     var file_istream = Cc["@mozilla.org/network/file-input-stream;1"]
         .createInstance(Ci.nsIFileInputStream);
-    file_istream.init(file, MODE_RDONLY, 0644, false);
+    file_istream.init(file, MODE_RDONLY, parseInt("0644", 8), false);
     var dom_parser = Cc["@mozilla.org/xmlextras/domparser;1"]
         .createInstance(Ci.nsIDOMParser);
     var doc = dom_parser.parseFromStream(file_istream, "UTF-8",
