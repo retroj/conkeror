@@ -221,7 +221,8 @@ application.prototype = {
             return false;
         if (dot > 0)
             feature = feature.substr(0, dot);
-        feature = feature.replace('_', '-', 'g');
+        var regexReplaceUnderscore = /_/g,
+        feature = feature.replace(regexReplaceUnderscore, '-');
         if (this.featurep(feature))
             return true;
         try {
