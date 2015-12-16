@@ -7,10 +7,9 @@
  * COPYING file.
 **/
 
-let (default_rc = get_home_directory()) {
-    default_rc.appendRelativePath(".conkerorrc");
-    default_pref("conkeror.rcfile", default_rc.path);
-}
+let default_rc = get_home_directory();
+default_rc.appendRelativePath(".conkerorrc");
+default_pref("conkeror.rcfile", default_rc.path);
 
 function load_rc () {
     var path;
@@ -55,7 +54,7 @@ function load_rc () {
     var obs = Cc["@mozilla.org/observer-service;1"]
         .getService(Ci.nsIObserverService);
     obs.notifyObservers(null, "startupcache-invalidate", null);
-        for (var i = 0; files.length; i++) {
+    for (var i = 0; i < files.length; ++i) {
         try {
             load(files[i]);
         } catch (e) {
