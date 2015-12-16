@@ -98,7 +98,7 @@ application.prototype = {
                                     this.loading_urls.join(",\n"));
                 if (url.substr(-4) == ".jsx") {
                     var scopename = url.substr(url.lastIndexOf('/')+1)
-                        .replace('-', '_', 'g');
+                        .replace(/-/g, '_');
                     var dot = scopename.indexOf(".");
                     if (dot > -1)
                         scopename = scopename.substr(0, dot);
