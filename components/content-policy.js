@@ -16,6 +16,7 @@ function content_policy () {
         .getService()
         .wrappedJSObject;
     this.conkeror.define_hook("content_policy_hook", "RUN_HOOK_UNTIL_SUCCESS");
+    this.conkeror.define_hook("content_policy_process_hook", "RUN_HOOK_UNTIL_SUCCESS");
     this.conkeror.define_variable("content_policy_scheme_whitelist",
         { about: true, chrome: true, data: true, javascript: true,
           mailto: true, "moz-icon": true },
@@ -64,7 +65,13 @@ content_policy.prototype = {
                              mime_type,        //ACString
                              extra)            //nsISupports
     {
-        return Ci.nsIContentPolicy.ACCEPT;
+        //jsdump("---> shouldProcess : " + content_type + " / " + content_location);
+        var action = this.conkeror.content_policy_process_hook.run(
+            content_type, content_location, request_origin,
+            context, mime_type_guess, extra);
+
+        return (action || Ci.nsIContentPolicy.ACCEPT);
+        //return Ci.nsIContentPolicy.ACCEPT;
     }
 };
 
