@@ -91,7 +91,7 @@ opensearch_xml_completer.prototype = {
                         narrowed.push([name,desc]);
                 }
                 delete doc;
-                delete elem;
+                delete elems;
                 delete result;
                 delete lspec;
                 yield co_return(new opensearch_xml_completions(this, narrowed));
