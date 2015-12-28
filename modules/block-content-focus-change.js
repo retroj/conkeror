@@ -58,7 +58,8 @@ function block_content_focus_change_buffer_teardown (buffer) {
                                        true);
 }
 
-let (foo = browser_set_element_focus) {
+{
+    let foo = browser_set_element_focus;
     define_global_mode("block_content_focus_change_mode",
         function () { // enable
             for_each_buffer(function (buffer) {

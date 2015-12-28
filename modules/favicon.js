@@ -17,7 +17,8 @@ define_variable("favicon_image_max_size", 1024,
     "is considered for use as a favicon.");
 
 
-let (favicon_set_internal) {
+{
+    let favicon_set_internal;
     if (version_compare(get_mozilla_version(), "18.0") >= 0) {
         favicon_set_internal = function (buffer, icon_url) {
             favicon_service.setAndFetchFaviconForPage(

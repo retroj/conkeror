@@ -104,9 +104,9 @@
                 buffer_idx : window.buffers.count;
 
             // first kill special buffers slated for recycling.
-            let (b, i = (bi == 0 ? 1 : bi),
-                 safe2kill = bi > 0)
             {
+                let b, i = (bi == 0 ? 1 : bi),
+                    safe2kill = bi > 0;
                 while ((b = window.buffers.get_buffer(i))) {
                     if (b instanceof content_buffer) {
                         safe2kill = true;

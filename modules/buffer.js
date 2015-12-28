@@ -757,7 +757,8 @@ function create_buffer (window, creator, target) {
     }
 }
 
-let (queued_buffer_creators = null) {
+{
+    let queued_buffer_creators = null;
     function create_buffer_in_current_window (creator, target, focus_existing) {
         function process_queued_buffer_creators (window) {
             for (var i = 0; i < queued_buffer_creators.length; ++i) {

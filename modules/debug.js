@@ -83,8 +83,9 @@ const DEBUG_HERE = "function (__DEBUG_HERE) { return eval(__DEBUG_HERE); }";
 
 
 
-let (console = Cc["@mozilla.org/consoleservice;1"]
-                   .getService(Ci.nsIConsoleService)) {
+{
+    let console = Cc["@mozilla.org/consoleservice;1"]
+        .getService(Ci.nsIConsoleService);
     console.registerListener({
         observe: function (msg) {
             if (msg instanceof Ci.nsIScriptError) {

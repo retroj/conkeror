@@ -7,7 +7,8 @@
  * COPYING file.
 **/
 
-let (default_rc = get_home_directory()) {
+{
+    let default_rc = get_home_directory();
     default_rc.appendRelativePath(".conkerorrc");
     default_pref("conkeror.rcfile", default_rc.path);
 }

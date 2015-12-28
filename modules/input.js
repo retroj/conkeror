@@ -252,7 +252,8 @@ sequence:
                 }
                 break;
             case "command":
-                let (command = event.command) {
+                {
+                    let command = event.command;
                     window.input.help_displayed = false;
                     input_help_timer_clear(window);
                     window.minibuffer.clear();

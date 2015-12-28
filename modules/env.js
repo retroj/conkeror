@@ -11,8 +11,9 @@
  * get_os returns a string identifying the current OS.
  * possible values include 'Darwin', 'Linux' and 'WINNT'.
  */
-let (xul_runtime = Cc['@mozilla.org/xre/app-info;1']
-         .getService(Ci.nsIXULRuntime)) {
+{
+    let xul_runtime = Cc['@mozilla.org/xre/app-info;1']
+        .getService(Ci.nsIXULRuntime);
     function get_os () {
         return xul_runtime.OS;
     }
@@ -37,8 +38,9 @@ function get_mozilla_version () {
  * getenv returns the value of a named environment variable or null if
  * the environment variable does not exist.
  */
-let (env = Cc['@mozilla.org/process/environment;1']
-         .getService(Ci.nsIEnvironment)) {
+{
+    let env = Cc['@mozilla.org/process/environment;1']
+        .getService(Ci.nsIEnvironment);
     function getenv (variable) {
         if (env.exists(variable))
             return env.get(variable);
@@ -75,7 +77,8 @@ function get_home_directory () {
  * not be depended on for anything important.  It is mainly intended for
  * decoration of the window title and mode-line.
  */
-let (profile_name = null) {
+{
+    let profile_name = null;
     function get_current_profile () {
         if (profile_name)
             return profile_name;

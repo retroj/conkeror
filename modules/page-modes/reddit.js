@@ -109,10 +109,10 @@ function reddit_next_link (I) {
             if (reddit_end_behavior == 'wrap')
                 next = first;
             if (reddit_end_behavior == 'page') {
-                let (xpr = doc.evaluate(
-                    '//span[@class="nextprev"]/a[contains(text(),"next")]', doc, null,
-                    Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null))
                 {
+                    let xpr = doc.evaluate(
+                        '//span[@class="nextprev"]/a[contains(text(),"next")]', doc, null,
+                        Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                     var nextpage;
                     if (xpr && (nextpage = xpr.iterateNext())) {
                         dom_remove_class(current, "last-clicked");
@@ -332,10 +332,10 @@ function reddit_prev_link (I) {
                 prev = links[llen - 1];
             }
         } else if (reddit_end_behavior == 'page') {
-            let (xpr = doc.evaluate(
-                '//span[@class="nextprev"]/a[contains(text(),"prev")]', doc, null,
-                Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null))
             {
+                let xpr = doc.evaluate(
+                    '//span[@class="nextprev"]/a[contains(text(),"prev")]', doc, null,
+                    Ci.nsIDOMXPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
                 var prevpage;
                 if (xpr && (prevpage = xpr.iterateNext())) {
                     dom_remove_class(current, "last-clicked");

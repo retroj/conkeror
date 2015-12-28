@@ -10,8 +10,9 @@
 /* Generate vk name table  */
 var keycode_to_vk_name = [];
 var vk_name_to_keycode = {};
-let (KeyEvent = Ci.nsIDOMKeyEvent,
-     prefix = "DOM_VK_") {
+{
+    let KeyEvent = Ci.nsIDOMKeyEvent,
+        prefix = "DOM_VK_";
     for (var i in KeyEvent) {
         /* Check if this is a key binding */
         if (i.substr(0, prefix.length) == prefix) {
