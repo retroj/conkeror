@@ -1,3 +1,39 @@
+conkeror (1.0~~pre-1+git150730-1) unstable; urgency=medium
+
+  * New upstream snapshot:
+    + Fixes saveURI issues with Firefox >= 36
+    + Fixes issues with more recent adblockplus releases.
+
+ -- Axel Beckert <abe@debian.org>  Thu, 30 Jul 2015 21:49:14 +0200
+
+conkeror (1.0~~pre-1+git150409-1) unstable; urgency=medium
+
+  * New upstream snapshot:
+    + StackExchange page-mode no more loaded by default (Closes: #772655)
+    + Fixes JS syntax errors with Iceweasel 36 and above (Closes: #781487)
+    + Update debian/conkeror.install to new location of conkeror.desktop
+  * Try to make debian package builds reproducible.
+    + Set dates and hostname in BuildID to data only depending on the
+      current changelog entry.
+  * Update bug report script to also look for iceweasel's bug report
+    script. (Closes: #781482)
+  * Make use of upstream's rewritten Makefile (via dh_auto_install) and
+    change from installation whitelist to installation blacklist (delete a
+    few files from debian/tmp which shouldn't go into the package).
+    + Removed (obsolete):
+      - debian/conkeror-spawn-process-helper.dirs
+      - debian/conkeror.dirs
+      - debian/conkeror.manpages
+    + Massively reduced (list of upstream files now in upstream Makefile):
+      - debian/conkeror.install
+    + Modified, includes the mentioned blacklist:
+      - debian/rules
+  * debian/rules: Remove long-time obsolete and non-functional build-time
+    modification of components/application.js.
+  * debian/copyright: Update authors and years.
+
+ -- Axel Beckert <abe@debian.org>  Thu, 30 Apr 2015 02:35:32 +0200
+
 conkeror (1.0~~pre-1+git141025-1) unstable; urgency=low
 
   * New upstream snapshot

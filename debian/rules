@@ -5,19 +5,18 @@
 
 # Generating a xulrunner build id and other strings
 DEBIAN_VERSION   := $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
-BUILDID := $(shell echo -n `whoami`@`hostname`)_$(shell date +%s)
-USC = $(CURDIR)/debian/conkeror/usr/share/conkeror
+DATE := $(shell dpkg-parsechangelog | awk -F ': ' '$$1=="Date" {print $$2}')
+BUILDID := debian@$(DEBIAN_VERSION)_$(shell date -d "$(DATE)" +%s)
+US  = $(CURDIR)/debian/tmp/usr/share
+USC = $(US)/conkeror
 
 %:
 	dh $@
 
-override_dh_install-indep:
-	dh_install -i
+override_dh_auto_install:
+	dh_auto_install -- PREFIX=/usr
+	rm -f $(US)/doc/conkeror/COPYING $(USC)/Info.plist
 
 	# Add generated Build ID and Debian version to version output
 	sed -e 's/BuildID=git/BuildID=${BUILDID}/;s/^Version=\(.*\)$$/Version=\1 (Debian-${DEBIAN_VERSION})/' \
 	    -i $(USC)/application.ini
-
-	# Use Debian version for M-x version output
-	sed -e 's/Version=\(.*\)/Version=\1 (Debian-${DEBIAN_VERSION})/' \
-	    -i $(USC)/components/application.js

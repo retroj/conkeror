@@ -98,7 +98,7 @@ application.prototype = {
                                     this.loading_urls.join(",\n"));
                 if (url.substr(-4) == ".jsx") {
                     var scopename = url.substr(url.lastIndexOf('/')+1)
-                        .replace('-', '_', 'g');
+                        .replace(/-/g, '_');
                     var dot = scopename.indexOf(".");
                     if (dot > -1)
                         scopename = scopename.substr(0, dot);
@@ -161,10 +161,9 @@ application.prototype = {
                         return;
                     }
                 } catch (e if (typeof e == 'string' &&
-                               {"ContentLength not available (not a local URL?)":true,
-                                "Error creating channel (invalid URL scheme?)":true,
-                                "Error opening input stream (invalid filename?)":true}
-                               [e])) {
+                               (e.startsWith("ContentLength not available (not a local URL?)") ||
+                                e.startsWith("Error creating channel (invalid URL scheme?)") ||
+                                e.startsWith("Error opening input stream (invalid filename?)")))) {
                     // null op. (suppress error, try next path)
                 }
                 if (autoext)
@@ -201,7 +200,7 @@ application.prototype = {
         var funcs = this.after_load_functions[symbol];
         if (funcs) {
             delete this.after_load_functions[symbol];
-            for (var i = 0; funcs[i]; ++i) {
+            for (var i = 0; i < funcs.length; ++i) {
                 try {
                     funcs[i]();
                 } catch (e) {
@@ -222,7 +221,8 @@ application.prototype = {
             return false;
         if (dot > 0)
             feature = feature.substr(0, dot);
-        feature = feature.replace('_', '-', 'g');
+        var regexReplaceUnderscore = /_/g,
+        feature = feature.replace(regexReplaceUnderscore, '-');
         if (this.featurep(feature))
             return true;
         try {

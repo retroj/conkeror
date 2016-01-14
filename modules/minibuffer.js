@@ -193,7 +193,9 @@ minibuffer.prototype = {
 
     set_input_state: function (x) {
         this._input_text = x[0];
-        this._set_selection(x[1], x[2]);
+        if (x.length == 3) {
+            this._set_selection(x[1], x[2]);
+        }
     },
 
     _set_selection: function (start, end) {

@@ -252,14 +252,15 @@ sequence:
                 }
                 break;
             case "command":
-                let (command = event.command) {
-                    window.input.help_displayed = false;
-                    input_help_timer_clear(window);
-                    window.minibuffer.clear();
-                    yield call_interactively(I, command);
-                    if (! interactive_commands[command].prefix)
-                        break sequence;
-                }
+                let command = event.command;
+
+                window.input.help_displayed = false;
+                input_help_timer_clear(window);
+                window.minibuffer.clear();
+                yield call_interactively(I, command);
+                if (! interactive_commands[command].prefix)
+                    break sequence;
+
                 break;
             }
             // should we expect more events?

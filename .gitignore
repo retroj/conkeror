@@ -18,4 +18,6 @@ plugins
 /debian/conkeror/
 /debian/files
 /debian/stamp-patched
+/debian/tmp/
 /xulrunner
+/conkeror-bin

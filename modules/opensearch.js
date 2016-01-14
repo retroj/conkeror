@@ -91,7 +91,7 @@ opensearch_xml_completer.prototype = {
                         narrowed.push([name,desc]);
                 }
                 delete doc;
-                delete elem;
+                delete elems;
                 delete result;
                 delete lspec;
                 yield co_return(new opensearch_xml_completions(this, narrowed));
@@ -297,7 +297,7 @@ function opensearch_parse (node) {
 function opensearch_read_file (file) {
     var file_istream = Cc["@mozilla.org/network/file-input-stream;1"]
         .createInstance(Ci.nsIFileInputStream);
-    file_istream.init(file, MODE_RDONLY, 0644, false);
+    file_istream.init(file, MODE_RDONLY, parseInt("0644", 8), false);
     var dom_parser = Cc["@mozilla.org/xmlextras/domparser;1"]
         .createInstance(Ci.nsIDOMParser);
     var doc = dom_parser.parseFromStream(file_istream, "UTF-8",
@@ -315,7 +315,8 @@ function define_opensearch_webjump (name, spec) {
     if (spec instanceof Ci.nsIFile)
         path = spec;
     else {
-        for (i = 0, n = opensearch_load_paths.length; i < n; ++i) {
+        var n = opensearch_load_paths.length;
+        for (i = 0; i < n; ++i) {
             path = make_file(opensearch_load_paths[i]).clone();
             path.append(spec);
             if (path.exists())

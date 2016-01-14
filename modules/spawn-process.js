@@ -187,7 +187,7 @@ function spawn_process (program_name, args, working_dir,
             let fd = fds[i];
             if ('file' in fd) {
                 if (fd.perms == null)
-                    fd.perms = 0666;
+                    fd.perms = parseInt("0666", 8);
                 key_file_fd_data += fd.file + "\0" + fd.mode + "\0" + fd.perms + "\0";
                 delete fds[i]; // Remove it from fds, as we won't need to work with it anymore
             } else {

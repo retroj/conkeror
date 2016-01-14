@@ -58,7 +58,7 @@ function browser_object_class (name, doc, handler) {
 // keywords: $hint
 function define_browser_object_class (name, doc, handler) {
     keywords(arguments);
-    var varname = 'browser_object_'+name.replace('-','_','g');
+    var varname = 'browser_object_'+name.replace(/-/g,'_');
     var ob = conkeror[varname] =
         new browser_object_class(name, doc, handler,
                                  forward_keywords(arguments));

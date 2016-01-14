@@ -757,32 +757,33 @@ function create_buffer (window, creator, target) {
     }
 }
 
-let (queued_buffer_creators = null) {
-    function create_buffer_in_current_window (creator, target, focus_existing) {
-        function process_queued_buffer_creators (window) {
-            for (var i = 0; i < queued_buffer_creators.length; ++i) {
-                var x = queued_buffer_creators[i];
-                create_buffer(window, x[0], x[1]);
-            }
-            queued_buffer_creators = null;
-        }
+let queued_buffer_creators = null;
 
-        if (target == OPEN_NEW_WINDOW)
-            throw new Error("invalid target");
-        var window = get_recent_conkeror_window();
-        if (window) {
-            if (focus_existing)
-                window.focus();
-            create_buffer(window, creator, target);
-        } else if (queued_buffer_creators != null) {
-            queued_buffer_creators.push([creator,target]);
-        } else {
-            queued_buffer_creators = [];
-            window = make_window(creator);
-            add_hook.call(window, "window_initialize_late_hook", process_queued_buffer_creators);
+function create_buffer_in_current_window (creator, target, focus_existing) {
+    function process_queued_buffer_creators (window) {
+        for (var i = 0; i < queued_buffer_creators.length; ++i) {
+            var x = queued_buffer_creators[i];
+            create_buffer(window, x[0], x[1]);
         }
+        queued_buffer_creators = null;
     }
-};
+
+    if (target == OPEN_NEW_WINDOW)
+        throw new Error("invalid target");
+    var window = get_recent_conkeror_window();
+    if (window) {
+        if (focus_existing)
+            window.focus();
+        create_buffer(window, creator, target);
+    } else if (queued_buffer_creators != null) {
+        queued_buffer_creators.push([creator,target]);
+    } else {
+        queued_buffer_creators = [];
+        window = make_window(creator);
+        add_hook.call(window, "window_initialize_late_hook", process_queued_buffer_creators);
+    }
+}
+
 
 
 /*
@@ -1091,8 +1092,8 @@ define_current_buffer_hook("current_buffer_mode_change_hook", "buffer_mode_chang
 define_keywords("$display_name", "$doc");
 function buffer_mode (name, enable, disable) {
     keywords(arguments);
-    this.name = name.replace("-","_","g");
-    this.hyphen_name = name.replace("_","-","g");
+    this.name = name.replace(/-/g,"_");
+    this.hyphen_name = name.replace(/_/g,"-");
     if (enable)
         this._enable = enable;
     if (disable)
