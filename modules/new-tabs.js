@@ -24,6 +24,12 @@ define_variable("tab_bar_show_icon", false,
 define_variable("tab_bar_show_index", true,
                 "Whether or not to show the tab index in each tab.");
 
+define_variable("tab_bar_smooth_scroll", true,
+                "Whether or not tab bar should scroll smoothly.");
+
+define_variable("tab_bar_flex_tabs", false,
+                "Whether or not tabs should use flex layout.");
+
 /**
  * Constructs a tab bar for the given window.
  */
@@ -31,6 +37,9 @@ function tab_bar (window) {
     window.tab_bar = this;
     var scrollbox = create_XUL(window, "arrowscrollbox");
     scrollbox.setAttribute("id", "tab2-bar");
+    if (!tab_bar_smooth_scroll) {
+        scrollbox.setAttribute("smoothscroll", false);
+    }
     scrollbox.setAttribute("orient", "horizontal");
     var after = window.buffers.container;
     this.window = window;
@@ -115,6 +124,9 @@ function tab_bar_add_buffer (buffer, noupdate) {
     // Create a tab and add it to the tab bar
     var tab = create_XUL(buffer.window, "hbox");
     tab.buffer = buffer;
+    if (tab_bar_flex_tabs) {
+        tab.setAttribute("flex", "1");
+    }
     tab.setAttribute("class", "tab2");
     tab.addEventListener("click", function (event) {
             if (event.button == tab_bar_button_select) {
