@@ -198,7 +198,6 @@ function define_key_match_predicate (name, description, predicate) {
 define_key_match_predicate('match_any_key', 'any key',
     function (event) true);
 
-// should be renamed to match_any_unmodified_character
 define_key_match_predicate('match_any_unmodified_character', 'any unmodified character',
     function (event) {
         // this predicate can be used for both keypress and keydown
