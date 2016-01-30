@@ -593,21 +593,30 @@ function browser_element_text (buffer, elem) {
 define_variable("copy_append_separator", "\n",
     "String used to separate old and new text when text is appended to clipboard");
 
+function copy_text_message(new_text, existing_text) {
+    if (existing_text) {
+        return "Copied: ..." + new_text;
+    } else {
+        return "Copied: " + new_text;
+    }
+}
+
 function copy_text (I) {
     var element = yield read_browser_object(I);
     browser_set_element_focus(I.buffer, element);
     var text = browser_element_text(I.buffer, element);
     writeToClipboard(text);
-    I.buffer.window.minibuffer.message("Copied: " + text);
+    I.buffer.window.minibuffer.message(copy_text_message(text));
 }
 
 function copy_text_append (I) {
     var element = yield read_browser_object(I);
     browser_set_element_focus(I.buffer, element);
     var new_text = browser_element_text(I.buffer, element);
-    var text = read_from_clipboard() + copy_append_separator + new_text;
+    var existing_text = read_from_clipboard();
+    var text = existing_text + copy_append_separator + new_text;
     writeToClipboard(text);
-    I.buffer.window.minibuffer.message("Copied: ..." + new_text);
+    I.buffer.window.minibuffer.message(copy_text_message(new_text, existing_text));
 }
 
 
