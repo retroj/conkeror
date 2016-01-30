@@ -90,10 +90,10 @@ opensearch_xml_completer.prototype = {
                     if (name)
                         narrowed.push([name,desc]);
                 }
-                delete doc;
-                delete elem;
-                delete result;
-                delete lspec;
+                delete this.doc;
+                delete this.elem;
+                delete this.result;
+                delete this.lspec;
                 yield co_return(new opensearch_xml_completions(this, narrowed));
             }
         } catch (e) {
@@ -117,8 +117,8 @@ opensearch_json_completer.prototype = {
             let lspec = this.eng.get_query_load_spec(str, opensearch_response_type_json);
             let result = yield send_http_request(lspec);
             let data = JSON.parse(result.responseText);
-            delete result;
-            delete lspec;
+            delete this.result;
+            delete this.lspec;
             if (!(array_p(data) &&
                   data.length >= 2 &&
                   typeof data[0] == "string" &&
