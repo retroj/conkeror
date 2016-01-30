@@ -2,6 +2,7 @@ conkeror (1.0~~pre-1+git160130-1) UNRELEASED; urgency=medium
 
   * New upstream snapshot:
     + Fixes let syntax with Firefox/Iceweasel 44. (Closes: #813039)
+  * Enable all hardening features for conkeror-spawn-helper.
 
  -- Axel Beckert <abe@debian.org>  Sat, 30 Jan 2016 02:46:31 +0100
 

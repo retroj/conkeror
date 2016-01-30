@@ -10,6 +10,11 @@ BUILDID := debian@$(DEBIAN_VERSION)_$(shell date -d "$(DATE)" +%s)
 US  = $(CURDIR)/debian/tmp/usr/share
 USC = $(US)/conkeror
 
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
+export CFLAGS+=$(LDFLAGS)
+
 %:
 	dh $@
 
