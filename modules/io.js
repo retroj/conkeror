@@ -9,8 +9,8 @@
  * COPYING file.
 **/
 
-const PERM_IWOTH = 00002;  /* write permission, others */
-const PERM_IWGRP = 00020;  /* write permission, group */
+const PERM_IWOTH = parseInt("00002", 8);  /* write permission, others */
+const PERM_IWGRP = parseInt("00020", 8);  /* write permission, group */
 
 const MODE_RDONLY   = 0x01;
 const MODE_WRONLY   = 0x02;
@@ -55,7 +55,7 @@ function read_text_file(file)
 define_keywords("$mode", "$perms", "$charset");
 function write_text_file(file, buf)
 {
-    keywords(arguments, $charset = "UTF-8", $perms = 0644, $mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
+    keywords(arguments, $charset = "UTF-8", $perms = parseInt("0644", 8), $mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
 
     var ofstream, ocstream;
     try {
@@ -76,7 +76,7 @@ function write_text_file(file, buf)
 define_keywords("$mode", "$perms");
 function write_binary_file(file, buf)
 {
-    keywords(arguments, $perms = 0644, $mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
+    keywords(arguments, $perms = parseInt("0644", 8), $mode = MODE_WRONLY | MODE_CREATE | MODE_TRUNCATE);
     var stream = null, bstream = null;
 
     try {

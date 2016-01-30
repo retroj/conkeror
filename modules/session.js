@@ -40,7 +40,7 @@
         .getService(Ci.nsIProperties).get("ProfD", Ci.nsIFile);
     _session_dir_default.append("sessions");
     if (! _session_dir_default.exists())
-        _session_dir_default.create(Ci.nsIFile.DIRECTORY_TYPE, 0755);
+        _session_dir_default.create(Ci.nsIFile.DIRECTORY_TYPE, parseInt("0755", 8));
 
     define_variable("session_dir", _session_dir_default,
         "Default directory for save/load interactive commands.");
