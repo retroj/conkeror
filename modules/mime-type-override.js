@@ -34,9 +34,10 @@
     let table_size = 0;
 
     // uri must be an instance of nsIURI
-    function can_override_mime_type_for_uri(uri) {
-        return uri.schemeIs("http") || uri.schemeIs("https");
-    }
+    var can_override_mime_type_for_uri =
+        function can_override_mime_type_for_uri (uri) {
+            return uri.schemeIs("http") || uri.schemeIs("https");
+        }
 
     let clear_override = function(uri_string) {
         delete table[uri_string];
@@ -77,26 +78,27 @@
     // return true for the passed uri.
 
     // mime_type must be a string
-    function override_mime_type_for_next_load(uri, mime_type) {
-        yield cache_entry_clear(CACHE_SESSION_HTTP, uri);
+    var override_mime_type_for_next_load =
+        function override_mime_type_for_next_load(uri, mime_type) {
+            yield cache_entry_clear(CACHE_SESSION_HTTP, uri);
 
-        var obj = table[uri.spec];
-        if (obj)
-            obj.timer.cancel();
-        else
-            table_size++;
+            var obj = table[uri.spec];
+            if (obj)
+                obj.timer.cancel();
+            else
+                table_size++;
 
-        obj = { mime_type: mime_type };
+            obj = { mime_type: mime_type };
 
-        obj.timer = call_after_timeout(function () {
-            clear_override(uri.spec);
-        }, timeout);
+            obj.timer = call_after_timeout(function () {
+                clear_override(uri.spec);
+            }, timeout);
 
-        if (table_size == 1) {
-            observer_service.addObserver(observer, EXAMINE_TOPIC, false);
-            observer_service.addObserver(observer, EXAMINE_MERGED_TOPIC, false);
+            if (table_size == 1) {
+                observer_service.addObserver(observer, EXAMINE_TOPIC, false);
+                observer_service.addObserver(observer, EXAMINE_MERGED_TOPIC, false);
+            }
+            table[uri.spec] = obj;
         }
-        table[uri.spec] = obj;
-    }
 }
 provide("mime-type-override");

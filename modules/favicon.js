@@ -31,7 +31,7 @@ define_variable("favicon_image_max_size", 1024,
                 buffer.current_uri, icon_url, false);
         };
     }
-    function favicon_set (buffer, icon_url) {
+    var favicon_set = function favicon_set (buffer, icon_url) {
         favicon_set_internal(buffer, icon_url);
         buffer.icon = icon_url.spec;
     }

@@ -15,7 +15,7 @@
                     "nsIURI's, or nsIFile's. Chrome urls must be given as "+
                     "strings.");
 
-    function theme_cssfile_module (cssfile) {
+    var theme_cssfile_module = function theme_cssfile_module (cssfile) {
         cssfile = cssfile.substring(0, cssfile.indexOf('.'));
         var sep = cssfile.indexOf('--');
         if (sep == -1)
@@ -24,7 +24,7 @@
             return cssfile.substring(0, sep);
     }
 
-    function theme (location, sheets) {
+    var theme = function theme (location, sheets) {
         this.location = location;
         this.sheets = sheets;
     }
@@ -41,7 +41,7 @@
         }
     };
 
-    function theme_find (name) {
+    var theme_find = function theme_find (name) {
         if (loaded_themes[name])
             return loaded_themes[name];
         for each (var path in theme_load_paths) {
@@ -69,7 +69,7 @@
         return null;
     }
 
-    function theme_load (name) {
+    var theme_load = function theme_load (name) {
         var th = theme_find(name);
         if (! th) throw new Error("theme "+name+" not found.");
         for each (var cssfile in th.sheets) {
@@ -90,7 +90,7 @@
         }
     }
 
-    function theme_unload (name) {
+    var theme_unload = function theme_unload (name) {
         var th = theme_find(name);
         for each (var cssfile in th.sheets) {
             let module = theme_cssfile_module(cssfile);
@@ -105,7 +105,7 @@
         delete loaded_themes[name];
     }
 
-    function theme_module (module) {
+    var theme_module = function theme_module (module) {
         for (var cssfile in themes[module]) {
             if (themes[module][cssfile].length > 0)
                 themes[module][cssfile][0].register(cssfile);

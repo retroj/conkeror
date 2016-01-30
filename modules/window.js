@@ -326,7 +326,7 @@ function call_builtin_command (window, command, clear_mark) {
         if (clear_mark)
             m.current_state.mark_active = false;
     } else {
-        function attempt_command (element) {
+        var attempt_command = function attempt_command (element) {
             var c;
             if (element.controllers
                 && (c = element.controllers.getControllerForCommand(command)) != null

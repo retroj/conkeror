@@ -54,7 +54,7 @@
      * during buffer init, whether the buffer was created by a session or
      * by other means.
      */
-    function session_token () {}
+    var session_token = function session_token () {}
     session_token.prototype = {
         constructor: session_token
     };
@@ -63,7 +63,7 @@
      * session_get generates and returns a structure containing session
      * data for the current group of open windows.
      */
-    function session_get () {
+    var session_get = function session_get () {
         let windows = {};
         let x = 0;
         for_each_window(function (w) {
@@ -94,7 +94,7 @@
      * with optional buffer_idx as the buffer index at which to begin
      * overwriting existing buffers.
      */
-    function session_load (session, window, buffer_idx) {
+    var session_load = function session_load (session, window, buffer_idx) {
         if (! (session[0] && session[0][0]))
             throw new Error("Invalid 'session' argument.");
         let s = 0;
@@ -209,7 +209,7 @@
     /**
      * session_load_window_new loads the given session into new windows.
      */
-    function session_load_window_new (session) {
+    var session_load_window_new = function session_load_window_new (session) {
         session_load(session);
     }
 
@@ -218,25 +218,27 @@
      * session's first window being appended to window.  No existing
      * buffers will be overwritten.
      */
-    function session_load_window_current (session, window) {
-        let w = window ? window : get_recent_conkeror_window();
-        session_load(session, w);
-    }
+    var session_load_window_current =
+        function session_load_window_current (session, window) {
+            let w = window ? window : get_recent_conkeror_window();
+            session_load(session, w);
+        }
 
     /**
      * session_load_window_current loads the given session, with the
      * session's first window replacing the given window.  All buffers in
      * the given window will be overwritten.
      */
-    function session_load_window_current_replace (session, window) {
-        let w = window ? window : get_recent_conkeror_window();
-        session_load(session, w, 0);
-    }
+    var session_load_window_current_replace =
+        function session_load_window_current_replace (session, window) {
+            let w = window ? window : get_recent_conkeror_window();
+            session_load(session, w, 0);
+        }
 
     /**
      * session_write writes the given session to the file given by path.
      */
-    function session_write (path, session) {
+    var session_write = function session_write (path, session) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
         if (! session)
@@ -248,7 +250,7 @@
      * session_read reads session data from the given file path,
      * and returns a decoded session structure.
      */
-    function session_read (path) {
+    var session_read = function session_read (path) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
         var rv = JSON.parse(read_text_file(path));
@@ -264,7 +266,7 @@
     /**
      * session_remove deletes the given session file.
      */
-    function session_remove (path) {
+    var session_remove = function session_remove (path) {
         if (! (path instanceof Ci.nsIFile))
             path = make_file(path);
         path.remove(false);
@@ -347,17 +349,20 @@
         'Whether to load the auto-saved session when the browser is started. '+
         'May be true, false, or "prompt".');
 
-    function session_auto_save_load_window_new () {
-        session_load_window_new(_session_auto_save_cached);
-    }
+    var session_auto_save_load_window_new =
+        function session_auto_save_load_window_new () {
+            session_load_window_new(_session_auto_save_cached);
+        }
 
-    function session_auto_save_load_window_current (window) {
-        session_load_window_current(_session_auto_save_cached, window);
-    }
+    var session_auto_save_load_window_current =
+        function session_auto_save_load_window_current (window) {
+            session_load_window_current(_session_auto_save_cached, window);
+        }
 
-    function session_auto_save_load_window_current_replace (window) {
-        session_load_window_current_replace(_session_auto_save_cached, window);
-    }
+    var session_auto_save_load_window_current_replace =
+        function session_auto_save_load_window_current_replace (window) {
+            session_load_window_current_replace(_session_auto_save_cached, window);
+        }
 
     define_variable("session_auto_save_auto_load_fn",
         null,
@@ -381,7 +386,7 @@
         return f;
     };
 
-    function session_auto_save_save () {
+    var session_auto_save_save = function session_auto_save_save () {
         let f = _session_auto_save_file_get();
         let s = session_get();
         if (s[0])
@@ -390,7 +395,7 @@
             f.remove(false);
     }
 
-    function session_auto_save_remove () {
+    var session_auto_save_remove = function session_auto_save_remove () {
         let f = _session_auto_save_file_get();
         if (f.exists())
             f.remove(false);

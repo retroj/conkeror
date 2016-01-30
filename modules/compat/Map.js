@@ -12,7 +12,7 @@
  **/
 
 if (typeof(Map) == "undefined") {
-    function Map() {
+    var Map = function Map() {
         this.data = {}
         this.size = 0;
     }

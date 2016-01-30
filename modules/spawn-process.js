@@ -311,7 +311,7 @@ function spawn_process (program_name, args, working_dir,
                 fail("setup timeout");
         }, spawn_process_helper_setup_timeout);
 
-        function wait_for_fd_sockets () {
+        var wait_for_fd_sockets = function wait_for_fd_sockets () {
             var remaining_streams = total_fds * 2;
             var timer = null;
             function handler () {
@@ -338,7 +338,7 @@ function spawn_process (program_name, args, working_dir,
 
         var control_data = "";
 
-        function handle_control_input () {
+        var handle_control_input = function handle_control_input () {
             if (terminate_pending)
                 return;
             try {

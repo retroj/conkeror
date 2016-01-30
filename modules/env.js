@@ -14,7 +14,7 @@
 {
     let xul_runtime = Cc['@mozilla.org/xre/app-info;1']
         .getService(Ci.nsIXULRuntime);
-    function get_os () {
+    var get_os = function get_os () {
         return xul_runtime.OS;
     }
 }
@@ -41,7 +41,7 @@ function get_mozilla_version () {
 {
     let env = Cc['@mozilla.org/process/environment;1']
         .getService(Ci.nsIEnvironment);
-    function getenv (variable) {
+    var getenv = function getenv (variable) {
         if (env.exists(variable))
             return env.get(variable);
         return null;
@@ -79,7 +79,7 @@ function get_home_directory () {
  */
 {
     let profile_name = null;
-    function get_current_profile () {
+    var get_current_profile = function get_current_profile () {
         if (profile_name)
             return profile_name;
         if ("@mozilla.org/profile/manager;1" in Cc) {

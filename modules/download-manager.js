@@ -24,13 +24,13 @@ try {
         throw "bad Downloads.jsm version";
     var use_downloads_jsm = true;
 
-    function lookup_download(download) {
+    var lookup_download = function lookup_download(download) {
         return id_to_download_info.get(download);
     }
 } catch (e) {
     var use_downloads_jsm = false;
 
-    function lookup_download(download) {
+    var lookup_download = function lookup_download(download) {
         return id_to_download_info.get(download.id);
     }
 }
@@ -1126,7 +1126,7 @@ function open_download_buffer_automatically (info) {
         download_show(buf ? buf.window : null, target, info.mozilla_info);
     } else {
         var timer = null;
-        function finish () {
+        var finish = function finish () {
             timer.cancel();
         }
         add_hook.call(info, "download_finished_hook", finish);
