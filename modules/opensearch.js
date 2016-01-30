@@ -315,7 +315,7 @@ function define_opensearch_webjump (name, spec) {
     if (spec instanceof Ci.nsIFile)
         path = spec;
     else {
-        for (i = 0, n = opensearch_load_paths.length; i < n; ++i) {
+        for (let i = 0, n = opensearch_load_paths.length; i < n; ++i) {
             path = make_file(opensearch_load_paths[i]).clone();
             path.append(spec);
             if (path.exists())
