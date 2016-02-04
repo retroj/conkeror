@@ -9,10 +9,11 @@
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 const Cr = Components.results;
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Cu = Components.utils;
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 function application () {
-    Components.utils.import("resource://gre/modules/XPCOMUtils.jsm", this);
+    Cu.import("resource://gre/modules/XPCOMUtils.jsm", this);
 
     this.wrappedJSObject = this;
     this.conkeror = this;
