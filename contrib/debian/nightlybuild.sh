@@ -228,7 +228,7 @@ if [ "$UPLOAD" = "yes" ]; then
 		"cd $UPLOAD_SSH_DIR; for i in $REPREPRO_DISTS; do reprepro -v includedeb" '$i' *.deb "; done"
 	fi
     else
-	scp -i $UPLOAD_SSH_KEY -p *build *deb *changes *dsc *gz \
+	scp -i $UPLOAD_SSH_KEY -p *build *deb *changes *dsc *gz *xz \
 	    $UPLOAD_SSH_USER@$UPLOAD_SSH_HOST:$UPLOAD_SSH_DIR
 
 	if [ "$USE_REPREPRO" = "yes" ]; then
