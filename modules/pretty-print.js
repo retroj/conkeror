@@ -50,6 +50,16 @@ function pretty_print_file_size (val) {
     return [val.toFixed(precision), suffix];
 }
 
+function pretty_print_function (fn) {
+    if (fn.name)
+        return fn.name;
+    var s = fn.toString().trimRight();
+    var m = s.match(/^[^)]+\)\s*([^{;]+)$/)
+    if (m)
+        return m[1];
+    return s;
+}
+
 function pretty_print_time (val) {
     val = Math.round(val);
     var seconds = val % 60;
