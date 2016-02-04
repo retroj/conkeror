@@ -117,4 +117,71 @@ interactive("clear-history", "Permanently delete all location history.",
               I.minibuffer.message("Location history cleared.");
           });
 
+
+/**
+ * history_clean takes a predicate or an array of predicates, iterates
+ * through the browser history, and removes all items for which any of the
+ * given predicates return true.  Predicates are called with three
+ * arguments: string URI, age in days of the entry, and access count of
+ * the entry.  Age is a decimal number, so smaller divisions that days can
+ * be obtained by dividing appropriately.
+ *
+ * It accepts the keywords $dry_run and $verbose.  When $dry_run is given,
+ * entries will not be deleted.  When $verbose is given, overall and
+ * itemized deletion counts will be reported in the terminal.
+ */
+define_keywords("$dry_run", "$verbose");
+function history_clean (predicates) {
+    keywords(arguments, $verbose = false, $dry_run = false);
+    predicates = make_array(predicates);
+    var npred = predicates.length;
+    var predhits = [];
+    var verbose = arguments.$verbose;
+    var dry_run = arguments.$dry_run;
+    var query = nav_history_service.getNewQuery();
+    query.searchTerms = "";
+    var options = nav_history_service.getNewQueryOptions();
+    options.queryType = options.QUERY_TYPE_HISTORY;
+    options.includeHidden = true;
+    var root = nav_history_service.executeQuery(query, options).root;
+    root.containerOpen = true;
+    var count = root.childCount;
+    if (verbose)
+        dumpln("[history_clean] before-count: "+count);
+    var now = Date.now() / 86400000; // now in days
+    var history = Cc["@mozilla.org/browser/nav-history-service;1"]
+        .getService(Ci.nsIBrowserHistory);
+    var to_remove = [];
+    var remove_count = 0;
+    outer:
+    for (var i = count - 1; i >= 0; --i) {
+        var o = root.getChild(i); // nsINavHistoryResultNode
+        var age = now - o.time / 86400000000; // age in days
+        for (var j = 0; j < npred; ++j) {
+            var p = predicates[j];
+            if (p(o.uri, age, o.accessCount)) {
+                predhits[j] = (predhits[j] || 0) + 1;
+                to_remove.push(make_uri(o.uri));
+                remove_count++;
+                continue outer;
+            }
+        }
+    }
+    if (! dry_run && remove_count > 0)
+        history.removePages(to_remove, remove_count);
+    if (verbose) {
+        dumpln("[history_clean] after-count " +
+               (dry_run ? " (DRY_RUN):" : ":") +
+               (count - predhits.reduce(function (a, b) a + b, 0)));
+        for (j = 0; j < npred; ++j) {
+            var name = predicates[j].name;
+            if (! name)
+                name = pretty_print_function(predicates[j]);
+            var hits = predhits[j] || 0;
+            dumpln("[history_clean] " + name + ": " + hits);
+        }
+    }
+}
+
+
 provide("history");
