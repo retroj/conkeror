@@ -148,8 +148,6 @@ function history_clean (predicates) {
     var root = nav_history_service.executeQuery(query, options).root;
     root.containerOpen = true;
     var count = root.childCount;
-    if (verbose)
-        dumpln("[history_clean] before-count: "+count);
     var now = Date.now() / 86400000; // now in days
     var history = Cc["@mozilla.org/browser/nav-history-service;1"]
         .getService(Ci.nsIBrowserHistory);
@@ -172,8 +170,9 @@ function history_clean (predicates) {
     if (! dry_run && remove_count > 0)
         history.removePages(to_remove, remove_count);
     if (verbose) {
-        dumpln("[history_clean] after-count " +
-               (dry_run ? " (DRY_RUN):" : ":") +
+        dumpln("[history_clean] "+
+               (dry_run ? "(DRY_RUN) " : "")+
+               "count: "+count+" -> "+
                (count - predhits.reduce(function (a, b) a + b, 0)));
         for (j = 0; j < npred; ++j) {
             var name = predicates[j].name;
