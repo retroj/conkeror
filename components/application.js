@@ -200,7 +200,7 @@ application.prototype = {
         var funcs = this.after_load_functions[symbol];
         if (funcs) {
             delete this.after_load_functions[symbol];
-            for (var i = 0; funcs[i]; ++i) {
+            for (var i = 0, n = funcs.length; i < n; ++i) {
                 try {
                     funcs[i]();
                 } catch (e) {
