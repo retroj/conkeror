@@ -31,7 +31,7 @@ interactive("adblockplus-add",
         // https://adblockplus.org/en/IAdblockPlus
         var abpURL = Components.classes["@adblockplus.org/abp/public;1"]
             .getService(Components.interfaces.nsIURI);
-        var AdblockPlus = Components.utils.import(abpURL.spec, null).AdblockPlus;
+        var AdblockPlus = Cu.import(abpURL.spec, null).AdblockPlus;
 
         var element = yield read_browser_object(I);
         var spec = load_spec(element);

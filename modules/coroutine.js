@@ -276,10 +276,10 @@
  **/
 
 try {
-    Components.utils.import("resource://gre/modules/Promise.jsm");
+    Cu.import("resource://gre/modules/Promise.jsm");
 } catch (e) {
     // Gecko < 25
-    Components.utils.import("chrome://conkeror/content/compat/Promise.jsm");
+    Cu.import("chrome://conkeror/content/compat/Promise.jsm");
 }
 
 function _return_value (x) {

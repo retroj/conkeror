@@ -12,10 +12,10 @@ define_keymap("duckduckgo_anchor_keymap", $display_name = "duckduckgo-anchor");
 define_keymap("duckduckgo_select_keymap", $display_name = "duckduckgo-select");
 
 function duckduckgo_call_command (buffer, command) {
-    var s = Components.utils.Sandbox(buffer.top_frame);
+    var s = Cu.Sandbox(buffer.top_frame);
     s.window = buffer.top_frame.wrappedJSObject;
     s.document = buffer.document.wrappedJSObject;
-    Components.utils.evalInSandbox("window."+command+"()", s);
+    Cu.evalInSandbox("window."+command+"()", s);
 }
 
 function duckduckgo_command (command) {

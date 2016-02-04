@@ -19,7 +19,7 @@ var unmanaged_download_info_list = [];
 var id_to_download_info = new Map();
 
 try {
-    Components.utils.import("resource://gre/modules/Downloads.jsm");
+    Cu.import("resource://gre/modules/Downloads.jsm");
     if (typeof(Downloads.getList) == 'undefined')
         throw "bad Downloads.jsm version";
     var use_downloads_jsm = true;

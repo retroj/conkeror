@@ -7,7 +7,8 @@
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const Cu = Components.utils;
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 var content_policy_listener;
 
