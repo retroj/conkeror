@@ -190,7 +190,7 @@ function define_keymap (name) {
 
 function define_key_match_predicate (name, description, predicate) {
     conkeror[name] = predicate;
-    conkeror[name].name = name;
+    conkeror[name].displayName = name;
     conkeror[name].description = description;
     return conkeror[name];
 }
