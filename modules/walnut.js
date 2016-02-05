@@ -46,8 +46,8 @@ function assert_objects_equal (got, expect) {
     }
     if (got.constructor !== expect.constructor)
         throw new Error("objects are of different type");
-    var expectkeys = [i for (i in expect)];
-    var gotkeys = [i for (i in got)];
+    var expectkeys = object_keys(expect);
+    var gotkeys = object_keys(got);
     if (gotkeys.length != expectkeys.length)
         throw new Error("objects have different property counts");
     for (var i in expectkeys) {

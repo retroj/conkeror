@@ -400,15 +400,9 @@ var xml_http_request_load_listener = {
   },
 
   // nsISupports
-  //
-  // FIXME: array comprehension used here to hack around the lack of
-  // Ci.nsISSLErrorListener in 2007 versions of xulrunner 1.9pre.
-  // make it a simple generateQI when xulrunner is more stable.
-  QueryInterface: XPCOMUtils.generateQI(
-      [i for each (i in [Ci.nsIBadCertListener2,
-                         Ci.nsISSLErrorListener,
-                         Ci.nsIInterfaceRequestor])
-       if (i)])
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsIBadCertListener2,
+                                         Ci.nsISSLErrorListener,
+                                         Ci.nsIInterfaceRequestor])
 };
 
 
@@ -576,8 +570,9 @@ function get_contents_synchronously (url) {
  * load_spec.
  */
 function make_post_data (data) {
-    data = [(encodeURIComponent(pair[0])+'='+encodeURIComponent(pair[1]))
-            for each (pair in data)].join('&');
+    data = data.map(function(pair) {
+        return (encodeURIComponent(pair[0])+'='+encodeURIComponent(pair[1]))
+    }).join('&');
     data = string_input_stream(data);
     return mime_input_stream(
         data, [["Content-Type", "application/x-www-form-urlencoded"]]);

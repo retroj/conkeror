@@ -147,7 +147,7 @@ function get_url_or_webjump (input) {
 // on webjump names, and one specific to the individual webjump.
 function webjump_name_completer () {
     prefix_completer.call(this,
-        $completions = [v for ([k, v] in Iterator(webjumps))],
+        $completions = object_values(webjumps),
         $get_string = function (x) x.name + (x.argument == false ? "" : " "),
         $get_description = function (x) x.doc || "");
 }
