@@ -18,6 +18,7 @@ require("pretty-print.js");
 require("services.js");
 
 require("string.js");
+require("object.js");
 require("pref.js");
 require("env.js");
 require("source-code.js");
