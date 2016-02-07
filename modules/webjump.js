@@ -146,8 +146,12 @@ function get_url_or_webjump (input) {
 // a webjump completer is a nesting of two completers: one that completes
 // on webjump names, and one specific to the individual webjump.
 function webjump_name_completer () {
+    var completions = [];
+    for (let [k,v] of Iterator(webjumps)) {
+        completions.push(v);
+    }
     prefix_completer.call(this,
-        $completions = [v for ([k, v] in Iterator(webjumps))],
+        $completions = completions,
         $get_string = function (x) x.name + (x.argument == false ? "" : " "),
         $get_description = function (x) x.doc || "");
 }
