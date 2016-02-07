@@ -405,10 +405,9 @@ var xml_http_request_load_listener = {
   // Ci.nsISSLErrorListener in 2007 versions of xulrunner 1.9pre.
   // make it a simple generateQI when xulrunner is more stable.
   QueryInterface: XPCOMUtils.generateQI(
-      [i for each (i in [Ci.nsIBadCertListener2,
-                         Ci.nsISSLErrorListener,
-                         Ci.nsIInterfaceRequestor])
-       if (i)])
+      [Ci.nsIBadCertListener2,
+       Ci.nsISSLErrorListener,
+       Ci.nsIInterfaceRequestor])
 };
 
 
@@ -576,8 +575,11 @@ function get_contents_synchronously (url) {
  * load_spec.
  */
 function make_post_data (data) {
-    data = [(encodeURIComponent(pair[0])+'='+encodeURIComponent(pair[1]))
-            for each (pair in data)].join('&');
+    var temp = [];
+    for (let pair of data) {
+        temp.push(encodeURIComponent(pair[0])+'='+encodeURIComponent(pair[1]));
+    }
+    data = temp.join('&');
     data = string_input_stream(data);
     return mime_input_stream(
         data, [["Content-Type", "application/x-www-form-urlencoded"]]);
