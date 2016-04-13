@@ -21,16 +21,11 @@ clean:
 	$(RM) -r conkeror-$(VERSION)
 
 conkeror: conkeror.in
-	$(RM) $@ $@.tmp
-	sed 's:@datadir@:$(BUILDDIR):g' $? > $@.tmp
-	chmod +x $@.tmp
-	mv $@.tmp $@
+	sed 's:@datadir@:$(BUILDDIR):g' $? > $@
+	chmod +x $@
 
 conkeror-bin: conkeror.in
-	$(RM) $@ $@.tmp
-	sed 's:@datadir@:$(PREFIX)/share/conkeror:g' $? > $@.tmp
-	chmod +x $@.tmp
-	mv $@.tmp $@
+	sed 's:@datadir@:$(PREFIX)/share/conkeror:g' $? > $@
 
 conkeror-spawn-helper: conkeror-spawn-helper.c
 
