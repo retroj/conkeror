@@ -15,10 +15,10 @@
     <string>APPL</string>
 
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.0.0</string>
 
     <key>CFBundleVersion</key>
-    <string>1.0pre1</string>
+    <string>1.0.0</string>
 
     <key>NSHumanReadableCopyright</key>
     <string>(c) 2007, Shawn Betts</string>
@@ -30,7 +30,7 @@
     <string>xulrunner</string>
 
     <key>CFBundleGetInfoString</key>
-    <string>Conkeror 1.0pre1, A 100% keyboard driven mozilla based web browser.</string>
+    <string>Conkeror 1.0.0, A 100% keyboard driven mozilla based web browser.</string>
 
     <key>CFBundleURLTypes</key>
     <array>
