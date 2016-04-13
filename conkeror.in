@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# (C) Copyright 2015 Ivy F. Foster
+# (C) Copyright 2015-2016 Ivy F. Foster
 #
 # Use, modification, and distribution are subject to the
 # terms specified in the COPYING file.
 
-exec xulrunner "@datadir@"/application.ini "$@"
+exec firefox --app "@datadir@/application.ini" "$@"
