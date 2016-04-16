@@ -10,17 +10,26 @@
 define_coroutine_hook("before_quit_hook", RUN_HOOK_UNTIL_FAILURE);
 define_hook("quit_hook");
 
-function quit () {
+function quit (I, restart) {
     var res = yield before_quit_hook.run();
     if (res) {
         quit_hook.run();
         var appStartup = Cc["@mozilla.org/toolkit/app-startup;1"]
             .getService(Ci.nsIAppStartup);
-        appStartup.quit(appStartup.eAttemptQuit);
+        if (restart) {
+            appStartup.quit(appStartup.eRestart | appStartup.eAttemptQuit);
+        } else {
+            appStartup.quit(appStartup.eAttemptQuit);
+        }
     }
 }
 interactive("quit", "Quit Conkeror", quit);
 
+interactive("restart",
+    "Restart Conkeror",
+    function (I) {
+        yield quit(I, true);
+    });
 
 function show_conkeror_version (window) {
     var xulrunner_version = Cc['@mozilla.org/xre/app-info;1']
