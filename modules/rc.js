@@ -16,19 +16,25 @@
 function load_rc () {
     var path;
     var rcfile = get_pref("conkeror.rcfile");
-    if (rcfile.length == 0)
-        //FIXME: log that the rc is disabled
-        return;
-    path = make_file(rcfile);
-    if (! path.exists()) {
-        if (file_symlink_p(path))
-            dumpln("w: broken symlink, \""+rcfile+"\"");
-        else if (pref_has_user_value("conkeror.rcfile"))
-            dumpln("w: preference conkeror.rcfile is set to "+
-                   "non-existent path, \""+rcfile+"\"");
-        //FIXME: else log that the rc does not exist
+    if (rcfile.length == 0) {
+        dumpln("w:  preference conkeror.rcfile is unset");
         return;
     }
+    path = make_file(rcfile);
+
+    if (! path.exists()) {
+        if (file_symlink_p(path)) {
+            dumpln("w: broken symlink, \""+rcfile+"\"");
+        } else if (pref_has_user_value("conkeror.rcfile")) {
+            dumpln("w: preference conkeror.rcfile is set to "+
+                   "non-existent path, \""+rcfile+"\"");
+        } else {
+            dumpln("w: conkeror.rcfile \"" + rcfile +
+            "\" does not exist");
+        }
+        return;
+    }
+
     var files = [];
     var ret;
     if (path.isDirectory()) {
@@ -36,16 +42,18 @@ function load_rc () {
         while (entries.hasMoreElements()) {
             var entry = entries.getNext();
             entry.QueryInterface(Ci.nsIFile);
-            if (entry.leafName.substr(-3).toLowerCase() == '.js')
+            if (entry.leafName.substr(-3).toLowerCase() == '.js') {
                 files.push(entry);
+            }
         }
         files.sort(function (a, b) {
-            if (a.leafName < b.leafName)
+            if (a.leafName < b.leafName) {
                 return -1;
-            else if (a.leafName > b.leafName)
+            } else if (a.leafName > b.leafName) {
                 return 1;
-            else
+            } else {
                 return 0;
+            }
         });
         path.appendRelativePath("a");
         ret = path.path.substr(0, path.path.length - 1) + "*.js";
@@ -56,15 +64,14 @@ function load_rc () {
     var obs = Cc["@mozilla.org/observer-service;1"]
         .getService(Ci.nsIObserverService);
     obs.notifyObservers(null, "startupcache-invalidate", null);
-    for (var i = 0; files[i]; i++) {
+    for (var file of files) {
         try {
-            load(files[i]);
+            load(file);
+            dumpln("i: loaded rc file " + file.leafName)
         } catch (e) {
             dump_error(e);
         }
     }
-    //FIXME: log what was loaded instead of returning the value to be
-    //       logged by the caller.
     return ret;
 }
 
