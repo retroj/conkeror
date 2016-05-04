@@ -17,7 +17,7 @@ function trim_whitespace (str) {
 
 
 function shell_quote (str) {
-    var s = str.replace(/\"/g, "\\\"");
+    var s = str.replace(/"/g, "\\\"");
     s = s.replace(/\$/g, "\\$");
     return s;
 }
