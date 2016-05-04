@@ -10,7 +10,7 @@ require("interactive.js");
 define_keywords("$doc");
 function define_global_mode (name, enable, disable) {
     keywords(arguments, $doc = null);
-    var hyphen_name = name.replace("_","-","g");
+    var hyphen_name = name.replace(/_/g,"-");
     var state = name + "_enabled";
     this[state] = false;
     var enable_hook_name = hyphen_name + "-enable-hook";

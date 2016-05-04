@@ -17,8 +17,8 @@ function trim_whitespace (str) {
 
 
 function shell_quote (str) {
-    var s = str.replace("\"", "\\\"", "g");
-    s = s.replace("$", "\$", "g");
+    var s = str.replace(/\"/g, "\\\"");
+    s = s.replace(/\$/g, "\\$");
     return s;
 }
 
@@ -76,7 +76,7 @@ function html_escape (str) {
     return str.replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace('"', '&quot;', 'g');
+        .replace(/\"/g, '&quot;');
 }
 
 

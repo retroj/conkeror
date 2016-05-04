@@ -27,12 +27,15 @@ function makeURLAbsolute (base, url) {
 
 
 function make_file (path) {
-    if (path instanceof Ci.nsILocalFile)
+    if (path instanceof Ci.nsILocalFile) {
         return path;
-    if (path == "~")
+    }
+    if (path == "~") {
         return get_home_directory();
-    if (WINDOWS)
-        path = path.replace("/", "\\", "g");
+    }
+    if (WINDOWS) {
+        path = path.replace(/\//g, "\\");
+    }
     if ((POSIX && path.substring(0,2) == "~/") ||
         (WINDOWS && path.substring(0,2) == "~\\"))
     {

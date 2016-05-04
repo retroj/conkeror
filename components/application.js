@@ -99,7 +99,7 @@ application.prototype = {
                                     this.loading_urls.join(",\n"));
                 if (url.substr(-4) == ".jsx") {
                     var scopename = url.substr(url.lastIndexOf('/')+1)
-                        .replace('-', '_', 'g');
+                        .replace(/-/g, '_');
                     var dot = scopename.indexOf(".");
                     if (dot > -1)
                         scopename = scopename.substr(0, dot);
@@ -222,7 +222,7 @@ application.prototype = {
             return false;
         if (dot > 0)
             feature = feature.substr(0, dot);
-        feature = feature.replace('_', '-', 'g');
+        feature = feature.replace(/_/g, '-');
         if (this.featurep(feature))
             return true;
         try {

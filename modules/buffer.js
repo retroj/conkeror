@@ -1094,12 +1094,14 @@ define_current_buffer_hook("current_buffer_mode_change_hook", "buffer_mode_chang
 define_keywords("$display_name", "$doc");
 function buffer_mode (name, enable, disable) {
     keywords(arguments);
-    this.name = name.replace("-","_","g");
-    this.hyphen_name = name.replace("_","-","g");
-    if (enable)
+    this.hyphen_name = name;
+    this.name = name.replace(/-/g, "_");
+    if (enable) {
         this._enable = enable;
-    if (disable)
+    }
+    if (disable) {
         this._disable = disable;
+    }
     this.display_name = arguments.$display_name;
     this.doc = arguments.$doc;
     this.enable_hook = this.name + "_enable_hook";
