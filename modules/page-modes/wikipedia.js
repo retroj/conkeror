@@ -77,7 +77,7 @@ function wikipedia_didyoumean(buffer) {
  */
 function define_wikipedia_webjumps() {
     if (arguments.length == 0)
-        var prefixes = [i for (i in wikipedia_versions)];
+        var prefixes = object_keys(wikipedia_versions);
     else
         prefixes = Array.slice(arguments);
     for each (let i in prefixes) {
