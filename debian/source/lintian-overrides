@@ -1,0 +1,3 @@
+# repo.or.cz uses a self-signed certificate
+conkeror source: vcs-field-uses-insecure-uri vcs-git git://repo.or.cz/conkeror.git
+conkeror source: vcs-field-uses-insecure-uri vcs-browser http://repo.or.cz/w/conkeror.git
