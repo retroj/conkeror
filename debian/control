@@ -12,50 +12,20 @@ Vcs-Git: git://repo.or.cz/conkeror.git
 Package: conkeror
 Architecture: all
 Depends: ${misc:Depends},
-         iceweasel (>= 30) |
-         xulrunner-24.0  |
-         xulrunner-30    |
-         xulrunner-29    |
-         xulrunner-28    |
-         xulrunner-27    |
-         xulrunner-26.0  |
-         xulrunner-25.0  |
-         xulrunner-23.0  |
-         xulrunner-22.0  |
-         xulrunner-21.0  |
-         xulrunner-20.0  |
-         xulrunner-19.0  |
-         xulrunner-18.0  |
-         xulrunner-17.0  |
-         xulrunner-16.0 (>= 16.0~a2+20120803042008) |
-         xulrunner-15.0 (>= 15.0~b3) |
-         xulrunner-13.0  |
-         xulrunner-12.0  |
-         xulrunner-11.0  |
-         xulrunner-10.0  |
-         xulrunner-9.0   |
-         xulrunner-8.0   |
-         xulrunner-7.0   |
-         xulrunner-6.0   |
-         xulrunner-5.0   |
-         xulrunner-2.0   |
-         xulrunner-1.9.2 |
-         xulrunner-1.9.1 |
-         firefox (>= 3.5)
+         firefox | firefox-esr | iceweasel
 Recommends: conkeror-spawn-process-helper,
             xdg-utils
 Breaks: conkeror-spawn-process-helper (<< 0.9~git080901-1)
-Conflicts: xulrunner-16.0 (<< 16.0~a2+20120803042008),
-           xulrunner-15.0 (<< 15.0~b3)
 Suggests: emacs | emacsen
 Provides: www-browser
 Xb-Xul-AppId: {a79fe89b-6662-4ff4-8e88-09950ad4dfde}
 Description: keyboard focused web browser with Emacs look and feel
- Conkeror is a highly-programmable web browser based on Mozilla
- XULRunner which is the base of all Mozilla products including
- Firefox. Conkeror has a sophisticated keyboard system for running
- commands and interacting with web page content, modelled after Emacs
- and Lynx. It is self-documenting and extensible with JavaScript.
+ Conkeror is a highly-programmable web browser based on Mozilla's
+ rendering engine Gecko which is the base of all Mozilla products
+ including Firefox. Conkeror has a sophisticated keyboard system for
+ running commands and interacting with web page content, modelled
+ after Emacs and Lynx. It is self-documenting and extensible with
+ JavaScript.
  .
  It comes with builtin support for several Web 2.0 sites like several
  Google services (Search, Gmail, Maps, Reader, etc.), Del.icio.us,
@@ -77,4 +47,4 @@ Description: spawn external processes in Conkeror
  Conkeror web browser spawn external process, e.g. to edit form fields
  in an external program. It was previously named spawn-process-helper.
  .
- Maybe helpful for other XULRunner based applications, too.
+ Maybe helpful for other Gecko-based applications, too.

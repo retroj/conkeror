@@ -1,9 +1,3 @@
 # Non-standard Xul-AppId header needed for mozilla-devscripts (see bug
 # #562986 and http://wiki.debian.org/mozilla-devscripts)
 conkeror binary: unknown-field-in-control xul-appid
-
-# Conkeror fails if these versions are just only unpacked, hence
-# Conflicts, not only Breaks. See http://bugs.debian.org/683157
-conkeror: conflicts-with-version xulrunner-15.0 (<< 15.0~b3)
-conkeror: conflicts-with-version xulrunner-16.0 (<< 16.0~a2+20120803042008)
-
