@@ -41,7 +41,7 @@ Copyright: 2004-2009 Shawn Betts
            2013-2015 Joseph Mingrone
 License: MPL or GPL-2 or LGPL-2.1
 Comment:
- Conkeror is triple-licensed under MPL 1.1 (see file MPL in the
+ Conkeror is triple-licensed under MPL 1.1 (see file COPYING in the
  same directory), GPL 2 (see `/usr/share/common-licenses/GPL-2') or
  LGPL 2.1 (see `/usr/share/common-licenses/LGPL-2.1') at your
  option.
@@ -501,7 +501,7 @@ License: MPL
       ``The contents of this file are subject to the Mozilla Public License
       Version 1.1 (the "License"); you may not use this file except in
       compliance with the License. You may obtain a copy of the License at
-      http://www.mozilla.org/MPL/
+      https://www.mozilla.org/MPL/
  .
       Software distributed under the License is distributed on an "AS IS"
       basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
@@ -601,7 +601,7 @@ License: MPL
            "The contents of this file are subject to the Netscape Public
            License Version 1.1 (the "License"); you may not use this file
            except in compliance with the License. You may obtain a copy of
-           the License at http://www.mozilla.org/NPL/
+           the License at https://web.archive.org/web/19981202063748/http://www.mozilla.org/NPL/
  .
            Software distributed under the License is distributed on an "AS
            IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
