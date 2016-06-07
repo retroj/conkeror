@@ -5,4 +5,4 @@
 # Use, modification, and distribution are subject to the
 # terms specified in the COPYING file.
 
-exec firefox --app "@datadir@/application.ini" "$@"
+XUL_APP_FILE="@datadir@/application.ini" exec firefox "$@"
