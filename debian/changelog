@@ -1,3 +1,9 @@
+conkeror (1.0.3-2) UNRELEASED; urgency=medium
+
+  * Create a proper watch file now that upstream uses Semantic Versioning.
+
+ -- Axel Beckert <abe@debian.org>  Wed, 08 Jun 2016 12:03:22 +0200
+
 conkeror (1.0.3-1) unstable; urgency=medium
 
   * New upstream release
