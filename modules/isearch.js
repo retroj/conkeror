@@ -246,9 +246,7 @@ isearch_session.prototype = {
     },
 
     handle_input: function (m) {
-        m._set_selection();
         this.find(m._input_text, this.top.direction, this.top.point);
-        this.restore_state();
     },
 
     done: false,
