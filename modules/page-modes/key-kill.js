@@ -9,7 +9,7 @@ define_variable("key_kill_input_fields", false,
     "When true, key-kill-mode will operate in input fields and textareas.");
 
 { let mozilla_version_below_25 = version_compare(get_mozilla_version(), "25.0") < 0;
-  function key_kill_event_kill (event) {
+  var key_kill_event_kill = function key_kill_event_kill (event) {
       var elem = event.target;
       if (!key_kill_input_fields &&
           (elem instanceof Ci.nsIDOMHTMLInputElement ||
@@ -21,7 +21,7 @@ define_variable("key_kill_input_fields", false,
           event.preventDefault();
       }
       event.stopPropagation();
-  }
+  };
 }
 
 define_page_mode("key-kill-mode",
