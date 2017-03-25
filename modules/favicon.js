@@ -23,7 +23,8 @@ define_variable("favicon_image_max_size", 1024,
         favicon_set_internal = function (buffer, icon_url) {
             favicon_service.setAndFetchFaviconForPage(
                 buffer.current_uri, icon_url, false,
-                favicon_service.FAVICON_LOAD_NON_PRIVATE);
+                favicon_service.FAVICON_LOAD_NON_PRIVATE,
+                function() { }, buffer.document.nodePrincipal);
         };
     } else {
         favicon_set_internal = function (buffer, icon_url) {
