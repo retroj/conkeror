@@ -220,8 +220,8 @@ function define_default_webjumps () {
                    "http://conkeror.org/?action=fullsearch&context=60&value=%s&fullsearch=Text");
     define_webjump("lucky",      "https://www.google.com/search?q=%s&btnI=I'm Feeling Lucky");
     define_webjump("maps",       "https://maps.google.com/?q=%s");
-    define_webjump("scholar",    "http://scholar.google.com/scholar?q=%s");
-    define_webjump("slang",      "http://www.urbandictionary.com/define.php?term=%s");
+    define_webjump("scholar",    "https://scholar.google.com/scholar?q=%s");
+    define_webjump("slang",      "https://www.urbandictionary.com/define.php?term=%s");
     define_webjump("dictionary", "http://dictionary.reference.com/search?q=%s");
     define_webjump("image",      "https://www.google.com/images?q=%s");
 }
