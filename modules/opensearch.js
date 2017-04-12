@@ -343,7 +343,6 @@ define_opensearch_webjump("google", "google.xml");
 define_opensearch_webjump("bugzilla", "mozilla-bugzilla.xml");
 define_opensearch_webjump("wikipedia", "wikipedia.xml");
 define_opensearch_webjump("wiktionary", "wiktionary.xml");
-define_opensearch_webjump("answers", "answers.xml");
 define_opensearch_webjump("yahoo", "yahoo.xml");
 define_opensearch_webjump("creativecommons", "creativecommons.xml");
 define_opensearch_webjump("ebay", "eBay.xml");
