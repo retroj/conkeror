@@ -29,6 +29,9 @@ define_current_buffer_hook("current_content_buffer_location_change_hook", "conte
 define_current_buffer_hook("current_content_buffer_status_change_hook", "content_buffer_status_change_hook");
 define_current_buffer_hook("current_content_buffer_focus_change_hook", "content_buffer_focus_change_hook");
 
+function maybe_decode_uri (uri) {
+    return get_pref("network.standard-url.escape-utf8") ? uri : decodeURIComponent(uri);
+}
 
 function content_buffer_modality (buffer) {
     var elem = buffer.focused_element;
@@ -184,7 +187,7 @@ content_buffer.prototype = {
     },
 
     get title () { return this.browser.contentTitle; },
-    get description () { return this.display_uri_string; },
+    get description () { return maybe_decode_uri(this.display_uri_string); },
 
     load: function (load_spec) {
         apply_load_spec(this, load_spec);
@@ -422,7 +425,7 @@ minibuffer.prototype.read_url = function () {
  */
 function overlink_update_status (buffer, node) {
     if (node && node.href.length > 0)
-        buffer.window.minibuffer.show("Link: " + node.href);
+        buffer.window.minibuffer.show("Link: " + maybe_decode_uri(node.href));
     else
         buffer.window.minibuffer.clear();
 }

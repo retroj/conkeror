@@ -19,7 +19,7 @@ history_completions.prototype = {
     toString: function () "#<history_completions>",
     root: null,
     destroy: function () { this.root.containerOpen = false; },
-    get_string: function (i) this.root.getChild(i).uri,
+    get_string: function (i) maybe_decode_uri(this.root.getChild(i).uri),
     get_description: function (i) this.root.getChild(i).title,
     get_value: function (i) this.root.getChild(i),
 };
