@@ -305,21 +305,102 @@ buffer_icon_widget.mode_line_adder = function (window) {
 
 
 /**
- * downloads_status_widget shows the number of active downloads.
+ * downloads_status_widget shows the number and progress of active
+ * downloads.
  */
+
+try {
+    Components.utils.import("resource://gre/modules/Downloads.jsm");
+
+    if (typeof(Downloads.getList) == 'undefined')
+        throw "bad Downloads.jsm version";
+
+    var use_downloads_jsm = true;
+} catch (e) {
+    var use_downloads_jsm = false;
+}
+
 function downloads_status_widget (window) {
     text_widget.call(this, window);
     var obj = this;
-    this.updater = function () { obj.update(); };
+    this.updater = function () {
+        if (use_downloads_jsm) {
+            Downloads.getList(Downloads.ALL).then(
+                function(list) {
+                    list.getAll().then(
+                        function(downloads) {
+                            var i, n, m, c, t;
+
+                            n = m = c = t = 0;
+
+                            for (i in downloads) {
+                                var download = downloads[i];
+
+                                if (!download.stopped) {
+                                    if (download.hasProgress) {
+                                        n += 1;
+                                        c += download.currentBytes;
+                                        t += download.totalBytes;
+                                    } else {
+                                        m += 1;
+                                    }
+                                }
+                            }
+
+                            obj.update.call(obj, [n, m,
+                                                  Math.round(100 * c / t)]);
+                        });
+                });
+        } else {
+            var downloads;
+            var i, n, m, c, t;
+
+            downloads = download_manager_service.activeDownloads;
+            n = m = c = t = 0;
+
+            while(downloads.hasMoreElements()) {
+                var download;
+
+                download = downloads.getNext();
+
+                if (download.state == download_manager_service.DOWNLOAD_DOWNLOADING) {
+                    if (download.percentComplete >= 0) {
+                        n += 1;
+                        c += download.amountTransferred;
+                        t += download.size;
+                    } else {
+                        m += 1;
+                    }
+                }
+            }
+
+            obj.update.call(obj, [n, m,
+                                  Math.round(100 * c / t)]);
+        }
+    };
     add_hook("download_progress_change_hook", this.updater);
     add_hook("download_state_change_hook", this.updater);
 }
+
 downloads_status_widget.prototype = {
     constructor: downloads_status_widget,
     __proto__: text_widget.prototype,
     class_name: "downloads-status-widget",
-    update: function (info) {
-        this.view.text = download_manager_service.activeDownloadCount;
+    update: function (stats) {
+        var text = "";
+
+        if (stats) {
+            if (stats[0] > 0) {
+                text += stats[0].toString() + "@" +
+                    stats[2].toString() + "%";
+            }
+
+            if (stats[1] > 0) {
+                text += (n > 0 ? "+" : "") + stats[1].toString();
+            }
+        }
+
+        this.view.text = text || "-";
     },
     destroy: function () {
         remove_hook("download_progress_change_hook", this.updater);
