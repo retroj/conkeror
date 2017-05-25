@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+Spencer Allen
+8/25/13
+Use, modification, and distribution are subject to the terms specified in the COPYING
+file.
+*************************************************************************************
+-->
+
+  <!--Building the feature list that is presented to the users when they customize their install.-->
+	<Fragment>
+    <FeatureGroup Id="ConkerorFeatures">
+      <Feature Id="ConkerorFeature" Title="Conkeror" Description="Conkeror is a keyboard-oriented, highly-customizable, highly-extensible web browser based on Mozilla XULRunner." Level="1" Absent="disallow" AllowAdvertise="no" Display="expand" ConfigurableDirectory="INSTALLFOLDER">
+        <ComponentGroupRef Id="ConkerorMain" />
+        <!--Shortcuts for Conkeror-->
+        <ComponentRef Id="StartMenuShortcut" />
+        <ComponentRef Id="DesktopShortcut" />
+        <!--xulrunner-->
+        <Feature Id="XulrunnerFeature" Title="Modzilla XULRunner" Description="Modzilla XULRunner 22.0.0.4918 is a requried component of conkeror and must be installed for it to work." Level="1" Absent="disallow" AllowAdvertise="no">
+          <ComponentGroupRef Id="XulRunnerMain"/>
+        </Feature>
+        <!--Listing the optional feature items-->
+        <Feature Id="UserContribs" Title="User contributions" Description="Installing this feature will install all of the user contribution source files including those that were used to create this installer." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+          <ComponentGroupRef Id="UserContrib"/>
+        </Feature>
+        <!--.conkerorrc customization-->
+        <Feature Id="Conkerorrc" Title=".conkerorrc" Description="These customizations were copied from http://conkeror.org and are only a small subset of the customizations you can make to this application." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent" Display="expand">
+          <Feature Id="New_tabs" Title="Get tabs" Description="Enables the new tabs module." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="New_tabs"/>
+          </Feature>
+          <Feature Id="Sessions" Title="Enable sessions" Description="See the conkeror wiki page for a discription." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Sessions"/>
+          </Feature>
+          <Feature Id="History" Title="History" Description="Have the find-url prompt include history urls in its completions." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="History"/>
+          </Feature>
+          <Feature Id="History_command" Title="History command" Description="Use seperate commands M-x find-url and M-x find-url-new-buffer to browse history outside the find-url prompt." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="History_command"/>
+          </Feature>
+          <Feature Id="History_clearing_preference" Title="History clearing preference" Description="Determines how long in days history entries are kept before being automatically expired. The default is seven days." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="History_clearing_preference"/>
+          </Feature>
+          <Feature Id="Downloads_dir" Title="Downloads directory" Description="The default directory for new downloads will be the downloads directory." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Downloads_dir"/>
+          </Feature>
+          <Feature Id="Download_NewBuffer" Title="Buffer downloads" Description="Downloads status will display in a new buffer in the same window." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Download_NewBuffer"/>
+          </Feature>
+          <Feature Id="Darken_page" Title="Darken the current page" Description="Allows you to darken the current page with M-x darken-page or C-d." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+            <ComponentRef Id="Darken_page"/>
+          </Feature>
+          <!--Modifing the mode line-->
+          <Feature Id="Mode_Line_widgests" Title="Mode Line widgets" Description="Inside this feature you'll find several options to modify the mode line." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent" Display="expand">
+            <Feature Id="Download_ModLine" Title="Downloads" Description="Enables the downloads status mode line widget." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+              <ComponentRef Id="Download_ModLine"/>
+            </Feature>
+            <Feature Id="Favicons" Title="Display favicons" Description="Allows websites the ability to display their favicon in your mode line." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+              <ComponentRef Id="Favicons"/>
+            </Feature>
+            <Feature Id="DisableClock" Title="Disable clock" Description="Disables the clock in your mode line." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+              <ComponentRef Id="DisableClock"/>
+            </Feature>
+            <Feature Id="ModeLine_Buffers_count" Title="Count buffers" Description="This widget shows how many buffers are in the current window, and which one is currently selected." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+              <ComponentRef Id="ModeLine_Buffers_count"/>
+            </Feature>
+            <Feature Id="Loding_count" Title="Count buffers" Description="This widget shows how many buffers are currently loading." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+              <ComponentRef Id="Loading_count"/>
+            </Feature>
+            <Feature Id="Remove_scroll" Title="Remove scroll numbers" Description="This will disable the scroll widget which displays the scroll position (#,#)." Level="101" Absent="allow" AllowAdvertise="no" InstallDefault="followParent">
+              <ComponentRef Id="Remove_scroll"/>
+            </Feature>
+          </Feature>
+        </Feature>
+      </Feature>
+    </FeatureGroup>
+	</Fragment>
+</Wix>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+© Copyright
+Spencer Allen
+2013
+
+Use, modification, and distribution are subject to the terms specified in the COPYING
+file.
+*************************************************************************************
+-->
+
+  <!--Customizing the installer UI-->
+	<Fragment>
+    <UIRef Id="WixUI_Mondo" />
+    <WixVariable Id="WixUILicenseRtf" Value="Source\COPYING.rtf" />
+    <Property Id="LicenseAccepted" Value="1" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Conkeror" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Thank you for installing Conkeror. You'll find the install files in your program files directory." />
+    <Property Id="WixShellExecTarget" Value="[#conkeror.exe]" />
+    <CustomAction Id="LaunchApplication" BinaryKey="WixCA" DllEntry="WixShellExec" Impersonate="yes" />
+    <UI Id="MyWixUI_Mondo">
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+      <UIRef Id="WixUI_ErrorProgressText" />
+    </UI>
+	</Fragment>
+</Wix>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+© Copyright
+Spencer Allen
+2013
+
+Use, modification, and distribution are subject to the terms specified in the COPYING
+file.
+*************************************************************************************
+-->
+
+  <!--Listing the components that create the user contribuion feature-->
+	<Fragment>
+    <ComponentGroup Id="user_contrib">
+      <!--debian folder-->
+      <Component Id="watch" Directory="DEBIAN" Guid="*">
+        <File Id="watch" Source="Source\debian\watch" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="rules" Directory="DEBIAN" Guid="*">
+        <File Id="rules" Source="Source\debian\rules" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README.source" Directory="DEBIAN" Guid="*">
+        <File Id="README.source" Source="Source\debian\README.source" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README.Debian" Directory="DEBIAN" Guid="*">
+        <File Id="README.Debian" Source="Source\debian\README.Debian" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="MPL" Directory="DEBIAN" Guid="*">
+        <File Id="MPL" Source="Source\debian\MPL" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="CREDITS.Debian" Directory="DEBIAN" Guid="*">
+        <File Id="CREDITS.Debian" Source="Source\debian\CREDITS.Debian" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="copyright" Directory="DEBIAN" Guid="*">
+        <File Id="copyright" Source="Source\debian\copyright" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="control" Directory="DEBIAN" Guid="*">
+        <File Id="control" Source="Source\debian\control" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.links" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.links" Source="Source\debian\conkeror-spawn-process-helper.links" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.install" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.install" Source="Source\debian\conkeror-spawn-process-helper.install" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.docs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.docs" Source="Source\debian\conkeror-spawn-process-helper.docs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror_spawn_process_helper.dirs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror_spawn_process_helper.dirs" Source="Source\debian\conkeror-spawn-process-helper.dirs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.prerm" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.prerm" Source="Source\debian\conkeror.prerm" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.postinst" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.postinst" Source="Source\debian\conkeror.postinst" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.NEWS" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.NEWS" Source="Source\debian\conkeror.NEWS" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.menu" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.menu" Source="Source\debian\conkeror.menu" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.manpages" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.manpages" Source="Source\debian\conkeror.manpages" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.lintian_overrides" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.lintian_overrides" Source="Source\debian\conkeror.lintian-overrides" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.install" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.install" Source="Source\debian\conkeror.install" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.docs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.docs" Source="Source\debian\conkeror.docs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.dirs" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.dirs" Source="Source\debian\conkeror.dirs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.desktop" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.desktop" Source="Source\debian\conkeror.desktop" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkeror.bug_script" Directory="DEBIAN" Guid="*">
+        <File Id="conkeror.bug_script" Source="Source\debian\conkeror.bug-script" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="compat" Directory="DEBIAN" Guid="*">
+        <File Id="compat" Source="Source\debian\compat" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="changelog" Directory="DEBIAN" Guid="*">
+        <File Id="changelog" Source="Source\debian\changelog" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--debian\source folder-->
+      <Component Id="format" Directory="SOURCE" Guid="*">
+        <File Id="format" Source="Source\debian\source\format" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--debian\patches folder-->
+      <Component Id="series" Directory="PATCHES" Guid="*">
+        <File Id="series" Source="Source\debian\patches\series" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="sensible_editor_xdg_open.diff" Directory="PATCHES" Guid="*">
+        <File Id="sensible_editor_xdg_open.diff" Source="Source\debian\patches\sensible-editor-xdg-open.diff" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="deb_webjumps.diff" Directory="PATCHES" Guid="*">
+        <File Id="deb_webjumps.diff" Source="Source\debian\patches\deb-webjumps.diff" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--debian\bin folder-->
+      <Component Id="conkeror" Directory="BIN" Guid="*">
+        <File Id="conkeror" Source="Source\debian\bin\conkeror" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib folder-->
+      <Component Id="testrun.sh" Directory="CONTRIB" Guid="*">
+        <File Id="testrun.sh" Source="Source\contrib\testrun.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="run_conkeror" Directory="CONTRIB" Guid="*">
+        <File Id="run_conkeror" Source="Source\contrib\run-conkeror" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="mketags.sh" Directory="CONTRIB" Guid="*">
+        <File Id="mketags.sh" Source="Source\contrib\mketags.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="list_xulrunner_versions" Directory="CONTRIB" Guid="*">
+        <File Id="list_xulrunner_versions" Source="Source\contrib\list-xulrunner-versions" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="install.sh" Directory="CONTRIB" Guid="*">
+        <File Id="install.sh" Source="Source\contrib\install.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="build.sh" Directory="CONTRIB" Guid="*">
+        <File Id="build.sh" Source="Source\contrib\build.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev folder-->
+      <Component Id="chrome.manifest3" Directory="XREV" Guid="*">
+        <File Id="chrome.manifest3" Source="Source\contrib\xrev\chrome.manifest" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="application.ini2" Directory="XREV" Guid="*">
+        <File Id="application.ini2" Source="Source\contrib\xrev\application.ini" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev\defaults\preferences folder-->
+      <Component Id="prefs.js2" Directory="PREFERENCES2" Guid="*">
+        <File Id="prefs.js2" Source="Source\contrib\xrev\defaults\preferences\prefs.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev\content folder-->
+      <Component Id="xrev.js" Directory="CONTENT3" Guid="*">
+        <File Id="xrev.js" Source="Source\contrib\xrev\content\xrev.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="main.xul" Directory="CONTENT3" Guid="*">
+        <File Id="main.xul" Source="Source\contrib\xrev\content\main.xul" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\xrev\chrome folder-->
+      <Component Id="chrome.manifest4" Directory="CHROME2" Guid="*">
+        <File Id="chrome.manifest4" Source="Source\contrib\xrev\chrome\chrome.manifest" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\windows-installer folder-->
+      <Component Id="conkeror.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="conkeror.wxs" Source="Source\contrib\windows-installer\conkeror.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conkerorrc.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="conkerorrc.wxs" Source="Source\contrib\windows-installer\conkerorrc.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="directory.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="directory.wxs" Source="Source\contrib\windows-installer\directory.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="features.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="features.wxs" Source="Source\contrib\windows-installer\features.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="product.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="product.wxs" Source="Source\contrib\windows-installer\product.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="shortcuts.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="shortcuts.wxs" Source="Source\contrib\windows-installer\shortcuts.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="user_contrib.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="user_contrib.wxs" Source="Source\contrib\windows-installer\user-contrib.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="ui.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="ui.wxs" Source="Source\contrib\windows-installer\ui.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="xulrunner.wxs" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="xulrunner.wxs" Source="Source\contrib\windows-installer\xulrunner.wxs" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="installer_notes" Directory="WINDOWSINSTALLER" Guid="*">
+        <File Id="installer_notes" Source="Source\contrib\windows-installer\installer-notes" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\windows-installer\conkerorrc folder-->
+      <Component Id="new_tabs.js2" Directory="CONKERORRC" Guid="*">
+        <File Id="new_tabs.js2" Source="Source\contrib\windows-installer\conkerorrc\new-tabs.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="sessions.js" Directory="CONKERORRC" Guid="*">
+        <File Id="sessions.js" Source="Source\contrib\windows-installer\conkerorrc\sessions.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="history.js2" Directory="CONKERORRC" Guid="*">
+        <File Id="history.js2" Source="Source\contrib\windows-installer\conkerorrc\history.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="history_command.js" Directory="CONKERORRC" Guid="*">
+        <File Id="history_command.js" Source="Source\contrib\windows-installer\conkerorrc\history-command.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="history_clearing_preference.js" Directory="CONKERORRC" Guid="*">
+        <File Id="history_clearing_preference.js" Source="Source\contrib\windows-installer\conkerorrc\history-clearing-preference.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="downloads_dir.js" Directory="CONKERORRC" Guid="*">
+        <File Id="downloads_dir.js" Source="Source\contrib\windows-installer\conkerorrc\downloads-dir.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="download_new_buffer.js" Directory="CONKERORRC" Guid="*">
+        <File Id="download_new_buffer.js" Source="Source\contrib\windows-installer\conkerorrc\download-new-buffer.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="darken_page.js" Directory="CONKERORRC" Guid="*">
+        <File Id="darken_page.js" Source="Source\contrib\windows-installer\conkerorrc\darken-page.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="download_mode_line.js" Directory="CONKERORRC" Guid="*">
+        <File Id="download_mode_line.js" Source="Source\contrib\windows-installer\conkerorrc\download-mode-line.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="favicons.js" Directory="CONKERORRC" Guid="*">
+        <File Id="favicons.js" Source="Source\contrib\windows-installer\conkerorrc\favicons.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="disable_clock.js" Directory="CONKERORRC" Guid="*">
+        <File Id="disable_clock.js" Source="Source\contrib\windows-installer\conkerorrc\disable-clock.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="buffers_count.js" Directory="CONKERORRC" Guid="*">
+        <File Id="buffers_count.js" Source="Source\contrib\windows-installer\conkerorrc\buffers-count.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="loading_count.js" Directory="CONKERORRC" Guid="*">
+        <File Id="loading_count.js" Source="Source\contrib\windows-installer\conkerorrc\loading-count.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="remove_scroll.js" Directory="CONKERORRC" Guid="*">
+        <File Id="remove_scroll.js" Source="Source\contrib\windows-installer\conkerorrc\remove-scroll.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="README" Directory="CONKERORRC" Guid="*">
+        <File Id="README" Source="Source\contrib\windows-installer\conkerorrc\README" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\modules folder-->
+      <Component Id="mode_line_buttons.js" Directory="MODULES2" Guid="*">
+        <File Id="mode_line_buttons.js" Source="Source\contrib\modules\mode-line-buttons.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\man folder-->
+      <Component Id="conkeror.1" Directory="MAN" Guid="*">
+        <File Id="conkeror.1" Source="Source\contrib\man\conkeror.1" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\debian folder-->
+      <Component Id="update.sh" Directory="DEBIAN2" Guid="*">
+        <File Id="update.sh" Source="Source\contrib\debian\update.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nightlybuild.sh" Directory="DEBIAN2" Guid="*">
+        <File Id="nightlybuild.sh" Source="Source\contrib\debian\nightlybuild.sh" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\config folder-->
+      <Component Id="common.js" Directory="CONFIG" Guid="*">
+        <File Id="common.js" Source="Source\contrib\config\common.js" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <!--contrib\art folder-->
+      <Component Id="outline.svg" Directory="ART" Guid="*">
+        <File Id="outline.svg" Source="Source\contrib\art\outline.svg" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="nut.svg" Directory="ART" Guid="*">
+        <File Id="nut.svg" Source="Source\contrib\art\nut.svg" KeyPath="yes" Checksum="yes"/>
+      </Component>
+      <Component Id="conker.svg" Directory="ART" Guid="*">
+        <File Id="conker.svg" Source="Source\contrib\art\conker.svg" KeyPath="yes" Checksum="yes"/>
+      </Component>
+    </ComponentGroup>
+	</Fragment>
+</Wix>

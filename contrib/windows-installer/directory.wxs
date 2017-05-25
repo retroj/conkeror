@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+© Copyright
+Spencer Allen
+2013
+
+Use, modification, and distribution are subject to the terms specified in the COPYING
+file.
+*************************************************************************************
+-->
+
+  <!--Building the directory tree-->
+	<Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="conkeror">
+          <Directory Id="XULRUNNER" Name="xulrunner">
+            <Directory Id="DICTIONARIES" Name="dictionaries" />
+          </Directory>
+          <Directory Id="TESTS" Name="tests">
+            <Directory Id="SHELL_NIX" Name="shell-nix" />
+            <Directory Id="SIMPLE" Name="simple" />
+          </Directory>
+          <Directory Id="STYLE" Name="style">
+            <Directory Id="MONO" Name="mono" />
+            <Directory Id="GESSO" Name="gesso" />
+            <Directory Id="DEFAULT" Name="default" />
+          </Directory>
+          <Directory Id="SEARCH_ENGINES" Name="search-engines" />
+          <Directory Id="MODULES" Name="modules">
+            <Directory Id="PAGE_MODES" Name="page-modes" />
+            <Directory Id="EXTENSIONS" Name="extensions" />
+            <Directory Id="BINDINGS" Name="bindings">
+              <Directory Id="DEFAULT2" Name="default">
+                <Directory Id="CONTENT_BUFFER" Name="content-buffer" />
+              </Directory>
+            </Directory>
+          </Directory>
+          <Directory Id="LOCALE" Name="locale">
+            <Directory Id="SV_SE" Name="sv-SE" />
+            <Directory Id="EN_US" Name="en-US" />
+          </Directory>
+          <Directory Id="HELP" Name="help"/>
+          <Directory Id="DEFAULTS" Name="defaults">
+            <Directory Id="PREFERENCES" Name="preferences" />
+          </Directory>
+          <!--Optional user contributed directories-->
+          <Directory Id="DEBIAN" Name="debian">
+            <Directory Id="SOURCE" Name="source" />
+            <Directory Id="PATCHES" Name="patches" />
+            <Directory Id="BIN" Name="bin" />
+          </Directory>
+          <Directory Id="CONTRIB" Name="contrib">
+            <Directory Id="XREV" Name="xrev">
+              <Directory Id="DEFAULTS2" Name="defaults">
+                <Directory Id="PREFERENCES2" Name="preferences" />
+              </Directory>
+              <Directory Id="CONTENT3" Name="content" />
+              <Directory Id="CHROME2" Name="chrome" />
+            </Directory>
+            <Directory Id="WINDOWSINSTALLER" Name="windows-installer">
+              <Directory Id="CONKERORRC" Name="conkerorrc"/>
+            </Directory>
+            <Directory Id="MODULES2" Name="modules" />
+            <Directory Id="MAN" Name="man" />
+            <Directory Id="DEBIAN2" Name="debian" />
+            <Directory Id="CONFIG" Name="config" />
+            <Directory Id="ART" Name="art" />
+          </Directory>
+          <!--End optional user contributed directories-->
+          <Directory Id="CONTENT" Name="content" />
+          <Directory Id="COMPONENTS" Name="components" />
+          <Directory Id="CHROME" Name="chrome" />
+          <Directory Id="BRANDING" Name="branding">
+            <Directory Id="CONTENT2" Name="content" />
+          </Directory>
+        </Directory>
+        <!--.conkerorrc-->
+        <Directory Id="MyUserFolder">
+          <Directory Id="_CONKERORRC" Name=".conkerorrc"/>
+        </Directory>
+      </Directory>
+      <!--Shortcut directories-->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Conkeror" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+	</Fragment>
+</Wix>

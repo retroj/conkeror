@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<!--
+*************************************************************************************
+© Copyright
+Spencer Allen
+2013
+
+Use, modification, and distribution are subject to the terms specified in the COPYING
+file.
+*************************************************************************************
+-->
+
+  <!--Creating shortcuts-->
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcut" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Conkeror"
+                  Description="Conkeror is a keyboard-oriented, highly-customizable, highly-extensible web browser based on Mozilla XULRunner."
+                  Target="[INSTALLFOLDER]conkeror.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <Shortcut Id="UninstallShortcut"
+                  Name="Unstinstall Conkeror"
+                  Description="Uninstalls Conkeror and all of it's components."
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]" />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\Conkeror" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="{33BC2DD4-73FF-41f8-A83D-250AB6FB244C}">
+        <Shortcut Id="DesktopFolderShortcut"
+                  Name="Conkeror"
+                  Description="Conkeror is a keyboard-oriented, highly-customizable, highly-extensible web browser based on Mozilla XULRunner."
+                  Target="[INSTALLFOLDER]conkeror.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RemoveFile Id="DesktopFolderShortcut" Name="DesktopConkeror" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\Conkeror" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+	</Fragment>
+</Wix>
